@@ -1,0 +1,26 @@
+<!-- Defines the menu item that will appear on the Action Bar in Roll_Info -->
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:omgandroid="http://schemas.android.com/apk/res-auto">
+    <!-- Share item -->
+    <item
+        android:id="@+id/menu_item_add_frame"
+        android:icon="@mipmap/ic_action_new"
+        android:title="Add"
+
+        omgandroid:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/menu_item_delete_roll"
+        android:icon="@mipmap/ic_action_delete"
+        android:title="Delete"
+        omgandroid:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/menu_item_share"
+        android:title="Share"
+        omgandroid:showAsAction="ifRoom"
+        omgandroid:actionProviderClass= "android.support.v7.widget.ShareActionProvider" />
+</menu>

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Film Photo Notes</string>
+
+    <string name="textview">Tommi is learning android!</string>
+    <string name="action_settings">Settings</string>
+    <string name="button">ADD NEW ROLL</string>
+    <string name="hint">Enter a name for the roll</string>
+    <string name="delete_roll">DELETE ROLL</string>
+    <string name="add_frame">ADD FRAME</string>
+    <string name="title_activity_roll__info">Roll_Info</string>
+
+    <string name="hello_world">Hello world!</string>
+</resources>
