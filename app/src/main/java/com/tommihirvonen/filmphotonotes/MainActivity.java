@@ -43,7 +43,7 @@ public class MainActivity extends ActionBarActivity implements
     public final static String EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
     public static final String TAG = "MainActivity";
 
-    //TextView mainTextView;
+    TextView mainTextView;
     //Button mainButton;
     //EditText mainEditText;
 
@@ -62,6 +62,7 @@ public class MainActivity extends ActionBarActivity implements
         //getSupportActionBar().setTitle("Hello world App");
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle(" Film Photo Notes");
+        getSupportActionBar().setSubtitle(" Rolls");
         getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
 
         // Access the Button defined in layout XML
@@ -71,6 +72,8 @@ public class MainActivity extends ActionBarActivity implements
 
         // Access the EditText defined in layout XML
         //mainEditText = (EditText) findViewById(R.id.main_edittext);
+
+        mainTextView = (TextView) findViewById(R.id.no_added_rolls);
 
         // Access the ListView
         mainListView = (ListView) findViewById(R.id.main_listview);
@@ -84,8 +87,9 @@ public class MainActivity extends ActionBarActivity implements
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
-        mNameList.add("Good Game!");
-        mArrayAdapter.notifyDataSetChanged();
+//        mainTextView.setVisibility(View.GONE);
+//        mNameList.add("Good Game!");
+//        mArrayAdapter.notifyDataSetChanged();
     }
 
 
@@ -295,6 +299,7 @@ public class MainActivity extends ActionBarActivity implements
                         }
                     }
 
+                    mainTextView.setVisibility(View.GONE);
                     mNameList.add(inputName);
                     mArrayAdapter.notifyDataSetChanged();
 

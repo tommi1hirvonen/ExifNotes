@@ -8,19 +8,23 @@ import android.os.Bundle;
 import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 public class Roll_Info extends ActionBarActivity
         implements  MenuItem.OnMenuItemClickListener
         {
 
-
+    TextView mainTextView;
     ListView mainListView;
     ArrayAdapter mArrayAdapter;
     ArrayList mFrameList = new ArrayList();
@@ -36,8 +40,9 @@ public class Roll_Info extends ActionBarActivity
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle(message);
+        getSupportActionBar().setSubtitle("Frames");
         //getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
-
+        mainTextView = (TextView) findViewById(R.id.no_added_frames);
 
         // Access the ListView
         mainListView = (ListView) findViewById(R.id.frames_listview);
@@ -112,8 +117,13 @@ public class Roll_Info extends ActionBarActivity
 
         switch (item.getItemId()) {
            case R.id.menu_item_add_frame:
+
+               SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+               String asGmt = df.format(Calendar.getInstance().getTime());
+
                 ++counter;
-               mFrameList.add("MOI" + counter);
+               mainTextView.setVisibility(View.GONE);
+               mFrameList.add(counter + ".         " + asGmt );
                mArrayAdapter.notifyDataSetChanged();
                setShareIntent();
 
@@ -123,6 +133,7 @@ public class Roll_Info extends ActionBarActivity
                 if ( mFrameList.size() >= 1 ) {
                     --counter;
                     mFrameList.remove(0);
+                    if ( mFrameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
                     mArrayAdapter.notifyDataSetChanged();
                     setShareIntent();
                 }

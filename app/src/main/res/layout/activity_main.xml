@@ -17,7 +17,7 @@
         android:text="@string/textview"/>-->
 
     <!-- This nested layout contains views of its own -->
-    <LinearLayout
+    <!--<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -34,7 +34,7 @@
 
             android:text="List of film rolls:"
             />
-
+        -->
         <!-- Set OnClickListener to trigger results when pressed -->
         <!--<Button
             android:id="@+id/main_button"
@@ -48,7 +48,7 @@
             android:background="#9E9E9E" />-->
 
         <!-- Closing tag for the horizontal nested layout -->
-    </LinearLayout>
+    <!--</LinearLayout -->
 
     <!-- Displays keyboard when touched -->
     <!--<EditText
@@ -60,6 +60,15 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:hint="@string/hint" />-->
+
+    <TextView
+        android:id="@+id/no_added_rolls"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:text="No added rolls"/>
 
     <!-- List whose dataset is defined in code with an adapter -->
     <ListView
