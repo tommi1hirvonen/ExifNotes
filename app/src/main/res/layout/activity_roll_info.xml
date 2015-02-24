@@ -17,38 +17,8 @@
         android:text="@string/textview"/>-->
 
     <!-- This nested layout contains views of its own -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="#ff141414"
-        >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginBottom="20dp"
-            android:textSize="25dp"
 
-            android:text="List of frames:"
-            />
-
-        <!-- Set OnClickListener to trigger results when pressed -->
-        <!--<Button
-            android:id="@+id/main_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-
-            android:text="@string/button"
-            android:background="#9E9E9E" />-->
-
-        <!-- Closing tag for the horizontal nested layout -->
-    </LinearLayout>
 
     <!-- Displays keyboard when touched -->
     <!--<EditText

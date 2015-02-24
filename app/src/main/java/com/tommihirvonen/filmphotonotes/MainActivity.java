@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements
     ArrayAdapter mArrayAdapter;
     ArrayList mNameList = new ArrayList();
 
-    ShareActionProvider mShareActionProvider;
+    //ShareActionProvider mShareActionProvider;
 
 
     @Override
@@ -83,6 +83,9 @@ public class MainActivity extends ActionBarActivity implements
 
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
+
+        mNameList.add("Good Game!");
+        mArrayAdapter.notifyDataSetChanged();
     }
 
 
@@ -96,7 +99,7 @@ public class MainActivity extends ActionBarActivity implements
 
 
         // Access the Share Item defined in menu XML
-        MenuItem shareItem = menu.findItem(R.id.menu_item_share);
+        //MenuItem shareItem = menu.findItem(R.id.menu_item_share);
 
         MenuItem addRoll = menu.findItem(R.id.menu_item_add_roll);
 
@@ -108,6 +111,7 @@ public class MainActivity extends ActionBarActivity implements
 
         addRoll.setOnMenuItemClickListener(this);
 
+
         // Create an Intent to share your content
         //setShareIntent();
 
@@ -118,21 +122,21 @@ public class MainActivity extends ActionBarActivity implements
 
 
 
-    private void setShareIntent() {
-
-        if (mShareActionProvider != null) {
-
-            // create an Intent with the contents of the TextView
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
-            if ( mNameList.size() != 0 ) shareIntent.putExtra(Intent.EXTRA_TEXT, mNameList.get(0).toString());
-
-            // Make sure the provider knows
-            // it should work with that Intent
-            mShareActionProvider.setShareIntent(shareIntent);
-        }
-    }
+//    private void setShareIntent() {
+//
+//        if (mShareActionProvider != null) {
+//
+//            // create an Intent with the contents of the TextView
+//            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+//            shareIntent.setType("text/plain");
+//            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
+//            if ( mNameList.size() != 0 ) shareIntent.putExtra(Intent.EXTRA_TEXT, mNameList.get(0).toString());
+//
+//            // Make sure the provider knows
+//            // it should work with that Intent
+//            mShareActionProvider.setShareIntent(shareIntent);
+//        }
+//    }
 
 
 
@@ -296,7 +300,7 @@ public class MainActivity extends ActionBarActivity implements
 
                     // The text you'd like to share has changed,
                     // and you need to update
-                    setShareIntent();
+                    //setShareIntent();
 
                 }
         }
