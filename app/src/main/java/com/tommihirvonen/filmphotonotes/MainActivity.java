@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -87,8 +88,11 @@ public class MainActivity extends ActionBarActivity implements
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
-//        mainTextView.setVisibility(View.GONE);
-//        mNameList.add("Good Game!");
+        mainTextView.setVisibility(View.GONE);
+
+//        String auto_add_roll = readFromFile();
+//        if ( auto_add_roll.charAt(auto_add_roll.length()-1) == '\n' ) auto_add_roll.substring(0, auto_add_roll.length() -1);
+//        mNameList.add(readFromFile());
 //        mArrayAdapter.notifyDataSetChanged();
     }
 
@@ -239,7 +243,7 @@ public class MainActivity extends ActionBarActivity implements
 
     private void writeToFile(String data) {
         try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(openFileOutput("config.txt", Context.MODE_PRIVATE));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(openFileOutput("List_of_Rolls.txt", Context.MODE_PRIVATE));
             outputStreamWriter.write(data);
             outputStreamWriter.close();
         }
@@ -254,7 +258,7 @@ public class MainActivity extends ActionBarActivity implements
         String ret = "";
 
         try {
-            InputStream inputStream = openFileInput("config.txt");
+            InputStream inputStream = openFileInput("List_of_Rolls.txt");
 
             if ( inputStream != null ) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -306,6 +310,11 @@ public class MainActivity extends ActionBarActivity implements
                     // The text you'd like to share has changed,
                     // and you need to update
                     //setShareIntent();
+
+                    //Save the file when the new roll has been added
+                    //writeToFile(inputName);
+
+
 
                 }
         }
