@@ -164,18 +164,45 @@ public class MainActivity extends ActionBarActivity implements
                 show_set_custom_dialog();
                 break;
             case R.id.menu_item_delete_roll:
+                //Only delete if there are more than one roll
                 if ( mNameList.size() >= 1 ) {
-                    mNameList.remove(0);
-                    if (mNameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
-                    mArrayAdapter.notifyDataSetChanged();
 
-                    File file = new File(getFilesDir(), "List_of_Rolls.txt");
-                    try {
-                        removeLine(file, 0);
+                    // Ask the user which roll to delete
+//
+                    List<String> listItems = new ArrayList<String>();
+                    for ( int i = 0; i < mNameList.size(); ++i ) {
+                        listItems.add(mNameList.get(i).toString());
                     }
-                    catch (IOException e){
-                        e.printStackTrace();
-                    }
+                    final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Pick a roll to delete");
+                    builder.setItems(items, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int item) {
+
+
+                            // Do something with the selection
+                            mNameList.remove(item);
+                            if (mNameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
+                            mArrayAdapter.notifyDataSetChanged();
+
+                            File file = new File(getFilesDir(), "List_of_Rolls.txt");
+                            try {
+                                removeLine(file, item);
+                            }
+                            catch (IOException e){
+                                e.printStackTrace();
+                            }
+
+
+                        }
+                    });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+
+
+
+
                 }
                 break;
         }
@@ -275,7 +302,7 @@ public class MainActivity extends ActionBarActivity implements
         lines.remove(lineIndex);
         final BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
         for(final String line : lines)
-            writer.write(line);
+            writer.write(line + "\n");
         writer.flush();
         writer.close();
     }
