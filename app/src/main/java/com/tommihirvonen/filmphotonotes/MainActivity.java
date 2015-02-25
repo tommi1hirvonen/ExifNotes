@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -28,12 +29,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.Buffer;
 import java.util.ArrayList;
 
 
@@ -88,12 +94,9 @@ public class MainActivity extends ActionBarActivity implements
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
-        //mainTextView.setVisibility(View.GONE);
-
-//        String auto_add_roll = readFromFile();
-//        if ( auto_add_roll.charAt(auto_add_roll.length()-1) == '\n' ) auto_add_roll.substring(0, auto_add_roll.length() -1);
-//        mNameList.add(readFromFile());
-//        mArrayAdapter.notifyDataSetChanged();
+        // Read the rolls from file and add to list
+        File file = new File(getFilesDir(), "List_of_Rolls.txt");
+        if ( file.exists() ) readFromFile();
     }
 
 
@@ -130,35 +133,6 @@ public class MainActivity extends ActionBarActivity implements
 
 
 
-//    private void setShareIntent() {
-//
-//        if (mShareActionProvider != null) {
-//
-//            // create an Intent with the contents of the TextView
-//            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-//            shareIntent.setType("text/plain");
-//            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
-//            if ( mNameList.size() != 0 ) shareIntent.putExtra(Intent.EXTRA_TEXT, mNameList.get(0).toString());
-//
-//            // Make sure the provider knows
-//            // it should work with that Intent
-//            mShareActionProvider.setShareIntent(shareIntent);
-//        }
-//    }
-
-
-
-
-
-//    @Override
-//    public void onClick(View v) {
-//        AskForNameOfRoll();
-//    }
-
-
-
-
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Log the item's position and contents
@@ -173,66 +147,6 @@ public class MainActivity extends ActionBarActivity implements
 
 
 
-//    public void AskForNameOfRoll() {
-        // **********TRADITIONAL METHOD **********
-//        // otherwise, show a dialog to ask for their name
-//        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-//
-//        alert.setTitle("Name of new roll");
-//        //alert.setMessage("Give the new roll a name!");
-//
-//        // Create EditText for entry
-//        final EditText input = new EditText(this);
-//        input.setHint("Roll name");
-//
-//        alert.setView(input);
-//
-//        // Make an "OK" button to save the name
-//        alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
-//
-//            public void onClick(DialogInterface dialog, int whichButton) {
-//
-//                // Grab the EditText's input
-//                String inputName = input.getText().toString();
-//
-//                if ( inputName.length() != 0 ) {
-//
-//                    for ( int i = 0; i < mNameList.size(); ++i ) {
-//                        if ( inputName.equals( mNameList.get(i).toString() )  ) {
-//                            Toast.makeText(getApplicationContext(), "ROLL WITH SAME NAME ALREADY EXISTS", Toast.LENGTH_LONG).show();
-//                            return;
-//                        }
-//                    }
-//
-//                    mNameList.add(inputName);
-//                    mArrayAdapter.notifyDataSetChanged();
-//
-//                    // The text you'd like to share has changed,
-//                    // and you need to update
-//                    setShareIntent();
-//
-//                }
-//            }
-//        });
-//
-//        // Make a "Cancel" button
-//        // that simply dismisses the alert
-//        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//
-//            public void onClick(DialogInterface dialog, int whichButton) {}
-//        });
-//
-//        alert.show();
-
-
-        // **********CUSTOM DIALOG **********
-
-
-
-//    }
-
-
-
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
@@ -241,47 +155,7 @@ public class MainActivity extends ActionBarActivity implements
         return true;
     }
 
-    private void writeToFile(String data) {
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(openFileOutput("List_of_Rolls.txt", Context.MODE_PRIVATE));
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
-        }
-        catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
-    }
 
-
-    private String readFromFile() {
-
-        String ret = "";
-
-        try {
-            InputStream inputStream = openFileInput("List_of_Rolls.txt");
-
-            if ( inputStream != null ) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
-                    stringBuilder.append(receiveString).append("\n");
-                }
-
-                inputStream.close();
-                ret = stringBuilder.toString();
-            }
-        }
-        catch (FileNotFoundException e) {
-            Log.e("login activity", "File not found: " + e.toString());
-        } catch (IOException e) {
-            Log.e("login activity", "Can not read file: " + e.toString());
-        }
-
-        return ret;
-    }
 
     private void show_set_custom_dialog() {
         set_custom_dialog dialog = new set_custom_dialog();
@@ -312,12 +186,54 @@ public class MainActivity extends ActionBarActivity implements
                     //setShareIntent();
 
                     //Save the file when the new roll has been added
-                    //writeToFile(inputName);
+                    writeToFile(inputName);
+
 
 
 
                 }
         }
+    }
+
+
+    // READ AND WRITE METHODS
+
+    private void writeToFile(String input) {
+        try {
+            File file = new File(getFilesDir(), "List_of_Rolls.txt");
+            FileWriter writer = new FileWriter(file, true);
+            writer.write(input + "\n");
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readFromFile() {
+        //Get the text file
+        File file = new File(getFilesDir(), "List_of_Rolls.txt");
+
+        //Read text from file
+        //StringBuilder text = new StringBuilder();
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+
+            while ((line = br.readLine()) != null) {
+//                text.append(line);
+//                text.append('\n');
+                mNameList.add(line);
+            }
+            br.close();
+            mainTextView.setVisibility(View.GONE);
+            mArrayAdapter.notifyDataSetChanged();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        //return text.toString();
     }
 }
 
