@@ -88,7 +88,7 @@ public class MainActivity extends ActionBarActivity implements
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
-        mainTextView.setVisibility(View.GONE);
+        //mainTextView.setVisibility(View.GONE);
 
 //        String auto_add_roll = readFromFile();
 //        if ( auto_add_roll.charAt(auto_add_roll.length()-1) == '\n' ) auto_add_roll.substring(0, auto_add_roll.length() -1);
