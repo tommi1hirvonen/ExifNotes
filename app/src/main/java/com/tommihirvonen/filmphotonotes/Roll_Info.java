@@ -61,16 +61,16 @@ public class Roll_Info extends ActionBarActivity
 
         // Access the Share Item defined in menu XML
         MenuItem shareItem = menu.findItem(R.id.menu_item_share);
-        MenuItem addRoll = menu.findItem(R.id.menu_item_add_frame);
-        MenuItem deleteRoll = menu.findItem(R.id.menu_item_delete_roll);
+        MenuItem addFrame = menu.findItem(R.id.menu_item_add_frame);
+        MenuItem deleteFrame = menu.findItem(R.id.menu_item_delete_frame);
 
 
         // Access the object responsible for
         // putting together the sharing submenu
 
 
-        addRoll.setOnMenuItemClickListener(this);
-        deleteRoll.setOnMenuItemClickListener(this);
+        addFrame.setOnMenuItemClickListener(this);
+        deleteFrame.setOnMenuItemClickListener(this);
 
         if (shareItem != null) {
            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
@@ -129,7 +129,7 @@ public class Roll_Info extends ActionBarActivity
 
                 break;
 
-            case R.id.menu_item_delete_roll:
+            case R.id.menu_item_delete_frame:
                 if ( mFrameList.size() >= 1 ) {
                     --counter;
                     mFrameList.remove(0);

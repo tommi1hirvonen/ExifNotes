@@ -29,7 +29,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -41,6 +43,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
 
 
 public class MainActivity extends ActionBarActivity implements
@@ -94,6 +99,7 @@ public class MainActivity extends ActionBarActivity implements
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
+
         // Read the rolls from file and add to list
         File file = new File(getFilesDir(), "List_of_Rolls.txt");
         if ( file.exists() ) readFromFile();
@@ -113,6 +119,7 @@ public class MainActivity extends ActionBarActivity implements
         //MenuItem shareItem = menu.findItem(R.id.menu_item_share);
 
         MenuItem addRoll = menu.findItem(R.id.menu_item_add_roll);
+        MenuItem deleteRoll = menu.findItem(R.id.menu_item_delete_roll);
 
         // Access the object responsible for
         // putting together the sharing submenu
@@ -121,6 +128,7 @@ public class MainActivity extends ActionBarActivity implements
 //        }
 
         addRoll.setOnMenuItemClickListener(this);
+        deleteRoll.setOnMenuItemClickListener(this);
 
 
         // Create an Intent to share your content
@@ -150,8 +158,28 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        //AskForNameOfRoll();
-        show_set_custom_dialog();
+        switch (item.getItemId()) {
+            case R.id.menu_item_add_roll:
+                //AskForNameOfRoll();
+                show_set_custom_dialog();
+                break;
+            case R.id.menu_item_delete_roll:
+                if ( mNameList.size() >= 1 ) {
+                    mNameList.remove(0);
+                    if (mNameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
+                    mArrayAdapter.notifyDataSetChanged();
+
+                    File file = new File(getFilesDir(), "List_of_Rolls.txt");
+                    try {
+                        removeLine(file, 0);
+                    }
+                    catch (IOException e){
+                        e.printStackTrace();
+                    }
+                }
+                break;
+        }
+
         return true;
     }
 
@@ -225,15 +253,31 @@ public class MainActivity extends ActionBarActivity implements
 //                text.append(line);
 //                text.append('\n');
                 mNameList.add(line);
+                mainTextView.setVisibility(View.GONE);
             }
             br.close();
-            mainTextView.setVisibility(View.GONE);
+
             mArrayAdapter.notifyDataSetChanged();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
         //return text.toString();
+    }
+
+    public void removeLine(final File file, final int lineIndex) throws IOException{
+        final List<String> lines = new LinkedList<>();
+        final Scanner reader = new Scanner(new FileInputStream(file), "UTF-8");
+        while(reader.hasNextLine())
+            lines.add(reader.nextLine());
+        reader.close();
+        assert lineIndex >= 0 && lineIndex <= lines.size() - 1;
+        lines.remove(lineIndex);
+        final BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
+        for(final String line : lines)
+            writer.write(line);
+        writer.flush();
+        writer.close();
     }
 }
 

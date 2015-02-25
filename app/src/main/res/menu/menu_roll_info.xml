@@ -12,7 +12,7 @@
         />
 
     <item
-        android:id="@+id/menu_item_delete_roll"
+        android:id="@+id/menu_item_delete_frame"
         android:icon="@mipmap/ic_action_delete"
         android:title="Delete"
         omgandroid:showAsAction="ifRoom"
