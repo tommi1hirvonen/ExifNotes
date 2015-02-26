@@ -102,7 +102,7 @@ public class MainActivity extends ActionBarActivity implements
 
         // Read the rolls from file and add to list
         File file = new File(getFilesDir(), "List_of_Rolls.txt");
-        if ( file.exists() ) readFromFile();
+        if ( file.exists() ) readRollFile();
     }
 
 
@@ -182,7 +182,20 @@ public class MainActivity extends ActionBarActivity implements
 
 
                             // Do something with the selection
+
+
+                            // If the frames file exists, delete it too
+                            File frames_file = new File(getFilesDir(), mNameList.get(item).toString() + ".txt");
+                            if ( frames_file.exists() ) {
+                                try {
+                                    boolean delete = frames_file.delete();
+                                } catch (Exception e) {
+                                    Log.e("App", "Exception while deleting file " + e.getMessage());
+                                }
+                            }
+
                             mNameList.remove(item);
+
                             if (mNameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
                             mArrayAdapter.notifyDataSetChanged();
 
@@ -236,12 +249,15 @@ public class MainActivity extends ActionBarActivity implements
                     mNameList.add(inputName);
                     mArrayAdapter.notifyDataSetChanged();
 
+                    // When the new roll is added jump to view the last entry
+                    mainListView.setSelection(mainListView.getCount() - 1 );
+
                     // The text you'd like to share has changed,
                     // and you need to update
                     //setShareIntent();
 
                     //Save the file when the new roll has been added
-                    writeToFile(inputName);
+                    writeRollFile(inputName);
 
 
 
@@ -253,9 +269,10 @@ public class MainActivity extends ActionBarActivity implements
 
     // READ AND WRITE METHODS
 
-    private void writeToFile(String input) {
+    private void writeRollFile(String input) {
         try {
             File file = new File(getFilesDir(), "List_of_Rolls.txt");
+
             FileWriter writer = new FileWriter(file, true);
             writer.write(input + "\n");
             writer.flush();
@@ -265,7 +282,7 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    private void readFromFile() {
+    private void readRollFile() {
         //Get the text file
         File file = new File(getFilesDir(), "List_of_Rolls.txt");
 
@@ -292,7 +309,9 @@ public class MainActivity extends ActionBarActivity implements
         //return text.toString();
     }
 
-    public void removeLine(final File file, final int lineIndex) throws IOException{
+    // Method removes a line from a file.
+    // It takes the file and the removed line number as argument
+    static public void removeLine(final File file, final int lineIndex) throws IOException{
         final List<String> lines = new LinkedList<>();
         final Scanner reader = new Scanner(new FileInputStream(file), "UTF-8");
         while(reader.hasNextLine())

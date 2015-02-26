@@ -9,37 +9,40 @@ import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 
-public class Roll_Info extends ActionBarActivity
-        implements  MenuItem.OnMenuItemClickListener
-        {
+public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItemClickListener {
 
     TextView mainTextView;
     ListView mainListView;
     ArrayAdapter mArrayAdapter;
     ArrayList mFrameList = new ArrayList();
     ShareActionProvider mShareActionProvider;
+    String name_of_roll;
     int counter = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_roll_info);
         Intent intent = getIntent();
-        String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+        name_of_roll = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        getSupportActionBar().setTitle(message);
+        getSupportActionBar().setTitle(name_of_roll);
         getSupportActionBar().setSubtitle("Frames");
         //getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
         mainTextView = (TextView) findViewById(R.id.no_added_frames);
@@ -50,6 +53,10 @@ public class Roll_Info extends ActionBarActivity
         mArrayAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,mFrameList);
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(mArrayAdapter);
+
+        // Read the frames from file and add to list
+        File file = new File(getFilesDir(), name_of_roll + ".txt");
+        if ( file.exists() ) readFrameFile();
 
     }
 
@@ -125,16 +132,33 @@ public class Roll_Info extends ActionBarActivity
                mainTextView.setVisibility(View.GONE);
                mFrameList.add(counter + ".         " + asGmt );
                mArrayAdapter.notifyDataSetChanged();
+
+               // When the new frame is added jump to view the last entry
+               mainListView.setSelection(mainListView.getCount() - 1 );
+               // The text you'd like to share has changed,
+               // and you need to update
                setShareIntent();
 
-                break;
+               // Save the file when the new frame has been added
+               writeFrameFile(counter + ".         " + asGmt);
+
+               break;
 
             case R.id.menu_item_delete_frame:
                 if ( mFrameList.size() >= 1 ) {
-                    --counter;
+                    //--counter;
                     mFrameList.remove(0);
                     if ( mFrameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
                     mArrayAdapter.notifyDataSetChanged();
+
+                    File file = new File(getFilesDir(), name_of_roll + ".txt");
+                    try {
+                        MainActivity.removeLine(file, 0);
+                    }
+                    catch (IOException e){
+                        e.printStackTrace();
+                    }
+
                     setShareIntent();
                 }
                 break;
@@ -142,5 +166,51 @@ public class Roll_Info extends ActionBarActivity
 
 
         return true;
+    }
+
+
+
+
+    // METHODS TO WRITE AND READ THE FRAMES FILE
+
+    private void writeFrameFile(String input) {
+        try {
+            File file = new File(getFilesDir(), name_of_roll + ".txt");
+            FileWriter writer = new FileWriter(file, true);
+            writer.write(input + "\n");
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readFrameFile() {
+        //Get the text file
+        File file = new File(getFilesDir(), name_of_roll + ".txt");
+
+        //Read text from file
+        //StringBuilder text = new StringBuilder();
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+
+            while ((line = br.readLine()) != null) {
+//                text.append(line);
+//                text.append('\n');
+                ++counter;
+                mFrameList.add(line);
+                mainTextView.setVisibility(View.GONE);
+            }
+            br.close();
+
+            mArrayAdapter.notifyDataSetChanged();
+            setShareIntent();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        //return text.toString();
     }
 }
