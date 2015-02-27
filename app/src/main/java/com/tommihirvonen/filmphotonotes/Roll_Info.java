@@ -8,15 +8,21 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.ShareActionProvider;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,7 +35,8 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItemClickListener {
+public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
+        frame_info_dialog.OnInfoSettedCallback, edit_frame_info_dialog.OnEditSettedCallback {
 
     TextView mainTextView;
     ListView mainListView;
@@ -64,6 +71,8 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
         // Set the ListView to use the ArrayAdapter
         //mainListView.setAdapter(mArrayAdapter);
         mainListView.setAdapter(mFrameAdapter);
+
+        mainListView.setOnItemClickListener(this);
 
         // Read the frames from file and add to list
         File file = new File(getFilesDir(), name_of_roll + ".txt");
@@ -138,35 +147,33 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
         switch (item.getItemId()) {
            case R.id.menu_item_add_frame:
 
-               String lens = "objektiivi";
+               // If the added frame is the first on, then ask the user for the used lens
+               if ( mFrameClassList.isEmpty() ) show_frame_info_dialog();
+               // Otherwise assume the same lens is used
+               else {
 
-               // Ask the user for the used lens
+                   String lens = mFrameClassList.get(mFrameClassList.size() - 1).getLens();
 
+                   SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+                   String current_time = df.format(Calendar.getInstance().getTime());
 
+                   ++counter;
+                   mainTextView.setVisibility(View.GONE);
 
+                   Frame frame = new Frame(counter, current_time, lens);
+                   mFrameClassList.add(frame);
+                   mFrameAdapter.notifyDataSetChanged();
 
-               SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
-               String current_time = df.format(Calendar.getInstance().getTime());
+                   // When the new frame is added jump to view the last entry
+                   mainListView.setSelection(mainListView.getCount() - 1 );
+                   // The text you'd like to share has changed,
+                   // and you need to update
+                   setShareIntent();
 
-                ++counter;
-               mainTextView.setVisibility(View.GONE);
+                   // Save the file when the new frame has been added
+                   writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens());
 
-               Frame frame = new Frame(counter, current_time, lens);
-               mFrameClassList.add(frame);
-               mFrameAdapter.notifyDataSetChanged();
-
-//               mFrameList.add(counter + "," + asGmt + "," + "objektiivi");
-//               mArrayAdapter.notifyDataSetChanged();
-
-               // When the new frame is added jump to view the last entry
-               //mainListView.setSelection(mainListView.getCount() - 1 );
-               // The text you'd like to share has changed,
-               // and you need to update
-               setShareIntent();
-
-               // Save the file when the new frame has been added
-               //writeFrameFile(counter + "," + asGmt + "," + "objektiivi");
-               writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens());
+               }
 
                break;
 
@@ -268,6 +275,19 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
     }
 
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        // Log the item's position and contents
+        // to the console in Debug
+        Log.d("FilmPhotoNotes", position + ": " + mFrameClassList.get(position).getCount());
+
+
+        // Edit frame info
+        int count = mFrameClassList.get(position).getCount();
+        String lens = mFrameClassList.get(position).getLens();
+        show_edit_frame_info_dialog(lens, position+1);
+    }
+
 
 
     // METHODS TO WRITE AND READ THE FRAMES FILE
@@ -317,5 +337,93 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
             e.printStackTrace();
         }
         //return text.toString();
+    }
+
+
+    private void show_frame_info_dialog() {
+        frame_info_dialog dialog = frame_info_dialog.newInstance("Add new frame");
+        dialog.show(getSupportFragmentManager(), frame_info_dialog.TAG);
+    }
+
+    @Override
+    public void onInfoSetted(String inputText) {
+        if(!TextUtils.isEmpty(inputText)) {
+            // Grab the EditText's input
+            if ( inputText.length() != 0 ) {
+
+
+                // Add new frame
+                String lens = inputText;
+
+                SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+                String current_time = df.format(Calendar.getInstance().getTime());
+
+                ++counter;
+                mainTextView.setVisibility(View.GONE);
+
+                Frame frame = new Frame(counter, current_time, lens);
+                mFrameClassList.add(frame);
+                mFrameAdapter.notifyDataSetChanged();
+
+
+                // When the new frame is added jump to view the last entry
+                mainListView.setSelection(mainListView.getCount() - 1 );
+                // The text you'd like to share has changed,
+                // and you need to update
+                setShareIntent();
+
+                // Save the file when the new frame has been added
+                writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens());
+
+
+            }
+        }
+    }
+
+    private void show_edit_frame_info_dialog(String lens, int count){
+        // Takes as argument the current lens and the frame count
+        edit_frame_info_dialog dialog = edit_frame_info_dialog.newInstance("Edit frame", lens, count);
+        dialog.show(getSupportFragmentManager(), edit_frame_info_dialog.TAG);
+    }
+
+    @Override
+    public void onEditSetted(String inputText, int frameCount) {
+        if ( !TextUtils.isEmpty(inputText) ) {
+
+            // Replace the old lens in the text file with the new one
+            try {
+                updateLine(mFrameClassList.get(frameCount - 1).getLens(), inputText);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            //Make the change in the class list and the list view
+            mFrameClassList.get(frameCount-1).setLens(inputText);
+            mFrameAdapter.notifyDataSetChanged();
+            setShareIntent();
+
+
+
+            // For debugging
+            //Toast.makeText(getApplicationContext(), "" + frameCount + "moi", Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+    private void updateLine(String toUpdate, String updated) throws IOException {
+        BufferedReader file = new BufferedReader(new FileReader(name_of_roll + ".txt"));
+        String line;
+        String input = "";
+
+        while ((line = file.readLine()) != null)
+            input += line + "\n";
+
+        input = input.replace(toUpdate, updated);
+
+        FileOutputStream os = new FileOutputStream(name_of_roll + ".txt");
+        os.write(input.getBytes());
+
+        file.close();
+        os.close();
     }
 }

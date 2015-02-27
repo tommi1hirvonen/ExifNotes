@@ -128,7 +128,7 @@ public class MainActivity extends ActionBarActivity implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Log the item's position and contents
         // to the console in Debug
-        Log.d("omg android", position + ": " + mNameList.get(position));
+        Log.d("FilmPhotoNotes", position + ": " + mNameList.get(position));
 
         Intent intent = new Intent(this, Roll_Info.class);
         intent.putExtra(EXTRA_MESSAGE, mNameList.get(position).toString());
@@ -144,7 +144,7 @@ public class MainActivity extends ActionBarActivity implements
         switch (item.getItemId()) {
             case R.id.menu_item_add_roll:
                 //AskForNameOfRoll();
-                show_set_custom_dialog();
+                show_roll_name_dialog();
                 break;
             case R.id.menu_item_delete_roll:
                 //Only delete if there are more than one roll
@@ -206,7 +206,7 @@ public class MainActivity extends ActionBarActivity implements
 
 
 
-    private void show_set_custom_dialog() {
+    private void show_roll_name_dialog() {
         roll_name_dialog dialog = new roll_name_dialog();
         dialog.show(getSupportFragmentManager(), roll_name_dialog.TAG);
     }

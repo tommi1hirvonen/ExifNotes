@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
 
-        android:hint="Roll name"
+        android:hint="Name"
         android:inputType="textCapWords" />
 
 
