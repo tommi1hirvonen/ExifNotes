@@ -30,7 +30,7 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
 
     TextView mainTextView;
     ListView mainListView;
-    ArrayAdapter mArrayAdapter;
+    //ArrayAdapter mArrayAdapter;
     ArrayList<Frame> mFrameClassList = new ArrayList<Frame>();
     FrameAdapter mFrameAdapter;
     ArrayList mFrameList = new ArrayList();
@@ -65,6 +65,8 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
         // Read the frames from file and add to list
         File file = new File(getFilesDir(), name_of_roll + ".txt");
         if ( file.exists() ) readFrameFile();
+
+        if ( mFrameClassList.size() >= 1 ) counter = mFrameClassList.get(mFrameClassList.size() -1).getCount();
 
     }
 
@@ -104,7 +106,7 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
-            if ( mFrameList.size() != 0 ) shareIntent.putExtra(Intent.EXTRA_TEXT, mFrameList.get(0).toString());
+            if ( mFrameClassList.size() != 0 ) shareIntent.putExtra(Intent.EXTRA_TEXT, mFrameClassList.get(0).getDate());
 
             // Make sure the provider knows
             // it should work with that Intent
@@ -141,12 +143,13 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
 
                Frame frame = new Frame(counter, asGmt, "objektiivi");
                mFrameClassList.add(frame);
+               mFrameAdapter.notifyDataSetChanged();
 
 //               mFrameList.add(counter + "," + asGmt + "," + "objektiivi");
 //               mArrayAdapter.notifyDataSetChanged();
 
                // When the new frame is added jump to view the last entry
-               mainListView.setSelection(mainListView.getCount() - 1 );
+               //mainListView.setSelection(mainListView.getCount() - 1 );
                // The text you'd like to share has changed,
                // and you need to update
                setShareIntent();
@@ -222,6 +225,7 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
 
                 //mFrameList.add(line);
                 mainTextView.setVisibility(View.GONE);
+                mFrameAdapter.notifyDataSetChanged();
             }
             br.close();
 

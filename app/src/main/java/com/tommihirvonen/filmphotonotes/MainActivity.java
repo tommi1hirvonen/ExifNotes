@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -240,7 +241,9 @@ public class MainActivity extends ActionBarActivity implements
 
                     for ( int i = 0; i < mNameList.size(); ++i ) {
                         if ( inputName.equals( mNameList.get(i).toString() )  ) {
-                            Toast.makeText(getApplicationContext(), "ROLL WITH SAME NAME ALREADY EXISTS", Toast.LENGTH_LONG).show();
+                            Toast toast = Toast.makeText(getApplicationContext(), "Roll with same name already exists!", Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER, 0, 0);
+                            toast.show();
                             return;
                         }
                     }
