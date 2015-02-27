@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -167,45 +168,94 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
 
                     // Ask the user which frame to delete
 
-                    List<String> listItems = new ArrayList<String>();
+                    ArrayList<String> listItems = new ArrayList<String>();
                     for ( int i = 0; i < mFrameClassList.size(); ++i ) {
                         listItems.add("" + mFrameClassList.get(i).getCount());
                         //            ^ trick to add integer to string
                     }
                     final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+                    final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Pick a frame to delete");
-                    builder.setItems(items, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
+                    builder.setTitle("Pick frames to delete")
+
+                    // List Dialog
+//                    builder.setItems(items, new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int which) {
+//
+//                            // Do something with the selection
+//                            mFrameClassList.remove(which);
+//                            //mFrameList.remove(0);
+//                            if ( mFrameClassList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
+//                            //mArrayAdapter.notifyDataSetChanged();
+//                            mFrameAdapter.notifyDataSetChanged();
+//
+//                            File file = new File(getFilesDir(), name_of_roll + ".txt");
+//                            try {
+//                                MainActivity.removeLine(file, which);
+//                            }
+//                            catch (IOException e){
+//                                e.printStackTrace();
+//                            }
+//
+//                            if ( mFrameClassList.size() >= 1 ) counter = mFrameClassList.get(mFrameClassList.size() -1).getCount();
+//                            setShareIntent();
+//
+//                        }
+//                    });
+
+                    // Multiple Choice Dialog
+                    .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                    if (isChecked) {
+                                        // If the user checked the item, add it to the selected items
+                                        selectedItemsIndexList.add(which);
+                                    } else if (selectedItemsIndexList.contains(which)) {
+                                        // Else, if the item is already in the array, remove it
+                                        selectedItemsIndexList.remove(Integer.valueOf(which));
+                                    }
+                                }
+                            })
+                            // Set the action buttons
+                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
 
                             // Do something with the selection
-                            mFrameClassList.remove(which);
-                            //mFrameList.remove(0);
-                            if ( mFrameClassList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
+                            Collections.sort(selectedItemsIndexList);
+                            for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                                int which = selectedItemsIndexList.get(i);
+                                mFrameClassList.remove(which);
+
+                                File file = new File(getFilesDir(), name_of_roll + ".txt");
+                                try {
+                                    MainActivity.removeLine(file, which);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (mFrameClassList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
                             //mArrayAdapter.notifyDataSetChanged();
                             mFrameAdapter.notifyDataSetChanged();
-
-                            File file = new File(getFilesDir(), name_of_roll + ".txt");
-                            try {
-                                MainActivity.removeLine(file, which);
-                            }
-                            catch (IOException e){
-                                e.printStackTrace();
-                            }
-
-                            if ( mFrameClassList.size() >= 1 ) counter = mFrameClassList.get(mFrameClassList.size() -1).getCount();
+                            if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
+                            else counter = 0;
                             setShareIntent();
 
                         }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Do nothing
+                        }
                     });
+
                     AlertDialog alert = builder.create();
                     alert.show();
-
 
                 }
                 break;
         }
-
 
         return true;
     }
