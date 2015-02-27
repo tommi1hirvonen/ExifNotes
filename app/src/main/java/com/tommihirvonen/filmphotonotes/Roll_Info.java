@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.sql.Struct;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 
 public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItemClickListener {
@@ -29,6 +31,8 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
     TextView mainTextView;
     ListView mainListView;
     ArrayAdapter mArrayAdapter;
+    ArrayList<Frame> mFrameClassList = new ArrayList<Frame>();
+    FrameAdapter mFrameAdapter;
     ArrayList mFrameList = new ArrayList();
     ShareActionProvider mShareActionProvider;
     String name_of_roll;
@@ -51,9 +55,12 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
         // Access the ListView
         mainListView = (ListView) findViewById(R.id.frames_listview);
         // Create an ArrayAdapter for the ListView
-        mArrayAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,mFrameList);
+        //mArrayAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,mFrameList);
+        mFrameAdapter = new FrameAdapter(this,android.R.layout.simple_list_item_1, mFrameClassList);
+
         // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(mArrayAdapter);
+        //mainListView.setAdapter(mArrayAdapter);
+        mainListView.setAdapter(mFrameAdapter);
 
         // Read the frames from file and add to list
         File file = new File(getFilesDir(), name_of_roll + ".txt");
@@ -132,8 +139,11 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
                 ++counter;
                mainTextView.setVisibility(View.GONE);
 
-               mFrameList.add(counter + ".         " + asGmt );
-               mArrayAdapter.notifyDataSetChanged();
+               Frame frame = new Frame(counter, asGmt, "objektiivi");
+               mFrameClassList.add(frame);
+
+//               mFrameList.add(counter + "," + asGmt + "," + "objektiivi");
+//               mArrayAdapter.notifyDataSetChanged();
 
                // When the new frame is added jump to view the last entry
                mainListView.setSelection(mainListView.getCount() - 1 );
@@ -142,16 +152,19 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
                setShareIntent();
 
                // Save the file when the new frame has been added
-               writeFrameFile(counter + ".         " + asGmt);
+               //writeFrameFile(counter + "," + asGmt + "," + "objektiivi");
+               writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens());
 
                break;
 
             case R.id.menu_item_delete_frame:
-                if ( mFrameList.size() >= 1 ) {
+                if ( mFrameClassList.size() >= 1 ) {
                     //--counter;
-                    mFrameList.remove(0);
-                    if ( mFrameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
-                    mArrayAdapter.notifyDataSetChanged();
+                    mFrameClassList.remove(0);
+                    //mFrameList.remove(0);
+                    if ( mFrameClassList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
+                    //mArrayAdapter.notifyDataSetChanged();
+                    mFrameAdapter.notifyDataSetChanged();
 
                     File file = new File(getFilesDir(), name_of_roll + ".txt");
                     try {
@@ -202,12 +215,17 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
 //                text.append(line);
 //                text.append('\n');
                 ++counter;
-                mFrameList.add(line);
+
+                List<String> new_frame_strings = Arrays.asList(line.split(","));
+                Frame frame = new Frame(Integer.parseInt(new_frame_strings.get(0)), new_frame_strings.get(1), new_frame_strings.get(2));
+                mFrameClassList.add(frame);
+
+                //mFrameList.add(line);
                 mainTextView.setVisibility(View.GONE);
             }
             br.close();
 
-            mArrayAdapter.notifyDataSetChanged();
+            //mArrayAdapter.notifyDataSetChanged();
             setShareIntent();
         }
         catch (IOException e) {

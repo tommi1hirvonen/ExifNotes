@@ -12,8 +12,8 @@ import java.util.ArrayList;
 
 public class FrameAdapter extends ArrayAdapter<Frame> {
 
-    public FrameAdapter(Context context, ArrayList<Frame> frames) {
-        super(context, 0, frames);
+    public FrameAdapter(Context context,int textViewResourceId, ArrayList<Frame> frames) {
+        super(context, textViewResourceId, frames);
     }
 
     @Override
@@ -25,10 +25,10 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_frame, parent, false);
         }
         // Lookup view for data population
-        TextView tvName = (TextView) convertView.findViewById(R.id.tvName);
+        TextView tvFrameText = (TextView) convertView.findViewById(R.id.tvFrameText);
 
         // Populate the data into the template view using the data object
-        tvName.setText(frame.count + "   " + frame.date + "   " + frame.lens);
+        tvFrameText.setText(frame.getCount() + "   " + frame.getDate() + "   " + frame.getLens());
         return convertView;
     }
 
