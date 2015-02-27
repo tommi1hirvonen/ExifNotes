@@ -138,13 +138,20 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
         switch (item.getItemId()) {
            case R.id.menu_item_add_frame:
 
+               String lens = "objektiivi";
+
+               // Ask the user for the used lens
+
+
+
+
                SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
-               String asGmt = df.format(Calendar.getInstance().getTime());
+               String current_time = df.format(Calendar.getInstance().getTime());
 
                 ++counter;
                mainTextView.setVisibility(View.GONE);
 
-               Frame frame = new Frame(counter, asGmt, "objektiivi");
+               Frame frame = new Frame(counter, current_time, lens);
                mFrameClassList.add(frame);
                mFrameAdapter.notifyDataSetChanged();
 

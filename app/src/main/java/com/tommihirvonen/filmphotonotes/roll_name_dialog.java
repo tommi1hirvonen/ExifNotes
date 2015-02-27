@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 
 
-public class set_custom_dialog extends DialogFragment
+public class roll_name_dialog extends DialogFragment
         //implements View.OnClickListener
 {
 
@@ -39,7 +39,7 @@ public class set_custom_dialog extends DialogFragment
     }
 
 
-    public set_custom_dialog() {
+    public roll_name_dialog() {
         // Empty constructor required for DialogFragment
     }
 
@@ -104,7 +104,7 @@ public class set_custom_dialog extends DialogFragment
 //                })
 //                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 //                    public void onClick(DialogInterface dialog, int id) {
-//                        set_custom_dialog.this.getDialog().cancel();
+//                        roll_name_dialog.this.getDialog().cancel();
 //                    }
 //                });
 //        AlertDialog dialog = builder.create();
