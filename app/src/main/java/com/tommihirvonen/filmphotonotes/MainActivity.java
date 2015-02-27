@@ -181,9 +181,7 @@ public class MainActivity extends ActionBarActivity implements
                     builder.setItems(items, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int item) {
 
-
                             // Do something with the selection
-
 
                             // If the frames file exists, delete it too
                             File frames_file = new File(getFilesDir(), mNameList.get(item).toString() + ".txt");

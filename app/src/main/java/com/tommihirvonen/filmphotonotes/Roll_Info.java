@@ -1,5 +1,7 @@
 package com.tommihirvonen.filmphotonotes;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -33,7 +35,7 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
     //ArrayAdapter mArrayAdapter;
     ArrayList<Frame> mFrameClassList = new ArrayList<Frame>();
     FrameAdapter mFrameAdapter;
-    ArrayList mFrameList = new ArrayList();
+    //ArrayList mFrameList = new ArrayList();
     ShareActionProvider mShareActionProvider;
     String name_of_roll;
     int counter = 0;
@@ -162,22 +164,44 @@ public class Roll_Info extends ActionBarActivity implements  MenuItem.OnMenuItem
 
             case R.id.menu_item_delete_frame:
                 if ( mFrameClassList.size() >= 1 ) {
-                    //--counter;
-                    mFrameClassList.remove(0);
-                    //mFrameList.remove(0);
-                    if ( mFrameClassList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
-                    //mArrayAdapter.notifyDataSetChanged();
-                    mFrameAdapter.notifyDataSetChanged();
 
-                    File file = new File(getFilesDir(), name_of_roll + ".txt");
-                    try {
-                        MainActivity.removeLine(file, 0);
-                    }
-                    catch (IOException e){
-                        e.printStackTrace();
-                    }
+                    // Ask the user which frame to delete
 
-                    setShareIntent();
+                    List<String> listItems = new ArrayList<String>();
+                    for ( int i = 0; i < mFrameClassList.size(); ++i ) {
+                        listItems.add("" + mFrameClassList.get(i).getCount());
+                        //            ^ trick to add integer to string
+                    }
+                    final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Pick a frame to delete");
+                    builder.setItems(items, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            // Do something with the selection
+                            mFrameClassList.remove(which);
+                            //mFrameList.remove(0);
+                            if ( mFrameClassList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
+                            //mArrayAdapter.notifyDataSetChanged();
+                            mFrameAdapter.notifyDataSetChanged();
+
+                            File file = new File(getFilesDir(), name_of_roll + ".txt");
+                            try {
+                                MainActivity.removeLine(file, which);
+                            }
+                            catch (IOException e){
+                                e.printStackTrace();
+                            }
+
+                            if ( mFrameClassList.size() >= 1 ) counter = mFrameClassList.get(mFrameClassList.size() -1).getCount();
+                            setShareIntent();
+
+                        }
+                    });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+
+
                 }
                 break;
         }
