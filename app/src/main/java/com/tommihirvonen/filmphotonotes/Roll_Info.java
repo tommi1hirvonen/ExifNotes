@@ -296,9 +296,8 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
 
 
         // Edit frame info
-        int count = mFrameClassList.get(position).getCount();
         String lens = mFrameClassList.get(position).getLens();
-        show_edit_frame_info_dialog(lens, position+1);
+        show_edit_frame_info_dialog(lens, position);
     }
 
 
@@ -395,7 +394,7 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
 
     private void show_edit_frame_info_dialog(String lens, int count){
         // Takes as argument the current lens and the frame count
-        edit_frame_info_dialog dialog = edit_frame_info_dialog.newInstance("Edit frame", lens, count);
+        edit_frame_info_dialog dialog = edit_frame_info_dialog.newInstance("Edit frame #" + mFrameClassList.get(count).getCount(), lens, count);
         dialog.show(getSupportFragmentManager(), edit_frame_info_dialog.TAG);
     }
 
@@ -405,13 +404,15 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
 
             // Replace the old lens in the text file with the new one
             try {
-                updateLine(mFrameClassList.get(frameCount - 1).getLens(), inputText);
+                String old_line = mFrameClassList.get(frameCount).getCount() + "," + mFrameClassList.get(frameCount).getDate() + "," + mFrameClassList.get(frameCount).getLens();
+                String new_line = mFrameClassList.get(frameCount).getCount() + "," + mFrameClassList.get(frameCount).getDate() + "," + inputText;
+                updateLine(old_line, new_line);
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
             //Make the change in the class list and the list view
-            mFrameClassList.get(frameCount-1).setLens(inputText);
+            mFrameClassList.get(frameCount).setLens(inputText);
             mFrameAdapter.notifyDataSetChanged();
             setShareIntent();
 
@@ -424,7 +425,8 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
     }
 
     private void updateLine(String toUpdate, String updated) throws IOException {
-        BufferedReader file = new BufferedReader(new FileReader(name_of_roll + ".txt"));
+        File new_file = new File(getFilesDir(), name_of_roll + ".txt");
+        BufferedReader file = new BufferedReader(new FileReader(new_file));
         String line;
         String input = "";
 
@@ -433,7 +435,7 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
 
         input = input.replace(toUpdate, updated);
 
-        FileOutputStream os = new FileOutputStream(name_of_roll + ".txt");
+        FileOutputStream os = new FileOutputStream(new_file);
         os.write(input.getBytes());
 
         file.close();

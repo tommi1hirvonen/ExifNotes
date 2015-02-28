@@ -85,7 +85,7 @@ public class edit_frame_info_dialog extends DialogFragment {
         et1.setText(lens);
 
 
-        alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
                 String lens = et1.getText().toString();
