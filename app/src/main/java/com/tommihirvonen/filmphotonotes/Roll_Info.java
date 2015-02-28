@@ -120,12 +120,12 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
 
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("Frame Count,Date,Lens" + "\n");
+            stringBuilder.append("Frame Count;Date;Lens" + "\n");
             for ( int i = 0; i < mFrameClassList.size(); ++i ) {
                 stringBuilder.append(mFrameClassList.get(i).getCount());
-                stringBuilder.append(",");
+                stringBuilder.append(";");
                 stringBuilder.append(mFrameClassList.get(i).getDate());
-                stringBuilder.append(",");
+                stringBuilder.append(";");
                 stringBuilder.append(mFrameClassList.get(i).getLens());
                 stringBuilder.append("\n");
             }
