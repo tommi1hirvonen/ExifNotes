@@ -31,7 +31,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
 
         // Populate the data into the template view using the data object
         tvFrameText.setText(frame.getDate());
-        tvCount.setText("" + frame.getCount());
+        tvCount.setText("#" + frame.getCount());
         //              ^ a trick to show an integer in TextView
         tvFrameText2.setText(frame.getLens());
         return convertView;

@@ -118,7 +118,20 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
-            if ( mFrameClassList.size() != 0 ) shareIntent.putExtra(Intent.EXTRA_TEXT, mFrameClassList.get(0).getDate());
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Frame Count,Date,Lens" + "\n");
+            for ( int i = 0; i < mFrameClassList.size(); ++i ) {
+                stringBuilder.append(mFrameClassList.get(i).getCount());
+                stringBuilder.append(",");
+                stringBuilder.append(mFrameClassList.get(i).getDate());
+                stringBuilder.append(",");
+                stringBuilder.append(mFrameClassList.get(i).getLens());
+                stringBuilder.append("\n");
+            }
+            String shared = stringBuilder.toString();
+
+            shareIntent.putExtra(Intent.EXTRA_TEXT, shared);
 
             // Make sure the provider knows
             // it should work with that Intent
