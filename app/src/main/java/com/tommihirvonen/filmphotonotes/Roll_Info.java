@@ -167,7 +167,7 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
 
                    String lens = mFrameClassList.get(mFrameClassList.size() - 1).getLens();
 
-                   SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+                   SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm");
                    String current_time = df.format(Calendar.getInstance().getTime());
 
                    ++counter;
@@ -367,7 +367,7 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
                 // Add new frame
                 String lens = inputText;
 
-                SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+                SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm");
                 String current_time = df.format(Calendar.getInstance().getTime());
 
                 ++counter;
