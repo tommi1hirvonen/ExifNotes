@@ -2,24 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="1">
+    android:layout_height="60dp"
+    >
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_weight="0.08">
+        android:layout_height="match_parent"
+
+        android:weightSum="1"
+        >
+
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_weight="0.8"
 
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="#FFFFFF"
-            android:gravity="center_vertical"
-            android:paddingLeft="20dip"
-            android:paddingRight="10dip"
+
+            android:gravity="center"
+
+
+
             android:text="Text"
             android:id="@+id/tvCount" />
 
@@ -27,6 +33,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_weight="0.2"
             android:weightSum="1">
 
             <TextView
@@ -35,7 +42,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
-                android:paddingLeft="10dip"
+                android:paddingLeft="5dip"
                 android:text="Text"
                 android:id="@+id/tvFrameText"
                 android:layout_weight="0.5" />
@@ -46,7 +53,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
-                android:paddingLeft="10dip"
+                android:paddingLeft="5dip"
                 android:text="Text"
                 android:id="@+id/tvFrameText2"
                 android:layout_weight="0.5" />
