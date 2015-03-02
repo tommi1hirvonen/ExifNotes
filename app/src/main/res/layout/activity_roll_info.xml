@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".Roll_Info"
-    android:background="#ff303030">
+    android:background="#ff2d2d2d">
 
 
 

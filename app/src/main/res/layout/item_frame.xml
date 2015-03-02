@@ -20,6 +20,7 @@
             android:layout_weight="0.8"
 
             android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="25sp"
             android:textColor="#FFFFFF"
 
             android:gravity="center"
@@ -39,7 +40,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="15sp"
                 android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
                 android:paddingLeft="5dip"
@@ -50,7 +52,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="15sp"
                 android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
                 android:paddingLeft="5dip"

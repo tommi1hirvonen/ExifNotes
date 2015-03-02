@@ -43,8 +43,9 @@ public class MainActivity extends ActionBarActivity implements
     //EditText mainEditText;
 
     ListView mainListView;
-    ArrayAdapter mArrayAdapter;
-    ArrayList mNameList = new ArrayList();
+    //ArrayAdapter mArrayAdapter;
+    RollAdapter mArrayAdapter;
+    ArrayList<String> mNameList = new ArrayList<>();
 
     //ShareActionProvider mShareActionProvider;
 
@@ -74,7 +75,8 @@ public class MainActivity extends ActionBarActivity implements
         mainListView = (ListView) findViewById(R.id.main_listview);
 
         // Create an ArrayAdapter for the ListView
-        mArrayAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,mNameList);
+        //mArrayAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,mNameList);
+        mArrayAdapter = new RollAdapter(this, android.R.layout.simple_list_item_1, mNameList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(mArrayAdapter);
