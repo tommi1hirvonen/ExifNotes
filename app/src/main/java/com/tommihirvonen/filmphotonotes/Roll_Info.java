@@ -3,6 +3,7 @@ package com.tommihirvonen.filmphotonotes;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -59,6 +60,7 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle(name_of_roll);
         getSupportActionBar().setSubtitle("Frames");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
         mainTextView = (TextView) findViewById(R.id.no_added_frames);
 
@@ -139,20 +141,19 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
         }
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {

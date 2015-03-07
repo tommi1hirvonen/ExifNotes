@@ -221,6 +221,7 @@ public class MainActivity extends ActionBarActivity implements
 
                 if ( inputName.length() != 0 ) {
 
+                    //Check if a roll with the same name already exists
                     for ( int i = 0; i < mNameList.size(); ++i ) {
                         if ( inputName.equals( mNameList.get(i).toString() )  ) {
                             Toast toast = Toast.makeText(getApplicationContext(), "Roll with same name already exists!", Toast.LENGTH_LONG);
@@ -229,6 +230,9 @@ public class MainActivity extends ActionBarActivity implements
                             return;
                         }
                     }
+
+                    //Check if there are illegal character in the roll name
+
 
                     mainTextView.setVisibility(View.GONE);
                     mNameList.add(inputName);
