@@ -300,7 +300,11 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
 
         // Edit frame info
         String lens = mFrameClassList.get(position).getLens();
-        show_edit_frame_info_dialog(lens, position);
+        int count = mFrameClassList.get(position).getCount();
+        String date = mFrameClassList.get(position).getDate();
+        //show_edit_frame_info_dialog(lens, position);
+        edit_frame_info_dialog dialog = edit_frame_info_dialog.newInstance("Edit frame #" + mFrameClassList.get(position).getCount(), lens, position, count, date);
+        dialog.show(getSupportFragmentManager(), edit_frame_info_dialog.TAG);
     }
 
 
@@ -395,27 +399,29 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
         }
     }
 
-    private void show_edit_frame_info_dialog(String lens, int count){
-        // Takes as argument the current lens and the frame count
-        edit_frame_info_dialog dialog = edit_frame_info_dialog.newInstance("Edit frame #" + mFrameClassList.get(count).getCount(), lens, count);
-        dialog.show(getSupportFragmentManager(), edit_frame_info_dialog.TAG);
-    }
+//    private void show_edit_frame_info_dialog(String lens, int count){
+//        // Takes as argument the current lens and the frame count
+//        edit_frame_info_dialog dialog = edit_frame_info_dialog.newInstance("Edit frame #" + mFrameClassList.get(count).getCount(), lens, count);
+//        dialog.show(getSupportFragmentManager(), edit_frame_info_dialog.TAG);
+//    }
 
     @Override
-    public void onEditSetted(String inputText, int frameCount) {
-        if ( !TextUtils.isEmpty(inputText) ) {
+    public void onEditSetted(String lens, int position, int count, String date) {
+        if ( !TextUtils.isEmpty(lens) ) {
 
             // Replace the old lens in the text file with the new one
             try {
-                String old_line = mFrameClassList.get(frameCount).getCount() + "," + mFrameClassList.get(frameCount).getDate() + "," + mFrameClassList.get(frameCount).getLens();
-                String new_line = mFrameClassList.get(frameCount).getCount() + "," + mFrameClassList.get(frameCount).getDate() + "," + inputText;
+                String old_line = mFrameClassList.get(position).getCount() + "," + mFrameClassList.get(position).getDate() + "," + mFrameClassList.get(position).getLens();
+                String new_line = count + "," + date + "," + lens;
                 updateLine(old_line, new_line);
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
             //Make the change in the class list and the list view
-            mFrameClassList.get(frameCount).setLens(inputText);
+            mFrameClassList.get(position).setLens(lens);
+            mFrameClassList.get(position).setCount(count);
+            mFrameClassList.get(position).setDate(date);
             mFrameAdapter.notifyDataSetChanged();
             setShareIntent();
 

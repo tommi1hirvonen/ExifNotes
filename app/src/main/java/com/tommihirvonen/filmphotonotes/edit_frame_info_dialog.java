@@ -20,14 +20,19 @@ public class edit_frame_info_dialog extends DialogFragment {
 
     String title;
     String lens;
+    String date;
+    int position;
     int count;
 
-    static edit_frame_info_dialog newInstance(String title, String lens, int count) {
+
+    static edit_frame_info_dialog newInstance(String title, String lens, int position, int count, String date) {
         edit_frame_info_dialog f = new edit_frame_info_dialog();
         Bundle args = new Bundle();
         args.putString("title", title);
         args.putString("lens", lens);
+        args.putInt("position", position);
         args.putInt("count", count);
+        args.putString("date", date);
         f.setArguments(args);
         return f;
     }
@@ -41,7 +46,7 @@ public class edit_frame_info_dialog extends DialogFragment {
     private OnEditSettedCallback callback;
 
     public interface OnEditSettedCallback {
-        void onEditSetted(String newName, int frame_count);
+        void onEditSetted(String new_lens, int position, int new_count, String new_date);
     }
 
 
@@ -70,10 +75,12 @@ public class edit_frame_info_dialog extends DialogFragment {
 
         title = getArguments().getString("title");
         lens = getArguments().getString("lens");
+        position = getArguments().getInt("position");
+        date = getArguments().getString("date");
         count = getArguments().getInt("count");
 
         LayoutInflater linf = getActivity().getLayoutInflater();
-        final View inflator = linf.inflate(R.layout.custom_dialog, null);
+        final View inflator = linf.inflate(R.layout.frame_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         alert.setTitle(title);
@@ -81,19 +88,29 @@ public class edit_frame_info_dialog extends DialogFragment {
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_name);
+        final EditText et2 = (EditText) inflator.findViewById(R.id.txt_name2);
+        final EditText et3 = (EditText) inflator.findViewById(R.id.txt_name3);
         et1.setHint("Used lens");
         et1.setText(lens);
+        et2.setHint("Date");
+        et2.setText(date);
+        et3.setHint("Frame count");
+        et3.setText("" + count);
+
 
 
         alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
-                String lens = et1.getText().toString();
+                lens = et1.getText().toString();
+                count = Integer.parseInt(et3.getText().toString());
+                date = et2.getText().toString();
+
 
                 //do operations using s1
                 if(!lens.isEmpty()) {
                     // Return the new entered name to the calling activity
-                    callback.onEditSetted(lens, count);
+                    callback.onEditSetted(lens, position, count, date);
                 }
             }
         });

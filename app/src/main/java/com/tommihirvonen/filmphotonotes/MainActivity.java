@@ -59,8 +59,9 @@ public class MainActivity extends ActionBarActivity implements
 
         //getSupportActionBar().setTitle("Hello world App");
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        getSupportActionBar().setTitle(" Film Photo Notes");
-        getSupportActionBar().setSubtitle(" Rolls");
+        //getSupportActionBar().setTitle(" Film Photo Notes");
+        //getSupportActionBar().setSubtitle(" Rolls");
+        getSupportActionBar().setTitle("  Rolls");
         getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
 
         // Access the Button defined in layout XML

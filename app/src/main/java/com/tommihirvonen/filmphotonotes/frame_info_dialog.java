@@ -74,7 +74,9 @@ public class frame_info_dialog extends DialogFragment {
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_name);
+
         et1.setHint("Used lens");
+
 
 
         alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
