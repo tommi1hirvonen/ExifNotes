@@ -232,7 +232,16 @@ public class MainActivity extends ActionBarActivity implements
                     }
 
                     //Check if there are illegal character in the roll name
-
+                    String ReservedChars = "|\\?*<\":>/";
+                    for ( int i = 0; i < inputName.length(); ++i ) {
+                        Character c = inputName.charAt(i);
+                        if ( ReservedChars.contains(c.toString()) ) {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Roll name contains an illegal character: " + c.toString(), Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER, 0, 0);
+                            toast.show();
+                            return;
+                        }
+                    }
 
                     mainTextView.setVisibility(View.GONE);
                     mNameList.add(inputName);

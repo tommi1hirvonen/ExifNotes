@@ -82,6 +82,8 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
 
         if ( mFrameClassList.size() >= 1 ) counter = mFrameClassList.get(mFrameClassList.size() -1).getCount();
 
+        if ( mainListView.getCount() >= 1 ) mainListView.setSelection( mainListView.getCount() - 1 );
+
     }
 
 
