@@ -8,6 +8,7 @@
     <string name="delete_roll">DELETE ROLL</string>
     <string name="add_frame">ADD FRAME</string>
     <string name="title_activity_roll__info">Roll_Info</string>
+    <string name="about">Version 1.0\nCopyright 2015\nTommi Hirvonen\n\nAll rights reserved. Not liable for any damage incurred from use of this software including but not limited to: monetary loss, temporary paralysis, halitosis, spontaneous combustion, road rash, and or premature hair loss.</string>
 
     <string name="hello_world">Hello world!</string>
 </resources>

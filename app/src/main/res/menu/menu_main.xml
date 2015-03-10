@@ -28,6 +28,12 @@
         omgandroid:showAsAction="ifRoom"
         />
 
+    <item
+        android:id="@+id/menu_item_about"
+        android:title="About"
+        omgandroid:showAsAction="never"
+        />
+
     <!--<item
         android:id="@+id/menu_item_share"
         android:title="Share"

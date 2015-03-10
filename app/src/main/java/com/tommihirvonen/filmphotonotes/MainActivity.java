@@ -1,6 +1,8 @@
 package com.tommihirvonen.filmphotonotes;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
@@ -105,6 +107,7 @@ public class MainActivity extends ActionBarActivity implements
 
         MenuItem addRoll = menu.findItem(R.id.menu_item_add_roll);
         MenuItem deleteRoll = menu.findItem(R.id.menu_item_delete_roll);
+        MenuItem about = menu.findItem(R.id.menu_item_about);
 
         // Access the object responsible for
         // putting together the sharing submenu
@@ -114,6 +117,7 @@ public class MainActivity extends ActionBarActivity implements
 
         addRoll.setOnMenuItemClickListener(this);
         deleteRoll.setOnMenuItemClickListener(this);
+        about.setOnMenuItemClickListener(this);
 
 
         // Create an Intent to share your content
@@ -196,10 +200,26 @@ public class MainActivity extends ActionBarActivity implements
                     AlertDialog alert = builder.create();
                     alert.show();
 
-
-
-
                 }
+                break;
+
+            case R.id.menu_item_about:
+
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+                alertDialog.setTitle("Film Photo Notes");
+                alertDialog.setMessage(R.string.about);
+                alertDialog.setIcon(R.mipmap.film_photo_notes_icon);
+
+
+                alertDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                alertDialog.show();
+
+
                 break;
         }
 
@@ -323,5 +343,6 @@ public class MainActivity extends ActionBarActivity implements
         writer.flush();
         writer.close();
     }
+
 }
 
