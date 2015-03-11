@@ -1,14 +1,10 @@
 <resources>
     <string name="app_name">Film Photo Notes</string>
 
-    <string name="textview">Tommi is learning android!</string>
-    <string name="action_settings">Settings</string>
-    <string name="button">ADD NEW ROLL</string>
     <string name="hint">Enter a name for the roll</string>
-    <string name="delete_roll">DELETE ROLL</string>
-    <string name="add_frame">ADD FRAME</string>
+
     <string name="title_activity_roll__info">Roll_Info</string>
     <string name="about">Version 1.0\nCopyright 2015\nTommi Hirvonen\n\nAll rights reserved. Not liable for any damage incurred from use of this software including but not limited to: monetary loss, temporary paralysis, halitosis, spontaneous combustion, road rash, and or premature hair loss.</string>
-
-    <string name="hello_world">Hello world!</string>
+    <string name="main_help">Add new rolls by pressing the + -icon, delete rolls by pressing the trash can icon. You can view the frames of a roll by pressing on the roll you wish to view.</string>
+    <string name="frame_help">Add new frames by pressing the + -icon, delete frames by pressing the trash can icon. You can edit a frame\'s information by pressing on it. You can share the roll information by pressing the share icon. The app shares a text formatted in semi-colon separated values. You can save this in Dropbox for example and name the file with .csv ending.</string>
 </resources>

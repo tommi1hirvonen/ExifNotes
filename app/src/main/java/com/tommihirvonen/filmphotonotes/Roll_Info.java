@@ -96,6 +96,7 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
         MenuItem shareItem = menu.findItem(R.id.menu_item_share);
         MenuItem addFrame = menu.findItem(R.id.menu_item_add_frame);
         MenuItem deleteFrame = menu.findItem(R.id.menu_item_delete_frame);
+        MenuItem frame_help = menu.findItem(R.id.menu_item_frame_help);
 
 
         // Access the object responsible for
@@ -104,6 +105,7 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
 
         addFrame.setOnMenuItemClickListener(this);
         deleteFrame.setOnMenuItemClickListener(this);
+        frame_help.setOnMenuItemClickListener(this);
 
         if (shareItem != null) {
            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
@@ -284,6 +286,21 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
                     alert.show();
 
                 }
+                break;
+
+
+            case R.id.menu_item_frame_help:
+
+                AlertDialog.Builder helpDialog = new AlertDialog.Builder(this);
+                helpDialog.setTitle("Help");
+                helpDialog.setMessage(R.string.frame_help);
+                //helpDialog.setIcon(R.mipmap.film_photo_notes_icon);
+                helpDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                helpDialog.show();
                 break;
         }
 

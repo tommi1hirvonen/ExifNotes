@@ -109,6 +109,7 @@ public class MainActivity extends ActionBarActivity implements
         MenuItem addRoll = menu.findItem(R.id.menu_item_add_roll);
         MenuItem deleteRoll = menu.findItem(R.id.menu_item_delete_roll);
         MenuItem about = menu.findItem(R.id.menu_item_about);
+        MenuItem help = menu.findItem(R.id.menu_item_help);
 
         // Access the object responsible for
         // putting together the sharing submenu
@@ -119,6 +120,7 @@ public class MainActivity extends ActionBarActivity implements
         addRoll.setOnMenuItemClickListener(this);
         deleteRoll.setOnMenuItemClickListener(this);
         about.setOnMenuItemClickListener(this);
+        help.setOnMenuItemClickListener(this);
 
 
         // Create an Intent to share your content
@@ -206,19 +208,38 @@ public class MainActivity extends ActionBarActivity implements
 
             case R.id.menu_item_about:
 
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-                alertDialog.setTitle("Film Photo Notes");
-                alertDialog.setMessage(R.string.about);
-                alertDialog.setIcon(R.mipmap.film_photo_notes_icon);
+                AlertDialog.Builder aboutDialog = new AlertDialog.Builder(this);
+                aboutDialog.setTitle("Film Photo Notes");
+                aboutDialog.setMessage(R.string.about);
+                aboutDialog.setIcon(R.mipmap.film_photo_notes_icon);
 
 
-                alertDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                aboutDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
                     }
                 });
 
-                alertDialog.show();
+                aboutDialog.show();
+
+
+                break;
+
+            case R.id.menu_item_help:
+
+                AlertDialog.Builder helpDialog = new AlertDialog.Builder(this);
+                helpDialog.setTitle("Help");
+                helpDialog.setMessage(R.string.main_help);
+                //helpDialog.setIcon(R.mipmap.film_photo_notes_icon);
+
+
+                helpDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                helpDialog.show();
 
 
                 break;

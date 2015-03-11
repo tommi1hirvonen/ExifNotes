@@ -11,6 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import java.text.ParseException;
 
 /**
  * Created by Tommi on 27.2.2015.
@@ -103,7 +106,12 @@ public class edit_frame_info_dialog extends DialogFragment {
             public void onClick(DialogInterface dialog, int whichButton)
             {
                 lens = et1.getText().toString();
-                count = Integer.parseInt(et3.getText().toString());
+                try {
+                    count = Integer.parseInt(et3.getText().toString());
+                }
+                catch (NumberFormatException e) {
+                    Toast.makeText(getActivity(), "Frame count was not changed!\nNew frame count was not a number", Toast.LENGTH_LONG).show();
+                }
                 date = et2.getText().toString();
 
 

@@ -34,6 +34,12 @@
         omgandroid:showAsAction="never"
         />
 
+    <item
+        android:id="@+id/menu_item_help"
+        android:title="Help"
+        omgandroid:showAsAction="never"
+        />
+
     <!--<item
         android:id="@+id/menu_item_share"
         android:title="Share"

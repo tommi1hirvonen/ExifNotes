@@ -23,4 +23,10 @@
         android:title="Share"
         omgandroid:showAsAction="ifRoom"
         omgandroid:actionProviderClass= "android.support.v7.widget.ShareActionProvider" />
+
+    <item
+        android:id="@+id/menu_item_frame_help"
+        android:title="Help"
+        omgandroid:showAsAction="never"
+        />
 </menu>
