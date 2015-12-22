@@ -35,7 +35,7 @@ import java.util.Scanner;
 
 public class MainActivity extends ActionBarActivity implements
         //View.OnClickListener,
-        AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener, roll_name_dialog.OnNameSettedCallback {
+        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener, roll_name_dialog.OnNameSettedCallback {
 
     public final static String EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
     public static final String TAG = "MainActivity";
@@ -86,6 +86,9 @@ public class MainActivity extends ActionBarActivity implements
 
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
+
+        // Set this activity to react to list items being pressed and held
+        mainListView.setOnItemLongClickListener(this);
 
 
         // Read the rolls from file and add to list
@@ -142,6 +145,19 @@ public class MainActivity extends ActionBarActivity implements
         Intent intent = new Intent(this, Roll_Info.class);
         intent.putExtra(EXTRA_MESSAGE, mNameList.get(position).toString());
         startActivity(intent);
+    }
+
+    @Override
+    //Long pressing the roll allows the user to rename the roll
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        // Log the item's position and contents
+        // to the console in Debug
+        Log.d("FilmPhotoNotes", position + ": " + mNameList.get(position));
+
+
+
+        //Return true because the item was pressed and held.
+        return true;
     }
 
 
