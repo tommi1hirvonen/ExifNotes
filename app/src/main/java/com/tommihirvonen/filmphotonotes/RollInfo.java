@@ -11,15 +11,12 @@ import android.os.Bundle;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,18 +24,15 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Struct;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 
-public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
-        frame_info_dialog.OnInfoSettedCallback, edit_frame_info_dialog.OnEditSettedCallback {
+public class RollInfo extends ActionBarActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
+        FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSettedCallback {
 
     TextView mainTextView;
     ListView mainListView;
@@ -174,7 +168,7 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
                    String lens = mFrameClassList.get(mFrameClassList.size() - 1).getLens();
 
                    // Dateformat doesn't seem to work for some reason. This is a workaround.
-                   // There is another instance of this same operation in OnInfoSetted
+                   // There is another instance of this same operation in onInfoSet
                    final Calendar c = Calendar.getInstance();
                    int iYear = c.get(Calendar.YEAR);
                    int iMonth = c.get(Calendar.MONTH);
@@ -327,9 +321,9 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
         String lens = mFrameClassList.get(position).getLens();
         int count = mFrameClassList.get(position).getCount();
         String date = mFrameClassList.get(position).getDate();
-        //show_edit_frame_info_dialog(lens, position);
-        edit_frame_info_dialog dialog = edit_frame_info_dialog.newInstance("Edit frame #" + mFrameClassList.get(position).getCount(), lens, position, count, date);
-        dialog.show(getSupportFragmentManager(), edit_frame_info_dialog.TAG);
+        //show_EditFrameInfoDialog(lens, position);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance("Edit frame #" + mFrameClassList.get(position).getCount(), lens, position, count, date);
+        dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
 
@@ -388,12 +382,12 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
 
 
     private void show_frame_info_dialog() {
-        frame_info_dialog dialog = frame_info_dialog.newInstance("Add new frame");
-        dialog.show(getSupportFragmentManager(), frame_info_dialog.TAG);
+        FrameInfoDialog dialog = FrameInfoDialog.newInstance("Add new frame");
+        dialog.show(getSupportFragmentManager(), FrameInfoDialog.TAG);
     }
 
     @Override
-    public void onInfoSetted(String inputText) {
+    public void onInfoSet(String inputText) {
         if(!TextUtils.isEmpty(inputText)) {
             // Grab the EditText's input
             if ( inputText.length() != 0 ) {

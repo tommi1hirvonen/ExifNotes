@@ -32,7 +32,7 @@ import java.util.Scanner;
 
 public class MainActivity extends ActionBarActivity implements
         //View.OnClickListener,
-        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener, roll_name_dialog.onNameSetCallback, edit_roll_name_dialog.OnNameEditedCallback {
+        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener, RollNameDialog.onNameSetCallback, EditRollNameDialog.OnNameEditedCallback {
 
     public final static String EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
     public static final String TAG = "MainActivity";
@@ -141,7 +141,7 @@ public class MainActivity extends ActionBarActivity implements
         // to the console in Debug
         Log.d("FilmPhotoNotes", position + ": " + mNameList.get(position));
 
-        Intent intent = new Intent(this, Roll_Info.class);
+        Intent intent = new Intent(this, RollInfo.class);
         intent.putExtra(EXTRA_MESSAGE, mNameList.get(position).toString());
         startActivity(intent);
     }
@@ -153,7 +153,7 @@ public class MainActivity extends ActionBarActivity implements
         // to the console in Debug
         Log.d("FilmPhotoNotes", position + ": " + mNameList.get(position));
 
-        show_edit_roll_name_dialog(mNameList.get(position).toString());
+        show_EditRollNameDialog(mNameList.get(position).toString());
 
 
         //Return true because the item was pressed and held.
@@ -169,7 +169,7 @@ public class MainActivity extends ActionBarActivity implements
         switch (item.getItemId()) {
             case R.id.menu_item_add_roll:
                 //AskForNameOfRoll();
-                show_roll_name_dialog();
+                show_RollNameDialog();
                 break;
             case R.id.menu_item_delete_roll:
                 //Only delete if there are more than one roll
@@ -264,15 +264,15 @@ public class MainActivity extends ActionBarActivity implements
         return true;
     }
 
-    private void show_edit_roll_name_dialog(String oldName){
-        edit_roll_name_dialog dialog = new edit_roll_name_dialog();
+    private void show_EditRollNameDialog(String oldName){
+        EditRollNameDialog dialog = new EditRollNameDialog();
         dialog.setOldName(oldName);
-        dialog.show(getSupportFragmentManager(), edit_roll_name_dialog.TAG);
+        dialog.show(getSupportFragmentManager(), EditRollNameDialog.TAG);
     }
 
-    private void show_roll_name_dialog() {
-        roll_name_dialog dialog = new roll_name_dialog();
-        dialog.show(getSupportFragmentManager(), roll_name_dialog.TAG);
+    private void show_RollNameDialog() {
+        RollNameDialog dialog = new RollNameDialog();
+        dialog.show(getSupportFragmentManager(), RollNameDialog.TAG);
     }
 
     @Override

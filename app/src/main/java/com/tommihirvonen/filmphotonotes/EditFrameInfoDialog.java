@@ -18,7 +18,7 @@ import java.text.ParseException;
 /**
  * Created by Tommi on 27.2.2015.
  */
-public class edit_frame_info_dialog extends DialogFragment {
+public class EditFrameInfoDialog extends DialogFragment {
 
 
     String title;
@@ -28,8 +28,8 @@ public class edit_frame_info_dialog extends DialogFragment {
     int count;
 
 
-    static edit_frame_info_dialog newInstance(String title, String lens, int position, int count, String date) {
-        edit_frame_info_dialog f = new edit_frame_info_dialog();
+    static EditFrameInfoDialog newInstance(String title, String lens, int position, int count, String date) {
+        EditFrameInfoDialog f = new EditFrameInfoDialog();
         Bundle args = new Bundle();
         args.putString("title", title);
         args.putString("lens", lens);
@@ -53,7 +53,7 @@ public class edit_frame_info_dialog extends DialogFragment {
     }
 
 
-    public edit_frame_info_dialog() {
+    public EditFrameInfoDialog() {
         // Empty constructor required for DialogFragment
     }
 
@@ -65,7 +65,7 @@ public class edit_frame_info_dialog extends DialogFragment {
             callback = (OnEditSettedCallback) activity;
         }
         catch(ClassCastException e) {
-            Log.e(TAG, "The Roll_Info should implement the OnEditSettedCallback interface");
+            Log.e(TAG, "The RollInfo should implement the OnEditSettedCallback interface");
             e.printStackTrace();
         }
     }

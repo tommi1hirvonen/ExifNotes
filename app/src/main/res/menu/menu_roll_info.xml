@@ -1,4 +1,4 @@
-<!-- Defines the menu item that will appear on the Action Bar in Roll_Info -->
+<!-- Defines the menu item that will appear on the Action Bar in RollInfo -->
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:omgandroid="http://schemas.android.com/apk/res-auto">

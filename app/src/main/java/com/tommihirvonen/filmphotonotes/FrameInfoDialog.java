@@ -15,12 +15,12 @@ import android.widget.EditText;
 /**
  * Created by Tommi on 27.2.2015.
  */
-public class frame_info_dialog extends DialogFragment {
+public class FrameInfoDialog extends DialogFragment {
 
     String title;
 
-    static frame_info_dialog newInstance(String title) {
-        frame_info_dialog f = new frame_info_dialog();
+    static FrameInfoDialog newInstance(String title) {
+        FrameInfoDialog f = new FrameInfoDialog();
         Bundle args = new Bundle();
         args.putString("title", title);
         f.setArguments(args);
@@ -33,14 +33,14 @@ public class frame_info_dialog extends DialogFragment {
     //private EditText txtName;
     //private Button btnDone;
 
-    private OnInfoSettedCallback callback;
+    private onInfoSetCallback callback;
 
-    public interface OnInfoSettedCallback {
-        void onInfoSetted(String newName);
+    public interface onInfoSetCallback {
+        void onInfoSet(String newName);
     }
 
 
-    public frame_info_dialog() {
+    public FrameInfoDialog() {
         // Empty constructor required for DialogFragment
     }
 
@@ -49,10 +49,10 @@ public class frame_info_dialog extends DialogFragment {
         super.onAttach(activity);
 
         try {
-            callback = (OnInfoSettedCallback) activity;
+            callback = (onInfoSetCallback) activity;
         }
         catch(ClassCastException e) {
-            Log.e(TAG, "The Roll_Info should implement the OnInfoSettedCallback interface");
+            Log.e(TAG, "The RollInfo should implement the onInfoSetCallback interface");
             e.printStackTrace();
         }
     }
@@ -87,7 +87,7 @@ public class frame_info_dialog extends DialogFragment {
                 //do operations using s1
                 if(!lens.isEmpty()) {
                     // Return the new entered name to the calling activity
-                    callback.onInfoSetted(lens);
+                    callback.onInfoSet(lens);
                 }
             }
         });

@@ -18,67 +18,75 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 /**
- * Created by Tommi on 23.12.2015.
+ * Created by Tommi on 23.2.2015.
  */
-public class edit_roll_name_dialog extends DialogFragment {
 
-    public String oldName;
 
-    public static final String TAG = "EditNameDialogFragment";
 
-    private OnNameEditedCallback callback;
+public class RollNameDialog extends DialogFragment
+        //implements View.OnClickListener
+{
 
-    public interface OnNameEditedCallback {
-        void OnNameEdited(String newName, String oldName);
+    public static final String TAG = "SetNameDialogFragment";
+
+    //private EditText txtName;
+    //private Button btnDone;
+
+    private onNameSetCallback callback;
+
+    public interface onNameSetCallback {
+        void onNameSet(String newName);
     }
 
-    public edit_roll_name_dialog () {
 
+    public RollNameDialog() {
+        // Empty constructor required for DialogFragment
     }
-
-    // Android doesn't like fragments to be created with arguments. This is a workaround.
-    public void setOldName (String oldName) {
-        this.oldName = oldName;
-    }
-
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
         try {
-            callback = (OnNameEditedCallback) activity;
+            callback = (onNameSetCallback) activity;
         }
         catch(ClassCastException e) {
-            Log.e(TAG, "The MainActivity should implement the OnNameEditedCallback interface");
+            Log.e(TAG, "The MainActivity should implement the onNameSetCallback interface");
             e.printStackTrace();
         }
     }
 
+
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
+
+
         LayoutInflater linf = getActivity().getLayoutInflater();
         final View inflator = linf.inflate(R.layout.custom_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        alert.setTitle("Rename roll");
+        alert.setTitle("Add new roll");
+
         alert.setView(inflator);
 
-        final EditText et1 = (EditText) inflator.findViewById((R.id.txt_name));
+        final EditText et1 = (EditText) inflator.findViewById(R.id.txt_name);
 
-        alert.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String newName = et1.getText().toString();
-                if (!newName.isEmpty()) {
-                    callback.OnNameEdited(newName, oldName);
+
+        alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton)
+            {
+                String name = et1.getText().toString();
+
+                //do operations using s1
+                if(!name.isEmpty()) {
+                    // Return the new entered name to the calling activity
+                    callback.onNameSet(name);
                 }
             }
         });
 
         alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(DialogInterface dialog, int whichButton) {
                 dialog.cancel();
             }
         });
@@ -87,4 +95,6 @@ public class edit_roll_name_dialog extends DialogFragment {
         return dialog;
     }
 
+
 }
+
