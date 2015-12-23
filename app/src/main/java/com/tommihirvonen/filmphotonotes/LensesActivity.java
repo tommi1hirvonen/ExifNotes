@@ -3,6 +3,7 @@ package com.tommihirvonen.filmphotonotes;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
@@ -37,17 +38,21 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
     LensAdapter mArrayAdapter;
 
     ArrayList<String> mLensList = new ArrayList<>();
+    //String data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lenses);
 
+        Intent intent = getIntent();
+        //data = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+        getSupportActionBar().setTitle("Lenses");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        getSupportActionBar().setTitle("  Lenses");
-
-        getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
+        //getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
 
         mainTextView = (TextView) findViewById(R.id.no_added_lenses);
 

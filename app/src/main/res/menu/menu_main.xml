@@ -29,6 +29,12 @@
         />
 
     <item
+        android:id="@+id/menu_item_lenses"
+        android:title="Lenses"
+        omgandroid:showAsAction="never"
+        />
+
+    <item
         android:id="@+id/menu_item_about"
         android:title="About"
         omgandroid:showAsAction="never"

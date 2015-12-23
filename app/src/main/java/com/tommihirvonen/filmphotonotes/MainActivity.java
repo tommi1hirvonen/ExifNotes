@@ -112,6 +112,7 @@ public class MainActivity extends ActionBarActivity implements
         MenuItem deleteRoll = menu.findItem(R.id.menu_item_delete_roll);
         MenuItem about = menu.findItem(R.id.menu_item_about);
         MenuItem help = menu.findItem(R.id.menu_item_help);
+        MenuItem lenses = menu.findItem(R.id.menu_item_lenses);
 
         // Access the object responsible for
         // putting together the sharing submenu
@@ -123,6 +124,7 @@ public class MainActivity extends ActionBarActivity implements
         deleteRoll.setOnMenuItemClickListener(this);
         about.setOnMenuItemClickListener(this);
         help.setOnMenuItemClickListener(this);
+        lenses.setOnMenuItemClickListener(this);
 
 
         // Create an Intent to share your content
@@ -293,6 +295,13 @@ public class MainActivity extends ActionBarActivity implements
                 }
                 break;
 
+            case R.id.menu_item_lenses:
+                Intent intent = new Intent(this, LensesActivity.class);
+                //intent.putExtra(EXTRA_MESSAGE, "Data");
+                startActivity(intent);
+
+                break;
+
             case R.id.menu_item_about:
 
                 AlertDialog.Builder aboutDialog = new AlertDialog.Builder(this);
@@ -330,6 +339,9 @@ public class MainActivity extends ActionBarActivity implements
 
 
                 break;
+
+            //default:
+            //    return super.onOptionsItemSelected(item);
         }
 
         return true;
