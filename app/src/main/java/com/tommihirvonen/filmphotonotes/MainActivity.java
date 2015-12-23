@@ -1,8 +1,6 @@
 package com.tommihirvonen.filmphotonotes;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
@@ -15,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,7 +32,7 @@ import java.util.Scanner;
 
 public class MainActivity extends ActionBarActivity implements
         //View.OnClickListener,
-        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener, roll_name_dialog.OnNameSettedCallback {
+        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener, roll_name_dialog.OnNameSettedCallback, edit_roll_name_dialog.OnNameEditedCallback {
 
     public final static String EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
     public static final String TAG = "MainActivity";
@@ -48,6 +45,7 @@ public class MainActivity extends ActionBarActivity implements
     //ArrayAdapter mArrayAdapter;
     RollAdapter mArrayAdapter;
     ArrayList<String> mNameList = new ArrayList<>();
+
 
     //ShareActionProvider mShareActionProvider;
 
@@ -154,6 +152,7 @@ public class MainActivity extends ActionBarActivity implements
         // to the console in Debug
         Log.d("FilmPhotoNotes", position + ": " + mNameList.get(position));
 
+        show_edit_roll_name_dialog(mNameList.get(position).toString());
 
 
         //Return true because the item was pressed and held.
@@ -264,7 +263,10 @@ public class MainActivity extends ActionBarActivity implements
         return true;
     }
 
-
+    private void show_edit_roll_name_dialog(String oldName){
+        edit_roll_name_dialog dialog = new edit_roll_name_dialog(oldName);
+        dialog.show(getSupportFragmentManager(), edit_roll_name_dialog.TAG);
+    }
 
     private void show_roll_name_dialog() {
         roll_name_dialog dialog = new roll_name_dialog();
@@ -306,7 +308,7 @@ public class MainActivity extends ActionBarActivity implements
                     mArrayAdapter.notifyDataSetChanged();
 
                     // When the new roll is added jump to view the last entry
-                    mainListView.setSelection(mainListView.getCount() - 1 );
+                    mainListView.setSelection(mainListView.getCount() - 1);
 
                     // The text you'd like to share has changed,
                     // and you need to update
@@ -322,8 +324,95 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
+    @Override
+    public void OnNameEdited(String inputText1, String inputText2){
+        if(!TextUtils.isEmpty(inputText1)) {
+            // Grab the EditText's input
+            String newName = inputText1;
+            String oldName = inputText2;
+            if ( newName.length() != 0 ) {
+
+                //Check if a roll with the same name already exists
+                for ( int i = 0; i < mNameList.size(); ++i ) {
+                    if ( newName.equals( mNameList.get(i).toString() )  ) {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Roll with same name already exists!", Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+                        return;
+                    }
+                }
+
+                //Check if there are illegal character in the roll name
+                String ReservedChars = "|\\?*<\":>/";
+                for ( int i = 0; i < newName.length(); ++i ) {
+                    Character c = newName.charAt(i);
+                    if ( ReservedChars.contains(c.toString()) ) {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Roll name contains an illegal character: " + c.toString(), Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+                        return;
+                    }
+                }
+
+                Log.d("FilmPhotoNotes", newName + oldName);
+
+                // Change the string in mNameList
+                int position = 0;
+                for ( int i = 0; i < mNameList.size(); ++i) {
+                    if (oldName.equals(mNameList.get(i).toString())) {
+                        position = i;
+                    }
+                }
+
+                mNameList.set(position, newName);
+
+                // Notify array adapter that the dataset has to be updated
+                mArrayAdapter.notifyDataSetChanged();
+
+                // List_of_Rolls.txt has to be updated
+                updateListOfRolls(newName, oldName);
+
+                // The Roll_File has to renamed
+                renameFrameFile(newName, oldName);
+
+            }
+        }
+    }
+
 
     // READ AND WRITE METHODS
+
+    private void updateListOfRolls(String newName, String oldName){
+        try
+        {
+            File file = new File(getFilesDir(), "List_of_Rolls.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line = "", oldtext = "";
+            while((line = reader.readLine()) != null)
+            {
+                oldtext += line + "\r\n";
+            }
+            reader.close();
+            // replace a word in a file
+            //String newtext = oldtext.replaceAll("drink", "Love");
+
+            //To replace a line in a file
+            String newtext = oldtext.replaceAll(oldName, newName);
+
+            FileWriter writer = new FileWriter(file);
+            writer.write(newtext);writer.close();
+        }
+        catch (IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+    }
+
+    private void renameFrameFile(String newName, String oldName) {
+        File from = new File(getFilesDir(), oldName + ".txt");
+        File to = new File(getFilesDir(), newName + ".txt");
+        from.renameTo(to);
+    }
 
     private void writeRollFile(String input) {
         try {
