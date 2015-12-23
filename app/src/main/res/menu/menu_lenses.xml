@@ -1,0 +1,21 @@
+<!-- Defines the menu item that will appear on the Action Bar in MainActivity -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:omgandroid="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_item_add_lens"
+        android:icon="@mipmap/ic_action_new"
+        android:title="Add"
+
+        omgandroid:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/menu_item_delete_lens"
+        android:icon="@mipmap/ic_action_delete"
+        android:title="Delete"
+        omgandroid:showAsAction="ifRoom"
+        />
+
+
+</menu>

@@ -1,0 +1,29 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".LensesActivity"
+    android:background="#ff2d2d2d">
+
+
+    <TextView
+        android:id="@+id/no_added_lenses"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:text="No added rolls"/>
+
+    <!-- List whose dataset is defined in code with an adapter -->
+    <ListView
+        android:id="@+id/main_lenseslistview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+
+
+        />
+
+</LinearLayout>

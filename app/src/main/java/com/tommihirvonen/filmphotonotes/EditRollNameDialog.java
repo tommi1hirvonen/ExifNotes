@@ -65,6 +65,10 @@ public class EditRollNameDialog extends DialogFragment {
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById((R.id.txt_name));
+        // Show old name on the input field by default
+        et1.setText(oldName);
+        // Place the cursor at the end of the input field
+        et1.setSelection(et1.getText().length());
 
         alert.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
             @Override

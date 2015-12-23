@@ -25,6 +25,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -176,7 +177,9 @@ public class MainActivity extends ActionBarActivity implements
                 if ( mNameList.size() >= 1 ) {
 
                     // Ask the user which roll to delete
-//
+
+                    // LIST ITEMS DIALOG
+
                     List<String> listItems = new ArrayList<String>();
                     for ( int i = 0; i < mNameList.size(); ++i ) {
                         listItems.add(mNameList.get(i).toString());
@@ -184,40 +187,108 @@ public class MainActivity extends ActionBarActivity implements
                     final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Pick a roll to delete");
-                    builder.setItems(items, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int item) {
 
-                            // Do something with the selection
+//                    builder.setTitle("Pick a roll to delete");
+//                    builder.setItems(items, new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int item) {
+//
+//                            // Do something with the selection
+//
+//                            // If the frames file exists, delete it too
+//                            File frames_file = new File(getFilesDir(), mNameList.get(item).toString() + ".txt");
+//                            if ( frames_file.exists() ) {
+//                                try {
+//                                    boolean delete = frames_file.delete();
+//                                } catch (Exception e) {
+//                                    Log.e("App", "Exception while deleting file " + e.getMessage());
+//                                }
+//                            }
+//
+//                            mNameList.remove(item);
+//
+//                            if (mNameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
+//                            mArrayAdapter.notifyDataSetChanged();
+//
+//                            File file = new File(getFilesDir(), "List_of_Rolls.txt");
+//                            try {
+//                                removeLine(file, item);
+//                            }
+//                            catch (IOException e){
+//                                e.printStackTrace();
+//                            }
+//
+//
+//                        }
+//                    });
+//                    AlertDialog alert = builder.create();
+//                    alert.show();
 
-                            // If the frames file exists, delete it too
-                            File frames_file = new File(getFilesDir(), mNameList.get(item).toString() + ".txt");
-                            if ( frames_file.exists() ) {
-                                try {
-                                    boolean delete = frames_file.delete();
-                                } catch (Exception e) {
-                                    Log.e("App", "Exception while deleting file " + e.getMessage());
+
+                    // MULTIPLE CHOICE DIALOG
+                    final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
+                    builder.setTitle("Pick rolls to delete")
+                        .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                if (isChecked) {
+                                    // If the user checked the item, add it to the selected items
+                                    selectedItemsIndexList.add(which);
+                                } else if (selectedItemsIndexList.contains(which)) {
+                                    // Else, if the item is already in the array, remove it
+                                    selectedItemsIndexList.remove(Integer.valueOf(which));
                                 }
                             }
+                        })
+                                // Set the action buttons
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
 
-                            mNameList.remove(item);
+                                // Do something with the selections
+                                Collections.sort(selectedItemsIndexList);
+                                for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                                    int which = selectedItemsIndexList.get(i);
 
-                            if (mNameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
-                            mArrayAdapter.notifyDataSetChanged();
+                                    // Remove the roll file
+                                    String name_of_roll = mNameList.get(which).toString();
 
-                            File file = new File(getFilesDir(), "List_of_Rolls.txt");
-                            try {
-                                removeLine(file, item);
+                                    File frames_file = new File(getFilesDir(), name_of_roll + ".txt");
+                                    if ( frames_file.exists() ) {
+                                        try {
+                                            boolean delete = frames_file.delete();
+                                        }
+                                        catch ( Exception e ) {
+                                            Log.e("App", "Exception while deleting file " + e.getMessage());
+                                        }
+                                    }
+
+                                    // Remove the roll name line from the List_of_Rolls.txt
+                                    File rolls_file = new File(getFilesDir(), "List_of_Rolls.txt");
+                                    try {
+                                        removeLine(rolls_file, which);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    // Remove the roll from the mNameList. Do this last!!!
+                                    mNameList.remove(which);
+                                }
+                                if (mNameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
+                                mArrayAdapter.notifyDataSetChanged();
+
                             }
-                            catch (IOException e){
-                                e.printStackTrace();
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                // Do nothing
                             }
-
-
                         }
-                    });
+                    );
+
                     AlertDialog alert = builder.create();
                     alert.show();
+
 
                 }
                 break;
