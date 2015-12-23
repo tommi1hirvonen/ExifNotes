@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 
 public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
@@ -172,8 +173,15 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
 
                    String lens = mFrameClassList.get(mFrameClassList.size() - 1).getLens();
 
-                   SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm");
-                   String current_time = df.format(Calendar.getInstance().getTime());
+                   // Dateformat doesn't seem to work for some reason. This is a workaround.
+                   // There is another instance of this same operation in OnInfoSetted
+                   final Calendar c = Calendar.getInstance();
+                   int iYear = c.get(Calendar.YEAR);
+                   int iMonth = c.get(Calendar.MONTH);
+                   int iDay = c.get(Calendar.DAY_OF_MONTH);
+                   int iHour = c.get(Calendar.HOUR_OF_DAY);
+                   int iMin = c.get(Calendar.MINUTE);
+                   String current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
 
                    ++counter;
                    mainTextView.setVisibility(View.GONE);
@@ -394,8 +402,14 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
                 // Add new frame
                 String lens = inputText;
 
-                SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm");
-                String current_time = df.format(Calendar.getInstance().getTime());
+                // Dateformat doesn't seem to work for some reason. This is a workaround.
+                final Calendar c = Calendar.getInstance();
+                int iYear = c.get(Calendar.YEAR);
+                int iMonth = c.get(Calendar.MONTH);
+                int iDay = c.get(Calendar.DAY_OF_MONTH);
+                int iHour = c.get(Calendar.HOUR_OF_DAY);
+                int iMin = c.get(Calendar.MINUTE);
+                String current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
 
                 ++counter;
                 mainTextView.setVisibility(View.GONE);
