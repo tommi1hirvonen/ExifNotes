@@ -340,6 +340,9 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
         }
     }
 
+
+    // This method reads in the roll info file to create the in-app database of all the frames
+    // taken with this roll
     private void readFrameFile() {
         //Get the text file
         File file = new File(getFilesDir(), name_of_roll + ".txt");
@@ -416,11 +419,7 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
         }
     }
 
-//    private void show_edit_frame_info_dialog(String lens, int count){
-//        // Takes as argument the current lens and the frame count
-//        edit_frame_info_dialog dialog = edit_frame_info_dialog.newInstance("Edit frame #" + mFrameClassList.get(count).getCount(), lens, count);
-//        dialog.show(getSupportFragmentManager(), edit_frame_info_dialog.TAG);
-//    }
+
 
     @Override
     public void onEditSetted(String lens, int position, int count, String date) {
@@ -450,6 +449,7 @@ public class Roll_Info extends ActionBarActivity implements AdapterView.OnItemCl
         }
     }
 
+    // This method updates a frame's information if it is edited
     private void updateLine(String toUpdate, String updated) throws IOException {
         File new_file = new File(getFilesDir(), name_of_roll + ".txt");
         BufferedReader file = new BufferedReader(new FileReader(new_file));

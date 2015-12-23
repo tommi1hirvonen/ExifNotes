@@ -32,9 +32,15 @@ public class edit_roll_name_dialog extends DialogFragment {
         void OnNameEdited(String newName, String oldName);
     }
 
-    public edit_roll_name_dialog(String Name) {
-        this.oldName = Name;
+    public edit_roll_name_dialog () {
+
     }
+
+    // Android doesn't like fragments to be created with arguments. This is a workaround.
+    public void setOldName (String oldName) {
+        this.oldName = oldName;
+    }
+
 
     @Override
     public void onAttach(Activity activity) {

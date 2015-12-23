@@ -32,7 +32,7 @@ import java.util.Scanner;
 
 public class MainActivity extends ActionBarActivity implements
         //View.OnClickListener,
-        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener, roll_name_dialog.OnNameSettedCallback, edit_roll_name_dialog.OnNameEditedCallback {
+        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener, roll_name_dialog.onNameSetCallback, edit_roll_name_dialog.OnNameEditedCallback {
 
     public final static String EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
     public static final String TAG = "MainActivity";
@@ -135,6 +135,7 @@ public class MainActivity extends ActionBarActivity implements
 
 
     @Override
+    // Pressing the roll allows the user to show the frames taken with that roll
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Log the item's position and contents
         // to the console in Debug
@@ -264,7 +265,8 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void show_edit_roll_name_dialog(String oldName){
-        edit_roll_name_dialog dialog = new edit_roll_name_dialog(oldName);
+        edit_roll_name_dialog dialog = new edit_roll_name_dialog();
+        dialog.setOldName(oldName);
         dialog.show(getSupportFragmentManager(), edit_roll_name_dialog.TAG);
     }
 
@@ -274,7 +276,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     @Override
-    public void onNameSetted(String inputText) {
+    public void onNameSet(String inputText) {
         if(!TextUtils.isEmpty(inputText)) {
             // Grab the EditText's input
                 String inputName = inputText;
@@ -382,6 +384,7 @@ public class MainActivity extends ActionBarActivity implements
 
     // READ AND WRITE METHODS
 
+    // This method replaces a string in a List_of_Rolls.Txt
     private void updateListOfRolls(String newName, String oldName){
         try
         {
@@ -408,12 +411,14 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
+    // This method renames a text file
     private void renameFrameFile(String newName, String oldName) {
         File from = new File(getFilesDir(), oldName + ".txt");
         File to = new File(getFilesDir(), newName + ".txt");
         from.renameTo(to);
     }
 
+    // This method writes to the List_of_Rolls.txt file a new roll of film
     private void writeRollFile(String input) {
         try {
             File file = new File(getFilesDir(), "List_of_Rolls.txt");
@@ -427,6 +432,7 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
+    // This method reads in the List_of_Rolls.txt file and builds the in-app database
     private void readRollFile() {
         //Get the text file
         File file = new File(getFilesDir(), "List_of_Rolls.txt");

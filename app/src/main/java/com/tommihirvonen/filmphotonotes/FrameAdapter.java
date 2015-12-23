@@ -12,6 +12,8 @@ import java.util.ArrayList;
 
 public class FrameAdapter extends ArrayAdapter<Frame> {
 
+    // This FrameAdapter acts as an ArrayAdapter to link an array and a list view together
+
     public FrameAdapter(Context context,int textViewResourceId, ArrayList<Frame> frames) {
         super(context, textViewResourceId, frames);
     }

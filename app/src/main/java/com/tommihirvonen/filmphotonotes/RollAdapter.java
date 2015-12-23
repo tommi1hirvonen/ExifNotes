@@ -14,6 +14,8 @@ import java.util.ArrayList;
  */
 public class RollAdapter extends ArrayAdapter<String> {
 
+    // This RollAdapter acts as an ArrayAdapter to link an array and a list view together
+
     public RollAdapter(Context context,int textViewResourceId, ArrayList<String> rolls) {
         super(context, textViewResourceId, rolls);
     }
