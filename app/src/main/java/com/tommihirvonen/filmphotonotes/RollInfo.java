@@ -160,40 +160,44 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
         switch (item.getItemId()) {
            case R.id.menu_item_add_frame:
 
-               // If the added frame is the first on, then ask the user for the used lens
-               if ( mFrameClassList.isEmpty() ) show_frame_info_dialog();
-               // Otherwise assume the same lens is used
-               else {
+               show_frame_info_dialog();
 
-                   String lens = mFrameClassList.get(mFrameClassList.size() - 1).getLens();
+               // OPTIONAL IMPLEMENTATION
 
-                   // Dateformat doesn't seem to work for some reason. This is a workaround.
-                   // There is another instance of this same operation in onInfoSet
-                   final Calendar c = Calendar.getInstance();
-                   int iYear = c.get(Calendar.YEAR);
-                   int iMonth = c.get(Calendar.MONTH);
-                   int iDay = c.get(Calendar.DAY_OF_MONTH);
-                   int iHour = c.get(Calendar.HOUR_OF_DAY);
-                   int iMin = c.get(Calendar.MINUTE);
-                   String current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
-
-                   ++counter;
-                   mainTextView.setVisibility(View.GONE);
-
-                   Frame frame = new Frame(counter, current_time, lens);
-                   mFrameClassList.add(frame);
-                   mFrameAdapter.notifyDataSetChanged();
-
-                   // When the new frame is added jump to view the last entry
-                   mainListView.setSelection(mainListView.getCount() - 1 );
-                   // The text you'd like to share has changed,
-                   // and you need to update
-                   setShareIntent();
-
-                   // Save the file when the new frame has been added
-                   writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens());
-
-               }
+//               // If the added frame is the first on, then ask the user for the used lens
+//               if ( mFrameClassList.isEmpty() ) show_frame_info_dialog();
+//               // Otherwise assume the same lens is used
+//               else {
+//
+//                   String lens = mFrameClassList.get(mFrameClassList.size() - 1).getLens();
+//
+//                   // Dateformat doesn't seem to work for some reason. This is a workaround.
+//                   // There is another instance of this same operation in onInfoSet
+//                   final Calendar c = Calendar.getInstance();
+//                   int iYear = c.get(Calendar.YEAR);
+//                   int iMonth = c.get(Calendar.MONTH);
+//                   int iDay = c.get(Calendar.DAY_OF_MONTH);
+//                   int iHour = c.get(Calendar.HOUR_OF_DAY);
+//                   int iMin = c.get(Calendar.MINUTE);
+//                   String current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
+//
+//                   ++counter;
+//                   mainTextView.setVisibility(View.GONE);
+//
+//                   Frame frame = new Frame(counter, current_time, lens);
+//                   mFrameClassList.add(frame);
+//                   mFrameAdapter.notifyDataSetChanged();
+//
+//                   // When the new frame is added jump to view the last entry
+//                   mainListView.setSelection(mainListView.getCount() - 1 );
+//                   // The text you'd like to share has changed,
+//                   // and you need to update
+//                   setShareIntent();
+//
+//                   // Save the file when the new frame has been added
+//                   writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens());
+//
+//               }
 
                break;
 
@@ -382,7 +386,9 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
 
 
     private void show_frame_info_dialog() {
-        FrameInfoDialog dialog = FrameInfoDialog.newInstance("Add new frame");
+        ArrayList<String> mLensList = new ArrayList<>();
+        mLensList = readLensFile();
+        FrameInfoDialog dialog = FrameInfoDialog.newInstance("Add new frame", mLensList);
         dialog.show(getSupportFragmentManager(), FrameInfoDialog.TAG);
     }
 
@@ -474,5 +480,22 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
 
         file.close();
         os.close();
+    }
+
+    private ArrayList<String> readLensFile () {
+        ArrayList<String> lenses = new ArrayList<>();
+        File file = new File(getFilesDir(), "List_of_Lenses.txt");
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            while ( (line = br.readLine()) != null ) {
+                lenses.add(line);
+            }
+            br.close();
+        }
+        catch ( IOException e ) {
+            e.printStackTrace();
+        }
+        return lenses;
     }
 }
