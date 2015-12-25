@@ -17,7 +17,7 @@
             android:textSize="20sp"
             android:layout_marginLeft="3dp"
             android:layout_marginTop="15dp"
-            android:text="Lens:"
+            android:text="@string/Lens"
             />
 
     </LinearLayout>
@@ -84,7 +84,7 @@
             android:textSize="20sp"
             android:layout_marginLeft="3dp"
             android:layout_marginTop="15dp"
-            android:text="Date:"
+            android:text="@string/Date"
             />
 
         <TextView
@@ -94,7 +94,7 @@
             android:textSize="20sp"
             android:layout_marginLeft="3dp"
             android:layout_marginTop="15dp"
-            android:text="Time:"
+            android:text="@string/Time"
             />
     </LinearLayout>
 
@@ -141,7 +141,7 @@
             android:textSize="20sp"
             android:layout_marginTop="15dp"
 
-            android:text="Frame count:"
+            android:text="@string/FrameCount"
             android:layout_gravity="center_horizontal" />
 
         <!--

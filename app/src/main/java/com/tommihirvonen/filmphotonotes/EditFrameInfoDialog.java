@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewDebug;
 import android.view.WindowManager;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -32,7 +33,7 @@ import java.util.List;
 public class EditFrameInfoDialog extends DialogFragment {
 
 
-    String title;
+
     String lens;
     String date;
     int position;
@@ -40,10 +41,9 @@ public class EditFrameInfoDialog extends DialogFragment {
     ArrayList<String> lensList;
 
 
-    static EditFrameInfoDialog newInstance(String title, String lens, int position, int count, String date, ArrayList<String> lensList) {
+    static EditFrameInfoDialog newInstance(String lens, int position, int count, String date, ArrayList<String> lensList) {
         EditFrameInfoDialog f = new EditFrameInfoDialog();
         Bundle args = new Bundle();
-        args.putString("title", title);
         args.putString("lens", lens);
         args.putInt("position", position);
         args.putInt("count", count);
@@ -92,7 +92,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
-        title = getArguments().getString("title");
+
         lens = getArguments().getString("lens");
         position = getArguments().getInt("position");
         date = getArguments().getString("date");
@@ -103,7 +103,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         final View inflator = linf.inflate(R.layout.frame_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        alert.setTitle(title);
+
+        alert.setTitle("" + getActivity().getString(R.string.EditFrame) + count);
 
         alert.setView(inflator);
 
@@ -129,7 +130,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Choose used lens");
+                builder.setTitle(R.string.UsedLens);
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -199,7 +200,7 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         });
 
-        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        alert.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
                 //lens = et1.getText().toString();
@@ -209,7 +210,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                     count = np.getValue();
                 }
                 catch (NumberFormatException e) {
-                    Toast.makeText(getActivity(), "Frame count was not changed!\nNew frame count was not a number", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), R.string.FrameCountNotChanged, Toast.LENGTH_LONG).show();
                 }
 
                 // PARSE THE DATE
@@ -224,7 +225,7 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         });
 
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 dialog.cancel();
             }

@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:id="@+id/tv_roll_name"
-        android:text="Text"
+        android:text="@string/Text"
         android:paddingLeft="20dp"
         android:gravity="center_vertical"
         android:textSize="25sp"

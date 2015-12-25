@@ -27,7 +27,7 @@
 
 
 
-            android:text="Text"
+            android:text="@string/Text"
             android:id="@+id/tvCount" />
 
         <LinearLayout
@@ -45,7 +45,7 @@
                 android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
                 android:paddingLeft="5dip"
-                android:text="Text"
+                android:text="@string/Text"
                 android:id="@+id/tvFrameText"
                 android:layout_weight="0.5" />
 
@@ -57,7 +57,7 @@
                 android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
                 android:paddingLeft="5dip"
-                android:text="Text"
+                android:text="@string/Text"
                 android:id="@+id/tvFrameText2"
                 android:layout_weight="0.5" />
         </LinearLayout>

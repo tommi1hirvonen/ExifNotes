@@ -38,7 +38,7 @@
         android:layout_marginTop="60dp"
         android:textSize="20sp"
         android:gravity="center"
-        android:text="No added frames"/>
+        android:text="@string/NoFrames"/>
 
     <!-- List whose dataset is defined in code with an adapter -->
     <ListView

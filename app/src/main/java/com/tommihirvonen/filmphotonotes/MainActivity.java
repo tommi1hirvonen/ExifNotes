@@ -60,7 +60,7 @@ public class MainActivity extends ActionBarActivity implements
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         //getSupportActionBar().setTitle(" Film Photo Notes");
         //getSupportActionBar().setSubtitle(" Rolls");
-        getSupportActionBar().setTitle("  Rolls");
+        getSupportActionBar().setTitle(R.string.MainActivityTitle);
         getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
 
         // Access the Button defined in layout XML
@@ -228,7 +228,7 @@ public class MainActivity extends ActionBarActivity implements
 
                     // MULTIPLE CHOICE DIALOG
                     final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
-                    builder.setTitle("Pick rolls to delete")
+                    builder.setTitle(R.string.PickRollsToDelete)
                         .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
@@ -242,7 +242,7 @@ public class MainActivity extends ActionBarActivity implements
                             }
                         })
                                 // Set the action buttons
-                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.Delete, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
 
@@ -280,7 +280,7 @@ public class MainActivity extends ActionBarActivity implements
 
                             }
                         })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 // Do nothing
@@ -305,12 +305,12 @@ public class MainActivity extends ActionBarActivity implements
             case R.id.menu_item_about:
 
                 AlertDialog.Builder aboutDialog = new AlertDialog.Builder(this);
-                aboutDialog.setTitle("Film Photo Notes");
+                aboutDialog.setTitle(R.string.app_name);
                 aboutDialog.setMessage(R.string.about);
                 aboutDialog.setIcon(R.mipmap.film_photo_notes_icon);
 
 
-                aboutDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                aboutDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
                     }
@@ -324,12 +324,12 @@ public class MainActivity extends ActionBarActivity implements
             case R.id.menu_item_help:
 
                 AlertDialog.Builder helpDialog = new AlertDialog.Builder(this);
-                helpDialog.setTitle("Help");
+                helpDialog.setTitle(R.string.Help);
                 helpDialog.setMessage(R.string.main_help);
                 //helpDialog.setIcon(R.mipmap.film_photo_notes_icon);
 
 
-                helpDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
                     }
@@ -369,7 +369,7 @@ public class MainActivity extends ActionBarActivity implements
                     //Check if a roll with the same name already exists
                     for ( int i = 0; i < mNameList.size(); ++i ) {
                         if ( inputName.equals( mNameList.get(i).toString() )  ) {
-                            Toast toast = Toast.makeText(getApplicationContext(), "Roll with same name already exists!", Toast.LENGTH_LONG);
+                            Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
                             toast.setGravity(Gravity.CENTER, 0, 0);
                             toast.show();
                             return;
@@ -381,7 +381,7 @@ public class MainActivity extends ActionBarActivity implements
                     for ( int i = 0; i < inputName.length(); ++i ) {
                         Character c = inputName.charAt(i);
                         if ( ReservedChars.contains(c.toString()) ) {
-                            Toast toast = Toast.makeText(getApplicationContext(), "Roll name contains an illegal character: " + c.toString(), Toast.LENGTH_LONG);
+                            Toast toast = Toast.makeText(getApplicationContext(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
                             toast.setGravity(Gravity.CENTER, 0, 0);
                             toast.show();
                             return;
@@ -420,7 +420,7 @@ public class MainActivity extends ActionBarActivity implements
                 //Check if a roll with the same name already exists
                 for ( int i = 0; i < mNameList.size(); ++i ) {
                     if ( newName.equals( mNameList.get(i).toString() )  ) {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Roll with same name already exists!", Toast.LENGTH_LONG);
+                        Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.CENTER, 0, 0);
                         toast.show();
                         return;
@@ -432,7 +432,7 @@ public class MainActivity extends ActionBarActivity implements
                 for ( int i = 0; i < newName.length(); ++i ) {
                     Character c = newName.charAt(i);
                     if ( ReservedChars.contains(c.toString()) ) {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Roll name contains an illegal character: " + c.toString(), Toast.LENGTH_LONG);
+                        Toast toast = Toast.makeText(getApplicationContext(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.CENTER, 0, 0);
                         toast.show();
                         return;

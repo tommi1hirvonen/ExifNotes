@@ -61,7 +61,7 @@ public class EditRollNameDialog extends DialogFragment {
         final View inflator = linf.inflate(R.layout.custom_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        alert.setTitle("Rename roll");
+        alert.setTitle(R.string.RenameRoll);
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById((R.id.txt_name));
@@ -70,7 +70,7 @@ public class EditRollNameDialog extends DialogFragment {
         // Place the cursor at the end of the input field
         et1.setSelection(et1.getText().length());
 
-        alert.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
+        alert.setPositiveButton(R.string.Rename, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newName = et1.getText().toString();
@@ -80,7 +80,7 @@ public class EditRollNameDialog extends DialogFragment {
             }
         });
 
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();

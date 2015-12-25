@@ -1,10 +1,39 @@
 <resources>
     <string name="app_name">Film Photo Notes</string>
-
-    <string name="hint">Enter a name for the roll</string>
-
     <string name="title_activity_roll__info">RollInfo</string>
     <string name="title_activity_lenses_activity">LensesActivity</string>
+
+
+    <string name="RollsDatabase">List_of_Rolls.txt</string>
+
+    <!--EditFrameInfoDialog-->
+    <string name="UsedLens">Choose used lens</string>
+    <string name="OK">OK</string>
+    <string name="FrameCountNotChanged">Frame count was not changed!\nNew frame count was not a number</string>
+
+    <!--EditRollNameDialog-->
+    <string name="RenameRoll">Rename roll</string>
+    <string name="Rename">Rename</string>
+
+    <!--LensesActivity-->
+    <string name="Lenses">Lenses</string>
+    <string name="PickLensesToDelete">Pick lenses to delete</string>
+    <string name="LensSameName">Lens with same name already exists!</string>
+    <string name="LensIllegalCharacter">Lens name contains an illegal character: </string>
+
+    <!--LensNameDialog-->
+    <string name="NewLens">Add new lens</string>
+    <string name="Add">Add</string>
+
+    <!--MainActivity-->
+    <string name="MainActivityTitle">  Rolls</string>
+    <string name="PickRollsToDelete">Pick rolls to delete</string>
+    <string name="Delete">Delete</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Close">Close</string>
+    <string name="Help">Help</string>
+    <string name="RollSameName">Roll with same name already exists!</string>
+    <string name="RollIllegalCharacter">Roll name contains an illegal character: </string>
     <string name="about">Version 1.0\nCopyright 2015\nTommi Hirvonen\n\nAll rights reserved. Not liable for any damage incurred from use of this software including but not limited to: monetary loss, temporary paralysis, halitosis, spontaneous combustion, road rash, and or premature hair loss.</string>
     <string name="main_help">
         - Add lenses to your database by pressing "Lenses" in the option menu.\n
@@ -13,9 +42,48 @@
         - You can view the frames of a roll by pressing on the roll you wish to view.\n
         - You can rename a roll by pressing and holding the roll you wish to rename.
     </string>
+
+    <!--RollInfo-->
+    <string name="Frames">Frames</string>
+    <string name="PickFramesToDelete">Pick frames to delete</string>
     <string name="frame_help">
         - Add new frames by pressing the + -icon.\n
         - Delete frames by pressing the trash can icon.\n
         - You can edit a frame\'s information by pressing on it.\n
         - You can share the roll information by pressing the share icon. The app shares a text file formatted in semi-colon separated values. You can save this file in Dropbox, for example, and name the file with .csv ending.</string>
+    <string name="EditFrame">Edit frame #</string>
+    <string name="NewFrame">Add new frame</string>
+
+    <!--RollNameDialog-->
+    <string name="NewRoll">Add new roll</string>
+
+
+
+    <!--activity_lenses.xml-->
+    <string name="NoLenses">No added lenses</string>
+
+    <!--activity_main.xml-->
+    <string name="NoRolls">No added rolls</string>
+
+    <!--activity_roll_info.xml-->
+    <string name="NoFrames">No added frames</string>
+
+    <!--custom_dialog.xml-->
+    <string name="Name">Name</string>
+
+    <!--frame_info_dialog.xml-->
+    <string name="Lens">Lens:</string>
+    <string name="Date">Date:</string>
+    <string name="Time">Time:</string>
+    <string name="FrameCount">Frame count:</string>
+
+    <!--item_frame.xml-->
+    <string name="Text">Text</string>
+
+    <!--menu_main.xml-->
+    <string name="About">About</string>
+
+    <!--menu_roll_info.xml-->
+    <string name="Share">Share</string>
+
 </resources>

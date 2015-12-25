@@ -6,7 +6,7 @@
     <item
         android:id="@+id/menu_item_add_frame"
         android:icon="@mipmap/ic_action_new"
-        android:title="Add"
+        android:title="@string/Add"
 
         omgandroid:showAsAction="ifRoom"
         />
@@ -14,19 +14,19 @@
     <item
         android:id="@+id/menu_item_delete_frame"
         android:icon="@mipmap/ic_action_delete"
-        android:title="Delete"
+        android:title="@string/Delete"
         omgandroid:showAsAction="ifRoom"
         />
 
     <item
         android:id="@+id/menu_item_share"
-        android:title="Share"
+        android:title="@string/Share"
         omgandroid:showAsAction="ifRoom"
         omgandroid:actionProviderClass= "android.support.v7.widget.ShareActionProvider" />
 
     <item
         android:id="@+id/menu_item_frame_help"
-        android:title="Help"
+        android:title="@string/Help"
         omgandroid:showAsAction="never"
         />
 </menu>

@@ -68,7 +68,7 @@
         android:layout_marginTop="60dp"
         android:textSize="20sp"
         android:gravity="center"
-        android:text="No added rolls"/>
+        android:text="@string/NoRolls"/>
 
     <!-- List whose dataset is defined in code with an adapter -->
     <ListView

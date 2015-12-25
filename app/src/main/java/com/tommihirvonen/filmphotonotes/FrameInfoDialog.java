@@ -118,7 +118,7 @@ public class FrameInfoDialog extends DialogFragment {
         }
         final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Choose used lens");
+        builder.setTitle(R.string.UsedLens);
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

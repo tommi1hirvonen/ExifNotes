@@ -54,7 +54,7 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle(name_of_roll);
-        getSupportActionBar().setSubtitle("Frames");
+        getSupportActionBar().setSubtitle(R.string.Frames);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
         mainTextView = (TextView) findViewById(R.id.no_added_frames);
@@ -214,7 +214,7 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
                     final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                     final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Pick frames to delete")
+                    builder.setTitle(R.string.PickFramesToDelete)
 
                     // List Dialog
 //                    builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -255,7 +255,7 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
                                 }
                             })
                             // Set the action buttons
-                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.Delete, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
 
@@ -281,7 +281,7 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
 
                         }
                     })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             // Do nothing
@@ -298,10 +298,10 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
             case R.id.menu_item_frame_help:
 
                 AlertDialog.Builder helpDialog = new AlertDialog.Builder(this);
-                helpDialog.setTitle("Help");
+                helpDialog.setTitle(R.string.Help);
                 helpDialog.setMessage(R.string.frame_help);
                 //helpDialog.setIcon(R.mipmap.film_photo_notes_icon);
-                helpDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
                     }
@@ -330,7 +330,8 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
         mLensList = readLensFile();
 
         //show_EditFrameInfoDialog(lens, position);
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance("Edit frame #" + mFrameClassList.get(position).getCount(), lens, position, count, date, mLensList);
+
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(lens, position, count, date, mLensList);
         dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
@@ -392,7 +393,7 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
     private void show_frame_info_dialog() {
         ArrayList<String> mLensList = new ArrayList<>();
         mLensList = readLensFile();
-        FrameInfoDialog dialog = FrameInfoDialog.newInstance("Add new frame", mLensList);
+        FrameInfoDialog dialog = FrameInfoDialog.newInstance("" + R.string.NewFrame, mLensList);
         dialog.show(getSupportFragmentManager(), FrameInfoDialog.TAG);
     }
 

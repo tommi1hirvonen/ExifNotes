@@ -5,7 +5,7 @@
     <item
         android:id="@+id/menu_item_add_lens"
         android:icon="@mipmap/ic_action_new"
-        android:title="Add"
+        android:title="@string/Add"
 
         omgandroid:showAsAction="ifRoom"
         />
@@ -13,7 +13,7 @@
     <item
         android:id="@+id/menu_item_delete_lens"
         android:icon="@mipmap/ic_action_delete"
-        android:title="Delete"
+        android:title="@string/Delete"
         omgandroid:showAsAction="ifRoom"
         />
 

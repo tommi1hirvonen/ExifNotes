@@ -65,14 +65,14 @@ public class RollNameDialog extends DialogFragment
         final View inflator = linf.inflate(R.layout.custom_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        alert.setTitle("Add new roll");
+        alert.setTitle(R.string.NewRoll);
 
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_name);
 
 
-        alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+        alert.setPositiveButton(R.string.Add, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
                 String name = et1.getText().toString();
@@ -85,7 +85,7 @@ public class RollNameDialog extends DialogFragment
             }
         });
 
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 dialog.cancel();
             }

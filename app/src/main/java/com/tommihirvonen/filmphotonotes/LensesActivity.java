@@ -49,7 +49,7 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
         //data = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        getSupportActionBar().setTitle("Lenses");
+        getSupportActionBar().setTitle(R.string.Lenses);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
@@ -121,7 +121,7 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
 
                     // MULTIPLE CHOICE DIALOG
                     final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
-                    builder.setTitle("Pick lenses to delete")
+                    builder.setTitle(R.string.PickLensesToDelete)
                         .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
@@ -135,7 +135,7 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
                             }
                         })
                                 // Set the action buttons
-                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.Delete, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
 
@@ -155,12 +155,12 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
                                     // Remove the roll from the mNameList. Do this last!!!
                                     mLensList.remove(which);
                                 }
-                                if (mLensList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
+                                if (mLensList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
                                 mArrayAdapter.notifyDataSetChanged();
 
                             }
                         })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int id) {
                                         // Do nothing
@@ -193,7 +193,19 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
                 // Check if a lens with the same name already exists
                 for ( int i = 0; i < mLensList.size(); ++i ) {
                     if ( inputName.equals( mLensList.get(i).toString() )  ) {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Lens with same name already exists!", Toast.LENGTH_LONG);
+                        Toast toast = Toast.makeText(getApplicationContext(), R.string.LensSameName, Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+                        return;
+                    }
+                }
+
+                //Check if there are illegal character in the lens name
+                String ReservedChars = "|\\?*<\":>/";
+                for ( int i = 0; i < inputName.length(); ++i ) {
+                    Character c = inputName.charAt(i);
+                    if ( ReservedChars.contains(c.toString()) ) {
+                        Toast toast = Toast.makeText(getApplicationContext(), R.string.LensIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.CENTER, 0, 0);
                         toast.show();
                         return;
