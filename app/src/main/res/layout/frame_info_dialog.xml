@@ -5,22 +5,69 @@
     android:orientation="vertical"
     android:layout_margin="8dp" >
 
-    <TextView
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginTop="15dp"
+            android:text="Lens:"
+            />
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text="(Click to edit)"
+            android:layout_marginRight="3dp"
+            android:gravity="bottom|right" />
+    </LinearLayout>
+
+
+
+    <Button
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/btn_lens"
+
         android:textSize="20sp"
-        android:layout_marginLeft="3dp"
+
+        android:layout_marginTop="5dp"
+
+        android:textColor="#ffffff"
+        android:clickable="true"
+        android:gravity="center" />
+    <!--
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.2dp"
+        android:id="@+id/above_separator"
+        android:visibility="visible"
         android:layout_marginTop="15dp"
-        android:text="Lens:"
-        />
+        android:background="@android:color/darker_gray"/>
 
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
+        android:textSize="25sp"
         android:layout_marginLeft="5dp"
-        />
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:textColor="#ffffff"
+        android:clickable="true" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.2dp"
+        android:id="@+id/below_separator"
+        android:visibility="visible"
+        android:background="@android:color/darker_gray"/>
+        -->
     <!--
     <EditText
         android:id="@+id/txt_name"
@@ -40,7 +87,7 @@
         android:layout_marginTop="15dp"
         android:text="Date:"
         />
-
+    <!--
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -49,7 +96,31 @@
 
         android:hint="Name2"
         android:inputType="textCapWords"
-        />
+        android:gravity="center" />
+    -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="2">
+
+        <Button
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_date"
+            android:textColor="#ffffff"
+            android:clickable="true"
+            android:gravity="center"/>
+        <Button
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_time"
+            android:textColor="#ffffff"
+            android:clickable="true"
+            android:gravity="center"/>
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -60,6 +131,7 @@
         android:text="Frame count:"
         />
 
+    <!--
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -68,10 +140,13 @@
 
         android:hint="Name3"
         android:inputType="textCapWords"
-        />
-
-
-
+        android:gravity="center" />
+    -->
+    <NumberPicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/numberPicker"
+        android:layout_gravity="center_horizontal" />
 
 
 </LinearLayout>

@@ -2,7 +2,11 @@ package com.tommihirvonen.filmphotonotes;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
+import android.app.TimePickerDialog;
+import android.app.TimePickerDialog.OnTimeSetListener;
 import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -10,12 +14,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -99,25 +107,25 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         alert.setView(inflator);
 
-        //final EditText et1 = (EditText) inflator.findViewById(R.id.txt_name);
-        final TextView tv1 = (TextView) inflator.findViewById(R.id.tv_name);
-        final EditText et2 = (EditText) inflator.findViewById(R.id.txt_name2);
-        final EditText et3 = (EditText) inflator.findViewById(R.id.txt_name3);
-        //et1.setHint("Used lens");
-        //et1.setText(lens);
-        tv1.setText(lens);
-        et2.setHint("Date");
-        et2.setText(date);
-        et3.setHint("Frame count");
-        et3.setText("" + count);
+        final TextView b_lens = (TextView) inflator.findViewById(R.id.btn_lens);
+        final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
+        final TextView b_time = (TextView) inflator.findViewById(R.id.btn_time);
 
-        tv1.setClickable(true);
-        tv1.setOnClickListener(new View.OnClickListener() {
+        final NumberPicker np = (NumberPicker) inflator.findViewById(R.id.numberPicker);
+        b_lens.setText(lens);
+
+        np.setMinValue(0);
+        np.setMaxValue(100);
+        np.setValue(count);
+
+        // LENS PICK DIALOG
+        b_lens.setClickable(true);
+        b_lens.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 List<String> listItems = new ArrayList<String>();
-                for ( int i = 0; i < lensList.size(); ++i ) {
-                    listItems.add(lensList.get(i).toString());
+                for (int i = 0; i < lensList.size(); ++i) {
+                    listItems.add(lensList.get(i));
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -125,7 +133,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        tv1.setText(lensList.get(which).toString());
+                        b_lens.setText(lensList.get(which));
                     }
                 });
                 AlertDialog alert = builder.create();
@@ -133,18 +141,79 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         });
 
+        // DATE PICK DIALOG
+
+        // The date is in format "YYYY-M-D HH:MM"
+
+        ArrayList<String> dateValue = splitDate(date);
+        final int i_year = Integer.parseInt(dateValue.get(0));
+        final int i_month = Integer.parseInt(dateValue.get(1));
+        final int i_day = Integer.parseInt(dateValue.get(2));
+        b_date.setText(i_year + "-" + i_month + "-" + i_day);
+        b_date.setClickable(true);
+
+        b_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // DATE PICKER DIALOG IMPLEMENTATION HERE
+                DatePickerDialog dialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        String newDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+                        b_date.setText(newDate);
+                    }
+                    // One month has to be subtracted from the default shown month, otherwise
+                    // the date picker shows one month forward.
+                }, i_year, (i_month - 1), i_day);
+
+                dialog.show();
+
+            }
+        });
+
+        // TIME PICK DIALOG
+        ArrayList<String> timeValue = splitTime(date);
+        final int hours = Integer.parseInt(timeValue.get(0));
+        final int minutes = Integer.parseInt(timeValue.get(1));
+        b_time.setText(hours + ":" + minutes);
+        b_time.setClickable(true);
+
+        b_time.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TIME PICKER DIALOG IMPLEMENTATION HERE
+                TimePickerDialog dialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        String newTime = "";
+                        if (minute < 10) {
+                            newTime = hourOfDay + ":0" + minute;
+                        }
+                        else newTime = hourOfDay + ":" + minute;
+                        b_time.setText(newTime);
+                    }
+                }, hours, minutes, true);
+
+                dialog.show();
+
+            }
+        });
+
         alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
                 //lens = et1.getText().toString();
-                lens = tv1.getText().toString();
+                lens = b_lens.getText().toString();
                 try {
-                    count = Integer.parseInt(et3.getText().toString());
+                    //count = Integer.parseInt(et3.getText().toString());
+                    count = np.getValue();
                 }
                 catch (NumberFormatException e) {
                     Toast.makeText(getActivity(), "Frame count was not changed!\nNew frame count was not a number", Toast.LENGTH_LONG).show();
                 }
-                date = et2.getText().toString();
+
+                // PARSE THE DATE
+                date = b_date.getText().toString() + " " + b_time.getText().toString();
 
 
                 //do operations using s1
@@ -161,8 +230,30 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         });
         AlertDialog dialog = alert.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        //dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         return dialog;
+    }
+
+    private ArrayList<String> splitDate(String input) {
+        String inputString = input;
+        String[] items = inputString.split(" ");
+        ArrayList<String> itemList = new ArrayList<String>(Arrays.asList(items));
+        // { YYYY-M-D, HH:MM }
+        String[] items2 = itemList.get(0).split("-");
+        itemList = new ArrayList<String>(Arrays.asList(items2));
+        // { YYYY, M, D }
+        return itemList;
+    }
+
+    private ArrayList<String> splitTime(String input) {
+        String inputString = input;
+        String[] items = inputString.split(" ");
+        ArrayList<String> itemList = new ArrayList<String>(Arrays.asList(items));
+        // { YYYY-M-D, HH:MM }
+        String[] items2 = itemList.get(1).split(":");
+        itemList = new ArrayList<String>(Arrays.asList(items2));
+        // { HH, MM }
+        return itemList;
     }
 
 }

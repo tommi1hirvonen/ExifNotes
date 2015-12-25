@@ -175,7 +175,7 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
 //                   // There is another instance of this same operation in onInfoSet
 //                   final Calendar c = Calendar.getInstance();
 //                   int iYear = c.get(Calendar.YEAR);
-//                   int iMonth = c.get(Calendar.MONTH);
+//                   int iMonth = c.get(Calendar.MONTH) + 1;
 //                   int iDay = c.get(Calendar.DAY_OF_MONTH);
 //                   int iHour = c.get(Calendar.HOUR_OF_DAY);
 //                   int iMin = c.get(Calendar.MINUTE);
@@ -409,11 +409,15 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
                 // Dateformat doesn't seem to work for some reason. This is a workaround.
                 final Calendar c = Calendar.getInstance();
                 int iYear = c.get(Calendar.YEAR);
-                int iMonth = c.get(Calendar.MONTH);
+                int iMonth = c.get(Calendar.MONTH) + 1;
                 int iDay = c.get(Calendar.DAY_OF_MONTH);
                 int iHour = c.get(Calendar.HOUR_OF_DAY);
                 int iMin = c.get(Calendar.MINUTE);
-                String current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
+                String current_time = "";
+                if ( iMin < 10 ) {
+                    current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
+                }
+                else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
 
                 ++counter;
                 mainTextView.setVisibility(View.GONE);
