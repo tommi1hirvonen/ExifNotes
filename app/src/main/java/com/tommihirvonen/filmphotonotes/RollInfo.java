@@ -420,6 +420,9 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
                 }
                 else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
 
+                // Update counter in case the previous frame's counter was edited
+                if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size()-1).getCount();
+
                 ++counter;
                 mainTextView.setVisibility(View.GONE);
 

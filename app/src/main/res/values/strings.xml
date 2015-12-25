@@ -26,7 +26,7 @@
     <string name="Add">Add</string>
 
     <!--MainActivity-->
-    <string name="MainActivityTitle">  Rolls</string>
+    <string name="MainActivityTitle">Rolls</string>
     <string name="PickRollsToDelete">Pick rolls to delete</string>
     <string name="Delete">Delete</string>
     <string name="Cancel">Cancel</string>
