@@ -325,8 +325,12 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
         String lens = mFrameClassList.get(position).getLens();
         int count = mFrameClassList.get(position).getCount();
         String date = mFrameClassList.get(position).getDate();
+
+        ArrayList<String> mLensList = new ArrayList<>();
+        mLensList = readLensFile();
+
         //show_EditFrameInfoDialog(lens, position);
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance("Edit frame #" + mFrameClassList.get(position).getCount(), lens, position, count, date);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance("Edit frame #" + mFrameClassList.get(position).getCount(), lens, position, count, date, mLensList);
         dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
