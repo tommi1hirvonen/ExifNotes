@@ -39,7 +39,6 @@ public class RollNameDialog extends DialogFragment {
             callback = (onNameSetCallback) activity;
         }
         catch(ClassCastException e) {
-            Log.e(TAG, "The MainActivity should implement the onNameSetCallback interface");
             e.printStackTrace();
         }
     }

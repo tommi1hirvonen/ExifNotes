@@ -46,7 +46,6 @@ public class EditRollNameDialog extends DialogFragment {
             callback = (OnNameEditedCallback) activity;
         }
         catch(ClassCastException e) {
-            Log.e(TAG, "The MainActivity should implement the OnNameEditedCallback interface");
             e.printStackTrace();
         }
     }

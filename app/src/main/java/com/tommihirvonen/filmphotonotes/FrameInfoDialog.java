@@ -49,7 +49,6 @@ public class FrameInfoDialog extends DialogFragment {
             callback = (onInfoSetCallback) activity;
         }
         catch(ClassCastException e) {
-            Log.e(TAG, "The RollInfo should implement the onInfoSetCallback interface");
             e.printStackTrace();
         }
     }

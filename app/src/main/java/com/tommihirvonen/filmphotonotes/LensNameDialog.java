@@ -38,7 +38,6 @@ public class LensNameDialog extends DialogFragment {
             callback = (onLensNameSetCallback) activity;
         }
         catch(ClassCastException e) {
-            Log.e(TAG, "The LensesActivity should implement the callback interface");
             e.printStackTrace();
         }
     }

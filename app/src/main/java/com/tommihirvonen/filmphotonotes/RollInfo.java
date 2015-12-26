@@ -316,11 +316,6 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // Log the item's position and contents
-        // to the console in Debug
-        Log.d("FilmPhotoNotes", position + ": " + mFrameClassList.get(position).getCount());
-
-
         // Edit frame info
         String lens = mFrameClassList.get(position).getLens();
         int count = mFrameClassList.get(position).getCount();

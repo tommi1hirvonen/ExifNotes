@@ -109,9 +109,6 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     // Pressing the roll allows the user to show the frames taken with that roll
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // Log the item's position and contents
-        // to the console in Debug
-        Log.d("FilmPhotoNotes", position + ": " + mNameList.get(position));
 
         Intent intent = new Intent(this, RollInfo.class);
         intent.putExtra(EXTRA_MESSAGE, mNameList.get(position));
@@ -121,9 +118,6 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     //Long pressing the roll allows the user to rename the roll
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        // Log the item's position and contents
-        // to the console in Debug
-        Log.d("FilmPhotoNotes", position + ": " + mNameList.get(position));
 
         show_EditRollNameDialog(mNameList.get(position));
 
@@ -229,7 +223,7 @@ public class MainActivity extends ActionBarActivity implements
                                             boolean delete = frames_file.delete();
                                         }
                                         catch ( Exception e ) {
-                                            Log.e("App", "Exception while deleting file " + e.getMessage());
+                                            e.printStackTrace();
                                         }
                                     }
 
@@ -396,8 +390,6 @@ public class MainActivity extends ActionBarActivity implements
                         return;
                     }
                 }
-
-                Log.d("FilmPhotoNotes", newName + oldName);
 
                 // Change the string in mNameList
                 int position = 0;

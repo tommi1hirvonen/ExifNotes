@@ -85,9 +85,6 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-        Log.d("FilmPhotoNotes", position + ": " + mLensList.get(position));
-
     }
 
     @Override
