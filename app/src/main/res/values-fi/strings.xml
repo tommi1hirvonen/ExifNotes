@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Film Photo Notes</string>
+    <string name="About">Tietoja</string>
+    <string name="Add">Lisää</string>
+    <string name="Cancel">Peruuta</string>
+    <string name="Close">Sulje</string>
+    <string name="Date">Päivä:</string>
+    <string name="Delete">Poista</string>
+    <string name="EditFrame">Muokkaa ruutua #</string>
+    <string name="FrameCount">Ruudun numero:</string>
+    <string name="FrameCountNotChanged">Ruudun numeroa ei muutettu!\nAnnettu arvo ei ollut numero</string>
+    <string name="Frames">Ruudut</string>
+    <string name="Help">Ohje</string>
+    <string name="Lens">Objektiivi:</string>
+    <string name="LensIllegalCharacter">Objektiivin nimessä on sallimaton merkki: </string>
+    <string name="LensSameName">Saman niminen objektiivi on jo olemassa!</string>
+    <string name="Lenses">Objektiivit</string>
+    <string name="MainActivityTitle">Rullat</string>
+    <string name="Name">Nimi</string>
+    <string name="NewFrame">Lisää uusi ruutu</string>
+    <string name="NewLens">Lisää uusi objektiivi</string>
+    <string name="NewRoll">Lisää uusi rulla</string>
+    <string name="NoFrames">Ei lisättyjä ruutuja</string>
+    <string name="NoLenses">Ei lisättyjä objektiiveja</string>
+    <string name="NoRolls">Ei lisättyjä rullia</string>
+    <string name="OK">OK</string>
+    <string name="PickFramesToDelete">Valitse poistettavat ruudut</string>
+    <string name="PickLensesToDelete">Valitse poistettavat objektiivit</string>
+    <string name="PickRollsToDelete">Valitse poistettavat rullat</string>
+    <string name="Rename">Nimeä uudelleen</string>
+    <string name="RenameRoll">Nimeä rulla uudelleen</string>
+    <string name="RollIllegalCharacter">Rullan nimessä on sallimaton merkki: </string>
+    <string name="RollSameName">Saman niminen rulla on jo olemassa!</string>
+    <string name="Share">Jaa</string>
+    <string name="Text">Teksti</string>
+    <string name="Time">Aika:</string>
+    <string name="UsedLens">Valitse käytetty objektiivi</string>
+    <string name="about">Versio 1.0\nCopyright 2015\nTommi Hirvonen\n\nKaikki oikeudet pidätetään. Sovelluksen tekijä ei ole vastuussa sovellukseen käyttöön liittyvistä menetyksistä tai vahingoista, mukaan lukien, mutta ei nihin rajoittuen, rahallinen menetys, hetkellinen halvaantuminen, halitoosi, itsesyttyminen, asfaltti-ihottuma, ja/tai ennenaikainen hiustenlähtö.</string>
+    <string name="frame_help">
+        - Lisää uusia ruutuja painamalla + - kuvaketta.\n
+        - Poista ruutuja painamalla roskakorin kuvaketta.\n
+        - Voit muokata ruudun tietoja painamalla kyseistä ruutua.\n
+        - Voit jakaa rullan tiedot painamalla Jaa-kuvaketta. Sovellus jakaa tekstitiedoston, jossa arvot on eroteltu puolipisteellä. Tämän tiedoston voi tallentaa esimerkiksi Dropboxiin ja nimetä tiedoston .csv-päätteellä.</string>
+    <string name="main_help">
+        - Lisää objektiiveja tietokantaan painamalla valikossa "Objektiivit".\n
+        - Lisää uusia rullia painamalla + -kuvaketta.\n
+        - Poista rullia painamalla roskakorin kuvaketta.\n
+        - Voit katsella rullan kuvia painamalla kyseistä rullaa.\n
+        - Voit uudelleennimetä rullan painamalla ja pitämällä kyseisestä rullasta.</string>
+</resources>
