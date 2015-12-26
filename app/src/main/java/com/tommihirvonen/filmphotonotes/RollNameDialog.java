@@ -65,7 +65,7 @@ public class RollNameDialog extends DialogFragment {
             {
                 String name = et1.getText().toString();
 
-                if(!name.isEmpty()) {
+                if(name.length() != 0) {
                     // Return the new entered name to the calling activity
                     callback.onNameSet(name);
                 }

@@ -4,9 +4,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,7 +31,7 @@ import java.util.Scanner;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class MainActivity extends ActionBarActivity implements
+public class MainActivity extends AppCompatActivity implements
         //View.OnClickListener,
         AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener, RollNameDialog.onNameSetCallback, EditRollNameDialog.OnNameEditedCallback {
 
@@ -50,6 +49,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle("  " + this.getString(R.string.MainActivityTitle));
         getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
@@ -317,100 +317,100 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onNameSet(String inputName) {
-        if(!TextUtils.isEmpty(inputName)) {
-
-                if ( inputName.length() != 0 ) {
-
-                    //Check if a roll with the same name already exists
-                    for ( int i = 0; i < mNameList.size(); ++i ) {
-                        if ( inputName.equals( mNameList.get(i) )  ) {
-                            Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
-                            toast.setGravity(Gravity.CENTER, 0, 0);
-                            toast.show();
-                            return;
-                        }
-                    }
-
-                    //Check if there are illegal character in the roll name
-                    String ReservedChars = "|\\?*<\":>/";
-                    for ( int i = 0; i < inputName.length(); ++i ) {
-                        Character c = inputName.charAt(i);
-                        if ( ReservedChars.contains(c.toString()) ) {
-                            Toast toast = Toast.makeText(getApplicationContext(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
-                            toast.setGravity(Gravity.CENTER, 0, 0);
-                            toast.show();
-                            return;
-                        }
-                    }
-
-                    mainTextView.setVisibility(View.GONE);
-                    mNameList.add(inputName);
-                    mArrayAdapter.notifyDataSetChanged();
-
-                    // When the new roll is added jump to view the last entry
-                    mainListView.setSelection(mainListView.getCount() - 1);
 
 
-                    //Save the file when the new roll has been added
-                    writeRollFile(inputName);
+        if ( inputName.length() != 0 ) {
 
-
-
-
+            //Check if a roll with the same name already exists
+            for ( int i = 0; i < mNameList.size(); ++i ) {
+                if ( inputName.equals( mNameList.get(i) )  ) {
+                    Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                    return;
                 }
+            }
+
+            //Check if there are illegal character in the roll name
+            String ReservedChars = "|\\?*<\":>/";
+            for ( int i = 0; i < inputName.length(); ++i ) {
+                Character c = inputName.charAt(i);
+                if ( ReservedChars.contains(c.toString()) ) {
+                    Toast toast = Toast.makeText(getApplicationContext(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                    return;
+                }
+            }
+
+            mainTextView.setVisibility(View.GONE);
+            mNameList.add(inputName);
+            mArrayAdapter.notifyDataSetChanged();
+
+            // When the new roll is added jump to view the last entry
+            mainListView.setSelection(mainListView.getCount() - 1);
+
+
+            //Save the file when the new roll has been added
+            writeRollFile(inputName);
+
+
+
+
         }
+
     }
 
     @Override
     public void OnNameEdited(String newName, String oldName){
-        if(!TextUtils.isEmpty(newName)) {
-            // Grab the EditText's input
 
-            if ( newName.length() != 0 ) {
+        // Grab the EditText's input
 
-                //Check if a roll with the same name already exists
-                for ( int i = 0; i < mNameList.size(); ++i ) {
-                    if ( newName.equals( mNameList.get(i))  ) {
-                        Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER, 0, 0);
-                        toast.show();
-                        return;
-                    }
+        if ( newName.length() != 0 ) {
+
+            //Check if a roll with the same name already exists
+            for ( int i = 0; i < mNameList.size(); ++i ) {
+                if ( newName.equals( mNameList.get(i))  ) {
+                    Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                    return;
                 }
-
-                //Check if there are illegal character in the roll name
-                String ReservedChars = "|\\?*<\":>/";
-                for ( int i = 0; i < newName.length(); ++i ) {
-                    Character c = newName.charAt(i);
-                    if ( ReservedChars.contains(c.toString()) ) {
-                        Toast toast = Toast.makeText(getApplicationContext(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER, 0, 0);
-                        toast.show();
-                        return;
-                    }
-                }
-
-                // Change the string in mNameList
-                int position = 0;
-                for ( int i = 0; i < mNameList.size(); ++i) {
-                    if (oldName.equals(mNameList.get(i))) {
-                        position = i;
-                    }
-                }
-
-                mNameList.set(position, newName);
-
-                // Notify array adapter that the dataset has to be updated
-                mArrayAdapter.notifyDataSetChanged();
-
-                // List_of_Rolls.txt has to be updated
-                updateListOfRolls(newName, oldName);
-
-                // The Roll_File has to renamed
-                renameFrameFile(newName, oldName);
-
             }
+
+            //Check if there are illegal character in the roll name
+            String ReservedChars = "|\\?*<\":>/";
+            for ( int i = 0; i < newName.length(); ++i ) {
+                Character c = newName.charAt(i);
+                if ( ReservedChars.contains(c.toString()) ) {
+                    Toast toast = Toast.makeText(getApplicationContext(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                    return;
+                }
+            }
+
+            // Change the string in mNameList
+            int position = 0;
+            for ( int i = 0; i < mNameList.size(); ++i) {
+                if (oldName.equals(mNameList.get(i))) {
+                    position = i;
+                }
+            }
+
+            mNameList.set(position, newName);
+
+            // Notify array adapter that the dataset has to be updated
+            mArrayAdapter.notifyDataSetChanged();
+
+            // List_of_Rolls.txt has to be updated
+            updateListOfRolls(newName, oldName);
+
+            // The Roll_File has to renamed
+            renameFrameFile(newName, oldName);
+
         }
+
     }
 
 

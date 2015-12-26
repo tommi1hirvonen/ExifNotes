@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -32,7 +32,7 @@ import java.util.List;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class RollInfo extends ActionBarActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
+public class RollInfo extends AppCompatActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
         FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSettedCallback {
 
     TextView mainTextView;
@@ -51,21 +51,19 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
         Intent intent = getIntent();
         name_of_roll = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle(name_of_roll);
         getSupportActionBar().setSubtitle(R.string.Frames);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
         mainTextView = (TextView) findViewById(R.id.no_added_frames);
 
         // Access the ListView
         mainListView = (ListView) findViewById(R.id.frames_listview);
         // Create an ArrayAdapter for the ListView
-        //mArrayAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,mFrameList);
         mFrameAdapter = new FrameAdapter(this,android.R.layout.simple_list_item_1, mFrameClassList);
 
         // Set the ListView to use the ArrayAdapter
-        //mainListView.setAdapter(mArrayAdapter);
         mainListView.setAdapter(mFrameAdapter);
 
         mainListView.setOnItemClickListener(this);
@@ -392,56 +390,56 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
 
     @Override
     public void onInfoSet(String lens) {
-        if(!TextUtils.isEmpty(lens)) {
-            // Grab the EditText's input
-            if ( lens.length() != 0 ) {
+
+        // Grab the EditText's input
+        if ( lens.length() != 0 ) {
 
 
-                // Add new frame
+            // Add new frame
 
-                // Dateformat doesn't seem to work for some reason. This is a workaround.
-                final Calendar c = Calendar.getInstance();
-                int iYear = c.get(Calendar.YEAR);
-                int iMonth = c.get(Calendar.MONTH) + 1;
-                int iDay = c.get(Calendar.DAY_OF_MONTH);
-                int iHour = c.get(Calendar.HOUR_OF_DAY);
-                int iMin = c.get(Calendar.MINUTE);
-                String current_time;
-                if ( iMin < 10 ) {
-                    current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
-                }
-                else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
-
-                // Update counter in case the previous frame's counter was edited
-                if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size()-1).getCount();
-
-                ++counter;
-                mainTextView.setVisibility(View.GONE);
-
-                Frame frame = new Frame(counter, current_time, lens);
-                mFrameClassList.add(frame);
-                mFrameAdapter.notifyDataSetChanged();
-
-
-                // When the new frame is added jump to view the last entry
-                mainListView.setSelection(mainListView.getCount() - 1 );
-                // The text you'd like to share has changed,
-                // and you need to update
-                setShareIntent();
-
-                // Save the file when the new frame has been added
-                writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens());
-
-
+            // Dateformat doesn't seem to work for some reason. This is a workaround.
+            final Calendar c = Calendar.getInstance();
+            int iYear = c.get(Calendar.YEAR);
+            int iMonth = c.get(Calendar.MONTH) + 1;
+            int iDay = c.get(Calendar.DAY_OF_MONTH);
+            int iHour = c.get(Calendar.HOUR_OF_DAY);
+            int iMin = c.get(Calendar.MINUTE);
+            String current_time;
+            if ( iMin < 10 ) {
+                current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
             }
+            else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
+
+            // Update counter in case the previous frame's counter was edited
+            if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size()-1).getCount();
+
+            ++counter;
+            mainTextView.setVisibility(View.GONE);
+
+            Frame frame = new Frame(counter, current_time, lens);
+            mFrameClassList.add(frame);
+            mFrameAdapter.notifyDataSetChanged();
+
+
+            // When the new frame is added jump to view the last entry
+            mainListView.setSelection(mainListView.getCount() - 1 );
+            // The text you'd like to share has changed,
+            // and you need to update
+            setShareIntent();
+
+            // Save the file when the new frame has been added
+            writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens());
+
+
         }
+
     }
 
 
 
     @Override
     public void onEditSetted(String lens, int position, int count, String date) {
-        if ( !TextUtils.isEmpty(lens) ) {
+        if ( lens.length() != 0 ) {
 
             // Replace the old lens in the text file with the new one
             try {
@@ -458,11 +456,6 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
             mFrameClassList.get(position).setDate(date);
             mFrameAdapter.notifyDataSetChanged();
             setShareIntent();
-
-
-
-            // For debugging
-            //Toast.makeText(getApplicationContext(), "" + frameCount + "moi", Toast.LENGTH_LONG).show();
 
         }
     }

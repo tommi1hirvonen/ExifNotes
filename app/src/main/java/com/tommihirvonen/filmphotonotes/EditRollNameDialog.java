@@ -70,7 +70,7 @@ public class EditRollNameDialog extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newName = et1.getText().toString();
-                if (!newName.isEmpty()) {
+                if (newName.length() != 0) {
                     callback.OnNameEdited(newName, oldName);
                 }
             }

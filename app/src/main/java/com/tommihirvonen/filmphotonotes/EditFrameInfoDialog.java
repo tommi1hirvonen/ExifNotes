@@ -208,7 +208,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 // PARSE THE DATE
                 date = b_date.getText().toString() + " " + b_time.getText().toString();
 
-                if(!lens.isEmpty()) {
+                if(lens.length() != 0) {
                     // Return the new entered name to the calling activity
                     callback.onEditSetted(lens, position, count, date);
                 }

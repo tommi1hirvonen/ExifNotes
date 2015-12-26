@@ -1,10 +1,10 @@
 package com.tommihirvonen.filmphotonotes;
 
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
@@ -27,7 +27,7 @@ import java.util.List;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class LensesActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback {
+public class LensesActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback {
 
     TextView mainTextView;
 
@@ -42,7 +42,7 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lenses);
 
-
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle(R.string.Lenses);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -176,7 +176,7 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
 
     @Override
     public void onLensNameSet(String inputText) {
-        if(!TextUtils.isEmpty(inputText)) {
+        if(inputText.length() != 0) {
 
             if ( inputText.length() != 0 ) {
 
