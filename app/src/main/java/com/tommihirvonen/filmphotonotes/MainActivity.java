@@ -30,25 +30,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
+// Copyright 2015
+// Tommi Hirvonen
 
 public class MainActivity extends ActionBarActivity implements
         //View.OnClickListener,
         AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener, RollNameDialog.onNameSetCallback, EditRollNameDialog.OnNameEditedCallback {
 
     public final static String EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
-    public static final String TAG = "MainActivity";
 
     TextView mainTextView;
-    //Button mainButton;
-    //EditText mainEditText;
 
     ListView mainListView;
-    //ArrayAdapter mArrayAdapter;
     RollAdapter mArrayAdapter;
     ArrayList<String> mNameList = new ArrayList<>();
-
-
-    //ShareActionProvider mShareActionProvider;
 
 
     @Override
@@ -56,20 +51,9 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //getSupportActionBar().setTitle("Hello world App");
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        //getSupportActionBar().setTitle(" Film Photo Notes");
-        //getSupportActionBar().setSubtitle(" Rolls");
         getSupportActionBar().setTitle("  " + this.getString(R.string.MainActivityTitle));
         getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
-
-        // Access the Button defined in layout XML
-        // and listen for it here
-        //mainButton = (Button) findViewById(R.id.main_button);
-        //mainButton.setOnClickListener(this);
-
-        // Access the EditText defined in layout XML
-        //mainEditText = (EditText) findViewById(R.id.main_edittext);
 
         mainTextView = (TextView) findViewById(R.id.no_added_rolls);
 
@@ -77,7 +61,6 @@ public class MainActivity extends ActionBarActivity implements
         mainListView = (ListView) findViewById(R.id.main_listview);
 
         // Create an ArrayAdapter for the ListView
-        //mArrayAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,mNameList);
         mArrayAdapter = new RollAdapter(this, android.R.layout.simple_list_item_1, mNameList);
 
         // Set the ListView to use the ArrayAdapter
@@ -104,31 +87,17 @@ public class MainActivity extends ActionBarActivity implements
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-
-        // Access the Share Item defined in menu XML
-        //MenuItem shareItem = menu.findItem(R.id.menu_item_share);
-
         MenuItem addRoll = menu.findItem(R.id.menu_item_add_roll);
         MenuItem deleteRoll = menu.findItem(R.id.menu_item_delete_roll);
         MenuItem about = menu.findItem(R.id.menu_item_about);
         MenuItem help = menu.findItem(R.id.menu_item_help);
         MenuItem lenses = menu.findItem(R.id.menu_item_lenses);
 
-        // Access the object responsible for
-        // putting together the sharing submenu
-//        if (shareItem != null) {
-//            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
-//        }
-
         addRoll.setOnMenuItemClickListener(this);
         deleteRoll.setOnMenuItemClickListener(this);
         about.setOnMenuItemClickListener(this);
         help.setOnMenuItemClickListener(this);
         lenses.setOnMenuItemClickListener(this);
-
-
-        // Create an Intent to share your content
-        //setShareIntent();
 
         return true;
     }
@@ -145,7 +114,7 @@ public class MainActivity extends ActionBarActivity implements
         Log.d("FilmPhotoNotes", position + ": " + mNameList.get(position));
 
         Intent intent = new Intent(this, RollInfo.class);
-        intent.putExtra(EXTRA_MESSAGE, mNameList.get(position).toString());
+        intent.putExtra(EXTRA_MESSAGE, mNameList.get(position));
         startActivity(intent);
     }
 
@@ -156,7 +125,7 @@ public class MainActivity extends ActionBarActivity implements
         // to the console in Debug
         Log.d("FilmPhotoNotes", position + ": " + mNameList.get(position));
 
-        show_EditRollNameDialog(mNameList.get(position).toString());
+        show_EditRollNameDialog(mNameList.get(position));
 
 
         //Return true because the item was pressed and held.
@@ -182,9 +151,9 @@ public class MainActivity extends ActionBarActivity implements
 
                     // LIST ITEMS DIALOG
 
-                    List<String> listItems = new ArrayList<String>();
+                    List<String> listItems = new ArrayList<>();
                     for ( int i = 0; i < mNameList.size(); ++i ) {
-                        listItems.add(mNameList.get(i).toString());
+                        listItems.add(mNameList.get(i));
                     }
                     final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
 
@@ -252,7 +221,7 @@ public class MainActivity extends ActionBarActivity implements
                                     int which = selectedItemsIndexList.get(i);
 
                                     // Remove the roll file
-                                    String name_of_roll = mNameList.get(which).toString();
+                                    String name_of_roll = mNameList.get(which);
 
                                     File frames_file = new File(getFilesDir(), name_of_roll + ".txt");
                                     if ( frames_file.exists() ) {
@@ -326,12 +295,10 @@ public class MainActivity extends ActionBarActivity implements
                 AlertDialog.Builder helpDialog = new AlertDialog.Builder(this);
                 helpDialog.setTitle(R.string.Help);
                 helpDialog.setMessage(R.string.main_help);
-                //helpDialog.setIcon(R.mipmap.film_photo_notes_icon);
 
 
                 helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        //Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -339,9 +306,6 @@ public class MainActivity extends ActionBarActivity implements
 
 
                 break;
-
-            //default:
-            //    return super.onOptionsItemSelected(item);
         }
 
         return true;
@@ -359,16 +323,14 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     @Override
-    public void onNameSet(String inputText) {
-        if(!TextUtils.isEmpty(inputText)) {
-            // Grab the EditText's input
-                String inputName = inputText;
+    public void onNameSet(String inputName) {
+        if(!TextUtils.isEmpty(inputName)) {
 
                 if ( inputName.length() != 0 ) {
 
                     //Check if a roll with the same name already exists
                     for ( int i = 0; i < mNameList.size(); ++i ) {
-                        if ( inputName.equals( mNameList.get(i).toString() )  ) {
+                        if ( inputName.equals( mNameList.get(i) )  ) {
                             Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
                             toast.setGravity(Gravity.CENTER, 0, 0);
                             toast.show();
@@ -395,9 +357,6 @@ public class MainActivity extends ActionBarActivity implements
                     // When the new roll is added jump to view the last entry
                     mainListView.setSelection(mainListView.getCount() - 1);
 
-                    // The text you'd like to share has changed,
-                    // and you need to update
-                    //setShareIntent();
 
                     //Save the file when the new roll has been added
                     writeRollFile(inputName);
@@ -410,16 +369,15 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     @Override
-    public void OnNameEdited(String inputText1, String inputText2){
-        if(!TextUtils.isEmpty(inputText1)) {
+    public void OnNameEdited(String newName, String oldName){
+        if(!TextUtils.isEmpty(newName)) {
             // Grab the EditText's input
-            String newName = inputText1;
-            String oldName = inputText2;
+
             if ( newName.length() != 0 ) {
 
                 //Check if a roll with the same name already exists
                 for ( int i = 0; i < mNameList.size(); ++i ) {
-                    if ( newName.equals( mNameList.get(i).toString() )  ) {
+                    if ( newName.equals( mNameList.get(i))  ) {
                         Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.CENTER, 0, 0);
                         toast.show();
@@ -444,7 +402,7 @@ public class MainActivity extends ActionBarActivity implements
                 // Change the string in mNameList
                 int position = 0;
                 for ( int i = 0; i < mNameList.size(); ++i) {
-                    if (oldName.equals(mNameList.get(i).toString())) {
+                    if (oldName.equals(mNameList.get(i))) {
                         position = i;
                     }
                 }
@@ -473,14 +431,12 @@ public class MainActivity extends ActionBarActivity implements
         {
             File file = new File(getFilesDir(), "List_of_Rolls.txt");
             BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line = "", oldtext = "";
+            String line, oldtext = "";
             while((line = reader.readLine()) != null)
             {
                 oldtext += line + "\r\n";
             }
             reader.close();
-            // replace a word in a file
-            //String newtext = oldtext.replaceAll("drink", "Love");
 
             //To replace a line in a file
             String newtext = oldtext.replaceAll(oldName, newName);

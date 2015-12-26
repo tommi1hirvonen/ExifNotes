@@ -3,7 +3,6 @@ package com.tommihirvonen.filmphotonotes;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
@@ -26,9 +25,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Created by Tommi on 23.12.2015.
- */
+// Copyright 2015
+// Tommi Hirvonen
+
 public class LensesActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback {
 
     TextView mainTextView;
@@ -38,21 +37,17 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
     LensAdapter mArrayAdapter;
 
     ArrayList<String> mLensList = new ArrayList<>();
-    //String data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lenses);
 
-        Intent intent = getIntent();
-        //data = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle(R.string.Lenses);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
 
         mainTextView = (TextView) findViewById(R.id.no_added_lenses);
 
@@ -111,9 +106,9 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
 
                     // Ask the user which lens to delete
 
-                    List<String> listItems = new ArrayList<String>();
+                    List<String> listItems = new ArrayList<>();
                     for ( int i = 0; i < mLensList.size(); ++i) {
-                        listItems.add(mLensList.get(i).toString());
+                        listItems.add(mLensList.get(i));
                     }
                     final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
 
@@ -186,13 +181,12 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
     @Override
     public void onLensNameSet(String inputText) {
         if(!TextUtils.isEmpty(inputText)) {
-            String inputName = inputText;
 
-            if ( inputName.length() != 0 ) {
+            if ( inputText.length() != 0 ) {
 
                 // Check if a lens with the same name already exists
                 for ( int i = 0; i < mLensList.size(); ++i ) {
-                    if ( inputName.equals( mLensList.get(i).toString() )  ) {
+                    if ( inputText.equals( mLensList.get(i))  ) {
                         Toast toast = Toast.makeText(getApplicationContext(), R.string.LensSameName, Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.CENTER, 0, 0);
                         toast.show();
@@ -202,8 +196,8 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
 
                 //Check if there are illegal character in the lens name
                 String ReservedChars = "|\\?*<\":>/";
-                for ( int i = 0; i < inputName.length(); ++i ) {
-                    Character c = inputName.charAt(i);
+                for ( int i = 0; i < inputText.length(); ++i ) {
+                    Character c = inputText.charAt(i);
                     if ( ReservedChars.contains(c.toString()) ) {
                         Toast toast = Toast.makeText(getApplicationContext(), R.string.LensIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.CENTER, 0, 0);
@@ -213,14 +207,14 @@ public class LensesActivity extends ActionBarActivity implements AdapterView.OnI
                 }
 
                 mainTextView.setVisibility(View.GONE);
-                mLensList.add(inputName);
+                mLensList.add(inputText);
                 mArrayAdapter.notifyDataSetChanged();
 
                 // When the lens is added jump to view the last entry
                 mainListView.setSelection(mainListView.getCount() - 1);
 
                 // Save the file when the new roll has been added
-                writeLensFile(inputName);
+                writeLensFile(inputText);
             }
         }
     }

@@ -1,5 +1,7 @@
 package com.tommihirvonen.filmphotonotes;
 
+// Copyright 2015
+// Tommi Hirvonen
 
 public class Frame {
 

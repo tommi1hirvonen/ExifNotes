@@ -3,22 +3,17 @@ package com.tommihirvonen.filmphotonotes;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.EditText;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Tommi on 27.2.2015.
- */
+// Copyright 2015
+// Tommi Hirvonen
+
 public class FrameInfoDialog extends DialogFragment {
 
     String title;
@@ -34,10 +29,6 @@ public class FrameInfoDialog extends DialogFragment {
     }
 
     public static final String TAG = "SetNameDialogFragment";
-
-
-    //private EditText txtName;
-    //private Button btnDone;
 
     private onInfoSetCallback callback;
 
@@ -66,6 +57,7 @@ public class FrameInfoDialog extends DialogFragment {
 
 
 
+    @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
@@ -112,9 +104,9 @@ public class FrameInfoDialog extends DialogFragment {
 
         // LIST ITEMS DIALOG
 
-        List<String> listItems = new ArrayList<String>();
+        List<String> listItems = new ArrayList<>();
         for ( int i = 0; i < lensList.size(); ++i ) {
-            listItems.add(lensList.get(i).toString());
+            listItems.add(lensList.get(i));
         }
         final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -122,7 +114,7 @@ public class FrameInfoDialog extends DialogFragment {
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                callback.onInfoSet(lensList.get(which).toString());
+                callback.onInfoSet(lensList.get(which));
             }
         });
         AlertDialog alert = builder.create();

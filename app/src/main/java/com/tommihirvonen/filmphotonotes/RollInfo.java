@@ -30,16 +30,16 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+// Copyright 2015
+// Tommi Hirvonen
 
 public class RollInfo extends ActionBarActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
         FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSettedCallback {
 
     TextView mainTextView;
     ListView mainListView;
-    //ArrayAdapter mArrayAdapter;
-    ArrayList<Frame> mFrameClassList = new ArrayList<Frame>();
+    ArrayList<Frame> mFrameClassList = new ArrayList<>();
     FrameAdapter mFrameAdapter;
-    //ArrayList mFrameList = new ArrayList();
     ShareActionProvider mShareActionProvider;
     String name_of_roll;
     int counter = 0;
@@ -206,7 +206,7 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
 
                     // Ask the user which frame to delete
 
-                    ArrayList<String> listItems = new ArrayList<String>();
+                    ArrayList<String> listItems = new ArrayList<>();
                     for ( int i = 0; i < mFrameClassList.size(); ++i ) {
                         listItems.add("" + mFrameClassList.get(i).getCount());
                         //            ^ trick to add integer to string
@@ -326,10 +326,9 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
         int count = mFrameClassList.get(position).getCount();
         String date = mFrameClassList.get(position).getDate();
 
-        ArrayList<String> mLensList = new ArrayList<>();
+        ArrayList<String> mLensList;
         mLensList = readLensFile();
 
-        //show_EditFrameInfoDialog(lens, position);
 
         EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(lens, position, count, date, mLensList);
         dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
@@ -391,21 +390,20 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
 
 
     private void show_frame_info_dialog() {
-        ArrayList<String> mLensList = new ArrayList<>();
+        ArrayList<String> mLensList;
         mLensList = readLensFile();
         FrameInfoDialog dialog = FrameInfoDialog.newInstance("" + R.string.NewFrame, mLensList);
         dialog.show(getSupportFragmentManager(), FrameInfoDialog.TAG);
     }
 
     @Override
-    public void onInfoSet(String inputText) {
-        if(!TextUtils.isEmpty(inputText)) {
+    public void onInfoSet(String lens) {
+        if(!TextUtils.isEmpty(lens)) {
             // Grab the EditText's input
-            if ( inputText.length() != 0 ) {
+            if ( lens.length() != 0 ) {
 
 
                 // Add new frame
-                String lens = inputText;
 
                 // Dateformat doesn't seem to work for some reason. This is a workaround.
                 final Calendar c = Calendar.getInstance();
@@ -414,7 +412,7 @@ public class RollInfo extends ActionBarActivity implements AdapterView.OnItemCli
                 int iDay = c.get(Calendar.DAY_OF_MONTH);
                 int iHour = c.get(Calendar.HOUR_OF_DAY);
                 int iMin = c.get(Calendar.MINUTE);
-                String current_time = "";
+                String current_time;
                 if ( iMin < 10 ) {
                     current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
                 }

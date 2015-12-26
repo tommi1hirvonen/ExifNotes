@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+// Copyright 2015
+// Tommi Hirvonen
 
 public class FrameAdapter extends ArrayAdapter<Frame> {
 

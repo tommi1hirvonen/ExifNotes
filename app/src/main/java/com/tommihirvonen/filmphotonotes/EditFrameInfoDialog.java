@@ -3,33 +3,29 @@ package com.tommihirvonen.filmphotonotes;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
-import android.app.TimePickerDialog.OnTimeSetListener;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewDebug;
-import android.view.WindowManager;
+
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Tommi on 27.2.2015.
- */
+// Copyright 2015
+// Tommi Hirvonen
+
 public class EditFrameInfoDialog extends DialogFragment {
 
 
@@ -55,9 +51,6 @@ public class EditFrameInfoDialog extends DialogFragment {
 
     public static final String TAG = "SetLensDialogFragment";
 
-
-    //private EditText txtName;
-    //private Button btnDone;
 
     private OnEditSettedCallback callback;
 
@@ -89,9 +82,9 @@ public class EditFrameInfoDialog extends DialogFragment {
 
 
 
+    @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
-
 
         lens = getArguments().getString("lens");
         position = getArguments().getInt("position");
@@ -100,6 +93,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         lensList = getArguments().getStringArrayList("lenses");
 
         LayoutInflater linf = getActivity().getLayoutInflater();
+        // Here we can safely pass null, because we are inflating a layout for use in a dialog
         final View inflator = linf.inflate(R.layout.frame_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
@@ -124,7 +118,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         b_lens.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<String> listItems = new ArrayList<String>();
+                List<String> listItems = new ArrayList<>();
                 for (int i = 0; i < lensList.size(); ++i) {
                     listItems.add(lensList.get(i));
                 }
@@ -186,7 +180,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 TimePickerDialog dialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        String newTime = "";
+                        String newTime;
                         if (minute < 10) {
                             newTime = hourOfDay + ":0" + minute;
                         }
@@ -203,10 +197,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         alert.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
-                //lens = et1.getText().toString();
                 lens = b_lens.getText().toString();
                 try {
-                    //count = Integer.parseInt(et3.getText().toString());
                     count = np.getValue();
                 }
                 catch (NumberFormatException e) {
@@ -216,8 +208,6 @@ public class EditFrameInfoDialog extends DialogFragment {
                 // PARSE THE DATE
                 date = b_date.getText().toString() + " " + b_time.getText().toString();
 
-
-                //do operations using s1
                 if(!lens.isEmpty()) {
                     // Return the new entered name to the calling activity
                     callback.onEditSetted(lens, position, count, date);
@@ -230,29 +220,26 @@ public class EditFrameInfoDialog extends DialogFragment {
                 dialog.cancel();
             }
         });
-        AlertDialog dialog = alert.create();
-        //dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        return dialog;
+
+        return alert.create();
     }
 
     private ArrayList<String> splitDate(String input) {
-        String inputString = input;
-        String[] items = inputString.split(" ");
-        ArrayList<String> itemList = new ArrayList<String>(Arrays.asList(items));
+        String[] items = input.split(" ");
+        ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
         // { YYYY-M-D, HH:MM }
         String[] items2 = itemList.get(0).split("-");
-        itemList = new ArrayList<String>(Arrays.asList(items2));
+        itemList = new ArrayList<>(Arrays.asList(items2));
         // { YYYY, M, D }
         return itemList;
     }
 
     private ArrayList<String> splitTime(String input) {
-        String inputString = input;
-        String[] items = inputString.split(" ");
-        ArrayList<String> itemList = new ArrayList<String>(Arrays.asList(items));
+        String[] items = input.split(" ");
+        ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
         // { YYYY-M-D, HH:MM }
         String[] items2 = itemList.get(1).split(":");
-        itemList = new ArrayList<String>(Arrays.asList(items2));
+        itemList = new ArrayList<>(Arrays.asList(items2));
         // { HH, MM }
         return itemList;
     }

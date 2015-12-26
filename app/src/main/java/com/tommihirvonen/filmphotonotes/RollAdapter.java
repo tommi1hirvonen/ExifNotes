@@ -9,9 +9,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by Tommi on 2.3.2015.
- */
+// Copyright 2015
+// Tommi Hirvonen
+
 public class RollAdapter extends ArrayAdapter<String> {
 
     // This RollAdapter acts as an ArrayAdapter to link an array and a list view together

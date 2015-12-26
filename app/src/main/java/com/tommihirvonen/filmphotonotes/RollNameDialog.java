@@ -5,32 +5,20 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.text.Editable;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-/**
- * Created by Tommi on 23.2.2015.
- */
+// Copyright 2015
+// Tommi Hirvonen
 
-
-
-public class RollNameDialog extends DialogFragment
-        //implements View.OnClickListener
-{
+public class RollNameDialog extends DialogFragment {
 
     public static final String TAG = "SetNameDialogFragment";
-
-    //private EditText txtName;
-    //private Button btnDone;
 
     private onNameSetCallback callback;
 
@@ -57,11 +45,13 @@ public class RollNameDialog extends DialogFragment
     }
 
 
+    @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
 
         LayoutInflater linf = getActivity().getLayoutInflater();
+        // Here we can safely pass null, because we are inflating a layout for use in a dialog
         final View inflator = linf.inflate(R.layout.custom_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
@@ -77,7 +67,6 @@ public class RollNameDialog extends DialogFragment
             {
                 String name = et1.getText().toString();
 
-                //do operations using s1
                 if(!name.isEmpty()) {
                     // Return the new entered name to the calling activity
                     callback.onNameSet(name);
