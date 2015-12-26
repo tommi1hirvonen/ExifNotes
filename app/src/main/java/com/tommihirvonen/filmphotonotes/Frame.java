@@ -9,9 +9,6 @@ public class Frame {
     public String date;
     public String lens;
 
-    public Frame(){
-
-    }
 
     public Frame(int count, String date, String lens) {
         this.count = count;

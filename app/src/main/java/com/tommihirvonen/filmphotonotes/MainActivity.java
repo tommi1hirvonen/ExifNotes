@@ -32,7 +32,6 @@ import java.util.Scanner;
 // Tommi Hirvonen
 
 public class MainActivity extends AppCompatActivity implements
-        //View.OnClickListener,
         AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener, RollNameDialog.onNameSetCallback, EditRollNameDialog.OnNameEditedCallback {
 
     public final static String EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
@@ -487,7 +486,6 @@ public class MainActivity extends AppCompatActivity implements
         catch (IOException e) {
             e.printStackTrace();
         }
-        //return text.toString();
     }
 
     // Method removes a line from a file.
