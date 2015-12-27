@@ -205,7 +205,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
                     ArrayList<String> listItems = new ArrayList<>();
                     for ( int i = 0; i < mFrameClassList.size(); ++i ) {
-                        listItems.add("" + mFrameClassList.get(i).getCount());
+                        listItems.add(" #" + mFrameClassList.get(i).getCount() + "   " + mFrameClassList.get(i).getDate());
                         //            ^ trick to add integer to string
                     }
                     final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);

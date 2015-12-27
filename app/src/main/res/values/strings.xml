@@ -34,7 +34,8 @@
     <string name="Help">Help</string>
     <string name="RollSameName">Roll with same name already exists!</string>
     <string name="RollIllegalCharacter">Roll name contains an illegal character: </string>
-    <string name="about">Version 1.0\nCopyright 2015\nTommi Hirvonen\n\nAll rights reserved. Not liable for any damage incurred from use of this software including but not limited to: monetary loss, temporary paralysis, halitosis, spontaneous combustion, road rash, and or premature hair loss.</string>
+    <!--When updating "about" also update "eula"-->
+    <string name="about">Version 1.0\nCopyright 2015 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
     <string name="main_help">
         - Add lenses to your database by pressing "Lenses" in the option menu.\n
         - Add new rolls by pressing the + -icon.\n
@@ -57,6 +58,10 @@
     <!--RollNameDialog-->
     <string name="NewRoll">Add new roll</string>
 
+    <!--SimpleEula-->
+    <string name="Updates">Updates in this version:\n- First published version</string>
+    <!--When updating "eula" also update "about"-->
+    <string name="Eula">Copyright 2015 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
 
     <!--activity_lenses.xml-->
@@ -85,5 +90,7 @@
 
     <!--menu_roll_info.xml-->
     <string name="Share">Share</string>
+
+
 
 </resources>
