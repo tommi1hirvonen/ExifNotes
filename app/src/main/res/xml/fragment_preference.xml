@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/General_Cap">
+
+        <CheckBoxPreference
+            android:key="AlwaysShowLensSelection"
+            android:title="@string/AlwaysShowLensSelectionTitle"
+            android:summary="@string/AlwaysShowLensSelectionSummary"/>
+
+    </PreferenceCategory>
+
+    <!--
+    <PreferenceCategory
+        android:title="@string/Language_Cap">
+
+        <ListPreference
+            android:key="Language"
+            android:title="@string/Language"
+            android:entries="@array/Language"
+            android:entryValues="@array/languageAlias"
+            />
+    </PreferenceCategory>
+    -->
+</PreferenceScreen>

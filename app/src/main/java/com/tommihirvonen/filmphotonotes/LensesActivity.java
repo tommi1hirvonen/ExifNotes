@@ -1,5 +1,8 @@
 package com.tommihirvonen.filmphotonotes;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -17,12 +20,14 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -65,7 +70,21 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
         // Read the lenses from file and add to list
         File file = new File(getFilesDir(), "List_of_Lenses.txt");
         if ( file.exists() ) readLensFile();
+    }
 
+    // When the user leaves the activity, the lenses are arranged
+    // in an alphabetical order. This way if there are multiple lenses,
+    // picking one should be easier.
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Sorting the lens list works using Collections because String implements Comparable
+        Collections.sort(mLensList);
+        String newLensFile = "";
+        for ( String input : mLensList ) {
+            newLensFile = newLensFile + input + "\n";
+        }
+        updateLensFile(newLensFile);
     }
 
     @Override
@@ -247,6 +266,17 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
             writer.close();
         }
         catch ( IOException e ) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateLensFile(String input) {
+        try {
+            File new_file = new File(getFilesDir(), "List_of_Lenses.txt");
+            FileOutputStream os = new FileOutputStream(new_file);
+            os.write(input.getBytes());
+            os.close();
+        } catch ( IOException e ) {
             e.printStackTrace();
         }
     }

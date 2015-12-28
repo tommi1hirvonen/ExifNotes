@@ -1,8 +1,11 @@
 package com.tommihirvonen.filmphotonotes;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 // Copyright 2015
@@ -46,13 +50,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         new SimpleEula(this).show();
 
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        getSupportActionBar().setTitle("  " + this.getString(R.string.MainActivityTitle));
+        getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
         getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
 
         mainTextView = (TextView) findViewById(R.id.no_added_rolls);
@@ -92,12 +97,14 @@ public class MainActivity extends AppCompatActivity implements
         MenuItem about = menu.findItem(R.id.menu_item_about);
         MenuItem help = menu.findItem(R.id.menu_item_help);
         MenuItem lenses = menu.findItem(R.id.menu_item_lenses);
+        MenuItem preferences = menu.findItem(R.id.menu_item_preferences);
 
         addRoll.setOnMenuItemClickListener(this);
         deleteRoll.setOnMenuItemClickListener(this);
         about.setOnMenuItemClickListener(this);
         help.setOnMenuItemClickListener(this);
         lenses.setOnMenuItemClickListener(this);
+        preferences.setOnMenuItemClickListener(this);
 
         return true;
     }
@@ -262,6 +269,16 @@ public class MainActivity extends AppCompatActivity implements
                 Intent intent = new Intent(this, LensesActivity.class);
                 //intent.putExtra(EXTRA_MESSAGE, "Data");
                 startActivity(intent);
+
+                break;
+            case R.id.menu_item_preferences:
+
+                Intent preferences_intent = new Intent(this, PreferenceActivity.class);
+                // With these extras we can skip the headers in the preferences.
+                preferences_intent.putExtra( PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName() );
+                preferences_intent.putExtra( PreferenceActivity.EXTRA_NO_HEADERS, true );
+
+                startActivity(preferences_intent);
 
                 break;
 

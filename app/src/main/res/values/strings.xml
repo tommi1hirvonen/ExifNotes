@@ -2,6 +2,7 @@
     <string name="app_name">Film Photo Notes</string>
     <string name="title_activity_roll__info">RollInfo</string>
     <string name="title_activity_lenses_activity">LensesActivity</string>
+    <string name="title_activity_preference_activity">PreferenceActivity</string>
 
 
     <string name="RollsDatabase">List_of_Rolls.txt</string>
@@ -43,6 +44,7 @@
         - You can view the frames of a roll by pressing on the roll you wish to view.\n
         - You can rename a roll by pressing and holding the roll you wish to rename.
     </string>
+    <string name="Preferences">Settings</string>
 
     <!--RollInfo-->
     <string name="Frames">Frames</string>
@@ -57,6 +59,7 @@
 
     <!--RollNameDialog-->
     <string name="NewRoll">Add new roll</string>
+
 
     <!--SimpleEula-->
     <string name="Updates">Updates in this version:\n- First published version</string>
@@ -92,5 +95,12 @@
     <string name="Share">Share</string>
 
 
+    <!--fragment_preference.xml-->
+    <string name="Settings_Cap">SETTINGS</string>
+    <string name="General_Cap">GENERAL</string>
+    <string name="Language_Cap">LANGUAGE</string>
+    <string name="Language">Language</string>
+    <string name="AlwaysShowLensSelectionTitle">Always show lens selection</string>
+    <string name="AlwaysShowLensSelectionSummary">If unchecked, the previously used lens will be selected by default when adding a new frame.</string>
 
 </resources>

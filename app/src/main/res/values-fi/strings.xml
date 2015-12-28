@@ -36,7 +36,7 @@
     <string name="Text">Teksti</string>
     <string name="Time">Aika:</string>
     <string name="UsedLens">Valitse käytetty objektiivi</string>
-    <string name="about">Versio 1.0\nCopyright 2015\nTommi Hirvonen\n\nKaikki oikeudet pidätetään. Sovelluksen tekijä ei ole vastuussa sovellukseen käyttöön liittyvistä menetyksistä tai vahingoista, mukaan lukien, mutta ei nihin rajoittuen, rahallinen menetys, hetkellinen halvaantuminen, halitoosi, itsesyttyminen, asfaltti-ihottuma, ja/tai ennenaikainen hiustenlähtö.</string>
+    <string name="about">Versio 1.0\nCopyright 2015\nTommi Hirvonen\nKaikki oikeudet pidätetään.\n\nSovelluksen tekijä ei ole vastuussa sovellukseen käyttöön liittyvistä menetyksistä tai vahingoista, mukaan lukien, mutta ei nihin rajoittuen, rahallinen menetys, tiedon/datan menetys ja/tai laitteen toimintahäiriö.</string>
     <string name="frame_help">
         - Lisää uusia ruutuja painamalla + - kuvaketta.\n
         - Poista ruutuja painamalla roskakorin kuvaketta.\n
@@ -48,4 +48,13 @@
         - Poista rullia painamalla roskakorin kuvaketta.\n
         - Voit katsella rullan kuvia painamalla kyseistä rullaa.\n
         - Voit uudelleennimetä rullan painamalla ja pitämällä kyseisestä rullasta.</string>
+    <string name="AlwaysShowLensSelectionSummary">Jos ei valittu, uutta ruutua lisättäessä käytetään oletusarvoisesti aiemmin käytettyä objektiivia.</string>
+    <string name="AlwaysShowLensSelectionTitle">Näytä objektiivin valinta aina</string>
+    <string name="General_Cap">YLEINEN</string>
+    <string name="Language_Cap">KIELI</string>
+    <string name="Preferences">Asetukset</string>
+    <string name="Settings_Cap">ASETUKSET</string>
+    <string name="Language">Kieli</string>
+    <string name="Eula">Copyright 2015\nTommi Hirvonen\nKaikki oikeudet pidätetään.\n\nSovelluksen tekijä ei ole vastuussa sovellukseen käyttöön liittyvistä menetyksistä tai vahingoista, mukaan lukien, mutta ei nihin rajoittuen, rahallinen menetys, tiedon/datan menetys ja/tai laitteen toimintahäiriö.</string>
+    <string name="Updates">Päivitykset tässä versiossa:\n- Ensimmäinen julkaistu versio</string>
 </resources>

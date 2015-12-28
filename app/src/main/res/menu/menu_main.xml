@@ -35,6 +35,12 @@
         />
 
     <item
+        android:id="@+id/menu_item_preferences"
+        android:title="@string/Preferences"
+        omgandroid:showAsAction="never"
+        />
+
+    <item
         android:id="@+id/menu_item_about"
         android:title="@string/About"
         omgandroid:showAsAction="never"
