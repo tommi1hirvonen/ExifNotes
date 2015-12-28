@@ -119,13 +119,17 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
 
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("Frame Count;Date;Lens" + "\n");
+            stringBuilder.append("Frame Count;Date;Lens;Shutter;Aperture" + "\n");
             for ( int i = 0; i < mFrameClassList.size(); ++i ) {
                 stringBuilder.append(mFrameClassList.get(i).getCount());
                 stringBuilder.append(";");
                 stringBuilder.append(mFrameClassList.get(i).getDate());
                 stringBuilder.append(";");
                 stringBuilder.append(mFrameClassList.get(i).getLens());
+                stringBuilder.append(";");
+                stringBuilder.append(mFrameClassList.get(i).getShutter());
+                stringBuilder.append(";");
+                stringBuilder.append(mFrameClassList.get(i).getAperture());
                 stringBuilder.append("\n");
             }
             String shared = stringBuilder.toString();
@@ -188,7 +192,13 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                        ++counter;
                        mainTextView.setVisibility(View.GONE);
 
-                       Frame frame = new Frame(counter, current_time, lens);
+                       // ****************************************************************************
+                       // ******************** Implement these two in this method ********************
+                       // ****************************************************************************
+                       String shutter = "ka";
+                       String aperture = "pow";
+
+                       Frame frame = new Frame(counter, current_time, lens, shutter, aperture);
                        mFrameClassList.add(frame);
                        mFrameAdapter.notifyDataSetChanged();
 
@@ -199,7 +209,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                        setShareIntent();
 
                        // Save the file when the new frame has been added
-                       writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens());
+                       writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens() + "," + frame.getShutter() + "," + frame.getAperture());
 
                    }
                }
@@ -208,7 +218,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             case R.id.menu_item_delete_frame:
                 if ( mFrameClassList.size() >= 1 ) {
 
-                    // Ask the user which frame to delete
+                    // Ask the user which frame(s) to delete
 
                     ArrayList<String> listItems = new ArrayList<>();
                     for ( int i = 0; i < mFrameClassList.size(); ++i ) {
@@ -325,6 +335,10 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         int count = mFrameClassList.get(position).getCount();
         String date = mFrameClassList.get(position).getDate();
 
+        // ***************************************************************************************
+        // ******************** Implement shutter and aperture in this method ********************
+        // ***************************************************************************************
+
         ArrayList<String> mLensList;
         mLensList = readLensFile();
 
@@ -369,7 +383,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                 ++counter;
 
                 List<String> new_frame_strings = Arrays.asList(line.split(","));
-                Frame frame = new Frame(Integer.parseInt(new_frame_strings.get(0)), new_frame_strings.get(1), new_frame_strings.get(2));
+                Frame frame = new Frame(Integer.parseInt(new_frame_strings.get(0)), new_frame_strings.get(1), new_frame_strings.get(2), new_frame_strings.get(3), new_frame_strings.get(4));
                 mFrameClassList.add(frame);
 
                 //mFrameList.add(line);
@@ -423,7 +437,13 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             ++counter;
             mainTextView.setVisibility(View.GONE);
 
-            Frame frame = new Frame(counter, current_time, lens);
+            // ****************************************************************************
+            // ******************** Implement these two in this method ********************
+            // ****************************************************************************
+            String shutter = "ka";
+            String aperture = "pow";
+
+            Frame frame = new Frame(counter, current_time, lens, shutter, aperture);
             mFrameClassList.add(frame);
             mFrameAdapter.notifyDataSetChanged();
 
@@ -435,7 +455,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             setShareIntent();
 
             // Save the file when the new frame has been added
-            writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens());
+            writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens() + "," + frame.getShutter() + "," + frame.getAperture());
 
 
         }

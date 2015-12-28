@@ -32,12 +32,16 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         TextView tvCount = (TextView) convertView.findViewById(R.id.tvCount);
         TextView tvFrameText = (TextView) convertView.findViewById(R.id.tvFrameText);
         TextView tvFrameText2 = (TextView) convertView.findViewById(R.id.tvFrameText2);
+        TextView tvShutter = (TextView) convertView.findViewById(R.id.tvShutter);
+        TextView tvAperture = (TextView) convertView.findViewById(R.id.tvAperture);
 
         // Populate the data into the template view using the data object
         tvFrameText.setText(frame.getDate());
         tvCount.setText("#" + frame.getCount());
         //              ^ a trick to show an integer in TextView
         tvFrameText2.setText(frame.getLens());
+        tvShutter.setText(frame.getShutter());
+        tvAperture.setText("f/" + frame.getAperture());
         return convertView;
     }
 

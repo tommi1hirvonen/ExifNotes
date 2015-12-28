@@ -65,7 +65,8 @@
     <string name="Updates">Updates in this version:\n- First published version</string>
     <!--When updating "eula" also update "about"-->
     <string name="Eula">Copyright 2015 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
-
+    <string name="Agree">Agree</string>
+    <string name="Decline">Decline</string>
 
     <!--activity_lenses.xml-->
     <string name="NoLenses">No added lenses</string>

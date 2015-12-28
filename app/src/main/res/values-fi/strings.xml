@@ -57,4 +57,6 @@
     <string name="Language">Kieli</string>
     <string name="Eula">Copyright 2015\nTommi Hirvonen\nKaikki oikeudet pidätetään.\n\nSovelluksen tekijä ei ole vastuussa sovellukseen käyttöön liittyvistä menetyksistä tai vahingoista, mukaan lukien, mutta ei nihin rajoittuen, rahallinen menetys, tiedon/datan menetys ja/tai laitteen toimintahäiriö.</string>
     <string name="Updates">Päivitykset tässä versiossa:\n- Ensimmäinen julkaistu versio</string>
+    <string name="Agree">Hyväksy</string>
+    <string name="Decline">Hylkää</string>
 </resources>

@@ -52,7 +52,7 @@ public class SimpleEula {
                     .setCancelable(false)
                     .setTitle(title)
                     .setMessage(message)
-                    .setPositiveButton(R.string.OK, new Dialog.OnClickListener() {
+                    .setPositiveButton(R.string.Agree, new Dialog.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -63,7 +63,7 @@ public class SimpleEula {
                             dialogInterface.dismiss();
                         }
                     })
-                    .setNegativeButton(R.string.Cancel, new Dialog.OnClickListener() {
+                    .setNegativeButton(R.string.Decline, new Dialog.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {

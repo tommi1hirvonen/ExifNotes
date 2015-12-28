@@ -8,12 +8,15 @@ public class Frame {
     public int count;
     public String date;
     public String lens;
+    public String shutter;
+    public String aperture;
 
-
-    public Frame(int count, String date, String lens) {
+    public Frame(int count, String date, String lens, String shutter, String aperture) {
         this.count = count;
         this.date = date;
         this.lens = lens;
+        this.shutter = shutter;
+        this.aperture = aperture;
     }
 
 
@@ -30,6 +33,14 @@ public class Frame {
         this.lens = input;
     }
 
+    public void setShutter(String input) {
+        this.shutter = input;
+    }
+
+    public void setAperture(String input) {
+        this.aperture = input;
+    }
+
 
     //Methods to get members
     public int getCount(){
@@ -42,6 +53,14 @@ public class Frame {
 
     public String getLens(){
         return this.lens;
+    }
+
+    public String getShutter(){
+        return this.shutter;
+    }
+
+    public String getAperture(){
+        return this.aperture;
     }
 
 }
