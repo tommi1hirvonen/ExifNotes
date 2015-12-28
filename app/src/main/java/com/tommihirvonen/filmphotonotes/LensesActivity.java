@@ -1,5 +1,6 @@
 package com.tommihirvonen.filmphotonotes;
 
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -28,7 +29,7 @@ import java.util.List;
 // Tommi Hirvonen
 
 public class LensesActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
-        MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback {
+        MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback, FloatingActionButton.OnClickListener {
 
     TextView mainTextView;
 
@@ -42,6 +43,9 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lenses);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(this);
 
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
@@ -88,10 +92,8 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
         // Inflate the menu; this adds items to the action bar if it is present
         getMenuInflater().inflate(R.menu.menu_lenses, menu);
 
-        MenuItem addLens = menu.findItem(R.id.menu_item_add_lens);
         MenuItem deleteLens = menu.findItem(R.id.menu_item_delete_lens);
 
-        addLens.setOnMenuItemClickListener(this);
         deleteLens.setOnMenuItemClickListener(this);
 
         return true;
@@ -105,10 +107,6 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
     public boolean onMenuItemClick(MenuItem item) {
 
         switch (item.getItemId()) {
-
-            case R.id.menu_item_add_lens:
-                showLensNameDialog();
-                break;
 
             case R.id.menu_item_delete_lens:
 
@@ -277,4 +275,12 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
         }
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.fab:
+                showLensNameDialog();
+                break;
+        }
+    }
 }

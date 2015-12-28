@@ -85,6 +85,8 @@
     <string name="Date">Date:</string>
     <string name="Time">Time:</string>
     <string name="FrameCount">Frame count:</string>
+    <string name="Shutter">Shutter:</string>
+    <string name="Aperture">Aperture:</string>
 
     <!--item_frame.xml-->
     <string name="Text">Text</string>

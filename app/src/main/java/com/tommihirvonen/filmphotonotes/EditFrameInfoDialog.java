@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -34,16 +35,20 @@ public class EditFrameInfoDialog extends DialogFragment {
     String date;
     int position;
     int count;
+    String shutter;
+    String aperture;
     ArrayList<String> lensList;
 
 
-    static EditFrameInfoDialog newInstance(String lens, int position, int count, String date, ArrayList<String> lensList) {
+    static EditFrameInfoDialog newInstance(String lens, int position, int count, String date, String shutter, String aperture, ArrayList<String> lensList) {
         EditFrameInfoDialog f = new EditFrameInfoDialog();
         Bundle args = new Bundle();
         args.putString("lens", lens);
         args.putInt("position", position);
         args.putInt("count", count);
         args.putString("date", date);
+        args.putString("shutter", shutter);
+        args.putString("aperture", aperture);
         args.putStringArrayList("lenses", lensList);
         f.setArguments(args);
         return f;
@@ -58,7 +63,7 @@ public class EditFrameInfoDialog extends DialogFragment {
 
 
     public interface OnEditSettedCallback {
-        void onEditSetted(String new_lens, int position, int new_count, String new_date);
+        void onEditSetted(String new_lens, int position, int new_count, String new_date, String new_shutter, String new_aperture);
     }
 
 
@@ -74,7 +79,6 @@ public class EditFrameInfoDialog extends DialogFragment {
             callback = (OnEditSettedCallback) activity;
         }
         catch(ClassCastException e) {
-            Log.e(TAG, "The RollInfo should implement the OnEditSettedCallback interface");
             e.printStackTrace();
         }
     }
@@ -90,6 +94,9 @@ public class EditFrameInfoDialog extends DialogFragment {
         position = getArguments().getInt("position");
         date = getArguments().getString("date");
         count = getArguments().getInt("count");
+        shutter = getArguments().getString("shutter");
+        aperture = getArguments().getString("aperture");
+
         lensList = getArguments().getStringArrayList("lenses");
 
         LayoutInflater linf = getActivity().getLayoutInflater();
@@ -106,12 +113,41 @@ public class EditFrameInfoDialog extends DialogFragment {
         final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
         final TextView b_time = (TextView) inflator.findViewById(R.id.btn_time);
 
-        final NumberPicker np = (NumberPicker) inflator.findViewById(R.id.numberPicker);
-        b_lens.setText(lens);
+        final NumberPicker countPicker = (NumberPicker) inflator.findViewById(R.id.countPicker);
+        final NumberPicker shutterPicker = (NumberPicker) inflator.findViewById(R.id.shutterPicker);
+        final NumberPicker aperturePicker = (NumberPicker) inflator.findViewById(R.id.aperturePicker);
 
-        np.setMinValue(0);
-        np.setMaxValue(100);
-        np.setValue(count);
+        final String[] shutterValues = new String[]{"<empty>", "B", "30", "15", "8", "4", "2", "1", "1/2", "1/4", "1/8", "1/15", "1/30", "1/60"};
+        shutterPicker.setMinValue(0);
+        shutterPicker.setMaxValue(shutterValues.length - 1);
+        shutterPicker.setDisplayedValues(shutterValues);
+        shutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        shutterPicker.setValue(0);
+        for (int i = 0; i < shutterValues.length; ++i) {
+            if ( shutterValues[i].equals(shutter) ) {
+                shutterPicker.setValue(i);
+                break;
+            }
+        }
+
+        final String[] apertureValues = new String[]{"<empty>", "1.0", "1.8", "2.8", "4.0", "5.6", "8.0", "11"};
+        aperturePicker.setMinValue(0);
+        aperturePicker.setMaxValue(apertureValues.length - 1);
+        aperturePicker.setDisplayedValues(apertureValues);
+        aperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        aperturePicker.setValue(0);
+        for (int i = 0; i < apertureValues.length; ++i) {
+            if ( apertureValues[i].equals(aperture) ) {
+                aperturePicker.setValue(i);
+                break;
+            }
+        }
+
+        countPicker.setMinValue(0);
+        countPicker.setMaxValue(100);
+        countPicker.setValue(count);
+
+        b_lens.setText(lens);
 
         // LENS PICK DIALOG
         b_lens.setClickable(true);
@@ -198,19 +234,16 @@ public class EditFrameInfoDialog extends DialogFragment {
             public void onClick(DialogInterface dialog, int whichButton)
             {
                 lens = b_lens.getText().toString();
-                try {
-                    count = np.getValue();
-                }
-                catch (NumberFormatException e) {
-                    Toast.makeText(getActivity(), R.string.FrameCountNotChanged, Toast.LENGTH_LONG).show();
-                }
+                shutter = shutterValues[shutterPicker.getValue()];
+                aperture = apertureValues[aperturePicker.getValue()];
+                count = countPicker.getValue();
 
                 // PARSE THE DATE
                 date = b_date.getText().toString() + " " + b_time.getText().toString();
 
                 if(lens.length() != 0) {
                     // Return the new entered name to the calling activity
-                    callback.onEditSetted(lens, position, count, date);
+                    callback.onEditSetted(lens, position, count, date, shutter, aperture);
                 }
             }
         });

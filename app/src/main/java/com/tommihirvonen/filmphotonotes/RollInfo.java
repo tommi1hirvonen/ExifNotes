@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Outline;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -14,6 +16,7 @@ import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -34,7 +37,7 @@ import java.util.List;
 // Tommi Hirvonen
 
 public class RollInfo extends AppCompatActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
-        FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSettedCallback {
+        FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSettedCallback, FloatingActionButton.OnClickListener {
 
     TextView mainTextView;
     ListView mainListView;
@@ -59,6 +62,9 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mainTextView = (TextView) findViewById(R.id.no_added_frames);
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(this);
+
         // Access the ListView
         mainListView = (ListView) findViewById(R.id.frames_listview);
         // Create an ArrayAdapter for the ListView
@@ -80,6 +86,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -87,7 +94,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
         // Access the Share Item defined in menu XML
         MenuItem shareItem = menu.findItem(R.id.menu_item_share);
-        MenuItem addFrame = menu.findItem(R.id.menu_item_add_frame);
         MenuItem deleteFrame = menu.findItem(R.id.menu_item_delete_frame);
         MenuItem frame_help = menu.findItem(R.id.menu_item_frame_help);
 
@@ -96,7 +102,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         // putting together the sharing submenu
 
 
-        addFrame.setOnMenuItemClickListener(this);
         deleteFrame.setOnMenuItemClickListener(this);
         frame_help.setOnMenuItemClickListener(this);
 
@@ -160,60 +165,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     public boolean onMenuItemClick(MenuItem item) {
 
         switch (item.getItemId()) {
-           case R.id.menu_item_add_frame:
-
-               SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-               boolean showLensSelection = prefs.getBoolean("AlwaysShowLensSelection", true);
-
-               // If AlwaysShowLensSelection is true then show frame info dialog.
-               // Otherwise assume same lens is used.
-               if ( showLensSelection ) {
-                   show_frame_info_dialog();
-               }
-               else {
-
-                   // If the added frame is the first on, then ask the user for the used lens
-                   if ( mFrameClassList.isEmpty() ) show_frame_info_dialog();
-                   // Otherwise assume the same lens is used
-                   else {
-
-                       String lens = mFrameClassList.get(mFrameClassList.size() - 1).getLens();
-
-                       // Dateformat doesn't seem to work for some reason. This is a workaround.
-                       // There is another instance of this same operation in onInfoSet
-                       final Calendar c = Calendar.getInstance();
-                       int iYear = c.get(Calendar.YEAR);
-                       int iMonth = c.get(Calendar.MONTH) + 1;
-                       int iDay = c.get(Calendar.DAY_OF_MONTH);
-                       int iHour = c.get(Calendar.HOUR_OF_DAY);
-                       int iMin = c.get(Calendar.MINUTE);
-                       String current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
-
-                       ++counter;
-                       mainTextView.setVisibility(View.GONE);
-
-                       // ****************************************************************************
-                       // ******************** Implement these two in this method ********************
-                       // ****************************************************************************
-                       String shutter = "ka";
-                       String aperture = "pow";
-
-                       Frame frame = new Frame(counter, current_time, lens, shutter, aperture);
-                       mFrameClassList.add(frame);
-                       mFrameAdapter.notifyDataSetChanged();
-
-                       // When the new frame is added jump to view the last entry
-                       mainListView.setSelection(mainListView.getCount() - 1 );
-                       // The text you'd like to share has changed,
-                       // and you need to update
-                       setShareIntent();
-
-                       // Save the file when the new frame has been added
-                       writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens() + "," + frame.getShutter() + "," + frame.getAperture());
-
-                   }
-               }
-               break;
 
             case R.id.menu_item_delete_frame:
                 if ( mFrameClassList.size() >= 1 ) {
@@ -334,6 +285,8 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String lens = mFrameClassList.get(position).getLens();
         int count = mFrameClassList.get(position).getCount();
         String date = mFrameClassList.get(position).getDate();
+        String shutter = mFrameClassList.get(position).getShutter();
+        String aperture = mFrameClassList.get(position).getAperture();
 
         // ***************************************************************************************
         // ******************** Implement shutter and aperture in this method ********************
@@ -343,7 +296,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         mLensList = readLensFile();
 
 
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(lens, position, count, date, mLensList);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(lens, position, count, date, shutter, aperture, mLensList);
         dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
@@ -370,35 +323,27 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         //Get the text file
         File file = new File(getFilesDir(), name_of_roll + ".txt");
 
-        //Read text from file
-        //StringBuilder text = new StringBuilder();
-
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
 
             while ((line = br.readLine()) != null) {
-//                text.append(line);
-//                text.append('\n');
                 ++counter;
 
                 List<String> new_frame_strings = Arrays.asList(line.split(","));
                 Frame frame = new Frame(Integer.parseInt(new_frame_strings.get(0)), new_frame_strings.get(1), new_frame_strings.get(2), new_frame_strings.get(3), new_frame_strings.get(4));
                 mFrameClassList.add(frame);
 
-                //mFrameList.add(line);
                 mainTextView.setVisibility(View.GONE);
                 mFrameAdapter.notifyDataSetChanged();
             }
             br.close();
 
-            //mArrayAdapter.notifyDataSetChanged();
             setShareIntent();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        //return text.toString();
     }
 
 
@@ -440,8 +385,8 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             // ****************************************************************************
             // ******************** Implement these two in this method ********************
             // ****************************************************************************
-            String shutter = "ka";
-            String aperture = "pow";
+            String shutter = "<empty>";
+            String aperture = "<empty>";
 
             Frame frame = new Frame(counter, current_time, lens, shutter, aperture);
             mFrameClassList.add(frame);
@@ -465,13 +410,13 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
 
     @Override
-    public void onEditSetted(String lens, int position, int count, String date) {
+    public void onEditSetted(String lens, int position, int count, String date, String shutter, String aperture) {
         if ( lens.length() != 0 ) {
 
             // Replace the old lens in the text file with the new one
             try {
-                String old_line = mFrameClassList.get(position).getCount() + "," + mFrameClassList.get(position).getDate() + "," + mFrameClassList.get(position).getLens();
-                String new_line = count + "," + date + "," + lens;
+                String old_line = mFrameClassList.get(position).getCount() + "," + mFrameClassList.get(position).getDate() + "," + mFrameClassList.get(position).getLens() + "," + mFrameClassList.get(position).getShutter() + "," + mFrameClassList.get(position).getAperture();
+                String new_line = count + "," + date + "," + lens + "," + shutter + "," + aperture;
                 updateLine(old_line, new_line);
             }
             catch (IOException e) {
@@ -481,6 +426,8 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             mFrameClassList.get(position).setLens(lens);
             mFrameClassList.get(position).setCount(count);
             mFrameClassList.get(position).setDate(date);
+            mFrameClassList.get(position).setShutter(shutter);
+            mFrameClassList.get(position).setAperture(aperture);
             mFrameAdapter.notifyDataSetChanged();
             setShareIntent();
 
@@ -524,4 +471,70 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fab:
+
+                addNewFrame();
+
+                break;
+
+        }
+    }
+
+
+    private void addNewFrame(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        boolean showLensSelection = prefs.getBoolean("AlwaysShowLensSelection", true);
+
+        // If AlwaysShowLensSelection is true then show frame info dialog.
+        // Otherwise assume same lens is used.
+        if ( showLensSelection ) {
+            show_frame_info_dialog();
+        }
+        else {
+
+            // If the added frame is the first on, then ask the user for the used lens
+            if ( mFrameClassList.isEmpty() ) show_frame_info_dialog();
+                // Otherwise assume the same lens is used
+            else {
+
+                String lens = mFrameClassList.get(mFrameClassList.size() - 1).getLens();
+
+                // Dateformat doesn't seem to work for some reason. This is a workaround.
+                // There is another instance of this same operation in onInfoSet
+                final Calendar c = Calendar.getInstance();
+                int iYear = c.get(Calendar.YEAR);
+                int iMonth = c.get(Calendar.MONTH) + 1;
+                int iDay = c.get(Calendar.DAY_OF_MONTH);
+                int iHour = c.get(Calendar.HOUR_OF_DAY);
+                int iMin = c.get(Calendar.MINUTE);
+                String current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
+
+                ++counter;
+                mainTextView.setVisibility(View.GONE);
+
+                // ****************************************************************************
+                // ******************** Implement these two in this method ********************
+                // ****************************************************************************
+                String shutter = "<empty>";
+                String aperture = "<empty>";
+
+                Frame frame = new Frame(counter, current_time, lens, shutter, aperture);
+                mFrameClassList.add(frame);
+                mFrameAdapter.notifyDataSetChanged();
+
+                // When the new frame is added jump to view the last entry
+                mainListView.setSelection(mainListView.getCount() - 1 );
+                // The text you'd like to share has changed,
+                // and you need to update
+                setShareIntent();
+
+                // Save the file when the new frame has been added
+                writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens() + "," + frame.getShutter() + "," + frame.getAperture());
+
+            }
+        }
+    }
 }

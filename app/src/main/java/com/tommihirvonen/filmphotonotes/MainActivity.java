@@ -3,6 +3,7 @@ package com.tommihirvonen.filmphotonotes;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -33,7 +34,7 @@ import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity implements
         AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener,
-        RollNameDialog.onNameSetCallback, EditRollNameDialog.OnNameEditedCallback {
+        RollNameDialog.onNameSetCallback, EditRollNameDialog.OnNameEditedCallback, FloatingActionButton.OnClickListener {
 
     public final static String EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
 
@@ -49,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(this);
 
         new SimpleEula(this).show();
 
@@ -89,14 +93,12 @@ public class MainActivity extends AppCompatActivity implements
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        MenuItem addRoll = menu.findItem(R.id.menu_item_add_roll);
         MenuItem deleteRoll = menu.findItem(R.id.menu_item_delete_roll);
         MenuItem about = menu.findItem(R.id.menu_item_about);
         MenuItem help = menu.findItem(R.id.menu_item_help);
         MenuItem lenses = menu.findItem(R.id.menu_item_lenses);
         MenuItem preferences = menu.findItem(R.id.menu_item_preferences);
 
-        addRoll.setOnMenuItemClickListener(this);
         deleteRoll.setOnMenuItemClickListener(this);
         about.setOnMenuItemClickListener(this);
         help.setOnMenuItemClickListener(this);
@@ -137,10 +139,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_item_add_roll:
-                //AskForNameOfRoll();
-                show_RollNameDialog();
-                break;
+
             case R.id.menu_item_delete_roll:
                 //Only delete if there are more than one roll
                 if ( mNameList.size() >= 1 ) {
@@ -521,5 +520,13 @@ public class MainActivity extends AppCompatActivity implements
         writer.close();
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.fab:
+                show_RollNameDialog();
+                break;
+        }
+    }
 }
 
