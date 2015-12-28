@@ -40,10 +40,14 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         tvCount.setText("#" + frame.getCount());
         //              ^ a trick to show an integer in TextView
         tvFrameText2.setText(frame.getLens());
-        tvShutter.setText(frame.getShutter());
+
         // If the aperture is empty, then don't show anything.
         if( !frame.getAperture().equals("<empty>") ) tvAperture.setText("f/" + frame.getAperture());
-        else tvAperture.setText(frame.getAperture());
+        else tvAperture.setText("");
+
+        // If the shutter is empty, then don't show anything.
+        if ( !frame.getShutter().equals("<empty>"))  tvShutter.setText(frame.getShutter());
+        else tvShutter.setText("");
         return convertView;
     }
 

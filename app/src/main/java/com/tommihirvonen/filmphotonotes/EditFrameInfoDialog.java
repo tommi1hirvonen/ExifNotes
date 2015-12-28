@@ -117,7 +117,13 @@ public class EditFrameInfoDialog extends DialogFragment {
         final NumberPicker shutterPicker = (NumberPicker) inflator.findViewById(R.id.shutterPicker);
         final NumberPicker aperturePicker = (NumberPicker) inflator.findViewById(R.id.aperturePicker);
 
-        final String[] shutterValues = new String[]{"<empty>", "B", "30", "15", "8", "4", "2", "1", "1/2", "1/4", "1/8", "1/15", "1/30", "1/60"};
+        // Shutter values in 1/3 increments
+        final String[] shutterValues = new String[]{"<empty>", "B", "30", "25", "20", "15", "13", "10", "8", "6", "5", "4",
+                                                    "3", "2.5", "2", "1.6", "1.3", "1", "0.8", "0,6", "1/2", "0.4", "1/3",
+                                                    "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
+                                                    "1/30", "1/40", "1/50", "1/60", "1/80", "1/100", "1/125", "1/160", "1/200",
+                                                    "1/250", "1/320", "1/400", "1/500", "1/640", "1/800", "1/1000", "1/1250",
+                                                    "1/1600", "1/2000", "1/2500", "1/3200", "1/4000", "1/5000", "1/6400", "1/8000"};
         shutterPicker.setMinValue(0);
         shutterPicker.setMaxValue(shutterValues.length - 1);
         shutterPicker.setDisplayedValues(shutterValues);
@@ -130,7 +136,10 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         }
 
-        final String[] apertureValues = new String[]{"<empty>", "1.0", "1.8", "2.8", "4.0", "5.6", "8.0", "11"};
+        final String[] apertureValues = new String[]{"<empty>", "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.4",
+                                                    "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "7.1", "8", "9",
+                                                    "10", "11", "13", "14", "16", "18", "20", "22", "25", "29", "32", "36",
+                                                    "42", "45", "50", "57", "64"};
         aperturePicker.setMinValue(0);
         aperturePicker.setMaxValue(apertureValues.length - 1);
         aperturePicker.setDisplayedValues(apertureValues);
