@@ -12,16 +12,5 @@
 
     </PreferenceCategory>
 
-    <!--
-    <PreferenceCategory
-        android:title="@string/Language_Cap">
 
-        <ListPreference
-            android:key="Language"
-            android:title="@string/Language"
-            android:entries="@array/Language"
-            android:entryValues="@array/languageAlias"
-            />
-    </PreferenceCategory>
-    -->
 </PreferenceScreen>

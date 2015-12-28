@@ -8,8 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import java.util.Locale;
-
 
 // Copyright 2015
 // Tommi Hirvonen

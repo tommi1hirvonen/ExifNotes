@@ -1,14 +1,10 @@
 package com.tommihirvonen.filmphotonotes;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,12 +23,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 // Copyright 2015
 // Tommi Hirvonen
 
-public class LensesActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback {
+public class LensesActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
+        MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback {
 
     TextView mainTextView;
 
