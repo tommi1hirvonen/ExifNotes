@@ -234,6 +234,12 @@ public class EditFrameInfoDialog extends DialogFragment {
                         b_lens.setText(lensList.get(which));
                     }
                 });
+                builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing
+                    }
+                });
                 AlertDialog alert = builder.create();
                 alert.show();
             }
