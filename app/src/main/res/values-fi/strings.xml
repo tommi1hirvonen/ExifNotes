@@ -63,4 +63,5 @@
     <string name="ApertureIncrementsTitle">Valotusaukon pykälät</string>
     <string name="Shutter">Suljin:</string>
     <string name="ShutterIncrementsTitle">Suljinajan pykälät</string>
+    <string name="NoLens">Ei objektiivia</string>
 </resources>

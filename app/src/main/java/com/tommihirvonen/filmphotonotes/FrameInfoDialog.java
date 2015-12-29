@@ -103,6 +103,7 @@ public class FrameInfoDialog extends DialogFragment {
         // LIST ITEMS DIALOG
 
         List<String> listItems = new ArrayList<>();
+        listItems.add("" + getActivity().getString(R.string.NoLens));
         for ( int i = 0; i < lensList.size(); ++i ) {
             listItems.add(lensList.get(i));
         }
