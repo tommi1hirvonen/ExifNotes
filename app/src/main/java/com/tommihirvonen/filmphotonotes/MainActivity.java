@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements
                 AlertDialog.Builder aboutDialog = new AlertDialog.Builder(this);
                 aboutDialog.setTitle(R.string.app_name);
                 aboutDialog.setMessage(R.string.about);
-                aboutDialog.setIcon(R.mipmap.film_photo_notes_icon);
+                //aboutDialog.setIcon(R.mipmap.film_photo_notes_icon);
 
 
                 aboutDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
