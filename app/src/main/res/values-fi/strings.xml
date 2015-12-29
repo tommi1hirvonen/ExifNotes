@@ -59,4 +59,8 @@
     <string name="Agree">Hyväksy</string>
     <string name="Decline">Hylkää</string>
     <string name="MainActivityTitle">Filmirullat</string>
+    <string name="Aperture">Aukko:</string>
+    <string name="ApertureIncrementsTitle">Valotusaukon pykälät</string>
+    <string name="Shutter">Suljin:</string>
+    <string name="ShutterIncrementsTitle">Suljinajan pykälät</string>
 </resources>

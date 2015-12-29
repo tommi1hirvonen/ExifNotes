@@ -31,7 +31,6 @@
         android:textAllCaps="false"
         android:textSize="20sp"
         android:layout_marginTop="5dp"
-        android:textColor="#ffffff"
         android:clickable="true"
         android:gravity="center" />
     <!--
@@ -120,7 +119,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/btn_date"
-            android:textColor="#ffffff"
             android:clickable="true"
             android:gravity="center"/>
         <Button
@@ -128,7 +126,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/btn_time"
-            android:textColor="#ffffff"
             android:clickable="true"
             android:gravity="center"/>
     </LinearLayout>

@@ -64,10 +64,10 @@ public class MainActivity extends AppCompatActivity implements
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.orange)));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.primary_color)));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor( ContextCompat.getColor(this, R.color.dark_orange) );
+            getWindow().setStatusBarColor( ContextCompat.getColor(this, R.color.secondary_color) );
         }
 
         mainTextView = (TextView) findViewById(R.id.no_added_rolls);
