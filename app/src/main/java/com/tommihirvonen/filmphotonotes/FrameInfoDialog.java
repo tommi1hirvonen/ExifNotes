@@ -107,7 +107,7 @@ public class FrameInfoDialog extends DialogFragment {
             listItems.add(lensList.get(i));
         }
         final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.UsedLens);
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
@@ -115,7 +115,13 @@ public class FrameInfoDialog extends DialogFragment {
                 callback.onInfoSet(lensList.get(which));
             }
         });
-        AlertDialog alert = builder.create();
+        builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing
+                    }
+                });
+                AlertDialog alert = builder.create();
         alert.show();
         return alert;
     }
