@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="StopIncrements">
+        <item>1/3</item>
+        <item>1/2</item>
+        <item>1</item>
+    </string-array>
+    
+    <string-array name="StopIncrementsData">
+        <item>third</item>
+        <item>half</item>
+        <item>full</item>
+    </string-array>
+
+</resources>

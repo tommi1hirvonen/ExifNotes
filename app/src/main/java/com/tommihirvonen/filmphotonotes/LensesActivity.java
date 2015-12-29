@@ -1,6 +1,9 @@
 package com.tommihirvonen.filmphotonotes;
 
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -10,6 +13,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -51,6 +55,11 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle(R.string.Lenses);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.orange)));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().setStatusBarColor( ContextCompat.getColor(this, R.color.dark_orange) );
+        }
 
 
         mainTextView = (TextView) findViewById(R.id.no_added_lenses);

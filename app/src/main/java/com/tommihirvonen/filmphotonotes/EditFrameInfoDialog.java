@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
@@ -90,6 +92,11 @@ public class EditFrameInfoDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
+        // Let's check what values the user has set for the shutter and aperture increments
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String shutterIncrements = prefs.getString("ShutterIncrements", "third");
+        String apertureIncrements = prefs.getString("ApertureIncrements", "third");
+
         lens = getArguments().getString("lens");
         position = getArguments().getInt("position");
         date = getArguments().getString("date");
@@ -118,35 +125,85 @@ public class EditFrameInfoDialog extends DialogFragment {
         final NumberPicker aperturePicker = (NumberPicker) inflator.findViewById(R.id.aperturePicker);
 
         // Shutter values in 1/3 increments
-        final String[] shutterValues = new String[]{"<empty>", "B", "30", "25", "20", "15", "13", "10", "8", "6", "5", "4",
+        final String[] shutterValuesThird = new String[]{"<empty>", "B", "30", "25", "20", "15", "13", "10", "8", "6", "5", "4",
                                                     "3", "2.5", "2", "1.6", "1.3", "1", "0.8", "0,6", "1/2", "0.4", "1/3",
                                                     "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
                                                     "1/30", "1/40", "1/50", "1/60", "1/80", "1/100", "1/125", "1/160", "1/200",
                                                     "1/250", "1/320", "1/400", "1/500", "1/640", "1/800", "1/1000", "1/1250",
                                                     "1/1600", "1/2000", "1/2500", "1/3200", "1/4000", "1/5000", "1/6400", "1/8000"};
+        // Shutter values in 1/2 increments
+        final String[] shutterValuesHalf = new String[]{ "<empty>", "B", "30", "22", "15", "12", "8", "6", "4", "3", "2", "1.5",
+                                                    "1", "1/1.5", "1/2", "1/3", "1/4", "1/6", "1/8", "1/12", "1/15", "1/22",
+                                                    "1/30", "1/45", "1/60", "1/95", "1/125", "1/180", "1/250", "1/375",
+                                                    "1/500", "1/750", "1/1000", "1/1500", "1/2000", "1/3000", "1/4000", "1/6000", "1/8000" };
+        // Shutter values in full stop increments
+        final String[] shutterValuesFull = new String[]{ "<empty>", "B", "30", "15", "8", "4", "2", "1", "1/2", "1/4", "1/8",
+                                                        "1/15", "1/30", "1/60", "1/125", "1/250", "1/500", "1/1000", "1/2000", "1/4000", "1/8000" };
+        final String[] displayedShutterValues;
+
+        // Set the increments according to settings
+        switch (shutterIncrements) {
+            case "third":
+                displayedShutterValues = shutterValuesThird;
+                break;
+            case "half":
+                displayedShutterValues = shutterValuesHalf;
+                break;
+            case "full":
+                displayedShutterValues = shutterValuesFull;
+                break;
+            default:
+                displayedShutterValues = shutterValuesThird;
+                break;
+        }
+
         shutterPicker.setMinValue(0);
-        shutterPicker.setMaxValue(shutterValues.length - 1);
-        shutterPicker.setDisplayedValues(shutterValues);
+        shutterPicker.setMaxValue(displayedShutterValues.length - 1);
+        shutterPicker.setDisplayedValues(displayedShutterValues);
+        // With the following command we can avoid popping up the keyboard
         shutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         shutterPicker.setValue(0);
-        for (int i = 0; i < shutterValues.length; ++i) {
-            if ( shutterValues[i].equals(shutter) ) {
+        for (int i = 0; i < displayedShutterValues.length; ++i) {
+            if (displayedShutterValues[i].equals(shutter) ) {
                 shutterPicker.setValue(i);
                 break;
             }
         }
 
-        final String[] apertureValues = new String[]{"<empty>", "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.4",
-                                                    "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "7.1", "8", "9",
-                                                    "10", "11", "13", "14", "16", "18", "20", "22", "25", "29", "32", "36",
-                                                    "42", "45", "50", "57", "64"};
+        final String[] apertureValuesThird = new String[]{"<empty>", "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
+                                                        "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "7.1", "8", "9",
+                                                        "10", "11", "13", "14", "16", "18", "20", "22", "25", "29", "32", "36",
+                                                        "42", "45", "50", "57", "64"};
+        final String[] apertureValuesHalf = new String[]{ "<empty>", "1.0", "1.2", "1.4", "1.7", "2.0", "2.6", "2.8", "3.5",
+                                                            "4.0", "4.5", "5.6", "6.7", "8", "9.5", "11", "13", "16", "19",
+                                                            "22", "27", "32", "38", "45", "64" };
+        final String[] apertureValuesFull = new String[]{ "<empty>", "1.0", "1.4", "2.0", "2.8", "4.0", "5.6", "8", "11",
+                                                            "16", "22", "32", "45", "64" };
+        final String[] displayedApertureValues;
+
+        // Set the increments according to settings
+        switch (apertureIncrements) {
+            case "third":
+                displayedApertureValues = apertureValuesThird;
+                break;
+            case "half":
+                displayedApertureValues = apertureValuesHalf;
+                break;
+            case "full":
+                displayedApertureValues = apertureValuesFull;
+                break;
+            default:
+                displayedApertureValues = apertureValuesThird;
+                break;
+        }
+
         aperturePicker.setMinValue(0);
-        aperturePicker.setMaxValue(apertureValues.length - 1);
-        aperturePicker.setDisplayedValues(apertureValues);
+        aperturePicker.setMaxValue(displayedApertureValues.length - 1);
+        aperturePicker.setDisplayedValues(displayedApertureValues);
         aperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         aperturePicker.setValue(0);
-        for (int i = 0; i < apertureValues.length; ++i) {
-            if ( apertureValues[i].equals(aperture) ) {
+        for (int i = 0; i < displayedApertureValues.length; ++i) {
+            if ( displayedApertureValues[i].equals(aperture) ) {
                 aperturePicker.setValue(i);
                 break;
             }
@@ -155,6 +212,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         countPicker.setMinValue(0);
         countPicker.setMaxValue(100);
         countPicker.setValue(count);
+        countPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
         b_lens.setText(lens);
 
@@ -243,8 +301,8 @@ public class EditFrameInfoDialog extends DialogFragment {
             public void onClick(DialogInterface dialog, int whichButton)
             {
                 lens = b_lens.getText().toString();
-                shutter = shutterValues[shutterPicker.getValue()];
-                aperture = apertureValues[aperturePicker.getValue()];
+                shutter = displayedShutterValues[shutterPicker.getValue()];
+                aperture = displayedApertureValues[aperturePicker.getValue()];
                 count = countPicker.getValue();
 
                 // PARSE THE DATE

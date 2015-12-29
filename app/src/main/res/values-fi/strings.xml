@@ -16,7 +16,6 @@
     <string name="LensIllegalCharacter">Objektiivin nimessä on sallimaton merkki: </string>
     <string name="LensSameName">Saman niminen objektiivi on jo olemassa!</string>
     <string name="Lenses">Objektiivit</string>
-    <string name="MainActivityTitle">Rullat</string>
     <string name="Name">Nimi</string>
     <string name="NewFrame">Lisää uusi ruutu</string>
     <string name="NewLens">Lisää uusi objektiivi</string>
@@ -59,4 +58,5 @@
     <string name="Updates">Päivitykset tässä versiossa:\n- Ensimmäinen julkaistu versio</string>
     <string name="Agree">Hyväksy</string>
     <string name="Decline">Hylkää</string>
+    <string name="MainActivityTitle">Filmirullat</string>
 </resources>

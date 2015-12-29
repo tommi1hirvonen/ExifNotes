@@ -27,7 +27,7 @@
     <string name="Add">Add</string>
 
     <!--MainActivity-->
-    <string name="MainActivityTitle">Rolls</string>
+    <string name="MainActivityTitle">Film Rolls</string>
     <string name="PickRollsToDelete">Pick rolls to delete</string>
     <string name="Delete">Delete</string>
     <string name="Cancel">Cancel</string>
@@ -105,5 +105,7 @@
     <string name="Language">Language</string>
     <string name="AlwaysShowLensSelectionTitle">Always show lens selection</string>
     <string name="AlwaysShowLensSelectionSummary">If unchecked, the previously used lens will be selected by default when adding a new frame.</string>
+    <string name="ShutterIncrementsTitle">Shutter speed increments</string>
+    <string name="ApertureIncrementsTitle">Aperture value increments</string>
 
 </resources>

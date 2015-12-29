@@ -3,7 +3,10 @@ package com.tommihirvonen.filmphotonotes;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +14,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -56,10 +60,15 @@ public class MainActivity extends AppCompatActivity implements
 
         new SimpleEula(this).show();
 
+        // Commands to get the action bar and color it
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
-        getSupportActionBar().setIcon(R.mipmap.film_photo_notes_icon);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.orange)));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().setStatusBarColor( ContextCompat.getColor(this, R.color.dark_orange) );
+        }
 
         mainTextView = (TextView) findViewById(R.id.no_added_rolls);
 

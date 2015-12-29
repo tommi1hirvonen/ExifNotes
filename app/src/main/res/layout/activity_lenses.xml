@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".LensesActivity"
-    android:background="#ff2d2d2d">
+    >
 
 
     <TextView
@@ -23,8 +23,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-
-
         />
 
     <android.support.design.widget.FloatingActionButton
@@ -36,7 +34,7 @@
         android:layout_marginRight="20dp"
         app:elevation="6dp"
         app:pressedTranslationZ="12dp"
-        app:backgroundTint="@color/background_floating_material_dark"
-        android:src="@mipmap/ic_action_new" />
+        app:backgroundTint="@color/dark_orange"
+        android:src="@drawable/ic_add_white_48dp" />
 
 </LinearLayout>

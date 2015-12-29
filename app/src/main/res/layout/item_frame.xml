@@ -9,7 +9,6 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
         android:weightSum="14"
         >
 
@@ -18,18 +17,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="5.5"
-
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="25sp"
-            android:textColor="#FFFFFF"
-
             android:gravity="center"
-
-
-
             android:text="@string/Text"
             android:id="@+id/tvCount" />
-
 
 
         <LinearLayout
@@ -44,7 +36,6 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="15sp"
-                android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
                 android:paddingLeft="5dip"
                 android:text="@string/Text"
@@ -56,7 +47,6 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="15sp"
-                android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
                 android:paddingLeft="5dip"
                 android:text="@string/Text"
@@ -76,7 +66,6 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="15sp"
-                android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
                 android:paddingLeft="5dip"
                 android:text="@string/Text"
@@ -88,7 +77,6 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="15sp"
-                android:textColor="#FFFFFF"
                 android:gravity="center_vertical"
                 android:paddingLeft="5dip"
                 android:text="@string/Text"

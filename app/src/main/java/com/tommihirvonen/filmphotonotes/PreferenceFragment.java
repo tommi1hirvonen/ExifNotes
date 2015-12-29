@@ -1,11 +1,14 @@
 package com.tommihirvonen.filmphotonotes;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
+import android.preference.Preference;
 
 // Copyright 2015
 // Tommi Hirvonen
 
-public class PreferenceFragment extends android.preference.PreferenceFragment {
+public class PreferenceFragment extends android.preference.PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
 
     // Notice that all we need to do is invoke the addPreferencesFromResource(..) method,
@@ -17,9 +20,33 @@ public class PreferenceFragment extends android.preference.PreferenceFragment {
     {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_preference);
+
+        // Set summaries for the list preferences
+        Preference shutterIncrements = findPreference("ShutterIncrements");
+        shutterIncrements.setSummary(((ListPreference) shutterIncrements).getEntry());
+        Preference apertureIncrements = findPreference("ApertureIncrements");
+        apertureIncrements.setSummary(((ListPreference) apertureIncrements).getEntry());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
     }
 
 
-
-
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // Set summaries for the list preferences
+        Preference shutterIncrements = findPreference("ShutterIncrements");
+        shutterIncrements.setSummary(((ListPreference) shutterIncrements).getEntry());
+        Preference apertureIncrements = findPreference("ApertureIncrements");
+        apertureIncrements.setSummary(((ListPreference) apertureIncrements).getEntry());
+    }
 }

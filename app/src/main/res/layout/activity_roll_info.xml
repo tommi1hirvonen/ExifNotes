@@ -6,32 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".RollInfo"
-    android:background="#ff2d2d2d">
-
-
-
-    <!--<TextView
-        android:id="@+id/main_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:text="@string/textview"/>-->
-
-    <!-- This nested layout contains views of its own -->
-
-
-
-    <!-- Displays keyboard when touched -->
-    <!--<EditText
-        android:id="@+id/main_edittext"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textCapWords"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:hint="@string/hint" />-->
+    >
 
     <TextView
         android:id="@+id/no_added_frames"
@@ -59,7 +34,7 @@
         android:layout_marginRight="20dp"
         app:elevation="6dp"
         app:pressedTranslationZ="12dp"
-        app:backgroundTint="@color/background_floating_material_dark"
-        android:src="@mipmap/ic_action_new" />
+        app:backgroundTint="@color/dark_orange"
+        android:src="@drawable/ic_add_white_48dp" />
 
 </LinearLayout>
