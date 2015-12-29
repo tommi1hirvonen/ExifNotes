@@ -221,7 +221,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         b_lens.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<String> listItems = new ArrayList<>();
+                final List<String> listItems = new ArrayList<>();
                 listItems.add("" + getActivity().getString(R.string.NoLens));
                 for (int i = 0; i < lensList.size(); ++i) {
                     listItems.add(lensList.get(i));
@@ -232,7 +232,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        b_lens.setText(lensList.get(which));
+                        // listItems also contains the No lens option
+                        b_lens.setText(listItems.get(which));
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {

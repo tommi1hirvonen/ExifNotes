@@ -90,7 +90,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         if ( mFrameClassList.size() >= 1 ) counter = mFrameClassList.get(mFrameClassList.size() -1).getCount();
 
         if ( mainListView.getCount() >= 1 ) mainListView.setSelection( mainListView.getCount() - 1 );
-
     }
 
 
@@ -104,11 +103,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         MenuItem shareItem = menu.findItem(R.id.menu_item_share);
         MenuItem deleteFrame = menu.findItem(R.id.menu_item_delete_frame);
         MenuItem frame_help = menu.findItem(R.id.menu_item_frame_help);
-
-
-        // Access the object responsible for
-        // putting together the sharing submenu
-
 
         deleteFrame.setOnMenuItemClickListener(this);
         frame_help.setOnMenuItemClickListener(this);
@@ -168,6 +162,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
@@ -296,10 +291,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String shutter = mFrameClassList.get(position).getShutter();
         String aperture = mFrameClassList.get(position).getAperture();
 
-        // ***************************************************************************************
-        // ******************** Implement shutter and aperture in this method ********************
-        // ***************************************************************************************
-
         ArrayList<String> mLensList;
         mLensList = readLensFile();
 
@@ -390,9 +381,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             ++counter;
             mainTextView.setVisibility(View.GONE);
 
-            // ****************************************************************************
-            // ******************** Implement these two in this method ********************
-            // ****************************************************************************
+
             String shutter = "<empty>";
             String aperture = "<empty>";
 
@@ -409,10 +398,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
             // Save the file when the new frame has been added
             writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens() + "," + frame.getShutter() + "," + frame.getAperture());
-
-
         }
-
     }
 
 
@@ -438,7 +424,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             mFrameClassList.get(position).setAperture(aperture);
             mFrameAdapter.notifyDataSetChanged();
             setShareIntent();
-
         }
     }
 
@@ -487,7 +472,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                 addNewFrame();
 
                 break;
-
         }
     }
 
@@ -523,9 +507,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                 ++counter;
                 mainTextView.setVisibility(View.GONE);
 
-                // ****************************************************************************
-                // ******************** Implement these two in this method ********************
-                // ****************************************************************************
                 String shutter = "<empty>";
                 String aperture = "<empty>";
 
