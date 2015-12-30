@@ -8,7 +8,7 @@
     <string name="Date">Päivä:</string>
     <string name="Delete">Poista</string>
     <string name="EditFrame">Muokkaa ruutua #</string>
-    <string name="FrameCount">Ruudun numero:</string>
+    <string name="FrameCount">Ruudun #:</string>
     <string name="FrameCountNotChanged">Ruudun numeroa ei muutettu!\nAnnettu arvo ei ollut numero</string>
     <string name="Frames">Ruudut</string>
     <string name="Help">Ohje</string>
