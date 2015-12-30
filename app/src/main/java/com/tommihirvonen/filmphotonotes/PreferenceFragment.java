@@ -4,6 +4,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.support.v4.content.ContextCompat;
+import android.view.Gravity;
+import android.widget.Toast;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -52,5 +55,9 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         apertureIncrements.setSummary(((ListPreference) apertureIncrements).getEntry());
         Preference UIColor = findPreference("UIColor");
         UIColor.setSummary(((ListPreference) UIColor).getEntry());
+        if ( key.equals("UIColor")) {
+            Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.UIColorToast), Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 }

@@ -108,7 +108,11 @@
     <string name="AlwaysShowLensSelectionSummary">If unchecked, the previously used lens will be selected by default when adding a new frame.</string>
     <string name="ShutterIncrementsTitle">Shutter speed increments</string>
     <string name="ApertureIncrementsTitle">Aperture value increments</string>
-    <string name="UIColorTitle">User interface color (may require app restart)</string>
+    <string name="ThirdStop">1/3 stop</string>
+    <string name="HalfStop">1/2 stop</string>
+    <string name="FullStop">Full stop</string>
+    <string name="UIColorTitle">User interface color </string>
+    <string name="UIColorToast">Color change may require app relaunch to fully take effect</string>
     <string name="Orange">Orange</string>
     <string name="Red">Red</string>
     <string name="Pink">Pink</string>

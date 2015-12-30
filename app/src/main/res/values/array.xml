@@ -2,9 +2,9 @@
 <resources>
 
     <string-array name="StopIncrements">
-        <item>1/3</item>
-        <item>1/2</item>
-        <item>1</item>
+        <item>@string/ThirdStop</item>
+        <item>@string/HalfStop</item>
+        <item>@string/FullStop</item>
     </string-array>
     
     <string-array name="StopIncrementsData">
