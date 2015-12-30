@@ -13,4 +13,24 @@
         <item>full</item>
     </string-array>
 
+    <string-array name="UIColorOptions">
+        <item>@string/Orange</item>
+        <item>@string/Red</item>
+        <item>@string/Pink</item>
+        <item>@string/Blue</item>
+        <item>@string/Green</item>
+        <item>@string/Grey</item>
+        <item>@string/Purple</item>
+    </string-array>
+
+    <string-array name="UIColorOptionsData">
+        <item>#ef6c00,#e65100</item>
+        <item>#F44336,#D32F2F</item>
+        <item>#E91E63,#C2185B</item>
+        <item>#2196F3,#1976D2</item>
+        <item>#43A047,#2E7D32</item>
+        <item>#424242,#212121</item>
+        <item>#9C27B0,#7B1FA2</item>
+    </string-array>
+
 </resources>

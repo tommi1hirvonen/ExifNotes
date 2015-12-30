@@ -25,6 +25,14 @@
             android:entryValues="@array/StopIncrementsData"
             android:defaultValue="third"/>
 
+        <ListPreference
+            android:key="UIColor"
+            android:title="@string/UIColorTitle"
+            android:entries="@array/UIColorOptions"
+            android:entryValues="@array/UIColorOptionsData"
+            android:defaultValue="#ef6c00,#e65100"
+            />
+
     </PreferenceCategory>
 
 

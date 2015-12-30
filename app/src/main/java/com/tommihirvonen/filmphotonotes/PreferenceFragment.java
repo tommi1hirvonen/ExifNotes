@@ -26,6 +26,8 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         shutterIncrements.setSummary(((ListPreference) shutterIncrements).getEntry());
         Preference apertureIncrements = findPreference("ApertureIncrements");
         apertureIncrements.setSummary(((ListPreference) apertureIncrements).getEntry());
+        Preference UIColor = findPreference("UIColor");
+        UIColor.setSummary(((ListPreference) UIColor).getEntry());
     }
 
     @Override
@@ -48,5 +50,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         shutterIncrements.setSummary(((ListPreference) shutterIncrements).getEntry());
         Preference apertureIncrements = findPreference("ApertureIncrements");
         apertureIncrements.setSummary(((ListPreference) apertureIncrements).getEntry());
+        Preference UIColor = findPreference("UIColor");
+        UIColor.setSummary(((ListPreference) UIColor).getEntry());
     }
 }

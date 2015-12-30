@@ -3,8 +3,12 @@ package com.tommihirvonen.filmphotonotes;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -28,6 +32,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,15 +65,25 @@ public class MainActivity extends AppCompatActivity implements
 
         new SimpleEula(this).show();
 
-        // Commands to get the action bar and color it
+        // ********** Commands to get the action bar and color it **********
+        // Get preferences to determine UI color
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
+        List<String> colors = Arrays.asList(UIColor.split(","));
+        String primaryColor = colors.get(0);
+        String secondaryColor = colors.get(1);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.primary_color)));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor( ContextCompat.getColor(this, R.color.secondary_color) );
+            getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
         }
+        // *****************************************************************
+
+        // Also change the floating action button color. Use the darker secondaryColor for this.
+        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
 
         mainTextView = (TextView) findViewById(R.id.no_added_rolls);
 
@@ -346,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements
 
             //Check if a roll with the same name already exists
             for ( int i = 0; i < mNameList.size(); ++i ) {
-                if ( inputName.equals( mNameList.get(i) )  ) {
+                if ( inputName.equals(mNameList.get(i))  ) {
                     Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();

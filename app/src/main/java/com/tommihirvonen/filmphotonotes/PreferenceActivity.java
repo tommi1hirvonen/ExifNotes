@@ -3,8 +3,11 @@ package com.tommihirvonen.filmphotonotes;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatDelegate;
@@ -21,6 +24,9 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import java.util.Arrays;
+import java.util.List;
+
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -32,11 +38,19 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
+        // Get preferences to determine UI color
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
+        List<String> colors = Arrays.asList(UIColor.split(","));
+        String primaryColor = colors.get(0);
+        String secondaryColor = colors.get(1);
+
         // This is a way to get the action bar in Preferences.
         // It will be done only on Androids > 5.0.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
             Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.preference_toolbar , root, false);
+            bar.setBackgroundColor(Color.parseColor(primaryColor));
             root.addView(bar, 0); // insert at top
             bar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
@@ -45,7 +59,8 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
                 }
             });
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor( ContextCompat.getColor(this, R.color.secondary_color) );
+            //getWindow().setStatusBarColor( ContextCompat.getColor(this, R.color.secondary_color) );
+            getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
         }
         else {
 
@@ -54,7 +69,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
             setContentView(R.layout.activity_settings_legacy);
             Toolbar actionbar = (Toolbar) findViewById(R.id.actionbar);
             actionbar.setTitle(R.string.Preferences);
-
+            actionbar.setBackgroundColor(Color.parseColor(primaryColor));
             actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
             actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.abc_ic_ab_back_mtrl_am_alpha));
             actionbar.setNavigationOnClickListener(new View.OnClickListener() {
