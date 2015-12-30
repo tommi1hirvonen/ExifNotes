@@ -21,6 +21,7 @@
         <item>@string/Green</item>
         <item>@string/Grey</item>
         <item>@string/Purple</item>
+        <item>@string/Cyan</item>
     </string-array>
 
     <string-array name="UIColorOptionsData">
@@ -31,6 +32,7 @@
         <item>#43A047,#2E7D32</item>
         <item>#424242,#212121</item>
         <item>#9C27B0,#7B1FA2</item>
+        <item>#00838F,#006064</item>
     </string-array>
 
 </resources>
