@@ -37,6 +37,6 @@
         app:elevation="6dp"
         app:pressedTranslationZ="12dp"
         app:backgroundTint="@color/secondary_color"
-        android:src="@drawable/ic_add_white_48dp" />
+        android:src="@drawable/ic_add_a_camera_roll_white_48dp" />
 
 </LinearLayout>
