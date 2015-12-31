@@ -33,44 +33,8 @@
         android:layout_marginTop="5dp"
         android:clickable="true"
         android:gravity="center" />
-    <!--
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="0.2dp"
-        android:id="@+id/above_separator"
-        android:visibility="visible"
-        android:layout_marginTop="15dp"
-        android:background="@android:color/darker_gray"/>
-
-    <TextView
-        android:id="@+id/tv_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:textColor="#ffffff"
-        android:clickable="true" />
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="0.2dp"
-        android:id="@+id/below_separator"
-        android:visibility="visible"
-        android:background="@android:color/darker_gray"/>
-        -->
-    <!--
-    <EditText
-        android:id="@+id/txt_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
 
 
-        android:hint="Name"
-        android:inputType="textCapWords"
-        />
-    -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -97,17 +61,7 @@
             />
     </LinearLayout>
 
-    <!--
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/txt_name2"
 
-
-        android:hint="Name2"
-        android:inputType="textCapWords"
-        android:gravity="center" />
-    -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

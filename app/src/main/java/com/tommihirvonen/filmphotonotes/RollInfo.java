@@ -11,7 +11,6 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -42,7 +41,7 @@ import java.util.List;
 // Tommi Hirvonen
 
 public class RollInfo extends AppCompatActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
-        FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSettedCallback, FloatingActionButton.OnClickListener {
+        FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSetCallback, FloatingActionButton.OnClickListener {
 
     TextView mainTextView;
     ListView mainListView;
@@ -198,31 +197,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle(R.string.PickFramesToDelete)
 
-                    // List Dialog
-//                    builder.setItems(items, new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which) {
-//
-//                            // Do something with the selection
-//                            mFrameClassList.remove(which);
-//                            //mFrameList.remove(0);
-//                            if ( mFrameClassList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
-//                            //mArrayAdapter.notifyDataSetChanged();
-//                            mFrameAdapter.notifyDataSetChanged();
-//
-//                            File file = new File(getFilesDir(), name_of_roll + ".txt");
-//                            try {
-//                                MainActivity.removeLine(file, which);
-//                            }
-//                            catch (IOException e){
-//                                e.printStackTrace();
-//                            }
-//
-//                            if ( mFrameClassList.size() >= 1 ) counter = mFrameClassList.get(mFrameClassList.size() -1).getCount();
-//                            setShareIntent();
-//
-//                        }
-//                    });
-
                     // Multiple Choice Dialog
                     .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
                                 @Override
@@ -255,7 +229,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                                 }
                             }
                             if (mFrameClassList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                            //mArrayAdapter.notifyDataSetChanged();
                             mFrameAdapter.notifyDataSetChanged();
                             if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
                             else counter = 0;
@@ -360,65 +333,65 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
 
-    private void show_frame_info_dialog() {
+    private void showFrameInfoDialog() {
+
+        // If the frame count is greater than 100, then don't add a new frame.
+        if ( !mFrameClassList.isEmpty()) {
+            int countCheck = mFrameClassList.get(mFrameClassList.size() - 1).getCount() + 1;
+            if (countCheck > 100) {
+                Toast toast = Toast.makeText(this, getResources().getString(R.string.TooManyFrames), Toast.LENGTH_LONG);
+                toast.show();
+                return;
+            }
+        }
+
+        String lens;
+        int count;
+        String date = getCurrentTime();
+        String shutter;
+        String aperture;
+        if ( !mFrameClassList.isEmpty() ){
+            Frame previousFrame = mFrameClassList.get(mFrameClassList.size()-1);
+            lens = previousFrame.getLens();
+            count = previousFrame.getCount() + 1;
+            shutter = previousFrame.getShutter();
+            aperture = previousFrame.getAperture();
+        } else {
+            lens = getResources().getString(R.string.NoLens);
+            count = 1;
+            shutter = "<empty>";
+            aperture = "<empty>";
+        }
         ArrayList<String> mLensList;
         mLensList = readLensFile();
-        FrameInfoDialog dialog = FrameInfoDialog.newInstance("" + R.string.NewFrame, mLensList);
+        FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens, count, date, shutter, aperture,  mLensList);
         dialog.show(getSupportFragmentManager(), FrameInfoDialog.TAG);
     }
 
     @Override
-    public void onInfoSet(String lens) {
+    public void onInfoSet(String lens, int count, String date, String shutter, String aperture) {
 
-        // Grab the EditText's input
-        if ( lens.length() != 0 ) {
+        Frame frame = new Frame(count, date, lens, shutter, aperture);
+        mFrameClassList.add(frame);
+        mFrameAdapter.notifyDataSetChanged();
 
+        mainTextView.setVisibility(View.GONE);
 
-            // Add new frame
+        // When the new frame is added jump to view the last entry
+        mainListView.setSelection(mainListView.getCount() - 1 );
+        // The text you'd like to share has changed,
+        // and you need to update
+        setShareIntent();
 
-            // Dateformat doesn't seem to work for some reason. This is a workaround.
-            final Calendar c = Calendar.getInstance();
-            int iYear = c.get(Calendar.YEAR);
-            int iMonth = c.get(Calendar.MONTH) + 1;
-            int iDay = c.get(Calendar.DAY_OF_MONTH);
-            int iHour = c.get(Calendar.HOUR_OF_DAY);
-            int iMin = c.get(Calendar.MINUTE);
-            String current_time;
-            if ( iMin < 10 ) {
-                current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
-            }
-            else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
+        // Save the file when the new frame has been added
+        writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens() + "," + frame.getShutter() + "," + frame.getAperture());
 
-            // Update counter in case the previous frame's counter was edited
-            if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size()-1).getCount();
-
-            ++counter;
-            mainTextView.setVisibility(View.GONE);
-
-
-            String shutter = "<empty>";
-            String aperture = "<empty>";
-
-            Frame frame = new Frame(counter, current_time, lens, shutter, aperture);
-            mFrameClassList.add(frame);
-            mFrameAdapter.notifyDataSetChanged();
-
-
-            // When the new frame is added jump to view the last entry
-            mainListView.setSelection(mainListView.getCount() - 1 );
-            // The text you'd like to share has changed,
-            // and you need to update
-            setShareIntent();
-
-            // Save the file when the new frame has been added
-            writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens() + "," + frame.getShutter() + "," + frame.getAperture());
-        }
     }
 
 
 
     @Override
-    public void onEditSetted(String lens, int position, int count, String date, String shutter, String aperture) {
+    public void onEditSet(String lens, int position, int count, String date, String shutter, String aperture) {
         if ( lens.length() != 0 ) {
 
             // Replace the old lens in the text file with the new one
@@ -483,72 +456,25 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         switch (v.getId()) {
             case R.id.fab:
 
-                addNewFrame();
+                showFrameInfoDialog();
 
                 break;
         }
     }
 
 
-    private void addNewFrame(){
-
-        // If the frame count is greater than 100, then don't add a new frame.
-        int countCheck = mFrameClassList.get(mFrameClassList.size()-1).getCount() + 1;
-        if ( countCheck > 100 ) {
-            Toast toast = Toast.makeText(this, getResources().getString(R.string.TooManyFrames), Toast.LENGTH_LONG);
-            toast.show();
-            return;
+    private String getCurrentTime(){
+        final Calendar c = Calendar.getInstance();
+        int iYear = c.get(Calendar.YEAR);
+        int iMonth = c.get(Calendar.MONTH) + 1;
+        int iDay = c.get(Calendar.DAY_OF_MONTH);
+        int iHour = c.get(Calendar.HOUR_OF_DAY);
+        int iMin = c.get(Calendar.MINUTE);
+        String current_time;
+        if ( iMin < 10 ) {
+            current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
         }
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        boolean showLensSelection = prefs.getBoolean("AlwaysShowLensSelection", true);
-
-        // If AlwaysShowLensSelection is true then show frame info dialog.
-        // Otherwise assume same lens is used.
-        if ( showLensSelection ) {
-            show_frame_info_dialog();
-        }
-        else {
-
-            // If the added frame is the first on, then ask the user for the used lens
-            if ( mFrameClassList.isEmpty() ) show_frame_info_dialog();
-                // Otherwise assume the same lens is used
-            else {
-
-                String lens = mFrameClassList.get(mFrameClassList.size() - 1).getLens();
-
-                // Dateformat doesn't seem to work for some reason. This is a workaround.
-                // There is another instance of this same operation in onInfoSet
-                final Calendar c = Calendar.getInstance();
-                int iYear = c.get(Calendar.YEAR);
-                int iMonth = c.get(Calendar.MONTH) + 1;
-                int iDay = c.get(Calendar.DAY_OF_MONTH);
-                int iHour = c.get(Calendar.HOUR_OF_DAY);
-                int iMin = c.get(Calendar.MINUTE);
-                String current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
-
-                // Update counter in case the previous frame's counter was edited
-                if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size()-1).getCount();
-                ++counter;
-                mainTextView.setVisibility(View.GONE);
-
-                String shutter = "<empty>";
-                String aperture = "<empty>";
-
-                Frame frame = new Frame(counter, current_time, lens, shutter, aperture);
-                mFrameClassList.add(frame);
-                mFrameAdapter.notifyDataSetChanged();
-
-                // When the new frame is added jump to view the last entry
-                mainListView.setSelection(mainListView.getCount() - 1 );
-                // The text you'd like to share has changed,
-                // and you need to update
-                setShareIntent();
-
-                // Save the file when the new frame has been added
-                writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens() + "," + frame.getShutter() + "," + frame.getAperture());
-
-            }
-        }
+        else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
+        return current_time;
     }
 }

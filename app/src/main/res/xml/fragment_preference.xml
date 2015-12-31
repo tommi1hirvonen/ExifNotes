@@ -5,12 +5,6 @@
     <PreferenceCategory
         android:title="@string/General_Cap">
 
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="AlwaysShowLensSelection"
-            android:title="@string/AlwaysShowLensSelectionTitle"
-            android:summary="@string/AlwaysShowLensSelectionSummary"/>
-
         <ListPreference
             android:key="ShutterIncrements"
             android:title="@string/ShutterIncrementsTitle"

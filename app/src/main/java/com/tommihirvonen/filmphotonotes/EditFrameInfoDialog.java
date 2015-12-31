@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -20,10 +19,10 @@ import android.widget.DatePicker;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 // Copyright 2015
@@ -56,16 +55,16 @@ public class EditFrameInfoDialog extends DialogFragment {
         return f;
     }
 
-    public static final String TAG = "SetLensDialogFragment";
+    public static final String TAG = "EditFrameInfoDialogFragment";
 
 
-    private OnEditSettedCallback callback;
+    private OnEditSetCallback callback;
 
 
 
 
-    public interface OnEditSettedCallback {
-        void onEditSetted(String new_lens, int position, int new_count, String new_date, String new_shutter, String new_aperture);
+    public interface OnEditSetCallback {
+        void onEditSet(String new_lens, int position, int new_count, String new_date, String new_shutter, String new_aperture);
     }
 
 
@@ -78,7 +77,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         super.onAttach(activity);
 
         try {
-            callback = (OnEditSettedCallback) activity;
+            callback = (OnEditSetCallback) activity;
         }
         catch(ClassCastException e) {
             e.printStackTrace();
@@ -156,6 +155,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 displayedShutterValues = shutterValuesThird;
                 break;
         }
+        // By reversing the order we can reverse the order in the numberpicker too
+        Collections.reverse(Arrays.asList(displayedShutterValues));
 
         shutterPicker.setMinValue(0);
         shutterPicker.setMaxValue(displayedShutterValues.length - 1);
@@ -196,6 +197,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 displayedApertureValues = apertureValuesThird;
                 break;
         }
+        // By reversing the order we can reverse the order in the numberpicker too
+        Collections.reverse(Arrays.asList(displayedApertureValues));
 
         aperturePicker.setMinValue(0);
         aperturePicker.setMaxValue(displayedApertureValues.length - 1);
@@ -209,9 +212,20 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         }
 
+        // This way we can also reverse the order of the count picker.
+        String[] temp = new String[101];
+        for ( int i = 0; i <= 100; ++i ) temp[i] = "" + i;
+        Collections.reverse(Arrays.asList(temp));
+        final String[] displayedCountValues = temp;
         countPicker.setMinValue(0);
         countPicker.setMaxValue(100);
-        countPicker.setValue(count);
+        countPicker.setDisplayedValues(displayedCountValues);
+        countPicker.setValue(0);
+        for ( int i = 0; i <= 100; ++i ) {
+            if ( displayedCountValues[i].equals(Integer.toString(count)) ) {
+                countPicker.setValue(i);
+            }
+        }
         countPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
         b_lens.setText(lens);
@@ -281,7 +295,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         ArrayList<String> timeValue = splitTime(date);
         final int hours = Integer.parseInt(timeValue.get(0));
         final int minutes = Integer.parseInt(timeValue.get(1));
-        b_time.setText(hours + ":" + minutes);
+        if (minutes < 10) b_time.setText(hours + ":0" + minutes);
+        else b_time.setText(hours + ":" + minutes);
         b_time.setClickable(true);
 
         b_time.setOnClickListener(new View.OnClickListener() {
@@ -311,14 +326,14 @@ public class EditFrameInfoDialog extends DialogFragment {
                 lens = b_lens.getText().toString();
                 shutter = displayedShutterValues[shutterPicker.getValue()];
                 aperture = displayedApertureValues[aperturePicker.getValue()];
-                count = countPicker.getValue();
+                count = Integer.parseInt(displayedCountValues[countPicker.getValue()]);
 
                 // PARSE THE DATE
                 date = b_date.getText().toString() + " " + b_time.getText().toString();
 
                 if(lens.length() != 0) {
                     // Return the new entered name to the calling activity
-                    callback.onEditSetted(lens, position, count, date, shutter, aperture);
+                    callback.onEditSet(lens, position, count, date, shutter, aperture);
                 }
             }
         });
