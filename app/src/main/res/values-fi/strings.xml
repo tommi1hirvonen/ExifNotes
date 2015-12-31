@@ -77,4 +77,5 @@
     <string name="ThirdStop">1/3 askel</string>
     <string name="UIColorToast">Värin vaihtaminen saattaa vaatia sovelluksen uudelleenkäynnistämisen</string>
     <string name="Cyan">Syaani</string>
+    <string name="TooManyFrames">Ruutua ei lisätty. Ruudun numero ei voi olla suurempi kuin 100.</string>
 </resources>

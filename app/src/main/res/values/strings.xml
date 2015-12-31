@@ -45,6 +45,7 @@
         - You can rename a roll by pressing and holding the roll you wish to rename.
     </string>
     <string name="Preferences">Settings</string>
+    <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
 
     <!--RollInfo-->
     <string name="Frames">Frames</string>

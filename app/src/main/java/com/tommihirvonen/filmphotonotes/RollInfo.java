@@ -24,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -490,6 +491,15 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
 
     private void addNewFrame(){
+
+        // If the frame count is greater than 100, then don't add a new frame.
+        int countCheck = mFrameClassList.get(mFrameClassList.size()-1).getCount() + 1;
+        if ( countCheck > 100 ) {
+            Toast toast = Toast.makeText(this, getResources().getString(R.string.TooManyFrames), Toast.LENGTH_LONG);
+            toast.show();
+            return;
+        }
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean showLensSelection = prefs.getBoolean("AlwaysShowLensSelection", true);
 
@@ -517,6 +527,8 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                 int iMin = c.get(Calendar.MINUTE);
                 String current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
 
+                // Update counter in case the previous frame's counter was edited
+                if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size()-1).getCount();
                 ++counter;
                 mainTextView.setVisibility(View.GONE);
 

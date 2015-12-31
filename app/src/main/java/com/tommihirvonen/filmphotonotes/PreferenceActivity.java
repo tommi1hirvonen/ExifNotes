@@ -42,8 +42,8 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
+        final String primaryColor = colors.get(0);
+        final String secondaryColor = colors.get(1);
 
         // This is a way to get the action bar in Preferences.
         // It will be done only on Androids > 5.0.
@@ -123,5 +123,4 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
     {
         return PreferenceFragment.class.getName().equals(fragmentName);
     }
-
 }
