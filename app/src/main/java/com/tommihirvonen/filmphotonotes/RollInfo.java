@@ -281,10 +281,10 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String shutter = mFrameClassList.get(position).getShutter();
         String aperture = mFrameClassList.get(position).getAperture();
 
-        ArrayList<String> mLensList;
-        mLensList = readLensFile();
+//        ArrayList<Lens> mLensList;
+//        mLensList = database.getAllLenses();
 
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture, mLensList);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture);
         dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
@@ -320,9 +320,9 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             shutter = "<empty>";
             aperture = "<empty>";
         }
-        ArrayList<String> mLensList;
-        mLensList = readLensFile();
-        FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens, count, date, shutter, aperture,  mLensList);
+//        ArrayList<String> mLensList;
+//        mLensList = readLensFile();
+        FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens, count, date, shutter, aperture);
         dialog.show(getSupportFragmentManager(), FrameInfoDialog.TAG);
     }
 
@@ -372,22 +372,22 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
 
-    private ArrayList<String> readLensFile () {
-        ArrayList<String> lenses = new ArrayList<>();
-        File file = new File(getFilesDir(), "List_of_Lenses.txt");
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            while ( (line = br.readLine()) != null ) {
-                lenses.add(line);
-            }
-            br.close();
-        }
-        catch ( IOException e ) {
-            e.printStackTrace();
-        }
-        return lenses;
-    }
+//    private ArrayList<String> readLensFile () {
+//        ArrayList<String> lenses = new ArrayList<>();
+//        File file = new File(getFilesDir(), "List_of_Lenses.txt");
+//        try {
+//            BufferedReader br = new BufferedReader(new FileReader(file));
+//            String line;
+//            while ( (line = br.readLine()) != null ) {
+//                lenses.add(line);
+//            }
+//            br.close();
+//        }
+//        catch ( IOException e ) {
+//            e.printStackTrace();
+//        }
+//        return lenses;
+//    }
 
 
     @Override

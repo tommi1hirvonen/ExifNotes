@@ -46,11 +46,17 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
 
     LensAdapter mArrayAdapter;
 
-    ArrayList<String> mLensList = new ArrayList<>();
+    ArrayList<Lens> mLensList = new ArrayList<>();
+
+    FilmDbHelper database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        database = new FilmDbHelper(this);
+        mLensList = database.getAllLenses();
+
         setContentView(R.layout.activity_lenses);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -91,25 +97,28 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
-        // Read the lenses from file and add to list
-        File file = new File(getFilesDir(), "List_of_Lenses.txt");
-        if ( file.exists() ) readLensFile();
+//        // Read the lenses from file and add to list
+//        File file = new File(getFilesDir(), "List_of_Lenses.txt");
+//        if ( file.exists() ) readLensFile();
+        if ( mLensList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
+
+        mArrayAdapter.notifyDataSetChanged();
     }
 
     // When the user leaves the activity, the lenses are arranged
     // in an alphabetical order. This way if there are multiple lenses,
     // picking one should be easier.
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // Sorting the lens list works using Collections because String implements Comparable
-        Collections.sort(mLensList);
-        String newLensFile = "";
-        for ( String input : mLensList ) {
-            newLensFile = newLensFile + input + "\n";
-        }
-        updateLensFile(newLensFile);
-    }
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        // Sorting the lens list works using Collections because String implements Comparable
+//        Collections.sort(mLensList);
+//        String newLensFile = "";
+//        for ( String input : mLensList ) {
+//            newLensFile = newLensFile + input + "\n";
+//        }
+//        updateLensFile(newLensFile);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -141,7 +150,7 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
 
                     List<String> listItems = new ArrayList<>();
                     for ( int i = 0; i < mLensList.size(); ++i) {
-                        listItems.add(mLensList.get(i));
+                        listItems.add(mLensList.get(i).getName());
                     }
                     final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
 
@@ -173,14 +182,16 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
                                     int which = selectedItemsIndexList.get(i);
 
                                     // Remove the lens line from the List_of_Lenses.txt
-                                    File lenses_file = new File(getFilesDir(), "List_of_Lenses.txt");
-                                    try {
-                                        MainActivity.removeLine(lenses_file, which);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
+//                                    File lenses_file = new File(getFilesDir(), "List_of_Lenses.txt");
+//                                    try {
+//                                        MainActivity.removeLine(lenses_file, which);
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+                                    Lens lens = mLensList.get(which);
+                                    database.deleteLens(lens);
 
-                                    // Remove the roll from the mNameList. Do this last!!!
+                                    // Remove the roll from the mLensList. Do this last!!!
                                     mLensList.remove(which);
                                 }
                                 if (mLensList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
@@ -240,19 +251,25 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
                 }
 
                 mainTextView.setVisibility(View.GONE);
-                mLensList.add(inputText);
+
+                Lens lens = new Lens();
+                lens.setName(inputText);
+                database.addLens(lens);
+                // When we get the last added lens from the database we get the row id value.
+                lens = database.getLastLens();
+                mLensList.add(lens);
                 mArrayAdapter.notifyDataSetChanged();
 
                 // When the lens is added jump to view the last entry
                 mainListView.setSelection(mainListView.getCount() - 1);
 
                 // Save the file when the new roll has been added
-                writeLensFile(inputText);
+                //writeLensFile(inputText);
             }
         }
     }
 
-    private void readLensFile() {
+ /*   private void readLensFile() {
 
         File file = new File(getFilesDir(), "List_of_Lenses.txt");
 
@@ -297,7 +314,7 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
         } catch ( IOException e ) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Override
     public void onClick(View v) {

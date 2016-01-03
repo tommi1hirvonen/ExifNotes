@@ -38,10 +38,11 @@ public class EditFrameInfoDialog extends DialogFragment {
     int count;
     String shutter;
     String aperture;
-    ArrayList<String> lensList;
+    ArrayList<Lens> lensList;
+    FilmDbHelper database;
 
 
-    static EditFrameInfoDialog newInstance(int _id, String lens, int position, int count, String date, String shutter, String aperture, ArrayList<String> lensList) {
+    static EditFrameInfoDialog newInstance(int _id, String lens, int position, int count, String date, String shutter, String aperture) {
         EditFrameInfoDialog f = new EditFrameInfoDialog();
         Bundle args = new Bundle();
         args.putInt("_id", _id);
@@ -51,7 +52,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         args.putString("date", date);
         args.putString("shutter", shutter);
         args.putString("aperture", aperture);
-        args.putStringArrayList("lenses", lensList);
+        //args.putStringArrayList("lenses", lensList);
         f.setArguments(args);
         return f;
     }
@@ -104,7 +105,9 @@ public class EditFrameInfoDialog extends DialogFragment {
         shutter = getArguments().getString("shutter");
         aperture = getArguments().getString("aperture");
 
-        lensList = getArguments().getStringArrayList("lenses");
+        //lensList = getArguments().getStringArrayList("lenses");
+        database = new FilmDbHelper(getActivity());
+        lensList = database.getAllLenses();
 
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
@@ -239,7 +242,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 final List<String> listItems = new ArrayList<>();
                 listItems.add("" + getActivity().getString(R.string.NoLens));
                 for (int i = 0; i < lensList.size(); ++i) {
-                    listItems.add(lensList.get(i));
+                    listItems.add(lensList.get(i).getName());
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

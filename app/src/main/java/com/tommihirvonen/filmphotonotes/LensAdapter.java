@@ -12,18 +12,18 @@ import java.util.ArrayList;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class LensAdapter extends ArrayAdapter<String> {
+public class LensAdapter extends ArrayAdapter<Lens> {
 
     // This LensAdapter acts as an ArrayAdapter to link an array and a list view together
 
-    public LensAdapter(Context context, int textViewResourceId, ArrayList<String> lenses) {
+    public LensAdapter(Context context, int textViewResourceId, ArrayList<Lens> lenses) {
         super(context, textViewResourceId, lenses);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get the data item for this position
-        String lens = getItem(position);
+        String lens = getItem(position).getName();
         // Check if an existing view is being used, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_lens, parent, false);
