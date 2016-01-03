@@ -5,13 +5,20 @@ package com.tommihirvonen.filmphotonotes;
 
 public class Frame {
 
+    public int id;
+    public String roll;
     public int count;
     public String date;
     public String lens;
     public String shutter;
     public String aperture;
 
-    public Frame(int count, String date, String lens, String shutter, String aperture) {
+    public Frame(){
+        // Empty constructor
+    }
+
+    public Frame(String roll, int count, String date, String lens, String shutter, String aperture) {
+        this.roll = roll;
         this.count = count;
         this.date = date;
         this.lens = lens;
@@ -21,6 +28,14 @@ public class Frame {
 
 
     // Methods to set members
+    public void setId(int input) {
+        this.id = input;
+    }
+
+    public void setRoll(String input){
+        this.roll = input;
+    }
+
     public void setCount(int input){
         this.count = input;
     }
@@ -43,6 +58,14 @@ public class Frame {
 
 
     //Methods to get members
+    public int getId() {
+        return this.id;
+    }
+
+    public String getRoll(){
+        return this.roll;
+    }
+
     public int getCount(){
         return this.count;
     }

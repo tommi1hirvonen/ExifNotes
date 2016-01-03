@@ -31,7 +31,7 @@ import java.util.List;
 public class EditFrameInfoDialog extends DialogFragment {
 
 
-
+    int _id;
     String lens;
     String date;
     int position;
@@ -41,9 +41,10 @@ public class EditFrameInfoDialog extends DialogFragment {
     ArrayList<String> lensList;
 
 
-    static EditFrameInfoDialog newInstance(String lens, int position, int count, String date, String shutter, String aperture, ArrayList<String> lensList) {
+    static EditFrameInfoDialog newInstance(int _id, String lens, int position, int count, String date, String shutter, String aperture, ArrayList<String> lensList) {
         EditFrameInfoDialog f = new EditFrameInfoDialog();
         Bundle args = new Bundle();
+        args.putInt("_id", _id);
         args.putString("lens", lens);
         args.putInt("position", position);
         args.putInt("count", count);
@@ -64,7 +65,7 @@ public class EditFrameInfoDialog extends DialogFragment {
 
 
     public interface OnEditSetCallback {
-        void onEditSet(String new_lens, int position, int new_count, String new_date, String new_shutter, String new_aperture);
+        void onEditSet(int _id, String new_lens, int position, int new_count, String new_date, String new_shutter, String new_aperture);
     }
 
 
@@ -333,7 +334,7 @@ public class EditFrameInfoDialog extends DialogFragment {
 
                 if(lens.length() != 0) {
                     // Return the new entered name to the calling activity
-                    callback.onEditSet(lens, position, count, date, shutter, aperture);
+                    callback.onEditSet(_id, lens, position, count, date, shutter, aperture);
                 }
             }
         });

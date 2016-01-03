@@ -16,6 +16,7 @@ import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,6 +44,7 @@ import java.util.List;
 public class RollInfo extends AppCompatActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
         FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSetCallback, FloatingActionButton.OnClickListener {
 
+    FilmDbHelper database;
     TextView mainTextView;
     ListView mainListView;
     ArrayList<Frame> mFrameClassList = new ArrayList<>();
@@ -58,6 +60,9 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         setContentView(R.layout.activity_roll_info);
         Intent intent = getIntent();
         name_of_roll = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+
+        database = new FilmDbHelper(this);
+        mFrameClassList = database.getAllFramesFromRoll(name_of_roll);
 
         // ********** Commands to get the action bar and color it **********
         // Get preferences to determine UI color
@@ -96,11 +101,10 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
         mainListView.setOnItemClickListener(this);
 
-        // Read the frames from file and add to list
-        File file = new File(getFilesDir(), name_of_roll + ".txt");
-        if ( file.exists() ) readFrameFile();
-
-        if ( mFrameClassList.size() >= 1 ) counter = mFrameClassList.get(mFrameClassList.size() -1).getCount();
+        if ( mFrameClassList.size() >= 1 ) {
+            counter = mFrameClassList.get(mFrameClassList.size() -1).getCount();
+            mainTextView.setVisibility(View.GONE);
+        }
 
         if ( mainListView.getCount() >= 1 ) mainListView.setSelection( mainListView.getCount() - 1 );
     }
@@ -219,14 +223,12 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                             Collections.sort(selectedItemsIndexList);
                             for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
                                 int which = selectedItemsIndexList.get(i);
+
+                                Frame frame = mFrameClassList.get(which);
+                                database.deleteFrame(frame);
                                 mFrameClassList.remove(which);
 
-                                File file = new File(getFilesDir(), name_of_roll + ".txt");
-                                try {
-                                    MainActivity.removeLine(file, which);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+
                             }
                             if (mFrameClassList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
                             mFrameAdapter.notifyDataSetChanged();
@@ -272,6 +274,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Edit frame info
+        int _id = mFrameClassList.get(position).getId();
         String lens = mFrameClassList.get(position).getLens();
         int count = mFrameClassList.get(position).getCount();
         String date = mFrameClassList.get(position).getDate();
@@ -281,56 +284,11 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         ArrayList<String> mLensList;
         mLensList = readLensFile();
 
-
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(lens, position, count, date, shutter, aperture, mLensList);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture, mLensList);
         dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
 
-
-    // METHODS TO WRITE AND READ THE FRAMES FILE
-
-    private void writeFrameFile(String input) {
-        try {
-            File file = new File(getFilesDir(), name_of_roll + ".txt");
-            FileWriter writer = new FileWriter(file, true);
-            writer.write(input + "\n");
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    // This method reads in the roll info file to create the in-app database of all the frames
-    // taken with this roll
-    private void readFrameFile() {
-        //Get the text file
-        File file = new File(getFilesDir(), name_of_roll + ".txt");
-
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                ++counter;
-
-                List<String> new_frame_strings = Arrays.asList(line.split(","));
-                Frame frame = new Frame(Integer.parseInt(new_frame_strings.get(0)), new_frame_strings.get(1), new_frame_strings.get(2), new_frame_strings.get(3), new_frame_strings.get(4));
-                mFrameClassList.add(frame);
-
-                mainTextView.setVisibility(View.GONE);
-                mFrameAdapter.notifyDataSetChanged();
-            }
-            br.close();
-
-            setShareIntent();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private void showFrameInfoDialog() {
@@ -371,10 +329,17 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     @Override
     public void onInfoSet(String lens, int count, String date, String shutter, String aperture) {
 
-        Frame frame = new Frame(count, date, lens, shutter, aperture);
+        Frame frame = new Frame(name_of_roll, count, date, lens, shutter, aperture);
+
+
+        // Save the file when the new frame has been added
+        database.addFrame(frame);
+
+        // When we get the last added frame from the database we get the row id value.
+        frame = database.getLastFrame();
+
         mFrameClassList.add(frame);
         mFrameAdapter.notifyDataSetChanged();
-
         mainTextView.setVisibility(View.GONE);
 
         // When the new frame is added jump to view the last entry
@@ -383,26 +348,18 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         // and you need to update
         setShareIntent();
 
-        // Save the file when the new frame has been added
-        writeFrameFile(frame.getCount() + "," + frame.getDate() + "," + frame.getLens() + "," + frame.getShutter() + "," + frame.getAperture());
-
     }
 
 
 
     @Override
-    public void onEditSet(String lens, int position, int count, String date, String shutter, String aperture) {
+    public void onEditSet(int _id, String lens, int position, int count, String date, String shutter, String aperture) {
         if ( lens.length() != 0 ) {
 
-            // Replace the old lens in the text file with the new one
-            try {
-                String old_line = mFrameClassList.get(position).getCount() + "," + mFrameClassList.get(position).getDate() + "," + mFrameClassList.get(position).getLens() + "," + mFrameClassList.get(position).getShutter() + "," + mFrameClassList.get(position).getAperture();
-                String new_line = count + "," + date + "," + lens + "," + shutter + "," + aperture;
-                updateLine(old_line, new_line);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+            Frame frame = new Frame();
+            frame.setId(_id); frame.setRoll(name_of_roll); frame.setLens(lens); frame.setCount(count);
+            frame.setDate(date); frame.setShutter(shutter); frame.setAperture(aperture);
+            database.updateFrame(frame);
             //Make the change in the class list and the list view
             mFrameClassList.get(position).setLens(lens);
             mFrameClassList.get(position).setCount(count);
@@ -414,24 +371,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         }
     }
 
-    // This method updates a frame's information if it is edited
-    private void updateLine(String toUpdate, String updated) throws IOException {
-        File new_file = new File(getFilesDir(), name_of_roll + ".txt");
-        BufferedReader file = new BufferedReader(new FileReader(new_file));
-        String line;
-        String input = "";
-
-        while ((line = file.readLine()) != null)
-            input += line + "\n";
-
-        input = input.replace(toUpdate, updated);
-
-        FileOutputStream os = new FileOutputStream(new_file);
-        os.write(input.getBytes());
-
-        file.close();
-        os.close();
-    }
 
     private ArrayList<String> readLensFile () {
         ArrayList<String> lenses = new ArrayList<>();

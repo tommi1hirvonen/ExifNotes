@@ -52,11 +52,14 @@ public class MainActivity extends AppCompatActivity implements
     ListView mainListView;
     RollAdapter mArrayAdapter;
     ArrayList<String> mNameList = new ArrayList<>();
+    FilmDbHelper database;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        database = new FilmDbHelper(this);
 
         setContentView(R.layout.activity_main);
 
@@ -178,42 +181,6 @@ public class MainActivity extends AppCompatActivity implements
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-//                    builder.setTitle("Pick a roll to delete");
-//                    builder.setItems(items, new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int item) {
-//
-//                            // Do something with the selection
-//
-//                            // If the frames file exists, delete it too
-//                            File frames_file = new File(getFilesDir(), mNameList.get(item).toString() + ".txt");
-//                            if ( frames_file.exists() ) {
-//                                try {
-//                                    boolean delete = frames_file.delete();
-//                                } catch (Exception e) {
-//                                    Log.e("App", "Exception while deleting file " + e.getMessage());
-//                                }
-//                            }
-//
-//                            mNameList.remove(item);
-//
-//                            if (mNameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
-//                            mArrayAdapter.notifyDataSetChanged();
-//
-//                            File file = new File(getFilesDir(), "List_of_Rolls.txt");
-//                            try {
-//                                removeLine(file, item);
-//                            }
-//                            catch (IOException e){
-//                                e.printStackTrace();
-//                            }
-//
-//
-//                        }
-//                    });
-//                    AlertDialog alert = builder.create();
-//                    alert.show();
-
-
                     // MULTIPLE CHOICE DIALOG
                     final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
                     builder.setTitle(R.string.PickRollsToDelete)
@@ -242,15 +209,8 @@ public class MainActivity extends AppCompatActivity implements
                                     // Remove the roll file
                                     String name_of_roll = mNameList.get(which);
 
-                                    File frames_file = new File(getFilesDir(), name_of_roll + ".txt");
-                                    if ( frames_file.exists() ) {
-                                        try {
-                                            boolean delete = frames_file.delete();
-                                        }
-                                        catch ( Exception e ) {
-                                            e.printStackTrace();
-                                        }
-                                    }
+                                    // Delete all the frames from the frames database
+                                    database.deleteAllFramesFromRoll(name_of_roll);
 
                                     // Remove the roll name line from the List_of_Rolls.txt
                                     File rolls_file = new File(getFilesDir(), "List_of_Rolls.txt");
@@ -310,12 +270,10 @@ public class MainActivity extends AppCompatActivity implements
 
                 aboutDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        //Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
                     }
                 });
 
                 aboutDialog.show();
-
 
                 break;
 
@@ -332,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements
                 });
 
                 helpDialog.show();
-
 
                 break;
         }
@@ -353,7 +310,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onNameSet(String inputName) {
-
 
         if ( inputName.length() != 0 ) {
 
@@ -389,18 +345,12 @@ public class MainActivity extends AppCompatActivity implements
 
             //Save the file when the new roll has been added
             writeRollFile(inputName);
-
-
-
-
         }
 
     }
 
     @Override
     public void OnNameEdited(String newName, String oldName){
-
-        // Grab the EditText's input
 
         if ( newName.length() != 0 ) {
 
@@ -439,11 +389,10 @@ public class MainActivity extends AppCompatActivity implements
             // Notify array adapter that the dataset has to be updated
             mArrayAdapter.notifyDataSetChanged();
 
+            database.renameAllFramesFromRoll(oldName, newName);
+
             // List_of_Rolls.txt has to be updated
             updateListOfRolls(newName, oldName);
-
-            // The Roll_File has to renamed
-            renameFrameFile(newName, oldName);
 
         }
 
@@ -477,12 +426,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    // This method renames a text file
-    private void renameFrameFile(String newName, String oldName) {
-        File from = new File(getFilesDir(), oldName + ".txt");
-        File to = new File(getFilesDir(), newName + ".txt");
-        from.renameTo(to);
-    }
 
     // This method writes to the List_of_Rolls.txt file a new roll of film
     private void writeRollFile(String input) {
@@ -503,16 +446,11 @@ public class MainActivity extends AppCompatActivity implements
         //Get the text file
         File file = new File(getFilesDir(), "List_of_Rolls.txt");
 
-        //Read text from file
-        //StringBuilder text = new StringBuilder();
-
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
 
             while ((line = br.readLine()) != null) {
-//                text.append(line);
-//                text.append('\n');
                 mNameList.add(line);
                 mainTextView.setVisibility(View.GONE);
             }
