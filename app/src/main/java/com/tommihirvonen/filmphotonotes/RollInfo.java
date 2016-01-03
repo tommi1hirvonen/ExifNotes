@@ -257,10 +257,8 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                 AlertDialog.Builder helpDialog = new AlertDialog.Builder(this);
                 helpDialog.setTitle(R.string.Help);
                 helpDialog.setMessage(R.string.frame_help);
-                //helpDialog.setIcon(R.mipmap.film_photo_notes_icon);
                 helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        //Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
                     }
                 });
                 helpDialog.show();
@@ -280,9 +278,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String date = mFrameClassList.get(position).getDate();
         String shutter = mFrameClassList.get(position).getShutter();
         String aperture = mFrameClassList.get(position).getAperture();
-
-//        ArrayList<Lens> mLensList;
-//        mLensList = database.getAllLenses();
 
         EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture);
         dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
@@ -320,8 +315,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             shutter = "<empty>";
             aperture = "<empty>";
         }
-//        ArrayList<String> mLensList;
-//        mLensList = readLensFile();
+
         FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens, count, date, shutter, aperture);
         dialog.show(getSupportFragmentManager(), FrameInfoDialog.TAG);
     }
@@ -370,24 +364,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             setShareIntent();
         }
     }
-
-
-//    private ArrayList<String> readLensFile () {
-//        ArrayList<String> lenses = new ArrayList<>();
-//        File file = new File(getFilesDir(), "List_of_Lenses.txt");
-//        try {
-//            BufferedReader br = new BufferedReader(new FileReader(file));
-//            String line;
-//            while ( (line = br.readLine()) != null ) {
-//                lenses.add(line);
-//            }
-//            br.close();
-//        }
-//        catch ( IOException e ) {
-//            e.printStackTrace();
-//        }
-//        return lenses;
-//    }
 
 
     @Override

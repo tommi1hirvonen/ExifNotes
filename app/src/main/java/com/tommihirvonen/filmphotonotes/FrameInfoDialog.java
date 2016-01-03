@@ -46,7 +46,6 @@ public class FrameInfoDialog extends DialogFragment {
         args.putString("date", date);
         args.putString("shutter", shutter);
         args.putString("aperture", aperture);
-        //args.putStringArrayList("lenses", lensList);
         f.setArguments(args);
         return f;
     }

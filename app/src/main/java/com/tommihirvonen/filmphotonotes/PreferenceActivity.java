@@ -59,7 +59,6 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
                 }
             });
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            //getWindow().setStatusBarColor( ContextCompat.getColor(this, R.color.secondary_color) );
             getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
         }
         else {

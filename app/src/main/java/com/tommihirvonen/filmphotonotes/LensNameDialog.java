@@ -61,7 +61,6 @@ public class LensNameDialog extends DialogFragment {
             {
                 String name = et1.getText().toString();
 
-                //do operations using s1
                 if(name.length() != 0) {
                     // Return the new entered name to the calling activity
                     callback.onLensNameSet(name);

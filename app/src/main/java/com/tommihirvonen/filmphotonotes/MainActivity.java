@@ -152,7 +152,6 @@ public class MainActivity extends AppCompatActivity implements
 
         show_EditRollNameDialog(mNameList.get(position));
 
-
         //Return true because the item was pressed and held.
         return true;
     }
@@ -245,7 +244,6 @@ public class MainActivity extends AppCompatActivity implements
 
             case R.id.menu_item_lenses:
                 Intent intent = new Intent(this, LensesActivity.class);
-                //intent.putExtra(EXTRA_MESSAGE, "Data");
                 startActivity(intent);
 
                 break;
@@ -265,8 +263,6 @@ public class MainActivity extends AppCompatActivity implements
                 AlertDialog.Builder aboutDialog = new AlertDialog.Builder(this);
                 aboutDialog.setTitle(R.string.app_name);
                 aboutDialog.setMessage(R.string.about);
-                //aboutDialog.setIcon(R.mipmap.film_photo_notes_icon);
-
 
                 aboutDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {

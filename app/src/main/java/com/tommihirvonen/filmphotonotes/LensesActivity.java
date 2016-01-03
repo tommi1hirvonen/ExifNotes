@@ -7,7 +7,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -23,12 +22,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -97,28 +90,11 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
-//        // Read the lenses from file and add to list
-//        File file = new File(getFilesDir(), "List_of_Lenses.txt");
-//        if ( file.exists() ) readLensFile();
         if ( mLensList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
 
         mArrayAdapter.notifyDataSetChanged();
     }
 
-    // When the user leaves the activity, the lenses are arranged
-    // in an alphabetical order. This way if there are multiple lenses,
-    // picking one should be easier.
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        // Sorting the lens list works using Collections because String implements Comparable
-//        Collections.sort(mLensList);
-//        String newLensFile = "";
-//        for ( String input : mLensList ) {
-//            newLensFile = newLensFile + input + "\n";
-//        }
-//        updateLensFile(newLensFile);
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -181,13 +157,6 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
                                 for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
                                     int which = selectedItemsIndexList.get(i);
 
-                                    // Remove the lens line from the List_of_Lenses.txt
-//                                    File lenses_file = new File(getFilesDir(), "List_of_Lenses.txt");
-//                                    try {
-//                                        MainActivity.removeLine(lenses_file, which);
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
                                     Lens lens = mLensList.get(which);
                                     database.deleteLens(lens);
 
@@ -230,7 +199,7 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
 
                 // Check if a lens with the same name already exists
                 for ( int i = 0; i < mLensList.size(); ++i ) {
-                    if ( inputText.equals( mLensList.get(i))  ) {
+                    if ( inputText.equals( mLensList.get(i).getName())  ) {
                         Toast toast = Toast.makeText(getApplicationContext(), R.string.LensSameName, Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.CENTER, 0, 0);
                         toast.show();
@@ -262,59 +231,10 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
 
                 // When the lens is added jump to view the last entry
                 mainListView.setSelection(mainListView.getCount() - 1);
-
-                // Save the file when the new roll has been added
-                //writeLensFile(inputText);
             }
         }
     }
 
- /*   private void readLensFile() {
-
-        File file = new File(getFilesDir(), "List_of_Lenses.txt");
-
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-
-            String line;
-
-            while ( (line = br.readLine()) != null ) {
-                mLensList.add(line);
-                mainTextView.setVisibility(View.GONE);
-            }
-            br.close();
-
-            mArrayAdapter.notifyDataSetChanged();
-        }
-        catch ( IOException e ) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void writeLensFile(String input) {
-        try {
-            File file = new File(getFilesDir(), "List_of_Lenses.txt");
-            FileWriter writer = new FileWriter(file, true);
-            writer.write(input + "\n");
-            writer.flush();
-            writer.close();
-        }
-        catch ( IOException e ) {
-            e.printStackTrace();
-        }
-    }
-
-    private void updateLensFile(String input) {
-        try {
-            File new_file = new File(getFilesDir(), "List_of_Lenses.txt");
-            FileOutputStream os = new FileOutputStream(new_file);
-            os.write(input.getBytes());
-            os.close();
-        } catch ( IOException e ) {
-            e.printStackTrace();
-        }
-    }*/
 
     @Override
     public void onClick(View v) {
