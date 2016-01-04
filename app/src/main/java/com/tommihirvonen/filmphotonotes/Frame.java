@@ -6,7 +6,7 @@ package com.tommihirvonen.filmphotonotes;
 public class Frame {
 
     public int id;
-    public String roll;
+    public int roll;
     public int count;
     public String date;
     public String lens;
@@ -17,7 +17,7 @@ public class Frame {
         // Empty constructor
     }
 
-    public Frame(String roll, int count, String date, String lens, String shutter, String aperture) {
+    public Frame(int roll, int count, String date, String lens, String shutter, String aperture) {
         this.roll = roll;
         this.count = count;
         this.date = date;
@@ -32,7 +32,7 @@ public class Frame {
         this.id = input;
     }
 
-    public void setRoll(String input){
+    public void setRoll(int input){
         this.roll = input;
     }
 
@@ -62,7 +62,7 @@ public class Frame {
         return this.id;
     }
 
-    public String getRoll(){
+    public int getRoll(){
         return this.roll;
     }
 

@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
         Intent intent = new Intent(this, RollInfo.class);
-        intent.putExtra(EXTRA_MESSAGE, mRollList.get(position).getName());
+        intent.putExtra(EXTRA_MESSAGE, mRollList.get(position).getId());
         startActivity(intent);
     }
 
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements
                                     int which = selectedItemsIndexList.get(i);
 
                                     // Delete all the frames from the frames database
-                                    database.deleteAllFramesFromRoll(mRollList.get(which).getName());
+                                    database.deleteAllFramesFromRoll(mRollList.get(which).getId());
 
                                     database.deleteRoll(mRollList.get(which));
 
@@ -375,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements
             // Notify array adapter that the dataset has to be updated
             mArrayAdapter.notifyDataSetChanged();
 
-            database.renameAllFramesFromRoll(oldName, newName);
+            //database.renameAllFramesFromRoll(oldName, newName);
         }
 
     }

@@ -16,7 +16,6 @@ import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,12 +25,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -50,7 +43,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     ArrayList<Frame> mFrameClassList = new ArrayList<>();
     FrameAdapter mFrameAdapter;
     ShareActionProvider mShareActionProvider;
-    String name_of_roll;
+    int rollId;
     int counter = 0;
 
 
@@ -59,10 +52,10 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_roll_info);
         Intent intent = getIntent();
-        name_of_roll = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+        rollId = intent.getIntExtra(MainActivity.EXTRA_MESSAGE, 0);
 
         database = new FilmDbHelper(this);
-        mFrameClassList = database.getAllFramesFromRoll(name_of_roll);
+        mFrameClassList = database.getAllFramesFromRoll(rollId);
 
         // ********** Commands to get the action bar and color it **********
         // Get preferences to determine UI color
@@ -73,7 +66,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String secondaryColor = colors.get(1);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        getSupportActionBar().setTitle(name_of_roll);
+        getSupportActionBar().setTitle(database.getRoll(rollId).getName());
         getSupportActionBar().setSubtitle(R.string.Frames);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
@@ -323,7 +316,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     @Override
     public void onInfoSet(String lens, int count, String date, String shutter, String aperture) {
 
-        Frame frame = new Frame(name_of_roll, count, date, lens, shutter, aperture);
+        Frame frame = new Frame(rollId, count, date, lens, shutter, aperture);
 
 
         // Save the file when the new frame has been added
@@ -351,7 +344,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         if ( lens.length() != 0 ) {
 
             Frame frame = new Frame();
-            frame.setId(_id); frame.setRoll(name_of_roll); frame.setLens(lens); frame.setCount(count);
+            frame.setId(_id); frame.setRoll(rollId); frame.setLens(lens); frame.setCount(count);
             frame.setDate(date); frame.setShutter(shutter); frame.setAperture(aperture);
             database.updateFrame(frame);
             //Make the change in the class list and the list view
