@@ -10,7 +10,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -51,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements
 
     ListView mainListView;
     RollAdapter mArrayAdapter;
-    ArrayList<String> mNameList = new ArrayList<>();
+    ArrayList<Roll> mRollList = new ArrayList<>();
     FilmDbHelper database;
 
 
@@ -60,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         database = new FilmDbHelper(this);
+        mRollList = database.getAllRolls();
 
         setContentView(R.layout.activity_main);
 
@@ -94,21 +94,18 @@ public class MainActivity extends AppCompatActivity implements
         mainListView = (ListView) findViewById(R.id.main_listview);
 
         // Create an ArrayAdapter for the ListView
-        mArrayAdapter = new RollAdapter(this, android.R.layout.simple_list_item_1, mNameList);
+        mArrayAdapter = new RollAdapter(this, android.R.layout.simple_list_item_1, mRollList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(mArrayAdapter);
+
+        if ( mRollList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
 
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
         // Set this activity to react to list items being pressed and held
         mainListView.setOnItemLongClickListener(this);
-
-
-        // Read the rolls from file and add to list
-        File file = new File(getFilesDir(), "List_of_Rolls.txt");
-        if ( file.exists() ) readRollFile();
     }
 
 
@@ -142,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
         Intent intent = new Intent(this, RollInfo.class);
-        intent.putExtra(EXTRA_MESSAGE, mNameList.get(position));
+        intent.putExtra(EXTRA_MESSAGE, mRollList.get(position).getName());
         startActivity(intent);
     }
 
@@ -150,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements
     //Long pressing the roll allows the user to rename the roll
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-        show_EditRollNameDialog(mNameList.get(position));
+        show_EditRollNameDialog(mRollList.get(position).getName());
 
         //Return true because the item was pressed and held.
         return true;
@@ -166,15 +163,15 @@ public class MainActivity extends AppCompatActivity implements
 
             case R.id.menu_item_delete_roll:
                 //Only delete if there are more than one roll
-                if ( mNameList.size() >= 1 ) {
+                if ( mRollList.size() >= 1 ) {
 
                     // Ask the user which roll to delete
 
                     // LIST ITEMS DIALOG
 
                     List<String> listItems = new ArrayList<>();
-                    for ( int i = 0; i < mNameList.size(); ++i ) {
-                        listItems.add(mNameList.get(i));
+                    for ( int i = 0; i < mRollList.size(); ++i ) {
+                        listItems.add(mRollList.get(i).getName());
                     }
                     final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
 
@@ -205,24 +202,15 @@ public class MainActivity extends AppCompatActivity implements
                                 for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
                                     int which = selectedItemsIndexList.get(i);
 
-                                    // Remove the roll file
-                                    String name_of_roll = mNameList.get(which);
-
                                     // Delete all the frames from the frames database
-                                    database.deleteAllFramesFromRoll(name_of_roll);
+                                    database.deleteAllFramesFromRoll(mRollList.get(which).getName());
 
-                                    // Remove the roll name line from the List_of_Rolls.txt
-                                    File rolls_file = new File(getFilesDir(), "List_of_Rolls.txt");
-                                    try {
-                                        removeLine(rolls_file, which);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
+                                    database.deleteRoll(mRollList.get(which));
 
-                                    // Remove the roll from the mNameList. Do this last!!!
-                                    mNameList.remove(which);
+                                    // Remove the roll from the mRollList. Do this last!!!
+                                    mRollList.remove(which);
                                 }
-                                if (mNameList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
+                                if (mRollList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
                                 mArrayAdapter.notifyDataSetChanged();
 
                             }
@@ -310,8 +298,8 @@ public class MainActivity extends AppCompatActivity implements
         if ( inputName.length() != 0 ) {
 
             //Check if a roll with the same name already exists
-            for ( int i = 0; i < mNameList.size(); ++i ) {
-                if ( inputName.equals(mNameList.get(i))  ) {
+            for ( int i = 0; i < mRollList.size(); ++i ) {
+                if ( inputName.equals(mRollList.get(i))  ) {
                     Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -331,16 +319,17 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
 
+            Roll roll = new Roll();
+            roll.setName(inputName);
+            database.addRoll(roll);
+            roll = database.getLastRoll();
+
             mainTextView.setVisibility(View.GONE);
-            mNameList.add(inputName);
+            mRollList.add(roll);
             mArrayAdapter.notifyDataSetChanged();
 
             // When the new roll is added jump to view the last entry
             mainListView.setSelection(mainListView.getCount() - 1);
-
-
-            //Save the file when the new roll has been added
-            writeRollFile(inputName);
         }
 
     }
@@ -351,8 +340,8 @@ public class MainActivity extends AppCompatActivity implements
         if ( newName.length() != 0 ) {
 
             //Check if a roll with the same name already exists
-            for ( int i = 0; i < mNameList.size(); ++i ) {
-                if ( newName.equals( mNameList.get(i))  ) {
+            for ( int i = 0; i < mRollList.size(); ++i ) {
+                if ( newName.equals( mRollList.get(i))  ) {
                     Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -372,108 +361,23 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
 
-            // Change the string in mNameList
+            // Change the string in mRollList
             int position = 0;
-            for ( int i = 0; i < mNameList.size(); ++i) {
-                if (oldName.equals(mNameList.get(i))) {
+            for ( int i = 0; i < mRollList.size(); ++i) {
+                if (oldName.equals(mRollList.get(i))) {
                     position = i;
                 }
             }
-
-            mNameList.set(position, newName);
+            Roll roll = mRollList.get(position);
+            roll.setName(newName);
+            database.updateRoll(roll);
 
             // Notify array adapter that the dataset has to be updated
             mArrayAdapter.notifyDataSetChanged();
 
             database.renameAllFramesFromRoll(oldName, newName);
-
-            // List_of_Rolls.txt has to be updated
-            updateListOfRolls(newName, oldName);
-
         }
 
-    }
-
-
-    // READ AND WRITE METHODS
-
-    // This method replaces a string in a List_of_Rolls.Txt
-    private void updateListOfRolls(String newName, String oldName){
-        try
-        {
-            File file = new File(getFilesDir(), "List_of_Rolls.txt");
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line, oldtext = "";
-            while((line = reader.readLine()) != null)
-            {
-                oldtext += line + "\r\n";
-            }
-            reader.close();
-
-            //To replace a line in a file
-            String newtext = oldtext.replaceAll(oldName, newName);
-
-            FileWriter writer = new FileWriter(file);
-            writer.write(newtext);writer.close();
-        }
-        catch (IOException ioe)
-        {
-            ioe.printStackTrace();
-        }
-    }
-
-
-    // This method writes to the List_of_Rolls.txt file a new roll of film
-    private void writeRollFile(String input) {
-        try {
-            File file = new File(getFilesDir(), "List_of_Rolls.txt");
-
-            FileWriter writer = new FileWriter(file, true);
-            writer.write(input + "\n");
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // This method reads in the List_of_Rolls.txt file and builds the in-app database
-    private void readRollFile() {
-        //Get the text file
-        File file = new File(getFilesDir(), "List_of_Rolls.txt");
-
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                mNameList.add(line);
-                mainTextView.setVisibility(View.GONE);
-            }
-            br.close();
-
-            mArrayAdapter.notifyDataSetChanged();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Method removes a line from a file.
-    // It takes the file and the removed line number as argument
-    static public void removeLine(final File file, final int lineIndex) throws IOException{
-        final List<String> lines = new LinkedList<>();
-        final Scanner reader = new Scanner(new FileInputStream(file), "UTF-8");
-        while(reader.hasNextLine())
-            lines.add(reader.nextLine());
-        reader.close();
-        assert lineIndex >= 0 && lineIndex <= lines.size() - 1;
-        lines.remove(lineIndex);
-        final BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
-        for(final String line : lines)
-            writer.write(line + "\n");
-        writer.flush();
-        writer.close();
     }
 
     @Override
