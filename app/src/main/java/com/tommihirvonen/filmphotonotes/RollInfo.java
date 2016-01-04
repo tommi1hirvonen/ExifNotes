@@ -16,6 +16,7 @@ import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -346,6 +347,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             Frame frame = new Frame();
             frame.setId(_id); frame.setRoll(rollId); frame.setLens(lens); frame.setCount(count);
             frame.setDate(date); frame.setShutter(shutter); frame.setAperture(aperture);
+            Log.d("FilmPhotoNotes", "" + frame.getId() + " " + frame.getRoll() + " " + frame.getLens() + " " + frame.getCount() + " " + frame.getDate());
             database.updateFrame(frame);
             //Make the change in the class list and the list view
             mFrameClassList.get(position).setLens(lens);

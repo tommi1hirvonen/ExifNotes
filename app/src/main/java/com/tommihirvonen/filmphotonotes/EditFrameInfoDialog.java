@@ -103,6 +103,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         count = getArguments().getInt("count");
         shutter = getArguments().getString("shutter");
         aperture = getArguments().getString("aperture");
+        _id = getArguments().getInt("_id");
 
         database = new FilmDbHelper(getActivity());
         lensList = database.getAllLenses();

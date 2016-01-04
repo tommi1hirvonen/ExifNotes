@@ -9,14 +9,14 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:weightSum="14"
+        android:weightSum="100"
         >
 
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="5.5"
+            android:layout_weight="27"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="25sp"
             android:gravity="center"
@@ -28,7 +28,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"
+            android:layout_weight="15"
             android:weightSum="1">
 
             <TextView
@@ -51,6 +51,9 @@
                 android:paddingLeft="5dip"
                 android:text="@string/Text"
                 android:id="@+id/tvFrameText2"
+                android:scrollHorizontally="true"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:layout_weight="0.5" />
         </LinearLayout>
 
@@ -58,27 +61,56 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_weight="5.5"
+            android:layout_weight="31"
+            android:weightSum="2">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:id="@+id/drawable_clock"
+                android:src="@drawable/ic_timer_black_48dp"
+                android:adjustViewBounds="true"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:id="@+id/drawable_aperture"
+                android:src="@drawable/ic_camera_black_48dp"
+                android:adjustViewBounds="true"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="27"
             android:weightSum="1">
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="15sp"
                 android:gravity="center_vertical"
-                android:paddingLeft="5dip"
+                android:paddingLeft="2dip"
                 android:text="@string/Text"
                 android:id="@+id/tvShutter"
                 android:layout_weight="0.5" />
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="15sp"
                 android:gravity="center_vertical"
-                android:paddingLeft="5dip"
+                android:paddingLeft="2dip"
                 android:text="@string/Text"
                 android:id="@+id/tvAperture"
                 android:layout_weight="0.5" />

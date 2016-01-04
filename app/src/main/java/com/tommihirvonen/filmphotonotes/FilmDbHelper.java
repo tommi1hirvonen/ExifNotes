@@ -118,7 +118,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public ArrayList<Frame> getAllFramesFromRoll(int roll_id){
         ArrayList<Frame> frames = new ArrayList<>();
         // Build the query
-        String query = "SELECT * FROM " + TABLE_FRAMES + " WHERE " + KEY_ROLL_ID + " = " + roll_id;
+        String query = "SELECT * FROM " + TABLE_FRAMES + " WHERE " + KEY_ROLL_ID + " = " + roll_id + " ORDER BY " + KEY_COUNT;
         // Get reference to readable database
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
