@@ -172,25 +172,22 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return frames;
     }
 
-    public int updateFrame(Frame frame) {
+    public void updateFrame(Frame frame) {
         // Get reference to writable database
         SQLiteDatabase db = this.getWritableDatabase();
 
-        // Create ContentValues to add key "column"/value
-        ContentValues values = new ContentValues();
-        values.put(KEY_ROLLNAME, frame.getRoll());
-        values.put(KEY_COUNT, frame.getCount());
-        values.put(KEY_DATE, frame.getDate());
-        values.put(KEY_LENS, frame.getLens());
-        values.put(KEY_SHUTTER, frame.getShutter());
-        values.put(KEY_APERTURE, frame.getAperture());
+        String query = "UPDATE " + TABLE_FRAMES + " SET "
+                + KEY_ROLLNAME + "=\"" + frame.getRoll() + "\", "
+                + KEY_COUNT + "=" + frame.getCount() + ", "
+                + KEY_DATE + "=\"" + frame.getDate() + "\", "
+                + KEY_LENS + "=\"" + frame.getLens() + "\", "
+                + KEY_SHUTTER + "=\"" + frame.getShutter() + "\", "
+                + KEY_APERTURE + "=\"" + frame.getAperture() + "\"";
 
-        // Updating the row. db.update() returns the number of rows affected.
-        int i = db.update(TABLE_FRAMES, values, KEY_ID + " = ?", new String[] {String.valueOf(frame.getId())});
+        db.execSQL(query);
 
         db.close();
 
-        return i;
     }
 
 
