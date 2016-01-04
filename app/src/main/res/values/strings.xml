@@ -84,7 +84,7 @@
 
     <!--custom_dialog.xml-->
     <string name="Name">Name</string>
-    <string name="Note">Note (optional)</string>
+    <string name="Note">Notes</string>
 
     <!--frame_info_dialog.xml-->
     <string name="Lens">Lens:</string>

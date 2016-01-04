@@ -79,6 +79,6 @@
     <string name="Cyan">Syaani</string>
     <string name="TooManyFrames">Ruutua ei lisätty. Ruudun numero ei voi olla suurempi kuin 100.</string>
     <string name="Added">Lisätty: </string>
-    <string name="Note">Huomiot (valinnainen)</string>
+    <string name="Note">Muistiinpanot</string>
     <string name="EditRoll">Muokkaa rullan tietoja</string>
 </resources>

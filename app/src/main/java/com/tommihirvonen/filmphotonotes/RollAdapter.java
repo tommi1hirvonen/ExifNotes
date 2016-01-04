@@ -40,7 +40,7 @@ public class RollAdapter extends ArrayAdapter<Roll> {
         tvRollName.setText(roll);
         String dateText = "" + getContext().getString(R.string.Added) + " " + date;
         tvRollDate.setText(dateText);
-        tvRollNote.setText(note);
+        tvRollNote.setText(getContext().getString(R.string.Note) + ": " + note);
 
         return convertView;
     }
