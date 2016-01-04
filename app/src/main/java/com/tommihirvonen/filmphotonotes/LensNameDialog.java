@@ -46,7 +46,7 @@ public class LensNameDialog extends DialogFragment {
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        final View inflator = linf.inflate(R.layout.custom_dialog, null);
+        final View inflator = linf.inflate(R.layout.lens_name_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         alert.setTitle(R.string.NewLens);

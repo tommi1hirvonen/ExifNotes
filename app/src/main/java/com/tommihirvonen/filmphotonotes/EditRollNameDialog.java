@@ -18,13 +18,15 @@ import android.widget.EditText;
 public class EditRollNameDialog extends DialogFragment {
 
     public String oldName;
+    public String oldNote;
+    public int rollId;
 
     public static final String TAG = "EditNameDialogFragment";
 
     private OnNameEditedCallback callback;
 
     public interface OnNameEditedCallback {
-        void OnNameEdited(String newName, String oldName);
+        void OnNameEdited(int rollId, String newName, String newNote);
     }
 
     public EditRollNameDialog () {
@@ -32,8 +34,10 @@ public class EditRollNameDialog extends DialogFragment {
     }
 
     // Android doesn't like fragments to be created with arguments. This is a workaround.
-    public void setOldName (String oldName) {
+    public void setOldName (int rollId, String oldName, String oldNote) {
+        this.rollId = rollId;
         this.oldName = oldName;
+        this.oldNote = oldNote;
     }
 
 
@@ -57,21 +61,24 @@ public class EditRollNameDialog extends DialogFragment {
         final View inflator = linf.inflate(R.layout.custom_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        alert.setTitle(R.string.RenameRoll);
+        alert.setTitle(R.string.EditRoll);
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById((R.id.txt_name));
+        final EditText et2 = (EditText) inflator.findViewById(R.id.txt_note);
         // Show old name on the input field by default
         et1.setText(oldName);
+        et2.setText(oldNote);
         // Place the cursor at the end of the input field
         et1.setSelection(et1.getText().length());
 
-        alert.setPositiveButton(R.string.Rename, new DialogInterface.OnClickListener() {
+        alert.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newName = et1.getText().toString();
+                String newNote = et2.getText().toString();
                 if (newName.length() != 0) {
-                    callback.OnNameEdited(newName, oldName);
+                    callback.OnNameEdited(rollId, newName, newNote);
                 }
             }
         });

@@ -15,6 +15,7 @@
     <!--EditRollNameDialog-->
     <string name="RenameRoll">Rename roll</string>
     <string name="Rename">Rename</string>
+    <string name="EditRoll">Edit roll info</string>
 
     <!--LensesActivity-->
     <string name="Lenses">Lenses</string>
@@ -46,6 +47,9 @@
     </string>
     <string name="Preferences">Settings</string>
     <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
+
+    <!--RollAdapter-->
+    <string name="Added">Added:</string>
 
     <!--RollInfo-->
     <string name="Frames">Frames</string>
@@ -80,6 +84,7 @@
 
     <!--custom_dialog.xml-->
     <string name="Name">Name</string>
+    <string name="Note">Note (optional)</string>
 
     <!--frame_info_dialog.xml-->
     <string name="Lens">Lens:</string>

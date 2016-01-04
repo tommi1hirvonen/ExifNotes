@@ -22,7 +22,7 @@ public class RollNameDialog extends DialogFragment {
     private onNameSetCallback callback;
 
     public interface onNameSetCallback {
-        void onNameSet(String newName);
+        void onNameSet(String newName, String newNote);
     }
 
 
@@ -58,16 +58,18 @@ public class RollNameDialog extends DialogFragment {
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_name);
+        final EditText et2 = (EditText) inflator.findViewById(R.id.txt_note);
 
 
         alert.setPositiveButton(R.string.Add, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
                 String name = et1.getText().toString();
+                String note = et2.getText().toString();
 
                 if(name.length() != 0) {
                     // Return the new entered name to the calling activity
-                    callback.onNameSet(name);
+                    callback.onNameSet(name, note);
                 }
             }
         });

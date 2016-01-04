@@ -5,15 +5,51 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:id="@+id/tv_roll_name"
-        android:text="@string/Text"
-        android:paddingLeft="20dp"
-        android:gravity="center_vertical"
-        android:textSize="25sp"
-        />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="11">
 
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:orientation="vertical"
+            android:layout_weight="6"
+            android:weightSum="7">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:id="@+id/tv_roll_name"
+                android:text="@string/Text"
+                android:paddingLeft="20dp"
+                android:gravity="center_vertical"
+                android:textSize="25sp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+                android:id="@+id/tv_roll_date"
+                android:text="@string/Text"
+                android:paddingLeft="22dp"
+                android:gravity="center_vertical"
+                android:textSize="15sp"
+                />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:paddingRight="20dp"
+            android:id="@+id/tv_roll_note"
+            android:text="@string/Text"
+            android:textSize="12sp"/>
+    </LinearLayout>
 
 </LinearLayout>

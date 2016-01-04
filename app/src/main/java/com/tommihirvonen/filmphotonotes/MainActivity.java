@@ -23,19 +23,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -93,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements
         // Access the ListView
         mainListView = (ListView) findViewById(R.id.main_listview);
 
+
+
         // Create an ArrayAdapter for the ListView
         mArrayAdapter = new RollAdapter(this, android.R.layout.simple_list_item_1, mRollList);
 
@@ -106,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements
 
         // Set this activity to react to list items being pressed and held
         mainListView.setOnItemLongClickListener(this);
+
+        if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1 );
     }
 
 
@@ -147,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements
     //Long pressing the roll allows the user to rename the roll
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-        show_EditRollNameDialog(mRollList.get(position).getName());
+        show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote());
 
         //Return true because the item was pressed and held.
         return true;
@@ -281,9 +276,9 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-    private void show_EditRollNameDialog(String oldName){
+    private void show_EditRollNameDialog(int rollId, String oldName, String oldNote){
         EditRollNameDialog dialog = new EditRollNameDialog();
-        dialog.setOldName(oldName);
+        dialog.setOldName(rollId, oldName, oldNote);
         dialog.show(getSupportFragmentManager(), EditRollNameDialog.TAG);
     }
 
@@ -293,19 +288,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onNameSet(String inputName) {
+    public void onNameSet(String inputName, String inputNote) {
 
         if ( inputName.length() != 0 ) {
-
-            //Check if a roll with the same name already exists
-            for ( int i = 0; i < mRollList.size(); ++i ) {
-                if ( inputName.equals(mRollList.get(i))  ) {
-                    Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                    return;
-                }
-            }
 
             //Check if there are illegal character in the roll name
             String ReservedChars = "|\\?*<\":>/";
@@ -321,6 +306,8 @@ public class MainActivity extends AppCompatActivity implements
 
             Roll roll = new Roll();
             roll.setName(inputName);
+            roll.setDate(RollInfo.getCurrentTime());
+            roll.setNote(inputNote);
             database.addRoll(roll);
             roll = database.getLastRoll();
 
@@ -335,19 +322,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnNameEdited(String newName, String oldName){
+    public void OnNameEdited(int rollId, String newName, String newNote){
 
         if ( newName.length() != 0 ) {
-
-            //Check if a roll with the same name already exists
-            for ( int i = 0; i < mRollList.size(); ++i ) {
-                if ( newName.equals( mRollList.get(i))  ) {
-                    Toast toast = Toast.makeText(getApplicationContext(), R.string.RollSameName, Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                    return;
-                }
-            }
 
             //Check if there are illegal character in the roll name
             String ReservedChars = "|\\?*<\":>/";
@@ -364,18 +341,17 @@ public class MainActivity extends AppCompatActivity implements
             // Change the string in mRollList
             int position = 0;
             for ( int i = 0; i < mRollList.size(); ++i) {
-                if (oldName.equals(mRollList.get(i))) {
+                if ( rollId == mRollList.get(i).getId() ) {
                     position = i;
                 }
             }
             Roll roll = mRollList.get(position);
             roll.setName(newName);
+            roll.setNote(newNote);
             database.updateRoll(roll);
 
             // Notify array adapter that the dataset has to be updated
             mArrayAdapter.notifyDataSetChanged();
-
-            //database.renameAllFramesFromRoll(oldName, newName);
         }
 
     }

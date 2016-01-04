@@ -20,22 +20,26 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public static final String TABLE_ROLLS = "rolls";
 
     public static final String KEY_FRAME_ID = "frame_id";
-    public static final String KEY_ROLLNAME = "rollname";
     public static final String KEY_COUNT = "count";
     public static final String KEY_DATE = "date";
-    public static final String KEY_LENS = "lens";
     public static final String KEY_SHUTTER = "shutter";
     public static final String KEY_APERTURE = "aperture";
-    public static final String KEY_ROLL_ID = "roll_id";
+
     public static final String KEY_LENS_ID = "lens_id";
+    public static final String KEY_LENS = "lens";
+
+    public static final String KEY_ROLL_ID = "roll_id";
+    public static final String KEY_ROLLNAME = "rollname";
+    public static final String KEY_ROLL_DATE = "roll_date";
+    public static final String KEY_ROLL_NOTE = "roll_note";
 
     private static final String DATABASE_NAME = "filmnotes.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     private static final String CREATE_FRAME_TABLE = "create table " + TABLE_FRAMES
             + "(" + KEY_FRAME_ID + " integer primary key autoincrement, "
             + KEY_ROLL_ID + " integer not null, "
-            + KEY_COUNT + " integer, "
+            + KEY_COUNT + " integer not null, "
             + KEY_DATE + " text not null, "
             + KEY_LENS + " text not null, "
             + KEY_SHUTTER + " text not null, "
@@ -47,7 +51,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + ");";
     private static final String CREATE_ROLL_TABLE = "create table " + TABLE_ROLLS
             + "(" + KEY_ROLL_ID + " integer primary key autoincrement, "
-            + KEY_ROLLNAME + " text not null"
+            + KEY_ROLLNAME + " text not null, "
+            + KEY_ROLL_DATE + " text not null, "
+            + KEY_ROLL_NOTE + " text"
             + ");";
 
     public FilmDbHelper(Context context) {
@@ -142,7 +148,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 + KEY_DATE + "=\"" + frame.getDate() + "\", "
                 + KEY_LENS + "=\"" + frame.getLens() + "\", "
                 + KEY_SHUTTER + "=\"" + frame.getShutter() + "\", "
-                + KEY_APERTURE + "=\"" + frame.getAperture() + "\"";
+                + KEY_APERTURE + "=\"" + frame.getAperture() + "\""
+                + " WHERE " + KEY_FRAME_ID + "=" + frame.getId();
         db.execSQL(query);
         db.close();
     }
@@ -214,6 +221,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_ROLLNAME, roll.getName());
+        values.put(KEY_ROLL_DATE, roll.getDate());
+        values.put(KEY_ROLL_NOTE, roll.getNote());
         db.insert(TABLE_ROLLS, null, values);
         db.close();
     }
@@ -226,6 +235,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         if ( cursor != null ) cursor.moveToFirst();
         roll.setId(cursor.getInt(0));
         roll.setName(cursor.getString(1));
+        roll.setDate(cursor.getString(2));
+        roll.setNote(cursor.getString(3));
         cursor.close();
         return roll;
     }
@@ -240,6 +251,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             roll = new Roll();
             roll.setId(cursor.getInt(0));
             roll.setName(cursor.getString(1));
+            roll.setDate(cursor.getString(2));
+            roll.setNote(cursor.getString(3));
             rolls.add(roll);
         }
         cursor.close();
@@ -254,6 +267,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         if ( cursor != null ) cursor.moveToFirst();
         roll.setId(cursor.getInt(0));
         roll.setName(cursor.getString(1));
+        roll.setDate(cursor.getString(2));
+        roll.setNote(cursor.getString(3));
         cursor.close();
         return roll;
     }
@@ -267,7 +282,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void updateRoll(Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "UPDATE " + TABLE_ROLLS + " SET "
-                + KEY_ROLLNAME + "=\"" + roll.getName() + "\"";
+                + KEY_ROLLNAME + "=\"" + roll.getName() + "\", "
+                + KEY_ROLL_DATE + "=\"" + roll.getDate() + "\", "
+                + KEY_ROLL_NOTE + "=\"" + roll.getNote() + "\""
+                + " WHERE " + KEY_ROLL_ID + "=" + roll.getId();
         db.execSQL(query);
         db.close();
     }

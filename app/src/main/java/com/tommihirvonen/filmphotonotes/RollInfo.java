@@ -371,7 +371,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
 
-    private String getCurrentTime(){
+    public static String getCurrentTime(){
         final Calendar c = Calendar.getInstance();
         int iYear = c.get(Calendar.YEAR);
         int iMonth = c.get(Calendar.MONTH) + 1;
