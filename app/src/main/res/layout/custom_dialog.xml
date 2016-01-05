@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
         android:layout_marginTop="15dp"
         android:text="@string/Name"
         />
@@ -19,13 +20,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:inputType="textCapSentences" />
+        android:inputType="textCapSentences"
+        android:maxLength="100"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
         android:layout_marginTop="25dp"
         android:text="@string/Note"
         />
@@ -36,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:inputType="textCapSentences|textMultiLine"
-        android:maxLength="2000"
+        android:maxLength="500"
         android:maxLines="4"/>
 
 

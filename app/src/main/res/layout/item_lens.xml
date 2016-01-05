@@ -11,6 +11,7 @@
         android:id="@+id/tv_lens_name"
         android:text="@string/Text"
         android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:gravity="center_vertical"
         android:textSize="25sp"
         android:scrollHorizontally="true"

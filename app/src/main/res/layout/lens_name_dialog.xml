@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:hint="@string/Name"
-        android:inputType="textCapSentences" />
+        android:inputType="textCapSentences"
+        android:maxLength="100"/>
 
 </LinearLayout>
