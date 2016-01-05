@@ -289,4 +289,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         db.execSQL(query);
         db.close();
     }
+
+    public int getNumberOfFrames(Roll roll){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(" + KEY_FRAME_ID + ") FROM " + TABLE_FRAMES
+                + " WHERE " + KEY_ROLL_ID + "=" + roll.getId();
+        Cursor cursor = db.rawQuery(query, null);
+        if ( cursor != null ) cursor.moveToFirst();
+        return cursor.getInt(0);
+    }
 }

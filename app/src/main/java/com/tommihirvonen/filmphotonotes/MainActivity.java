@@ -298,7 +298,6 @@ public class MainActivity extends AppCompatActivity implements
                 Character c = inputName.charAt(i);
                 if ( ReservedChars.contains(c.toString()) ) {
                     Toast toast = Toast.makeText(getApplicationContext(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
                     return;
                 }
@@ -332,7 +331,6 @@ public class MainActivity extends AppCompatActivity implements
                 Character c = newName.charAt(i);
                 if ( ReservedChars.contains(c.toString()) ) {
                     Toast toast = Toast.makeText(getApplicationContext(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
                     return;
                 }

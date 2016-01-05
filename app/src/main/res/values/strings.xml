@@ -49,7 +49,9 @@
     <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
 
     <!--RollAdapter-->
-    <string name="Added">Added:</string>
+    <string name="Photos">photos</string>
+    <string name="Photo">photo</string>
+    <string name="NoPhotos">No photos</string>
 
     <!--RollInfo-->
     <string name="Frames">Frames</string>

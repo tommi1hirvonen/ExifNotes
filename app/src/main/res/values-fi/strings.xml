@@ -78,7 +78,9 @@
     <string name="UIColorToast">Värin vaihtaminen saattaa vaatia sovelluksen uudelleenkäynnistämisen</string>
     <string name="Cyan">Syaani</string>
     <string name="TooManyFrames">Ruutua ei lisätty. Ruudun numero ei voi olla suurempi kuin 100.</string>
-    <string name="Added">Lisätty: </string>
     <string name="Note">Muistiinpanot</string>
     <string name="EditRoll">Muokkaa rullan tietoja</string>
+    <string name="Photo">kuva</string>
+    <string name="Photos">kuvaa</string>
+    <string name="NoPhotos">Ei kuvia</string>
 </resources>
