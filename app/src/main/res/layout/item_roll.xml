@@ -36,7 +36,7 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="3"
+                android:layout_weight="2"
                 android:id="@+id/tv_roll_date"
                 android:text="@string/Text"
                 android:paddingLeft="20dp"
@@ -47,12 +47,12 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="2"
+                android:layout_weight="3"
                 android:id="@+id/tv_photos"
                 android:text="@string/Text"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:gravity="end|center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:gravity="center_vertical"
                 android:textSize="15sp"/>
         </LinearLayout>
 
@@ -66,7 +66,7 @@
             android:paddingRight="20dp"
             android:id="@+id/tv_roll_note"
             android:text="@string/Text"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:gravity="center_vertical"
             android:scrollHorizontally="true"
             android:ellipsize="end"

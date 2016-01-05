@@ -140,7 +140,7 @@
                 android:id="@+id/tv_frame_note"
                 android:layout_weight="2"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:gravity="center_vertical"
                 android:paddingLeft="5dip"
                 android:scrollHorizontally="true"
