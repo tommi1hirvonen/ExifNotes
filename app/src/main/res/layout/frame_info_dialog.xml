@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:layout_marginLeft="3dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:text="@string/Lens"
             />
 
@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:layout_marginLeft="3dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:text="@string/Date"
             />
 
@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:layout_marginLeft="3dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:text="@string/Time"
             />
     </LinearLayout>
@@ -100,7 +100,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/FrameCount"
                 android:layout_gravity="center_horizontal" />
             <NumberPicker
@@ -120,7 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/Shutter"
                 android:layout_gravity="center_horizontal" />
             <NumberPicker
@@ -140,7 +140,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/Aperture"
                 android:layout_gravity="center_horizontal" />
             <NumberPicker
@@ -154,5 +154,24 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/Note"
+        />
+
+    <EditText
+        android:id="@+id/txt_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:hint="@string/Empty"
+        android:inputType="textCapSentences|textMultiLine"
+        android:maxLength="200"
+        android:maxLines="2"/>
 
 </LinearLayout>

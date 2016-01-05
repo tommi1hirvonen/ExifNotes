@@ -24,6 +24,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public static final String KEY_DATE = "date";
     public static final String KEY_SHUTTER = "shutter";
     public static final String KEY_APERTURE = "aperture";
+    public static final String KEY_FRAME_NOTE = "frame_note";
 
     public static final String KEY_LENS_ID = "lens_id";
     public static final String KEY_LENS = "lens";
@@ -34,7 +35,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public static final String KEY_ROLL_NOTE = "roll_note";
 
     private static final String DATABASE_NAME = "filmnotes.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     private static final String CREATE_FRAME_TABLE = "create table " + TABLE_FRAMES
             + "(" + KEY_FRAME_ID + " integer primary key autoincrement, "
@@ -43,7 +44,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_DATE + " text not null, "
             + KEY_LENS + " text not null, "
             + KEY_SHUTTER + " text not null, "
-            + KEY_APERTURE + " text not null"
+            + KEY_APERTURE + " text not null, "
+            + KEY_FRAME_NOTE + " text"
             + ");";
     private static final String CREATE_LENS_TABLE = "create table " + TABLE_LENSES
             + "(" + KEY_LENS_ID + " integer primary key autoincrement, "
@@ -90,6 +92,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         values.put(KEY_LENS, frame.getLens());
         values.put(KEY_SHUTTER, frame.getShutter());
         values.put(KEY_APERTURE, frame.getAperture());
+        values.put(KEY_FRAME_NOTE, frame.getNote());
         // Insert
         db.insert(TABLE_FRAMES, // table
                 null, // nullColumnHack
@@ -111,6 +114,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setLens(cursor.getString(cursor.getColumnIndex(KEY_LENS)));
         frame.setShutter(cursor.getString(cursor.getColumnIndex(KEY_SHUTTER)));
         frame.setAperture(cursor.getString(cursor.getColumnIndex(KEY_APERTURE)));
+        frame.setNote(cursor.getString(cursor.getColumnIndex(KEY_FRAME_NOTE)));
         cursor.close();
         return frame;
     }
@@ -133,6 +137,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             frame.setLens(cursor.getString(4));
             frame.setShutter(cursor.getString(5));
             frame.setAperture(cursor.getString(6));
+            frame.setNote(cursor.getString(7));
             frames.add(frame);
         }
         cursor.close();
@@ -148,7 +153,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 + KEY_DATE + "=\"" + frame.getDate() + "\", "
                 + KEY_LENS + "=\"" + frame.getLens() + "\", "
                 + KEY_SHUTTER + "=\"" + frame.getShutter() + "\", "
-                + KEY_APERTURE + "=\"" + frame.getAperture() + "\""
+                + KEY_APERTURE + "=\"" + frame.getAperture() + "\", "
+                + KEY_FRAME_NOTE + "=\"" + frame.getNote() + "\""
                 + " WHERE " + KEY_FRAME_ID + "=" + frame.getId();
         db.execSQL(query);
         db.close();

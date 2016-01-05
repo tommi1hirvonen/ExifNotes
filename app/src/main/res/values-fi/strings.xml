@@ -16,7 +16,7 @@
     <string name="LensIllegalCharacter">Objektiivin nimessä on sallimaton merkki: </string>
     <string name="LensSameName">Saman niminen objektiivi on jo olemassa!</string>
     <string name="Lenses">Objektiivit</string>
-    <string name="Name">Nimi</string>
+    <string name="Name">Nimi:</string>
     <string name="NewFrame">Lisää uusi ruutu</string>
     <string name="NewLens">Lisää uusi objektiivi</string>
     <string name="NewRoll">Lisää uusi rulla</string>
@@ -78,11 +78,12 @@
     <string name="UIColorToast">Värin vaihtaminen saattaa vaatia sovelluksen uudelleenkäynnistämisen</string>
     <string name="Cyan">Syaani</string>
     <string name="TooManyFrames">Ruutua ei lisätty. Ruudun numero ei voi olla suurempi kuin 100.</string>
-    <string name="Note">Muistiinpanot</string>
+    <string name="Note">Muistiinpanot:</string>
     <string name="EditRoll">Muokkaa rullan tietoja</string>
     <string name="Photo">kuva</string>
     <string name="Photos">kuvaa</string>
     <string name="NoPhotos">Ei kuvia</string>
     <string name="Empty">Tyhjä</string>
     <string name="NoValue">&#60;tyhjä&#62;</string>
+    <string name="NameNoColon">Nimi</string>
 </resources>

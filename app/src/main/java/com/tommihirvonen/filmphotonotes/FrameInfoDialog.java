@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -35,6 +36,7 @@ public class FrameInfoDialog extends DialogFragment {
     int count;
     String shutter;
     String aperture;
+    String note;
     ArrayList<Lens> lensList;
     FilmDbHelper database;
 
@@ -55,7 +57,7 @@ public class FrameInfoDialog extends DialogFragment {
     private onInfoSetCallback callback;
 
     public interface onInfoSetCallback {
-        void onInfoSet(String lensName, int count, String date, String shutter, String aperture);
+        void onInfoSet(String lensName, int count, String date, String shutter, String aperture, String note);
     }
 
 
@@ -92,7 +94,6 @@ public class FrameInfoDialog extends DialogFragment {
         count = getArguments().getInt("count");
         shutter = getArguments().getString("shutter");
         aperture = getArguments().getString("aperture");
-        //lensList = getArguments().getStringArrayList("lenses");
         database = new FilmDbHelper(getActivity());
         lensList = database.getAllLenses();
 
@@ -105,6 +106,8 @@ public class FrameInfoDialog extends DialogFragment {
         alert.setTitle("" + getActivity().getString(R.string.NewFrame));
 
         alert.setView(inflator);
+
+        final EditText et_note = (EditText) inflator.findViewById(R.id.txt_note);
 
         final TextView b_lens = (TextView) inflator.findViewById(R.id.btn_lens);
         final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
@@ -318,13 +321,14 @@ public class FrameInfoDialog extends DialogFragment {
                 shutter = displayedShutterValues[shutterPicker.getValue()];
                 aperture = displayedApertureValues[aperturePicker.getValue()];
                 count = Integer.parseInt(displayedCountValues[countPicker.getValue()]);
+                note = et_note.getText().toString();
 
                 // PARSE THE DATE
                 date = b_date.getText().toString() + " " + b_time.getText().toString();
 
                 if(lens.length() != 0) {
                     // Return the new entered name to the calling activity
-                    callback.onInfoSet(lens, count, date, shutter, aperture);
+                    callback.onInfoSet(lens, count, date, shutter, aperture, note);
                 }
             }
         });

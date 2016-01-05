@@ -85,8 +85,8 @@
     <string name="NoFrames">No added frames</string>
 
     <!--custom_dialog.xml-->
-    <string name="Name">Name</string>
-    <string name="Note">Notes</string>
+    <string name="Name">Name:</string>
+    <string name="Note">Notes:</string>
     <string name="Empty">Empty</string>
 
     <!--frame_info_dialog.xml-->
@@ -101,6 +101,9 @@
 
     <!--item_frame.xml-->
     <string name="Text">Text</string>
+    
+    <!--lens_name_dialog.xml-->
+    <string name="NameNoColon">Name</string>
 
     <!--menu_main.xml-->
     <string name="About">About</string>

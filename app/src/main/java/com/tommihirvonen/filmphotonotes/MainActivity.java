@@ -125,7 +125,11 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-
+    @Override
+    public void onResume(){
+        super.onResume();
+        mArrayAdapter.notifyDataSetChanged();
+    }
 
 
 

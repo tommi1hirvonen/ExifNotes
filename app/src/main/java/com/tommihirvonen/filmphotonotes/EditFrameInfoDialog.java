@@ -38,11 +38,12 @@ public class EditFrameInfoDialog extends DialogFragment {
     int count;
     String shutter;
     String aperture;
+    String note;
     ArrayList<Lens> lensList;
     FilmDbHelper database;
 
 
-    static EditFrameInfoDialog newInstance(int _id, String lens, int position, int count, String date, String shutter, String aperture) {
+    static EditFrameInfoDialog newInstance(int _id, String lens, int position, int count, String date, String shutter, String aperture, String note) {
         EditFrameInfoDialog f = new EditFrameInfoDialog();
         Bundle args = new Bundle();
         args.putInt("_id", _id);
@@ -52,6 +53,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         args.putString("date", date);
         args.putString("shutter", shutter);
         args.putString("aperture", aperture);
+        args.putString("note", note);
         f.setArguments(args);
         return f;
     }
@@ -65,7 +67,7 @@ public class EditFrameInfoDialog extends DialogFragment {
 
 
     public interface OnEditSetCallback {
-        void onEditSet(int _id, String new_lens, int position, int new_count, String new_date, String new_shutter, String new_aperture);
+        void onEditSet(int _id, String new_lens, int position, int new_count, String new_date, String new_shutter, String new_aperture, String new_note);
     }
 
 
@@ -104,6 +106,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         shutter = getArguments().getString("shutter");
         aperture = getArguments().getString("aperture");
         _id = getArguments().getInt("_id");
+        note = getArguments().getString("note");
 
         database = new FilmDbHelper(getActivity());
         lensList = database.getAllLenses();
@@ -117,6 +120,9 @@ public class EditFrameInfoDialog extends DialogFragment {
         alert.setTitle("" + getActivity().getString(R.string.EditFrame) + count);
 
         alert.setView(inflator);
+
+        final TextView et_note = (TextView) inflator.findViewById(R.id.txt_note);
+        et_note.setText(note);
 
         final TextView b_lens = (TextView) inflator.findViewById(R.id.btn_lens);
         final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
@@ -330,13 +336,14 @@ public class EditFrameInfoDialog extends DialogFragment {
                 shutter = displayedShutterValues[shutterPicker.getValue()];
                 aperture = displayedApertureValues[aperturePicker.getValue()];
                 count = Integer.parseInt(displayedCountValues[countPicker.getValue()]);
+                note = et_note.getText().toString();
 
                 // PARSE THE DATE
                 date = b_date.getText().toString() + " " + b_time.getText().toString();
 
                 if(lens.length() != 0) {
                     // Return the new entered name to the calling activity
-                    callback.onEditSet(_id, lens, position, count, date, shutter, aperture);
+                    callback.onEditSet(_id, lens, position, count, date, shutter, aperture, note);
                 }
             }
         });

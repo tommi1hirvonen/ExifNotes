@@ -38,6 +38,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         TextView tvFrameText2 = (TextView) convertView.findViewById(R.id.tvFrameText2);
         TextView tvShutter = (TextView) convertView.findViewById(R.id.tvShutter);
         TextView tvAperture = (TextView) convertView.findViewById(R.id.tvAperture);
+        TextView tvNote = (TextView) convertView.findViewById(R.id.tv_frame_note);
 
         // With these commands we can color the black png images grey. Very nice! I like!
         ImageView clock = (ImageView) convertView.findViewById(R.id.drawable_clock);
@@ -50,6 +51,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         tvCount.setText("#" + frame.getCount());
         //              ^ a trick to show an integer in TextView
         tvFrameText2.setText(frame.getLens());
+        tvNote.setText(frame.getNote());
 
         // If the aperture is empty, then don't show anything.
         if( !frame.getAperture().equals(getContext().getString(R.string.NoValue)) ) tvAperture.setText("f/" + frame.getAperture());

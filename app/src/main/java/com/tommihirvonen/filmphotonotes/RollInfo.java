@@ -272,8 +272,9 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String date = mFrameClassList.get(position).getDate();
         String shutter = mFrameClassList.get(position).getShutter();
         String aperture = mFrameClassList.get(position).getAperture();
+        String note = mFrameClassList.get(position).getNote();
 
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture, note);
         dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
@@ -306,8 +307,8 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         } else {
             lens = getResources().getString(R.string.NoLens);
             count = 1;
-            shutter = "<empty>";
-            aperture = "<empty>";
+            shutter = getResources().getString(R.string.NoValue);
+            aperture = getResources().getString(R.string.NoValue);
         }
 
         FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens, count, date, shutter, aperture);
@@ -315,9 +316,9 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
     @Override
-    public void onInfoSet(String lens, int count, String date, String shutter, String aperture) {
+    public void onInfoSet(String lens, int count, String date, String shutter, String aperture, String note) {
 
-        Frame frame = new Frame(rollId, count, date, lens, shutter, aperture);
+        Frame frame = new Frame(rollId, count, date, lens, shutter, aperture, note);
 
 
         // Save the file when the new frame has been added
@@ -341,12 +342,12 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
 
     @Override
-    public void onEditSet(int _id, String lens, int position, int count, String date, String shutter, String aperture) {
+    public void onEditSet(int _id, String lens, int position, int count, String date, String shutter, String aperture, String note) {
         if ( lens.length() != 0 ) {
 
             Frame frame = new Frame();
             frame.setId(_id); frame.setRoll(rollId); frame.setLens(lens); frame.setCount(count);
-            frame.setDate(date); frame.setShutter(shutter); frame.setAperture(aperture);
+            frame.setDate(date); frame.setShutter(shutter); frame.setAperture(aperture); frame.setNote(note);
             Log.d("FilmPhotoNotes", "" + frame.getId() + " " + frame.getRoll() + " " + frame.getLens() + " " + frame.getCount() + " " + frame.getDate());
             database.updateFrame(frame);
             //Make the change in the class list and the list view
@@ -355,6 +356,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             mFrameClassList.get(position).setDate(date);
             mFrameClassList.get(position).setShutter(shutter);
             mFrameClassList.get(position).setAperture(aperture);
+            mFrameClassList.get(position).setNote(note);
             mFrameAdapter.notifyDataSetChanged();
             setShareIntent();
         }
