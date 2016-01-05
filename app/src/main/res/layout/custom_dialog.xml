@@ -20,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
+        android:hint="@string/Empty"
         android:inputType="textCapSentences"
         android:maxLength="100"/>
 
@@ -38,6 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
+        android:hint="@string/Empty"
         android:inputType="textCapSentences|textMultiLine"
         android:maxLength="500"
         android:maxLines="4"/>

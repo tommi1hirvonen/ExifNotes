@@ -87,6 +87,7 @@
     <!--custom_dialog.xml-->
     <string name="Name">Name</string>
     <string name="Note">Notes</string>
+    <string name="Empty">Empty</string>
 
     <!--frame_info_dialog.xml-->
     <string name="Lens">Lens:</string>
@@ -96,6 +97,7 @@
     <string name="Shutter">Shutter:</string>
     <string name="Aperture">Aperture:</string>
     <string name="NoLens">No lens</string>
+    <string name="NoValue">&#60;empty&#62;</string>
 
     <!--item_frame.xml-->
     <string name="Text">Text</string>

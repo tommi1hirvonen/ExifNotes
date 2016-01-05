@@ -83,4 +83,6 @@
     <string name="Photo">kuva</string>
     <string name="Photos">kuvaa</string>
     <string name="NoPhotos">Ei kuvia</string>
+    <string name="Empty">Tyhjä</string>
+    <string name="NoValue">&#60;tyhjä&#62;</string>
 </resources>

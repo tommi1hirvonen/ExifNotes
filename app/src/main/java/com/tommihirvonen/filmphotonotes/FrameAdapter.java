@@ -52,11 +52,11 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         tvFrameText2.setText(frame.getLens());
 
         // If the aperture is empty, then don't show anything.
-        if( !frame.getAperture().equals("<empty>") ) tvAperture.setText("f/" + frame.getAperture());
+        if( !frame.getAperture().equals(getContext().getString(R.string.NoValue)) ) tvAperture.setText("f/" + frame.getAperture());
         else tvAperture.setText("");
 
         // If the shutter is empty, then don't show anything.
-        if ( !frame.getShutter().equals("<empty>"))  tvShutter.setText(frame.getShutter());
+        if ( !frame.getShutter().equals(getContext().getString(R.string.NoValue)))  tvShutter.setText(frame.getShutter());
         else tvShutter.setText("");
         return convertView;
     }
