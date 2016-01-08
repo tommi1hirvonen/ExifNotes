@@ -16,7 +16,6 @@
         android:layout_marginTop="60dp"
         android:textSize="20sp"
         android:gravity="center"
-        android:textColor="@color/grey"
         android:text="@string/NoRolls"/>
 
     <!-- List whose dataset is defined in code with an adapter -->
@@ -24,7 +23,6 @@
         android:id="@+id/main_listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         />
 
     <android.support.design.widget.FloatingActionButton

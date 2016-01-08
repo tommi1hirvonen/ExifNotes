@@ -13,6 +13,7 @@
         android:layout_marginRight="3dp"
         android:layout_marginTop="15dp"
         android:text="@string/Name"
+        android:textColor="@color/material_grey_900"
         />
 
     <EditText
@@ -32,6 +33,7 @@
         android:layout_marginRight="3dp"
         android:layout_marginTop="25dp"
         android:text="@string/Note"
+        android:textColor="@color/material_grey_900"
         />
 
     <EditText

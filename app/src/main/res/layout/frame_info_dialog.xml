@@ -18,6 +18,7 @@
             android:layout_marginLeft="3dp"
             android:layout_marginTop="10dp"
             android:text="@string/Lens"
+            android:textColor="@color/material_grey_900"
             />
 
     </LinearLayout>
@@ -48,6 +49,7 @@
             android:layout_marginLeft="3dp"
             android:layout_marginTop="10dp"
             android:text="@string/Date"
+            android:textColor="@color/material_grey_900"
             />
 
         <TextView
@@ -58,6 +60,7 @@
             android:layout_marginLeft="3dp"
             android:layout_marginTop="10dp"
             android:text="@string/Time"
+            android:textColor="@color/material_grey_900"
             />
     </LinearLayout>
 
@@ -102,7 +105,8 @@
                 android:textSize="15sp"
                 android:layout_marginTop="10dp"
                 android:text="@string/FrameCount"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/material_grey_900"/>
             <NumberPicker
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -122,7 +126,8 @@
                 android:textSize="15sp"
                 android:layout_marginTop="10dp"
                 android:text="@string/Shutter"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/material_grey_900"/>
             <NumberPicker
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -142,7 +147,8 @@
                 android:textSize="15sp"
                 android:layout_marginTop="10dp"
                 android:text="@string/Aperture"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/material_grey_900"/>
             <NumberPicker
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -162,6 +168,7 @@
         android:layout_marginRight="3dp"
         android:layout_marginTop="10dp"
         android:text="@string/Note"
+        android:textColor="@color/material_grey_900"
         />
 
     <EditText
