@@ -7,8 +7,10 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.LocationManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -100,7 +102,14 @@ public class MainActivity extends AppCompatActivity implements
         // Set this activity to react to list items being pressed and held
         mainListView.setOnItemLongClickListener(this);
 
-        if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1 );
+        if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
+
+        LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+
+        // getting GPS status
+        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        if ( !isGPSEnabled ) showSettingsAlert();
     }
 
 
@@ -365,6 +374,34 @@ public class MainActivity extends AppCompatActivity implements
                 show_RollNameDialog();
                 break;
         }
+    }
+
+    public void showSettingsAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        // Setting Dialog Title
+        alertDialog.setTitle("GPS is settings");
+
+        // Setting Dialog Message
+        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
+
+        // On pressing Settings button
+        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int which) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        });
+
+        // on pressing cancel button
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
     }
 }
 

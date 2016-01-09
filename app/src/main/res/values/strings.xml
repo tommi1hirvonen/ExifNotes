@@ -101,7 +101,7 @@
 
     <!--item_frame.xml-->
     <string name="Text">Text</string>
-    
+
     <!--lens_name_dialog.xml-->
     <string name="NameNoColon">Name</string>
 
@@ -110,6 +110,7 @@
 
     <!--menu_roll_info.xml-->
     <string name="Share">Share</string>
+    <string name="ShowOnMap">Show on map</string>
 
 
     <!--fragment_preference.xml-->
@@ -117,8 +118,8 @@
     <string name="General_Cap">GENERAL</string>
     <string name="Language_Cap">LANGUAGE</string>
     <string name="Language">Language</string>
-    <string name="GetLocationTitle">Enable location</string>
-    <string name="GetLocationSummary">Get current location when adding a new frame.</string>
+    <string name="GPSUpdateTitle">Enable location updating</string>
+    <string name="GPSUpdateSummary">Keep updating the current location using GPS.</string>
     <string name="AlwaysShowLensSelectionTitle">Always show lens selection</string>
     <string name="AlwaysShowLensSelectionSummary">If unchecked, the previously used lens will be selected by default when adding a new frame.</string>
     <string name="ShutterIncrementsTitle">Shutter speed increments</string>
@@ -136,5 +137,6 @@
     <string name="Grey">Grey</string>
     <string name="Purple">Purple</string>
     <string name="Cyan">Cyan</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

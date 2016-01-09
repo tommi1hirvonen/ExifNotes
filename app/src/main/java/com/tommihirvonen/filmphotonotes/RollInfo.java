@@ -14,6 +14,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -37,6 +38,8 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import java.util.ArrayList;
@@ -49,8 +52,9 @@ import java.util.List;
 // Tommi Hirvonen
 
 public class RollInfo extends AppCompatActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
-        FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSetCallback, FloatingActionButton.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSetCallback, FloatingActionButton.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
+    public final static String ROLLINFO_EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
     FilmDbHelper database;
     TextView mainTextView;
     ListView mainListView;
@@ -60,6 +64,9 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     int rollId;
     int counter = 0;
     Location mLastLocation;
+    LocationRequest mLocationRequest;
+    boolean mRequestingLocationUpdates;
+
 
     // Google client to interact with Google API
     private GoogleApiClient mGoogleApiClient;
@@ -119,8 +126,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
         if (mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
-
-        // Create an instance of GoogleAPIClient.
+        // Create an instance of GoogleAPIClient for location services.
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -128,6 +134,13 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                     .addApi(LocationServices.API)
                     .build();
         }
+
+        // Create locationRequest to update the current location.
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(20000);
+        mLocationRequest.setFastestInterval(10000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mRequestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
     }
 
 
@@ -138,9 +151,11 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
         // Access the Share Item defined in menu XML
         MenuItem shareItem = menu.findItem(R.id.menu_item_share);
+        MenuItem showOnMap = menu.findItem(R.id.menu_item_map);
         MenuItem deleteFrame = menu.findItem(R.id.menu_item_delete_frame);
         MenuItem frame_help = menu.findItem(R.id.menu_item_frame_help);
 
+        showOnMap.setOnMenuItemClickListener(this);
         deleteFrame.setOnMenuItemClickListener(this);
         frame_help.setOnMenuItemClickListener(this);
 
@@ -162,8 +177,14 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
 
+            // Get the roll and its information
+            Roll roll = database.getRoll(rollId);
+
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("Frame Count;Date;Lens;Shutter;Aperture" + "\n");
+            stringBuilder.append("Roll name: " + roll.getName() + "\n");
+            stringBuilder.append("Added: " + roll.getDate() + "\n");
+            stringBuilder.append("Notes: " + roll.getNote() + "\n\n");
+            stringBuilder.append("Frame Count;Date;Lens;Shutter;Aperture;Notes;Location" + "\n");
             for (int i = 0; i < mFrameClassList.size(); ++i) {
                 stringBuilder.append(mFrameClassList.get(i).getCount());
                 stringBuilder.append(";");
@@ -174,6 +195,10 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                 stringBuilder.append(mFrameClassList.get(i).getShutter());
                 stringBuilder.append(";");
                 stringBuilder.append(mFrameClassList.get(i).getAperture());
+                stringBuilder.append(";");
+                stringBuilder.append(mFrameClassList.get(i).getNote());
+                stringBuilder.append(";");
+                stringBuilder.append(mFrameClassList.get(i).getLocation());
                 stringBuilder.append("\n");
             }
             String shared = stringBuilder.toString();
@@ -273,6 +298,11 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                 }
                 break;
 
+            case R.id.menu_item_map:
+                Intent intent = new Intent(this, MapsActivity.class);
+                intent.putExtra(ROLLINFO_EXTRA_MESSAGE, rollId);
+                startActivity(intent);
+                break;
 
             case R.id.menu_item_frame_help:
 
@@ -301,8 +331,9 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String shutter = mFrameClassList.get(position).getShutter();
         String aperture = mFrameClassList.get(position).getAperture();
         String note = mFrameClassList.get(position).getNote();
+        String location = mFrameClassList.get(position).getLocation();
 
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture, note);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture, note, location);
         dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
@@ -324,6 +355,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String date = getCurrentTime();
         String shutter;
         String aperture;
+        String location = locationStringFromLocation(mLastLocation);
         if (!mFrameClassList.isEmpty()) {
             Frame previousFrame = mFrameClassList.get(mFrameClassList.size() - 1);
             lens = previousFrame.getLens();
@@ -337,7 +369,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             aperture = getResources().getString(R.string.NoValue);
         }
 
-        FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens, count, date, shutter, aperture);
+        FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens, count, date, shutter, aperture, location);
         dialog.show(getSupportFragmentManager(), FrameInfoDialog.TAG);
     }
 
@@ -367,7 +399,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
 
     @Override
-    public void onEditSet(int _id, String lens, int position, int count, String date, String shutter, String aperture, String note) {
+    public void onEditSet(int _id, String lens, int position, int count, String date, String shutter, String aperture, String note, String location) {
         if (lens.length() != 0) {
 
             Frame frame = new Frame();
@@ -379,6 +411,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             frame.setShutter(shutter);
             frame.setAperture(aperture);
             frame.setNote(note);
+            frame.setLocation(location);
             Log.d("FilmPhotoNotes", "" + frame.getId() + " " + frame.getRoll() + " " + frame.getLens() + " " + frame.getCount() + " " + frame.getDate());
             database.updateFrame(frame);
             //Make the change in the class list and the list view
@@ -388,6 +421,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             mFrameClassList.get(position).setShutter(shutter);
             mFrameClassList.get(position).setAperture(aperture);
             mFrameClassList.get(position).setNote(note);
+            mFrameClassList.get(position).setLocation(location);
             mFrameAdapter.notifyDataSetChanged();
             setShareIntent();
         }
@@ -405,6 +439,11 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         }
     }
 
+    public static String locationStringFromLocation(final Location location) {
+        if (location != null)
+            return Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + " " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
+        else return "";
+    }
 
     public static String getCurrentTime() {
         final Calendar c = Calendar.getInstance();
@@ -431,23 +470,55 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-        if (mLastLocation != null) {
-            Toast.makeText(this, "" + mLastLocation.getLatitude() + ", " + mLastLocation.getLongitude(), Toast.LENGTH_LONG)
-                    .show();
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
 
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
+            startLocationUpdates();
+        }
+    }
+
+    protected void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_LOCATION);
+
+        }
+        else LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }
+
+    private final static int MY_PERMISSIONS_REQUEST_LOCATION = 1;
+    @Override
+    public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_LOCATION);
+
+        } else {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            if (mRequestingLocationUpdates) {
+                startLocationUpdates();
+            }
         }
     }
 
@@ -481,6 +552,11 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             showErrorDialog(result.getErrorCode());
             mResolvingError = true;
         }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
     }
 
     // The rest of this code is all about building the error dialog

@@ -5,6 +5,13 @@
     <PreferenceCategory
         android:title="@string/General_Cap">
 
+        <CheckBoxPreference
+            android:key="GPSUpdate"
+            android:title="@string/GPSUpdateTitle"
+            android:summary="@string/GPSUpdateSummary"
+            android:defaultValue="true"
+            />
+
         <ListPreference
             android:key="ShutterIncrements"
             android:title="@string/ShutterIncrementsTitle"

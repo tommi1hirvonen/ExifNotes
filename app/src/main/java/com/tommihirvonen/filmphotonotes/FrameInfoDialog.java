@@ -41,7 +41,7 @@ public class FrameInfoDialog extends DialogFragment {
     ArrayList<Lens> lensList;
     FilmDbHelper database;
 
-    static FrameInfoDialog newInstance(String lens, int count, String date, String shutter, String aperture) {
+    static FrameInfoDialog newInstance(String lens, int count, String date, String shutter, String aperture, String location) {
         FrameInfoDialog f = new FrameInfoDialog();
         Bundle args = new Bundle();
         args.putString("lens", lens);
@@ -49,6 +49,7 @@ public class FrameInfoDialog extends DialogFragment {
         args.putString("date", date);
         args.putString("shutter", shutter);
         args.putString("aperture", aperture);
+        args.putString("location", location);
         f.setArguments(args);
         return f;
     }
@@ -95,6 +96,7 @@ public class FrameInfoDialog extends DialogFragment {
         count = getArguments().getInt("count");
         shutter = getArguments().getString("shutter");
         aperture = getArguments().getString("aperture");
+        location = getArguments().getString("location");
         database = new FilmDbHelper(getActivity());
         lensList = database.getAllLenses();
 
@@ -314,12 +316,6 @@ public class FrameInfoDialog extends DialogFragment {
 
             }
         });
-
-        // ********** IMPLEMENT GETTING THE LOCATION HERE **********
-        final boolean locationEnabled = prefs.getBoolean("GetLocation", true);
-        if ( locationEnabled ) {
-            
-        }
 
         alert.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)

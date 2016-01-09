@@ -39,11 +39,12 @@ public class EditFrameInfoDialog extends DialogFragment {
     String shutter;
     String aperture;
     String note;
+    String location;
     ArrayList<Lens> lensList;
     FilmDbHelper database;
 
 
-    static EditFrameInfoDialog newInstance(int _id, String lens, int position, int count, String date, String shutter, String aperture, String note) {
+    static EditFrameInfoDialog newInstance(int _id, String lens, int position, int count, String date, String shutter, String aperture, String note, String location) {
         EditFrameInfoDialog f = new EditFrameInfoDialog();
         Bundle args = new Bundle();
         args.putInt("_id", _id);
@@ -54,6 +55,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         args.putString("shutter", shutter);
         args.putString("aperture", aperture);
         args.putString("note", note);
+        args.putString("location", location);
         f.setArguments(args);
         return f;
     }
@@ -67,7 +69,7 @@ public class EditFrameInfoDialog extends DialogFragment {
 
 
     public interface OnEditSetCallback {
-        void onEditSet(int _id, String new_lens, int position, int new_count, String new_date, String new_shutter, String new_aperture, String new_note);
+        void onEditSet(int _id, String new_lens, int position, int new_count, String new_date, String new_shutter, String new_aperture, String new_note, String location);
     }
 
 
@@ -107,6 +109,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         aperture = getArguments().getString("aperture");
         _id = getArguments().getInt("_id");
         note = getArguments().getString("note");
+        location = getArguments().getString("location");
 
         database = new FilmDbHelper(getActivity());
         lensList = database.getAllLenses();
@@ -343,7 +346,7 @@ public class EditFrameInfoDialog extends DialogFragment {
 
                 if(lens.length() != 0) {
                     // Return the new entered name to the calling activity
-                    callback.onEditSet(_id, lens, position, count, date, shutter, aperture, note);
+                    callback.onEditSet(_id, lens, position, count, date, shutter, aperture, note, location);
                 }
             }
         });
