@@ -5,12 +5,14 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,14 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +50,10 @@ public class FrameInfoDialog extends DialogFragment {
     String location;
     ArrayList<Lens> lensList;
     FilmDbHelper database;
+
+    TextView b_location;
+
+    final static int PLACE_PICKER_REQUEST = 1;
 
     static FrameInfoDialog newInstance(String lens, int count, String date, String shutter, String aperture, String location) {
         FrameInfoDialog f = new FrameInfoDialog();
@@ -111,6 +125,7 @@ public class FrameInfoDialog extends DialogFragment {
         alert.setView(inflator);
 
         final EditText et_note = (EditText) inflator.findViewById(R.id.txt_note);
+        b_location = (TextView) inflator.findViewById(R.id.btn_location);
 
         final TextView b_lens = (TextView) inflator.findViewById(R.id.btn_lens);
         final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
@@ -306,8 +321,7 @@ public class FrameInfoDialog extends DialogFragment {
                         String newTime;
                         if (minute < 10) {
                             newTime = hourOfDay + ":0" + minute;
-                        }
-                        else newTime = hourOfDay + ":" + minute;
+                        } else newTime = hourOfDay + ":" + minute;
                         b_time.setText(newTime);
                     }
                 }, hours, minutes, true);
@@ -317,9 +331,56 @@ public class FrameInfoDialog extends DialogFragment {
             }
         });
 
+        // LOCATION PICK DIALOG
+        b_location.setText(location);
+        b_location.setClickable(true);
+        b_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // LOCATION PICKER DIALOG IMPLEMENTATION HERE
+                final List<String> listItems = new ArrayList<>();
+                listItems.add("Clear");
+                listItems.add("Reacquire/Edit on map");
+                final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Choose action");
+                builder.setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // listItems also contains the No lens option
+                        switch (which){
+                            // Clear
+                            case 0:
+                                b_location.setText("");
+                                break;
+
+                            // Reacquire/Edit on map. PlacePicker!
+                            case 1:
+                                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+                                try {
+                                    startActivityForResult(builder.build(getActivity()), PLACE_PICKER_REQUEST);
+                                } catch (GooglePlayServicesRepairableException e) {
+                                    e.printStackTrace();
+                                } catch (GooglePlayServicesNotAvailableException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                        }
+                    }
+                });
+                builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
+
         alert.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton)
-            {
+            public void onClick(DialogInterface dialog, int whichButton) {
                 lens = b_lens.getText().toString();
                 shutter = displayedShutterValues[shutterPicker.getValue()];
                 aperture = displayedApertureValues[aperturePicker.getValue()];
@@ -329,7 +390,7 @@ public class FrameInfoDialog extends DialogFragment {
                 // PARSE THE DATE
                 date = b_date.getText().toString() + " " + b_time.getText().toString();
 
-                if(lens.length() != 0) {
+                if (lens.length() != 0) {
                     // Return the new entered name to the calling activity
                     callback.onInfoSet(lens, count, date, shutter, aperture, note, location);
                 }
@@ -343,6 +404,17 @@ public class FrameInfoDialog extends DialogFragment {
         });
 
         return alert.create();
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_PICKER_REQUEST) {
+            if (resultCode == Activity.RESULT_OK) {
+                Place place = PlacePicker.getPlace(getActivity(), data);
+                LatLng latLng = place.getLatLng();
+                location = "" + latLng.latitude + " " + latLng.longitude;
+                b_location.setText(location);
+            }
+        }
     }
 
     private ArrayList<String> splitDate(String input) {
