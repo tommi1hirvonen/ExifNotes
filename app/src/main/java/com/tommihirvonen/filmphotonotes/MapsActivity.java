@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -110,7 +111,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             // Parse the location string
             String location = frame.getLocation();
-            Log.d("FilmPhotoNotes", "" + location);
             if ( location.length() > 0 && !location.equals("null")) {
                 String latString = location.substring(0, location.indexOf(" "));
                 String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
@@ -135,6 +135,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
                 }
             });
+        }
+        else {
+            Toast.makeText(this, getResources().getString(R.string.NoFramesToShow), Toast.LENGTH_LONG).show();
         }
     }
 }

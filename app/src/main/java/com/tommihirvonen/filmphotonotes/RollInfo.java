@@ -55,6 +55,8 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSetCallback, FloatingActionButton.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     public final static String ROLLINFO_EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
+    public final static String LOCATION_ENABLED_EXTRA = "LocationEnabled";
+
     FilmDbHelper database;
     TextView mainTextView;
     ListView mainListView;
@@ -63,13 +65,15 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     ShareActionProvider mShareActionProvider;
     int rollId;
     int counter = 0;
+
+    // Google client to interact with Google API
+    boolean locationEnabled;
+    private GoogleApiClient mGoogleApiClient;
+    private final static int MY_PERMISSIONS_REQUEST_LOCATION = 1;
     Location mLastLocation;
     LocationRequest mLocationRequest;
     boolean mRequestingLocationUpdates;
 
-
-    // Google client to interact with Google API
-    private GoogleApiClient mGoogleApiClient;
 
 
     @Override
@@ -78,6 +82,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         setContentView(R.layout.activity_roll_info);
         Intent intent = getIntent();
         rollId = intent.getIntExtra(MainActivity.EXTRA_MESSAGE, 0);
+        locationEnabled = intent.getBooleanExtra(LOCATION_ENABLED_EXTRA, false);
 
         database = new FilmDbHelper(this);
         mFrameClassList = database.getAllFramesFromRoll(rollId);
@@ -126,20 +131,25 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
         if (mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
-        // Create an instance of GoogleAPIClient for location services.
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
 
-        // Create locationRequest to update the current location.
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(10000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Activate GPS locating if the user has granted permission.
+        if (locationEnabled) {
+
+            // Create an instance of GoogleAPIClient for location services.
+            if (mGoogleApiClient == null) {
+                mGoogleApiClient = new GoogleApiClient.Builder(this)
+                        .addConnectionCallbacks(this)
+                        .addOnConnectionFailedListener(this)
+                        .addApi(LocationServices.API)
+                        .build();
+            }
+            // Create locationRequest to update the current location.
+            mLocationRequest = new LocationRequest();
+            mLocationRequest.setInterval(20000);
+            mLocationRequest.setFastestInterval(10000);
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        }
+        // This can be done anyway. It only has effect if locationEnabled is true.
         mRequestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
     }
 
@@ -460,30 +470,29 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
     protected void onStart() {
-        mGoogleApiClient.connect();
+        if ( locationEnabled ) mGoogleApiClient.connect();
         super.onStart();
     }
 
     protected void onStop() {
-        mGoogleApiClient.disconnect();
+        if ( locationEnabled ) mGoogleApiClient.disconnect();
         super.onStop();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        stopLocationUpdates();
+        if ( locationEnabled ) stopLocationUpdates();
     }
 
     protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient, this);
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
+        if (locationEnabled && mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
             startLocationUpdates();
         }
     }
@@ -494,25 +503,16 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                 ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_LOCATION);
-
         }
         else LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
-    private final static int MY_PERMISSIONS_REQUEST_LOCATION = 1;
     @Override
     public void onConnected(Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_LOCATION);
 
         } else {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
@@ -524,8 +524,32 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
     @Override
     public void onConnectionSuspended(int i) {
-        mGoogleApiClient.connect();
+        if ( locationEnabled ) mGoogleApiClient.connect();
     }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Request code to use when launching the resolution activity
     private static final int REQUEST_RESOLVE_ERROR = 1001;
@@ -552,11 +576,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             showErrorDialog(result.getErrorCode());
             mResolvingError = true;
         }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        mLastLocation = location;
     }
 
     // The rest of this code is all about building the error dialog

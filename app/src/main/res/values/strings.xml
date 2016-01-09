@@ -48,6 +48,9 @@
     <string name="Preferences">Settings</string>
     <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
 
+    <!--MapsActivity-->
+    <string name="NoFramesToShow">No frames to show on map</string>
+
     <!--RollAdapter-->
     <string name="Photos">photos</string>
     <string name="Photo">photo</string>

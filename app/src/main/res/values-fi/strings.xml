@@ -86,4 +86,8 @@
     <string name="Empty">Tyhjä</string>
     <string name="NoValue">&#60;tyhjä&#62;</string>
     <string name="NameNoColon">Nimi</string>
+    <string name="GPSUpdateSummary">Päivitä nykyinen sijainti käyttäen GPS-paikannusta</string>
+    <string name="GPSUpdateTitle">Sijainnin päivitys</string>
+    <string name="NoFramesToShow">Kartalla ei näytettäviä ruutuja</string>
+    <string name="ShowOnMap">Näytä kartalla</string>
 </resources>
