@@ -57,6 +57,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tommihirvonen.filmphotonotes.MainActivity" />
         </activity>
+
+
+
         <activity
             android:name=".PreferenceActivity"
             android:label="@string/title_activity_preference_activity">
@@ -68,6 +71,14 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
+            android:parentActivityName=".RollInfo">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tommihirvonen.filmphotonotes.RollInfo" />
+        </activity>
+        <activity
+            android:name=".LocationPickerActivity"
+            android:label="LocationPickerActivity"
             android:parentActivityName=".RollInfo">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

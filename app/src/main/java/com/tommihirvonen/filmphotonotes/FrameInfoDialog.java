@@ -356,14 +356,18 @@ public class FrameInfoDialog extends DialogFragment {
 
                             // Reacquire/Edit on map. PlacePicker!
                             case 1:
-                                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-                                try {
-                                    startActivityForResult(builder.build(getActivity()), PLACE_PICKER_REQUEST);
-                                } catch (GooglePlayServicesRepairableException e) {
-                                    e.printStackTrace();
-                                } catch (GooglePlayServicesNotAvailableException e) {
-                                    e.printStackTrace();
-                                }
+//                                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+//                                try {
+//                                    startActivityForResult(builder.build(getActivity()), PLACE_PICKER_REQUEST);
+//                                } catch (GooglePlayServicesRepairableException e) {
+//                                    e.printStackTrace();
+//                                } catch (GooglePlayServicesNotAvailableException e) {
+//                                    e.printStackTrace();
+//                                }
+                                Intent intent = new Intent(getActivity(), LocationPickerActivity.class);
+                                intent.putExtra("LATITUDE", 61.000f);
+                                intent.putExtra("LONGITUDE", 21.000f);
+                                startActivity(intent);
                                 break;
                         }
                     }
