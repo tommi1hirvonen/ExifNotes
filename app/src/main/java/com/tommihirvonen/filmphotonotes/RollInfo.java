@@ -1,15 +1,23 @@
 package com.tommihirvonen.filmphotonotes;
 
+import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -26,6 +34,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -36,7 +49,7 @@ import java.util.List;
 // Tommi Hirvonen
 
 public class RollInfo extends AppCompatActivity implements AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,
-        FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSetCallback, FloatingActionButton.OnClickListener {
+        FrameInfoDialog.onInfoSetCallback, EditFrameInfoDialog.OnEditSetCallback, FloatingActionButton.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     FilmDbHelper database;
     TextView mainTextView;
@@ -46,6 +59,10 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     ShareActionProvider mShareActionProvider;
     int rollId;
     int counter = 0;
+    Location mLastLocation;
+
+    // Google client to interact with Google API
+    private GoogleApiClient mGoogleApiClient;
 
 
     @Override
@@ -73,7 +90,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
+            getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
         }
         // *****************************************************************
 
@@ -88,21 +105,30 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         // Access the ListView
         mainListView = (ListView) findViewById(R.id.frames_listview);
         // Create an ArrayAdapter for the ListView
-        mFrameAdapter = new FrameAdapter(this,android.R.layout.simple_list_item_1, mFrameClassList);
+        mFrameAdapter = new FrameAdapter(this, android.R.layout.simple_list_item_1, mFrameClassList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(mFrameAdapter);
 
         mainListView.setOnItemClickListener(this);
 
-        if ( mFrameClassList.size() >= 1 ) {
-            counter = mFrameClassList.get(mFrameClassList.size() -1).getCount();
+        if (mFrameClassList.size() >= 1) {
+            counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
             mainTextView.setVisibility(View.GONE);
         }
 
-        if ( mainListView.getCount() >= 1 ) mainListView.setSelection( mainListView.getCount() - 1 );
-    }
+        if (mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
+
+        // Create an instance of GoogleAPIClient.
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+    }
 
 
     @Override
@@ -119,7 +145,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         frame_help.setOnMenuItemClickListener(this);
 
         if (shareItem != null) {
-           mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
         }
 
         // Create an Intent to share your content
@@ -138,7 +164,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Frame Count;Date;Lens;Shutter;Aperture" + "\n");
-            for ( int i = 0; i < mFrameClassList.size(); ++i ) {
+            for (int i = 0; i < mFrameClassList.size(); ++i) {
                 stringBuilder.append(mFrameClassList.get(i).getCount());
                 stringBuilder.append(";");
                 stringBuilder.append(mFrameClassList.get(i).getDate());
@@ -181,12 +207,12 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         switch (item.getItemId()) {
 
             case R.id.menu_item_delete_frame:
-                if ( mFrameClassList.size() >= 1 ) {
+                if (mFrameClassList.size() >= 1) {
 
                     // Ask the user which frame(s) to delete
 
                     ArrayList<String> listItems = new ArrayList<>();
-                    for ( int i = 0; i < mFrameClassList.size(); ++i ) {
+                    for (int i = 0; i < mFrameClassList.size(); ++i) {
                         listItems.add(" #" + mFrameClassList.get(i).getCount() + "   " + mFrameClassList.get(i).getDate());
                         //            ^ trick to add integer to string
                     }
@@ -195,8 +221,8 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle(R.string.PickFramesToDelete)
 
-                    // Multiple Choice Dialog
-                    .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
+                            // Multiple Choice Dialog
+                            .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                     if (isChecked) {
@@ -208,36 +234,38 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                                     }
                                 }
                             })
-                            // Set the action buttons
-                    .setPositiveButton(R.string.Delete, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
+                                    // Set the action buttons
+                            .setPositiveButton(R.string.Delete, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
 
-                            // Do something with the selection
-                            Collections.sort(selectedItemsIndexList);
-                            for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
-                                int which = selectedItemsIndexList.get(i);
+                                    // Do something with the selection
+                                    Collections.sort(selectedItemsIndexList);
+                                    for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                                        int which = selectedItemsIndexList.get(i);
 
-                                Frame frame = mFrameClassList.get(which);
-                                database.deleteFrame(frame);
-                                mFrameClassList.remove(which);
+                                        Frame frame = mFrameClassList.get(which);
+                                        database.deleteFrame(frame);
+                                        mFrameClassList.remove(which);
 
 
-                            }
-                            if (mFrameClassList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                            mFrameAdapter.notifyDataSetChanged();
-                            if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
-                            else counter = 0;
-                            setShareIntent();
+                                    }
+                                    if (mFrameClassList.size() == 0)
+                                        mainTextView.setVisibility(View.VISIBLE);
+                                    mFrameAdapter.notifyDataSetChanged();
+                                    if (mFrameClassList.size() >= 1)
+                                        counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
+                                    else counter = 0;
+                                    setShareIntent();
 
-                        }
-                    })
-                    .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            // Do nothing
-                        }
-                    });
+                                }
+                            })
+                            .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // Do nothing
+                                }
+                            });
 
                     AlertDialog alert = builder.create();
                     alert.show();
@@ -279,12 +307,10 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
 
-
-
     private void showFrameInfoDialog() {
 
         // If the frame count is greater than 100, then don't add a new frame.
-        if ( !mFrameClassList.isEmpty()) {
+        if (!mFrameClassList.isEmpty()) {
             int countCheck = mFrameClassList.get(mFrameClassList.size() - 1).getCount() + 1;
             if (countCheck > 100) {
                 Toast toast = Toast.makeText(this, getResources().getString(R.string.TooManyFrames), Toast.LENGTH_LONG);
@@ -298,8 +324,8 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String date = getCurrentTime();
         String shutter;
         String aperture;
-        if ( !mFrameClassList.isEmpty() ){
-            Frame previousFrame = mFrameClassList.get(mFrameClassList.size()-1);
+        if (!mFrameClassList.isEmpty()) {
+            Frame previousFrame = mFrameClassList.get(mFrameClassList.size() - 1);
             lens = previousFrame.getLens();
             count = previousFrame.getCount() + 1;
             shutter = previousFrame.getShutter();
@@ -316,9 +342,9 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
     @Override
-    public void onInfoSet(String lens, int count, String date, String shutter, String aperture, String note) {
+    public void onInfoSet(String lens, int count, String date, String shutter, String aperture, String note, String location) {
 
-        Frame frame = new Frame(rollId, count, date, lens, shutter, aperture, note);
+        Frame frame = new Frame(rollId, count, date, lens, shutter, aperture, note, location);
 
 
         // Save the file when the new frame has been added
@@ -332,7 +358,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         mainTextView.setVisibility(View.GONE);
 
         // When the new frame is added jump to view the last entry
-        mainListView.setSelection(mainListView.getCount() - 1 );
+        mainListView.setSelection(mainListView.getCount() - 1);
         // The text you'd like to share has changed,
         // and you need to update
         setShareIntent();
@@ -340,14 +366,19 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
 
-
     @Override
     public void onEditSet(int _id, String lens, int position, int count, String date, String shutter, String aperture, String note) {
-        if ( lens.length() != 0 ) {
+        if (lens.length() != 0) {
 
             Frame frame = new Frame();
-            frame.setId(_id); frame.setRoll(rollId); frame.setLens(lens); frame.setCount(count);
-            frame.setDate(date); frame.setShutter(shutter); frame.setAperture(aperture); frame.setNote(note);
+            frame.setId(_id);
+            frame.setRoll(rollId);
+            frame.setLens(lens);
+            frame.setCount(count);
+            frame.setDate(date);
+            frame.setShutter(shutter);
+            frame.setAperture(aperture);
+            frame.setNote(note);
             Log.d("FilmPhotoNotes", "" + frame.getId() + " " + frame.getRoll() + " " + frame.getLens() + " " + frame.getCount() + " " + frame.getDate());
             database.updateFrame(frame);
             //Make the change in the class list and the list view
@@ -375,7 +406,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     }
 
 
-    public static String getCurrentTime(){
+    public static String getCurrentTime() {
         final Calendar c = Calendar.getInstance();
         int iYear = c.get(Calendar.YEAR);
         int iMonth = c.get(Calendar.MONTH) + 1;
@@ -383,10 +414,109 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         int iHour = c.get(Calendar.HOUR_OF_DAY);
         int iMin = c.get(Calendar.MINUTE);
         String current_time;
-        if ( iMin < 10 ) {
+        if (iMin < 10) {
             current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
-        }
-        else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
+        } else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
         return current_time;
+    }
+
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        if (mLastLocation != null) {
+            Toast.makeText(this, "" + mLastLocation.getLatitude() + ", " + mLastLocation.getLongitude(), Toast.LENGTH_LONG)
+                    .show();
+
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mGoogleApiClient.connect();
+    }
+
+    // Request code to use when launching the resolution activity
+    private static final int REQUEST_RESOLVE_ERROR = 1001;
+    // Unique tag for the error dialog fragment
+    private static final String DIALOG_ERROR = "dialog_error";
+    // Bool to track whether the app is already resolving an error
+    private boolean mResolvingError = false;
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
+        if (mResolvingError) {
+            // Already attempting to resolve an error.
+            return;
+        } else if (result.hasResolution()) {
+            try {
+                mResolvingError = true;
+                result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
+            } catch (IntentSender.SendIntentException e) {
+                // There was an error with the resolution intent. Try again.
+                mGoogleApiClient.connect();
+            }
+        } else {
+            // Show dialog using GoogleApiAvailability.getErrorDialog()
+            showErrorDialog(result.getErrorCode());
+            mResolvingError = true;
+        }
+    }
+
+    // The rest of this code is all about building the error dialog
+
+    /* Creates a dialog for an error message */
+    private void showErrorDialog(int errorCode) {
+        // Create a fragment for the error dialog
+        ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
+        // Pass the error that should be displayed
+        Bundle args = new Bundle();
+        args.putInt(DIALOG_ERROR, errorCode);
+        dialogFragment.setArguments(args);
+        dialogFragment.show(getSupportFragmentManager(), "errordialog");
+    }
+
+    /* Called from ErrorDialogFragment when the dialog is dismissed. */
+    public void onDialogDismissed() {
+        mResolvingError = false;
+    }
+
+    /* A fragment to display an error dialog */
+    public static class ErrorDialogFragment extends DialogFragment {
+        public ErrorDialogFragment() { }
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Get the error code and retrieve the appropriate dialog
+            int errorCode = this.getArguments().getInt(DIALOG_ERROR);
+            return GoogleApiAvailability.getInstance().getErrorDialog(
+                    this.getActivity(), errorCode, REQUEST_RESOLVE_ERROR);
+        }
+
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            ((RollInfo) getActivity()).onDialogDismissed();
+        }
     }
 }

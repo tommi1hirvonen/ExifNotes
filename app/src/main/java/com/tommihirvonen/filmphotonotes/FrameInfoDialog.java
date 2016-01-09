@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +19,7 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +37,7 @@ public class FrameInfoDialog extends DialogFragment {
     String shutter;
     String aperture;
     String note;
+    String location;
     ArrayList<Lens> lensList;
     FilmDbHelper database;
 
@@ -57,7 +58,7 @@ public class FrameInfoDialog extends DialogFragment {
     private onInfoSetCallback callback;
 
     public interface onInfoSetCallback {
-        void onInfoSet(String lensName, int count, String date, String shutter, String aperture, String note);
+        void onInfoSet(String lensName, int count, String date, String shutter, String aperture, String note, String location);
     }
 
 
@@ -314,6 +315,12 @@ public class FrameInfoDialog extends DialogFragment {
             }
         });
 
+        // ********** IMPLEMENT GETTING THE LOCATION HERE **********
+        final boolean locationEnabled = prefs.getBoolean("GetLocation", true);
+        if ( locationEnabled ) {
+            
+        }
+
         alert.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
@@ -328,7 +335,7 @@ public class FrameInfoDialog extends DialogFragment {
 
                 if(lens.length() != 0) {
                     // Return the new entered name to the calling activity
-                    callback.onInfoSet(lens, count, date, shutter, aperture, note);
+                    callback.onInfoSet(lens, count, date, shutter, aperture, note, location);
                 }
             }
         });

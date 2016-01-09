@@ -117,6 +117,8 @@
     <string name="General_Cap">GENERAL</string>
     <string name="Language_Cap">LANGUAGE</string>
     <string name="Language">Language</string>
+    <string name="GetLocationTitle">Enable location</string>
+    <string name="GetLocationSummary">Get current location when adding a new frame.</string>
     <string name="AlwaysShowLensSelectionTitle">Always show lens selection</string>
     <string name="AlwaysShowLensSelectionSummary">If unchecked, the previously used lens will be selected by default when adding a new frame.</string>
     <string name="ShutterIncrementsTitle">Shutter speed increments</string>

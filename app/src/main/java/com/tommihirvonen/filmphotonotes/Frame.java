@@ -13,12 +13,13 @@ public class Frame {
     public String shutter;
     public String aperture;
     public String note;
+    public String location;
 
     public Frame(){
         // Empty constructor
     }
 
-    public Frame(int roll, int count, String date, String lens, String shutter, String aperture, String note) {
+    public Frame(int roll, int count, String date, String lens, String shutter, String aperture, String note, String location) {
         this.roll = roll;
         this.count = count;
         this.date = date;
@@ -26,6 +27,7 @@ public class Frame {
         this.shutter = shutter;
         this.aperture = aperture;
         this.note = note;
+        this.location = location;
     }
 
 
@@ -62,6 +64,10 @@ public class Frame {
         this.note = input;
     }
 
+    public void setLocation(String input) {
+        this.location = input;
+    }
+
     //Methods to get members
     public int getId() {
         return this.id;
@@ -94,4 +100,9 @@ public class Frame {
     public String getNote(){
         return this.note;
     }
+
+    public String getLocation(){
+        return this.location;
+    }
+
 }
