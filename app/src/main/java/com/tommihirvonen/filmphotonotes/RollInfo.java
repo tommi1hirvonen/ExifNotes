@@ -14,7 +14,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -531,17 +530,6 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     public void onLocationChanged(Location location) {
         mLastLocation = location;
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

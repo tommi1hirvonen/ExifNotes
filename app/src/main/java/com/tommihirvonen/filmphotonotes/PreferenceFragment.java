@@ -4,8 +4,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.support.v4.content.ContextCompat;
-import android.view.Gravity;
 import android.widget.Toast;
 
 // Copyright 2015
