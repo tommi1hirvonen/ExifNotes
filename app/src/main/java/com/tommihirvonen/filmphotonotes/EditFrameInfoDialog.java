@@ -369,14 +369,9 @@ public class EditFrameInfoDialog extends DialogFragment {
 
                             // Reacquire/Edit on map. PlacePicker!
                             case 1:
-                                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-                                try {
-                                    startActivityForResult(builder.build(getActivity()), PLACE_PICKER_REQUEST);
-                                } catch (GooglePlayServicesRepairableException e) {
-                                    e.printStackTrace();
-                                } catch (GooglePlayServicesNotAvailableException e) {
-                                    e.printStackTrace();
-                                }
+                                Intent intent = new Intent(getActivity(), LocationPickActivity.class);
+                                intent.putExtra("LOCATION", location);
+                                startActivityForResult(intent, PLACE_PICKER_REQUEST);
                                 break;
                         }
                     }
@@ -422,11 +417,9 @@ public class EditFrameInfoDialog extends DialogFragment {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PLACE_PICKER_REQUEST) {
-            if (resultCode == Activity.RESULT_OK) {
-                Place place = PlacePicker.getPlace(getActivity(), data);
-                LatLng latLng = place.getLatLng();
-                location = "" + latLng.latitude + " " + latLng.longitude;
+        if ( requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK ) {
+            if (data.hasExtra("LATITUDE") && data.hasExtra("LONGITUDE")) {
+                location = "" + data.getStringExtra("LATITUDE") + " " + data.getStringExtra("LONGITUDE");
                 b_location.setText(location);
             }
         }

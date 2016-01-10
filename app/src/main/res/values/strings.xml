@@ -27,6 +27,10 @@
     <string name="NewLens">Add new lens</string>
     <string name="Add">Add</string>
 
+    <!--LocationPickActivity-->
+    <string name="PickLocation">Pick location</string>
+    <string name="TapOnMap">Tap on map to move marker</string>
+
     <!--MainActivity-->
     <string name="MainActivityTitle">Film rolls</string>
     <string name="PickRollsToDelete">Pick rolls to delete</string>
@@ -116,6 +120,8 @@
     <string name="Share">Share</string>
     <string name="ShowOnMap">Show on map</string>
 
+    <!--menu_location_pick.xml-->
+    <string name="Set">Set</string>
 
     <!--fragment_preference.xml-->
     <string name="Settings_Cap">SETTINGS</string>
@@ -142,12 +148,7 @@
     <string name="Purple">Purple</string>
     <string name="Cyan">Cyan</string>
     <string name="title_activity_maps">Map</string>
-
-
-    <string name="locationpicker_button_search">Search</string>
-    <string name="locationpicker_button_query">Query</string>
-    <string name="locationpicker_button_zoom_in">+</string>
-    <string name="locationpicker_button_zoom_out">-</string>
+    <string name="title_activity_location_pick">LocationPickActivity</string>
 
 
 </resources>

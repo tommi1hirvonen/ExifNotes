@@ -90,4 +90,8 @@
     <string name="GPSUpdateTitle">Sijainnin päivitys</string>
     <string name="NoFramesToShow">Kartalla ei näytettäviä ruutuja</string>
     <string name="ShowOnMap">Näytä kartalla</string>
+    <string name="Location">Sijainti:</string>
+    <string name="PickLocation">Valitse sijainti</string>
+    <string name="Set">Aseta</string>
+    <string name="TapOnMap">Paina karttaa liikuttaaksesi merkkiä</string>
 </resources>

@@ -202,9 +202,9 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                 stringBuilder.append(";");
                 stringBuilder.append(mFrameClassList.get(i).getLens());
                 stringBuilder.append(";");
-                stringBuilder.append(mFrameClassList.get(i).getShutter());
+                if ( !mFrameClassList.get(i).getShutter().equals(getResources().getString(R.string.Empty)) ) stringBuilder.append(mFrameClassList.get(i).getShutter());
                 stringBuilder.append(";");
-                stringBuilder.append(mFrameClassList.get(i).getAperture());
+                if ( !mFrameClassList.get(i).getAperture().equals(getResources().getString(R.string.Empty)) ) stringBuilder.append("f" + mFrameClassList.get(i).getAperture());
                 stringBuilder.append(";");
                 stringBuilder.append(mFrameClassList.get(i).getNote());
                 stringBuilder.append(";");
