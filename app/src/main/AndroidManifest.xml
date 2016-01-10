@@ -76,14 +76,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tommihirvonen.filmphotonotes.RollInfo" />
         </activity>
-        <activity
-            android:name=".LocationPickerActivity"
-            android:label="LocationPickerActivity"
-            android:parentActivityName=".RollInfo">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.tommihirvonen.filmphotonotes.RollInfo" />
-        </activity>
+
     </application>
 
 </manifest>

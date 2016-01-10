@@ -41,6 +41,7 @@
             android:layout_weight="1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:text="@string/locationpicker_button_zoom_out"/>
 
         <Button
@@ -48,6 +49,7 @@
             android:layout_weight="1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:text="@string/locationpicker_button_zoom_in"/>
 
         <Button
@@ -55,7 +57,8 @@
             android:layout_weight="1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/locationpicker_button_query"/>
+            android:textSize="15sp"
+            android:text="SET"/>
 
     </LinearLayout>
 
