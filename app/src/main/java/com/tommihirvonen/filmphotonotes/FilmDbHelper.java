@@ -18,6 +18,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public static final String TABLE_FRAMES = "frames";
     public static final String TABLE_LENSES = "lenses";
     public static final String TABLE_ROLLS = "rolls";
+    public static final String TABLE_CAMERAS = "cameras";
 
     public static final String KEY_FRAME_ID = "frame_id";
     public static final String KEY_COUNT = "count";
@@ -30,13 +31,16 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public static final String KEY_LENS_ID = "lens_id";
     public static final String KEY_LENS = "lens";
 
+    public static final String KEY_CAMERA_ID = "camera_id";
+    public static final String KEY_CAMERA = "camera";
+
     public static final String KEY_ROLL_ID = "roll_id";
     public static final String KEY_ROLLNAME = "rollname";
     public static final String KEY_ROLL_DATE = "roll_date";
     public static final String KEY_ROLL_NOTE = "roll_note";
 
     private static final String DATABASE_NAME = "filmnotes.db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     private static final String CREATE_FRAME_TABLE = "create table " + TABLE_FRAMES
             + "(" + KEY_FRAME_ID + " integer primary key autoincrement, "
@@ -52,6 +56,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String CREATE_LENS_TABLE = "create table " + TABLE_LENSES
             + "(" + KEY_LENS_ID + " integer primary key autoincrement, "
             + KEY_LENS + " text not null"
+            + ");";
+    private static final String CREATE_CAMERA_TABLE = "create table " + TABLE_CAMERAS
+            + "(" + KEY_CAMERA_ID + " integer primary key autoincrement, "
+            + KEY_CAMERA + " text not null"
             + ");";
     private static final String CREATE_ROLL_TABLE = "create table " + TABLE_ROLLS
             + "(" + KEY_ROLL_ID + " integer primary key autoincrement, "
@@ -69,6 +77,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_FRAME_TABLE);
         database.execSQL(CREATE_LENS_TABLE);
         database.execSQL(CREATE_ROLL_TABLE);
+        database.execSQL(CREATE_CAMERA_TABLE);
     }
 
     @Override
@@ -78,6 +87,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FRAMES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LENSES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROLLS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAMERAS);
         onCreate(db);
     }
 
@@ -224,6 +234,50 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void deleteLens(Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_LENSES, KEY_LENS_ID + " = ?", new String[]{String.valueOf(lens.getId())});
+        db.close();
+    }
+
+    // ******************** CRUD operations for the cameras table ********************
+
+    public void addCamera(Camera camera){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_CAMERA, camera.getName());
+        db.insert(TABLE_CAMERAS, null, values);
+        db.close();
+    }
+
+    public Camera getLastCamera(){
+        Camera camera = new Camera();
+        String query = "SELECT * FROM " + TABLE_CAMERAS + " ORDER BY " + KEY_CAMERA_ID + " DESC limit 1";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if ( cursor != null ) cursor.moveToFirst();
+        camera.setId(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_ID)));
+        camera.setName(cursor.getString(cursor.getColumnIndex(KEY_CAMERA)));
+        cursor.close();
+        return camera;
+    }
+
+    public ArrayList<Camera> getAllCameras(){
+        ArrayList<Camera> cameras = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_CAMERAS + " ORDER BY " + KEY_CAMERA;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        Camera camera;
+        while ( cursor.moveToNext() ) {
+            camera = new Camera();
+            camera.setId(cursor.getInt(0));
+            camera.setName(cursor.getString(1));
+            cameras.add(camera);
+        }
+        cursor.close();
+        return cameras;
+    }
+
+    public void deleteCamera(Camera camera){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_CAMERAS, KEY_CAMERA_ID + " = ?", new String[]{String.valueOf(camera.getId())});
         db.close();
     }
 

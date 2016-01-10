@@ -346,11 +346,11 @@ public class EditFrameInfoDialog extends DialogFragment {
             public void onClick(View v) {
                 // LOCATION PICKER DIALOG IMPLEMENTATION HERE
                 final List<String> listItems = new ArrayList<>();
-                listItems.add("Clear");
-                listItems.add("Reacquire/Edit on map");
+                listItems.add(getResources().getString(R.string.Clear));
+                listItems.add(getResources().getString(R.string.Reacquire));
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Choose action");
+                builder.setTitle(getResources().getString(R.string.ChooseAction));
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -359,6 +359,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                             // Clear
                             case 0:
                                 b_location.setText("");
+                                location = "";
                                 break;
 
                             // Reacquire/Edit on map. PlacePicker!

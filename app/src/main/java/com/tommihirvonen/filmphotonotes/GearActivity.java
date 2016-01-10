@@ -30,7 +30,7 @@ import java.util.List;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class LensesActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
+public class GearActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
         MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback, FloatingActionButton.OnClickListener {
 
     TextView mainTextView;
@@ -50,7 +50,7 @@ public class LensesActivity extends AppCompatActivity implements AdapterView.OnI
         database = new FilmDbHelper(this);
         mLensList = database.getAllLenses();
 
-        setContentView(R.layout.activity_lenses);
+        setContentView(R.layout.activity_gear);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);

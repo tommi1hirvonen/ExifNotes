@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case R.id.menu_item_lenses:
-                Intent intent = new Intent(this, LensesActivity.class);
+                Intent intent = new Intent(this, GearActivity.class);
                 startActivity(intent);
 
                 break;

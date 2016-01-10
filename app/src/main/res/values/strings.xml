@@ -11,13 +11,16 @@
     <string name="UsedLens">Choose used lens</string>
     <string name="OK">OK</string>
     <string name="FrameCountNotChanged">Frame count was not changed!\nNew frame count was not a number</string>
+    <string name="ChooseAction">Choose action</string>
+    <string name="Clear">Clear</string>
+    <string name="Reacquire">Reacquire/Edit on map</string>
 
     <!--EditRollNameDialog-->
     <string name="RenameRoll">Rename roll</string>
     <string name="Rename">Rename</string>
     <string name="EditRoll">Edit roll info</string>
 
-    <!--LensesActivity-->
+    <!--GearActivity-->
     <string name="Lenses">Lenses</string>
     <string name="PickLensesToDelete">Pick lenses to delete</string>
     <string name="LensSameName">Lens with same name already exists!</string>
@@ -82,7 +85,7 @@
     <string name="Agree">Agree</string>
     <string name="Decline">Decline</string>
 
-    <!--activity_lenses.xml-->
+    <!--activity_gearml-->
     <string name="NoLenses">No added lenses</string>
 
     <!--activity_main.xml-->

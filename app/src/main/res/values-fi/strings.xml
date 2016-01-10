@@ -94,4 +94,7 @@
     <string name="PickLocation">Valitse sijainti</string>
     <string name="Set">Aseta</string>
     <string name="TapOnMap">Paina karttaa liikuttaaksesi merkkiä</string>
+    <string name="ChooseAction">Valitse toiminto</string>
+    <string name="Clear">Pyyhi</string>
+    <string name="Reacquire">Hae uudestaan/Muokkaa kartalla</string>
 </resources>

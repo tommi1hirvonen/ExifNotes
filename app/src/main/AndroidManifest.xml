@@ -42,8 +42,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LensesActivity"
-            android:label="@string/title_activity_lenses_activity"
+            android:name=".GearActivity"
+            android:label="GearActivity"
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustPan">
             <meta-data
