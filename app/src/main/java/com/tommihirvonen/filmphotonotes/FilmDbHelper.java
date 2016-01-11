@@ -19,6 +19,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public static final String TABLE_LENSES = "lenses";
     public static final String TABLE_ROLLS = "rolls";
     public static final String TABLE_CAMERAS = "cameras";
+    public static final String TABLE_MOUNTABLES = "mountables";
 
     public static final String KEY_FRAME_ID = "frame_id";
     public static final String KEY_COUNT = "count";
@@ -67,6 +68,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_ROLL_DATE + " text not null, "
             + KEY_ROLL_NOTE + " text"
             + ");";
+    private static final String CREATE_MOUNTABLES_TABLE = "create table " + TABLE_MOUNTABLES
+            + "(" + KEY_CAMERA_ID + " integer not null, "
+            + KEY_LENS_ID + " integer not null"
+            + ");";
 
     public FilmDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -78,6 +83,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_LENS_TABLE);
         database.execSQL(CREATE_ROLL_TABLE);
         database.execSQL(CREATE_CAMERA_TABLE);
+        database.execSQL(CREATE_MOUNTABLES_TABLE);
     }
 
     @Override
@@ -88,6 +94,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LENSES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROLLS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAMERAS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MOUNTABLES);
         onCreate(db);
     }
 
@@ -279,6 +286,60 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CAMERAS, KEY_CAMERA_ID + " = ?", new String[]{String.valueOf(camera.getId())});
         db.close();
+    }
+
+    // ******************** CRUD operations for the mountables table ********************
+
+    public void addMountable(Camera camera, Lens lens){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_CAMERA_ID, camera.getId());
+        values.put(KEY_LENS_ID, lens.getId());
+        db.insert(TABLE_MOUNTABLES, null, values);
+        db.close();
+    }
+
+    public void deleteMountable(Camera camera, Lens lens){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "DELETE FROM " + TABLE_MOUNTABLES + " WHERE "
+                + KEY_CAMERA_ID + "=" + camera.getId() + " AND "
+                + KEY_LENS_ID + "=" + lens.getId();
+    }
+
+    public ArrayList<Lens> getMountableLenses(Camera camera){
+        ArrayList<Lens> lenses = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
+                + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_MOUNTABLES + " WHERE "
+                + KEY_CAMERA_ID + "=" + camera.getId() + ")";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        Lens lens;
+        while ( cursor.moveToNext() ) {
+            lens = new Lens();
+            lens.setId(cursor.getInt(0));
+            lens.setName(cursor.getString(1));
+            lenses.add(lens);
+        }
+        cursor.close();
+        return lenses;
+    }
+
+    public ArrayList<Camera> getMountableCameras(Lens lens){
+        ArrayList<Camera> cameras = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_CAMERAS + " WHERE " + KEY_CAMERA_ID + " IN "
+                + "(" + "SELECT " + KEY_CAMERA_ID + " FROM " + TABLE_MOUNTABLES + " WHERE "
+                + KEY_LENS_ID + "=" + lens.getId() + ")";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        Camera camera;
+        while ( cursor.moveToNext() ) {
+            camera = new Camera();
+            camera.setId(cursor.getInt(0));
+            camera.setName(cursor.getString(1));
+            cameras.add(camera);
+        }
+        cursor.close();
+        return cameras;
     }
 
     // ******************** CRUD operations for the rolls table ********************

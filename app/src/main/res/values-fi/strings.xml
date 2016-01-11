@@ -15,7 +15,7 @@
     <string name="Lens">Objektiivi:</string>
     <string name="LensIllegalCharacter">Objektiivin nimessä on sallimaton merkki: </string>
     <string name="LensSameName">Saman niminen objektiivi on jo olemassa!</string>
-    <string name="Lenses">Objektiivit</string>
+    <string name="Lenses">OBJEKTIIVIT</string>
     <string name="Name">Nimi:</string>
     <string name="NewFrame">Lisää uusi ruutu</string>
     <string name="NewLens">Lisää uusi objektiivi</string>
@@ -100,7 +100,7 @@
     <string name="NoCameras">Ei lisättyjä kameroita</string>
     <string name="CameraIllegalCharacter">Kameran nimessä on sallimaton merkki:</string>
     <string name="CameraSameName">Saman niminen kamera on jo olemassa!</string>
-    <string name="Cameras">Kamerat</string>
+    <string name="Cameras">KAMERAT</string>
     <string name="Gear">Varusteet</string>
     <string name="NewCamera">Lisää uusi kamera</string>
     <string name="PickCamerasToDelete">Valitse poistettavat kamerat</string>

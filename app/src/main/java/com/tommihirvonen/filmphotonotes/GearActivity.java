@@ -21,9 +21,7 @@ import java.util.List;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class GearActivity extends AppCompatActivity /*implements MenuItem.OnMenuItemClickListener implements AdapterView.OnItemClickListener,
-        MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback, FloatingActionButton.OnClickListener*/
-        {
+public class GearActivity extends AppCompatActivity {
 
 
     TabLayout tabLayout;
@@ -61,6 +59,7 @@ public class GearActivity extends AppCompatActivity /*implements MenuItem.OnMenu
         // Give the TabLayout the ViewPager
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setSelectedTabIndicatorColor(Color.parseColor(primaryColor));
     }
 
 

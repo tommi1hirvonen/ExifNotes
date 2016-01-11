@@ -93,6 +93,9 @@ public class LensesFragment extends Fragment implements //LensNameDialog.onLensN
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+        
+
     }
 
     private void showLensNameDialog() {

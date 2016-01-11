@@ -4,15 +4,12 @@ package com.tommihirvonen.filmphotonotes;
 // Tommi Hirvonen
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 
 public class PagerAdapter extends FragmentPagerAdapter {
     final int PAGE_COUNT = 2;
-    private String tabTitles[] = new String[] { "LENSES", "CAMERAS" };
 
     Activity activity;
 
@@ -35,7 +32,15 @@ public class PagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        // Generate title based on item position
-        return tabTitles[position];
+        switch (position) {
+
+            case 0:
+                return activity.getResources().getString(R.string.Lenses);
+
+            case 1:
+                return activity.getResources().getString(R.string.Cameras);
+        }
+
+        return null;
     }
 }
