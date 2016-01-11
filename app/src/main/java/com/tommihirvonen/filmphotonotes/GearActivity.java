@@ -1,39 +1,29 @@
 package com.tommihirvonen.filmphotonotes;
 
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 // Copyright 2015
 // Tommi Hirvonen
 
-public class GearActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
-        MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback, FloatingActionButton.OnClickListener {
+public class GearActivity extends AppCompatActivity implements MenuItem.OnMenuItemClickListener /*implements AdapterView.OnItemClickListener,
+        MenuItem.OnMenuItemClickListener, LensNameDialog.onLensNameSetCallback, FloatingActionButton.OnClickListener*/ {
 
-    TextView mainTextView;
+    /*TextView mainTextView;
 
     ListView mainListView;
 
@@ -41,20 +31,23 @@ public class GearActivity extends AppCompatActivity implements AdapterView.OnIte
 
     ArrayList<Lens> mLensList = new ArrayList<>();
 
-    FilmDbHelper database;
+    FilmDbHelper database;*/
+
+    TabLayout tabLayout;
+    ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        database = new FilmDbHelper(this);
-        mLensList = database.getAllLenses();
-
-        setContentView(R.layout.activity_gear);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(this);
-
+//        database = new FilmDbHelper(this);
+//        mLensList = database.getAllLenses();
+//
+//        setContentView(R.layout.activity_gear);
+//
+//        //FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        //fab.setOnClickListener(this);
+//
         // ********** Commands to get the action bar and color it **********
         // Get preferences to determine UI color
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -72,52 +65,80 @@ public class GearActivity extends AppCompatActivity implements AdapterView.OnIte
             getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
         }
         // *****************************************************************
+//
+//        // Also change the floating action button color. Use the darker secondaryColor for this.
+//        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+//
+//        mainTextView = (TextView) findViewById(R.id.no_added_lenses);
+//
+//        // Access the ListView
+//        mainListView = (ListView) findViewById(R.id.main_lenseslistview);
+//
+//        // Create an ArrayAdapter for the ListView
+//        mArrayAdapter = new LensAdapter(this, android.R.layout.simple_list_item_1, mLensList);
+//
+//        // Set the ListView to use the ArrayAdapter
+//        mainListView.setAdapter(mArrayAdapter);
+//
+//        // Set this activity to react to list items being pressed
+//        mainListView.setOnItemClickListener(this);
+//
+//        if ( mLensList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
+//
+//        mArrayAdapter.notifyDataSetChanged();
 
-        // Also change the floating action button color. Use the darker secondaryColor for this.
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        setContentView(R.layout.activity_gear);
 
-        mainTextView = (TextView) findViewById(R.id.no_added_lenses);
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager(),
+                GearActivity.this));
 
-        // Access the ListView
-        mainListView = (ListView) findViewById(R.id.main_lenseslistview);
-
-        // Create an ArrayAdapter for the ListView
-        mArrayAdapter = new LensAdapter(this, android.R.layout.simple_list_item_1, mLensList);
-
-        // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(mArrayAdapter);
-
-        // Set this activity to react to list items being pressed
-        mainListView.setOnItemClickListener(this);
-
-        if ( mLensList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
-
-        mArrayAdapter.notifyDataSetChanged();
+        // Give the TabLayout the ViewPager
+        tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present
-        getMenuInflater().inflate(R.menu.menu_lenses, menu);
+        getMenuInflater().inflate(R.menu.menu_gear, menu);
 
-        MenuItem deleteLens = menu.findItem(R.id.menu_item_delete_lens);
+        MenuItem deleteGear = menu.findItem(R.id.menu_item_delete_gear);
 
-        deleteLens.setOnMenuItemClickListener(this);
+        deleteGear.setOnMenuItemClickListener(this);
 
         return true;
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public boolean onMenuItemClick(MenuItem item) {
+        return false;
+    }
+
+    public static String POSITION = "POSITION";
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(POSITION, tabLayout.getSelectedTabPosition());
     }
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        viewPager.setCurrentItem(savedInstanceState.getInt(POSITION));
+    }
+
+
+
+    /*@Override
     public boolean onMenuItemClick(MenuItem item) {
 
         switch (item.getItemId()) {
 
-            case R.id.menu_item_delete_lens:
+            case R.id.menu_item_delete_gear:
 
                 // Only delete if there are more than one lens
                 if (mLensList.size() >= 1) {
@@ -184,7 +205,9 @@ public class GearActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         return true;
-    }
+    }/*
+
+    /*
 
     private void showLensNameDialog() {
         LensNameDialog dialog = new LensNameDialog();
@@ -243,5 +266,5 @@ public class GearActivity extends AppCompatActivity implements AdapterView.OnIte
                 showLensNameDialog();
                 break;
         }
-    }
+    }*/
 }

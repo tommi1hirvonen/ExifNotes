@@ -97,4 +97,5 @@
     <string name="ChooseAction">Valitse toiminto</string>
     <string name="Clear">Pyyhi</string>
     <string name="Reacquire">Hae uudestaan/Muokkaa kartalla</string>
+    <string name="NoCameras">Ei lisättyjä kameroita</string>
 </resources>

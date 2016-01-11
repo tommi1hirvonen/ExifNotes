@@ -94,6 +94,9 @@
     <!--activity_roll_info.xml-->
     <string name="NoFrames">No added frames</string>
 
+    <!--cameras_fragment.xml-->
+    <string name="NoCameras">No added cameras</string>
+
     <!--custom_dialog.xml-->
     <string name="Name">Name:</string>
     <string name="Note">Notes:</string>

@@ -12,26 +12,26 @@ import java.util.ArrayList;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class LensAdapter extends ArrayAdapter<Lens> {
+public class CameraAdapter extends ArrayAdapter<Camera> {
 
-    // This LensAdapter acts as an ArrayAdapter to link an array and a list view together
+    // This CameraAdapter acts as an ArrayAdapter to link an array and a list view together
 
-    public LensAdapter(Context context, int textViewResourceId, ArrayList<Lens> lenses) {
-        super(context, textViewResourceId, lenses);
+    public CameraAdapter(Context context, int textViewResourceId, ArrayList<Camera> cameras) {
+        super(context, textViewResourceId, cameras);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get the data item for this position
-        String lens = getItem(position).getName();
+        String camera = getItem(position).getName();
         // Check if an existing view is being used, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_gear, parent, false);
         }
         // Lookup view for data population
-        TextView tvLensName = (TextView) convertView.findViewById(R.id.tv_gear_name);
+        TextView tvCameraName = (TextView) convertView.findViewById(R.id.tv_gear_name);
         // Populate the data into the template view using the data object
-        tvLensName.setText(lens);
+        tvCameraName.setText(camera);
 
         return convertView;
     }

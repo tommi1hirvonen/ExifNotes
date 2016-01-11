@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:id="@+id/tv_lens_name"
+        android:id="@+id/tv_gear_name"
         android:text="@string/Text"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
