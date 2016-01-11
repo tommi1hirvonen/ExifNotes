@@ -22,7 +22,7 @@
 
     <item
         android:id="@+id/menu_item_lenses"
-        android:title="@string/Lenses"
+        android:title="@string/Gear"
         omgandroid:showAsAction="never"
         />
 

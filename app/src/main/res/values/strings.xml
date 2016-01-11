@@ -7,6 +7,15 @@
 
     <string name="RollsDatabase">List_of_Rolls.txt</string>
 
+
+    <!--CameraNameDialog-->
+    <string name="NewCamera">Add new camera</string>
+
+    <string name="Cameras">Cameras</string>
+    <string name="PickCamerasToDelete">Pick cameras to delete</string>
+    <string name="CameraSameName">Camera with same name already exists!</string>
+    <string name="CameraIllegalCharacter">Camera name contains an illegal character: </string>
+
     <!--EditFrameInfoDialog-->
     <string name="UsedLens">Choose used lens</string>
     <string name="OK">OK</string>
@@ -20,7 +29,11 @@
     <string name="Rename">Rename</string>
     <string name="EditRoll">Edit roll info</string>
 
-    <!--GearActivity-->
+    <!---->
+    <string name="Gear">Gear</string>
+
+
+    <!--LensesFragment-->
     <string name="Lenses">Lenses</string>
     <string name="PickLensesToDelete">Pick lenses to delete</string>
     <string name="LensSameName">Lens with same name already exists!</string>
@@ -116,7 +129,7 @@
     <!--item_frame.xml-->
     <string name="Text">Text</string>
 
-    <!--lens_name_dialog.xml-->
+    <!--name_dialog-->
     <string name="NameNoColon">Name</string>
 
     <!--menu_main.xml-->

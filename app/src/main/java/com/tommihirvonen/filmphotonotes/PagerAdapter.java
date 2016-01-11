@@ -1,6 +1,9 @@
-package com.tommihirvonen.filmphotonotes;// Copyright 2015
+package com.tommihirvonen.filmphotonotes;
+
+// Copyright 2015
 // Tommi Hirvonen
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,11 +13,12 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 public class PagerAdapter extends FragmentPagerAdapter {
     final int PAGE_COUNT = 2;
     private String tabTitles[] = new String[] { "LENSES", "CAMERAS" };
-    private Context context;
 
-    public PagerAdapter(FragmentManager fm, Context context) {
+    Activity activity;
+
+    public PagerAdapter(FragmentManager fm, Activity activity) {
         super(fm);
-        this.context = context;
+        this.activity = activity;
     }
 
     @Override
@@ -24,8 +28,8 @@ public class PagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        if ( position == 0 ) return LensesFragment.newInstance(position + 1);
-        if (position == 1 ) return CamerasFragment.newInstance(position + 1);
+        if ( position == 0 ) return new LensesFragment();
+        if (position == 1 ) return new CamerasFragment();
         else return null;
     }
 

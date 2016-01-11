@@ -98,4 +98,10 @@
     <string name="Clear">Pyyhi</string>
     <string name="Reacquire">Hae uudestaan/Muokkaa kartalla</string>
     <string name="NoCameras">Ei lisättyjä kameroita</string>
+    <string name="CameraIllegalCharacter">Kameran nimessä on sallimaton merkki:</string>
+    <string name="CameraSameName">Saman niminen kamera on jo olemassa!</string>
+    <string name="Cameras">Kamerat</string>
+    <string name="Gear">Varusteet</string>
+    <string name="NewCamera">Lisää uusi kamera</string>
+    <string name="PickCamerasToDelete">Valitse poistettavat kamerat</string>
 </resources>

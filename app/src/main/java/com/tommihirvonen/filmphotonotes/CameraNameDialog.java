@@ -16,26 +16,28 @@ import android.widget.EditText;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class LensNameDialog extends DialogFragment {
+public class CameraNameDialog extends DialogFragment {
 
-    public static final String TAG = "SetLensNameDialogFrag";
+    public static final String TAG = "SetCameraNameDialogFrag";
 
-    public LensNameDialog() {
+    public CameraNameDialog() {
         // Empty constructor required for DialogFragment
     }
 
-    /*private onLensNameSetCallback callback;
+    /*private onCameraNameSetCallback callback;
 
-    public interface onLensNameSetCallback {
-        void onLensNameSet(String newName);
+    public interface onCameraNameSetCallback {
+        void onCameraNameSet(String newName);
     }
+
+
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
         try {
-            callback = (onLensNameSetCallback) activity;
+            callback = (onCameraNameSetCallback) activity;
         }
         catch(ClassCastException e) {
             e.printStackTrace();
@@ -50,7 +52,7 @@ public class LensNameDialog extends DialogFragment {
         final View inflator = linf.inflate(R.layout.name_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        alert.setTitle(R.string.NewLens);
+        alert.setTitle(R.string.NewCamera);
 
         alert.setView(inflator);
 
@@ -64,7 +66,7 @@ public class LensNameDialog extends DialogFragment {
 
                 if(name.length() != 0) {
                     // Return the new entered name to the calling activity
-                    //callback.onLensNameSet(name);
+                    //callback.onCameraNameSet(name);
                     Intent intent = new Intent();
                     intent.putExtra("NAME", name);
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);

@@ -1,7 +1,9 @@
 package com.tommihirvonen.filmphotonotes;// Copyright 2015
 // Tommi Hirvonen
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -25,10 +27,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class LensesFragment extends Fragment implements LensNameDialog.onLensNameSetCallback, MenuItem.OnMenuItemClickListener,
+public class LensesFragment extends Fragment implements //LensNameDialog.onLensNameSetCallback,
         View.OnClickListener, AdapterView.OnItemClickListener {
 
-    public static final String ARG_PAGE = "ARG_PAGE";
 
     TextView mainTextView;
 
@@ -40,14 +41,14 @@ public class LensesFragment extends Fragment implements LensNameDialog.onLensNam
 
     FilmDbHelper database;
 
+    public static final int DIALOG_FRAGMENT = 1;
 
-    public static LensesFragment newInstance(int page) {
-        Bundle args = new Bundle();
-        args.putInt(ARG_PAGE, page);
-        LensesFragment fragment = new LensesFragment();
-        fragment.setArguments(args);
-        return fragment;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -96,49 +97,66 @@ public class LensesFragment extends Fragment implements LensNameDialog.onLensNam
 
     private void showLensNameDialog() {
         LensNameDialog dialog = new LensNameDialog();
-        dialog.show(getActivity().getSupportFragmentManager(), LensNameDialog.TAG);
+        dialog.setTargetFragment(this, DIALOG_FRAGMENT);
+        dialog.show(getFragmentManager().beginTransaction(), LensNameDialog.TAG);
     }
 
-    public void onLensNameSet(String inputText) {
-        if(inputText.length() != 0) {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
 
-            if ( inputText.length() != 0 ) {
+            case DIALOG_FRAGMENT:
 
-                // Check if a lens with the same name already exists
-                for ( int i = 0; i < mLensList.size(); ++i ) {
-                    if ( inputText.equals( mLensList.get(i).getName())  ) {
-                        Toast toast = Toast.makeText(getActivity(), R.string.LensSameName, Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER, 0, 0);
-                        toast.show();
-                        return;
+                if (resultCode == Activity.RESULT_OK) {
+                    // After Ok code.
+
+                    String inputText = data.getStringExtra("NAME");
+
+                    if ( inputText.length() != 0 ) {
+
+                        // Check if a lens with the same name already exists
+                        for ( int i = 0; i < mLensList.size(); ++i ) {
+                            if ( inputText.equals( mLensList.get(i).getName())  ) {
+                                Toast toast = Toast.makeText(getActivity(), R.string.LensSameName, Toast.LENGTH_LONG);
+                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                toast.show();
+                                return;
+                            }
+                        }
+
+                        //Check if there are illegal character in the lens name
+                        String ReservedChars = "|\\?*<\":>/";
+                        for ( int i = 0; i < inputText.length(); ++i ) {
+                            Character c = inputText.charAt(i);
+                            if ( ReservedChars.contains(c.toString()) ) {
+                                Toast toast = Toast.makeText(getActivity(), R.string.LensIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
+                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                toast.show();
+                                return;
+                            }
+                        }
+
+                        mainTextView.setVisibility(View.GONE);
+
+                        Lens lens = new Lens();
+                        lens.setName(inputText);
+                        database.addLens(lens);
+                        // When we get the last added lens from the database we get the row id value.
+                        lens = database.getLastLens();
+                        mLensList.add(lens);
+                        mArrayAdapter.notifyDataSetChanged();
+
+                        // When the lens is added jump to view the last entry
+                        mainListView.setSelection(mainListView.getCount() - 1);
                     }
+
+                } else if (resultCode == Activity.RESULT_CANCELED){
+                    // After Cancel code.
+                    // Do nothing.
+                    return;
                 }
 
-                //Check if there are illegal character in the lens name
-                String ReservedChars = "|\\?*<\":>/";
-                for ( int i = 0; i < inputText.length(); ++i ) {
-                    Character c = inputText.charAt(i);
-                    if ( ReservedChars.contains(c.toString()) ) {
-                        Toast toast = Toast.makeText(getActivity(), R.string.LensIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER, 0, 0);
-                        toast.show();
-                        return;
-                    }
-                }
-
-                mainTextView.setVisibility(View.GONE);
-
-                Lens lens = new Lens();
-                lens.setName(inputText);
-                database.addLens(lens);
-                // When we get the last added lens from the database we get the row id value.
-                lens = database.getLastLens();
-                mLensList.add(lens);
-                mArrayAdapter.notifyDataSetChanged();
-
-                // When the lens is added jump to view the last entry
-                mainListView.setSelection(mainListView.getCount() - 1);
-            }
+                break;
         }
     }
 
@@ -152,7 +170,8 @@ public class LensesFragment extends Fragment implements LensNameDialog.onLensNam
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item){
+
         if ( item.getItemId() == R.id.menu_item_delete_gear ) {
 
             // Only delete if there are more than one lens
@@ -216,8 +235,9 @@ public class LensesFragment extends Fragment implements LensNameDialog.onLensNam
                 alert.show();
 
             }
-
             return true;
+
+
         }
         return false;
     }
