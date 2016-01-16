@@ -41,7 +41,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public static final String KEY_ROLL_NOTE = "roll_note";
 
     private static final String DATABASE_NAME = "filmnotes.db";
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     private static final String CREATE_FRAME_TABLE = "create table " + TABLE_FRAMES
             + "(" + KEY_FRAME_ID + " integer primary key autoincrement, "
@@ -241,6 +241,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void deleteLens(Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_LENSES, KEY_LENS_ID + " = ?", new String[]{String.valueOf(lens.getId())});
+        db.delete(TABLE_MOUNTABLES, KEY_LENS_ID + " = ?", new String[]{String.valueOf(lens.getId())});
         db.close();
     }
 
@@ -285,6 +286,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void deleteCamera(Camera camera){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CAMERAS, KEY_CAMERA_ID + " = ?", new String[]{String.valueOf(camera.getId())});
+        db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ?", new String[]{String.valueOf(camera.getId())});
         db.close();
     }
 
@@ -292,10 +294,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     public void addMountable(Camera camera, Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_CAMERA_ID, camera.getId());
-        values.put(KEY_LENS_ID, lens.getId());
-        db.insert(TABLE_MOUNTABLES, null, values);
+        String query = "INSERT INTO " + TABLE_MOUNTABLES + "(" + KEY_CAMERA_ID + "," + KEY_LENS_ID
+                + ") SELECT " + camera.getId() + ", " + lens.getId()
+                + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_MOUNTABLES + " WHERE "
+                + KEY_CAMERA_ID + "=" + camera.getId() + " AND " + KEY_LENS_ID + "=" + lens.getId() + ")";
+        db.execSQL(query);
         db.close();
     }
 
@@ -304,13 +307,15 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         String query = "DELETE FROM " + TABLE_MOUNTABLES + " WHERE "
                 + KEY_CAMERA_ID + "=" + camera.getId() + " AND "
                 + KEY_LENS_ID + "=" + lens.getId();
+        db.execSQL(query);
+        db.close();
     }
 
     public ArrayList<Lens> getMountableLenses(Camera camera){
         ArrayList<Lens> lenses = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
                 + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_MOUNTABLES + " WHERE "
-                + KEY_CAMERA_ID + "=" + camera.getId() + ")";
+                + KEY_CAMERA_ID + "=" + camera.getId() + ") ORDER BY " + KEY_LENS;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Lens lens;
@@ -328,7 +333,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         ArrayList<Camera> cameras = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_CAMERAS + " WHERE " + KEY_CAMERA_ID + " IN "
                 + "(" + "SELECT " + KEY_CAMERA_ID + " FROM " + TABLE_MOUNTABLES + " WHERE "
-                + KEY_LENS_ID + "=" + lens.getId() + ")";
+                + KEY_LENS_ID + "=" + lens.getId() + ") ORDER BY " + KEY_CAMERA;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Camera camera;

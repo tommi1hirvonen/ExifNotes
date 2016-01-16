@@ -38,6 +38,7 @@
     <string name="PickLensesToDelete">Pick lenses to delete</string>
     <string name="LensSameName">Lens with same name already exists!</string>
     <string name="LensIllegalCharacter">Lens name contains an illegal character: </string>
+    <string name="SelectMountableCameras">Select mountable cameras</string>
 
     <!--LensNameDialog-->
     <string name="NewLens">Add new lens</string>
