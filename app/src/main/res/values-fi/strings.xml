@@ -106,4 +106,9 @@
     <string name="PickCamerasToDelete">Valitse poistettavat kamerat</string>
     <string name="SelectMountableCameras">Valitse kiinnitettävät kamerat</string>
     <string name="SelectMountableLenses">Valitse kiinnitettävät objektiivit</string>
+    <string name="Camera">Kamera:</string>
+    <string name="CameraNoColon">Kamera</string>
+    <string name="ClickToSelect">Klikkaa valitaksesi</string>
+    <string name="IsBeingUsed">on käytössä!</string>
+    <string name="UsedCamera">Valitse käytetty kamera</string>
 </resources>

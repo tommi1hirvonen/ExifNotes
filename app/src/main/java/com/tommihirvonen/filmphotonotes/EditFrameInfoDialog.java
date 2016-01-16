@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.DatePicker;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -41,7 +42,8 @@ public class EditFrameInfoDialog extends DialogFragment {
     String aperture;
     String note;
     String location;
-    ArrayList<Lens> lensList;
+    int camera_id;
+    ArrayList<Lens> mountableLenses;
     FilmDbHelper database;
 
     TextView b_location;
@@ -49,7 +51,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     final static int PLACE_PICKER_REQUEST = 1;
 
 
-    static EditFrameInfoDialog newInstance(int _id, String lens, int position, int count, String date, String shutter, String aperture, String note, String location) {
+    static EditFrameInfoDialog newInstance(int _id, String lens, int position, int count, String date, String shutter, String aperture, String note, String location, int camera_id) {
         EditFrameInfoDialog f = new EditFrameInfoDialog();
         Bundle args = new Bundle();
         args.putInt("_id", _id);
@@ -61,6 +63,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         args.putString("aperture", aperture);
         args.putString("note", note);
         args.putString("location", location);
+        args.putInt("camera_id", camera_id);
         f.setArguments(args);
         return f;
     }
@@ -115,9 +118,10 @@ public class EditFrameInfoDialog extends DialogFragment {
         _id = getArguments().getInt("_id");
         note = getArguments().getString("note");
         location = getArguments().getString("location");
+        camera_id = getArguments().getInt("camera_id");
 
         database = new FilmDbHelper(getActivity());
-        lensList = database.getAllLenses();
+        mountableLenses = database.getMountableLenses(database.getCamera(camera_id));
 
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
@@ -255,8 +259,8 @@ public class EditFrameInfoDialog extends DialogFragment {
             public void onClick(View v) {
                 final List<String> listItems = new ArrayList<>();
                 listItems.add("" + getActivity().getString(R.string.NoLens));
-                for (int i = 0; i < lensList.size(); ++i) {
-                    listItems.add(lensList.get(i).getName());
+                for (int i = 0; i < mountableLenses.size(); ++i) {
+                    listItems.add(mountableLenses.get(i).getName());
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -355,7 +359,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
-                        switch (which){
+                        switch (which) {
                             // Clear
                             case 0:
                                 b_location.setText("");
@@ -384,8 +388,7 @@ public class EditFrameInfoDialog extends DialogFragment {
 
 
         alert.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton)
-            {
+            public void onClick(DialogInterface dialog, int whichButton) {
                 lens = b_lens.getText().toString();
                 shutter = displayedShutterValues[shutterPicker.getValue()];
                 aperture = displayedApertureValues[aperturePicker.getValue()];
@@ -395,7 +398,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 // PARSE THE DATE
                 date = b_date.getText().toString() + " " + b_time.getText().toString();
 
-                if(lens.length() != 0) {
+                if (lens.length() != 0) {
                     // Return the new entered name to the calling activity
                     callback.onEditSet(_id, lens, position, count, date, shutter, aperture, note, location);
                 }

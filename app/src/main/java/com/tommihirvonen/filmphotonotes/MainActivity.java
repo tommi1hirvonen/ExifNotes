@@ -42,8 +42,8 @@ public class MainActivity extends AppCompatActivity implements
     public final static String EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
     public final static String LOCATION_ENABLED_EXTRA = "LocationEnabled";
 
+    FloatingActionButton fab;
     TextView mainTextView;
-
     ListView mainListView;
     RollAdapter mArrayAdapter;
     ArrayList<Roll> mRollList = new ArrayList<>();
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_main);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
 
         new SimpleEula(this).show();
@@ -157,6 +157,17 @@ public class MainActivity extends AppCompatActivity implements
     public void onResume(){
         super.onResume();
         mArrayAdapter.notifyDataSetChanged();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
+        List<String> colors = Arrays.asList(UIColor.split(","));
+        String primaryColor = colors.get(0);
+        String secondaryColor = colors.get(1);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
+        }
+        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
     }
 
 
@@ -175,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements
     //Long pressing the roll allows the user to rename the roll
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-        show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote());
+        show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote(), mRollList.get(position).getCamera_id());
 
         //Return true because the item was pressed and held.
         return true;
@@ -309,9 +320,9 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-    private void show_EditRollNameDialog(int rollId, String oldName, String oldNote){
+    private void show_EditRollNameDialog(int rollId, String oldName, String oldNote, int camera_id){
         EditRollNameDialog dialog = new EditRollNameDialog();
-        dialog.setOldName(rollId, oldName, oldNote);
+        dialog.setOldName(rollId, oldName, oldNote, camera_id);
         dialog.show(getSupportFragmentManager(), EditRollNameDialog.TAG);
     }
 
@@ -321,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onNameSet(String inputName, String inputNote) {
+    public void onNameSet(String inputName, String inputNote, int camera_id) {
 
         if ( inputName.length() != 0 ) {
 
@@ -340,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements
             roll.setName(inputName);
             roll.setDate(RollInfo.getCurrentTime());
             roll.setNote(inputNote);
+            roll.setCamera_id(camera_id);
             database.addRoll(roll);
             roll = database.getLastRoll();
 
@@ -354,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void OnNameEdited(int rollId, String newName, String newNote){
+    public void OnNameEdited(int rollId, String newName, String newNote, int camera_id){
 
         if ( newName.length() != 0 ) {
 
@@ -379,6 +391,7 @@ public class MainActivity extends AppCompatActivity implements
             Roll roll = mRollList.get(position);
             roll.setName(newName);
             roll.setNote(newNote);
+            roll.setCamera_id(camera_id);
             database.updateRoll(roll);
 
             // Notify array adapter that the dataset has to be updated
@@ -425,8 +438,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.

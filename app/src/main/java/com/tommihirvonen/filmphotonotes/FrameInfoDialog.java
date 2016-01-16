@@ -38,14 +38,15 @@ public class FrameInfoDialog extends DialogFragment {
     String aperture;
     String note;
     String location;
-    ArrayList<Lens> lensList;
+    int camera_id;
+    ArrayList<Lens> mountableLenses;
     FilmDbHelper database;
 
     TextView b_location;
 
     final static int PLACE_PICKER_REQUEST = 1;
 
-    static FrameInfoDialog newInstance(String lens, int count, String date, String shutter, String aperture, String location) {
+    static FrameInfoDialog newInstance(String lens, int count, String date, String shutter, String aperture, String location, int camera_id) {
         FrameInfoDialog f = new FrameInfoDialog();
         Bundle args = new Bundle();
         args.putString("lens", lens);
@@ -54,6 +55,7 @@ public class FrameInfoDialog extends DialogFragment {
         args.putString("shutter", shutter);
         args.putString("aperture", aperture);
         args.putString("location", location);
+        args.putInt("camera_id", camera_id);
         f.setArguments(args);
         return f;
     }
@@ -101,8 +103,9 @@ public class FrameInfoDialog extends DialogFragment {
         shutter = getArguments().getString("shutter");
         aperture = getArguments().getString("aperture");
         location = getArguments().getString("location");
+        camera_id = getArguments().getInt("camera_id");
         database = new FilmDbHelper(getActivity());
-        lensList = database.getAllLenses();
+        mountableLenses = database.getMountableLenses(database.getCamera(camera_id));
 
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
@@ -239,8 +242,8 @@ public class FrameInfoDialog extends DialogFragment {
             public void onClick(View v) {
                 final List<String> listItems = new ArrayList<>();
                 listItems.add("" + getActivity().getString(R.string.NoLens));
-                for (int i = 0; i < lensList.size(); ++i) {
-                    listItems.add(lensList.get(i).getName());
+                for (int i = 0; i < mountableLenses.size(); ++i) {
+                    listItems.add(mountableLenses.get(i).getName());
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

@@ -239,6 +239,13 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                                     int which = selectedItemsIndexList.get(i);
 
                                     Camera camera = mCameraList.get(which);
+
+                                    // Check if the camera is being used with one of the rolls.
+                                    if ( database.isCameraBeingUsed(camera) ) {
+                                        Toast.makeText(getActivity(), getResources().getString(R.string.CameraNoColon) + " " + camera.getName() + " " + getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
+                                        continue;
+                                    }
+
                                     database.deleteCamera(camera);
 
                                     // Remove the roll from the mLensList. Do this last!!!

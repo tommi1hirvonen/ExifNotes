@@ -31,6 +31,27 @@
         android:textSize="20sp"
         android:layout_marginLeft="3dp"
         android:layout_marginRight="3dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/Camera"
+        android:textColor="@color/material_grey_900"
+        />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_camera"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        android:layout_marginTop="5dp"
+        android:clickable="true"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
         android:layout_marginTop="25dp"
         android:text="@string/Note"
         android:textColor="@color/material_grey_900"

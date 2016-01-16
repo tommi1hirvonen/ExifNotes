@@ -53,9 +53,5 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         apertureIncrements.setSummary(((ListPreference) apertureIncrements).getEntry());
         Preference UIColor = findPreference("UIColor");
         UIColor.setSummary(((ListPreference) UIColor).getEntry());
-        if ( key.equals("UIColor")) {
-            Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.UIColorToast), Toast.LENGTH_LONG);
-            toast.show();
-        }
     }
 }

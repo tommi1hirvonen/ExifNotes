@@ -13,6 +13,8 @@
     <string name="CameraSameName">Camera with same name already exists!</string>
     <string name="CameraIllegalCharacter">Camera name contains an illegal character: </string>
     <string name="SelectMountableLenses">Select mountable lenses</string>
+    <string name="CameraNoColon">Camera</string>
+    <string name="IsBeingUsed">is being used!</string>
 
     <!--EditFrameInfoDialog-->
     <string name="UsedLens">Choose used lens</string>
@@ -88,7 +90,8 @@
 
     <!--RollNameDialog-->
     <string name="NewRoll">Add new roll</string>
-
+    <string name="UsedCamera">Choose used camera</string>
+    <string name="ClickToSelect">Click to select</string>
 
     <!--SimpleEula-->
     <string name="Updates">Updates in this version:\n- First published version</string>
@@ -113,6 +116,7 @@
     <string name="Name">Name:</string>
     <string name="Note">Notes:</string>
     <string name="Empty">Empty</string>
+    <string name="Camera">Camera:</string>
 
     <!--frame_info_dialog.xml-->
     <string name="Lens">Lens:</string>

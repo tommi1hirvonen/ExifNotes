@@ -28,8 +28,10 @@ import java.util.List;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class PreferenceActivity extends android.preference.PreferenceActivity {
+public class PreferenceActivity extends android.preference.PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    Toolbar bar;
+    Toolbar actionbar;
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -42,11 +44,13 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         final String primaryColor = colors.get(0);
         final String secondaryColor = colors.get(1);
 
+        prefs.registerOnSharedPreferenceChangeListener(this);
+
         // This is a way to get the action bar in Preferences.
         // It will be done only on Androids > 5.0.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
-            Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.preference_toolbar , root, false);
+            bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.preference_toolbar , root, false);
             bar.setBackgroundColor(Color.parseColor(primaryColor));
             root.addView(bar, 0); // insert at top
             bar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -63,7 +67,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
             // This is a legacy implementation. All this is needed in order to make
             // the action bar title and icon appear in white. WTF!?
             setContentView(R.layout.activity_settings_legacy);
-            Toolbar actionbar = (Toolbar) findViewById(R.id.actionbar);
+            actionbar = (Toolbar) findViewById(R.id.actionbar);
             actionbar.setTitle(R.string.Preferences);
             actionbar.setBackgroundColor(Color.parseColor(primaryColor));
             actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
@@ -118,5 +122,25 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
     protected boolean isValidFragment(String fragmentName)
     {
         return PreferenceFragment.class.getName().equals(fragmentName);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // Get preferences to determine UI color
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
+        List<String> colors = Arrays.asList(UIColor.split(","));
+        final String primaryColor = colors.get(0);
+        final String secondaryColor = colors.get(1);
+        // This is a way to get the action bar in Preferences.
+        // It will be done only on Androids > 5.0.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            bar.setBackgroundColor(Color.parseColor(primaryColor));
+            getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
+        }
+        else {
+            actionbar = (Toolbar) findViewById(R.id.actionbar);
+            actionbar.setBackgroundColor(Color.parseColor(primaryColor));
+        }
     }
 }

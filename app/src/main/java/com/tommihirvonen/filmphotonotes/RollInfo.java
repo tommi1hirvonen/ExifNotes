@@ -63,6 +63,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
     FrameAdapter mFrameAdapter;
     ShareActionProvider mShareActionProvider;
     int rollId;
+    int camera_id;
     int counter = 0;
 
     // Google client to interact with Google API
@@ -85,6 +86,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
         database = new FilmDbHelper(this);
         mFrameClassList = database.getAllFramesFromRoll(rollId);
+        camera_id = database.getRoll(rollId).getCamera_id();
 
         // ********** Commands to get the action bar and color it **********
         // Get preferences to determine UI color
@@ -192,6 +194,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Roll name: " + roll.getName() + "\n");
             stringBuilder.append("Added: " + roll.getDate() + "\n");
+            stringBuilder.append("Camera: " + database.getCamera(camera_id).getName());
             stringBuilder.append("Notes: " + roll.getNote() + "\n\n");
             stringBuilder.append("Frame Count;Date;Lens;Shutter;Aperture;Notes;Location" + "\n");
             for (int i = 0; i < mFrameClassList.size(); ++i) {
@@ -201,9 +204,9 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
                 stringBuilder.append(";");
                 stringBuilder.append(mFrameClassList.get(i).getLens());
                 stringBuilder.append(";");
-                if ( !mFrameClassList.get(i).getShutter().equals(getResources().getString(R.string.Empty)) ) stringBuilder.append(mFrameClassList.get(i).getShutter());
+                if ( !mFrameClassList.get(i).getShutter().contains("<") ) stringBuilder.append(mFrameClassList.get(i).getShutter());
                 stringBuilder.append(";");
-                if ( !mFrameClassList.get(i).getAperture().equals(getResources().getString(R.string.Empty)) ) stringBuilder.append("f" + mFrameClassList.get(i).getAperture());
+                if ( !mFrameClassList.get(i).getAperture().contains("<") ) stringBuilder.append("f" + mFrameClassList.get(i).getAperture());
                 stringBuilder.append(";");
                 stringBuilder.append(mFrameClassList.get(i).getNote());
                 stringBuilder.append(";");
@@ -342,7 +345,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String note = mFrameClassList.get(position).getNote();
         String location = mFrameClassList.get(position).getLocation();
 
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture, note, location);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture, note, location, camera_id);
         dialog.show(getSupportFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
@@ -378,7 +381,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             aperture = getResources().getString(R.string.NoValue);
         }
 
-        FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens, count, date, shutter, aperture, location);
+        FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens, count, date, shutter, aperture, location, camera_id);
         dialog.show(getSupportFragmentManager(), FrameInfoDialog.TAG);
     }
 

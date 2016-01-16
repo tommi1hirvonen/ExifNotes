@@ -31,6 +31,7 @@ public class RollAdapter extends ArrayAdapter<Roll> {
         String roll = getItem(position).getName();
         String date = getItem(position).getDate();
         String note = getItem(position).getNote();
+        int camera_id = getItem(position).getCamera_id();
         int numberOfFrames = database.getNumberOfFrames(getItem(position));
         // Check if an existing view is being reused, otherwise inflate the view
         if ( convertView == null ) {
@@ -41,11 +42,13 @@ public class RollAdapter extends ArrayAdapter<Roll> {
         TextView tvRollDate = (TextView) convertView.findViewById(R.id.tv_roll_date);
         TextView tvRollNote = (TextView) convertView.findViewById(R.id.tv_roll_note);
         TextView tvPhotos = (TextView) convertView.findViewById(R.id.tv_photos);
+        TextView tvCamera = (TextView) convertView.findViewById(R.id.tv_camera);
 
         // Populate the data into the template view using the data object
         tvRollName.setText(roll);
         tvRollDate.setText(date);
         tvRollNote.setText(note);
+        tvCamera.setText(database.getCamera(camera_id).getName());
         if ( numberOfFrames == 1) tvPhotos.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photo));
         else if ( numberOfFrames == 0 ) tvPhotos.setText(getContext().getString(R.string.NoPhotos));
         else tvPhotos.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photos));
