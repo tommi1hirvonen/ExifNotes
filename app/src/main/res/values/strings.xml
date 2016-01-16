@@ -4,17 +4,15 @@
     <string name="title_activity_lenses_activity">LensesActivity</string>
     <string name="title_activity_preference_activity">PreferenceActivity</string>
 
-
-    <string name="RollsDatabase">List_of_Rolls.txt</string>
-
-
     <!--CameraNameDialog-->
     <string name="NewCamera">Add new camera</string>
 
+    <!--CamerasFragment-->
     <string name="Cameras">CAMERAS</string>
     <string name="PickCamerasToDelete">Pick cameras to delete</string>
     <string name="CameraSameName">Camera with same name already exists!</string>
     <string name="CameraIllegalCharacter">Camera name contains an illegal character: </string>
+    <string name="SelectMountableLenses">Select mountable lenses</string>
 
     <!--EditFrameInfoDialog-->
     <string name="UsedLens">Choose used lens</string>
@@ -29,7 +27,7 @@
     <string name="Rename">Rename</string>
     <string name="EditRoll">Edit roll info</string>
 
-    <!---->
+    <!--GearActivity-->
     <string name="Gear">Gear</string>
 
 

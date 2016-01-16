@@ -104,4 +104,6 @@
     <string name="Gear">Varusteet</string>
     <string name="NewCamera">Lisää uusi kamera</string>
     <string name="PickCamerasToDelete">Valitse poistettavat kamerat</string>
+    <string name="SelectMountableCameras">Valitse kiinnitettävät kamerat</string>
+    <string name="SelectMountableLenses">Valitse kiinnitettävät objektiivit</string>
 </resources>
