@@ -4,10 +4,12 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -15,7 +17,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,7 +33,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.Arrays;
 import java.util.List;
 
-public class LocationPickActivity extends AppCompatActivity implements OnMapReadyCallback, MenuItem.OnMenuItemClickListener, GoogleMap.OnMapClickListener {
+
+public class LocationPickActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, SearchView.OnQueryTextListener, View.OnClickListener {
 
     private GoogleMap mMap;
     Marker marker;
@@ -40,6 +45,11 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_pick);
+
+        SearchView searchView = (SearchView) findViewById(R.id.searchView);
+        searchView.setOnQueryTextListener(this);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(this);
 
         // ********** Commands to get the action bar and color it **********
         // Get preferences to determine UI color
@@ -59,21 +69,13 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
         }
         // *****************************************************************
 
+        // Also change the floating action button color. Use the darker secondaryColor for this.
+        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_location_pick, menu);
-
-        MenuItem setItem = menu.findItem(R.id.menu_item_set);
-
-        setItem.setOnMenuItemClickListener(this);
-
-        return true;
     }
 
     @Override
@@ -90,23 +92,6 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-
-        switch (item.getItemId()) {
-
-            case R.id.menu_item_set:
-                String latitude = "" + location.latitude;
-                String longitude = "" + location.longitude;
-                Intent intent = new Intent();
-                intent.putExtra("LATITUDE", latitude);
-                intent.putExtra("LONGITUDE", longitude);
-                setResult(RESULT_OK, intent);
-                finish();
-        }
-        return true;
-    }
-
 
     /**
      * Manipulates the map once available.
@@ -121,6 +106,8 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMapClickListener(this);
+        mMap.setPadding(0, 180, 0, 0);
+
         Intent intent = getIntent();
         String location = intent.getStringExtra("LOCATION");
 
@@ -151,5 +138,54 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
     public void onMapClick(LatLng latLng) {
         marker.setPosition(latLng);
         location = latLng;
+    }
+
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+
+        // Search for the
+        new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
+            @Override
+            public void processFinish(String output) {
+                if ( output.length() != 0 ) {
+                    //Toast.makeText(getBaseContext(), output, Toast.LENGTH_SHORT).show();
+
+                    String latString = output.substring(0, output.indexOf(" "));
+                    String lngString = output.substring(output.indexOf(" ") + 1, output.length() - 1);
+                    double lat = Double.parseDouble(latString.replace(",", "."));
+                    double lng = Double.parseDouble(lngString.replace(",", "."));
+                    final LatLng position = new LatLng(lat, lng);
+                    marker.setPosition(position);
+                    location = position;
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+
+                } else {
+                    Toast.makeText(getBaseContext(), "No results!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).execute(query);
+
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        // Do nothing
+        return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fab:
+                String latitude = "" + location.latitude;
+                String longitude = "" + location.longitude;
+                Intent intent = new Intent();
+                intent.putExtra("LATITUDE", latitude);
+                intent.putExtra("LONGITUDE", longitude);
+                setResult(RESULT_OK, intent);
+                finish();
+        }
     }
 }

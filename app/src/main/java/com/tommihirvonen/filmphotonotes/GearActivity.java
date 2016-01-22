@@ -2,10 +2,13 @@ package com.tommihirvonen.filmphotonotes;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -13,6 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Arrays;
@@ -26,6 +31,7 @@ public class GearActivity extends AppCompatActivity {
 
     TabLayout tabLayout;
     ViewPager viewPager;
+    final static String GEAR_ACTIVITY_SAVED_VIEW = "GEAR_ACTIVITY_SAVED_VIEW";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,7 @@ public class GearActivity extends AppCompatActivity {
         String secondaryColor = colors.get(1);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+        getSupportActionBar().setElevation(0);
         getSupportActionBar().setTitle(R.string.Gear);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
@@ -59,7 +66,16 @@ public class GearActivity extends AppCompatActivity {
         // Give the TabLayout the ViewPager
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
-        tabLayout.setSelectedTabIndicatorColor(Color.parseColor(primaryColor));
+        tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white));
+        tabLayout.setBackgroundColor(Color.parseColor(primaryColor));
+        tabLayout.setElevation(4);
+        viewPager.setCurrentItem(prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, 0));
+    }
+
+    public void onStop(){
+        super.onStop();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        prefs.edit().putInt(GEAR_ACTIVITY_SAVED_VIEW, viewPager.getCurrentItem()).apply();
     }
 
 

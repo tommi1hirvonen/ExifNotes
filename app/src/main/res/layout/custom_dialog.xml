@@ -13,7 +13,6 @@
         android:layout_marginRight="3dp"
         android:layout_marginTop="15dp"
         android:text="@string/Name"
-        android:textColor="@color/material_grey_900"
         />
 
     <EditText
@@ -33,7 +32,6 @@
         android:layout_marginRight="3dp"
         android:layout_marginTop="15dp"
         android:text="@string/Camera"
-        android:textColor="@color/material_grey_900"
         />
 
     <Button
@@ -52,9 +50,8 @@
         android:textSize="20sp"
         android:layout_marginLeft="3dp"
         android:layout_marginRight="3dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
         android:text="@string/Note"
-        android:textColor="@color/material_grey_900"
         />
 
     <EditText

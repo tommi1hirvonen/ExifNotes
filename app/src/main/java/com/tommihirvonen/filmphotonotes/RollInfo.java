@@ -97,6 +97,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
         String secondaryColor = colors.get(1);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+        getSupportActionBar().setElevation(4);
         getSupportActionBar().setTitle(database.getRoll(rollId).getName());
         getSupportActionBar().setSubtitle(R.string.Frames);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -191,25 +192,26 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
             // Get the roll and its information
             Roll roll = database.getRoll(rollId);
 
+            final String separator = ",";
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Roll name: " + roll.getName() + "\n");
             stringBuilder.append("Added: " + roll.getDate() + "\n");
-            stringBuilder.append("Camera: " + database.getCamera(camera_id).getName());
-            stringBuilder.append("Notes: " + roll.getNote() + "\n\n");
-            stringBuilder.append("Frame Count;Date;Lens;Shutter;Aperture;Notes;Location" + "\n");
+            stringBuilder.append("Camera: " + database.getCamera(camera_id).getName() + "\n");
+            stringBuilder.append("Notes: " + roll.getNote() + "\n");
+            stringBuilder.append("Frame Count" + separator + "Date" + separator + "Lens" + separator + "Shutter" + separator + "Aperture" + separator + "Notes" + separator + "Location" + "\n");
             for (int i = 0; i < mFrameClassList.size(); ++i) {
                 stringBuilder.append(mFrameClassList.get(i).getCount());
-                stringBuilder.append(";");
+                stringBuilder.append(separator);
                 stringBuilder.append(mFrameClassList.get(i).getDate());
-                stringBuilder.append(";");
+                stringBuilder.append(separator);
                 stringBuilder.append(mFrameClassList.get(i).getLens());
-                stringBuilder.append(";");
+                stringBuilder.append(separator);
                 if ( !mFrameClassList.get(i).getShutter().contains("<") ) stringBuilder.append(mFrameClassList.get(i).getShutter());
-                stringBuilder.append(";");
+                stringBuilder.append(separator);
                 if ( !mFrameClassList.get(i).getAperture().contains("<") ) stringBuilder.append("f" + mFrameClassList.get(i).getAperture());
-                stringBuilder.append(";");
+                stringBuilder.append(separator);
                 stringBuilder.append(mFrameClassList.get(i).getNote());
-                stringBuilder.append(";");
+                stringBuilder.append(separator);
                 stringBuilder.append(mFrameClassList.get(i).getLocation());
                 stringBuilder.append("\n");
             }
@@ -453,7 +455,7 @@ public class RollInfo extends AppCompatActivity implements AdapterView.OnItemCli
 
     public static String locationStringFromLocation(final Location location) {
         if (location != null)
-            return Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + " " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
+            return (Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + " " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)).replace(",", ".");
         else return "";
     }
 

@@ -53,6 +53,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
             bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.preference_toolbar , root, false);
             bar.setBackgroundColor(Color.parseColor(primaryColor));
             root.addView(bar, 0); // insert at top
+            bar.setElevation(4);
             bar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

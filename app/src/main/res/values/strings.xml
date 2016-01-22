@@ -142,9 +142,6 @@
     <string name="Share">Share</string>
     <string name="ShowOnMap">Show on map</string>
 
-    <!--menu_location_pick.xml-->
-    <string name="Set">Set</string>
-
     <!--fragment_preference.xml-->
     <string name="Settings_Cap">SETTINGS</string>
     <string name="General_Cap">GENERAL</string>
