@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         String secondaryColor = colors.get(1);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        getSupportActionBar().setElevation(4);
+        getSupportActionBar().setElevation(0);
         getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -157,10 +158,8 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         args.putInt("ROLL_ID", rollId);
         args.putBoolean("LOCATION_ENABLED", locationEnabled);
         newFragment.setArguments(args);
-        int anim = android.R.animator.fade_in;
-        int anim2 = android.R.animator.fade_out;
         getFragmentManager().beginTransaction()
-                .setCustomAnimations(anim, anim2, anim, anim2)
+                .setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right, R.animator.slide_in_right, R.animator.slide_out_left)
                 .replace(R.id.fragment_container, newFragment, "FRAMESFRAGMENT")
                 .addToBackStack(null).commit();
     }

@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -68,7 +69,10 @@ public class GearActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white));
         tabLayout.setBackgroundColor(Color.parseColor(primaryColor));
-        tabLayout.setElevation(4);
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // If the used version of Android > 21 then disable legacy shadow
+            tabLayout.setElevation(4);
+        }*/
         viewPager.setCurrentItem(prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, 0));
     }
 

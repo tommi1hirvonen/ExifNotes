@@ -16,10 +16,12 @@
         app:theme="@style/AppToolbar"
         app:title="@string/Preferences"
         app:navigationIcon="?attr/homeAsUpIndicator"/>
+
     <View
+        android:id="@+id/shadow"
         android:layout_width="match_parent"
-        android:layout_height="3dp"
         android:layout_below="@+id/actionbar"
+        android:layout_height="3dp"
         android:background="@drawable/shadow" />
 
     <RelativeLayout

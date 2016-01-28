@@ -2,9 +2,11 @@ package com.tommihirvonen.filmphotonotes;
 
 
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -16,10 +18,13 @@ import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,21 +54,22 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         // This is a way to get the action bar in Preferences.
         // It will be done only on Androids > 5.0.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
+            /*LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
             bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.preference_toolbar , root, false);
+            bar = (Toolbar) findViewById(R.id.actionbar);
             bar.setBackgroundColor(Color.parseColor(primaryColor));
             root.addView(bar, 0); // insert at top
-            bar.setElevation(4);
+            bar.setElevation(0);
             bar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     finish();
                 }
-            });
+            });*/
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
+            getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
         }
-        else {
+        //else {
 
             // This is a legacy implementation. All this is needed in order to make
             // the action bar title and icon appear in white. WTF!?
@@ -80,7 +86,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
                 }
             });
             getFragmentManager().beginTransaction().add(R.id.rel_layout, new PreferenceFragment()).commit();
-        }
+        //}
     }
 
     @Override

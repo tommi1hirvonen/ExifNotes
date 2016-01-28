@@ -56,7 +56,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String secondaryColor = colors.get(1);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        getSupportActionBar().setElevation(4);
+        getSupportActionBar().setElevation(0);
         getSupportActionBar().setTitle(database.getRoll(rollId).getName());
         getSupportActionBar().setSubtitle(R.string.Frames);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
