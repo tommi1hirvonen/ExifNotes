@@ -24,24 +24,6 @@ public class LensNameDialog extends DialogFragment {
         // Empty constructor required for DialogFragment
     }
 
-    /*private onLensNameSetCallback callback;
-
-    public interface onLensNameSetCallback {
-        void onLensNameSet(String newName);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            callback = (onLensNameSetCallback) activity;
-        }
-        catch(ClassCastException e) {
-            e.printStackTrace();
-        }
-    }*/
-
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
@@ -64,7 +46,6 @@ public class LensNameDialog extends DialogFragment {
 
                 if(name.length() != 0) {
                     // Return the new entered name to the calling activity
-                    //callback.onLensNameSet(name);
                     Intent intent = new Intent();
                     intent.putExtra("NAME", name);
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
@@ -74,7 +55,6 @@ public class LensNameDialog extends DialogFragment {
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //dialog.cancel();
                 Intent intent = new Intent();
                 getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }

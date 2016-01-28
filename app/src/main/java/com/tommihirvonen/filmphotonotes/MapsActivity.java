@@ -39,7 +39,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         Intent intent = getIntent();
-        rollId = intent.getIntExtra(RollInfo.ROLLINFO_EXTRA_MESSAGE, -1);
+        rollId = intent.getIntExtra(FramesFragment.ROLLINFO_EXTRA_MESSAGE, -1);
 
         // If the rollId is -1, then something went wrong.
         if ( rollId == -1 ) finish();
@@ -56,6 +56,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String secondaryColor = colors.get(1);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+        getSupportActionBar().setElevation(4);
         getSupportActionBar().setTitle(database.getRoll(rollId).getName());
         getSupportActionBar().setSubtitle(R.string.Frames);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

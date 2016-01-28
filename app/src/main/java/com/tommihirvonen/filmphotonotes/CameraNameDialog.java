@@ -24,25 +24,6 @@ public class CameraNameDialog extends DialogFragment {
         // Empty constructor required for DialogFragment
     }
 
-    /*private onCameraNameSetCallback callback;
-
-    public interface onCameraNameSetCallback {
-        void onCameraNameSet(String newName);
-    }
-
-
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            callback = (onCameraNameSetCallback) activity;
-        }
-        catch(ClassCastException e) {
-            e.printStackTrace();
-        }
-    }*/
 
     @NonNull
     @Override
@@ -66,7 +47,6 @@ public class CameraNameDialog extends DialogFragment {
 
                 if(name.length() != 0) {
                     // Return the new entered name to the calling activity
-                    //callback.onCameraNameSet(name);
                     Intent intent = new Intent();
                     intent.putExtra("NAME", name);
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
@@ -76,7 +56,6 @@ public class CameraNameDialog extends DialogFragment {
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //dialog.cancel();
                 Intent intent = new Intent();
                 getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }

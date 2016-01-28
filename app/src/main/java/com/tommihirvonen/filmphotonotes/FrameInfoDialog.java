@@ -4,12 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -62,30 +62,10 @@ public class FrameInfoDialog extends DialogFragment {
 
     public static final String TAG = "FrameInfoDialogFragment";
 
-    private onInfoSetCallback callback;
-
-    public interface onInfoSetCallback {
-        void onInfoSet(String lensName, int count, String date, String shutter, String aperture, String note, String location);
-    }
-
 
     public FrameInfoDialog() {
         // Empty constructor required for DialogFragment
     }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            callback = (onInfoSetCallback) activity;
-        }
-        catch(ClassCastException e) {
-            e.printStackTrace();
-        }
-    }
-
-
 
 
     @NonNull
@@ -95,7 +75,7 @@ public class FrameInfoDialog extends DialogFragment {
         // Let's check what values the user has set for the shutter and aperture increments
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String shutterIncrements = prefs.getString("ShutterIncrements", "third");
-        String apertureIncrements = prefs.getString("ApertureIncrements", "third");
+        final String apertureIncrements = prefs.getString("ApertureIncrements", "third");
 
         lens = getArguments().getString("lens");
         date = getArguments().getString("date");
@@ -129,19 +109,19 @@ public class FrameInfoDialog extends DialogFragment {
         final NumberPicker aperturePicker = (NumberPicker) inflator.findViewById(R.id.aperturePicker);
 
         // Shutter values in 1/3 increments
-        final String[] shutterValuesThird = new String[]{getContext().getString(R.string.NoValue), "B", "30", "25", "20", "15", "13", "10", "8", "6", "5", "4",
+        final String[] shutterValuesThird = new String[]{getActivity().getString(R.string.NoValue), "B", "30", "25", "20", "15", "13", "10", "8", "6", "5", "4",
                 "3", "2.5", "2", "1.6", "1.3", "1", "0.8", "0,6", "1/2", "0.4", "1/3",
                 "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
                 "1/30", "1/40", "1/50", "1/60", "1/80", "1/100", "1/125", "1/160", "1/200",
                 "1/250", "1/320", "1/400", "1/500", "1/640", "1/800", "1/1000", "1/1250",
                 "1/1600", "1/2000", "1/2500", "1/3200", "1/4000", "1/5000", "1/6400", "1/8000"};
         // Shutter values in 1/2 increments
-        final String[] shutterValuesHalf = new String[]{ getContext().getString(R.string.NoValue), "B", "30", "22", "15", "12", "8", "6", "4", "3", "2", "1.5",
+        final String[] shutterValuesHalf = new String[]{ getActivity().getString(R.string.NoValue), "B", "30", "22", "15", "12", "8", "6", "4", "3", "2", "1.5",
                 "1", "1/1.5", "1/2", "1/3", "1/4", "1/6", "1/8", "1/12", "1/15", "1/22",
                 "1/30", "1/45", "1/60", "1/95", "1/125", "1/180", "1/250", "1/375",
                 "1/500", "1/750", "1/1000", "1/1500", "1/2000", "1/3000", "1/4000", "1/6000", "1/8000" };
         // Shutter values in full stop increments
-        final String[] shutterValuesFull = new String[]{ getContext().getString(R.string.NoValue), "B", "30", "15", "8", "4", "2", "1", "1/2", "1/4", "1/8",
+        final String[] shutterValuesFull = new String[]{ getActivity().getString(R.string.NoValue), "B", "30", "15", "8", "4", "2", "1", "1/2", "1/4", "1/8",
                 "1/15", "1/30", "1/60", "1/125", "1/250", "1/500", "1/1000", "1/2000", "1/4000", "1/8000" };
         final String[] displayedShutterValues;
 
@@ -176,14 +156,14 @@ public class FrameInfoDialog extends DialogFragment {
             }
         }
 
-        final String[] apertureValuesThird = new String[]{getContext().getString(R.string.NoValue), "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
+        final String[] apertureValuesThird = new String[]{getActivity().getString(R.string.NoValue), "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
                 "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "7.1", "8", "9",
                 "10", "11", "13", "14", "16", "18", "20", "22", "25", "29", "32", "36",
                 "42", "45", "50", "57", "64"};
-        final String[] apertureValuesHalf = new String[]{ getContext().getString(R.string.NoValue), "1.0", "1.2", "1.4", "1.7", "2.0", "2.6", "2.8", "3.5",
+        final String[] apertureValuesHalf = new String[]{ getActivity().getString(R.string.NoValue), "1.0", "1.2", "1.4", "1.7", "2.0", "2.6", "2.8", "3.5",
                 "4.0", "4.5", "5.6", "6.7", "8", "9.5", "11", "13", "16", "19",
                 "22", "27", "32", "38", "45", "64" };
-        final String[] apertureValuesFull = new String[]{ getContext().getString(R.string.NoValue), "1.0", "1.4", "2.0", "2.8", "4.0", "5.6", "8", "11",
+        final String[] apertureValuesFull = new String[]{ getActivity().getString(R.string.NoValue), "1.0", "1.4", "2.0", "2.8", "4.0", "5.6", "8", "11",
                 "16", "22", "32", "45", "64" };
         final String[] displayedApertureValues;
 
@@ -380,14 +360,23 @@ public class FrameInfoDialog extends DialogFragment {
 
                 if (lens.length() != 0) {
                     // Return the new entered name to the calling activity
-                    callback.onInfoSet(lens, count, date, shutter, aperture, note, location);
+                    Intent intent = new Intent();
+                    intent.putExtra("LENS", lens);
+                    intent.putExtra("COUNT", count);
+                    intent.putExtra("DATE", date);
+                    intent.putExtra("SHUTTER", shutter);
+                    intent.putExtra("APERTURE", aperture);
+                    intent.putExtra("NOTE", note);
+                    intent.putExtra("LOCATION", location);
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
             }
         });
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                dialog.cancel();
+                Intent intent = new Intent();
+                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }
         });
 

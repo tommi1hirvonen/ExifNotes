@@ -77,7 +77,7 @@
     <string name="Photo">photo</string>
     <string name="NoPhotos">No photos</string>
 
-    <!--RollInfo-->
+    <!--RollsFragment-->
     <string name="Frames">Frames</string>
     <string name="PickFramesToDelete">Pick frames to delete</string>
     <string name="frame_help">
@@ -87,6 +87,8 @@
         - You can share the roll information by pressing the share icon. The app shares a text file formatted in semi-colon separated values. You can save this file in Dropbox, for example, and name the file with .csv ending.</string>
     <string name="EditFrame">Edit frame #</string>
     <string name="NewFrame">Add new frame</string>
+    <string name="Share">Share</string>
+    <string name="ShowOnMap">Show on map</string>
 
     <!--RollNameDialog-->
     <string name="NewRoll">Add new roll</string>
@@ -138,9 +140,7 @@
     <!--menu_main.xml-->
     <string name="About">About</string>
 
-    <!--menu_roll_info.xml-->
-    <string name="Share">Share</string>
-    <string name="ShowOnMap">Show on map</string>
+
 
     <!--fragment_preference.xml-->
     <string name="Settings_Cap">SETTINGS</string>

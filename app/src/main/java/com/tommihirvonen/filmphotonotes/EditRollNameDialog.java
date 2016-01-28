@@ -3,10 +3,11 @@ package com.tommihirvonen.filmphotonotes;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -31,11 +32,11 @@ public class EditRollNameDialog extends DialogFragment {
 
     public static final String TAG = "EditNameDialogFragment";
 
-    private OnNameEditedCallback callback;
+    //private OnNameEditedCallback callback;
 
-    public interface OnNameEditedCallback {
-        void OnNameEdited(int rollId, String newName, String newNote, int camera_id);
-    }
+//    public interface OnNameEditedCallback {
+//        void OnNameEdited(int rollId, String newName, String newNote, int camera_id);
+//    }
 
     public EditRollNameDialog () {
 
@@ -50,17 +51,17 @@ public class EditRollNameDialog extends DialogFragment {
     }
 
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            callback = (OnNameEditedCallback) activity;
-        }
-        catch(ClassCastException e) {
-            e.printStackTrace();
-        }
-    }
+//    @Override
+//    public void onAttach(Activity activity) {
+//        super.onAttach(activity);
+//
+//        try {
+//            callback = (OnNameEditedCallback) activity;
+//        }
+//        catch(ClassCastException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @NonNull
     @Override
@@ -126,7 +127,13 @@ public class EditRollNameDialog extends DialogFragment {
                 String newName = et1.getText().toString();
                 String newNote = et2.getText().toString();
                 if (newName.length() != 0) {
-                    callback.OnNameEdited(rollId, newName, newNote, camera_id);
+                    Intent intent = new Intent();
+                    intent.putExtra("ROLL_ID", rollId);
+                    intent.putExtra("NEWNAME", newName);
+                    intent.putExtra("NEWNOTE", newNote);
+                    intent.putExtra("CAMERA_ID", camera_id);
+                    //callback.OnNameEdited(rollId, newName, newNote, camera_id);
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
             }
         });
@@ -134,7 +141,9 @@ public class EditRollNameDialog extends DialogFragment {
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+                //dialog.cancel();
+                Intent intent = new Intent();
+                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }
         });
         AlertDialog dialog = alert.create();

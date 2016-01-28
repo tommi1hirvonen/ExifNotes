@@ -60,6 +60,7 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
         String secondaryColor = colors.get(1);
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+        getSupportActionBar().setElevation(4);
         getSupportActionBar().setTitle(getResources().getString(R.string.PickLocation));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));

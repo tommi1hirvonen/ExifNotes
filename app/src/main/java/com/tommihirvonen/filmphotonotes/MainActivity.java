@@ -6,48 +6,27 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 // Copyright 2015
 // Tommi Hirvonen
 
-public class MainActivity extends AppCompatActivity implements
-        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, MenuItem.OnMenuItemClickListener,
-        RollNameDialog.onNameSetCallback, EditRollNameDialog.OnNameEditedCallback, FloatingActionButton.OnClickListener {
-
-    public final static String EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
-    public final static String LOCATION_ENABLED_EXTRA = "LocationEnabled";
-
-    FloatingActionButton fab;
-    TextView mainTextView;
-    ListView mainListView;
-    RollAdapter mArrayAdapter;
-    ArrayList<Roll> mRollList = new ArrayList<>();
-    FilmDbHelper database;
+public class MainActivity extends AppCompatActivity implements RollsFragment.OnRollSelectedListener, FramesFragment.OnHomeAsUpPressedListener {
 
     private final static int MY_PERMISSIONS_REQUEST_LOCATION = 1;
     boolean locationEnabled = false;
@@ -57,13 +36,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        database = new FilmDbHelper(this);
-        mRollList = database.getAllRolls();
-
         setContentView(R.layout.activity_main);
-
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(this);
 
         new SimpleEula(this).show();
 
@@ -85,31 +58,7 @@ public class MainActivity extends AppCompatActivity implements
         }
         // *****************************************************************
 
-        // Also change the floating action button color. Use the darker secondaryColor for this.
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
 
-        mainTextView = (TextView) findViewById(R.id.no_added_rolls);
-
-        // Access the ListView
-        mainListView = (ListView) findViewById(R.id.main_listview);
-
-
-
-        // Create an ArrayAdapter for the ListView
-        mArrayAdapter = new RollAdapter(this, android.R.layout.simple_list_item_1, mRollList);
-
-        // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(mArrayAdapter);
-
-        if ( mRollList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
-
-        // Set this activity to react to list items being pressed
-        mainListView.setOnItemClickListener(this);
-
-        // Set this activity to react to list items being pressed and held
-        mainListView.setOnItemLongClickListener(this);
-
-        if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
         LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
@@ -130,6 +79,30 @@ public class MainActivity extends AppCompatActivity implements
         // getting GPS status
         boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         if ( !isGPSEnabled ) showSettingsAlert();
+
+
+        // Check that the activity is using the layout version with
+        // the fragment_container FrameLayout
+        if (findViewById(R.id.fragment_container) != null) {
+
+            // However, if we're being restored from a previous state,
+            // then we don't need to do anything and should return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null) {
+                return;
+            }
+
+            // Create a new Fragment to be placed in the activity layout
+            RollsFragment firstFragment = new RollsFragment();
+
+            // In case this activity was started with special instructions from an
+            // Intent, pass the Intent's extras to the fragment as arguments
+            //firstFragment.setArguments(getIntent().getExtras());
+
+            // Add the fragment to the 'fragment_container' FrameLayout
+            getFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, firstFragment, "ROLLSFRAGMENT").commit();
+        }
     }
 
 
@@ -139,25 +112,18 @@ public class MainActivity extends AppCompatActivity implements
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        MenuItem deleteRoll = menu.findItem(R.id.menu_item_delete_roll);
-        MenuItem about = menu.findItem(R.id.menu_item_about);
-        MenuItem help = menu.findItem(R.id.menu_item_help);
-        MenuItem lenses = menu.findItem(R.id.menu_item_lenses);
-        MenuItem preferences = menu.findItem(R.id.menu_item_preferences);
-
-        deleteRoll.setOnMenuItemClickListener(this);
-        about.setOnMenuItemClickListener(this);
-        help.setOnMenuItemClickListener(this);
-        lenses.setOnMenuItemClickListener(this);
-        preferences.setOnMenuItemClickListener(this);
-
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     public void onResume(){
         super.onResume();
-        mArrayAdapter.notifyDataSetChanged();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
@@ -168,247 +134,45 @@ public class MainActivity extends AppCompatActivity implements
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
         }
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
-    }
-
-
-
-    @Override
-    // Pressing the roll allows the user to show the frames taken with that roll
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-        Intent intent = new Intent(this, RollInfo.class);
-        intent.putExtra(EXTRA_MESSAGE, mRollList.get(position).getId());
-        intent.putExtra(LOCATION_ENABLED_EXTRA, locationEnabled);
-        startActivity(intent);
     }
 
     @Override
-    //Long pressing the roll allows the user to rename the roll
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onBackPressed() {
 
-        show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote(), mRollList.get(position).getCamera_id());
+        int count = getFragmentManager().getBackStackEntryCount();
 
-        //Return true because the item was pressed and held.
-        return true;
-    }
-
-
-
-
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-
-            case R.id.menu_item_delete_roll:
-                //Only delete if there are more than one roll
-                if ( mRollList.size() >= 1 ) {
-
-                    // Ask the user which roll to delete
-
-                    // LIST ITEMS DIALOG
-
-                    List<String> listItems = new ArrayList<>();
-                    for ( int i = 0; i < mRollList.size(); ++i ) {
-                        listItems.add(mRollList.get(i).getName());
-                    }
-                    final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-                    // MULTIPLE CHOICE DIALOG
-                    final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
-                    builder.setTitle(R.string.PickRollsToDelete)
-                        .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                if (isChecked) {
-                                    // If the user checked the item, add it to the selected items
-                                    selectedItemsIndexList.add(which);
-                                } else if (selectedItemsIndexList.contains(which)) {
-                                    // Else, if the item is already in the array, remove it
-                                    selectedItemsIndexList.remove(Integer.valueOf(which));
-                                }
-                            }
-                        })
-                                // Set the action buttons
-                        .setPositiveButton(R.string.Delete, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-
-                                // Do something with the selections
-                                Collections.sort(selectedItemsIndexList);
-                                for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
-                                    int which = selectedItemsIndexList.get(i);
-
-                                    // Delete all the frames from the frames database
-                                    database.deleteAllFramesFromRoll(mRollList.get(which).getId());
-
-                                    database.deleteRoll(mRollList.get(which));
-
-                                    // Remove the roll from the mRollList. Do this last!!!
-                                    mRollList.remove(which);
-                                }
-                                if (mRollList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
-                                mArrayAdapter.notifyDataSetChanged();
-
-                            }
-                        })
-                        .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                // Do nothing
-                            }
-                        }
-                    );
-
-                    AlertDialog alert = builder.create();
-                    alert.show();
-
-
-                }
-                break;
-
-            case R.id.menu_item_lenses:
-                Intent intent = new Intent(this, GearActivity.class);
-                startActivity(intent);
-
-                break;
-            case R.id.menu_item_preferences:
-
-                Intent preferences_intent = new Intent(this, PreferenceActivity.class);
-                // With these extras we can skip the headers in the preferences.
-                preferences_intent.putExtra( PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName() );
-                preferences_intent.putExtra( PreferenceActivity.EXTRA_NO_HEADERS, true );
-
-                startActivity(preferences_intent);
-
-                break;
-
-            case R.id.menu_item_about:
-
-                AlertDialog.Builder aboutDialog = new AlertDialog.Builder(this);
-                aboutDialog.setTitle(R.string.app_name);
-                aboutDialog.setMessage(R.string.about);
-
-                aboutDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-
-                aboutDialog.show();
-
-                break;
-
-            case R.id.menu_item_help:
-
-                AlertDialog.Builder helpDialog = new AlertDialog.Builder(this);
-                helpDialog.setTitle(R.string.Help);
-                helpDialog.setMessage(R.string.main_help);
-
-
-                helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-
-                helpDialog.show();
-
-                break;
-        }
-
-        return true;
-    }
-
-    private void show_EditRollNameDialog(int rollId, String oldName, String oldNote, int camera_id){
-        EditRollNameDialog dialog = new EditRollNameDialog();
-        dialog.setOldName(rollId, oldName, oldNote, camera_id);
-        dialog.show(getSupportFragmentManager(), EditRollNameDialog.TAG);
-    }
-
-    private void show_RollNameDialog() {
-        RollNameDialog dialog = new RollNameDialog();
-        dialog.show(getSupportFragmentManager(), RollNameDialog.TAG);
-    }
-
-    @Override
-    public void onNameSet(String inputName, String inputNote, int camera_id) {
-
-        if ( inputName.length() != 0 ) {
-
-            //Check if there are illegal character in the roll name
-            String ReservedChars = "|\\?*<\":>/";
-            for ( int i = 0; i < inputName.length(); ++i ) {
-                Character c = inputName.charAt(i);
-                if ( ReservedChars.contains(c.toString()) ) {
-                    Toast toast = Toast.makeText(getApplicationContext(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
-                    toast.show();
-                    return;
-                }
-            }
-
-            Roll roll = new Roll();
-            roll.setName(inputName);
-            roll.setDate(RollInfo.getCurrentTime());
-            roll.setNote(inputNote);
-            roll.setCamera_id(camera_id);
-            database.addRoll(roll);
-            roll = database.getLastRoll();
-
-            mainTextView.setVisibility(View.GONE);
-            mRollList.add(roll);
-            mArrayAdapter.notifyDataSetChanged();
-
-            // When the new roll is added jump to view the last entry
-            mainListView.setSelection(mainListView.getCount() - 1);
+        if (count == 0) {
+            super.onBackPressed();
+            //additional code
+        } else {
+            getFragmentManager().popBackStack();
         }
 
     }
 
     @Override
-    public void OnNameEdited(int rollId, String newName, String newNote, int camera_id){
-
-        if ( newName.length() != 0 ) {
-
-            //Check if there are illegal character in the roll name
-            String ReservedChars = "|\\?*<\":>/";
-            for ( int i = 0; i < newName.length(); ++i ) {
-                Character c = newName.charAt(i);
-                if ( ReservedChars.contains(c.toString()) ) {
-                    Toast toast = Toast.makeText(getApplicationContext(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
-                    toast.show();
-                    return;
-                }
-            }
-
-            // Change the string in mRollList
-            int position = 0;
-            for ( int i = 0; i < mRollList.size(); ++i) {
-                if ( rollId == mRollList.get(i).getId() ) {
-                    position = i;
-                }
-            }
-            Roll roll = mRollList.get(position);
-            roll.setName(newName);
-            roll.setNote(newNote);
-            roll.setCamera_id(camera_id);
-            database.updateRoll(roll);
-
-            // Notify array adapter that the dataset has to be updated
-            mArrayAdapter.notifyDataSetChanged();
-        }
-
+    public void onRollSelected(int rollId){
+        FramesFragment newFragment = new FramesFragment();
+        Bundle args = new Bundle();
+        args.putInt("ROLL_ID", rollId);
+        args.putBoolean("LOCATION_ENABLED", locationEnabled);
+        newFragment.setArguments(args);
+        int anim = android.R.animator.fade_in;
+        int anim2 = android.R.animator.fade_out;
+        getFragmentManager().beginTransaction()
+                .setCustomAnimations(anim, anim2, anim, anim2)
+                .replace(R.id.fragment_container, newFragment, "FRAMESFRAGMENT")
+                .addToBackStack(null).commit();
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.fab:
-                show_RollNameDialog();
-                break;
-        }
+    public void onHomeAsUpPressed(){
+        getFragmentManager().popBackStack();
     }
+
+
+
+
+
 
     public void showSettingsAlert(){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);

@@ -3,10 +3,11 @@ package com.tommihirvonen.filmphotonotes;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -23,32 +24,32 @@ public class RollNameDialog extends DialogFragment {
 
     public static final String TAG = "SetNameDialogFragment";
 
-    private onNameSetCallback callback;
+    //private onNameSetCallback callback;
 
     FilmDbHelper database;
     ArrayList<Camera> mCameraList;
     int camera_id = -1;
 
-    public interface onNameSetCallback {
-        void onNameSet(String newName, String newNote, int camera_id);
-    }
+//    public interface onNameSetCallback {
+//        void onNameSet(String newName, String newNote, int camera_id);
+//    }
 
 
     public RollNameDialog() {
         // Empty constructor required for DialogFragment
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            callback = (onNameSetCallback) activity;
-        }
-        catch(ClassCastException e) {
-            e.printStackTrace();
-        }
-    }
+//    @Override
+//    public void onAttach(Activity activity) {
+//        super.onAttach(activity);
+//
+//        try {
+//            callback = (onNameSetCallback) activity;
+//        }
+//        catch(ClassCastException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
     @NonNull
@@ -114,14 +115,21 @@ public class RollNameDialog extends DialogFragment {
                 // If the name is not empty and camera id is not -1 then callback
                 if( name.length() != 0 && camera_id != -1 ) {
                     // Return the new entered name to the calling activity
-                    callback.onNameSet(name, note, camera_id);
+                    Intent intent = new Intent();
+                    intent.putExtra("NAME", name);
+                    intent.putExtra("NOTE", note);
+                    intent.putExtra("CAMERA_ID", camera_id);
+                    //callback.onNameSet(name, note, camera_id);
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
             }
         });
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                dialog.cancel();
+                //dialog.cancel();
+                Intent intent = new Intent();
+                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }
         });
         AlertDialog dialog = alert.create();
