@@ -142,12 +142,12 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         // This is a way to get the action bar in Preferences.
         // It will be done only on Androids > 5.0.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            bar.setBackgroundColor(Color.parseColor(primaryColor));
+//            bar.setBackgroundColor(Color.parseColor(primaryColor));
             getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
         }
-        else {
+//        else {
             actionbar = (Toolbar) findViewById(R.id.actionbar);
             actionbar.setBackgroundColor(Color.parseColor(primaryColor));
-        }
+//        }
     }
 }
