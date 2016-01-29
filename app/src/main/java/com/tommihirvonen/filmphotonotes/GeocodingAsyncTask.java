@@ -51,11 +51,11 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
             JSONObject jsonObject = new JSONObject(result[0]);
 
             double lng = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
+                    .getJSONObject("geometry").getJSONObject("latlng_location")
                     .getDouble("lng");
 
             double lat = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
+                    .getJSONObject("geometry").getJSONObject("latlng_location")
                     .getDouble("lat");
 
             Log.d("latitude", "" + lat);

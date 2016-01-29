@@ -67,6 +67,8 @@ public class EditRollNameDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
+        if ( SavedInstanceState != null ) camera_id = SavedInstanceState.getInt("CAMERA_ID");
+
         database = new FilmDbHelper(getActivity());
         mCameraList = database.getAllCameras();
 
@@ -151,4 +153,9 @@ public class EditRollNameDialog extends DialogFragment {
         return dialog;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("CAMERA_ID", camera_id);
+    }
 }

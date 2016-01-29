@@ -24,32 +24,17 @@ public class RollNameDialog extends DialogFragment {
 
     public static final String TAG = "SetNameDialogFragment";
 
-    //private onNameSetCallback callback;
 
     FilmDbHelper database;
     ArrayList<Camera> mCameraList;
     int camera_id = -1;
-
-//    public interface onNameSetCallback {
-//        void onNameSet(String newName, String newNote, int camera_id);
-//    }
 
 
     public RollNameDialog() {
         // Empty constructor required for DialogFragment
     }
 
-//    @Override
-//    public void onAttach(Activity activity) {
-//        super.onAttach(activity);
-//
-//        try {
-//            callback = (onNameSetCallback) activity;
-//        }
-//        catch(ClassCastException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    TextView b_camera;
 
 
     @NonNull
@@ -71,7 +56,12 @@ public class RollNameDialog extends DialogFragment {
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_name);
         final EditText et2 = (EditText) inflator.findViewById(R.id.txt_note);
 
-        final TextView b_camera = (TextView) inflator.findViewById(R.id.btn_camera);
+        b_camera = (TextView) inflator.findViewById(R.id.btn_camera);
+
+        if ( SavedInstanceState != null ) {
+            b_camera.setText(SavedInstanceState.getString("CAMERA_NAME"));
+            camera_id = SavedInstanceState.getInt("CAMERA_ID");
+        }
 
         // CAMERA PICK DIALOG
         b_camera.setClickable(true);
@@ -137,6 +127,11 @@ public class RollNameDialog extends DialogFragment {
         return dialog;
     }
 
-
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("CAMERA_NAME", b_camera.getText().toString());
+        outState.putInt("CAMERA_ID", camera_id);
+    }
 }
 

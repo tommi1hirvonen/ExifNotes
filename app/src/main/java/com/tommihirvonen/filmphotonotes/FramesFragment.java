@@ -115,7 +115,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         // Activate GPS locating if the user has granted permission.
         if (locationEnabled) {
 
-            // Create an instance of GoogleAPIClient for location services.
+            // Create an instance of GoogleAPIClient for latlng_location services.
             if (mGoogleApiClient == null) {
                 mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                         .addConnectionCallbacks(this)
@@ -123,7 +123,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         .addApi(LocationServices.API)
                         .build();
             }
-            // Create locationRequest to update the current location.
+            // Create locationRequest to update the current latlng_location.
             mLocationRequest = new LocationRequest();
             mLocationRequest.setInterval(20000);
             mLocationRequest.setFastestInterval(10000);

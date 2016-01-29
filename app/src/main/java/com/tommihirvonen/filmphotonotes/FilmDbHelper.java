@@ -27,7 +27,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public static final String KEY_SHUTTER = "shutter";
     public static final String KEY_APERTURE = "aperture";
     public static final String KEY_FRAME_NOTE = "frame_note";
-    public static final String KEY_LOCATION = "location";
+    public static final String KEY_LOCATION = "latlng_location";
 
     public static final String KEY_LENS_ID = "lens_id";
     public static final String KEY_LENS = "lens";

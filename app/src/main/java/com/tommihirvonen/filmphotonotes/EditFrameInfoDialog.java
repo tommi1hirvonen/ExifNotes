@@ -61,7 +61,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         args.putString("shutter", shutter);
         args.putString("aperture", aperture);
         args.putString("note", note);
-        args.putString("location", location);
+        args.putString("latlng_location", location);
         args.putInt("camera_id", camera_id);
         f.setArguments(args);
         return f;
@@ -74,6 +74,14 @@ public class EditFrameInfoDialog extends DialogFragment {
         // Empty constructor required for DialogFragment
     }
 
+    NumberPicker countPicker;
+    NumberPicker shutterPicker;
+    NumberPicker aperturePicker;
+
+    String[] displayedShutterValues;
+    String[] displayedApertureValues;
+    String[] displayedCountValues;
+
 
     @NonNull
     @Override
@@ -84,15 +92,25 @@ public class EditFrameInfoDialog extends DialogFragment {
         String shutterIncrements = prefs.getString("ShutterIncrements", "third");
         String apertureIncrements = prefs.getString("ApertureIncrements", "third");
 
-        lens = getArguments().getString("lens");
+        if ( SavedInstanceState != null ) {
+            lens = SavedInstanceState.getString("LENS");
+            date = SavedInstanceState.getString("DATE");
+            count = SavedInstanceState.getInt("COUNT");
+            shutter = SavedInstanceState.getString("SHUTTER");
+            aperture = SavedInstanceState.getString("APERTURE");
+            location = SavedInstanceState.getString("LOCATION");
+        } else {
+            lens = getArguments().getString("lens");
+            date = getArguments().getString("date");
+            count = getArguments().getInt("count");
+            shutter = getArguments().getString("shutter");
+            aperture = getArguments().getString("aperture");
+            location = getArguments().getString("latlng_location");
+        }
+
         position = getArguments().getInt("position");
-        date = getArguments().getString("date");
-        count = getArguments().getInt("count");
-        shutter = getArguments().getString("shutter");
-        aperture = getArguments().getString("aperture");
         _id = getArguments().getInt("_id");
         note = getArguments().getString("note");
-        location = getArguments().getString("location");
         camera_id = getArguments().getInt("camera_id");
 
         database = new FilmDbHelper(getActivity());
@@ -116,9 +134,9 @@ public class EditFrameInfoDialog extends DialogFragment {
         final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
         final TextView b_time = (TextView) inflator.findViewById(R.id.btn_time);
 
-        final NumberPicker countPicker = (NumberPicker) inflator.findViewById(R.id.countPicker);
-        final NumberPicker shutterPicker = (NumberPicker) inflator.findViewById(R.id.shutterPicker);
-        final NumberPicker aperturePicker = (NumberPicker) inflator.findViewById(R.id.aperturePicker);
+        countPicker = (NumberPicker) inflator.findViewById(R.id.countPicker);
+        shutterPicker = (NumberPicker) inflator.findViewById(R.id.shutterPicker);
+        aperturePicker = (NumberPicker) inflator.findViewById(R.id.aperturePicker);
 
         // Shutter values in 1/3 increments
         final String[] shutterValuesThird = new String[]{getActivity().getString(R.string.NoValue), "B", "30", "25", "20", "15", "13", "10", "8", "6", "5", "4",
@@ -135,7 +153,6 @@ public class EditFrameInfoDialog extends DialogFragment {
         // Shutter values in full stop increments
         final String[] shutterValuesFull = new String[]{ getActivity().getString(R.string.NoValue), "B", "30", "15", "8", "4", "2", "1", "1/2", "1/4", "1/8",
                                                         "1/15", "1/30", "1/60", "1/125", "1/250", "1/500", "1/1000", "1/2000", "1/4000", "1/8000" };
-        final String[] displayedShutterValues;
 
         // Set the increments according to settings
         switch (shutterIncrements) {
@@ -177,7 +194,6 @@ public class EditFrameInfoDialog extends DialogFragment {
                                                             "22", "27", "32", "38", "45", "64" };
         final String[] apertureValuesFull = new String[]{ getActivity().getString(R.string.NoValue), "1.0", "1.4", "2.0", "2.8", "4.0", "5.6", "8", "11",
                                                             "16", "22", "32", "45", "64" };
-        final String[] displayedApertureValues;
 
         // Set the increments according to settings
         switch (apertureIncrements) {
@@ -213,7 +229,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         String[] temp = new String[101];
         for ( int i = 0; i <= 100; ++i ) temp[i] = "" + i;
         Collections.reverse(Arrays.asList(temp));
-        final String[] displayedCountValues = temp;
+        displayedCountValues = temp;
         countPicker.setMinValue(0);
         countPicker.setMaxValue(100);
         countPicker.setDisplayedValues(displayedCountValues);
@@ -245,6 +261,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
                         b_lens.setText(listItems.get(which));
+                        lens = b_lens.getText().toString();
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -278,6 +295,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         String newDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
                         b_date.setText(newDate);
+                        date = newDate + " " + b_time.getText().toString();
                     }
                     // One month has to be subtracted from the default shown month, otherwise
                     // the date picker shows one month forward.
@@ -309,6 +327,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                         }
                         else newTime = hourOfDay + ":" + minute;
                         b_time.setText(newTime);
+                        date = b_date.getText().toString() + " " + newTime;
                     }
                 }, hours, minutes, true);
 
@@ -407,6 +426,28 @@ public class EditFrameInfoDialog extends DialogFragment {
                 b_location.setText(location);
             }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        shutter = displayedShutterValues[shutterPicker.getValue()];
+        aperture = displayedApertureValues[aperturePicker.getValue()];
+        count = Integer.parseInt(displayedCountValues[countPicker.getValue()]);
+
+        // Lens
+        outState.putString("LENS", lens);
+        // Date
+        outState.putString("DATE", date);
+        // Count
+        outState.putInt("COUNT", count);
+        // Shutter
+        outState.putString("SHUTTER", shutter);
+        // Aperture
+        outState.putString("APERTURE", aperture);
+        // Location
+        outState.putString("LOCATION", location);
     }
 
     private ArrayList<String> splitDate(String input) {

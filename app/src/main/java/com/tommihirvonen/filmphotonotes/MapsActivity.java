@@ -107,7 +107,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         for (Frame frame : mFrameClassList) {
 
-            // Parse the location string
+            // Parse the latlng_location string
             String location = frame.getLocation();
             if ( location.length() > 0 && !location.equals("null")) {
                 String latString = location.substring(0, location.indexOf(" "));

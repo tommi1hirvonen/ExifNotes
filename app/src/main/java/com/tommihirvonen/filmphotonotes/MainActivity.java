@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
 
         LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
-        // Check if the app has location permission.
+        // Check if the app has latlng_location permission.
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this,
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         args.putBoolean("LOCATION_ENABLED", locationEnabled);
         newFragment.setArguments(args);
         getFragmentManager().beginTransaction()
-                .setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right, R.animator.slide_in_right, R.animator.slide_out_left)
+                .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
                 .replace(R.id.fragment_container, newFragment, "FRAMESFRAGMENT")
                 .addToBackStack(null).commit();
     }
