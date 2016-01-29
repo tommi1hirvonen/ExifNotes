@@ -35,7 +35,6 @@ import java.util.List;
 
 public class PreferenceActivity extends android.preference.PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    Toolbar bar;
     Toolbar actionbar;
 
     @Override
@@ -54,39 +53,25 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         // This is a way to get the action bar in Preferences.
         // It will be done only on Androids > 5.0.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            /*LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
-            bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.preference_toolbar , root, false);
-            bar = (Toolbar) findViewById(R.id.actionbar);
-            bar.setBackgroundColor(Color.parseColor(primaryColor));
-            root.addView(bar, 0); // insert at top
-            bar.setElevation(0);
-            bar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    finish();
-                }
-            });*/
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
         }
-        //else {
 
-            // This is a legacy implementation. All this is needed in order to make
-            // the action bar title and icon appear in white. WTF!?
-            setContentView(R.layout.activity_settings_legacy);
-            actionbar = (Toolbar) findViewById(R.id.actionbar);
-            actionbar.setTitle(R.string.Preferences);
-            actionbar.setBackgroundColor(Color.parseColor(primaryColor));
-            actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
-            actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.abc_ic_ab_back_mtrl_am_alpha));
-            actionbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    finish();
-                }
-            });
-            getFragmentManager().beginTransaction().add(R.id.rel_layout, new PreferenceFragment()).commit();
-        //}
+        // This is a legacy implementation. All this is needed in order to make
+        // the action bar title and icon appear in white. WTF!?
+        setContentView(R.layout.activity_settings_legacy);
+        actionbar = (Toolbar) findViewById(R.id.actionbar);
+        actionbar.setTitle(R.string.Preferences);
+        actionbar.setBackgroundColor(Color.parseColor(primaryColor));
+        actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
+        actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.abc_ic_ab_back_mtrl_am_alpha));
+        actionbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        getFragmentManager().beginTransaction().add(R.id.rel_layout, new PreferenceFragment()).commit();
     }
 
     @Override

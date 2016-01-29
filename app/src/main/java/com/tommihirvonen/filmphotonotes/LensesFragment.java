@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -271,6 +272,8 @@ public class LensesFragment extends Fragment implements //LensNameDialog.onLensN
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
+
+        Log.d("FilmPhotoNotes", "LensesFragment");
 
         if ( item.getItemId() == R.id.menu_item_delete_gear ) {
 
