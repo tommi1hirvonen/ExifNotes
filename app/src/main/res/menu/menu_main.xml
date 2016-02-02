@@ -44,6 +44,12 @@
         omgandroid:showAsAction="never"
         />
 
+    <item
+        android:id="@+id/menu_item_show_on_map"
+        android:title="@string/ShowOnMap"
+        omgandroid:showAsAction="never"
+        />
+
     <!--<item
         android:id="@+id/menu_item_share"
         android:title="Share"

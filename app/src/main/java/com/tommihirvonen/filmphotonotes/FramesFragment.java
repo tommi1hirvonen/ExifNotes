@@ -188,7 +188,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.Share);
-        menu.add(Menu.NONE, 99, Menu.NONE, R.string.ShowOnMap);
+        //menu.add(Menu.NONE, 99, Menu.NONE, R.string.ShowOnMap);
 
 
         if (shareItem != null) {
@@ -330,7 +330,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 break;
 
             // 'Show on map' menu item id is 99
-            case 99:
+            case R.id.menu_item_show_on_map:
 
                 Intent intent2 = new Intent(getActivity(), MapsActivity.class);
                 intent2.putExtra(ROLLINFO_EXTRA_MESSAGE, rollId);

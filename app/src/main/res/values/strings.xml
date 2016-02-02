@@ -4,6 +4,10 @@
     <string name="title_activity_lenses_activity">LensesActivity</string>
     <string name="title_activity_preference_activity">PreferenceActivity</string>
 
+    <!--AllFramesMapsActivity-->
+    <string name="AllFrames">All frames</string>
+
+
     <!--CameraNameDialog-->
     <string name="NewCamera">Add new camera</string>
 

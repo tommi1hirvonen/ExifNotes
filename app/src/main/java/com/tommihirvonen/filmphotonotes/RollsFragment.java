@@ -260,6 +260,14 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                 helpDialog.show();
 
                 break;
+
+            case R.id.menu_item_show_on_map:
+
+                // Show all frames from all rolls on a map
+                Intent intent2 = new Intent(getActivity(), AllFramesMapsActivity.class);
+                startActivity(intent2);
+
+                break;
         }
 
         return true;
