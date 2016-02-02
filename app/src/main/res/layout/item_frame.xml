@@ -12,15 +12,31 @@
         android:weightSum="5">
 
 
-        <TextView
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textSize="30sp"
-            android:gravity="center"
-            android:text="@string/Text"
-            android:id="@+id/tvCount"
-            android:layout_weight="4" />
+            android:layout_weight="4">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/background_frame"
+                android:layout_gravity="center"
+                android:src="@drawable/background_frame"
+                android:alpha="0.2"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="28sp"
+                android:gravity="center"
+                android:text="@string/Text"
+                android:id="@+id/tvCount"
+                android:layout_weight="4" />
+        </FrameLayout>
+
+
 
 
         <LinearLayout

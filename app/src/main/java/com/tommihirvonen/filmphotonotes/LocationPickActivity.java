@@ -108,7 +108,7 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+                onBackPressed();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -170,7 +170,6 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
             @Override
             public void processFinish(String output) {
                 if ( output.length() != 0 ) {
-                    //Toast.makeText(getBaseContext(), output, Toast.LENGTH_SHORT).show();
 
                     String latString = output.substring(0, output.indexOf(" "));
                     String lngString = output.substring(output.indexOf(" ") + 1, output.length() - 1);

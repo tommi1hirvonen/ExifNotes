@@ -16,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -144,9 +145,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         final View view = linf.inflate(R.layout.frames_fragment, container, false);
 
-
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(database.getRoll(rollId).getName());
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(R.string.Frames);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         fab = (FloatingActionButton) view.findViewById(R.id.fab);
@@ -173,6 +172,11 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         mainListView.setAdapter(mFrameAdapter);
 
         mainListView.setOnItemClickListener(this);
+
+        // Color the item dividers of the ListView
+        int[] dividerColors = {0, R.color.grey, 0};
+        mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+        mainListView.setDividerHeight(1);
 
         if (mFrameClassList.size() >= 1) {
             counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();

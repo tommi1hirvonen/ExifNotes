@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 
 import java.util.Arrays;
@@ -146,6 +147,8 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
             //additional code
         } else {
             getFragmentManager().popBackStack();
+            View shadow = findViewById(R.id.shadow);
+            shadow.bringToFront();
         }
 
     }
@@ -161,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
                 .setCustomAnimations(R.animator.slide_left, R.animator.slide_right, R.animator.slide_left, R.animator.slide_right)
                 .replace(R.id.fragment_container, newFragment, "FRAMESFRAGMENT")
                 .addToBackStack(null).commit();
+        View shadow = findViewById(R.id.shadow);
+        shadow.bringToFront();
     }
 
     public void onHomeAsUpPressed(){

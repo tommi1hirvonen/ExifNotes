@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -82,6 +83,12 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
+        List<String> colors = Arrays.asList(UIColor.split(","));
+        String primaryColor = colors.get(0);
+        String secondaryColor = colors.get(1);
+
         database = new FilmDbHelper(getActivity());
         mRollList = database.getAllRolls();
 
@@ -94,8 +101,6 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
         // Access the ListView
         mainListView = (ListView) view.findViewById(R.id.main_listview);
-
-
 
         // Create an ArrayAdapter for the ListView
         mArrayAdapter = new RollAdapter(getActivity(), android.R.layout.simple_list_item_1, mRollList);
@@ -111,14 +116,12 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         // Set this activity to react to list items being pressed and held
         mainListView.setOnItemLongClickListener(this);
 
-        if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
+        // Color the item dividers of the ListView
+        int[] dividerColors = {0, R.color.grey, 0};
+        mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+        mainListView.setDividerHeight(2);
 
-        // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
+        if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
