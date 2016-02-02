@@ -110,4 +110,8 @@
     <string name="IsBeingUsed">on käytössä!</string>
     <string name="UsedCamera">Valitse käytetty kamera</string>
     <string name="Gear">Kalusto</string>
+    <string name="AllFrames">Kaikki ruudut</string>
+    <string name="GPSSettings">GPS-asetukset</string>
+    <string name="GPSNotEnabled">GPS ei ole päällä. Haluatko siirtyä asetuksiin?</string>
+    <string name="Settings">Asetukset</string>
 </resources>

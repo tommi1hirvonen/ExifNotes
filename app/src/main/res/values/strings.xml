@@ -72,6 +72,9 @@
     </string>
     <string name="Preferences">Settings</string>
     <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
+    <string name="Settings">Settings</string>
+    <string name="GPSSettings">GPS Settings</string>
+    <string name="GPSNotEnabled">GPS is not enabled. Do you want to go to the settings menu?</string>
 
     <!--MapsActivity-->
     <string name="NoFramesToShow">No frames to show on map</string>
