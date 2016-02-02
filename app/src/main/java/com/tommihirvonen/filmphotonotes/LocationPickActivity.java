@@ -1,6 +1,7 @@
 package com.tommihirvonen.filmphotonotes;
 
 import android.Manifest;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -14,8 +15,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -34,7 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class LocationPickActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, SearchView.OnQueryTextListener, View.OnClickListener {
+public class LocationPickActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, View.OnClickListener, android.support.v7.widget.SearchView.OnQueryTextListener {
 
     private GoogleMap mMap;
     Marker marker;
@@ -53,8 +56,6 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
 
         setContentView(R.layout.activity_location_pick);
 
-        SearchView searchView = (SearchView) findViewById(R.id.searchView);
-        searchView.setOnQueryTextListener(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
 
@@ -101,6 +102,15 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_location_pick, menu);
+        // Retrieve the SearchView and plug it into SearchManager
+        android.support.v7.widget.SearchView searchView = (android.support.v7.widget.SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        searchView.setOnQueryTextListener(this);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -128,9 +138,6 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMapClickListener(this);
-        mMap.setPadding(0, 180, 0, 0);
-
-
 
         // If the latlng_location is not empty
         if (location.length() > 0 && !location.equals("null")) {
@@ -164,11 +171,10 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-
         // Search for the
         new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
             @Override
-            public void processFinish(String output) {
+            public void processFinish(String output, String formatted_address) {
                 if ( output.length() != 0 ) {
 
                     String latString = output.substring(0, output.indexOf(" "));
@@ -179,9 +185,10 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
                     marker.setPosition(position);
                     latlng_location = position;
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                    Toast.makeText(getBaseContext(), formatted_address, Toast.LENGTH_LONG).show();
 
                 } else {
-                    Toast.makeText(getBaseContext(), "No results!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), R.string.NoResults, Toast.LENGTH_SHORT).show();
                 }
             }
         }).execute(query);

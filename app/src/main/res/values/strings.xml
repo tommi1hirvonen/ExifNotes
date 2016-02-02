@@ -51,6 +51,7 @@
     <!--LocationPickActivity-->
     <string name="PickLocation">Pick location</string>
     <string name="TapOnMap">Tap on map to move marker</string>
+    <string name="NoResults">No results!</string>
 
     <!--MainActivity-->
     <string name="MainActivityTitle">Film rolls</string>

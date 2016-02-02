@@ -114,4 +114,5 @@
     <string name="GPSSettings">GPS-asetukset</string>
     <string name="GPSNotEnabled">GPS ei ole päällä. Haluatko siirtyä asetuksiin?</string>
     <string name="Settings">Asetukset</string>
+    <string name="NoResults">Ei tuloksia!</string>
 </resources>

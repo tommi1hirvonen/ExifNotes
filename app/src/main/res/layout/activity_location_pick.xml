@@ -23,16 +23,7 @@
         android:layout_height="3dp"
         android:background="@drawable/shadow"
         android:layout_gravity="top"/>
-    <SearchView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/searchView"
-        android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="11dp"
-        android:layout_marginLeft="11dp"
-        android:layout_marginRight="11dp"
-        android:background="@color/white"
-        android:elevation="3dp"/>
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

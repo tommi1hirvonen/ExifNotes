@@ -24,7 +24,7 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
     }
 
     public interface AsyncResponse {
-        void processFinish(String output);
+        void processFinish(String output, String formattedAddress);
     }
     public AsyncResponse delegate = null;
 
@@ -38,7 +38,6 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
         try {
             String queryUrl = new Uri.Builder().scheme("http").authority("maps.google.com").appendPath("maps").appendPath("api").appendPath("geocode").appendPath("json").appendQueryParameter("address", params[0]).appendQueryParameter("sensor", "false").build().toString();
             response = getLatLongByURL(queryUrl);
-            Log.d("response", "" + response);
             return new String[]{response};
         } catch (Exception e) {
             return new String[]{"error"};
@@ -51,19 +50,19 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
             JSONObject jsonObject = new JSONObject(result[0]);
 
             double lng = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("latlng_location")
+                    .getJSONObject("geometry").getJSONObject("location")
                     .getDouble("lng");
 
             double lat = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("latlng_location")
+                    .getJSONObject("geometry").getJSONObject("location")
                     .getDouble("lat");
 
-            Log.d("latitude", "" + lat);
-            Log.d("longitude", "" + lng);
-            delegate.processFinish(lat + " " + lng);
+            String formattedAddress = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
+                    .getString("formatted_address");
+            delegate.processFinish(lat + " " + lng, formattedAddress);
         } catch (JSONException e) {
             e.printStackTrace();
-            delegate.processFinish("");
+            delegate.processFinish("", "");
         }
 
     }
