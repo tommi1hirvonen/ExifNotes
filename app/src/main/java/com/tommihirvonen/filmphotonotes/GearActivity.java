@@ -69,10 +69,6 @@ public class GearActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white));
         tabLayout.setBackgroundColor(Color.parseColor(primaryColor));
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // If the used version of Android > 21 then disable legacy shadow
-            tabLayout.setElevation(4);
-        }*/
         viewPager.setCurrentItem(prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, 0));
     }
 
@@ -88,23 +84,19 @@ public class GearActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present
         getMenuInflater().inflate(R.menu.menu_gear, menu);
 
-        //MenuItem deleteGear = menu.findItem(R.id.menu_item_delete_gear);
-
-        //deleteGear.setOnMenuItemClickListener(this);
-
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //Toast.makeText(this, "MOI", Toast.LENGTH_SHORT).show();
+
+        switch ( item.getItemId() ) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
         return super.onOptionsItemSelected(item);
     }
-
-//    @Override
-//    public boolean onMenuItemClick(MenuItem item) {
-//        return false;
-//    }
 
     public static String POSITION = "POSITION";
 

@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class LensesFragment extends Fragment implements //LensNameDialog.onLensNameSetCallback,
+public class LensesFragment extends Fragment implements
         View.OnClickListener, AdapterView.OnItemClickListener {
 
 
@@ -272,8 +272,6 @@ public class LensesFragment extends Fragment implements //LensNameDialog.onLensN
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-
-        Log.d("FilmPhotoNotes", "LensesFragment");
 
         if ( item.getItemId() == R.id.menu_item_delete_gear ) {
 
