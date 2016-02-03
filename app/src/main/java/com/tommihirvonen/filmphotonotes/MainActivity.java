@@ -59,8 +59,6 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         }
         // *****************************************************************
 
-
-
         LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
         // Check if the app has latlng_location permission.
@@ -95,10 +93,6 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
 
             // Create a new Fragment to be placed in the activity layout
             RollsFragment firstFragment = new RollsFragment();
-
-            // In case this activity was started with special instructions from an
-            // Intent, pass the Intent's extras to the fragment as arguments
-            //firstFragment.setArguments(getIntent().getExtras());
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getFragmentManager().beginTransaction()

@@ -1,10 +1,7 @@
 package com.tommihirvonen.filmphotonotes;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -53,7 +48,6 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         // Populate the data into the template view using the data object
         tvFrameText.setText(frame.getDate());
         tvCount.setText("" + frame.getCount());
-        //              ^ a trick to show an integer in TextView
         tvFrameText2.setText(frame.getLens());
         tvNote.setText(frame.getNote());
 

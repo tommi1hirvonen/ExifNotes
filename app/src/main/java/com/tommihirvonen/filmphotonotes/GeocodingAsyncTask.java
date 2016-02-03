@@ -1,9 +1,10 @@
-package com.tommihirvonen.filmphotonotes;// Copyright 2015
+package com.tommihirvonen.filmphotonotes;
+
+// Copyright 2015
 // Tommi Hirvonen
 
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;

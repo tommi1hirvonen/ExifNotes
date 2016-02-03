@@ -26,17 +26,9 @@ public class EditRollNameDialog extends DialogFragment {
     public String oldNote;
     public int rollId;
     int camera_id;
-
     FilmDbHelper database;
     ArrayList<Camera> mCameraList;
-
     public static final String TAG = "EditNameDialogFragment";
-
-    //private OnNameEditedCallback callback;
-
-//    public interface OnNameEditedCallback {
-//        void OnNameEdited(int rollId, String newName, String newNote, int camera_id);
-//    }
 
     public EditRollNameDialog () {
 
@@ -49,19 +41,6 @@ public class EditRollNameDialog extends DialogFragment {
         this.oldNote = oldNote;
         this.camera_id = camera_id;
     }
-
-
-//    @Override
-//    public void onAttach(Activity activity) {
-//        super.onAttach(activity);
-//
-//        try {
-//            callback = (OnNameEditedCallback) activity;
-//        }
-//        catch(ClassCastException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     @NonNull
     @Override

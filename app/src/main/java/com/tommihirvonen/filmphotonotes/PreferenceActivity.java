@@ -1,12 +1,8 @@
 package com.tommihirvonen.filmphotonotes;
 
-
-
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,13 +14,8 @@ import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import java.util.Arrays;
 import java.util.List;
@@ -103,13 +94,6 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
     }
 
 
-    // THIS METHOD CAN BE USED IF THE SETTINGS OPTIONS SHOULD BE CATEGORIZED
-//    @Override
-//    public void onBuildHeaders(List<Header> target)
-//    {
-//        loadHeadersFromResource(R.xml.headers_preference, target);
-//    }
-
     @Override
     protected boolean isValidFragment(String fragmentName)
     {
@@ -127,12 +111,9 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         // This is a way to get the action bar in Preferences.
         // It will be done only on Androids > 5.0.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            bar.setBackgroundColor(Color.parseColor(primaryColor));
             getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
         }
-//        else {
-            actionbar = (Toolbar) findViewById(R.id.actionbar);
-            actionbar.setBackgroundColor(Color.parseColor(primaryColor));
-//        }
+        actionbar = (Toolbar) findViewById(R.id.actionbar);
+        actionbar.setBackgroundColor(Color.parseColor(primaryColor));
     }
 }

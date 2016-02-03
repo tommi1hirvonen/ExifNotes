@@ -1,4 +1,6 @@
-package com.tommihirvonen.filmphotonotes;// Copyright 2015
+package com.tommihirvonen.filmphotonotes;
+
+// Copyright 2015
 // Tommi Hirvonen
 
 import android.app.Activity;
@@ -12,7 +14,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -33,13 +34,9 @@ public class LensesFragment extends Fragment implements
 
 
     TextView mainTextView;
-
     ListView mainListView;
-
     LensAdapter mArrayAdapter;
-
     ArrayList<Lens> mLensList = new ArrayList<>();
-
     FilmDbHelper database;
 
     public static final int DIALOG_FRAGMENT = 1;

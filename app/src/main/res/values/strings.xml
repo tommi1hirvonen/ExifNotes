@@ -1,12 +1,8 @@
 <resources>
     <string name="app_name">Film Photo Notes</string>
-    <string name="title_activity_roll__info">RollInfo</string>
-    <string name="title_activity_lenses_activity">LensesActivity</string>
-    <string name="title_activity_preference_activity">PreferenceActivity</string>
 
     <!--AllFramesMapsActivity-->
     <string name="AllFrames">All frames</string>
-
 
     <!--CameraNameDialog-->
     <string name="NewCamera">Add new camera</string>
@@ -35,7 +31,6 @@
 
     <!--GearActivity-->
     <string name="Gear">Gear</string>
-
 
     <!--LensesFragment-->
     <string name="Lenses">LENSES</string>
@@ -174,8 +169,5 @@
     <string name="Grey">Grey</string>
     <string name="Purple">Purple</string>
     <string name="Cyan">Cyan</string>
-    <string name="title_activity_maps">Map</string>
-    <string name="title_activity_location_pick">LocationPickActivity</string>
-
 
 </resources>

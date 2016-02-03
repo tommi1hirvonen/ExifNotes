@@ -1,4 +1,6 @@
-package com.tommihirvonen.filmphotonotes;// Copyright 2015
+package com.tommihirvonen.filmphotonotes;
+
+// Copyright 2015
 // Tommi Hirvonen
 
 import android.app.Activity;
@@ -29,20 +31,12 @@ import java.util.List;
 
 public class CamerasFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
 
-    public static final String ARG_PAGE = "ARG_PAGE";
-
     TextView mainTextView;
-
     ListView mainListView;
-
     CameraAdapter mArrayAdapter;
-
     ArrayList<Camera> mCameraList;
-
     FilmDbHelper database;
-
     public static final int DIALOG_FRAGMENT = 1;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

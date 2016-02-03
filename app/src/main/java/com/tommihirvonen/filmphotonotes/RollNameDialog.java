@@ -109,7 +109,6 @@ public class RollNameDialog extends DialogFragment {
                     intent.putExtra("NAME", name);
                     intent.putExtra("NOTE", note);
                     intent.putExtra("CAMERA_ID", camera_id);
-                    //callback.onNameSet(name, note, camera_id);
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
             }
@@ -117,7 +116,6 @@ public class RollNameDialog extends DialogFragment {
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //dialog.cancel();
                 Intent intent = new Intent();
                 getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }

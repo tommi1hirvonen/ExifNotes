@@ -24,7 +24,6 @@ public class CameraNameDialog extends DialogFragment {
         // Empty constructor required for DialogFragment
     }
 
-
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
@@ -34,11 +33,9 @@ public class CameraNameDialog extends DialogFragment {
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         alert.setTitle(R.string.NewCamera);
-
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_name);
-
 
         alert.setPositiveButton(R.string.Add, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
@@ -64,5 +61,4 @@ public class CameraNameDialog extends DialogFragment {
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         return dialog;
     }
-
 }

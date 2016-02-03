@@ -1,4 +1,6 @@
-package com.tommihirvonen.filmphotonotes;// Copyright 2015
+package com.tommihirvonen.filmphotonotes;
+
+// Copyright 2015
 // Tommi Hirvonen
 
 import android.Manifest;
@@ -15,7 +17,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -26,7 +27,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -54,8 +54,6 @@ import java.util.List;
 public class FramesFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     OnHomeAsUpPressedListener mCallback;
-
-
 
     public interface OnHomeAsUpPressedListener {
         void onHomeAsUpPressed();
@@ -112,7 +110,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         database = new FilmDbHelper(getActivity());
         mFrameClassList = database.getAllFramesFromRoll(rollId);
         camera_id = database.getRoll(rollId).getCamera_id();
-
 
         // Activate GPS locating if the user has granted permission.
         if (locationEnabled) {
@@ -192,8 +189,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.Share);
-        //menu.add(Menu.NONE, 99, Menu.NONE, R.string.ShowOnMap);
-
 
         if (shareItem != null) {
             mShareActionProvider = new ShareActionProvider(getActivity());
@@ -346,8 +341,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         return true;
     }
-
-
 
     private Intent setShareIntent() {
 
@@ -528,7 +521,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         frame.setAperture(aperture);
                         frame.setNote(note);
                         frame.setLocation(location);
-                        Log.d("FilmPhotoNotes", "" + frame.getId() + " " + frame.getRoll() + " " + frame.getLens() + " " + frame.getCount() + " " + frame.getDate());
                         database.updateFrame(frame);
                         //Make the change in the class list and the list view
                         mFrameClassList.get(position).setLens(lens);

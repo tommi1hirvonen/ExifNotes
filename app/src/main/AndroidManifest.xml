@@ -15,7 +15,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/film_photo_notes_icon"
-        android:label="@string/app_name"
+        android:label="Film Photo Notes"
         android:theme="@style/AppTheme">
 
         <!--
@@ -34,12 +34,10 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="adjustPan"
-            >
+            android:label="MainActivity"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -54,7 +52,7 @@
         </activity>
         <activity
             android:name=".PreferenceActivity"
-            android:label="@string/title_activity_preference_activity"
+            android:label="PreferenceActivity"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -70,7 +68,7 @@
         </activity>
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"
+            android:label="MapsActivity"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -78,7 +76,7 @@
         </activity>
         <activity
             android:name=".LocationPickActivity"
-            android:label="@string/title_activity_location_pick"
+            android:label="LocationPickActivity"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

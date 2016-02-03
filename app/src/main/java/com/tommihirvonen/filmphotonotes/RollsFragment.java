@@ -3,8 +3,6 @@ package com.tommihirvonen.filmphotonotes;
 // Copyright 2015
 // Tommi Hirvonen
 
-import android.animation.Animator;
-import android.animation.AnimatorInflater;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;

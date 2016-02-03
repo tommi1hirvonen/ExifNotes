@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.widget.Toast;
 
 // Copyright 2015
 // Tommi Hirvonen

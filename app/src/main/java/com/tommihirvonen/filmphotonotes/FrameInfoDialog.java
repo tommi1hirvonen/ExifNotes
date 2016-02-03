@@ -42,8 +42,6 @@ public class FrameInfoDialog extends DialogFragment {
     ArrayList<Lens> mountableLenses;
     FilmDbHelper database;
 
-    TextView b_location;
-
     final static int PLACE_PICKER_REQUEST = 1;
 
     static FrameInfoDialog newInstance(String lens, int count, String date, String shutter, String aperture, String location, int camera_id) {
@@ -62,10 +60,11 @@ public class FrameInfoDialog extends DialogFragment {
 
     public static final String TAG = "FrameInfoDialogFragment";
 
-
     public FrameInfoDialog() {
         // Empty constructor required for DialogFragment
     }
+
+    TextView b_location;
 
     NumberPicker countPicker;
     NumberPicker shutterPicker;
@@ -107,7 +106,6 @@ public class FrameInfoDialog extends DialogFragment {
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         final View inflator = linf.inflate(R.layout.frame_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-
 
         alert.setTitle("" + getActivity().getString(R.string.NewFrame));
 
