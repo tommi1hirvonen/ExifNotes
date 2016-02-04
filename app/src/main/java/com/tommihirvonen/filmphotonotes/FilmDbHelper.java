@@ -102,6 +102,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     // ******************** CRUD operations for the frames table ********************
 
     public void addFrame(Frame frame) {
+        frame.setShutter(frame.getShutter().replace("\"", "q"));
         // Get reference to writable database
         SQLiteDatabase db = this.getWritableDatabase();
         // Create ContentValues to add key "column"/value
@@ -133,7 +134,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setCount(cursor.getInt(cursor.getColumnIndex(KEY_COUNT)));
         frame.setDate(cursor.getString(cursor.getColumnIndex(KEY_DATE)));
         frame.setLens(cursor.getString(cursor.getColumnIndex(KEY_LENS)));
-        frame.setShutter(cursor.getString(cursor.getColumnIndex(KEY_SHUTTER)));
+        frame.setShutter(cursor.getString(cursor.getColumnIndex(KEY_SHUTTER)).replace("q", "\""));
         frame.setAperture(cursor.getString(cursor.getColumnIndex(KEY_APERTURE)));
         frame.setNote(cursor.getString(cursor.getColumnIndex(KEY_FRAME_NOTE)));
         frame.setLocation(cursor.getString(cursor.getColumnIndex(KEY_LOCATION)));
@@ -157,7 +158,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             frame.setCount(cursor.getInt(2));
             frame.setDate(cursor.getString(3));
             frame.setLens(cursor.getString(4));
-            frame.setShutter(cursor.getString(5));
+            frame.setShutter(cursor.getString(5).replace("q", "\""));
             frame.setAperture(cursor.getString(6));
             frame.setNote(cursor.getString(7));
             frame.setLocation(cursor.getString(8));
@@ -175,7 +176,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 + KEY_COUNT + "=" + frame.getCount() + ", "
                 + KEY_DATE + "=\"" + frame.getDate() + "\", "
                 + KEY_LENS + "=\"" + frame.getLens() + "\", "
-                + KEY_SHUTTER + "=\"" + frame.getShutter() + "\", "
+                + KEY_SHUTTER + "=\"" + frame.getShutter().replace("\"", "q") + "\", "
                 + KEY_APERTURE + "=\"" + frame.getAperture() + "\", "
                 + KEY_FRAME_NOTE + "=\"" + frame.getNote() + "\", "
                 + KEY_LOCATION + "=\"" + frame.getLocation() + "\""

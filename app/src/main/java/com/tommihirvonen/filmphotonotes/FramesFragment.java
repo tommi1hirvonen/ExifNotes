@@ -27,6 +27,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -469,6 +470,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     String note = data.getStringExtra("NOTE");
                     String location = data.getStringExtra("LOCATION");
 
+                    if (!checkReservedChars(note)) return;
+
                     if ( count != -1 ) {
 
                         Frame frame = new Frame(rollId, count, date, lens, shutter, aperture, note, location);
@@ -508,6 +511,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     String aperture = data.getStringExtra("APERTURE");
                     String note = data.getStringExtra("NOTE");
                     String location = data.getStringExtra("LOCATION");
+
+                    if (!checkReservedChars(note)) return;
 
                     if ( _id != -1 && count != -1 && position != -1 ) {
 
@@ -705,5 +710,19 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         public void onDismiss(DialogInterface dialog) {
 
         }
+    }
+
+    private boolean checkReservedChars(String input){
+        //Check if there are illegal character in the input string
+        String ReservedChars = "|\\?*<\":>/";
+        for ( int i = 0; i < input.length(); ++i ) {
+            Character c = input.charAt(i);
+            if ( ReservedChars.contains(c.toString()) ) {
+                Toast toast = Toast.makeText(getActivity(), R.string.NoteIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
+                toast.show();
+                return false;
+            }
+        }
+        return true;
     }
 }

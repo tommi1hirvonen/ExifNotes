@@ -29,6 +29,9 @@
     <string name="Rename">Rename</string>
     <string name="EditRoll">Edit roll info</string>
 
+    <!--FramesFragment-->
+    <string name="NoteIllegalCharacter"></string>
+
     <!--GearActivity-->
     <string name="Gear">Gear</string>
 
