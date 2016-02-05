@@ -215,8 +215,7 @@ public class LensesFragment extends Fragment implements
                         // Check if a lens with the same name already exists
                         for ( int i = 0; i < mLensList.size(); ++i ) {
                             if ( inputText.equals( mLensList.get(i).getName())  ) {
-                                Toast toast = Toast.makeText(getActivity(), R.string.LensSameName, Toast.LENGTH_LONG);
-                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensSameName), Toast.LENGTH_LONG);
                                 toast.show();
                                 return;
                             }
@@ -227,8 +226,7 @@ public class LensesFragment extends Fragment implements
                         for ( int i = 0; i < inputText.length(); ++i ) {
                             Character c = inputText.charAt(i);
                             if ( ReservedChars.contains(c.toString()) ) {
-                                Toast toast = Toast.makeText(getActivity(), R.string.LensIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
-                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
                                 toast.show();
                                 return;
                             }
@@ -271,6 +269,8 @@ public class LensesFragment extends Fragment implements
     public boolean onOptionsItemSelected(MenuItem item){
 
         if ( item.getItemId() == R.id.menu_item_delete_gear ) {
+
+            // TODO: Implement contextual menu for gear deletion
 
             // Only delete if there are more than one lens
             if (mLensList.size() >= 1) {

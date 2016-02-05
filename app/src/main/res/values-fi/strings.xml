@@ -115,4 +115,5 @@
     <string name="GPSNotEnabled">GPS ei ole päällä. Haluatko siirtyä asetuksiin?</string>
     <string name="Settings">Asetukset</string>
     <string name="NoResults">Ei tuloksia!</string>
+    <string name="NoteIllegalCharacter">Muistiinpanossa on sallimaton merkki:</string>
 </resources>

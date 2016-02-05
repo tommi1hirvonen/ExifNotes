@@ -194,6 +194,8 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
         if ( item.getItemId() == R.id.menu_item_delete_gear ) {
 
+            // TODO: Implement contextual menu for gear deletion
+
             // Only delete if there are more than one lens
             if (mCameraList.size() >= 1) {
 
@@ -299,8 +301,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                         // Check if a lens with the same name already exists
                         for ( int i = 0; i < mCameraList.size(); ++i ) {
                             if ( inputText.equals( mCameraList.get(i).getName())  ) {
-                                Toast toast = Toast.makeText(getActivity(), R.string.CameraSameName, Toast.LENGTH_LONG);
-                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraSameName), Toast.LENGTH_LONG);
                                 toast.show();
                                 return;
                             }
@@ -311,8 +312,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                         for ( int i = 0; i < inputText.length(); ++i ) {
                             Character c = inputText.charAt(i);
                             if ( ReservedChars.contains(c.toString()) ) {
-                                Toast toast = Toast.makeText(getActivity(), R.string.CameraIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
-                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
                                 toast.show();
                                 return;
                             }

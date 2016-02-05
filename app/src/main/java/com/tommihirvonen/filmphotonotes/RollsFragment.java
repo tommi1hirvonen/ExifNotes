@@ -147,6 +147,9 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         switch (item.getItemId()) {
 
             case R.id.menu_item_delete:
+
+                // TODO: Implement contextual menu for roll deletion and editing
+
                 //Only delete if there are more than one roll
                 if ( mRollList.size() >= 1 ) {
 
@@ -330,7 +333,15 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                         for (int i = 0; i < inputName.length(); ++i) {
                             Character c = inputName.charAt(i);
                             if (ReservedChars.contains(c.toString())) {
-                                Toast toast = Toast.makeText(getActivity(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+                        for (int i = 0; i < inputNote.length(); ++i) {
+                            Character c = inputNote.charAt(i);
+                            if (ReservedChars.contains(c.toString())) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
                                 toast.show();
                                 return;
                             }
@@ -373,11 +384,20 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                         for ( int i = 0; i < newName.length(); ++i ) {
                             Character c = newName.charAt(i);
                             if ( ReservedChars.contains(c.toString()) ) {
-                                Toast toast = Toast.makeText(getActivity(), R.string.RollIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
                                 toast.show();
                                 return;
                             }
                         }
+                        for ( int i = 0; i < newNote.length(); ++i ) {
+                            Character c = newNote.charAt(i);
+                            if ( ReservedChars.contains(c.toString()) ) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+
 
                         // Change the string in mRollList
                         int position = 0;

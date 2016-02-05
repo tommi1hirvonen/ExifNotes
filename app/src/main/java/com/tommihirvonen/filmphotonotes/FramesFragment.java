@@ -208,6 +208,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
             case R.id.menu_item_delete:
 
+                // TODO: Implement contextual menu for frame deletion
+
                 if (mFrameClassList.size() >= 1) {
 
                     // Ask the user which frame(s) to delete
@@ -718,7 +720,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         for ( int i = 0; i < input.length(); ++i ) {
             Character c = input.charAt(i);
             if ( ReservedChars.contains(c.toString()) ) {
-                Toast toast = Toast.makeText(getActivity(), R.string.NoteIllegalCharacter + c.toString(), Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
                 toast.show();
                 return false;
             }
