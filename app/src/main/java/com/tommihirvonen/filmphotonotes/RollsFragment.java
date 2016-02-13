@@ -356,7 +356,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                         roll = database.getLastRoll();
 
                         mainTextView.setVisibility(View.GONE);
-                        mRollList.add(roll);
+                        // Add new roll to the top of the list
+                        mRollList.add(0, roll);
                         mArrayAdapter.notifyDataSetChanged();
 
                         // When the new roll is added jump to view the last entry
