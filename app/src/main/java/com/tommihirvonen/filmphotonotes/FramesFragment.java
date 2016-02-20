@@ -550,9 +550,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     }
 
 
-
-
-
     public static String locationStringFromLocation(final Location location) {
         if (location != null)
             return (Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + " " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)).replace(",", ".");
