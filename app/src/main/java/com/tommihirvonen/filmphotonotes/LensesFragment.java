@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -82,6 +83,11 @@ public class LensesFragment extends Fragment implements
 
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
+
+        // Color the item dividers of the ListView
+        int[] dividerColors = {0, R.color.grey, 0};
+        mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+        mainListView.setDividerHeight(2);
 
         if ( mLensList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
 
@@ -181,6 +187,7 @@ public class LensesFragment extends Fragment implements
                             Camera camera = allCameras.get(which);
                             database.deleteMountable(camera, lens);
                         }
+                        mArrayAdapter.notifyDataSetChanged();
                     }
                 })
                 .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {

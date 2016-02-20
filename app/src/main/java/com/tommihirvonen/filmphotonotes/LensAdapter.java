@@ -20,18 +20,30 @@ public class LensAdapter extends ArrayAdapter<Lens> {
         super(context, textViewResourceId, lenses);
     }
 
+    FilmDbHelper database = new FilmDbHelper(getContext());
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Get the data item for this position
-        String lens = getItem(position).getName();
+
+        Lens lens = getItem(position);
+        ArrayList<Camera> mountableCameras = database.getMountableCameras(lens);
+
         // Check if an existing view is being used, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_gear, parent, false);
         }
         // Lookup view for data population
         TextView tvLensName = (TextView) convertView.findViewById(R.id.tv_gear_name);
+        TextView tvMountables = (TextView) convertView.findViewById(R.id.tv_mountables);
         // Populate the data into the template view using the data object
-        tvLensName.setText(lens);
+        tvLensName.setText(lens.getName());
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Mounts to:");
+        for ( Camera camera : mountableCameras ) {
+            stringBuilder.append("\n- " + camera.getName());
+        }
+        String mountables_string = stringBuilder.toString();
+        tvMountables.setText(mountables_string);
 
         return convertView;
     }
