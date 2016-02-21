@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -34,6 +35,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -52,7 +54,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
-public class FramesFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class FramesFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnLongClickListener, AbsListView.OnScrollListener {
 
     OnHomeAsUpPressedListener mCallback;
 
@@ -148,6 +150,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(this);
+        fab.setOnLongClickListener(this);
 
         // Get preferences to determine UI color
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
@@ -182,6 +185,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         }
 
         if (mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
+
+        mainListView.setOnScrollListener(this);
 
         return view;
     }
@@ -404,6 +409,26 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     }
 
     @Override
+    public boolean onLongClick(View v) {
+        switch (v.getId()) {
+            case R.id.fab:
+
+                fab.hide();
+
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        fab.show();
+                    }
+                }, 3000);
+
+                break;
+        }
+        return true;
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Edit frame info
         int _id = mFrameClassList.get(position).getId();
@@ -547,6 +572,16 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 break;
 
         }
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+        fab.show();
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
     }
 
 
