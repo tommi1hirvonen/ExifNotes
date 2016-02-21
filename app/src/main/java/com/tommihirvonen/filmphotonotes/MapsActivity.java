@@ -33,9 +33,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<Frame> mFrameClassList = new ArrayList<>();
     private GoogleMap mMap;
 
+    boolean continue_activity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if ( savedInstanceState != null ) continue_activity = true;
+        else continue_activity = false;
+
         setContentView(R.layout.activity_maps);
         Intent intent = getIntent();
         rollId = intent.getIntExtra(FramesFragment.ROLLINFO_EXTRA_MESSAGE, -1);
@@ -126,7 +132,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             final LatLngBounds bounds = builder.build();
 
-            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            if ( !continue_activity ) mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
                     int padding = 100;
@@ -137,5 +143,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         else {
             Toast.makeText(this, getResources().getString(R.string.NoFramesToShow), Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("CONTINUE", true);
     }
 }

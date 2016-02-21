@@ -36,9 +36,15 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     ArrayList<Roll> mRollClassList = new ArrayList<>();
     private GoogleMap mMap;
 
+    boolean continue_activity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if ( savedInstanceState != null ) continue_activity = true;
+        else continue_activity = false;
+
         setContentView(R.layout.activity_maps);
 
         database = new FilmDbHelper(this);
@@ -146,7 +152,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
             }
             final LatLngBounds bounds = builder.build();
 
-            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            if ( !continue_activity ) mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
                     int padding = 100;
@@ -159,4 +165,9 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("CONTINUE", true);
+    }
 }
