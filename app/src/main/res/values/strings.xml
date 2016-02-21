@@ -35,6 +35,9 @@
     <!--GearActivity-->
     <string name="Gear">Gear</string>
 
+    <!--LensAdapter-->
+    <string name="MountsTo">Mounts to:</string>
+
     <!--LensesFragment-->
     <string name="Lenses">LENSES</string>
     <string name="PickLensesToDelete">Pick lenses to delete</string>

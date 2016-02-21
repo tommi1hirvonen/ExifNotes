@@ -38,7 +38,7 @@ public class CameraAdapter extends ArrayAdapter<Camera> {
         // Populate the data into the template view using the data object
         tvCameraName.setText(camera.getName());
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Mounts to:");
+        stringBuilder.append(getContext().getResources().getString(R.string.MountsTo));
         for ( Lens lens : mountableLenses ) {
             stringBuilder.append("\n- " + lens.getName());
         }
