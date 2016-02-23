@@ -18,7 +18,9 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +35,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
-public class RollsFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+public class RollsFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
 
     OnRollSelectedListener mCallback;
 
@@ -112,7 +114,9 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         mainListView.setOnItemClickListener(this);
 
         // Set this activity to react to list items being pressed and held
-        mainListView.setOnItemLongClickListener(this);
+        //mainListView.setOnItemLongClickListener(this);
+
+        registerForContextMenu(mainListView);
 
         // Color the item dividers of the ListView
         int[] dividerColors = {0, R.color.grey, 0};
@@ -141,14 +145,20 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.menu_context_delete_edit, menu);
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
 
-            case R.id.menu_item_delete:
-
-                // TODO: Implement contextual menu for roll deletion and editing
+            /*case R.id.menu_item_delete:
 
                 //Only delete if there are more than one roll
                 if ( mRollList.size() >= 1 ) {
@@ -216,7 +226,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
 
                 }
-                break;
+                break;*/
 
             case R.id.menu_item_lenses:
                 Intent intent = new Intent(getActivity(), GearActivity.class);
@@ -295,11 +305,13 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         mCallback.onRollSelected(rollId);
     }
 
-    @Override
+    /*@Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote(), mRollList.get(position).getCamera_id());
         return true;
-    }
+    }*/
+
+
 
     private void show_EditRollNameDialog(int rollId, String oldName, String oldNote, int camera_id){
         EditRollNameDialog dialog = new EditRollNameDialog();
@@ -312,6 +324,40 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         RollNameDialog dialog = new RollNameDialog();
         dialog.setTargetFragment(this, ROLL_NAME_DIALOG);
         dialog.show(getFragmentManager().beginTransaction(), RollNameDialog.TAG);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        // Because of a bug with ViewPager and context menu actions,
+        // we have to check which fragment is visible to the user.
+        if ( getUserVisibleHint() ) {
+            switch (item.getItemId()) {
+                case R.id.menu_item_edit:
+
+                    int position = info.position;
+                    show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote(), mRollList.get(position).getCamera_id());
+
+                    return true;
+
+                case R.id.menu_item_delete:
+
+                    int which = info.position;
+
+                    // Delete all the frames from the frames database
+                    database.deleteAllFramesFromRoll(mRollList.get(which).getId());
+
+                    database.deleteRoll(mRollList.get(which));
+
+                    // Remove the roll from the mRollList. Do this last!!!
+                    mRollList.remove(which);
+
+                    if (mRollList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                    mArrayAdapter.notifyDataSetChanged();
+                    return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -15,8 +15,10 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +82,8 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
+        registerForContextMenu(mainListView);
+
         // Color the item dividers of the ListView
         int[] dividerColors = {0, R.color.grey, 0};
         mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
@@ -90,6 +94,14 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
         mArrayAdapter.notifyDataSetChanged();
 
         return view;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.menu_context_delete, menu);
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -197,6 +209,39 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
     }
 
     @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        // Because of a bug with ViewPager and context menu actions,
+        // we have to check which fragment is visible to the user.
+        if ( getUserVisibleHint() ) {
+            switch (item.getItemId()) {
+
+                case R.id.menu_item_delete:
+
+                    int which = info.position;
+
+                    Camera camera = mCameraList.get(which);
+
+                    // Check if the camera is being used with one of the rolls.
+                    if (database.isCameraBeingUsed(camera)) {
+                        Toast.makeText(getActivity(), getResources().getString(R.string.CameraNoColon) + " " + camera.getName() + " " + getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+
+                    database.deleteCamera(camera);
+
+                    // Remove the roll from the mLensList. Do this last!!!
+                    mCameraList.remove(which);
+
+                    if (mCameraList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                    mArrayAdapter.notifyDataSetChanged();
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item){
 
         if ( item.getItemId() == R.id.menu_item_delete_gear ) {
@@ -276,7 +321,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
         }
 
         return false;
-    }
+    }*/
 
     private void showCameraNameDialog() {
         CameraNameDialog dialog = new CameraNameDialog();

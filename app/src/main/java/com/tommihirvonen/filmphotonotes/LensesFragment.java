@@ -15,8 +15,10 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,6 +86,8 @@ public class LensesFragment extends Fragment implements
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
+        registerForContextMenu(mainListView);
+
         // Color the item dividers of the ListView
         int[] dividerColors = {0, R.color.grey, 0};
         mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
@@ -94,6 +98,14 @@ public class LensesFragment extends Fragment implements
         mArrayAdapter.notifyDataSetChanged();
 
         return view;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.menu_context_delete, menu);
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -200,6 +212,32 @@ public class LensesFragment extends Fragment implements
         alert.show();
     }
 
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        // Because of a bug with ViewPager and context menu actions,
+        // we have to check which fragment is visible to the user.
+        if ( getUserVisibleHint() ) {
+            switch (item.getItemId()) {
+
+                case R.id.menu_item_delete:
+
+                    int which = info.position;
+
+                    Lens lens = mLensList.get(which);
+                    database.deleteLens(lens);
+
+                    // Remove the roll from the mLensList. Do this last!!!
+                    mLensList.remove(which);
+
+                    if (mLensList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                    mArrayAdapter.notifyDataSetChanged();
+                    return true;
+            }
+        }
+        return false;
+    }
+
     private void showLensNameDialog() {
         LensNameDialog dialog = new LensNameDialog();
         dialog.setTargetFragment(this, DIALOG_FRAGMENT);
@@ -272,7 +310,7 @@ public class LensesFragment extends Fragment implements
         }
     }
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item){
 
         if ( item.getItemId() == R.id.menu_item_delete_gear ) {
@@ -345,5 +383,5 @@ public class LensesFragment extends Fragment implements
 
         }
         return false;
-    }
+    }*/
 }

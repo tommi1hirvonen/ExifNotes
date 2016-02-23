@@ -98,6 +98,7 @@
     <string name="NewFrame">Add new frame</string>
     <string name="Share">Share</string>
     <string name="ShowOnMap">Show on map</string>
+    <string name="Edit">Edit</string>
 
     <!--RollNameDialog-->
     <string name="NewRoll">Add new roll</string>

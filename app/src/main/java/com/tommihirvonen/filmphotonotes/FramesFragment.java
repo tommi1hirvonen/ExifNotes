@@ -28,6 +28,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -174,6 +175,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         mainListView.setOnItemClickListener(this);
 
+        registerForContextMenu(mainListView);
+
         // Color the item dividers of the ListView
         int[] dividerColors = {0, R.color.grey, 0};
         mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
@@ -208,10 +211,65 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.menu_context_delete_edit, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        // Because of a bug with ViewPager and context menu actions,
+        // we have to check which fragment is visible to the user.
+        if ( getUserVisibleHint() ) {
+            switch (item.getItemId()) {
+                case R.id.menu_item_edit:
+
+                    int position = info.position;
+
+                    // Edit frame info
+                    int _id = mFrameClassList.get(position).getId();
+                    String lens = mFrameClassList.get(position).getLens();
+                    int count = mFrameClassList.get(position).getCount();
+                    String date = mFrameClassList.get(position).getDate();
+                    String shutter = mFrameClassList.get(position).getShutter();
+                    String aperture = mFrameClassList.get(position).getAperture();
+                    String note = mFrameClassList.get(position).getNote();
+                    String location = mFrameClassList.get(position).getLocation();
+
+                    EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture, note, location, camera_id);
+                    dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
+                    dialog.show(getFragmentManager().beginTransaction(), EditFrameInfoDialog.TAG);
+
+                    return true;
+
+                case R.id.menu_item_delete:
+
+                    int which = info.position;
+
+                    Frame frame = mFrameClassList.get(which);
+                    database.deleteFrame(frame);
+                    mFrameClassList.remove(which);
+
+                    if (mFrameClassList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                    mFrameAdapter.notifyDataSetChanged();
+                    if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
+                    else counter = 0;
+                    setShareIntent();
+
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
 
-            case R.id.menu_item_delete:
+            /*case R.id.menu_item_delete:
 
                 // TODO: Implement contextual menu for frame deletion
 
@@ -280,7 +338,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                 }
 
-                break;
+                break;*/
 
             case R.id.menu_item_lenses:
                 Intent intent = new Intent(getActivity(), GearActivity.class);
