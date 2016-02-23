@@ -259,7 +259,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                 break;
 
-            case R.id.menu_item_help:
+            /*case R.id.menu_item_help:
 
                 AlertDialog.Builder helpDialog = new AlertDialog.Builder(getActivity());
                 helpDialog.setTitle(R.string.Help);
@@ -273,7 +273,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                 helpDialog.show();
 
-                break;
+                break;*/
 
             case R.id.menu_item_show_on_map:
 

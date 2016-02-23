@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Film Photo Notes</string>
 
+    <string name="main_help">Help for roll fragment</string>
+    <string name="frame_help">Help for frame fragment</string>
+
     <!--AllFramesMapsActivity-->
     <string name="AllFrames">All frames</string>
 
@@ -65,13 +68,7 @@
     <string name="RollIllegalCharacter">Roll name contains an illegal character:</string>
     <!--When updating "about" also update "eula"-->
     <string name="about">Version 1.0\nCopyright 2015 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
-    <string name="main_help">
-        - Add lenses to your database by pressing "Lenses" in the option menu.\n
-        - Add new rolls by pressing the + -icon.\n
-        - Delete rolls by pressing the trash can icon.\n
-        - You can view the frames of a roll by pressing on the roll you wish to view.\n
-        - You can rename a roll by pressing and holding the roll you wish to rename.
-    </string>
+
     <string name="Preferences">Settings</string>
     <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
     <string name="Settings">Settings</string>
@@ -89,11 +86,7 @@
     <!--RollsFragment-->
     <string name="Frames">Frames</string>
     <string name="PickFramesToDelete">Pick frames to delete</string>
-    <string name="frame_help">
-        - Add new frames by pressing the + -icon.\n
-        - Delete frames by pressing the trash can icon.\n
-        - You can edit a frame\'s information by pressing on it.\n
-        - You can share the roll information by pressing the share icon. The app shares a text file formatted in semi-colon separated values. You can save this file in Dropbox, for example, and name the file with .csv ending.</string>
+
     <string name="EditFrame">Edit frame #</string>
     <string name="NewFrame">Add new frame</string>
     <string name="Share">Share</string>

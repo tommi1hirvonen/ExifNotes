@@ -371,7 +371,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                 break;
 
-            case R.id.menu_item_help:
+            /*case R.id.menu_item_help:
 
                 AlertDialog.Builder helpDialog = new AlertDialog.Builder(getActivity());
                 helpDialog.setTitle(R.string.Help);
@@ -385,7 +385,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                 helpDialog.show();
 
-                break;
+                break;*/
 
             case android.R.id.home:
 
