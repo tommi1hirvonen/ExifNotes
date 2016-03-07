@@ -269,77 +269,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
 
-            /*case R.id.menu_item_delete:
-
-                // TODO: Implement contextual menu for frame deletion
-
-                if (mFrameClassList.size() >= 1) {
-
-                    // Ask the user which frame(s) to delete
-
-                    ArrayList<String> listItems = new ArrayList<>();
-                    for (int i = 0; i < mFrameClassList.size(); ++i) {
-                        listItems.add(" #" + mFrameClassList.get(i).getCount() + "   " + mFrameClassList.get(i).getDate());
-                        //            ^ trick to add integer to string
-                    }
-                    final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
-                    final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(R.string.PickFramesToDelete)
-
-                            // Multiple Choice Dialog
-                            .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                    if (isChecked) {
-                                        // If the user checked the item, add it to the selected items
-                                        selectedItemsIndexList.add(which);
-                                    } else if (selectedItemsIndexList.contains(which)) {
-                                        // Else, if the item is already in the array, remove it
-                                        selectedItemsIndexList.remove(Integer.valueOf(which));
-                                    }
-                                }
-                            })
-                                    // Set the action buttons
-                            .setPositiveButton(R.string.Delete, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-
-                                    // Do something with the selection
-                                    Collections.sort(selectedItemsIndexList);
-                                    for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
-                                        int which = selectedItemsIndexList.get(i);
-
-                                        Frame frame = mFrameClassList.get(which);
-                                        database.deleteFrame(frame);
-                                        mFrameClassList.remove(which);
-
-
-                                    }
-                                    if (mFrameClassList.size() == 0)
-                                        mainTextView.setVisibility(View.VISIBLE);
-                                    mFrameAdapter.notifyDataSetChanged();
-                                    if (mFrameClassList.size() >= 1)
-                                        counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
-                                    else counter = 0;
-                                    setShareIntent();
-
-                                }
-                            })
-                            .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-                                    // Do nothing
-                                }
-                            });
-
-                    AlertDialog alert = builder.create();
-                    alert.show();
-
-                }
-
-                break;*/
-
             case R.id.menu_item_lenses:
                 Intent intent = new Intent(getActivity(), GearActivity.class);
                 startActivity(intent);
@@ -370,22 +299,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 aboutDialog.show();
 
                 break;
-
-            /*case R.id.menu_item_help:
-
-                AlertDialog.Builder helpDialog = new AlertDialog.Builder(getActivity());
-                helpDialog.setTitle(R.string.Help);
-                helpDialog.setMessage(R.string.main_help);
-
-
-                helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-
-                helpDialog.show();
-
-                break;*/
 
             case android.R.id.home:
 

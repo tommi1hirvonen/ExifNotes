@@ -158,76 +158,6 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
 
-            /*case R.id.menu_item_delete:
-
-                //Only delete if there are more than one roll
-                if ( mRollList.size() >= 1 ) {
-
-                    // Ask the user which roll to delete
-
-                    // LIST ITEMS DIALOG
-
-                    List<String> listItems = new ArrayList<>();
-                    for ( int i = 0; i < mRollList.size(); ++i ) {
-                        listItems.add(mRollList.get(i).getName());
-                    }
-                    final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-                    // MULTIPLE CHOICE DIALOG
-                    final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
-                    builder.setTitle(R.string.PickRollsToDelete)
-                            .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                    if (isChecked) {
-                                        // If the user checked the item, add it to the selected items
-                                        selectedItemsIndexList.add(which);
-                                    } else if (selectedItemsIndexList.contains(which)) {
-                                        // Else, if the item is already in the array, remove it
-                                        selectedItemsIndexList.remove(Integer.valueOf(which));
-                                    }
-                                }
-                            })
-                                    // Set the action buttons
-                            .setPositiveButton(R.string.Delete, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-
-                                    // Do something with the selections
-                                    Collections.sort(selectedItemsIndexList);
-                                    for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
-                                        int which = selectedItemsIndexList.get(i);
-
-                                        // Delete all the frames from the frames database
-                                        database.deleteAllFramesFromRoll(mRollList.get(which).getId());
-
-                                        database.deleteRoll(mRollList.get(which));
-
-                                        // Remove the roll from the mRollList. Do this last!!!
-                                        mRollList.remove(which);
-                                    }
-                                    if (mRollList.size() == 0 ) mainTextView.setVisibility(View.VISIBLE);
-                                    mArrayAdapter.notifyDataSetChanged();
-
-                                }
-                            })
-                            .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            // Do nothing
-                                        }
-                                    }
-                            );
-
-                    AlertDialog alert = builder.create();
-                    alert.show();
-
-
-                }
-                break;*/
-
             case R.id.menu_item_lenses:
                 Intent intent = new Intent(getActivity(), GearActivity.class);
                 startActivity(intent);
@@ -259,22 +189,6 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                 break;
 
-            /*case R.id.menu_item_help:
-
-                AlertDialog.Builder helpDialog = new AlertDialog.Builder(getActivity());
-                helpDialog.setTitle(R.string.Help);
-                helpDialog.setMessage(R.string.main_help);
-
-
-                helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-
-                helpDialog.show();
-
-                break;*/
-
             case R.id.menu_item_show_on_map:
 
                 // Show all frames from all rolls on a map
@@ -304,14 +218,6 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         Log.d("ROLL_ID", "" + rollId);
         mCallback.onRollSelected(rollId);
     }
-
-    /*@Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote(), mRollList.get(position).getCamera_id());
-        return true;
-    }*/
-
-
 
     private void show_EditRollNameDialog(int rollId, String oldName, String oldNote, int camera_id){
         EditRollNameDialog dialog = new EditRollNameDialog();
