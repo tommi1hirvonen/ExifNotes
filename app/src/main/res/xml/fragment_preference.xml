@@ -12,6 +12,13 @@
             android:defaultValue="true"
             />
 
+        <EditTextPreference
+            android:key="ArtistName"
+            android:title="@string/ArtistName"
+            android:defaultValue=""
+            android:capitalize="words"
+            />
+
         <ListPreference
             android:key="ShutterIncrements"
             android:title="@string/ShutterIncrementsTitle"

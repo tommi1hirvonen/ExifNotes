@@ -109,4 +109,5 @@
     <string name="NoteIllegalCharacter">Muistiinpanossa on sallimaton merkki:</string>
     <string name="MountsTo">Kiinnittyy:</string>
     <string name="Edit">Muokkaa</string>
+    <string name="ArtistName">Tekijän nimi</string>
 </resources>

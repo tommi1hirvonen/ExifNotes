@@ -412,6 +412,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         if (mShareActionProvider != null) {
 
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+            String artistName = prefs.getString("ArtistName", "");
+
             // create an Intent with the contents of the TextView
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
@@ -426,6 +429,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             stringBuilder.append("Added: " + roll.getDate() + "\n");
             stringBuilder.append("Camera: " + database.getCamera(camera_id).getName() + "\n");
             stringBuilder.append("Notes: " + roll.getNote() + "\n");
+            stringBuilder.append("Artist name: " + artistName + "\n");
             stringBuilder.append("Frame Count" + separator + "Date" + separator + "Lens" + separator + "Shutter" + separator + "Aperture" + separator + "Notes" + separator + "Location" + "\n");
             for (int i = 0; i < mFrameClassList.size(); ++i) {
                 stringBuilder.append(mFrameClassList.get(i).getCount());

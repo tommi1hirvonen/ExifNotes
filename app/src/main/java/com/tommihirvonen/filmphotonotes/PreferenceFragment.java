@@ -2,6 +2,7 @@ package com.tommihirvonen.filmphotonotes;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 
@@ -26,6 +27,8 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         shutterIncrements.setSummary(((ListPreference) shutterIncrements).getEntry());
         Preference apertureIncrements = findPreference("ApertureIncrements");
         apertureIncrements.setSummary(((ListPreference) apertureIncrements).getEntry());
+        Preference artistName = findPreference("ArtistName");
+        artistName.setSummary(((EditTextPreference) artistName).getText());
         Preference UIColor = findPreference("UIColor");
         UIColor.setSummary(((ListPreference) UIColor).getEntry());
     }
@@ -50,6 +53,8 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         shutterIncrements.setSummary(((ListPreference) shutterIncrements).getEntry());
         Preference apertureIncrements = findPreference("ApertureIncrements");
         apertureIncrements.setSummary(((ListPreference) apertureIncrements).getEntry());
+        Preference artistName = findPreference("ArtistName");
+        artistName.setSummary(((EditTextPreference) artistName).getText());
         Preference UIColor = findPreference("UIColor");
         UIColor.setSummary(((ListPreference) UIColor).getEntry());
     }

@@ -154,6 +154,7 @@
     <string name="GPSUpdateSummary">Keep updating the current location using GPS.</string>
     <string name="AlwaysShowLensSelectionTitle">Always show lens selection</string>
     <string name="AlwaysShowLensSelectionSummary">If unchecked, the previously used lens will be selected by default when adding a new frame.</string>
+    <string name="ArtistName">Artist name</string>
     <string name="ShutterIncrementsTitle">Shutter speed increments</string>
     <string name="ApertureIncrementsTitle">Aperture value increments</string>
     <string name="ThirdStop">1/3 stop</string>
