@@ -200,6 +200,10 @@ public class LensesFragment extends Fragment implements
                             database.deleteMountable(camera, lens);
                         }
                         mArrayAdapter.notifyDataSetChanged();
+
+                        // Update the CamerasFragment through the parent activity.
+                        GearActivity myActivity = (GearActivity)getActivity();
+                        myActivity.updateFragments();
                     }
                 })
                 .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -232,6 +236,11 @@ public class LensesFragment extends Fragment implements
 
                     if (mLensList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
                     mArrayAdapter.notifyDataSetChanged();
+
+                    // Update the CamerasFragment through the parent activity.
+                    GearActivity myActivity = (GearActivity)getActivity();
+                    myActivity.updateFragments();
+
                     return true;
             }
         }
@@ -308,5 +317,9 @@ public class LensesFragment extends Fragment implements
                 showLensNameDialog();
                 break;
         }
+    }
+
+    public void updateFragment(){
+        mArrayAdapter.notifyDataSetChanged();
     }
 }

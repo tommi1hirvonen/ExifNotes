@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -26,6 +27,7 @@ public class GearActivity extends AppCompatActivity {
 
     TabLayout tabLayout;
     ViewPager viewPager;
+    PagerAdapter pagerAdapter;
     final static String GEAR_ACTIVITY_SAVED_VIEW = "GEAR_ACTIVITY_SAVED_VIEW";
 
     @Override
@@ -56,7 +58,8 @@ public class GearActivity extends AppCompatActivity {
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager(), this));
+        pagerAdapter = new PagerAdapter(getSupportFragmentManager(), this);
+        viewPager.setAdapter(pagerAdapter);
 
         // Give the TabLayout the ViewPager
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
@@ -95,5 +98,14 @@ public class GearActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         viewPager.setCurrentItem(savedInstanceState.getInt(POSITION));
+    }
+
+    public void updateFragments(){
+        int pos = viewPager.getCurrentItem();
+        if (pos == 0) pos = 1;
+        else if (pos == 1) pos = 0;
+        Fragment inactiveFragment = pagerAdapter.getItem(pos);
+        if (pos == 1) ((CamerasFragment)inactiveFragment).updateFragment();
+        else if (pos == 0) ((LensesFragment)inactiveFragment).updateFragment();
     }
 }

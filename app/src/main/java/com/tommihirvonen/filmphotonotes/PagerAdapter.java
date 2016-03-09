@@ -12,6 +12,7 @@ public class PagerAdapter extends FragmentPagerAdapter {
     final int PAGE_COUNT = 2;
 
     Activity activity;
+    Fragment Lenses, Cameras;
 
     public PagerAdapter(FragmentManager fm, Activity activity) {
         super(fm);
@@ -25,9 +26,20 @@ public class PagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        if ( position == 0 ) return new LensesFragment();
-        if (position == 1 ) return new CamerasFragment();
-        else return null;
+//        if ( position == 0 ) return new LensesFragment();
+//        if (position == 1 ) return new CamerasFragment();
+//        else return null;
+        switch (position) {
+            case 0:
+                if(Lenses == null)
+                    Lenses = new LensesFragment();
+                return Lenses;
+            case 1:
+                if(Cameras == null)
+                    Cameras = new CamerasFragment();
+                return Cameras;
+        }
+        return null;
     }
 
     @Override

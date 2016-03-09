@@ -4,6 +4,7 @@ package com.tommihirvonen.filmphotonotes;
 // Tommi Hirvonen
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -196,6 +197,10 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                             database.deleteMountable(camera, lens);
                         }
                         mArrayAdapter.notifyDataSetChanged();
+
+                        // Update the LensesFragment through the parent activity.
+                        GearActivity myActivity = (GearActivity)getActivity();
+                        myActivity.updateFragments();
                     }
                 })
                 .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -235,6 +240,11 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                     if (mCameraList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
                     mArrayAdapter.notifyDataSetChanged();
+
+                    // Update the LensesFragment through the parent activity.
+                    GearActivity myActivity = (GearActivity)getActivity();
+                    myActivity.updateFragments();
+
                     return true;
             }
         }
@@ -309,5 +319,8 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                 }
                 break;
         }
+    }
+    public void updateFragment(){
+        mArrayAdapter.notifyDataSetChanged();
     }
 }
