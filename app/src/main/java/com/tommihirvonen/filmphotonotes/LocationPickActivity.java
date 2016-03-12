@@ -137,6 +137,10 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
         mMap = googleMap;
         mMap.setOnMapClickListener(this);
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        }
+
         // If the latlng_location is not empty
         if (location.length() > 0 && !location.equals("null")) {
             String latString = location.substring(0, location.indexOf(" "));
@@ -145,9 +149,6 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
             double lng = Double.parseDouble(lngString.replace(",", "."));
             final LatLng position = new LatLng(lat, lng);
             marker = mMap.addMarker(new MarkerOptions().position(position));
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mMap.setMyLocationEnabled(true);
-            }
 
             if ( !continue_activity ) mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
@@ -162,6 +163,10 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
 
     @Override
     public void onMapClick(LatLng latLng) {
+        // In case the location was cleared before clicking Edit on map
+        if ( marker == null) {
+            marker = mMap.addMarker(new MarkerOptions().position(latLng));
+        }
         marker.setPosition(latLng);
         latlng_location = latLng;
     }
