@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Film Photo Notes</string>
+    <string name="app_name">Exif Notes</string>
 
     <string name="main_help">Help for roll fragment</string>
     <string name="frame_help">Help for frame fragment</string>
