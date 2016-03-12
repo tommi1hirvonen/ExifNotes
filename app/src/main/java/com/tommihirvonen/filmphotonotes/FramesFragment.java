@@ -437,7 +437,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String date = getCurrentTime();
         String shutter;
         String aperture;
-        String location = locationStringFromLocation(mLastLocation);
+        String location;
+        if ( locationEnabled ) location = locationStringFromLocation(mLastLocation);
+        else location = "";
+        
         if (!mFrameClassList.isEmpty()) {
             Frame previousFrame = mFrameClassList.get(mFrameClassList.size() - 1);
             lens = previousFrame.getLens();
