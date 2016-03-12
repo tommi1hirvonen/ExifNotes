@@ -89,8 +89,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.d(FilmDbHelper.class.getName(), "Upgrading database from version " + oldVersion
-                + " to " + newVersion + ", which will destroy all old data");
+
+        // TODO: When a new version of the app is being launched, make sure DROP TABLE is not used!
+
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FRAMES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LENSES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROLLS);

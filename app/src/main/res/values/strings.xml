@@ -86,6 +86,7 @@
     <!--RollsFragment-->
     <string name="Frames">Frames</string>
     <string name="PickFramesToDelete">Pick frames to delete</string>
+    <string name="ConfirmRollDelete">Delete roll</string>
 
     <string name="EditFrame">Edit frame #</string>
     <string name="NewFrame">Add new frame</string>

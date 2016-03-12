@@ -248,18 +248,33 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                 case R.id.menu_item_delete:
 
-                    int which = info.position;
+                    final int rollPosition = info.position;
 
-                    // Delete all the frames from the frames database
-                    database.deleteAllFramesFromRoll(mRollList.get(which).getId());
+                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+                    alertBuilder.setTitle(getResources().getString(R.string.ConfirmRollDelete) + " " + mRollList.get(rollPosition).getName() + "?");
+                    alertBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do nothing
+                        }
+                    });
+                    alertBuilder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Delete all the frames from the frames database
+                            database.deleteAllFramesFromRoll(mRollList.get(rollPosition).getId());
 
-                    database.deleteRoll(mRollList.get(which));
+                            database.deleteRoll(mRollList.get(rollPosition));
 
-                    // Remove the roll from the mRollList. Do this last!!!
-                    mRollList.remove(which);
+                            // Remove the roll from the mRollList. Do this last!!!
+                            mRollList.remove(rollPosition);
 
-                    if (mRollList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                    mArrayAdapter.notifyDataSetChanged();
+                            if (mRollList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                            mArrayAdapter.notifyDataSetChanged();
+                        }
+                    });
+                    alertBuilder.create().show();
+
                     return true;
             }
         }
