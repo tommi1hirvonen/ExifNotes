@@ -101,6 +101,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public static final int FRAME_INFO_DIALOG = 1;
     public static final int EDIT_FRAME_INFO_DIALOG = 2;
 
+    public static final int EXPORT_MENU_ITEM_ID = 99;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -196,6 +198,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.Share);
+        menu.add(Menu.NONE, EXPORT_MENU_ITEM_ID, Menu.NONE, R.string.ExportExif);
 
         if (shareItem != null) {
             mShareActionProvider = new ShareActionProvider(getActivity());
@@ -311,6 +314,31 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 Intent intent2 = new Intent(getActivity(), MapsActivity.class);
                 intent2.putExtra(ROLLINFO_EXTRA_MESSAGE, rollId);
                 startActivity(intent2);
+                break;
+
+            case EXPORT_MENU_ITEM_ID:
+
+
+                // Create DirectoryChooserDialog and register a callback
+                DirectoryChooserDialog directoryChooserDialog =
+                        new DirectoryChooserDialog(getActivity(),
+                                new DirectoryChooserDialog.ChosenDirectoryListener() {
+                                    @Override
+                                    public void onChosenDir(String chosenDir) {
+
+                                        // Do here everything that needs to be done
+                                        // with the directory.
+
+                                        Toast.makeText(getActivity(), "Chosen directory: " +
+                                                        chosenDir, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                // Toggle new folder button enabling
+                directoryChooserDialog.setNewFolderEnabled(false);
+                // Load directory chooser dialog for initial 'initialDir' directory.
+                // The registered callback will be called upon final directory selection.
+                directoryChooserDialog.chooseDirectory();
+
                 break;
 
         }
