@@ -19,6 +19,9 @@
     <string name="CameraNoColon">Camera</string>
     <string name="IsBeingUsed">is being used!</string>
 
+    <!--DirectoryChooserDialog-->
+    <string name="CurrentDirectory">Current directory:</string>
+
     <!--EditFrameInfoDialog-->
     <string name="UsedLens">Choose used lens</string>
     <string name="OK">OK</string>

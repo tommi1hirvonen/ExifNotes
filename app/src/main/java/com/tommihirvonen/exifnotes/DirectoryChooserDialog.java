@@ -22,24 +22,21 @@ import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
-import android.text.Editable;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class DirectoryChooserDialog {
 
     private boolean m_isNewFolderEnabled = true;
     private String m_sdcardDirectory = "";
     private Context m_context;
+    private TextView m_currentDirView;
     private TextView m_titleView;
 
     private String m_dir = "";
@@ -212,7 +209,22 @@ public class DirectoryChooserDialog {
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
+        m_currentDirView = new TextView(m_context);
         m_titleView = new TextView(m_context);
+
+        m_currentDirView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            m_currentDirView.setTextAppearance(m_context, android.R.style.TextAppearance_Medium);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            m_currentDirView.setTextAppearance(android.R.style.TextAppearance_Medium);
+        }
+        m_currentDirView.setTextColor(ContextCompat.getColor(m_context, android.R.color.white));
+        m_currentDirView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        m_currentDirView.setText(title);
+        m_currentDirView.setPadding(25, 5, 25, 25);
+        m_currentDirView.setBackgroundColor(Color.parseColor(primaryColor));
+
         m_titleView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             m_titleView.setTextAppearance(m_context, android.R.style.TextAppearance_Medium);
@@ -220,12 +232,11 @@ public class DirectoryChooserDialog {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             m_titleView.setTextAppearance(android.R.style.TextAppearance_Medium);
         }
-        m_titleView.setTextColor( ContextCompat.getColor(m_context, android.R.color.white) );
+        m_titleView.setTextColor(ContextCompat.getColor(m_context, android.R.color.white));
         m_titleView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        m_titleView.setText(title);
-        m_titleView.setPadding(30, 30, 30, 30);
+        m_titleView.setText(m_context.getResources().getString(R.string.CurrentDirectory));
+        m_titleView.setPadding(25, 25, 25, 5);
         m_titleView.setBackgroundColor(Color.parseColor(primaryColor));
-
 
         /*Button newDirButton = new Button(m_context);
         newDirButton.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -262,6 +273,7 @@ public class DirectoryChooserDialog {
         }*/
 
         titleLayout.addView(m_titleView);
+        titleLayout.addView(m_currentDirView);
         //titleLayout.addView(newDirButton);
 
         dialogBuilder.setCustomTitle(titleLayout);
@@ -277,7 +289,7 @@ public class DirectoryChooserDialog {
     private void updateDirectory() {
         m_subdirs.clear();
         m_subdirs.addAll( getDirectories(m_dir) );
-        m_titleView.setText(m_dir);
+        m_currentDirView.setText(m_dir);
 
         m_listAdapter.notifyDataSetChanged();
     }
