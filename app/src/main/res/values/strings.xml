@@ -99,6 +99,9 @@
     <string name="NewRoll">Add new roll</string>
     <string name="UsedCamera">Choose used camera</string>
     <string name="ClickToSelect">Click to select</string>
+    <string name="NoName">No name was set!</string>
+    <string name="NoCamera">No camera was set!</string>
+    <string name="NoNameOrCamera">No name or camera was set!</string>
 
     <!--SimpleEula-->
     <string name="Updates">Updates in this version:\n- First published version</string>
