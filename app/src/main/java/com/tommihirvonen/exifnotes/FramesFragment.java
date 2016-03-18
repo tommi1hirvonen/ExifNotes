@@ -48,6 +48,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -328,9 +329,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                                         // Do here everything that needs to be done
                                         // with the directory.
-
-                                        Toast.makeText(getActivity(), "Chosen directory: " +
-                                                        chosenDir, Toast.LENGTH_LONG).show();
+                                        exportExif(chosenDir);
                                     }
                                 });
                 // Toggle new folder button enabling
@@ -345,6 +344,39 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
 
         return true;
+    }
+
+    private void exportExif(String inputDirectory){
+
+        File directory = new File(inputDirectory);
+        ArrayList<File> files = new ArrayList<>();
+
+        // get all the files from a directory
+        File[] fList = directory.listFiles();
+        for (File file : fList) {
+            if (file.isFile() &&
+                    ( file.getName().contains(".jpg") || file.getName().contains(".JPG") ||
+                            file.getName().contains(".jpeg") || file.getName().contains(".JPEG"))) {
+                files.add(file);
+            }
+        }
+
+        for ( File file : files) {
+
+            // Create ExifInterface to edit exif data of file
+
+            for (Frame frame : mFrameClassList ) {
+
+                if ( Integer.toString(frame.getCount()).equals(file.getName().substring(0, file.getName().lastIndexOf("."))) ) {
+
+                    // Edit the exif info with the data from frame
+
+
+                    // We found the correct frame, now we can skip to the next file.
+                    break;
+                }
+            }
+        }
     }
 
     private Intent setShareIntent() {
