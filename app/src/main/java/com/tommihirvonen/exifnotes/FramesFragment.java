@@ -19,6 +19,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -49,6 +50,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -198,8 +201,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-        MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.Share);
-        menu.add(Menu.NONE, EXPORT_MENU_ITEM_ID, Menu.NONE, R.string.ExportExif);
+        MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.ExportExif);
+        //menu.add(Menu.NONE, EXPORT_MENU_ITEM_ID, Menu.NONE, R.string.ExportExif);
 
         if (shareItem != null) {
             mShareActionProvider = new ShareActionProvider(getActivity());
@@ -317,8 +320,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 startActivity(intent2);
                 break;
 
-            case EXPORT_MENU_ITEM_ID:
-
+            /*case EXPORT_MENU_ITEM_ID:
 
                 // Create DirectoryChooserDialog and register a callback
                 DirectoryChooserDialog directoryChooserDialog =
@@ -338,45 +340,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 // The registered callback will be called upon final directory selection.
                 directoryChooserDialog.chooseDirectory();
 
-                break;
+                break;*/
 
         }
 
 
         return true;
-    }
-
-    private void exportExif(String inputDirectory){
-
-        File directory = new File(inputDirectory);
-        ArrayList<File> files = new ArrayList<>();
-
-        // get all the files from a directory
-        File[] fList = directory.listFiles();
-        for (File file : fList) {
-            if (file.isFile() &&
-                    ( file.getName().contains(".jpg") || file.getName().contains(".JPG") ||
-                            file.getName().contains(".jpeg") || file.getName().contains(".JPEG"))) {
-                files.add(file);
-            }
-        }
-
-        for ( File file : files) {
-
-            // Create ExifInterface to edit exif data of file
-
-            for (Frame frame : mFrameClassList ) {
-
-                if ( Integer.toString(frame.getCount()).equals(file.getName().substring(0, file.getName().lastIndexOf("."))) ) {
-
-                    // Edit the exif info with the data from frame
-
-
-                    // We found the correct frame, now we can skip to the next file.
-                    break;
-                }
-            }
-        }
     }
 
     private Intent setShareIntent() {
@@ -386,12 +355,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
             String artistName = prefs.getString("ArtistName", "");
 
-            // create an Intent with the contents of the TextView
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
 
-            // Get the roll and its information
+            // ********** OLD IMPLEMENTATION FOR CSV TEXT SHARING **********
+            /*// Get the roll and its information
             Roll roll = database.getRoll(rollId);
 
             final String separator = ",";
@@ -417,7 +386,76 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 stringBuilder.append(separator);
                 stringBuilder.append(mFrameClassList.get(i).getLocation());
                 stringBuilder.append("\n");
+            }*/
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            String exiftoolCmd = "exiftool";
+            String artistTag = "-Artist=";
+            String cameraMakeTag = "-Make=";
+            String cameraModelTag = "-Model=";
+            String lensMakeTag = "-LensMake=";
+            String lensModelTag = "-LensModel=";
+            String dateTag = "-DateTime=";
+            String shutterTag = "-ShutterSpeedValue=";
+            String apertureTag = "-ApertureValue=";
+            String commentTag = "-UserComment=";
+            String gpsLatTag = "-GPSLatitude=";
+            String gpsLatRefTag = "-GPSLatitudeRef=";
+            String gpsLngTag = "-GPSLongitude=";
+            String gpsLngRefTag = "-GPSLongitudeRef=";
+            String fileEnding = ".jpg";
+            String quote = "\"";
+            String space = " ";
+
+            for ( Frame frame : mFrameClassList ) {
+
+                if ( frame.getLocation().length() > 0 ) {
+                    String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
+                    String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
+                    String latRef = "";
+                    if ( latString.substring(0, 1).equals("-") ) {
+                        latRef = "S";
+                        latString = latString.substring(1, latString.length());
+                    }
+                    else latRef = "N";
+                    String lngRef = "";
+                    if ( lngString.substring(0, 1).equals("-") ) {
+                        lngRef = "W";
+                        lngString = lngString.substring(1, lngString.length());
+                    }
+                    else lngRef = "E";
+                    latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
+                    List<String> latStringList = Arrays.asList(latString.split(":"));
+                    lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
+                    List<String> lngStringList = Arrays.asList(lngString.split(":"));
+
+                    stringBuilder.append(exiftoolCmd + space
+                            + artistTag + quote + artistName + quote + space
+                            + cameraModelTag + quote + database.getCamera(camera_id).getName() + quote + space
+                            + lensModelTag + quote + frame.getLens() + quote + space
+                            + dateTag + quote + frame.getDate().replace("-", ":") + quote + space
+                            + shutterTag + quote + frame.getShutter() + quote + space
+                            + apertureTag + quote + frame.getAperture() + quote + space
+                            + commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space
+                            + gpsLatTag + quote + latStringList.get(0) + space + latStringList.get(1) + space + latStringList.get(2) + quote + space
+                            + gpsLatRefTag + quote + latRef + quote + space
+                            + gpsLngTag + quote + lngStringList.get(0) + space + lngStringList.get(1) + space + lngStringList.get(2) + quote + space
+                            + gpsLngRefTag + quote + lngRef + quote + space
+                            + "./" + frame.getCount() + fileEnding + "\n");
+                } else {
+                    stringBuilder.append(exiftoolCmd + space
+                            + artistTag + quote + artistName + quote + space
+                            + cameraModelTag + quote + database.getCamera(camera_id).getName() + quote + space
+                            + lensModelTag + quote + frame.getLens() + quote + space
+                            + dateTag + quote + frame.getDate().replace("-", ":") + quote + space
+                            + shutterTag + quote + frame.getShutter() + quote + space
+                            + apertureTag + quote + frame.getAperture() + quote + space
+                            + commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space
+                            + "./" + frame.getCount() + fileEnding + "\n");
+                }
             }
+
             String shared = stringBuilder.toString();
 
             shareIntent.putExtra(Intent.EXTRA_TEXT, shared);
