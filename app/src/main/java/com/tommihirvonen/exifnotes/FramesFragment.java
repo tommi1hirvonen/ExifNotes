@@ -420,7 +420,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     stringBuilder.append(lensModelTag + quote + database.getLens(frame.getLensId()).getModel() + quote + space);
                 }
                 stringBuilder.append(dateTag + quote + frame.getDate().replace("-", ":") + quote + space);
-                if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag + quote + frame.getShutter() + quote + space);
+                if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag + quote + frame.getShutter().replace("\"","") + quote + space);
                 if ( !frame.getAperture().contains("<") )stringBuilder.append(apertureTag + quote + frame.getAperture() + quote + space);
                 if ( frame.getNote().length() > 0 ) stringBuilder.append(commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space);
 
