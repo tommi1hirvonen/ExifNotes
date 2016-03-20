@@ -37,7 +37,7 @@
 
     <!--FramesFragment-->
     <string name="NoteIllegalCharacter">Note contains an illegal character:</string>
-    <string name="ExportExif">Export exif</string>
+    <string name="ExportExif">Export exiftool cmds</string>
 
     <!--GearActivity-->
     <string name="Gear">Gear</string>
@@ -162,7 +162,6 @@
     <string name="GPSUpdateSummary">Keep updating the current location using GPS.</string>
     <string name="AlwaysShowLensSelectionTitle">Always show lens selection</string>
     <string name="AlwaysShowLensSelectionSummary">If unchecked, the previously used lens will be selected by default when adding a new frame.</string>
-    <string name="ArtistName">Artist name</string>
     <string name="ShutterIncrementsTitle">Shutter speed increments</string>
     <string name="ApertureIncrementsTitle">Aperture value increments</string>
     <string name="ThirdStop">1/3 stop</string>
@@ -178,5 +177,15 @@
     <string name="Grey">Grey</string>
     <string name="Purple">Purple</string>
     <string name="Cyan">Cyan</string>
+
+    <string name="Exiftool_Cap">EXIFTOOL INTEGRATION</string>
+    <string name="ArtistName">Artist name</string>
+    <string name="ArtistNameSummary">Artist name information to be stored under the artist tag in the file\'s exif</string>
+    <string name="CopyrightInformationTitle">Copyright information</string>
+    <string name="CopyrightInformationSummary">Copyright information to be stored under the copyright tag in the file\'s exif</string>
+    <string name="ExiftoolPathTitle">Exiftool path</string>
+    <string name="ExiftoolPathSummary">"If you are using the exiftool stand-alone executable, you can define its path here ending with '/' or '\\' depending on your OS."</string>
+    <string name="PicturesPathTitle">Path to pictures</string>
+    <string name="PicturesPathSummary">"If the picture files you want to edit are in a certain folder, you can define its path here ending with '/' or '\\' depending on your OS."</string>
 
 </resources>

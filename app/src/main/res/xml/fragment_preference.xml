@@ -12,13 +12,6 @@
             android:defaultValue="true"
             />
 
-        <EditTextPreference
-            android:key="ArtistName"
-            android:title="@string/ArtistName"
-            android:defaultValue=""
-            android:capitalize="words"
-            />
-
         <ListPreference
             android:key="ShutterIncrements"
             android:title="@string/ShutterIncrementsTitle"
@@ -40,6 +33,40 @@
             android:entryValues="@array/UIColorOptionsData"
             android:defaultValue="#ef6c00,#e65100"
             />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/Exiftool_Cap">
+
+        <EditTextPreference
+            android:key="ArtistName"
+            android:title="@string/ArtistName"
+            android:summary="@string/ArtistNameSummary"
+            android:defaultValue=""
+            android:capitalize="words"
+            />
+
+        <EditTextPreference
+            android:key="CopyrightInformation"
+            android:title="@string/CopyrightInformationTitle"
+            android:summary="@string/CopyrightInformationSummary"
+            android:defaultValue=""
+            android:capitalize="words"/>
+
+        <EditTextPreference
+            android:key="ExiftoolPath"
+            android:title="@string/ExiftoolPathTitle"
+            android:summary="@string/ExiftoolPathSummary"
+            android:defaultValue=""
+            android:capitalize="none"/>
+
+        <EditTextPreference
+            android:key="PicturesPath"
+            android:title="@string/PicturesPathTitle"
+            android:summary="@string/PicturesPathSummary"
+            android:defaultValue=""
+            android:capitalize="none"/>
 
     </PreferenceCategory>
 

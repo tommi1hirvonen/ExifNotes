@@ -352,8 +352,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         if (mShareActionProvider != null) {
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-            String artistName = prefs.getString("ArtistName", "");
+
 
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
@@ -390,8 +389,15 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
             StringBuilder stringBuilder = new StringBuilder();
 
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+            String artistName = prefs.getString("ArtistName", "");
+            String copyrightInformation = prefs.getString("CopyrightInformation", "");
+            String exiftoolPath = prefs.getString("ExiftoolPath", "");
+            String picturesPath = prefs.getString("PicturesPath", "");
+
             String exiftoolCmd = "exiftool";
             String artistTag = "-Artist=";
+            String copyrightTag = "-Copyright=";
             String cameraMakeTag = "-Make=";
             String cameraModelTag = "-Model=";
             String lensMakeTag = "-LensMake=";
@@ -409,51 +415,47 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             String space = " ";
 
             for ( Frame frame : mFrameClassList ) {
+                if ( exiftoolPath.length() > 0 ) stringBuilder.append(exiftoolPath);
+                stringBuilder.append(exiftoolCmd + space);
+                stringBuilder.append(cameraModelTag + quote + database.getCamera(camera_id).getName() + quote + space);
+                if ( !frame.getLens().equals(getResources().getString(R.string.NoLens)) ) stringBuilder.append(lensModelTag + quote + frame.getLens() + quote + space);
+                stringBuilder.append(dateTag + quote + frame.getDate().replace("-", ":") + quote + space);
+                if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag + quote + frame.getShutter() + quote + space);
+                if ( !frame.getAperture().contains("<") )stringBuilder.append(apertureTag + quote + frame.getAperture() + quote + space);
+                stringBuilder.append(commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space);
 
                 if ( frame.getLocation().length() > 0 ) {
                     String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
                     String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
                     String latRef = "";
-                    if ( latString.substring(0, 1).equals("-") ) {
+                    if (latString.substring(0, 1).equals("-")) {
                         latRef = "S";
                         latString = latString.substring(1, latString.length());
-                    }
-                    else latRef = "N";
+                    } else latRef = "N";
                     String lngRef = "";
-                    if ( lngString.substring(0, 1).equals("-") ) {
+                    if (lngString.substring(0, 1).equals("-")) {
                         lngRef = "W";
                         lngString = lngString.substring(1, lngString.length());
-                    }
-                    else lngRef = "E";
+                    } else lngRef = "E";
                     latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
                     List<String> latStringList = Arrays.asList(latString.split(":"));
                     lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
                     List<String> lngStringList = Arrays.asList(lngString.split(":"));
 
-                    stringBuilder.append(exiftoolCmd + space
-                            + artistTag + quote + artistName + quote + space
-                            + cameraModelTag + quote + database.getCamera(camera_id).getName() + quote + space
-                            + lensModelTag + quote + frame.getLens() + quote + space
-                            + dateTag + quote + frame.getDate().replace("-", ":") + quote + space
-                            + shutterTag + quote + frame.getShutter() + quote + space
-                            + apertureTag + quote + frame.getAperture() + quote + space
-                            + commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space
-                            + gpsLatTag + quote + latStringList.get(0) + space + latStringList.get(1) + space + latStringList.get(2) + quote + space
-                            + gpsLatRefTag + quote + latRef + quote + space
-                            + gpsLngTag + quote + lngStringList.get(0) + space + lngStringList.get(1) + space + lngStringList.get(2) + quote + space
-                            + gpsLngRefTag + quote + lngRef + quote + space
-                            + "./" + frame.getCount() + fileEnding + "\n");
-                } else {
-                    stringBuilder.append(exiftoolCmd + space
-                            + artistTag + quote + artistName + quote + space
-                            + cameraModelTag + quote + database.getCamera(camera_id).getName() + quote + space
-                            + lensModelTag + quote + frame.getLens() + quote + space
-                            + dateTag + quote + frame.getDate().replace("-", ":") + quote + space
-                            + shutterTag + quote + frame.getShutter() + quote + space
-                            + apertureTag + quote + frame.getAperture() + quote + space
-                            + commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space
-                            + "./" + frame.getCount() + fileEnding + "\n");
+                    stringBuilder.append(gpsLatTag + quote + latStringList.get(0) + space + latStringList.get(1) + space + latStringList.get(2) + quote + space);
+                    stringBuilder.append(gpsLatRefTag + quote + latRef + quote + space);
+                    stringBuilder.append(gpsLngTag + quote + lngStringList.get(0) + space + lngStringList.get(1) + space + lngStringList.get(2) + quote + space);
+                    stringBuilder.append(gpsLngRefTag + quote + lngRef + quote + space);
                 }
+
+                if ( artistName.length() > 0 ) stringBuilder.append(artistTag + quote + artistName + quote + space);
+                if ( copyrightInformation.length() > 0 ) stringBuilder.append(copyrightTag + quote + copyrightInformation + quote + space);
+                if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
+                if ( picturesPath.length() > 0 ) stringBuilder.append(picturesPath);
+                stringBuilder.append(frame.getCount() + fileEnding);
+                if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
+                stringBuilder.append(";\n\n");
+
             }
 
             String shared = stringBuilder.toString();
