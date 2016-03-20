@@ -104,7 +104,7 @@ public class GearActivity extends AppCompatActivity {
         if (pos == 0) pos = 1;
         else if (pos == 1) pos = 0;
         Fragment inactiveFragment = pagerAdapter.getItem(pos);
-        if (pos == 1) ((CamerasFragment)inactiveFragment).updateFragment();
-        else if (pos == 0) ((LensesFragment)inactiveFragment).updateFragment();
+        if (pos == 1) ((LensesFragment)inactiveFragment).updateFragment();
+        else if (pos == 0) ((CamerasFragment)inactiveFragment).updateFragment();
     }
 }
