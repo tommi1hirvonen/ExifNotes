@@ -298,7 +298,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                     if ( inputTextMake.length() != 0 && inputTextModel.length() != 0 ) {
 
-                        // Check if a lens with the same name already exists
+                        // Check if a camera with the same name already exists
                         for ( int i = 0; i < mCameraList.size(); ++i ) {
                             if ( inputTextMake.equals( mCameraList.get(i).getMake()) && inputTextModel.equals(mCameraList.get(i).getModel())  ) {
                                 Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraSameName), Toast.LENGTH_LONG);
@@ -307,7 +307,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                             }
                         }
 
-                        //Check if there are illegal character in the lens name
+                        //Check if there are illegal character in the camera name
                         String ReservedChars = "|\\?*<\":>/";
                         for ( int i = 0; i < inputTextMake.length(); ++i ) {
                             Character c = inputTextMake.charAt(i);
@@ -357,7 +357,35 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                     int gearId = data.getIntExtra("GEAR_ID", -1);
                     int position = data.getIntExtra("POSITION", -1);
 
-                    if ( gearId != -1 && position != -1 ) {
+                    if ( gearId != -1 && position != -1 && newMake.length() > 0 && newModel.length() > 0 ) {
+
+                        // Check if a camera with the same name already exists
+                        for ( int i = 0; i < mCameraList.size(); ++i ) {
+                            if ( newMake.equals( mCameraList.get(i).getMake()) && newModel.equals(mCameraList.get(i).getModel())  ) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraSameName), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+
+                        //Check if there are illegal character in the camera name
+                        String ReservedChars = "|\\?*<\":>/";
+                        for ( int i = 0; i < newMake.length(); ++i ) {
+                            Character c = newMake.charAt(i);
+                            if ( ReservedChars.contains(c.toString()) ) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraMakeIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+                        for ( int i = 0; i < newModel.length(); ++i ) {
+                            Character c = newModel.charAt(i);
+                            if ( ReservedChars.contains(c.toString()) ) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraModelIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
 
                         Camera camera = new Camera();
                         camera.setId(gearId);

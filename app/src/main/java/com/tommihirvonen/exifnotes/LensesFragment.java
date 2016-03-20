@@ -354,7 +354,35 @@ public class LensesFragment extends Fragment implements
                     int gearId = data.getIntExtra("GEAR_ID", -1);
                     int position = data.getIntExtra("POSITION", -1);
 
-                    if ( gearId != -1 && position != -1 ) {
+                    if ( gearId != -1 && position != -1 && newMake.length() > 0 && newModel.length() > 0 ) {
+
+                        // Check if a lens with the same name already exists
+                        for ( int i = 0; i < mLensList.size(); ++i ) {
+                            if ( newMake.equals( mLensList.get(i).getMake()) && newModel.equals(mLensList.get(i).getModel())  ) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensSameName), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+
+                        //Check if there are illegal character in the lens name
+                        String ReservedChars = "|\\?*<\":>/";
+                        for ( int i = 0; i < newMake.length(); ++i ) {
+                            Character c = newMake.charAt(i);
+                            if ( ReservedChars.contains(c.toString()) ) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensMakeIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+                        for ( int i = 0; i < newModel.length(); ++i ) {
+                            Character c = newModel.charAt(i);
+                            if ( ReservedChars.contains(c.toString()) ) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensModelIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
 
                         Lens lens = new Lens();
                         lens.setId(gearId);
