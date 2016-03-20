@@ -218,9 +218,9 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         mCallback.onRollSelected(rollId);
     }
 
-    private void show_EditRollNameDialog(int rollId, String oldName, String oldNote, int camera_id){
+    private void show_EditRollNameDialog(int rollId, String oldName, String oldNote, int camera_id, String date){
         EditRollNameDialog dialog = new EditRollNameDialog();
-        dialog.setOldName(rollId, oldName, oldNote, camera_id);
+        dialog.setOldName(rollId, oldName, oldNote, camera_id, date);
         dialog.setTargetFragment(this, EDIT_ROLL_NAME_DIALOG);
         dialog.show(getFragmentManager().beginTransaction(), EditRollNameDialog.TAG);
     }
@@ -241,7 +241,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                 case R.id.menu_item_edit:
 
                     int position = info.position;
-                    show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote(), mRollList.get(position).getCamera_id());
+                    show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote(), mRollList.get(position).getCamera_id(), mRollList.get(position).getDate());
 
                     return true;
 
@@ -290,6 +290,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                     String inputName = data.getStringExtra("NAME");
                     String inputNote = data.getStringExtra("NOTE");
+                    String date = data.getStringExtra("DATE");
                     int camera_id = data.getIntExtra("CAMERA_ID", -1);
 
                     if (inputName.length() != 0 && camera_id != -1) {
@@ -315,7 +316,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                         Roll roll = new Roll();
                         roll.setName(inputName);
-                        roll.setDate(getCurrentTime());
+                        roll.setDate(date);
                         roll.setNote(inputNote);
                         roll.setCamera_id(camera_id);
                         database.addRoll(roll);
@@ -343,6 +344,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                     int rollId = data.getIntExtra("ROLL_ID", -1);
                     int camera_id = data.getIntExtra("CAMERA_ID", -1);
                     String newNote = data.getStringExtra("NEWNOTE");
+                    String newDate = data.getStringExtra("DATE");
 
                     if ( newName.length() != 0 && rollId != -1 && camera_id != -1 ) {
 
@@ -377,6 +379,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                         roll.setName(newName);
                         roll.setNote(newNote);
                         roll.setCamera_id(camera_id);
+                        roll.setDate(newDate);
                         database.updateRoll(roll);
 
                         // Notify array adapter that the dataset has to be updated

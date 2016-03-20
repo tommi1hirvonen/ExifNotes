@@ -387,15 +387,11 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                             }
                         }
 
-                        Camera camera = new Camera();
-                        camera.setId(gearId);
+                        Camera camera = mCameraList.get(position);
                         camera.setMake(newMake);
                         camera.setModel(newModel);
 
                         database.updateCamera(camera);
-
-                        mCameraList.get(position).setMake(newMake);
-                        mCameraList.get(position).setModel(newModel);
 
                         mArrayAdapter.notifyDataSetChanged();
                         // Update the LensesFragment through the parent activity.

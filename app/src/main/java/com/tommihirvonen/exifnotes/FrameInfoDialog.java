@@ -419,7 +419,7 @@ public class FrameInfoDialog extends DialogFragment {
         outState.putString("LOCATION", location);
     }
 
-    private ArrayList<String> splitDate(String input) {
+    public static ArrayList<String> splitDate(String input) {
         String[] items = input.split(" ");
         ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
         // { YYYY-M-D, HH:MM }
@@ -429,7 +429,7 @@ public class FrameInfoDialog extends DialogFragment {
         return itemList;
     }
 
-    private ArrayList<String> splitTime(String input) {
+    public static ArrayList<String> splitTime(String input) {
         String[] items = input.split(" ");
         ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
         // { YYYY-M-D, HH:MM }

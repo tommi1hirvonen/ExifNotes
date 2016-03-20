@@ -130,7 +130,7 @@
     <!--cameras_fragment.xml-->
     <string name="NoCameras">No added cameras</string>
 
-    <!--custom_dialog.xml-->
+    <!--roll_info_dialoglog.xml-->
     <string name="Name">Name:</string>
     <string name="Note">Notes:</string>
     <string name="Empty">Empty</string>

@@ -30,11 +30,11 @@ public class PagerAdapter extends FragmentPagerAdapter {
 //        if (position == 1 ) return new CamerasFragment();
 //        else return null;
         switch (position) {
-            case 0:
+            case 1:
                 if(Lenses == null)
                     Lenses = new LensesFragment();
                 return Lenses;
-            case 1:
+            case 0:
                 if(Cameras == null)
                     Cameras = new CamerasFragment();
                 return Cameras;
@@ -46,10 +46,10 @@ public class PagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
 
-            case 0:
+            case 1:
                 return activity.getResources().getString(R.string.Lenses);
 
-            case 1:
+            case 0:
                 return activity.getResources().getString(R.string.Cameras);
         }
 

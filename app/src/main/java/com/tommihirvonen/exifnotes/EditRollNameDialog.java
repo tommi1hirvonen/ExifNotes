@@ -2,8 +2,10 @@ package com.tommihirvonen.exifnotes;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,8 +13,10 @@ import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +30,7 @@ public class EditRollNameDialog extends DialogFragment {
     public String oldNote;
     public int rollId;
     int camera_id;
+    String date;
     FilmDbHelper database;
     ArrayList<Camera> mCameraList;
     public static final String TAG = "EditNameDialogFragment";
@@ -35,11 +40,12 @@ public class EditRollNameDialog extends DialogFragment {
     }
 
     // Android doesn't like fragments to be created with arguments. This is a workaround.
-    public void setOldName (int rollId, String oldName, String oldNote, int camera_id) {
+    public void setOldName (int rollId, String oldName, String oldNote, int camera_id, String date) {
         this.rollId = rollId;
         this.oldName = oldName;
         this.oldNote = oldNote;
         this.camera_id = camera_id;
+        this.date = date;
     }
 
     @NonNull
@@ -53,7 +59,7 @@ public class EditRollNameDialog extends DialogFragment {
 
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        final View inflator = linf.inflate(R.layout.custom_dialog, null);
+        final View inflator = linf.inflate(R.layout.roll_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         alert.setTitle(R.string.EditRoll);
@@ -63,6 +69,8 @@ public class EditRollNameDialog extends DialogFragment {
         final EditText et2 = (EditText) inflator.findViewById(R.id.txt_note);
 
         final TextView b_camera = (TextView) inflator.findViewById(R.id.btn_camera);
+        final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
+        final TextView b_time = (TextView) inflator.findViewById(R.id.btn_time);
 
         // CAMERA PICK DIALOG
         b_camera.setClickable(true);
@@ -96,6 +104,62 @@ public class EditRollNameDialog extends DialogFragment {
             }
         });
 
+        final ArrayList<String> dateValue = FrameInfoDialog.splitDate(date);
+        final int i_year = Integer.parseInt(dateValue.get(0));
+        final int i_month = Integer.parseInt(dateValue.get(1));
+        final int i_day = Integer.parseInt(dateValue.get(2));
+        b_date.setText(i_year + "-" + i_month + "-" + i_day);
+        b_date.setClickable(true);
+
+        b_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // DATE PICKER DIALOG IMPLEMENTATION HERE
+                DatePickerDialog dialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        String newDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+                        b_date.setText(newDate);
+                        date = newDate + " " + b_time.getText().toString();
+                    }
+                    // One month has to be subtracted from the default shown month, otherwise
+                    // the date picker shows one month forward.
+                }, i_year, (i_month - 1), i_day);
+
+                dialog.show();
+
+            }
+        });
+
+        // TIME PICK DIALOG
+        ArrayList<String> timeValue = FrameInfoDialog.splitTime(date);
+        final int hours = Integer.parseInt(timeValue.get(0));
+        final int minutes = Integer.parseInt(timeValue.get(1));
+        if (minutes < 10) b_time.setText(hours + ":0" + minutes);
+        else b_time.setText(hours + ":" + minutes);
+        b_time.setClickable(true);
+
+        b_time.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TIME PICKER DIALOG IMPLEMENTATION HERE
+                TimePickerDialog dialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        String newTime;
+                        if (minute < 10) {
+                            newTime = hourOfDay + ":0" + minute;
+                        } else newTime = hourOfDay + ":" + minute;
+                        b_time.setText(newTime);
+                        date = b_date.getText().toString() + " " + newTime;
+                    }
+                }, hours, minutes, true);
+
+                dialog.show();
+
+            }
+        });
+
         // Show old name on the input field by default
         et1.setText(oldName);
         et2.setText(oldNote);
@@ -113,6 +177,7 @@ public class EditRollNameDialog extends DialogFragment {
                     intent.putExtra("NEWNAME", newName);
                     intent.putExtra("NEWNOTE", newNote);
                     intent.putExtra("CAMERA_ID", camera_id);
+                    intent.putExtra("DATE", date);
                     //callback.OnNameEdited(rollId, newName, newNote, camera_id);
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
@@ -128,7 +193,7 @@ public class EditRollNameDialog extends DialogFragment {
             }
         });
         AlertDialog dialog = alert.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         return dialog;
     }
 

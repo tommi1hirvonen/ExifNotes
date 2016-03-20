@@ -384,15 +384,11 @@ public class LensesFragment extends Fragment implements
                             }
                         }
 
-                        Lens lens = new Lens();
-                        lens.setId(gearId);
+                        Lens lens = mLensList.get(position);
                         lens.setMake(newMake);
                         lens.setModel(newModel);
 
                         database.updateLens(lens);
-
-                        mLensList.get(position).setMake(newMake);
-                        mLensList.get(position).setModel(newModel);
 
                         mArrayAdapter.notifyDataSetChanged();
                         // Update the LensesFragment through the parent activity.
