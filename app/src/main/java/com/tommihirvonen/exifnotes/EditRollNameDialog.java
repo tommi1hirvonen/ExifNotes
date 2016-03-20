@@ -66,13 +66,13 @@ public class EditRollNameDialog extends DialogFragment {
 
         // CAMERA PICK DIALOG
         b_camera.setClickable(true);
-        b_camera.setText(database.getCamera(camera_id).getName());
+        b_camera.setText(database.getCamera(camera_id).getMake() + " " + database.getCamera(camera_id).getModel());
         b_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final List<String> listItems = new ArrayList<>();
                 for (int i = 0; i < mCameraList.size(); ++i) {
-                    listItems.add(mCameraList.get(i).getName());
+                    listItems.add(mCameraList.get(i).getMake() + " " + mCameraList.get(i).getModel());
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

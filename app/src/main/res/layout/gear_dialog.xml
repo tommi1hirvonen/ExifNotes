@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <EditText
+        android:id="@+id/txt_make"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:hint="@string/Make"
+        android:inputType="textCapSentences"
+        android:maxLength="100"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_model"
+        android:layout_marginTop="15dp"
+        android:hint="@string/Model"
+        android:inputType="textCapSentences"
+        android:maxLength="100"/>
+
+</LinearLayout>

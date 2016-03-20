@@ -29,25 +29,28 @@ public class LensNameDialog extends DialogFragment {
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        final View inflator = linf.inflate(R.layout.name_dialog, null);
+        final View inflator = linf.inflate(R.layout.gear_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         alert.setTitle(R.string.NewLens);
 
         alert.setView(inflator);
 
-        final EditText et1 = (EditText) inflator.findViewById(R.id.txt_name);
+        final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);
+        final EditText et2 = (EditText) inflator.findViewById(R.id.txt_model);
 
 
         alert.setPositiveButton(R.string.Add, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
-                String name = et1.getText().toString();
+                String make = et1.getText().toString();
+                String model = et2.getText().toString();
 
-                if(name.length() != 0) {
+                if(make.length() != 0 && model.length() != 0) {
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
-                    intent.putExtra("NAME", name);
+                    intent.putExtra("MAKE", make);
+                    intent.putExtra("MODEL", model);
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
             }

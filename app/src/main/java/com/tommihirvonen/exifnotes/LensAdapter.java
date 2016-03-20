@@ -36,11 +36,11 @@ public class LensAdapter extends ArrayAdapter<Lens> {
         TextView tvLensName = (TextView) convertView.findViewById(R.id.tv_gear_name);
         TextView tvMountables = (TextView) convertView.findViewById(R.id.tv_mountables);
         // Populate the data into the template view using the data object
-        tvLensName.setText(lens.getName());
+        tvLensName.setText(lens.getMake() + " " + lens.getModel());
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getContext().getResources().getString(R.string.MountsTo));
         for ( Camera camera : mountableCameras ) {
-            stringBuilder.append("\n- " + camera.getName());
+            stringBuilder.append("\n- " + camera.getMake() + " " + camera.getModel());
         }
         String mountables_string = stringBuilder.toString();
         tvMountables.setText(mountables_string);

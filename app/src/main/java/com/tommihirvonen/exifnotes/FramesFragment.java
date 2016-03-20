@@ -19,7 +19,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
-import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -49,8 +48,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -236,7 +233,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     // Edit frame info
                     int _id = mFrameClassList.get(position).getId();
-                    String lens = mFrameClassList.get(position).getLens();
+                    int lens_id = mFrameClassList.get(position).getLensId();
                     int count = mFrameClassList.get(position).getCount();
                     String date = mFrameClassList.get(position).getDate();
                     String shutter = mFrameClassList.get(position).getShutter();
@@ -244,7 +241,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     String note = mFrameClassList.get(position).getNote();
                     String location = mFrameClassList.get(position).getLocation();
 
-                    EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture, note, location, camera_id);
+                    EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id);
                     dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
                     dialog.show(getFragmentManager().beginTransaction(), EditFrameInfoDialog.TAG);
 
@@ -364,9 +361,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
             final String separator = ",";
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("Roll name: " + roll.getName() + "\n");
+            stringBuilder.append("Roll name: " + roll.getMake() + "\n");
             stringBuilder.append("Added: " + roll.getDate() + "\n");
-            stringBuilder.append("Camera: " + database.getCamera(camera_id).getName() + "\n");
+            stringBuilder.append("Camera: " + database.getCamera(camera_id).getMake() + "\n");
             stringBuilder.append("Notes: " + roll.getNote() + "\n");
             stringBuilder.append("Artist name: " + artistName + "\n");
             stringBuilder.append("Frame Count" + separator + "Date" + separator + "Lens" + separator + "Shutter" + separator + "Aperture" + separator + "Notes" + separator + "Location" + "\n");
@@ -413,16 +410,21 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             String fileEnding = ".jpg";
             String quote = "\"";
             String space = " ";
+            String lineSep = System.getProperty("line.separator");
 
             for ( Frame frame : mFrameClassList ) {
                 if ( exiftoolPath.length() > 0 ) stringBuilder.append(exiftoolPath);
                 stringBuilder.append(exiftoolCmd + space);
-                stringBuilder.append(cameraModelTag + quote + database.getCamera(camera_id).getName() + quote + space);
-                if ( !frame.getLens().equals(getResources().getString(R.string.NoLens)) ) stringBuilder.append(lensModelTag + quote + frame.getLens() + quote + space);
+                stringBuilder.append(cameraMakeTag + quote + database.getCamera(camera_id).getMake() + quote + space);
+                stringBuilder.append(cameraModelTag + quote + database.getCamera(camera_id).getModel() + quote + space);
+                if ( frame.getLensId() != -1 ) {
+                    stringBuilder.append(lensMakeTag + quote + database.getLens(frame.getLensId()).getMake() + quote + space);
+                    stringBuilder.append(lensModelTag + quote + database.getLens(frame.getLensId()).getModel() + quote + space);
+                }
                 stringBuilder.append(dateTag + quote + frame.getDate().replace("-", ":") + quote + space);
                 if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag + quote + frame.getShutter() + quote + space);
                 if ( !frame.getAperture().contains("<") )stringBuilder.append(apertureTag + quote + frame.getAperture() + quote + space);
-                stringBuilder.append(commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space);
+                if ( frame.getNote().length() > 0 ) stringBuilder.append(commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space);
 
                 if ( frame.getLocation().length() > 0 ) {
                     String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
@@ -454,7 +456,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 if ( picturesPath.length() > 0 ) stringBuilder.append(picturesPath);
                 stringBuilder.append(frame.getCount() + fileEnding);
                 if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
-                stringBuilder.append(";\n\n");
+                stringBuilder.append(";" + lineSep + lineSep);
 
             }
 
@@ -505,7 +507,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Edit frame info
         int _id = mFrameClassList.get(position).getId();
-        String lens = mFrameClassList.get(position).getLens();
+        int lens_id = mFrameClassList.get(position).getLensId();
         int count = mFrameClassList.get(position).getCount();
         String date = mFrameClassList.get(position).getDate();
         String shutter = mFrameClassList.get(position).getShutter();
@@ -513,7 +515,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String note = mFrameClassList.get(position).getNote();
         String location = mFrameClassList.get(position).getLocation();
 
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens, position, count, date, shutter, aperture, note, location, camera_id);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id);
         dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
         dialog.show(getFragmentManager().beginTransaction(), EditFrameInfoDialog.TAG);
     }
@@ -530,7 +532,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             }
         }
 
-        String lens;
+        int lens_id = -1;
         int count;
         String date = getCurrentTime();
         String shutter;
@@ -541,18 +543,17 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         if (!mFrameClassList.isEmpty()) {
             Frame previousFrame = mFrameClassList.get(mFrameClassList.size() - 1);
-            lens = previousFrame.getLens();
+            lens_id = previousFrame.getLensId();
             count = previousFrame.getCount() + 1;
             shutter = previousFrame.getShutter();
             aperture = previousFrame.getAperture();
         } else {
-            lens = getResources().getString(R.string.NoLens);
             count = 1;
             shutter = getResources().getString(R.string.NoValue);
             aperture = getResources().getString(R.string.NoValue);
         }
 
-        FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens, count, date, shutter, aperture, location, camera_id);
+        FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens_id, count, date, shutter, aperture, location, camera_id);
         dialog.setTargetFragment(this, FRAME_INFO_DIALOG);
         dialog.show(getFragmentManager(), FrameInfoDialog.TAG);
     }
@@ -567,7 +568,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     int count = data.getIntExtra("COUNT", -1);
                     String date = data.getStringExtra("DATE");
-                    String lens = data.getStringExtra("LENS");
+                    int lens_id = data.getIntExtra("LENS_ID", -1);
                     String shutter = data.getStringExtra("SHUTTER");
                     String aperture = data.getStringExtra("APERTURE");
                     String note = data.getStringExtra("NOTE");
@@ -577,7 +578,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     if ( count != -1 ) {
 
-                        Frame frame = new Frame(rollId, count, date, lens, shutter, aperture, note, location);
+                        Frame frame = new Frame(rollId, count, date, lens_id, shutter, aperture, note, location);
 
                         // Save the file when the new frame has been added
                         database.addFrame(frame);
@@ -609,7 +610,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     int count = data.getIntExtra("COUNT", -1);
                     int position = data.getIntExtra("POSITION", -1);
                     String date = data.getStringExtra("DATE");
-                    String lens = data.getStringExtra("LENS");
+                    int lens_id = data.getIntExtra("LENS_ID", -1);
                     String shutter = data.getStringExtra("SHUTTER");
                     String aperture = data.getStringExtra("APERTURE");
                     String note = data.getStringExtra("NOTE");
@@ -622,7 +623,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         Frame frame = new Frame();
                         frame.setId(_id);
                         frame.setRoll(rollId);
-                        frame.setLens(lens);
+                        frame.setLensId(lens_id);
                         frame.setCount(count);
                         frame.setDate(date);
                         frame.setShutter(shutter);
@@ -631,7 +632,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         frame.setLocation(location);
                         database.updateFrame(frame);
                         //Make the change in the class list and the list view
-                        mFrameClassList.get(position).setLens(lens);
+                        mFrameClassList.get(position).setLensId(lens_id);
                         mFrameClassList.get(position).setCount(count);
                         mFrameClassList.get(position).setDate(date);
                         mFrameClassList.get(position).setShutter(shutter);

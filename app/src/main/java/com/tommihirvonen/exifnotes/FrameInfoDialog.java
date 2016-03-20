@@ -31,7 +31,7 @@ import java.util.List;
 
 public class FrameInfoDialog extends DialogFragment {
 
-    String lens;
+    int lens_id;
     String date;
     int count;
     String shutter;
@@ -44,10 +44,10 @@ public class FrameInfoDialog extends DialogFragment {
 
     final static int PLACE_PICKER_REQUEST = 1;
 
-    static FrameInfoDialog newInstance(String lens, int count, String date, String shutter, String aperture, String location, int camera_id) {
+    static FrameInfoDialog newInstance(int lens_id, int count, String date, String shutter, String aperture, String location, int camera_id) {
         FrameInfoDialog f = new FrameInfoDialog();
         Bundle args = new Bundle();
-        args.putString("lens", lens);
+        args.putInt("lens_id", lens_id);
         args.putInt("count", count);
         args.putString("date", date);
         args.putString("shutter", shutter);
@@ -83,14 +83,14 @@ public class FrameInfoDialog extends DialogFragment {
         final String apertureIncrements = prefs.getString("ApertureIncrements", "third");
 
         if ( SavedInstanceState != null ) {
-            lens = SavedInstanceState.getString("LENS");
+            lens_id = SavedInstanceState.getInt("LENS_ID");
             date = SavedInstanceState.getString("DATE");
             count = SavedInstanceState.getInt("COUNT");
             shutter = SavedInstanceState.getString("SHUTTER");
             aperture = SavedInstanceState.getString("APERTURE");
             location = SavedInstanceState.getString("LOCATION");
         } else {
-            lens = getArguments().getString("lens");
+            lens_id = getArguments().getInt("lens_id");
             date = getArguments().getString("date");
             count = getArguments().getInt("count");
             shutter = getArguments().getString("shutter");
@@ -215,7 +215,8 @@ public class FrameInfoDialog extends DialogFragment {
         countPicker.setValue(count);
         countPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
-        b_lens.setText(lens);
+        if ( lens_id != -1 ) b_lens.setText(database.getLens(lens_id).getMake() + " " + database.getLens(lens_id).getModel());
+        else b_lens.setText(getResources().getString(R.string.NoLens));
 
         // LENS PICK DIALOG
         b_lens.setClickable(true);
@@ -223,9 +224,9 @@ public class FrameInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 final List<String> listItems = new ArrayList<>();
-                listItems.add("" + getActivity().getString(R.string.NoLens));
+                listItems.add(getResources().getString(R.string.NoLens));
                 for (int i = 0; i < mountableLenses.size(); ++i) {
-                    listItems.add(mountableLenses.get(i).getName());
+                    listItems.add(mountableLenses.get(i).getMake()+ " " + mountableLenses.get(i).getModel());
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -235,7 +236,8 @@ public class FrameInfoDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
                         b_lens.setText(listItems.get(which));
-                        lens = b_lens.getText().toString();
+                        if ( which > 0 ) lens_id = mountableLenses.get(which-1).getId();
+                        else if ( which == 0 ) lens_id = -1;
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -354,7 +356,6 @@ public class FrameInfoDialog extends DialogFragment {
 
         alert.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                lens = b_lens.getText().toString();
                 shutter = displayedShutterValues[shutterPicker.getValue()];
                 aperture = displayedApertureValues[aperturePicker.getValue()];
                 count = countPicker.getValue();
@@ -363,18 +364,17 @@ public class FrameInfoDialog extends DialogFragment {
                 // PARSE THE DATE
                 date = b_date.getText().toString() + " " + b_time.getText().toString();
 
-                if (lens.length() != 0) {
-                    // Return the new entered name to the calling activity
-                    Intent intent = new Intent();
-                    intent.putExtra("LENS", lens);
-                    intent.putExtra("COUNT", count);
-                    intent.putExtra("DATE", date);
-                    intent.putExtra("SHUTTER", shutter);
-                    intent.putExtra("APERTURE", aperture);
-                    intent.putExtra("NOTE", note);
-                    intent.putExtra("LOCATION", location);
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                }
+                // Return the new entered name to the calling activity
+                Intent intent = new Intent();
+                intent.putExtra("LENS_ID", lens_id);
+                intent.putExtra("COUNT", count);
+                intent.putExtra("DATE", date);
+                intent.putExtra("SHUTTER", shutter);
+                intent.putExtra("APERTURE", aperture);
+                intent.putExtra("NOTE", note);
+                intent.putExtra("LOCATION", location);
+                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+
             }
         });
 
@@ -406,7 +406,7 @@ public class FrameInfoDialog extends DialogFragment {
         count = countPicker.getValue();
 
         // Lens
-        outState.putString("LENS", lens);
+        outState.putInt("LENS_ID", lens_id);
         // Date
         outState.putString("DATE", date);
         // Count

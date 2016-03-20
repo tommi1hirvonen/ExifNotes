@@ -116,7 +116,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
         List<String> listItems = new ArrayList<>();
         ArrayList<Integer> allLensesId = new ArrayList<>();
         for ( int i = 0; i < allLenses.size(); ++i ) {
-            listItems.add(allLenses.get(i).getName());
+            listItems.add(allLenses.get(i).getMake() + " " + allLenses.get(i).getModel());
             allLensesId.add(allLenses.get(i).getId());
         }
 
@@ -227,7 +227,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                     // Check if the camera is being used with one of the rolls.
                     if (database.isCameraBeingUsed(camera)) {
-                        Toast.makeText(getActivity(), getResources().getString(R.string.CameraNoColon) + " " + camera.getName() + " " + getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getResources().getString(R.string.CameraNoColon) + " " + camera.getMake() + " " + camera.getModel() + " " + getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
                         return true;
                     }
 
@@ -272,13 +272,14 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    String inputText = data.getStringExtra("NAME");
+                    String inputTextMake = data.getStringExtra("MAKE");
+                    String inputTextModel = data.getStringExtra("MODEL");
 
-                    if ( inputText.length() != 0 ) {
+                    if ( inputTextMake.length() != 0 && inputTextModel.length() != 0 ) {
 
                         // Check if a lens with the same name already exists
                         for ( int i = 0; i < mCameraList.size(); ++i ) {
-                            if ( inputText.equals( mCameraList.get(i).getName())  ) {
+                            if ( inputTextMake.equals( mCameraList.get(i).getMake()) && inputTextModel.equals(mCameraList.get(i).getModel())  ) {
                                 Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraSameName), Toast.LENGTH_LONG);
                                 toast.show();
                                 return;
@@ -287,10 +288,18 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                         //Check if there are illegal character in the lens name
                         String ReservedChars = "|\\?*<\":>/";
-                        for ( int i = 0; i < inputText.length(); ++i ) {
-                            Character c = inputText.charAt(i);
+                        for ( int i = 0; i < inputTextMake.length(); ++i ) {
+                            Character c = inputTextMake.charAt(i);
                             if ( ReservedChars.contains(c.toString()) ) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraMakeIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+                        for ( int i = 0; i < inputTextModel.length(); ++i ) {
+                            Character c = inputTextModel.charAt(i);
+                            if ( ReservedChars.contains(c.toString()) ) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraModelIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
                                 toast.show();
                                 return;
                             }
@@ -299,7 +308,8 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                         mainTextView.setVisibility(View.GONE);
 
                         Camera camera = new Camera();
-                        camera.setName(inputText);
+                        camera.setMake(inputTextMake);
+                        camera.setModel(inputTextModel);
                         database.addCamera(camera);
                         // When we get the last added lens from the database we get the row id value.
                         camera = database.getLastCamera();

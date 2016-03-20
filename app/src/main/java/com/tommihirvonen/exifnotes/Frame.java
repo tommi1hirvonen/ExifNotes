@@ -9,7 +9,7 @@ public class Frame {
     public int roll;
     public int count;
     public String date;
-    public String lens;
+    public int lens_id;
     public String shutter;
     public String aperture;
     public String note;
@@ -19,11 +19,11 @@ public class Frame {
         // Empty constructor
     }
 
-    public Frame(int roll, int count, String date, String lens, String shutter, String aperture, String note, String location) {
+    public Frame(int roll, int count, String date, int lens_id, String shutter, String aperture, String note, String location) {
         this.roll = roll;
         this.count = count;
         this.date = date;
-        this.lens = lens;
+        this.lens_id = lens_id;
         this.shutter = shutter;
         this.aperture = aperture;
         this.note = note;
@@ -48,8 +48,8 @@ public class Frame {
         this.date = input;
     }
 
-    public void setLens(String input){
-        this.lens = input;
+    public void setLensId(int input){
+        this.lens_id = input;
     }
 
     public void setShutter(String input) {
@@ -85,8 +85,8 @@ public class Frame {
         return this.date;
     }
 
-    public String getLens(){
-        return this.lens;
+    public int getLensId(){
+        return this.lens_id;
     }
 
     public String getShutter(){

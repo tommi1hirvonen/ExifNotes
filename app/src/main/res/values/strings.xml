@@ -13,8 +13,9 @@
     <!--CamerasFragment-->
     <string name="Cameras">CAMERAS</string>
     <string name="PickCamerasToDelete">Pick cameras to delete</string>
-    <string name="CameraSameName">Camera with same name already exists!</string>
-    <string name="CameraIllegalCharacter">Camera name contains an illegal character:</string>
+    <string name="CameraSameName">Camera with same make and model already exists!</string>
+    <string name="CameraMakeIllegalCharacter">Camera make contains an illegal character:</string>
+    <string name="CameraModelIllegalCharacter">Camera model contains an illegal character:</string>
     <string name="SelectMountableLenses">Select mountable lenses</string>
     <string name="CameraNoColon">Camera</string>
     <string name="IsBeingUsed">is being used!</string>
@@ -48,9 +49,11 @@
     <!--LensesFragment-->
     <string name="Lenses">LENSES</string>
     <string name="PickLensesToDelete">Pick lenses to delete</string>
-    <string name="LensSameName">Lens with same name already exists!</string>
-    <string name="LensIllegalCharacter">Lens name contains an illegal character:</string>
+    <string name="LensSameName">Lens with same make and model already exists!</string>
+    <string name="LensMakeIllegalCharacter">Lens make contains an illegal character:</string>
+    <string name="LensModelIllegalCharacter">Lens model contains an illegal character:</string>
     <string name="SelectMountableCameras">Select mountable cameras</string>
+    <string name="LensNoColon">Lens</string>
 
     <!--LensNameDialog-->
     <string name="NewLens">Add new lens</string>
@@ -141,6 +144,10 @@
     <string name="NoLens">No lens</string>
     <string name="NoValue">&#60;empty&#62;</string>
     <string name="Location">Location:</string>
+
+    <!--gear_dialog-->
+    <string name="Make">Make</string>
+    <string name="Model">Model</string>
 
     <!--item_frame.xml-->
     <string name="Text">Text</string>

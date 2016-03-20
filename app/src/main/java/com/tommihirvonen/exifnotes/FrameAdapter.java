@@ -21,7 +21,10 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
 
     public FrameAdapter(Context context,int textViewResourceId, ArrayList<Frame> frames) {
         super(context, textViewResourceId, frames);
+        database = new FilmDbHelper(context);
     }
+
+    FilmDbHelper database;
 
     @Override
     public  View getView(int position, View convertView, ViewGroup parent) {
@@ -48,7 +51,8 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         // Populate the data into the template view using the data object
         tvFrameText.setText(frame.getDate());
         tvCount.setText("" + frame.getCount());
-        tvFrameText2.setText(frame.getLens());
+        if ( frame.getLensId() != -1 ) tvFrameText2.setText( database.getLens(frame.getLensId()).getMake() + " " + database.getLens(frame.getLensId()).getModel() );
+        else tvFrameText2.setText(getContext().getString(R.string.NoLens));
         tvNote.setText(frame.getNote());
 
         // If the aperture is empty, then don't show anything.

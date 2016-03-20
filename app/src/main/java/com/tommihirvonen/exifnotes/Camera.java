@@ -8,16 +8,18 @@ import java.util.ArrayList;
 public class Camera {
 
     public int id;
-    public String name;
+    public String make;
+    public String model;
     public ArrayList<Lens> mountableLenses;
 
     public Camera(){
 
     }
 
-    public Camera(int id, String name, ArrayList<Lens> mountableLenses){
+    public Camera(int id, String make, String model, ArrayList<Lens> mountableLenses){
         this.id = id;
-        this.name = name;
+        this.make = make;
+        this.model = model;
         this.mountableLenses = mountableLenses;
     }
 
@@ -25,8 +27,12 @@ public class Camera {
         this.id = input;
     }
 
-    public void setName(String input){
-        this.name = input;
+    public void setMake(String input){
+        this.make = input;
+    }
+
+    public void setModel(String input){
+        this.model = input;
     }
 
     public void setMountableLenses(ArrayList<Lens> input) {
@@ -37,8 +43,12 @@ public class Camera {
         return this.id;
     }
 
-    public String getName(){
-        return this.name;
+    public String getMake(){
+        return this.make;
+    }
+
+    public String getModel(){
+        return this.model;
     }
 
     public ArrayList<Lens> getMountableLenses() {

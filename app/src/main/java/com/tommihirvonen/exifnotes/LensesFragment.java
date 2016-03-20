@@ -120,7 +120,7 @@ public class LensesFragment extends Fragment implements
         List<String> listItems = new ArrayList<>();
         ArrayList<Integer> allCamerasId = new ArrayList<>();
         for ( int i = 0; i < allCameras.size(); ++i ) {
-            listItems.add(allCameras.get(i).getName());
+            listItems.add(allCameras.get(i).getMake() + " " + allCameras.get(i).getModel());
             allCamerasId.add(allCameras.get(i).getId());
         }
 
@@ -228,6 +228,13 @@ public class LensesFragment extends Fragment implements
                     int which = info.position;
 
                     Lens lens = mLensList.get(which);
+
+                    // Check if the lens is being used with one of the frames.
+                    if (database.isLensInUse(lens)) {
+                        Toast.makeText(getActivity(), getResources().getString(R.string.LensNoColon) + " " + lens.getMake() + " " + lens.getModel() + " " + getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+
                     database.deleteLens(lens);
 
                     // Remove the roll from the mLensList. Do this last!!!
@@ -261,13 +268,14 @@ public class LensesFragment extends Fragment implements
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    String inputText = data.getStringExtra("NAME");
+                    String inputTextMake = data.getStringExtra("MAKE");
+                    String inputTextModel = data.getStringExtra("MODEL");
 
-                    if ( inputText.length() != 0 ) {
+                    if ( inputTextMake.length() != 0 && inputTextModel.length() != 0 ) {
 
                         // Check if a lens with the same name already exists
                         for ( int i = 0; i < mLensList.size(); ++i ) {
-                            if ( inputText.equals( mLensList.get(i).getName())  ) {
+                            if ( inputTextMake.equals( mLensList.get(i).getMake()) && inputTextModel.equals(mLensList.get(i).getModel())  ) {
                                 Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensSameName), Toast.LENGTH_LONG);
                                 toast.show();
                                 return;
@@ -276,10 +284,18 @@ public class LensesFragment extends Fragment implements
 
                         //Check if there are illegal character in the lens name
                         String ReservedChars = "|\\?*<\":>/";
-                        for ( int i = 0; i < inputText.length(); ++i ) {
-                            Character c = inputText.charAt(i);
+                        for ( int i = 0; i < inputTextMake.length(); ++i ) {
+                            Character c = inputTextMake.charAt(i);
                             if ( ReservedChars.contains(c.toString()) ) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensMakeIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+                        for ( int i = 0; i < inputTextModel.length(); ++i ) {
+                            Character c = inputTextModel.charAt(i);
+                            if ( ReservedChars.contains(c.toString()) ) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensModelIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
                                 toast.show();
                                 return;
                             }
@@ -288,7 +304,8 @@ public class LensesFragment extends Fragment implements
                         mainTextView.setVisibility(View.GONE);
 
                         Lens lens = new Lens();
-                        lens.setName(inputText);
+                        lens.setMake(inputTextMake);
+                        lens.setModel(inputTextModel);
                         database.addLens(lens);
                         // When we get the last added lens from the database we get the row id value.
                         lens = database.getLastLens();

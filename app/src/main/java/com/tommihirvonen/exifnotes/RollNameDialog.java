@@ -72,7 +72,7 @@ public class RollNameDialog extends DialogFragment {
             public void onClick(View v) {
                 final List<String> listItems = new ArrayList<>();
                 for (int i = 0; i < mCameraList.size(); ++i) {
-                    listItems.add(mCameraList.get(i).getName());
+                    listItems.add(mCameraList.get(i).getMake() + " " + mCameraList.get(i).getModel());
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
