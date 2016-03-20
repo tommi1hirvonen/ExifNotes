@@ -228,8 +228,11 @@ public class EditFrameInfoDialog extends DialogFragment {
         countPicker.setValue(count);
         countPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
-        Lens currentLens = database.getLens(lens_id);
-        if ( lens_id != -1 ) b_lens.setText(currentLens.getMake() + " " + currentLens.getModel());
+
+        if ( lens_id != -1 ) {
+            Lens currentLens = database.getLens(lens_id);
+            b_lens.setText(currentLens.getMake() + " " + currentLens.getModel());
+        }
         else b_lens.setText(getResources().getString(R.string.NoLens));
 
         // LENS PICK DIALOG
