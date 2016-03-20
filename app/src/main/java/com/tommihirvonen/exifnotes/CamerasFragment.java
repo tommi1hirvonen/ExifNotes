@@ -38,7 +38,8 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
     CameraAdapter mArrayAdapter;
     ArrayList<Camera> mCameraList;
     FilmDbHelper database;
-    public static final int DIALOG_FRAGMENT = 1;
+    public static final int ADD_CAMERA = 1;
+    public static final int EDIT_CAMERA = 2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,7 +101,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.menu_context_delete, menu);
+        inflater.inflate(R.menu.menu_context_delete_edit, menu);
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -217,13 +218,13 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
         if ( getUserVisibleHint() ) {
+
+            int which = info.position;
+            Camera camera = mCameraList.get(which);
+
             switch (item.getItemId()) {
 
                 case R.id.menu_item_delete:
-
-                    int which = info.position;
-
-                    Camera camera = mCameraList.get(which);
 
                     // Check if the camera is being used with one of the rolls.
                     if (database.isCameraBeingUsed(camera)) {
@@ -244,15 +245,35 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                     myActivity.updateFragments();
 
                     return true;
+
+                case R.id.menu_item_edit:
+
+                    GearInfoDialog dialog = new GearInfoDialog();
+                    dialog.setTargetFragment(this, EDIT_CAMERA);
+                    Bundle arguments = new Bundle();
+                    arguments.putString("TITLE", getResources().getString( R.string.EditLens));
+                    arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
+                    arguments.putString("MAKE", camera.getMake());
+                    arguments.putString("MODEL", camera.getModel());
+                    arguments.putInt("GEAR_ID", camera.getId());
+                    arguments.putInt("POSITION", which);
+                    dialog.setArguments(arguments);
+                    dialog.show(getFragmentManager().beginTransaction(), GearInfoDialog.TAG);
+
+                    return true;
             }
         }
         return false;
     }
 
     private void showCameraNameDialog() {
-        CameraNameDialog dialog = new CameraNameDialog();
-        dialog.setTargetFragment(this, DIALOG_FRAGMENT);
-        dialog.show(getFragmentManager().beginTransaction(), CameraNameDialog.TAG);
+        GearInfoDialog dialog = new GearInfoDialog();
+        dialog.setTargetFragment(this, ADD_CAMERA);
+        Bundle arguments = new Bundle();
+        arguments.putString("TITLE", getResources().getString( R.string.NewCamera));
+        arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+        dialog.setArguments(arguments);
+        dialog.show(getFragmentManager().beginTransaction(), GearInfoDialog.TAG);
     }
 
     public void onClick(View v) {
@@ -267,7 +288,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
 
-            case DIALOG_FRAGMENT:
+            case ADD_CAMERA:
 
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
@@ -325,6 +346,43 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                     // Do nothing.
                     return;
                 }
+                break;
+
+            case EDIT_CAMERA:
+
+                if (resultCode == Activity.RESULT_OK) {
+
+                    String newMake = data.getStringExtra("MAKE");
+                    String newModel = data.getStringExtra("MODEL");
+                    int gearId = data.getIntExtra("GEAR_ID", -1);
+                    int position = data.getIntExtra("POSITION", -1);
+
+                    if ( gearId != -1 && position != -1 ) {
+
+                        Camera camera = new Camera();
+                        camera.setId(gearId);
+                        camera.setMake(newMake);
+                        camera.setModel(newModel);
+
+                        database.updateCamera(camera);
+
+                        mCameraList.get(position).setMake(newMake);
+                        mCameraList.get(position).setModel(newModel);
+
+                        mArrayAdapter.notifyDataSetChanged();
+                        // Update the LensesFragment through the parent activity.
+                        GearActivity myActivity = (GearActivity)getActivity();
+                        myActivity.updateFragments();
+
+                    } else {
+                        Toast.makeText(getActivity(), "Something went wrong :(", Toast.LENGTH_SHORT).show();
+                    }
+
+                } else if (resultCode == Activity.RESULT_CANCELED){
+
+                    return;
+                }
+
                 break;
         }
     }

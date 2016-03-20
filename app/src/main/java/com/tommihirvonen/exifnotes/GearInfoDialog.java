@@ -1,5 +1,8 @@
 package com.tommihirvonen.exifnotes;
 
+// Copyright 2015
+// Tommi Hirvonen
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,15 +16,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 
-// Copyright 2015
-// Tommi Hirvonen
+public class GearInfoDialog extends DialogFragment {
 
-public class LensNameDialog extends DialogFragment {
+    public static final String TAG = "GearInfoDialogFragment";
 
-    public static final String TAG = "SetLensNameDialogFrag";
+    public GearInfoDialog(){
 
-    public LensNameDialog() {
-        // Empty constructor required for DialogFragment
     }
 
     @NonNull
@@ -32,15 +32,24 @@ public class LensNameDialog extends DialogFragment {
         final View inflator = linf.inflate(R.layout.gear_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        alert.setTitle(R.string.NewLens);
+        String title = getArguments().getString("TITLE");
+        String positiveButton = getArguments().getString("POSITIVE_BUTTON");
+        String make = getArguments().getString("MAKE");
+        String model = getArguments().getString("MODEL");
+        final int gearId = getArguments().getInt("GEAR_ID", -1);
+        final int position = getArguments().getInt("POSITION", -1);
+
+        alert.setTitle(title);
 
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);
+        et1.setText(make);
         final EditText et2 = (EditText) inflator.findViewById(R.id.txt_model);
+        et2.setText(model);
 
 
-        alert.setPositiveButton(R.string.Add, new DialogInterface.OnClickListener() {
+        alert.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton)
             {
                 String make = et1.getText().toString();
@@ -51,6 +60,8 @@ public class LensNameDialog extends DialogFragment {
                     Intent intent = new Intent();
                     intent.putExtra("MAKE", make);
                     intent.putExtra("MODEL", model);
+                    intent.putExtra("GEAR_ID", gearId);
+                    intent.putExtra("POSITION", position);
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
             }

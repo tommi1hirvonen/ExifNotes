@@ -283,6 +283,16 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void updateLens(Lens lens) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "UPDATE " + TABLE_LENSES + " SET "
+                + KEY_LENS_MAKE + "=\"" + lens.getMake() + "\", "
+                + KEY_LENS_MODEL + "=\"" + lens.getModel() + "\""
+                + " WHERE " + KEY_LENS_ID + "=" + lens.getId();
+        db.execSQL(query);
+        db.close();
+    }
+
     // ******************** CRUD operations for the cameras table ********************
 
     public void addCamera(Camera camera){
@@ -358,6 +368,16 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             cursor.close();
             return false;
         }
+    }
+
+    public void updateCamera(Camera camera) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "UPDATE " + TABLE_CAMERAS + " SET "
+                + KEY_CAMERA_MAKE + "=\"" + camera.getMake() + "\", "
+                + KEY_CAMERA_MODEL + "=\"" + camera.getModel() + "\""
+                + " WHERE " + KEY_CAMERA_ID + "=" + camera.getId();
+        db.execSQL(query);
+        db.close();
     }
 
     // ******************** CRUD operations for the mountables table ********************

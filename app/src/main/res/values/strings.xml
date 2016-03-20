@@ -54,6 +54,7 @@
     <string name="LensModelIllegalCharacter">Lens model contains an illegal character:</string>
     <string name="SelectMountableCameras">Select mountable cameras</string>
     <string name="LensNoColon">Lens</string>
+    <string name="EditLens">Edit lens</string>
 
     <!--LensNameDialog-->
     <string name="NewLens">Add new lens</string>

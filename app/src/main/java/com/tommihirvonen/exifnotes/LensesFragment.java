@@ -41,7 +41,8 @@ public class LensesFragment extends Fragment implements
     ArrayList<Lens> mLensList = new ArrayList<>();
     FilmDbHelper database;
 
-    public static final int DIALOG_FRAGMENT = 1;
+    public static final int ADD_LENS = 1;
+    public static final int EDIT_LENS = 2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,7 +105,7 @@ public class LensesFragment extends Fragment implements
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.menu_context_delete, menu);
+        inflater.inflate(R.menu.menu_context_delete_edit, menu);
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -221,13 +222,13 @@ public class LensesFragment extends Fragment implements
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
         if ( getUserVisibleHint() ) {
+
+            int which = info.position;
+            Lens lens = mLensList.get(which);
+
             switch (item.getItemId()) {
 
                 case R.id.menu_item_delete:
-
-                    int which = info.position;
-
-                    Lens lens = mLensList.get(which);
 
                     // Check if the lens is being used with one of the frames.
                     if (database.isLensInUse(lens)) {
@@ -248,22 +249,42 @@ public class LensesFragment extends Fragment implements
                     myActivity.updateFragments();
 
                     return true;
+
+                case R.id.menu_item_edit:
+
+                    GearInfoDialog dialog = new GearInfoDialog();
+                    dialog.setTargetFragment(this, EDIT_LENS);
+                    Bundle arguments = new Bundle();
+                    arguments.putString("TITLE", getResources().getString( R.string.EditLens));
+                    arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
+                    arguments.putString("MAKE", lens.getMake());
+                    arguments.putString("MODEL", lens.getModel());
+                    arguments.putInt("GEAR_ID", lens.getId());
+                    arguments.putInt("POSITION", which);
+                    dialog.setArguments(arguments);
+                    dialog.show(getFragmentManager().beginTransaction(), GearInfoDialog.TAG);
+
+                    return true;
             }
         }
         return false;
     }
 
     private void showLensNameDialog() {
-        LensNameDialog dialog = new LensNameDialog();
-        dialog.setTargetFragment(this, DIALOG_FRAGMENT);
-        dialog.show(getFragmentManager().beginTransaction(), LensNameDialog.TAG);
+        GearInfoDialog dialog = new GearInfoDialog();
+        dialog.setTargetFragment(this, ADD_LENS);
+        Bundle arguments = new Bundle();
+        arguments.putString("TITLE", getResources().getString( R.string.NewLens));
+        arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+        dialog.setArguments(arguments);
+        dialog.show(getFragmentManager().beginTransaction(), GearInfoDialog.TAG);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
 
-            case DIALOG_FRAGMENT:
+            case ADD_LENS:
 
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
@@ -319,6 +340,43 @@ public class LensesFragment extends Fragment implements
                 } else if (resultCode == Activity.RESULT_CANCELED){
                     // After Cancel code.
                     // Do nothing.
+                    return;
+                }
+
+                break;
+
+            case EDIT_LENS:
+
+                if (resultCode == Activity.RESULT_OK) {
+
+                    String newMake = data.getStringExtra("MAKE");
+                    String newModel = data.getStringExtra("MODEL");
+                    int gearId = data.getIntExtra("GEAR_ID", -1);
+                    int position = data.getIntExtra("POSITION", -1);
+
+                    if ( gearId != -1 && position != -1 ) {
+
+                        Lens lens = new Lens();
+                        lens.setId(gearId);
+                        lens.setMake(newMake);
+                        lens.setModel(newModel);
+
+                        database.updateLens(lens);
+
+                        mLensList.get(position).setMake(newMake);
+                        mLensList.get(position).setModel(newModel);
+
+                        mArrayAdapter.notifyDataSetChanged();
+                        // Update the LensesFragment through the parent activity.
+                        GearActivity myActivity = (GearActivity)getActivity();
+                        myActivity.updateFragments();
+
+                    } else {
+                        Toast.makeText(getActivity(), "Something went wrong :(", Toast.LENGTH_SHORT).show();
+                    }
+
+                } else if (resultCode == Activity.RESULT_CANCELED){
+
                     return;
                 }
 
