@@ -206,8 +206,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             mShareActionProvider.setShareIntent(setShareIntent());
         }
         MenuItemCompat.setActionProvider(shareItem, mShareActionProvider);
-        // Create an Intent to share your content
-        setShareIntent();
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -232,14 +230,15 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     int position = info.position;
 
                     // Edit frame info
-                    int _id = mFrameClassList.get(position).getId();
-                    int lens_id = mFrameClassList.get(position).getLensId();
-                    int count = mFrameClassList.get(position).getCount();
-                    String date = mFrameClassList.get(position).getDate();
-                    String shutter = mFrameClassList.get(position).getShutter();
-                    String aperture = mFrameClassList.get(position).getAperture();
-                    String note = mFrameClassList.get(position).getNote();
-                    String location = mFrameClassList.get(position).getLocation();
+                    Frame frame = mFrameClassList.get(position);
+                    int _id = frame.getId();
+                    int lens_id = frame.getLensId();
+                    int count = frame.getCount();
+                    String date = frame.getDate();
+                    String shutter = frame.getShutter();
+                    String aperture = frame.getAperture();
+                    String note = frame.getNote();
+                    String location = frame.getLocation();
 
                     EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id);
                     dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
@@ -251,15 +250,16 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     int which = info.position;
 
-                    Frame frame = mFrameClassList.get(which);
-                    database.deleteFrame(frame);
+                    Frame deletableFrame = mFrameClassList.get(which);
+                    database.deleteFrame(deletableFrame);
                     mFrameClassList.remove(which);
 
                     if (mFrameClassList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
                     mFrameAdapter.notifyDataSetChanged();
                     if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
                     else counter = 0;
-                    setShareIntent();
+
+                    mShareActionProvider.setShareIntent(setShareIntent());
 
                     return true;
             }
@@ -347,9 +347,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
     private Intent setShareIntent() {
 
-        if (mShareActionProvider != null) {
-
-
+//        if (mShareActionProvider != null) {
 
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
@@ -467,9 +465,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             // Make sure the provider knows
             // it should work with that Intent
             return shareIntent;
-        }else {
-            return new Intent();
-        }
+//        }else {
+//            return new Intent();
+//        }
     }
 
     @Override
@@ -506,14 +504,15 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Edit frame info
-        int _id = mFrameClassList.get(position).getId();
-        int lens_id = mFrameClassList.get(position).getLensId();
-        int count = mFrameClassList.get(position).getCount();
-        String date = mFrameClassList.get(position).getDate();
-        String shutter = mFrameClassList.get(position).getShutter();
-        String aperture = mFrameClassList.get(position).getAperture();
-        String note = mFrameClassList.get(position).getNote();
-        String location = mFrameClassList.get(position).getLocation();
+        Frame frame = mFrameClassList.get(position);
+        int _id = frame.getId();
+        int lens_id = frame.getLensId();
+        int count = frame.getCount();
+        String date = frame.getDate();
+        String shutter = frame.getShutter();
+        String aperture = frame.getAperture();
+        String note = frame.getNote();
+        String location = frame.getLocation();
 
         EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id);
         dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
@@ -594,7 +593,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         mainListView.setSelection(mainListView.getCount() - 1);
                         // The text you'd like to share has changed,
                         // and you need to update
-                        setShareIntent();
+                        mShareActionProvider.setShareIntent(setShareIntent());
                     }
                 } else if ( resultCode == Activity.RESULT_CANCELED ) {
                     // After cancel do nothing
@@ -640,7 +639,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         mFrameClassList.get(position).setNote(note);
                         mFrameClassList.get(position).setLocation(location);
                         mFrameAdapter.notifyDataSetChanged();
-                        setShareIntent();
+
+                        // The text you'd like to share has changed,
+                        // and you need to update
+                        mShareActionProvider.setShareIntent(setShareIntent());
                     }
                 } else if ( resultCode == Activity.RESULT_CANCELED ) {
                     // After cancel do nothing

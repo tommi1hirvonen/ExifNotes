@@ -19,6 +19,7 @@
     <string name="SelectMountableLenses">Select mountable lenses</string>
     <string name="CameraNoColon">Camera</string>
     <string name="IsBeingUsed">is being used!</string>
+    <string name="EditCamera">Edit camera</string>
 
     <!--DirectoryChooserDialog-->
     <string name="CurrentDirectory">Current directory:</string>
@@ -147,8 +148,8 @@
     <string name="Location">Location:</string>
 
     <!--gear_dialog-->
-    <string name="Make">Make</string>
-    <string name="Model">Model</string>
+    <string name="Make">Make:</string>
+    <string name="Model">Model:</string>
 
     <!--item_frame.xml-->
     <string name="Text">Text</string>

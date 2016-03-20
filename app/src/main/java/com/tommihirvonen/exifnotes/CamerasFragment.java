@@ -251,7 +251,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                     GearInfoDialog dialog = new GearInfoDialog();
                     dialog.setTargetFragment(this, EDIT_CAMERA);
                     Bundle arguments = new Bundle();
-                    arguments.putString("TITLE", getResources().getString( R.string.EditLens));
+                    arguments.putString("TITLE", getResources().getString( R.string.EditCamera));
                     arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
                     arguments.putString("MAKE", camera.getMake());
                     arguments.putString("MODEL", camera.getModel());
