@@ -16,11 +16,11 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 
-public class GearInfoDialog extends DialogFragment {
+public class EditGearInfoDialog extends DialogFragment {
 
     public static final String TAG = "GearInfoDialogFragment";
 
-    public GearInfoDialog(){
+    public EditGearInfoDialog(){
 
     }
 

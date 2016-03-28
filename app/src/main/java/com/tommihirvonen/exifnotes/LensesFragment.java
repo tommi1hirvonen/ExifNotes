@@ -252,7 +252,7 @@ public class LensesFragment extends Fragment implements
 
                 case R.id.menu_item_edit:
 
-                    GearInfoDialog dialog = new GearInfoDialog();
+                    EditGearInfoDialog dialog = new EditGearInfoDialog();
                     dialog.setTargetFragment(this, EDIT_LENS);
                     Bundle arguments = new Bundle();
                     arguments.putString("TITLE", getResources().getString( R.string.EditLens));
@@ -262,7 +262,7 @@ public class LensesFragment extends Fragment implements
                     arguments.putInt("GEAR_ID", lens.getId());
                     arguments.putInt("POSITION", which);
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), GearInfoDialog.TAG);
+                    dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
 
                     return true;
             }
@@ -271,13 +271,13 @@ public class LensesFragment extends Fragment implements
     }
 
     private void showLensNameDialog() {
-        GearInfoDialog dialog = new GearInfoDialog();
+        EditGearInfoDialog dialog = new EditGearInfoDialog();
         dialog.setTargetFragment(this, ADD_LENS);
         Bundle arguments = new Bundle();
         arguments.putString("TITLE", getResources().getString( R.string.NewLens));
         arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), GearInfoDialog.TAG);
+        dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
     }
 
     @Override

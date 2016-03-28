@@ -41,6 +41,8 @@ public class EditFrameInfoDialog extends DialogFragment {
     String aperture;
     String note;
     String location;
+    String title;
+    String positiveButton;
     int camera_id;
     ArrayList<Lens> mountableLenses;
     FilmDbHelper database;
@@ -50,7 +52,10 @@ public class EditFrameInfoDialog extends DialogFragment {
     final static int PLACE_PICKER_REQUEST = 1;
 
 
-    static EditFrameInfoDialog newInstance(int _id, int lens_id, int position, int count, String date, String shutter, String aperture, String note, String location, int camera_id) {
+    static EditFrameInfoDialog newInstance(int _id, int lens_id, int position, int count,
+                                           String date, String shutter, String aperture,
+                                           String note, String location, int camera_id,
+                                           String title, String positiveButton) {
         EditFrameInfoDialog f = new EditFrameInfoDialog();
         Bundle args = new Bundle();
         args.putInt("_id", _id);
@@ -63,6 +68,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         args.putString("note", note);
         args.putString("latlng_location", location);
         args.putInt("camera_id", camera_id);
+        args.putString("title", title);
+        args.putString("positive_button", positiveButton);
         f.setArguments(args);
         return f;
     }
@@ -90,22 +97,14 @@ public class EditFrameInfoDialog extends DialogFragment {
         String shutterIncrements = prefs.getString("ShutterIncrements", "third");
         String apertureIncrements = prefs.getString("ApertureIncrements", "third");
 
-        if ( SavedInstanceState != null ) {
-            lens_id = SavedInstanceState.getInt("LENS_ID");
-            date = SavedInstanceState.getString("DATE");
-            count = SavedInstanceState.getInt("COUNT");
-            shutter = SavedInstanceState.getString("SHUTTER");
-            aperture = SavedInstanceState.getString("APERTURE");
-            location = SavedInstanceState.getString("LOCATION");
-        } else {
-            lens_id = getArguments().getInt("lens_id");
-            date = getArguments().getString("date");
-            count = getArguments().getInt("count");
-            shutter = getArguments().getString("shutter");
-            aperture = getArguments().getString("aperture");
-            location = getArguments().getString("latlng_location");
-        }
-
+        lens_id = getArguments().getInt("lens_id");
+        date = getArguments().getString("date");
+        count = getArguments().getInt("count");
+        shutter = getArguments().getString("shutter");
+        aperture = getArguments().getString("aperture");
+        location = getArguments().getString("latlng_location");
+        title = getArguments().getString("title");
+        positiveButton = getArguments().getString("positive_button");
         position = getArguments().getInt("position");
         _id = getArguments().getInt("_id");
         note = getArguments().getString("note");
@@ -120,7 +119,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
 
-        alert.setTitle("" + getActivity().getString(R.string.EditFrame) + count);
+        alert.setTitle(title);
 
         alert.setView(inflator);
 
@@ -272,12 +271,30 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         // The date is in format "YYYY-M-D HH:MM"
 
-        ArrayList<String> dateValue = splitDate(date);
-        final int i_year = Integer.parseInt(dateValue.get(0));
-        final int i_month = Integer.parseInt(dateValue.get(1));
-        final int i_day = Integer.parseInt(dateValue.get(2));
-        b_date.setText(i_year + "-" + i_month + "-" + i_day);
+        int temp_year;
+        int temp_month;
+        int temp_day;
+
+        if ( date.length() > 0 ) {
+            final ArrayList<String> dateValue = FramesFragment.splitDate(date);
+            temp_year = Integer.parseInt(dateValue.get(0));
+            temp_month = Integer.parseInt(dateValue.get(1));
+            temp_day = Integer.parseInt(dateValue.get(2));
+            b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
+        } else {
+            date = FramesFragment.getCurrentTime();
+
+            ArrayList<String> dateValue = FramesFragment.splitDate(date);
+            temp_year = Integer.parseInt(dateValue.get(0));
+            temp_month = Integer.parseInt(dateValue.get(1));
+            temp_day = Integer.parseInt(dateValue.get(2));
+            b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
+        }
         b_date.setClickable(true);
+
+        final int i_year = temp_year;
+        final int i_month = temp_month;
+        final int i_day = temp_day;
 
         b_date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -300,12 +317,26 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // TIME PICK DIALOG
-        ArrayList<String> timeValue = splitTime(date);
-        final int hours = Integer.parseInt(timeValue.get(0));
-        final int minutes = Integer.parseInt(timeValue.get(1));
-        if (minutes < 10) b_time.setText(hours + ":0" + minutes);
-        else b_time.setText(hours + ":" + minutes);
+        int temp_hours;
+        int temp_minutes;
+
+        if ( date.length() > 0 ) {
+            ArrayList<String> timeValue = FramesFragment.splitTime(date);
+            temp_hours = Integer.parseInt(timeValue.get(0));
+            temp_minutes = Integer.parseInt(timeValue.get(1));
+            if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
+            else b_time.setText(temp_hours + ":" + temp_minutes);
+        } else {
+            ArrayList<String> timeValue = FramesFragment.splitTime(date);
+            temp_hours = Integer.parseInt(timeValue.get(0));
+            temp_minutes = Integer.parseInt(timeValue.get(1));
+            if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
+            else b_time.setText(temp_hours + ":" + temp_minutes);
+        }
         b_time.setClickable(true);
+
+        final int hours = temp_hours;
+        final int minutes = temp_minutes;
 
         b_time.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -374,7 +405,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
 
-        alert.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+        alert.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 shutter = displayedShutterValues[shutterPicker.getValue()];
                 aperture = displayedApertureValues[aperturePicker.getValue()];
@@ -418,49 +449,5 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         }
     }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        shutter = displayedShutterValues[shutterPicker.getValue()];
-        aperture = displayedApertureValues[aperturePicker.getValue()];
-        count = countPicker.getValue();
-
-        // Lens
-        outState.putInt("LENS_ID", lens_id);
-        // Date
-        outState.putString("DATE", date);
-        // Count
-        outState.putInt("COUNT", count);
-        // Shutter
-        outState.putString("SHUTTER", shutter);
-        // Aperture
-        outState.putString("APERTURE", aperture);
-        // Location
-        outState.putString("LOCATION", location);
-    }
-
-    private ArrayList<String> splitDate(String input) {
-        String[] items = input.split(" ");
-        ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
-        // { YYYY-M-D, HH:MM }
-        String[] items2 = itemList.get(0).split("-");
-        itemList = new ArrayList<>(Arrays.asList(items2));
-        // { YYYY, M, D }
-        return itemList;
-    }
-
-    private ArrayList<String> splitTime(String input) {
-        String[] items = input.split(" ");
-        ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
-        // { YYYY-M-D, HH:MM }
-        String[] items2 = itemList.get(1).split(":");
-        itemList = new ArrayList<>(Arrays.asList(items2));
-        // { HH, MM }
-        return itemList;
-    }
-
-
 }
 

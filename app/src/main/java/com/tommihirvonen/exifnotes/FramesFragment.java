@@ -102,7 +102,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public static final int FRAME_INFO_DIALOG = 1;
     public static final int EDIT_FRAME_INFO_DIALOG = 2;
 
-    public static final int EXPORT_MENU_ITEM_ID = 99;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -129,8 +128,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             }
             // Create locationRequest to update the current latlng_location.
             mLocationRequest = new LocationRequest();
-            mLocationRequest.setInterval(20000);
-            mLocationRequest.setFastestInterval(10000);
+            // 20 seconds
+            mLocationRequest.setInterval(20*1000);
+            // 10 seconds
+            mLocationRequest.setFastestInterval(10*1000);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
         // This can be done anyway. It only has effect if locationEnabled is true.
@@ -239,8 +240,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     String aperture = frame.getAperture();
                     String note = frame.getNote();
                     String location = frame.getLocation();
+                    String title = "" + getActivity().getString(R.string.EditFrame) + count;
+                    String positiveButton = getActivity().getResources().getString(R.string.OK);
 
-                    EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id);
+                    EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id, title, positiveButton);
                     dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
                     dialog.show(getFragmentManager().beginTransaction(), EditFrameInfoDialog.TAG);
 
@@ -513,8 +516,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String aperture = frame.getAperture();
         String note = frame.getNote();
         String location = frame.getLocation();
+        String title = "" + getActivity().getString(R.string.EditFrame) + count;
+        String positiveButton = getActivity().getResources().getString(R.string.OK);
 
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id, title, positiveButton);
         dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
         dialog.show(getFragmentManager().beginTransaction(), EditFrameInfoDialog.TAG);
     }
@@ -537,6 +542,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String shutter;
         String aperture;
         String location;
+        String title = getActivity().getResources().getString(R.string.NewFrame);
+        String positiveButton = getActivity().getResources().getString(R.string.Add);
         if ( locationEnabled ) location = locationStringFromLocation(mLastLocation);
         else location = "";
 
@@ -552,9 +559,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             aperture = getResources().getString(R.string.NoValue);
         }
 
-        FrameInfoDialog dialog = FrameInfoDialog.newInstance(lens_id, count, date, shutter, aperture, location, camera_id);
+        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(-1, lens_id, -1, count, date,
+                shutter, aperture, "", location, camera_id, title, positiveButton);
         dialog.setTargetFragment(this, FRAME_INFO_DIALOG);
-        dialog.show(getFragmentManager(), FrameInfoDialog.TAG);
+        dialog.show(getFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
     @Override
@@ -682,6 +690,26 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
         } else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
         return current_time;
+    }
+
+    public static ArrayList<String> splitDate(String input) {
+        String[] items = input.split(" ");
+        ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
+        // { YYYY-M-D, HH:MM }
+        String[] items2 = itemList.get(0).split("-");
+        itemList = new ArrayList<>(Arrays.asList(items2));
+        // { YYYY, M, D }
+        return itemList;
+    }
+
+    public static ArrayList<String> splitTime(String input) {
+        String[] items = input.split(" ");
+        ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
+        // { YYYY-M-D, HH:MM }
+        String[] items2 = itemList.get(1).split(":");
+        itemList = new ArrayList<>(Arrays.asList(items2));
+        // { HH, MM }
+        return itemList;
     }
 
     public void onStart() {

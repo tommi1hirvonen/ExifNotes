@@ -248,7 +248,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                 case R.id.menu_item_edit:
 
-                    GearInfoDialog dialog = new GearInfoDialog();
+                    EditGearInfoDialog dialog = new EditGearInfoDialog();
                     dialog.setTargetFragment(this, EDIT_CAMERA);
                     Bundle arguments = new Bundle();
                     arguments.putString("TITLE", getResources().getString( R.string.EditCamera));
@@ -258,7 +258,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                     arguments.putInt("GEAR_ID", camera.getId());
                     arguments.putInt("POSITION", which);
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), GearInfoDialog.TAG);
+                    dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
 
                     return true;
             }
@@ -267,13 +267,13 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
     }
 
     private void showCameraNameDialog() {
-        GearInfoDialog dialog = new GearInfoDialog();
+        EditGearInfoDialog dialog = new EditGearInfoDialog();
         dialog.setTargetFragment(this, ADD_CAMERA);
         Bundle arguments = new Bundle();
         arguments.putString("TITLE", getResources().getString( R.string.NewCamera));
         arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), GearInfoDialog.TAG);
+        dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
     }
 
     public void onClick(View v) {

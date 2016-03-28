@@ -214,21 +214,38 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // GET ROLL INFO
         int rollId = mRollList.get(position).getId();
-        Log.d("ROLL_ID", "" + rollId);
         mCallback.onRollSelected(rollId);
     }
 
-    private void show_EditRollNameDialog(int rollId, String oldName, String oldNote, int camera_id, String date){
+    private void show_EditRollNameDialog(int rollId, String oldName, String oldNote, int camera_id, String date, String title){
         EditRollNameDialog dialog = new EditRollNameDialog();
-        dialog.setOldName(rollId, oldName, oldNote, camera_id, date);
+        Bundle arguments = new Bundle();
+        arguments.putInt("ROLL_ID", rollId);
+        arguments.putInt("CAMERA_ID", camera_id);
+        arguments.putString("OLD_NAME", oldName);
+        arguments.putString("OLD_NOTE", oldNote);
+        arguments.putString("DATE", date);
+        arguments.putString("TITLE", title);
+        arguments.putString("POSITIVE_BUTTON", getActivity().getResources().getString(R.string.OK));
+
+        dialog.setArguments(arguments);
         dialog.setTargetFragment(this, EDIT_ROLL_NAME_DIALOG);
         dialog.show(getFragmentManager().beginTransaction(), EditRollNameDialog.TAG);
     }
 
     private void show_RollNameDialog() {
-        RollNameDialog dialog = new RollNameDialog();
+        EditRollNameDialog dialog = new EditRollNameDialog();
+        Bundle arguments = new Bundle();
+        arguments.putInt("ROLL_ID", -1);
+        arguments.putInt("CAMERA_ID", -1);
+        arguments.putString("OLD_NAME", "");
+        arguments.putString("OLD_NOTE", "");
+        arguments.putString("DATE", "");
+        arguments.putString("TITLE", getActivity().getResources().getString(R.string.NewRoll));
+        arguments.putString("POSITIVE_BUTTON", getActivity().getResources().getString(R.string.Add));
+        dialog.setArguments(arguments);
         dialog.setTargetFragment(this, ROLL_NAME_DIALOG);
-        dialog.show(getFragmentManager().beginTransaction(), RollNameDialog.TAG);
+        dialog.show(getFragmentManager().beginTransaction(), EditRollNameDialog.TAG);
     }
 
     @Override
@@ -241,7 +258,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                 case R.id.menu_item_edit:
 
                     int position = info.position;
-                    show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote(), mRollList.get(position).getCamera_id(), mRollList.get(position).getDate());
+                    show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote(), mRollList.get(position).getCamera_id(), mRollList.get(position).getDate(), getActivity().getResources().getString(R.string.EditRoll));
 
                     return true;
 
@@ -340,10 +357,10 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    String newName = data.getStringExtra("NEWNAME");
+                    String newName = data.getStringExtra("NAME");
                     int rollId = data.getIntExtra("ROLL_ID", -1);
                     int camera_id = data.getIntExtra("CAMERA_ID", -1);
-                    String newNote = data.getStringExtra("NEWNOTE");
+                    String newNote = data.getStringExtra("NOTE");
                     String newDate = data.getStringExtra("DATE");
 
                     if ( newName.length() != 0 && rollId != -1 && camera_id != -1 ) {
@@ -392,19 +409,5 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                 break;
 
         }
-    }
-
-    public static String getCurrentTime() {
-        final Calendar c = Calendar.getInstance();
-        int iYear = c.get(Calendar.YEAR);
-        int iMonth = c.get(Calendar.MONTH) + 1;
-        int iDay = c.get(Calendar.DAY_OF_MONTH);
-        int iHour = c.get(Calendar.HOUR_OF_DAY);
-        int iMin = c.get(Calendar.MINUTE);
-        String current_time;
-        if (iMin < 10) {
-            current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
-        } else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
-        return current_time;
     }
 }

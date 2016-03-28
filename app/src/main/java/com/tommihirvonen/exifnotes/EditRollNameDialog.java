@@ -17,6 +17,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,8 @@ public class EditRollNameDialog extends DialogFragment {
     public int rollId;
     int camera_id;
     String date;
+    String title;
+    String positiveButton;
     FilmDbHelper database;
     ArrayList<Camera> mCameraList;
     public static final String TAG = "EditNameDialogFragment";
@@ -39,20 +42,18 @@ public class EditRollNameDialog extends DialogFragment {
 
     }
 
-    // Android doesn't like fragments to be created with arguments. This is a workaround.
-    public void setOldName (int rollId, String oldName, String oldNote, int camera_id, String date) {
-        this.rollId = rollId;
-        this.oldName = oldName;
-        this.oldNote = oldNote;
-        this.camera_id = camera_id;
-        this.date = date;
-    }
 
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
-        if ( SavedInstanceState != null ) camera_id = SavedInstanceState.getInt("CAMERA_ID");
+        oldName = getArguments().getString("OLD_NAME");
+        oldNote = getArguments().getString("OLD_NOTE");
+        rollId = getArguments().getInt("ROLL_ID");
+        camera_id = getArguments().getInt("CAMERA_ID", -1);
+        date = getArguments().getString("DATE");
+        title = getArguments().getString("TITLE");
+        positiveButton = getArguments().getString("POSITIVE_BUTTON");
 
         database = new FilmDbHelper(getActivity());
         mCameraList = database.getAllCameras();
@@ -62,7 +63,7 @@ public class EditRollNameDialog extends DialogFragment {
         final View inflator = linf.inflate(R.layout.roll_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        alert.setTitle(R.string.EditRoll);
+        alert.setTitle(title);
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById((R.id.txt_name));
@@ -74,7 +75,8 @@ public class EditRollNameDialog extends DialogFragment {
 
         // CAMERA PICK DIALOG
         b_camera.setClickable(true);
-        b_camera.setText(database.getCamera(camera_id).getMake() + " " + database.getCamera(camera_id).getModel());
+        if ( camera_id != -1 ) b_camera.setText(database.getCamera(camera_id).getMake() + " " + database.getCamera(camera_id).getModel());
+        else b_camera.setText(R.string.ClickToSelect);
         b_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,12 +106,31 @@ public class EditRollNameDialog extends DialogFragment {
             }
         });
 
-        final ArrayList<String> dateValue = FrameInfoDialog.splitDate(date);
-        final int i_year = Integer.parseInt(dateValue.get(0));
-        final int i_month = Integer.parseInt(dateValue.get(1));
-        final int i_day = Integer.parseInt(dateValue.get(2));
-        b_date.setText(i_year + "-" + i_month + "-" + i_day);
+        // DATE PICK DIALOG
+        int temp_year;
+        int temp_month;
+        int temp_day;
+
+        if ( date.length() > 0 ) {
+            final ArrayList<String> dateValue = FramesFragment.splitDate(date);
+            temp_year = Integer.parseInt(dateValue.get(0));
+            temp_month = Integer.parseInt(dateValue.get(1));
+            temp_day = Integer.parseInt(dateValue.get(2));
+            b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
+        } else {
+            date = FramesFragment.getCurrentTime();
+
+            ArrayList<String> dateValue = FramesFragment.splitDate(date);
+            temp_year = Integer.parseInt(dateValue.get(0));
+            temp_month = Integer.parseInt(dateValue.get(1));
+            temp_day = Integer.parseInt(dateValue.get(2));
+            b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
+        }
         b_date.setClickable(true);
+
+        final int i_year = temp_year;
+        final int i_month = temp_month;
+        final int i_day = temp_day;
 
         b_date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,12 +153,27 @@ public class EditRollNameDialog extends DialogFragment {
         });
 
         // TIME PICK DIALOG
-        ArrayList<String> timeValue = FrameInfoDialog.splitTime(date);
-        final int hours = Integer.parseInt(timeValue.get(0));
-        final int minutes = Integer.parseInt(timeValue.get(1));
-        if (minutes < 10) b_time.setText(hours + ":0" + minutes);
-        else b_time.setText(hours + ":" + minutes);
+
+        int temp_hours;
+        int temp_minutes;
+
+        if ( date.length() > 0 ) {
+            ArrayList<String> timeValue = FramesFragment.splitTime(date);
+            temp_hours = Integer.parseInt(timeValue.get(0));
+            temp_minutes = Integer.parseInt(timeValue.get(1));
+            if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
+            else b_time.setText(temp_hours + ":" + temp_minutes);
+        } else {
+            ArrayList<String> timeValue = FramesFragment.splitTime(date);
+            temp_hours = Integer.parseInt(timeValue.get(0));
+            temp_minutes = Integer.parseInt(timeValue.get(1));
+            if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
+            else b_time.setText(temp_hours + ":" + temp_minutes);
+        }
         b_time.setClickable(true);
+
+        final int hours = temp_hours;
+        final int minutes = temp_minutes;
 
         b_time.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,20 +202,26 @@ public class EditRollNameDialog extends DialogFragment {
         // Place the cursor at the end of the input field
         et1.setSelection(et1.getText().length());
 
-        alert.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+        alert.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newName = et1.getText().toString();
                 String newNote = et2.getText().toString();
-                if (newName.length() != 0) {
+                if( newName.length() != 0 && camera_id != -1 ) {
                     Intent intent = new Intent();
                     intent.putExtra("ROLL_ID", rollId);
-                    intent.putExtra("NEWNAME", newName);
-                    intent.putExtra("NEWNOTE", newNote);
+                    intent.putExtra("NAME", newName);
+                    intent.putExtra("NOTE", newNote);
                     intent.putExtra("CAMERA_ID", camera_id);
                     intent.putExtra("DATE", date);
                     //callback.OnNameEdited(rollId, newName, newNote, camera_id);
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                } else if ( newName.length() == 0 && camera_id != -1 ) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
+                } else if ( newName.length() != 0 && camera_id == -1 ) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -195,11 +237,5 @@ public class EditRollNameDialog extends DialogFragment {
         AlertDialog dialog = alert.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         return dialog;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("CAMERA_ID", camera_id);
     }
 }

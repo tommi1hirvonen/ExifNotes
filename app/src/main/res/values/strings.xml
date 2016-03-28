@@ -76,7 +76,7 @@
     <string name="RollSameName">Roll with same name already exists!</string>
     <string name="RollIllegalCharacter">Roll name contains an illegal character:</string>
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.0\nCopyright 2015 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.2\nCopyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <string name="Preferences">Settings</string>
     <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
@@ -112,9 +112,9 @@
     <string name="NoNameOrCamera">No name or camera was set!</string>
 
     <!--SimpleEula-->
-    <string name="Updates">Updates in this version:\n- First published version</string>
+    <string name="Updates">Updates in this version:\n- UI improvements</string>
     <!--When updating "eula" also update "about"-->
-    <string name="Eula">Copyright 2015 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="Eula">Copyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
     <string name="Agree">Agree</string>
     <string name="Decline">Decline</string>
 
