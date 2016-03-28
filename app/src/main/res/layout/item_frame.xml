@@ -22,7 +22,7 @@
                 android:layout_height="match_parent"
                 android:id="@+id/background_frame"
                 android:layout_gravity="center"
-                android:src="@drawable/background_frame"
+                android:src="@drawable/background_frame_small"
                 android:alpha="0.2"/>
 
             <TextView
