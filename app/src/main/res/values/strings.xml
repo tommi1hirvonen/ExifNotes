@@ -37,6 +37,11 @@
     <string name="Rename">Rename</string>
     <string name="EditRoll">Edit roll info</string>
 
+    <!--EditGearInfoFialog-->
+    <string name="NoMakeOrModel">No make or model was set!</string>
+    <string name="NoMake">No make was set!</string>
+    <string name="NoModel">No model was set!</string>
+
     <!--FramesFragment-->
     <string name="NoteIllegalCharacter">Note contains an illegal character:</string>
     <string name="ExportExif">Export exiftool cmds</string>

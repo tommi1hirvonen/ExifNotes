@@ -221,30 +221,7 @@ public class EditRollNameDialog extends DialogFragment {
         // Place the cursor at the end of the input field
         et1.setSelection(et1.getText().length());
 
-        alert.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String newName = et1.getText().toString();
-                String newNote = et2.getText().toString();
-                if( newName.length() != 0 && camera_id != -1 ) {
-                    Intent intent = new Intent();
-                    intent.putExtra("ROLL_ID", rollId);
-                    intent.putExtra("NAME", newName);
-                    intent.putExtra("NOTE", newNote);
-                    intent.putExtra("CAMERA_ID", camera_id);
-                    intent.putExtra("DATE", date);
-                    //callback.OnNameEdited(rollId, newName, newNote, camera_id);
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                } else if ( newName.length() == 0 && camera_id != -1 ) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
-                } else if ( newName.length() != 0 && camera_id == -1 ) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
+        alert.setPositiveButton(positiveButton, null);
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -253,8 +230,37 @@ public class EditRollNameDialog extends DialogFragment {
                 getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }
         });
-        AlertDialog dialog = alert.create();
+        final AlertDialog dialog = alert.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+        dialog.show();
+
+        // We override the positive button onClick so that we can dismiss the dialog
+        // only when both roll name and camera are set.
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String newName = et1.getText().toString();
+                String newNote = et2.getText().toString();
+                if (newName.length() != 0 && camera_id != -1) {
+                    Intent intent = new Intent();
+                    intent.putExtra("ROLL_ID", rollId);
+                    intent.putExtra("NAME", newName);
+                    intent.putExtra("NOTE", newNote);
+                    intent.putExtra("CAMERA_ID", camera_id);
+                    intent.putExtra("DATE", date);
+                    dialog.dismiss();
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                } else if (newName.length() == 0 && camera_id != -1) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
+                } else if (newName.length() != 0 && camera_id == -1) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
         return dialog;
     }
 

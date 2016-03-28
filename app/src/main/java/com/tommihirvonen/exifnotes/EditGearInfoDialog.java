@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class EditGearInfoDialog extends DialogFragment {
 
@@ -49,23 +50,7 @@ public class EditGearInfoDialog extends DialogFragment {
         et2.setText(model);
 
 
-        alert.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton)
-            {
-                String make = et1.getText().toString();
-                String model = et2.getText().toString();
-
-                if(make.length() != 0 && model.length() != 0) {
-                    // Return the new entered name to the calling activity
-                    Intent intent = new Intent();
-                    intent.putExtra("MAKE", make);
-                    intent.putExtra("MODEL", model);
-                    intent.putExtra("GEAR_ID", gearId);
-                    intent.putExtra("POSITION", position);
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                }
-            }
-        });
+        alert.setPositiveButton(positiveButton, null);
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
@@ -73,8 +58,38 @@ public class EditGearInfoDialog extends DialogFragment {
                 getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }
         });
-        AlertDialog dialog = alert.create();
+        final AlertDialog dialog = alert.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+        // We override the positive button onClick so that we can dismiss the dialog
+        // only when both make and model are set.
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String make = et1.getText().toString();
+                String model = et2.getText().toString();
+
+                if (make.length() != 0 && model.length() != 0) {
+                    // Return the new entered name to the calling activity
+                    Intent intent = new Intent();
+                    intent.putExtra("MAKE", make);
+                    intent.putExtra("MODEL", model);
+                    intent.putExtra("GEAR_ID", gearId);
+                    intent.putExtra("POSITION", position);
+                    dialog.dismiss();
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                } else if (make.length() == 0 && model.length() == 0) {
+                    // No make or model was set
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();
+                } else if (make.length() > 0 && model.length() == 0) {
+                    // No model was set
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
+                } else if (make.length() == 0 && model.length() > 0) {
+                    // No make was set
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         return dialog;
     }
 
