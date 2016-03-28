@@ -16,10 +16,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +50,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     FilmDbHelper database;
 
     TextView b_location;
+    TextView b_lens;
 
     final static int PLACE_PICKER_REQUEST = 1;
 
@@ -127,9 +130,10 @@ public class EditFrameInfoDialog extends DialogFragment {
         et_note.setText(note);
         b_location = (TextView) inflator.findViewById(R.id.btn_location);
 
-        final TextView b_lens = (TextView) inflator.findViewById(R.id.btn_lens);
+        b_lens = (TextView) inflator.findViewById(R.id.btn_lens);
         final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
         final TextView b_time = (TextView) inflator.findViewById(R.id.btn_time);
+        final Button b_addLens = (Button) inflator.findViewById(R.id.btn_add_lens);
 
         countPicker = (NumberPicker) inflator.findViewById(R.id.countPicker);
         shutterPicker = (NumberPicker) inflator.findViewById(R.id.shutterPicker);
@@ -252,8 +256,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
                         b_lens.setText(listItems.get(which));
-                        if ( which > 0 ) lens_id = mountableLenses.get(which-1).getId();
-                        else if ( which == 0 ) lens_id = -1;
+                        if (which > 0) lens_id = mountableLenses.get(which - 1).getId();
+                        else if (which == 0) lens_id = -1;
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -264,6 +268,21 @@ public class EditFrameInfoDialog extends DialogFragment {
                 });
                 AlertDialog alert = builder.create();
                 alert.show();
+            }
+        });
+
+        // LENS ADD DIALOG
+        b_addLens.setClickable(true);
+        b_addLens.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditGearInfoDialog dialog = new EditGearInfoDialog();
+                dialog.setTargetFragment(EditFrameInfoDialog.this, LensesFragment.ADD_LENS);
+                Bundle arguments = new Bundle();
+                arguments.putString("TITLE", getResources().getString(R.string.NewLens));
+                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+                dialog.setArguments(arguments);
+                dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
             }
         });
 
@@ -446,6 +465,59 @@ public class EditFrameInfoDialog extends DialogFragment {
             if (data.hasExtra("LATITUDE") && data.hasExtra("LONGITUDE")) {
                 location = "" + data.getStringExtra("LATITUDE") + " " + data.getStringExtra("LONGITUDE");
                 b_location.setText(location);
+            }
+        }
+
+
+
+        if ( requestCode == LensesFragment.ADD_LENS && resultCode == Activity.RESULT_OK) {
+            // After Ok code.
+
+            String inputTextMake = data.getStringExtra("MAKE");
+            String inputTextModel = data.getStringExtra("MODEL");
+
+            if (inputTextMake.length() != 0 && inputTextModel.length() != 0) {
+
+                ArrayList<Lens> mLensList = database.getAllLenses();
+
+                // Check if a lens with the same name already exists
+                for (int i = 0; i < mLensList.size(); ++i) {
+                    if (inputTextMake.equals(mLensList.get(i).getMake()) && inputTextModel.equals(mLensList.get(i).getModel())) {
+                        Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensSameName), Toast.LENGTH_LONG);
+                        toast.show();
+                        return;
+                    }
+                }
+
+                //Check if there are illegal character in the lens name
+                String ReservedChars = "|\\?*<\":>/";
+                for (int i = 0; i < inputTextMake.length(); ++i) {
+                    Character c = inputTextMake.charAt(i);
+                    if (ReservedChars.contains(c.toString())) {
+                        Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensMakeIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                        toast.show();
+                        return;
+                    }
+                }
+                for (int i = 0; i < inputTextModel.length(); ++i) {
+                    Character c = inputTextModel.charAt(i);
+                    if (ReservedChars.contains(c.toString())) {
+                        Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensModelIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                        toast.show();
+                        return;
+                    }
+                }
+
+                Lens lens = new Lens();
+                lens.setMake(inputTextMake);
+                lens.setModel(inputTextModel);
+                database.addLens(lens);
+                // When we get the last added lens from the database we get the row id value.
+                lens = database.getLastLens();
+                database.addMountable(database.getCamera(camera_id), lens);
+                mountableLenses.add(lens);
+                b_lens.setText(lens.getMake() + " " + lens.getModel());
+                lens_id = lens.getId();
             }
         }
     }

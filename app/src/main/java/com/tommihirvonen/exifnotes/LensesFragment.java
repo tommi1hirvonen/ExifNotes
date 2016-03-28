@@ -4,6 +4,7 @@ package com.tommihirvonen.exifnotes;
 // Tommi Hirvonen
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,7 +14,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -55,7 +55,7 @@ public class LensesFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LayoutInflater linf = getActivity().getLayoutInflater();
 
-        database = new FilmDbHelper(getContext());
+        database = new FilmDbHelper(getActivity());
         mLensList = database.getAllLenses();
 
         final View view = linf.inflate(R.layout.lenses_fragment, container, false);
@@ -105,115 +105,13 @@ public class LensesFragment extends Fragment implements
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.menu_context_delete_edit, menu);
+        inflater.inflate(R.menu.menu_context_delete_edit_select_cameras, menu);
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        final Lens lens = mLensList.get(position);
-        final ArrayList<Camera> mountableCameras = database.getMountableCameras(lens);
-        final ArrayList<Camera> allCameras = database.getAllCameras();
+        showSelectMountableCamerasDialog(position);
 
-        // Make a list of strings for all the camera names to be showed in the
-        // multi choice list.
-        // Also make an array list containing all the camera id's for list comparison.
-        // Comparing lists containing frames is not easy.
-        List<String> listItems = new ArrayList<>();
-        ArrayList<Integer> allCamerasId = new ArrayList<>();
-        for ( int i = 0; i < allCameras.size(); ++i ) {
-            listItems.add(allCameras.get(i).getMake() + " " + allCameras.get(i).getModel());
-            allCamerasId.add(allCameras.get(i).getId());
-        }
-
-        // Make an array list containing all mountable camera id's.
-        ArrayList<Integer> mountableCamerasId = new ArrayList<>();
-        for ( int i = 0; i < mountableCameras.size(); ++i ) {
-            mountableCamerasId.add(mountableCameras.get(i).getId());
-        }
-
-        // Find the items in the list to be preselected
-        final boolean[] booleans = new boolean[allCameras.size()];
-        for ( int i= 0; i < allCamerasId.size(); ++i ) {
-            if ( mountableCamerasId.contains(allCamerasId.get(i)) ) {
-                booleans[i] = true;
-            }
-            else booleans[i] = false;
-        }
-
-
-
-        final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        // MULTIPLE CHOICE DIALOG
-
-        // Create an array list where the selections are saved. Initialize it with
-        // the booleans array.
-        final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
-        for ( int i = 0; i < booleans.length; ++i ) {
-            if ( booleans[i] ) selectedItemsIndexList.add(i);
-        }
-
-        builder.setTitle(R.string.SelectMountableCameras)
-                .setMultiChoiceItems(items, booleans, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        if (isChecked) {
-
-                            // If the user checked the item, add it to the selected items
-                            selectedItemsIndexList.add(which);
-
-                        } else if (selectedItemsIndexList.contains(which)) {
-
-                            // Else, if the item is already in the array, remove it
-                            selectedItemsIndexList.remove(Integer.valueOf(which));
-
-                        }
-                    }
-                })
-
-                .setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-
-                        // Do something with the selections
-                        Collections.sort(selectedItemsIndexList);
-
-                        // Get the not selected indices.
-                        ArrayList<Integer> notSelectedItemsIndexList = new ArrayList<>();
-                        for (int i = 0; i < allCameras.size(); ++i) {
-                            if (!selectedItemsIndexList.contains(i))
-                                notSelectedItemsIndexList.add(i);
-                        }
-
-                        // Iterate through the selected items
-                        for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
-                            int which = selectedItemsIndexList.get(i);
-                            Camera camera = allCameras.get(which);
-                            database.addMountable(camera, lens);
-                        }
-
-                        // Iterate through the not selected items
-                        for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
-                            int which = notSelectedItemsIndexList.get(i);
-                            Camera camera = allCameras.get(which);
-                            database.deleteMountable(camera, lens);
-                        }
-                        mArrayAdapter.notifyDataSetChanged();
-
-                        // Update the CamerasFragment through the parent activity.
-                        GearActivity myActivity = (GearActivity)getActivity();
-                        myActivity.updateFragments();
-                    }
-                })
-                .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
     }
 
     @Override
@@ -227,6 +125,11 @@ public class LensesFragment extends Fragment implements
             Lens lens = mLensList.get(which);
 
             switch (item.getItemId()) {
+
+                case R.id.menu_item_select_mountable_cameras:
+
+                    showSelectMountableCamerasDialog(which);
+                    return true;
 
                 case R.id.menu_item_delete:
 
@@ -415,6 +318,113 @@ public class LensesFragment extends Fragment implements
                 showLensNameDialog();
                 break;
         }
+    }
+
+    void showSelectMountableCamerasDialog(int position){
+        final Lens lens = mLensList.get(position);
+        final ArrayList<Camera> mountableCameras = database.getMountableCameras(lens);
+        final ArrayList<Camera> allCameras = database.getAllCameras();
+
+        // Make a list of strings for all the camera names to be showed in the
+        // multi choice list.
+        // Also make an array list containing all the camera id's for list comparison.
+        // Comparing lists containing frames is not easy.
+        List<String> listItems = new ArrayList<>();
+        ArrayList<Integer> allCamerasId = new ArrayList<>();
+        for ( int i = 0; i < allCameras.size(); ++i ) {
+            listItems.add(allCameras.get(i).getMake() + " " + allCameras.get(i).getModel());
+            allCamerasId.add(allCameras.get(i).getId());
+        }
+
+        // Make an array list containing all mountable camera id's.
+        ArrayList<Integer> mountableCamerasId = new ArrayList<>();
+        for ( int i = 0; i < mountableCameras.size(); ++i ) {
+            mountableCamerasId.add(mountableCameras.get(i).getId());
+        }
+
+        // Find the items in the list to be preselected
+        final boolean[] booleans = new boolean[allCameras.size()];
+        for ( int i= 0; i < allCamerasId.size(); ++i ) {
+            if ( mountableCamerasId.contains(allCamerasId.get(i)) ) {
+                booleans[i] = true;
+            }
+            else booleans[i] = false;
+        }
+
+
+
+        final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        // MULTIPLE CHOICE DIALOG
+
+        // Create an array list where the selections are saved. Initialize it with
+        // the booleans array.
+        final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
+        for ( int i = 0; i < booleans.length; ++i ) {
+            if ( booleans[i] ) selectedItemsIndexList.add(i);
+        }
+
+        builder.setTitle(R.string.SelectMountableCameras)
+                .setMultiChoiceItems(items, booleans, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                        if (isChecked) {
+
+                            // If the user checked the item, add it to the selected items
+                            selectedItemsIndexList.add(which);
+
+                        } else if (selectedItemsIndexList.contains(which)) {
+
+                            // Else, if the item is already in the array, remove it
+                            selectedItemsIndexList.remove(Integer.valueOf(which));
+
+                        }
+                    }
+                })
+
+                .setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        // Do something with the selections
+                        Collections.sort(selectedItemsIndexList);
+
+                        // Get the not selected indices.
+                        ArrayList<Integer> notSelectedItemsIndexList = new ArrayList<>();
+                        for (int i = 0; i < allCameras.size(); ++i) {
+                            if (!selectedItemsIndexList.contains(i))
+                                notSelectedItemsIndexList.add(i);
+                        }
+
+                        // Iterate through the selected items
+                        for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                            int which = selectedItemsIndexList.get(i);
+                            Camera camera = allCameras.get(which);
+                            database.addMountable(camera, lens);
+                        }
+
+                        // Iterate through the not selected items
+                        for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
+                            int which = notSelectedItemsIndexList.get(i);
+                            Camera camera = allCameras.get(which);
+                            database.deleteMountable(camera, lens);
+                        }
+                        mArrayAdapter.notifyDataSetChanged();
+
+                        // Update the CamerasFragment through the parent activity.
+                        GearActivity myActivity = (GearActivity)getActivity();
+                        myActivity.updateFragments();
+                    }
+                })
+                .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     public void updateFragment(){

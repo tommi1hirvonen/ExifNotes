@@ -1,12 +1,13 @@
 package com.tommihirvonen.exifnotes;
 
+import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
+import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -26,6 +27,7 @@ public class GearActivity extends AppCompatActivity {
 
     TabLayout tabLayout;
     ViewPager viewPager;
+
     PagerAdapter pagerAdapter;
     final static String GEAR_ACTIVITY_SAVED_VIEW = "GEAR_ACTIVITY_SAVED_VIEW";
 
@@ -57,7 +59,7 @@ public class GearActivity extends AppCompatActivity {
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        pagerAdapter = new PagerAdapter(getSupportFragmentManager(), this);
+        pagerAdapter = new PagerAdapter(getFragmentManager(), this);
         viewPager.setAdapter(pagerAdapter);
 
         // Give the TabLayout the ViewPager

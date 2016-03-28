@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -42,6 +43,8 @@ public class EditRollNameDialog extends DialogFragment {
 
     }
 
+    TextView b_camera;
+
 
     @NonNull
     @Override
@@ -69,9 +72,10 @@ public class EditRollNameDialog extends DialogFragment {
         final EditText et1 = (EditText) inflator.findViewById((R.id.txt_name));
         final EditText et2 = (EditText) inflator.findViewById(R.id.txt_note);
 
-        final TextView b_camera = (TextView) inflator.findViewById(R.id.btn_camera);
+        b_camera = (TextView) inflator.findViewById(R.id.btn_camera);
         final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
         final TextView b_time = (TextView) inflator.findViewById(R.id.btn_time);
+        final Button b_addCamera = (Button) inflator.findViewById(R.id.btn_add_camera);
 
         // CAMERA PICK DIALOG
         b_camera.setClickable(true);
@@ -103,6 +107,21 @@ public class EditRollNameDialog extends DialogFragment {
                 });
                 AlertDialog alert = builder.create();
                 alert.show();
+            }
+        });
+
+        // CAMERA ADD DIALOG
+        b_addCamera.setClickable(true);
+        b_addCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditGearInfoDialog dialog = new EditGearInfoDialog();
+                dialog.setTargetFragment(EditRollNameDialog.this, CamerasFragment.ADD_CAMERA);
+                Bundle arguments = new Bundle();
+                arguments.putString("TITLE", getResources().getString( R.string.NewCamera));
+                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+                dialog.setArguments(arguments);
+                dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
             }
         });
 
@@ -237,5 +256,67 @@ public class EditRollNameDialog extends DialogFragment {
         AlertDialog dialog = alert.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         return dialog;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+
+            case CamerasFragment.ADD_CAMERA:
+
+                if (resultCode == Activity.RESULT_OK) {
+                    // After Ok code.
+
+                    String inputTextMake = data.getStringExtra("MAKE");
+                    String inputTextModel = data.getStringExtra("MODEL");
+
+                    if (inputTextMake.length() != 0 && inputTextModel.length() != 0) {
+
+                        // Check if a camera with the same name already exists
+                        for (int i = 0; i < mCameraList.size(); ++i) {
+                            if (inputTextMake.equals(mCameraList.get(i).getMake()) && inputTextModel.equals(mCameraList.get(i).getModel())) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraSameName), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+
+                        //Check if there are illegal character in the camera name
+                        String ReservedChars = "|\\?*<\":>/";
+                        for (int i = 0; i < inputTextMake.length(); ++i) {
+                            Character c = inputTextMake.charAt(i);
+                            if (ReservedChars.contains(c.toString())) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraMakeIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+                        for (int i = 0; i < inputTextModel.length(); ++i) {
+                            Character c = inputTextModel.charAt(i);
+                            if (ReservedChars.contains(c.toString())) {
+                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraModelIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
+                                toast.show();
+                                return;
+                            }
+                        }
+
+                        Camera camera = new Camera();
+                        camera.setMake(inputTextMake);
+                        camera.setModel(inputTextModel);
+                        database.addCamera(camera);
+                        // When we get the last added lens from the database we get the row id value.
+                        camera = database.getLastCamera();
+                        mCameraList.add(camera);
+
+                        b_camera.setText(camera.getMake() + " " + camera.getModel());
+                        camera_id = camera.getId();
+                    }
+
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+                    // After Cancel code.
+                    // Do nothing.
+                    return;
+                }
+                break;
+        }
     }
 }
