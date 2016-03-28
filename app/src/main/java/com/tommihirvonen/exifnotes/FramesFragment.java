@@ -200,7 +200,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.ExportExif);
-        //menu.add(Menu.NONE, EXPORT_MENU_ITEM_ID, Menu.NONE, R.string.ExportExif);
 
         if (shareItem != null) {
             mShareActionProvider = new ShareActionProvider(getActivity());
@@ -320,28 +319,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 startActivity(intent2);
                 break;
 
-            /*case EXPORT_MENU_ITEM_ID:
-
-                // Create DirectoryChooserDialog and register a callback
-                DirectoryChooserDialog directoryChooserDialog =
-                        new DirectoryChooserDialog(getActivity(),
-                                new DirectoryChooserDialog.ChosenDirectoryListener() {
-                                    @Override
-                                    public void onChosenDir(String chosenDir) {
-
-                                        // Do here everything that needs to be done
-                                        // with the directory.
-                                        exportExif(chosenDir);
-                                    }
-                                });
-                // Toggle new folder button enabling
-                directoryChooserDialog.setNewFolderEnabled(false);
-                // Load directory chooser dialog for initial 'initialDir' directory.
-                // The registered callback will be called upon final directory selection.
-                directoryChooserDialog.chooseDirectory();
-
-                break;*/
-
         }
 
 
@@ -350,127 +327,122 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
     private Intent setShareIntent() {
 
-//        if (mShareActionProvider != null) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
 
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
+        // ********** OLD IMPLEMENTATION FOR CSV TEXT SHARING **********
+        /*// Get the roll and its information
+        Roll roll = database.getRoll(rollId);
 
-            // ********** OLD IMPLEMENTATION FOR CSV TEXT SHARING **********
-            /*// Get the roll and its information
-            Roll roll = database.getRoll(rollId);
+        final String separator = ",";
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Roll name: " + roll.getMake() + "\n");
+        stringBuilder.append("Added: " + roll.getDate() + "\n");
+        stringBuilder.append("Camera: " + database.getCamera(camera_id).getMake() + "\n");
+        stringBuilder.append("Notes: " + roll.getNote() + "\n");
+        stringBuilder.append("Artist name: " + artistName + "\n");
+        stringBuilder.append("Frame Count" + separator + "Date" + separator + "Lens" + separator + "Shutter" + separator + "Aperture" + separator + "Notes" + separator + "Location" + "\n");
+        for (int i = 0; i < mFrameClassList.size(); ++i) {
+            stringBuilder.append(mFrameClassList.get(i).getCount());
+            stringBuilder.append(separator);
+            stringBuilder.append(mFrameClassList.get(i).getDate());
+            stringBuilder.append(separator);
+            stringBuilder.append(mFrameClassList.get(i).getLens());
+            stringBuilder.append(separator);
+            if ( !mFrameClassList.get(i).getShutter().contains("<") ) stringBuilder.append(mFrameClassList.get(i).getShutter());
+            stringBuilder.append(separator);
+            if ( !mFrameClassList.get(i).getAperture().contains("<") ) stringBuilder.append("f" + mFrameClassList.get(i).getAperture());
+            stringBuilder.append(separator);
+            stringBuilder.append(mFrameClassList.get(i).getNote());
+            stringBuilder.append(separator);
+            stringBuilder.append(mFrameClassList.get(i).getLocation());
+            stringBuilder.append("\n");
+        }*/
 
-            final String separator = ",";
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("Roll name: " + roll.getMake() + "\n");
-            stringBuilder.append("Added: " + roll.getDate() + "\n");
-            stringBuilder.append("Camera: " + database.getCamera(camera_id).getMake() + "\n");
-            stringBuilder.append("Notes: " + roll.getNote() + "\n");
-            stringBuilder.append("Artist name: " + artistName + "\n");
-            stringBuilder.append("Frame Count" + separator + "Date" + separator + "Lens" + separator + "Shutter" + separator + "Aperture" + separator + "Notes" + separator + "Location" + "\n");
-            for (int i = 0; i < mFrameClassList.size(); ++i) {
-                stringBuilder.append(mFrameClassList.get(i).getCount());
-                stringBuilder.append(separator);
-                stringBuilder.append(mFrameClassList.get(i).getDate());
-                stringBuilder.append(separator);
-                stringBuilder.append(mFrameClassList.get(i).getLens());
-                stringBuilder.append(separator);
-                if ( !mFrameClassList.get(i).getShutter().contains("<") ) stringBuilder.append(mFrameClassList.get(i).getShutter());
-                stringBuilder.append(separator);
-                if ( !mFrameClassList.get(i).getAperture().contains("<") ) stringBuilder.append("f" + mFrameClassList.get(i).getAperture());
-                stringBuilder.append(separator);
-                stringBuilder.append(mFrameClassList.get(i).getNote());
-                stringBuilder.append(separator);
-                stringBuilder.append(mFrameClassList.get(i).getLocation());
-                stringBuilder.append("\n");
-            }*/
+        StringBuilder stringBuilder = new StringBuilder();
 
-            StringBuilder stringBuilder = new StringBuilder();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        String artistName = prefs.getString("ArtistName", "");
+        String copyrightInformation = prefs.getString("CopyrightInformation", "");
+        String exiftoolPath = prefs.getString("ExiftoolPath", "");
+        String picturesPath = prefs.getString("PicturesPath", "");
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-            String artistName = prefs.getString("ArtistName", "");
-            String copyrightInformation = prefs.getString("CopyrightInformation", "");
-            String exiftoolPath = prefs.getString("ExiftoolPath", "");
-            String picturesPath = prefs.getString("PicturesPath", "");
+        String exiftoolCmd = "exiftool";
+        String artistTag = "-Artist=";
+        String copyrightTag = "-Copyright=";
+        String cameraMakeTag = "-Make=";
+        String cameraModelTag = "-Model=";
+        String lensMakeTag = "-LensMake=";
+        String lensModelTag = "-LensModel=";
+        String dateTag = "-DateTime=";
+        String shutterTag = "-ShutterSpeedValue=";
+        String apertureTag = "-ApertureValue=";
+        String commentTag = "-UserComment=";
+        String gpsLatTag = "-GPSLatitude=";
+        String gpsLatRefTag = "-GPSLatitudeRef=";
+        String gpsLngTag = "-GPSLongitude=";
+        String gpsLngRefTag = "-GPSLongitudeRef=";
+        String fileEnding = ".jpg";
+        String quote = "\"";
+        String space = " ";
+        String lineSep = System.getProperty("line.separator");
 
-            String exiftoolCmd = "exiftool";
-            String artistTag = "-Artist=";
-            String copyrightTag = "-Copyright=";
-            String cameraMakeTag = "-Make=";
-            String cameraModelTag = "-Model=";
-            String lensMakeTag = "-LensMake=";
-            String lensModelTag = "-LensModel=";
-            String dateTag = "-DateTime=";
-            String shutterTag = "-ShutterSpeedValue=";
-            String apertureTag = "-ApertureValue=";
-            String commentTag = "-UserComment=";
-            String gpsLatTag = "-GPSLatitude=";
-            String gpsLatRefTag = "-GPSLatitudeRef=";
-            String gpsLngTag = "-GPSLongitude=";
-            String gpsLngRefTag = "-GPSLongitudeRef=";
-            String fileEnding = ".jpg";
-            String quote = "\"";
-            String space = " ";
-            String lineSep = System.getProperty("line.separator");
+        for ( Frame frame : mFrameClassList ) {
+            if ( exiftoolPath.length() > 0 ) stringBuilder.append(exiftoolPath);
+            stringBuilder.append(exiftoolCmd + space);
+            stringBuilder.append(cameraMakeTag + quote + database.getCamera(camera_id).getMake() + quote + space);
+            stringBuilder.append(cameraModelTag + quote + database.getCamera(camera_id).getModel() + quote + space);
+            if ( frame.getLensId() != -1 ) {
+                stringBuilder.append(lensMakeTag + quote + database.getLens(frame.getLensId()).getMake() + quote + space);
+                stringBuilder.append(lensModelTag + quote + database.getLens(frame.getLensId()).getModel() + quote + space);
+            }
+            stringBuilder.append(dateTag + quote + frame.getDate().replace("-", ":") + quote + space);
+            if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag + quote + frame.getShutter().replace("\"","") + quote + space);
+            if ( !frame.getAperture().contains("<") )stringBuilder.append(apertureTag + quote + frame.getAperture() + quote + space);
+            if ( frame.getNote().length() > 0 ) stringBuilder.append(commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space);
 
-            for ( Frame frame : mFrameClassList ) {
-                if ( exiftoolPath.length() > 0 ) stringBuilder.append(exiftoolPath);
-                stringBuilder.append(exiftoolCmd + space);
-                stringBuilder.append(cameraMakeTag + quote + database.getCamera(camera_id).getMake() + quote + space);
-                stringBuilder.append(cameraModelTag + quote + database.getCamera(camera_id).getModel() + quote + space);
-                if ( frame.getLensId() != -1 ) {
-                    stringBuilder.append(lensMakeTag + quote + database.getLens(frame.getLensId()).getMake() + quote + space);
-                    stringBuilder.append(lensModelTag + quote + database.getLens(frame.getLensId()).getModel() + quote + space);
-                }
-                stringBuilder.append(dateTag + quote + frame.getDate().replace("-", ":") + quote + space);
-                if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag + quote + frame.getShutter().replace("\"","") + quote + space);
-                if ( !frame.getAperture().contains("<") )stringBuilder.append(apertureTag + quote + frame.getAperture() + quote + space);
-                if ( frame.getNote().length() > 0 ) stringBuilder.append(commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space);
+            if ( frame.getLocation().length() > 0 ) {
+                String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
+                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
+                String latRef = "";
+                if (latString.substring(0, 1).equals("-")) {
+                    latRef = "S";
+                    latString = latString.substring(1, latString.length());
+                } else latRef = "N";
+                String lngRef = "";
+                if (lngString.substring(0, 1).equals("-")) {
+                    lngRef = "W";
+                    lngString = lngString.substring(1, lngString.length());
+                } else lngRef = "E";
+                latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
+                List<String> latStringList = Arrays.asList(latString.split(":"));
+                lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
+                List<String> lngStringList = Arrays.asList(lngString.split(":"));
 
-                if ( frame.getLocation().length() > 0 ) {
-                    String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
-                    String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
-                    String latRef = "";
-                    if (latString.substring(0, 1).equals("-")) {
-                        latRef = "S";
-                        latString = latString.substring(1, latString.length());
-                    } else latRef = "N";
-                    String lngRef = "";
-                    if (lngString.substring(0, 1).equals("-")) {
-                        lngRef = "W";
-                        lngString = lngString.substring(1, lngString.length());
-                    } else lngRef = "E";
-                    latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
-                    List<String> latStringList = Arrays.asList(latString.split(":"));
-                    lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
-                    List<String> lngStringList = Arrays.asList(lngString.split(":"));
-
-                    stringBuilder.append(gpsLatTag + quote + latStringList.get(0) + space + latStringList.get(1) + space + latStringList.get(2) + quote + space);
-                    stringBuilder.append(gpsLatRefTag + quote + latRef + quote + space);
-                    stringBuilder.append(gpsLngTag + quote + lngStringList.get(0) + space + lngStringList.get(1) + space + lngStringList.get(2) + quote + space);
-                    stringBuilder.append(gpsLngRefTag + quote + lngRef + quote + space);
-                }
-
-                if ( artistName.length() > 0 ) stringBuilder.append(artistTag + quote + artistName + quote + space);
-                if ( copyrightInformation.length() > 0 ) stringBuilder.append(copyrightTag + quote + copyrightInformation + quote + space);
-                if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
-                if ( picturesPath.length() > 0 ) stringBuilder.append(picturesPath);
-                stringBuilder.append(frame.getCount() + fileEnding);
-                if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
-                stringBuilder.append(";" + lineSep + lineSep);
-
+                stringBuilder.append(gpsLatTag + quote + latStringList.get(0) + space + latStringList.get(1) + space + latStringList.get(2) + quote + space);
+                stringBuilder.append(gpsLatRefTag + quote + latRef + quote + space);
+                stringBuilder.append(gpsLngTag + quote + lngStringList.get(0) + space + lngStringList.get(1) + space + lngStringList.get(2) + quote + space);
+                stringBuilder.append(gpsLngRefTag + quote + lngRef + quote + space);
             }
 
-            String shared = stringBuilder.toString();
+            if ( artistName.length() > 0 ) stringBuilder.append(artistTag + quote + artistName + quote + space);
+            if ( copyrightInformation.length() > 0 ) stringBuilder.append(copyrightTag + quote + copyrightInformation + quote + space);
+            if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
+            if ( picturesPath.length() > 0 ) stringBuilder.append(picturesPath);
+            stringBuilder.append(frame.getCount() + fileEnding);
+            if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
+            stringBuilder.append(";" + lineSep + lineSep);
 
-            shareIntent.putExtra(Intent.EXTRA_TEXT, shared);
+        }
 
-            // Make sure the provider knows
-            // it should work with that Intent
-            return shareIntent;
-//        }else {
-//            return new Intent();
-//        }
+        String shared = stringBuilder.toString();
+
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shared);
+
+        // Make sure the provider knows
+        // it should work with that Intent
+        return shareIntent;
     }
 
     @Override

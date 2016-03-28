@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:layout_width="0dp"
+        app:layout_widthPercent="22%"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/background_frame"
+        android:src="@drawable/background_frame_small"
+        android:alpha="0.2"/>
+
+    <TextView
+        android:layout_width="0dp"
+        app:layout_widthPercent="22%"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_alignParentLeft="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="28sp"
+        android:text="@string/Text"
+        android:id="@+id/tvCount" />
+
+    <TextView
+        android:layout_width="0dp"
+        app:layout_widthPercent="55%"
+        android:layout_toRightOf="@+id/tvCount"
+        android:layout_height="24dp"
+        android:paddingLeft="3dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="15sp"
+        android:gravity="center_vertical"
+        android:text="@string/Text"
+        android:id="@+id/tvFrameText" />
+
+    <ImageView
+        android:layout_width="0dp"
+        app:layout_widthPercent="5%"
+        android:layout_height="24dp"
+        android:layout_toRightOf="@+id/tvFrameText"
+        android:id="@+id/drawable_clock"
+        android:src="@drawable/ic_timer_black_48dp"
+        android:adjustViewBounds="true"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:layout_width="0dp"
+        app:layout_widthPercent="18%"
+        android:layout_height="24dp"
+        android:layout_toRightOf="@+id/drawable_clock"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="15sp"
+        android:gravity="center_vertical"
+        android:paddingLeft="3dp"
+        android:text="@string/Text"
+        android:id="@+id/tvShutter" />
+
+    <TextView
+        android:layout_width="0dp"
+        app:layout_widthPercent="55%"
+        android:layout_toRightOf="@+id/tvCount"
+        android:layout_height="24dp"
+        android:layout_below="@+id/tvFrameText"
+        android:paddingLeft="3dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="15sp"
+        android:gravity="center_vertical"
+        android:text="@string/Text"
+        android:id="@+id/tvFrameText2"
+        android:scrollHorizontally="true"
+        android:ellipsize="end"
+        android:maxLines="1" />
+
+    <ImageView
+        android:layout_width="0dp"
+        app:layout_widthPercent="5%"
+        android:layout_height="24dp"
+        android:layout_toRightOf="@+id/tvFrameText2"
+        android:layout_below="@+id/drawable_clock"
+        android:id="@+id/drawable_aperture"
+        android:src="@drawable/ic_camera_black_48dp"
+        android:adjustViewBounds="true"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp" />
+
+    <TextView
+        android:layout_width="0dp"
+        app:layout_widthPercent="18%"
+        android:layout_height="24dp"
+        android:layout_toRightOf="@+id/drawable_aperture"
+        android:layout_below="@+id/tvShutter"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="15sp"
+        android:gravity="center_vertical"
+        android:paddingLeft="3dp"
+        android:text="@string/Text"
+        android:id="@+id/tvAperture" />
+
+    <TextView
+        android:layout_width="0dp"
+        app:layout_widthPercent="88%"
+        android:layout_height="24dp"
+        android:layout_below="@+id/tvFrameText2"
+        android:layout_toRightOf="@+id/tvCount"
+        android:paddingLeft="3dp"
+        android:text="@string/Text"
+        android:id="@+id/tv_frame_note"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="13sp"
+        android:gravity="center_vertical"
+        android:scrollHorizontally="true"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textStyle="italic" />
+
+</android.support.percent.PercentRelativeLayout>

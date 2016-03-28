@@ -35,7 +35,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
 
         // Check if an existing view is being reused, otherwise inflate the view
         if ( convertView == null ) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_frame, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_frame_relative, parent, false);
             holder = new ViewHolder();
             holder.tvCount = (TextView) convertView.findViewById(R.id.tvCount);
             holder.tvFrameText = (TextView) convertView.findViewById(R.id.tvFrameText);
@@ -49,33 +49,29 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-//        // Lookup view for data population
-//        TextView tvCount = (TextView) convertView.findViewById(R.id.tvCount);
-//        TextView tvFrameText = (TextView) convertView.findViewById(R.id.tvFrameText);
-//        TextView tvFrameText2 = (TextView) convertView.findViewById(R.id.tvFrameText2);
-//        TextView tvShutter = (TextView) convertView.findViewById(R.id.tvShutter);
-//        TextView tvAperture = (TextView) convertView.findViewById(R.id.tvAperture);
-//        TextView tvNote = (TextView) convertView.findViewById(R.id.tv_frame_note);
 
         // With these commands we can color the black png images grey. Very nice! I like!
-//        ImageView clock = (ImageView) convertView.findViewById(R.id.drawable_clock);
         holder.clock.getDrawable().mutate().setColorFilter(ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
-//        ImageView aperture = (ImageView) convertView.findViewById(R.id.drawable_aperture);
         holder.aperture.getDrawable().mutate().setColorFilter(ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
 
         // Populate the data into the template view using the data object
         holder.tvFrameText.setText(frame.getDate());
         holder.tvCount.setText("" + frame.getCount());
-        if ( frame.getLensId() != -1 ) holder.tvFrameText2.setText( database.getLens(frame.getLensId()).getMake() + " " + database.getLens(frame.getLensId()).getModel() );
-        else holder.tvFrameText2.setText(getContext().getString(R.string.NoLens));
+        if ( frame.getLensId() != -1 ) {
+            Lens lens = database.getLens(frame.getLensId());
+            holder.tvFrameText2.setText( lens.getMake() + " " + lens.getModel() );
+        }
+        else {
+            holder.tvFrameText2.setText(getContext().getString(R.string.NoLens));
+        }
         holder.tvNote.setText(frame.getNote());
 
         // If the aperture is empty, then don't show anything.
-        if( !frame.getAperture().equals(getContext().getString(R.string.NoValue)) ) holder.tvAperture.setText("f/" + frame.getAperture());
+        if( !frame.getAperture().contains("<") ) holder.tvAperture.setText("f/" + frame.getAperture());
         else holder.tvAperture.setText("");
 
         // If the shutter is empty, then don't show anything.
-        if ( !frame.getShutter().equals(getContext().getString(R.string.NoValue)))  holder.tvShutter.setText(frame.getShutter());
+        if ( !frame.getShutter().contains("<"))  holder.tvShutter.setText(frame.getShutter());
         else holder.tvShutter.setText("");
         return convertView;
     }

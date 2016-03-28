@@ -143,6 +143,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setNote(cursor.getString(cursor.getColumnIndex(KEY_FRAME_NOTE)));
         frame.setLocation(cursor.getString(cursor.getColumnIndex(KEY_LOCATION)));
         cursor.close();
+        db.close();
         return frame;
     }
 
@@ -169,6 +170,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             frames.add(frame);
         }
         cursor.close();
+        db.close();
         return frames;
     }
 
@@ -227,6 +229,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
         lens.setModel(cursor.getString(cursor.getColumnIndex(KEY_LENS_MODEL)));
         cursor.close();
+        db.close();
         return lens;
     }
 
@@ -241,6 +244,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         lens.setMake(cursor.getString(1));
         lens.setModel(cursor.getString(2));
         cursor.close();
+        db.close();
         return lens;
     }
 
@@ -258,6 +262,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             lenses.add(lens);
         }
         cursor.close();
+        db.close();
         return lenses;
     }
 
@@ -275,10 +280,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
+            db.close();
             return true;
         }
         else {
             cursor.close();
+            db.close();
             return false;
         }
     }
@@ -314,6 +321,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
         camera.setModel(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MODEL)));
         cursor.close();
+        db.close();
         return camera;
     }
 
@@ -328,6 +336,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         camera.setMake(cursor.getString(1));
         camera.setModel(cursor.getString(2));
         cursor.close();
+        db.close();
         return camera;
     }
 
@@ -345,6 +354,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             cameras.add(camera);
         }
         cursor.close();
+        db.close();
         return cameras;
     }
 
@@ -362,10 +372,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
+            db.close();
             return true;
         }
         else {
             cursor.close();
+            db.close();
             return false;
         }
     }
@@ -417,6 +429,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             lenses.add(lens);
         }
         cursor.close();
+        db.close();
         return lenses;
     }
 
@@ -436,6 +449,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             cameras.add(camera);
         }
         cursor.close();
+        db.close();
         return cameras;
     }
 
@@ -464,6 +478,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         roll.setNote(cursor.getString(3));
         roll.setCamera_id(cursor.getInt(4));
         cursor.close();
+        db.close();
         return roll;
     }
 
@@ -483,6 +498,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             rolls.add(roll);
         }
         cursor.close();
+        db.close();
         return rolls;
     }
 
@@ -498,6 +514,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         roll.setNote(cursor.getString(3));
         roll.setCamera_id(cursor.getInt(4));
         cursor.close();
+        db.close();
         return roll;
     }
 
@@ -525,6 +542,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 + " WHERE " + KEY_ROLL_ID + "=" + roll.getId();
         Cursor cursor = db.rawQuery(query, null);
         if ( cursor != null ) cursor.moveToFirst();
+        db.close();
         return cursor.getInt(0);
     }
 }
