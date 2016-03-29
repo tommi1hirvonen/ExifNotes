@@ -53,6 +53,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     TextView b_lens;
 
     final static int PLACE_PICKER_REQUEST = 1;
+    final static int ADD_LENS = 2;
 
 
     static EditFrameInfoDialog newInstance(int _id, int lens_id, int position, int count,
@@ -277,7 +278,7 @@ public class EditFrameInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 EditGearInfoDialog dialog = new EditGearInfoDialog();
-                dialog.setTargetFragment(EditFrameInfoDialog.this, LensesFragment.ADD_LENS);
+                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_LENS);
                 Bundle arguments = new Bundle();
                 arguments.putString("TITLE", getResources().getString(R.string.NewLens));
                 arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
@@ -470,7 +471,7 @@ public class EditFrameInfoDialog extends DialogFragment {
 
 
 
-        if ( requestCode == LensesFragment.ADD_LENS && resultCode == Activity.RESULT_OK) {
+        if ( requestCode == ADD_LENS && resultCode == Activity.RESULT_OK) {
             // After Ok code.
 
             String inputTextMake = data.getStringExtra("MAKE");
