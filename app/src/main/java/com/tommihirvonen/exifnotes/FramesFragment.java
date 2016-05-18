@@ -453,13 +453,13 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             stringBuilder.append(separator);
             stringBuilder.append(frame.getDate());
             stringBuilder.append(separator);
-            stringBuilder.append(database.getLens(frame.getLensId()).getMake() + " " + database.getLens(frame.getLensId()).getModel());
+            if ( frame.getLensId() != -1 ) stringBuilder.append(database.getLens(frame.getLensId()).getMake() + " " + database.getLens(frame.getLensId()).getModel());
             stringBuilder.append(separator);
             if ( !frame.getShutter().contains("<") )stringBuilder.append(frame.getShutter());
             stringBuilder.append(separator);
             if ( !frame.getAperture().contains("<") )stringBuilder.append(frame.getAperture());
             stringBuilder.append(separator);
-            stringBuilder.append(frame.getNote());
+            if ( frame.getNote().length() > 0 ) stringBuilder.append(frame.getNote());
             stringBuilder.append(separator);
             if ( frame.getLocation().length() > 0 ) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
