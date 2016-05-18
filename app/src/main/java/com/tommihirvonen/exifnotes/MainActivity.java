@@ -162,6 +162,9 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         shadow.bringToFront();
     }
 
+
+    // When the user presses the HomeAsUp-button next to the title text in FramesFragment,
+    // this function is called.
     public void onHomeAsUpPressed(){
         getFragmentManager().popBackStack();
     }

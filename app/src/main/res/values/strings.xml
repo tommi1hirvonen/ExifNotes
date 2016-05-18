@@ -45,6 +45,7 @@
     <!--FramesFragment-->
     <string name="NoteIllegalCharacter">Note contains an illegal character:</string>
     <string name="ExportExif">Export exiftool cmds</string>
+    <string name="ExportCSV">Export .csv</string>
 
     <!--GearActivity-->
     <string name="Gear">Gear</string>
