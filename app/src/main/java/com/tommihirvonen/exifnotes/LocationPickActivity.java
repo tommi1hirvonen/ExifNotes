@@ -209,13 +209,19 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab:
-                String latitude = "" + latlng_location.latitude;
-                String longitude = "" + latlng_location.longitude;
-                Intent intent = new Intent();
-                intent.putExtra("LATITUDE", latitude);
-                intent.putExtra("LONGITUDE", longitude);
-                setResult(RESULT_OK, intent);
-                finish();
+
+                if ( latlng_location == null ) {
+                    Toast.makeText(getBaseContext(), R.string.NoLocation, Toast.LENGTH_SHORT).show();
+                    break;
+                } else {
+                    String latitude = "" + latlng_location.latitude;
+                    String longitude = "" + latlng_location.longitude;
+                    Intent intent = new Intent();
+                    intent.putExtra("LATITUDE", latitude);
+                    intent.putExtra("LONGITUDE", longitude);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
         }
     }
 
