@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -54,22 +51,38 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+// Copyright 2015
+// Tommi Hirvonen
+
+/**
+ * FramesFragment is the fragment which is called when the user presses on a roll
+ * on the ListView in RollsFragment.
+ */
 public class FramesFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnLongClickListener, AbsListView.OnScrollListener {
 
     OnHomeAsUpPressedListener mCallback;
 
+    /**
+     * This interface is implemented in MainActivity.
+     */
     public interface OnHomeAsUpPressedListener {
         void onHomeAsUpPressed();
     }
 
-    // This on attach is called before API 23
+    /**
+     * This on attach is called before API 23
+     * @param a Activity to which the OnHomeAsUpPressedListener is attached.
+     */
     @Override
     public void onAttach(Activity a) {
         super.onAttach(a);
         mCallback = (OnHomeAsUpPressedListener) a;
     }
 
-    // This on attach is called after API 23
+    /**
+     * This on attach is called after API 23
+     * @param c Context to which the OnHomeAsUpPressedListener is attached.
+     */
     @Override
     public void onAttach(Context c) {
         super.onAttach(c);
@@ -103,7 +116,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public static final int FRAME_INFO_DIALOG = 1;
     public static final int EDIT_FRAME_INFO_DIALOG = 2;
 
-
+    /**
+     * Called when the fragment is created.
+     * Get the frames from the roll and enable location updating.
+     *
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,8 +158,14 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         mRequestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
     }
 
-
-
+    /**
+     * Inflate the fragment.
+     *
+     * @param inflater not used
+     * @param container not used
+     * @param savedInstanceState not used
+     * @return The inflated view
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -197,6 +221,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return view;
     }
 
+    /**
+     * Adds two share items to the options menu for exporting the roll data.
+     *
+     * @param menu the menu to which the items are added
+     * @param inflater not used
+     */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
@@ -218,6 +248,13 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    /**
+     * Inflate the context menu to show actions when pressing and holding on a roll.
+     *
+     * @param menu the menu to be inflated
+     * @param v the context menu view, not used
+     * @param menuInfo not used
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
@@ -226,6 +263,11 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         inflater.inflate(R.menu.menu_context_delete_edit, menu);
     }
 
+    /**
+     * Called when the user long presses on a frame AND selects a context menu item.
+     * @param item the context menu item that was selected
+     * @return true if the FramesFragment is in front, false if it is not
+     */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -278,6 +320,11 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return false;
     }
 
+    /**
+     * Handle events when the user selects an action from the options menu.
+     * @param item selected menu item.
+     * @return true because the item selection was consumed/handled.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
@@ -333,6 +380,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return true;
     }
 
+    /**
+     * This function creates an Intent to share exiftool commands
+     * for the frames of the roll in question.
+     *
+     * @return The intent to be shared.
+     */
     private Intent setShareIntentExiftoolCmds() {
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -424,6 +477,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return shareIntent;
     }
 
+    /**
+     * This function creates an Intent to share a .csv file
+     * for the frames of the roll in question.
+     *
+     * @return The intent to be shared.
+     */
     private Intent setShareIntentCSV() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
@@ -504,6 +563,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return shareIntent;
     }
 
+    /**
+     * This function is called when FloatingActionButton is pressed.
+     * Show the user the FrameInfoDialog to add a new frame.
+     *
+     * @param v The view which was clicked.
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -515,6 +580,13 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         }
     }
 
+    /**
+     * If the FloatingActionButton is long pressed then hide it for three seconds
+     * or until the ListView is scrolled.
+     *
+     * @param v the view that was clicked
+     * @return true because the click was consumed
+     */
     @Override
     public boolean onLongClick(View v) {
         switch (v.getId()) {
@@ -535,6 +607,15 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return true;
     }
 
+    /**
+     * This function is called when a frame is pressed.
+     * Show the EditFrameInfoDialog.
+     *
+     * @param parent the parent AdapterView, not used
+     * @param view the view of the clicked item, not used
+     * @param position position of the item in the ListView
+     * @param id id of the item clicked, not used
+     */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Edit frame info
@@ -555,6 +636,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         dialog.show(getFragmentManager().beginTransaction(), EditFrameInfoDialog.TAG);
     }
 
+    /**
+     * Called when the user presses the FloatingActionButton.
+     * Shows a dialog fragment to add a new frame.
+     */
     private void showFrameInfoDialog() {
 
         // If the frame count is greater than 100, then don't add a new frame.
@@ -596,6 +681,14 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         dialog.show(getFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
+    /**
+     * This function is called when the user is done editing or adding a frame and
+     * closes the dialog.
+     *
+     * @param requestCode the request code that was set for the intent.
+     * @param resultCode the result code to tell whether the user picked ok or cancel
+     * @param data the extra data attached to the passed Intent
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -694,23 +787,46 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         }
     }
 
+    /**
+     * This function is called when the user scrolls the ListView.
+     * It displays the FloatingActionButton in case it was hidden.
+     *
+     * @param view not used
+     * @param scrollState not used
+     */
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         fab.show();
     }
 
+    /**
+     * Not used
+     * @param view not used
+     * @param firstVisibleItem not used
+     * @param visibleItemCount not used
+     * @param totalItemCount not used
+     */
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
     }
 
-
+    /**
+     * This function is used to convert a Location to a string.
+     *
+     * @param location Location to be converted
+     * @return the converted string
+     */
     public static String locationStringFromLocation(final Location location) {
         if (location != null)
             return (Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + " " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)).replace(",", ".");
         else return "";
     }
 
+    /**
+     * Gets the current date and time.
+     * @return Date and time as a string in format YYYY-M-D H:MM
+     */
     public static String getCurrentTime() {
         final Calendar c = Calendar.getInstance();
         int iYear = c.get(Calendar.YEAR);
@@ -725,6 +841,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return current_time;
     }
 
+    /**
+     * Splits a datetime into an ArrayList with date.
+     *
+     * @param input Datetime string in format YYYY-M-D HH:MM
+     * @return ArrayList with three members: { YYYY, M, D }
+     */
     public static ArrayList<String> splitDate(String input) {
         String[] items = input.split(" ");
         ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
@@ -735,6 +857,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return itemList;
     }
 
+    /**
+     * Splits a datetime into an ArrayList with time.
+     *
+     * @param input Datetime string in format YYYY-M-D HH:MM
+     * @return ArrayList with two members: { HH, MM }
+     */
     public static ArrayList<String> splitTime(String input) {
         String[] items = input.split(" ");
         ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
@@ -745,26 +873,41 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return itemList;
     }
 
+    /**
+     * When the fragment is started connect to Google Play services to get accurate location.
+     */
     public void onStart() {
         if ( locationEnabled ) mGoogleApiClient.connect();
         super.onStart();
     }
 
+    /**
+     * When the fragment is stopped disconnect from the Google Play service.s
+     */
     public void onStop() {
         if ( locationEnabled ) mGoogleApiClient.disconnect();
         super.onStop();
     }
 
+    /**
+     * When the fragment is paused also pause location updates.
+     */
     @Override
     public void onPause() {
         super.onPause();
         if ( locationEnabled ) stopLocationUpdates();
     }
 
+    /**
+     * This function is called when the fragment is paused.
+     */
     protected void stopLocationUpdates() {
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
+    /**
+     * When the fragment is resumed continue location updates and recolour the FloatingActionButton.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -779,6 +922,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
     }
 
+    /**
+     * This function is called when the fragment is resumed.
+     */
     protected void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -789,6 +935,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         else LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
+    /**
+     * Called when the Google API is connected
+     * @param bundle not used
+     */
     @Override
     public void onConnected(Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(getActivity(),
@@ -804,11 +954,19 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         }
     }
 
+    /**
+     * Called when the connection to the Google API is suspended
+     * @param i not used
+     */
     @Override
     public void onConnectionSuspended(int i) {
         if ( locationEnabled ) mGoogleApiClient.connect();
     }
 
+    /**
+     * Called when the location is changed.
+     * @param location the new location
+     */
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
@@ -829,6 +987,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     // Bool to track whether the app is already resolving an error
     private boolean mResolvingError = false;
 
+    /**
+     * Called if the connection to the Google API has failed.
+     * @param result describes if the connection was successful
+     */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult result) {
         if (mResolvingError) {
@@ -886,6 +1048,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         }
     }
 
+    /**
+     * Checks if a string has any illegal characters.
+     *
+     * @param input the string to be checked
+     * @return false if string contains an illegal character, else true
+     */
     private boolean checkReservedChars(String input){
         //Check if there are illegal character in the input string
         String ReservedChars = "|\\?*<\":>/";
