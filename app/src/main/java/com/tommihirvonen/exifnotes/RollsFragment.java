@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -34,22 +31,38 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+// Copyright 2015
+// Tommi Hirvonen
+
+/**
+ * RollFragment is the fragment that is displayed first in MainActivity. It contains
+ * a list of rolls the user has saved in the database.
+ */
 public class RollsFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
 
     OnRollSelectedListener mCallback;
 
+    /**
+     * This interface is implemented in MainActivity.
+     */
     public interface OnRollSelectedListener{
         void onRollSelected(int rollId);
     }
 
-    // This on attach is called before API 23
+    /**
+     * This on attach is called before API 23
+     * @param a Activity to which the onRollSelectedListener is attached.
+     */
     @Override
     public void onAttach(Activity a) {
         super.onAttach(a);
         mCallback = (OnRollSelectedListener) a;
     }
 
-    // This on attach is called after API 23
+    /**
+     * This on attach is called after API 23
+     * @param c Context to which the onRollSelectedListener is attached.
+     */
     @Override
     public void onAttach(Context c) {
         super.onAttach(c);
@@ -67,12 +80,28 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
     public static final int ROLL_NAME_DIALOG = 1;
     public static final int EDIT_ROLL_NAME_DIALOG = 2;
 
+    /**
+     * Called when the fragment is created.
+     * Tell the fragment that it has an options menu so that we can handle
+     * OptionsItemSelected events.
+     *
+     * @param savedInstanceState passed to super.onCreate to execute necessary code to properly
+     *                           create the fragment
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
 
+    /**
+     * Inflate the fragment.
+     *
+     * @param inflater not used
+     * @param container not used
+     * @param savedInstanceState not used
+     * @return The inflated view
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -130,7 +159,10 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         return view;
     }
 
-
+    /**
+     * When resuming RollsFragment we have to color the FloatingActionButton and
+     * notify the array adapter that the displayed amount of frames has changed for some roll.
+     */
     @Override
     public void onResume(){
         super.onResume();
@@ -144,6 +176,13 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
     }
 
+    /**
+     * Inflate the context menu to show actions when pressing and holding on a roll.
+     *
+     * @param menu the menu to be inflated
+     * @param v the context menu view, not used
+     * @param menuInfo not used
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
@@ -152,7 +191,11 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         inflater.inflate(R.menu.menu_context_delete_edit, menu);
     }
 
-
+    /**
+     * Handle events when the user selects an action from the options menu.
+     * @param item selected menu item.
+     * @return true because the item selection was consumed/handled.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
@@ -200,7 +243,12 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         return true;
     }
 
-
+    /**
+     * This function is called when FloatingActionButton is pressed.
+     * Show the user the RollNameDialog to add a new roll.
+     *
+     * @param v The view which was clicked.
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -210,6 +258,15 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         }
     }
 
+    /**
+     * This function is called when a roll is pressed.
+     * Forward the press to the callback interface to MainActivity.
+     *
+     * @param parent the parent AdapterView, not used
+     * @param view the view of the clicked item, not used
+     * @param position position of the item in the ListView
+     * @param id id of the item clicked, not used
+     */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // GET ROLL INFO
@@ -217,6 +274,18 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         mCallback.onRollSelected(rollId);
     }
 
+    /**
+     * Called when the user long presses on a roll and chooses
+     * to edit a roll's information. Shows a DialogFragment to edit
+     * the roll's information.
+     *
+     * @param rollId the id of the roll
+     * @param oldName the current name of the roll
+     * @param oldNote the current note of the roll
+     * @param camera_id the id of the camera that is used
+     * @param date the current date of the roll
+     * @param title the current title of the roll
+     */
     private void show_EditRollNameDialog(int rollId, String oldName, String oldNote, int camera_id, String date, String title){
         EditRollNameDialog dialog = new EditRollNameDialog();
         Bundle arguments = new Bundle();
@@ -233,6 +302,10 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         dialog.show(getFragmentManager().beginTransaction(), EditRollNameDialog.TAG);
     }
 
+    /**
+     * Called when the user presses the FloatingActionButton.
+     * Shows a DialogFragment to add a new roll.
+     */
     private void show_RollNameDialog() {
         EditRollNameDialog dialog = new EditRollNameDialog();
         Bundle arguments = new Bundle();
@@ -248,6 +321,11 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         dialog.show(getFragmentManager().beginTransaction(), EditRollNameDialog.TAG);
     }
 
+    /**
+     * Called when the user long presses on a roll AND selects a context menu item.
+     * @param item the context menu item that was selected
+     * @return true if the RollsFragment is in front, false if it is not
+     */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -297,6 +375,14 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         return false;
     }
 
+    /**
+     * This function is called when the user is done editing or adding a roll and
+     * closes the dialog.
+     *
+     * @param requestCode the request code that was set for the intent.
+     * @param resultCode the result code to tell whether the user picked ok or cancel
+     * @param data the extra data attached to the passed Intent
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {

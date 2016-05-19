@@ -27,12 +27,22 @@ import java.util.List;
 // Copyright 2015
 // Tommi Hirvonen
 
+/**
+ * MainActivity is the first activity to be called when the app is launched.
+ * It contains the RollsFragment and FramesFragment fragments.
+ * The activity switches between these two fragments.
+ */
 public class MainActivity extends AppCompatActivity implements RollsFragment.OnRollSelectedListener, FramesFragment.OnHomeAsUpPressedListener {
 
     private final static int MY_PERMISSIONS_REQUEST_LOCATION = 1;
     boolean locationEnabled = false;
 
-
+    /**
+     * Create the layout and activate location services.
+     *
+     * @param savedInstanceState passed to super.onCreate to execute necessary code to properly
+     *                           create the fragment
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,8 +110,12 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         }
     }
 
-
-
+    /**
+     * Inflate the main menu.
+     *
+     * @param menu the menu to be inflated
+     * @return super class to execute code for the menu to work properly.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -110,12 +124,20 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Called when the user selects a menu item.
+     *
+     * @param item The menu item that was selected.
+     * @return super so that other handlers can handle the selection
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
 
-
+    /**
+     * When resuming we have to change the UI colours again.
+     */
     @Override
     public void onResume(){
         super.onResume();
@@ -131,6 +153,12 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         }
     }
 
+    /**
+     * This function is called when the user presses the back button.
+     * If the FramesFragment is in front then pop the stack back by one
+     * and bring the RollsFragment to front.
+     * Also bring the shadow under the action bar to front.
+     */
     @Override
     public void onBackPressed() {
 
@@ -147,6 +175,14 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
 
     }
 
+    /**
+     * This function is called when the user presses a roll in the RollsFragment.
+     * Create a new FramesFragment, pass the roll id and locationEnabled to it and bring it to the
+     * front of the stack.
+     * Also bring the shadow under the action bar to front.
+     *
+     * @param rollId The id of the roll that was pressed.
+     */
     @Override
     public void onRollSelected(int rollId){
         FramesFragment newFragment = new FramesFragment();
@@ -163,17 +199,19 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
     }
 
 
-    // When the user presses the HomeAsUp-button next to the title text in FramesFragment,
-    // this function is called.
+    /**
+     * When the user presses the home as up button in the action bar this function is called.
+     * Pop the FramesFragment off the stack.
+     */
     public void onHomeAsUpPressed(){
         getFragmentManager().popBackStack();
     }
 
 
-
-
-
-
+    /**
+     * This function is called if GPS is not enabled.
+     * Prompt the user to jump to settings to enable GPS.
+     */
     public void showSettingsAlert(){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 
@@ -202,6 +240,13 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         alertDialog.show();
     }
 
+    /**
+     * When the user is asked for permission to use location services, handle the request result.
+     *
+     * @param requestCode The code of the request that was made.
+     * @param permissions not used
+     * @param grantResults An array which is empty if the request was cancelled.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
