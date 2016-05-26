@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,6 +9,14 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 
+// Copyright 2015
+// Tommi Hirvonen
+
+/**
+ * SimpleEula is shown when the user first opens the application on their phone.
+ * If the user agrees to the license agreement, access to the app is granted.
+ * If the user disagrees with the license agreement, the app is closed.
+ */
 public class SimpleEula {
 
     private Activity mActivity;
@@ -20,6 +25,10 @@ public class SimpleEula {
         mActivity = context;
     }
 
+    /**
+     * Gets the information of the app's package. Is used to display the version code.
+     * @return  PackageInfo regarding the current version of the app.
+     */
     private PackageInfo getPackageInfo() {
         PackageInfo pi = null;
         try {
@@ -30,6 +39,10 @@ public class SimpleEula {
         return pi;
     }
 
+    /**
+     * Shows the eula dialog to the user if the user has not previously agreed
+     * to the license agreement. Also shows the user what's new with this version of the app.
+     */
     public void show() {
         PackageInfo versionInfo = getPackageInfo();
 

@@ -3,6 +3,9 @@ package com.tommihirvonen.exifnotes;
 // Copyright 2015
 // Tommi Hirvonen
 
+/**
+ * Lens class holds the information of one lens.
+ */
 public class Lens {
 
     public int id;

@@ -3,6 +3,9 @@ package com.tommihirvonen.exifnotes;
 // Copyright 2015
 // Tommi Hirvonen
 
+/**
+ * Roll class holds the information of one roll of film.
+ */
 public class Roll {
 
     public int id;

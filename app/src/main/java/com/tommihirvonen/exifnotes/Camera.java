@@ -3,6 +3,9 @@ package com.tommihirvonen.exifnotes;
 // Copyright 2015
 // Tommi Hirvonen
 
+/**
+ * The camera class holds the information of a camera.
+ */
 import java.util.ArrayList;
 
 public class Camera {

@@ -12,6 +12,9 @@ import java.util.ArrayList;
 // Copyright 2015
 // Tommi Hirvonen
 
+/**
+ * RollAdapter acts as an ArrayAdapter to link an ArrayList and a ListView of rolls together.
+ */
 public class RollAdapter extends ArrayAdapter<Roll> {
 
     // This RollAdapter acts as an ArrayAdapter to link an array and a list view together
@@ -23,6 +26,14 @@ public class RollAdapter extends ArrayAdapter<Roll> {
         database = new FilmDbHelper(context);
     }
 
+    /**
+     * This function inflates a view in the ListView.
+     *
+     * @param position the position of the item in the list.
+     * @param convertView the view to be inflated
+     * @param parent the parent to which the view will eventually be attached.
+     * @return the inflated view to be showed in the ListView
+     */
     @Override
     public  View getView(int position, View convertView, ViewGroup parent) {
 

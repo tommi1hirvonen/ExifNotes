@@ -12,6 +12,9 @@ import java.util.ArrayList;
 // Copyright 2015
 // Tommi Hirvonen
 
+/**
+ * LensAdapter acts as an ArrayAdapter to link an ArrayList and a ListView of lenses together.
+ */
 public class LensAdapter extends ArrayAdapter<Lens> {
 
     // This LensAdapter acts as an ArrayAdapter to link an array and a list view together
@@ -22,6 +25,14 @@ public class LensAdapter extends ArrayAdapter<Lens> {
 
     FilmDbHelper database = new FilmDbHelper(getContext());
 
+    /**
+     * This function inflates a view in the ListView.
+     *
+     * @param position the position of the item in the list.
+     * @param convertView the view to be inflated
+     * @param parent the parent to which the view will eventually be attached.
+     * @return the inflated view to be showed in the ListView
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 

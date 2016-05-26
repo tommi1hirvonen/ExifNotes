@@ -3,6 +3,9 @@ package com.tommihirvonen.exifnotes;
 // Copyright 2015
 // Tommi Hirvonen
 
+/**
+ * The frame class holds the information of one frame.
+ */
 public class Frame {
 
     public int id;
