@@ -45,6 +45,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         super.onPause();
     }
 
+    // TODO: Check that the exiftool and photos path end with a slash.
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
