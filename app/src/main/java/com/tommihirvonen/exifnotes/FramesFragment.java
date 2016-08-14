@@ -329,6 +329,25 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
 
+            case R.id.menu_item_sort:
+                final SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                int checkedItem = sharedPref.getInt("FrameSortOrder", 0);
+                AlertDialog.Builder sortDialog = new AlertDialog.Builder(getActivity());
+                sortDialog.setTitle(R.string.SortBy);
+                sortDialog.setSingleChoiceItems(R.array.FrameSortOptions, checkedItem, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putInt("FrameSortOrder", which);
+                        editor.commit();
+                        dialog.dismiss();
+                    }
+                });
+                sortDialog.show();
+
+                break;
+
             case R.id.menu_item_lenses:
                 Intent intent = new Intent(getActivity(), GearActivity.class);
                 startActivity(intent);

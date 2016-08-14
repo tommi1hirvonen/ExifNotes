@@ -120,6 +120,7 @@
     <string name="Share">Share</string>
     <string name="ShowOnMap">Show on map</string>
     <string name="Edit">Edit</string>
+    <string name="DateNoColon">Date</string>
 
     <!--RollNameDialog-->
     <string name="NewRoll">Add new roll</string>
@@ -172,8 +173,10 @@
 
     <!--menu_main.xml-->
     <string name="About">About</string>
-
-
+    <string name="SortBy">Sort by</string>
+    <string name="FrameCountNoColon">Frame count</string>
+    <string name="ShutterSpeed">Shutter speed</string>
+    <string name="FStop">F-stop</string>
 
     <!--fragment_preference.xml-->
     <string name="Settings_Cap">SETTINGS</string>

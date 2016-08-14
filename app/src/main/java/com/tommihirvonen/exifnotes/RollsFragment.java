@@ -29,6 +29,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 // Copyright 2015
@@ -120,6 +122,9 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         database = new FilmDbHelper(getActivity());
         mRollList = database.getAllRolls();
 
+        //Order the roll list according to preferences
+        sortRollList(mRollList);
+
         final View view = linf.inflate(R.layout.rolls_fragment, container, false);
 
         fab = (FloatingActionButton) view.findViewById(R.id.fab);
@@ -151,7 +156,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
         mainListView.setDividerHeight(2);
 
-        if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
+        //Jump to last item
+        //if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
@@ -200,6 +206,27 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
 
+            case R.id.menu_item_sort:
+                final SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                int checkedItem = sharedPref.getInt("RollSortOrder", 0);
+                AlertDialog.Builder sortDialog = new AlertDialog.Builder(getActivity());
+                sortDialog.setTitle(R.string.SortBy);
+                sortDialog.setSingleChoiceItems(R.array.RollSortOptions, checkedItem, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putInt("RollSortOrder", which);
+                        editor.commit();
+                        dialog.dismiss();
+                        sortRollList(mRollList);
+                        mArrayAdapter.notifyDataSetChanged();
+                    }
+                });
+                sortDialog.show();
+
+                break;
+
             case R.id.menu_item_lenses:
                 Intent intent = new Intent(getActivity(), GearActivity.class);
                 startActivity(intent);
@@ -241,6 +268,49 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         }
 
         return true;
+    }
+
+    /**
+     * This function is called when the user has selected a sorting criteria.
+     */
+    public void sortRollList(ArrayList<Roll> listToSort) {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        int sortId = sharedPref.getInt("RollSortOrder", 0);
+        switch (sortId){
+            //Sort by date
+            case 0:
+                Collections.sort(listToSort, new Comparator<Roll>() {
+                    @Override
+                    public int compare(Roll o1, Roll o2) {
+                        return o1.getDate().compareTo(o2.getDate());
+                    }
+                });
+                break;
+
+            //Sort by name
+            case 1:
+                Collections.sort(listToSort, new Comparator<Roll>() {
+                    @Override
+                    public int compare(Roll o1, Roll o2) {
+                        return o1.getName().compareTo(o2.getName());
+                    }
+                });
+                break;
+
+            //Sort by camera
+            case 2:
+                Collections.sort(listToSort, new Comparator<Roll>() {
+                    @Override
+                    public int compare(Roll o1, Roll o2) {
+                        Camera camera1 = database.getCamera(o1.getCamera_id());
+                        String s1 = camera1.getMake() + camera1.getModel();
+                        Camera camera2 = database.getCamera(o2.getCamera_id());
+                        String s2 = camera2.getMake() + camera2.getModel();
+                        return s1.compareTo(s2);
+                    }
+                });
+                break;
+        }
     }
 
     /**
@@ -428,6 +498,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                         mainTextView.setVisibility(View.GONE);
                         // Add new roll to the top of the list
                         mRollList.add(0, roll);
+                        sortRollList(mRollList);
                         mArrayAdapter.notifyDataSetChanged();
 
                         // When the new roll is added jump to view the last entry
@@ -486,6 +557,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                         database.updateRoll(roll);
 
                         // Notify array adapter that the dataset has to be updated
+                        sortRollList(mRollList);
                         mArrayAdapter.notifyDataSetChanged();
                     }
                 } else if ( resultCode == Activity.RESULT_CANCELED ) {

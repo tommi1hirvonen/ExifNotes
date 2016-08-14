@@ -615,7 +615,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public ArrayList<Roll> getAllRolls(){
         ArrayList<Roll> rolls = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_ROLLS + " ORDER BY " + KEY_ROLL_ID + " DESC";
+        String query = "SELECT * FROM " + TABLE_ROLLS + " ORDER BY " + KEY_ROLL_DATE + " DESC";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Roll roll;

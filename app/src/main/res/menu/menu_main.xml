@@ -21,6 +21,14 @@
         omgandroid:showAsAction="ifRoom"
         />
     -->
+
+    <item
+        android:title="@string/SortBy"
+        android:id="@+id/menu_item_sort"
+        android:icon="@drawable/ic_sort_white_48dp"
+        omgandroid:showAsAction="ifRoom">
+    </item>
+
     <item
         android:id="@+id/menu_item_lenses"
         android:title="@string/Gear"

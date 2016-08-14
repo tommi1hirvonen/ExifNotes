@@ -35,4 +35,18 @@
         <item>#F44336,#D32F2F</item> <!--Red-->
     </string-array>
 
+    <string-array name="FrameSortOptions">
+        <item>@string/FrameCountNoColon</item>
+        <item>@string/DateNoColon</item>
+        <item>@string/FStop</item>
+        <item>@string/ShutterSpeed</item>
+        <item>@string/LensNoColon</item>
+    </string-array>
+
+    <string-array name="RollSortOptions">
+        <item>@string/DateNoColon</item>
+        <item>@string/NameNoColon</item>
+        <item>@string/CameraNoColon</item>
+    </string-array>
+
 </resources>
