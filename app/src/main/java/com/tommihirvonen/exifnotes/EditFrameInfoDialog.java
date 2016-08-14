@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.NumberPicker;
@@ -458,7 +459,13 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         });
 
-        return alert.create();
+        final AlertDialog dialog = alert.create();
+        //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
+        // so it doesn't need to deal with resizing
+        // but just panned by the framework to ensure the current input focus is visible
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        dialog.show();
+        return dialog;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -231,7 +231,10 @@ public class EditRollNameDialog extends DialogFragment {
             }
         });
         final AlertDialog dialog = alert.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+        //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
+        // so it doesn't need to deal with resizing
+        // but just panned by the framework to ensure the current input focus is visible
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.show();
 
         // We override the positive button onClick so that we can dismiss the dialog
