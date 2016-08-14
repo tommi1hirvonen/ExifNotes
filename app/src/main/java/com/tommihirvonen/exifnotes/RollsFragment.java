@@ -282,7 +282,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                 Collections.sort(listToSort, new Comparator<Roll>() {
                     @Override
                     public int compare(Roll o1, Roll o2) {
-                        return o1.getDate().compareTo(o2.getDate());
+                        // Negative to reverse the sorting order
+                        return -(o1.getDate().compareTo(o2.getDate()));
                     }
                 });
                 break;

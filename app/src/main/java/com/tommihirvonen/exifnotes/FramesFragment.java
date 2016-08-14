@@ -49,6 +49,8 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 // Copyright 2015
@@ -134,6 +136,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         mFrameClassList = database.getAllFramesFromRoll(rollId);
         camera_id = database.getRoll(rollId).getCamera_id();
 
+        //Sort the list according to preferences
+        sortFrameList(mFrameClassList);
+
         // Activate GPS locating if the user has granted permission.
         if (locationEnabled) {
 
@@ -214,7 +219,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             mainTextView.setVisibility(View.GONE);
         }
 
-        if (mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
+        //if (mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
         mainListView.setOnScrollListener(this);
 
@@ -342,6 +347,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         editor.putInt("FrameSortOrder", which);
                         editor.commit();
                         dialog.dismiss();
+                        sortFrameList(mFrameClassList);
+                        mFrameAdapter.notifyDataSetChanged();
                     }
                 });
                 sortDialog.show();
@@ -397,6 +404,71 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
 
         return true;
+    }
+
+    /**
+     * This function is called when the user has selected a sorting criteria.
+     */
+    public void sortFrameList(ArrayList<Frame> listToSort) {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        int sortId = sharedPref.getInt("FrameSortOrder", 0);
+        switch (sortId){
+            //Sort by count
+            case 0:
+                Collections.sort(listToSort, new Comparator<Frame>() {
+                    @Override
+                    public int compare(Frame o1, Frame o2) {
+                        // Negative to reverse the sorting order
+                        return Integer.toString(o1.getCount()).compareTo(Integer.toString(o2.getCount()));
+                    }
+                });
+                break;
+
+            //Sort by date
+            case 1:
+                Collections.sort(listToSort, new Comparator<Frame>() {
+                    @Override
+                    public int compare(Frame o1, Frame o2) {
+                        //Negative to reverse the sort order
+                        return -(o1.getDate().compareTo(o2.getDate()));
+                    }
+                });
+                break;
+
+            //Sort by f-stop
+            case 2:
+                Collections.sort(listToSort, new Comparator<Frame>() {
+                    @Override
+                    public int compare(Frame o1, Frame o2) {
+                        return o1.getAperture().compareTo(o2.getAperture());
+                    }
+                });
+                break;
+
+            //Sort by shutter speed
+            case 3:
+                Collections.sort(listToSort, new Comparator<Frame>() {
+                    @Override
+                    public int compare(Frame o1, Frame o2) {
+                        return o1.getShutter().compareTo(o2.getShutter());
+                    }
+                });
+                break;
+
+            //Sort by lens
+            case 4:
+                Collections.sort(listToSort, new Comparator<Frame>() {
+                    @Override
+                    public int compare(Frame o1, Frame o2) {
+                        Lens lens1 = database.getLens(o1.getLensId());
+                        String s1 = lens1.getMake() + lens1.getModel();
+                        Lens lens2 = database.getLens(o2.getLensId());
+                        String s2 = lens2.getMake() + lens2.getModel();
+                        return s1.compareTo(s2);
+                    }
+                });
+                break;
+        }
     }
 
     /**
@@ -740,6 +812,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         frame = database.getLastFrame();
 
                         mFrameClassList.add(frame);
+                        sortFrameList(mFrameClassList);
                         mFrameAdapter.notifyDataSetChanged();
                         mainTextView.setVisibility(View.GONE);
 
@@ -793,6 +866,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         mFrameClassList.get(position).setAperture(aperture);
                         mFrameClassList.get(position).setNote(note);
                         mFrameClassList.get(position).setLocation(location);
+                        sortFrameList(mFrameClassList);
                         mFrameAdapter.notifyDataSetChanged();
 
                         // The text you'd like to share has changed,
