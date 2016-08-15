@@ -46,11 +46,14 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import java.text.Normalizer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 // Copyright 2015
@@ -219,7 +222,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             mainTextView.setVisibility(View.GONE);
         }
 
-        //if (mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
+        if (mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
         mainListView.setOnScrollListener(this);
 
@@ -419,7 +422,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     @Override
                     public int compare(Frame o1, Frame o2) {
                         // Negative to reverse the sorting order
-                        return Integer.toString(o1.getCount()).compareTo(Integer.toString(o2.getCount()));
+                        int count1 = o1.getCount();
+                        int count2 = o2.getCount();
+                        int result = 0;
+                        if (count1 < count2) result = -1;
+                        else result = 1;
+                        return result;
                     }
                 });
                 break;
@@ -429,8 +437,26 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
                     public int compare(Frame o1, Frame o2) {
-                        //Negative to reverse the sort order
-                        return -(o1.getDate().compareTo(o2.getDate()));
+                        String date1 = o1.getDate();
+                        String date2 = o2.getDate();
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-M-d H:m");
+                        Date d1 = null;
+                        Date d2 = null;
+                        try {
+                            d1 = format.parse(date1);
+                            d2 = format.parse(date2);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        int result = 0;
+                        long diff = 0;
+                        //Handle possible NullPointerException
+                        if (d1 != null && d2 != null) diff = d1.getTime() - d2.getTime();
+                        if (diff < 0 ) result = -1;
+                        else result = 1;
+
+                        return result;
                     }
                 });
                 break;
@@ -440,7 +466,23 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
                     public int compare(Frame o1, Frame o2) {
-                        return o1.getAperture().compareTo(o2.getAperture());
+
+                        final String[] allApertureValues = new String[]{getActivity().getString(R.string.NoValue), "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
+                                "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "6.7", "7.1", "8", "9", "9.5",
+                                "10", "11", "13", "14", "16", "18", "19", "20", "22", "25", "27", "29", "32", "36", "38",
+                                "42", "45", "50", "57", "64"};
+                        String aperture1 = o1.getAperture();
+                        String aperture2 = o2.getAperture();
+                        int pos1 = 0;
+                        int pos2 = 0;
+                        for (int i = 0; i < allApertureValues.length; ++i){
+                            if (aperture1.equals(allApertureValues[i])) pos1 = i;
+                            if (aperture2.equals(allApertureValues[i])) pos2 = i;
+                        }
+                        int result = 0;
+                        if (pos1 < pos2) result = -1;
+                        else result = 1;
+                        return result;
                     }
                 });
                 break;
@@ -450,7 +492,28 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
                     public int compare(Frame o1, Frame o2) {
-                        return o1.getShutter().compareTo(o2.getShutter());
+
+                        final String[] allShutterValues = new String[]{getActivity().getString(R.string.NoValue), "B", "30", "25", "20", "15", "13", "10", "8", "6", "5", "4",
+                                "3.2", "3", "2.5", "2", "1.6", "1.5","1.3", "1", "0.8", "0.7", "0.6", "1/2", "0.4", "1/3", "0.3",
+                                "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
+                                "1/30", "1/40", "1/45", "1/50", "1/60", "1/80", "1/90", "1/100", "1/125", "1/160", "1/180", "1/200",
+                                "1/250", "1/320", "1/350", "1/400", "1/500", "1/640", "1/750", "1/800", "1/1000", "1/1250", "1/1500",
+                                "1/1600", "1/2000", "1/2500", "1/3000", "1/3200", "1/4000", "1/5000", "1/6000", "1/6400", "1/8000"};
+
+                        //Shutter speed strings need to be modified so that the sorting
+                        //works properly.
+                        String shutter1 = o1.getShutter().replace("\"", "");
+                        String shutter2 = o2.getShutter().replace("\"", "");
+                        int pos1 = 0;
+                        int pos2 = 0;
+                        for (int i = 0; i < allShutterValues.length; ++i){
+                            if (shutter1.equals(allShutterValues[i])) pos1 = i;
+                            if (shutter2.equals(allShutterValues[i])) pos2 = i;
+                        }
+                        int result = 0;
+                        if (pos1 < pos2) result = -1;
+                        else result = 1;
+                        return result;
                     }
                 });
                 break;
@@ -460,10 +523,21 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
                     public int compare(Frame o1, Frame o2) {
-                        Lens lens1 = database.getLens(o1.getLensId());
-                        String s1 = lens1.getMake() + lens1.getModel();
-                        Lens lens2 = database.getLens(o2.getLensId());
-                        String s2 = lens2.getMake() + lens2.getModel();
+                        String s1;
+                        Lens lens1;
+
+                        String s2;
+                        Lens lens2;
+
+                        if (o1.getLensId() != -1) {
+                            lens1 = database.getLens(o1.getLensId());
+                            s1 = lens1.getMake() + lens1.getModel();
+                        } else s1 = "-1";
+                        if (o2.getLensId() != -1) {
+                            lens2 = database.getLens(o2.getLensId());
+                            s2 = lens2.getMake() + lens2.getModel();
+                        } else s2 = "-1";
+
                         return s1.compareTo(s2);
                     }
                 });
@@ -747,7 +821,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         }
 
         int lens_id = -1;
-        int count;
+        int count = 0;
         String date = getCurrentTime();
         String shutter;
         String aperture;
@@ -758,9 +832,21 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         else location = "";
 
         if (!mFrameClassList.isEmpty()) {
+
+            //Get the information for the last added frame.
+            //The last added frame has the highest id number (database autoincrement).
             Frame previousFrame = mFrameClassList.get(mFrameClassList.size() - 1);
+            int i = 0;
+            for (Frame frame : mFrameClassList) {
+                if (frame.getId() > i) {
+                    i = frame.getId();
+                    previousFrame = frame;
+                }
+                //Set the frame count to one higher than the highest frame count
+                if (frame.getCount() >= count) count = frame.getCount() + 1;
+            }
             lens_id = previousFrame.getLensId();
-            count = previousFrame.getCount() + 1;
+            //count = previousFrame.getCount() + 1;
             shutter = previousFrame.getShutter();
             aperture = previousFrame.getAperture();
         } else {
@@ -816,8 +902,11 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         mFrameAdapter.notifyDataSetChanged();
                         mainTextView.setVisibility(View.GONE);
 
-                        // When the new frame is added jump to view the last entry
-                        mainListView.setSelection(mainListView.getCount() - 1);
+                        // When the new frame is added jump to view the added entry
+                        int pos = 0;
+                        pos = mFrameClassList.indexOf(frame);
+                        //mainListView.setSelection(mainListView.getCount() - 1);
+                        if (pos < mainListView.getCount()) mainListView.setSelection(pos);
                         // The text you'd like to share has changed,
                         // and you need to update
                         mShareActionProviderExiftoolCmds.setShareIntent(setShareIntentExiftoolCmds());

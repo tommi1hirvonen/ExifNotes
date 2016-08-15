@@ -26,11 +26,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 // Copyright 2015
@@ -282,8 +285,26 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                 Collections.sort(listToSort, new Comparator<Roll>() {
                     @Override
                     public int compare(Roll o1, Roll o2) {
-                        // Negative to reverse the sorting order
-                        return -(o1.getDate().compareTo(o2.getDate()));
+                        String date1 = o1.getDate();
+                        String date2 = o2.getDate();
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-M-d H:m");
+                        Date d1 = null;
+                        Date d2 = null;
+                        try {
+                            d1 = format.parse(date1);
+                            d2 = format.parse(date2);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        int result = 0;
+                        long diff = 0;
+                        //Handle possible NullPointerException
+                        if (d1 != null && d2 != null) diff = d1.getTime() - d2.getTime();
+                        if (diff < 0 ) result = 1;
+                        else result = -1;
+
+                        return result;
                     }
                 });
                 break;
@@ -502,8 +523,11 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                         sortRollList(mRollList);
                         mArrayAdapter.notifyDataSetChanged();
 
-                        // When the new roll is added jump to view the last entry
-                        mainListView.setSelection(mainListView.getCount() - 1);
+                        // When the new roll is added jump to view the added entry
+                        int pos = 0;
+                        pos = mRollList.indexOf(roll);
+                        //mainListView.setSelection(mainListView.getCount() - 1);
+                        if (pos < mainListView.getCount()) mainListView.setSelection(pos);
                     }
                 } else if ( resultCode == Activity.RESULT_CANCELED ) {
                     // After cancel do nothing
