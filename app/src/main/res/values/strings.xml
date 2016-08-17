@@ -3,14 +3,14 @@
 
 
     <!--SimpleEula-->
-    <string name="Updates">Updates in this version:\n- Fixed bug: the keyboard no longer blocks the Notes field when editing a roll\'s or frame\'s information.</string>
+    <string name="Updates">Updates in this version:\n- Added sorting functionality to both the rolls list and frames list.</string>
     <!--When updating "eula" also update "about"-->
     <string name="Eula">Copyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
     <string name="Agree">Agree</string>
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.4.1\nCopyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.5.0\nCopyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
 
 
