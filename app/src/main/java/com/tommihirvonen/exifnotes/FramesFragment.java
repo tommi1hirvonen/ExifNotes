@@ -155,10 +155,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             }
             // Create locationRequest to update the current latlng_location.
             mLocationRequest = new LocationRequest();
-            // 20 seconds
-            mLocationRequest.setInterval(20*1000);
             // 10 seconds
-            mLocationRequest.setFastestInterval(10*1000);
+            mLocationRequest.setInterval(10*1000);
+            // 1 second
+            mLocationRequest.setFastestInterval(1*1000);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
         // This can be done anyway. It only has effect if locationEnabled is true.
