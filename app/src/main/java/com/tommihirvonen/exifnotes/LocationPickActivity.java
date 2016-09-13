@@ -90,12 +90,14 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
             Intent intent = getIntent();
             location = intent.getStringExtra("LOCATION");
         }
-        if (location.length() > 0 && !location.equals("null")) {
-            String latString = location.substring(0, location.indexOf(" "));
-            String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
-            double lat = Double.parseDouble(latString.replace(",", "."));
-            double lng = Double.parseDouble(lngString.replace(",", "."));
-            latlng_location = new LatLng(lat, lng);
+        if (location != null) {
+            if (location.length() > 0 && !location.equals("null")) {
+                String latString = location.substring(0, location.indexOf(" "));
+                String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
+                double lat = Double.parseDouble(latString.replace(",", "."));
+                double lng = Double.parseDouble(lngString.replace(",", "."));
+                latlng_location = new LatLng(lat, lng);
+            }
         }
     }
 
@@ -142,22 +144,25 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
         }
 
         // If the latlng_location is not empty
-        if (location.length() > 0 && !location.equals("null")) {
-            String latString = location.substring(0, location.indexOf(" "));
-            String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
-            double lat = Double.parseDouble(latString.replace(",", "."));
-            double lng = Double.parseDouble(lngString.replace(",", "."));
-            final LatLng position = new LatLng(lat, lng);
-            marker = mMap.addMarker(new MarkerOptions().position(position));
+        if ( location != null ) {
+            if (location.length() > 0 && !location.equals("null")) {
+                String latString = location.substring(0, location.indexOf(" "));
+                String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
+                double lat = Double.parseDouble(latString.replace(",", "."));
+                double lng = Double.parseDouble(lngString.replace(",", "."));
+                final LatLng position = new LatLng(lat, lng);
+                marker = mMap.addMarker(new MarkerOptions().position(position));
 
-            if ( !continue_activity ) mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                @Override
-                public void onMapLoaded() {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
-                    // Show hint toast
-                    Toast.makeText(getBaseContext(), getResources().getString(R.string.TapOnMap), Toast.LENGTH_SHORT).show();
-                }
-            });
+                if (!continue_activity)
+                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                        @Override
+                        public void onMapLoaded() {
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                            // Show hint toast
+                            Toast.makeText(getBaseContext(), getResources().getString(R.string.TapOnMap), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            }
         }
     }
 
@@ -228,9 +233,11 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        String latitude = "" + latlng_location.latitude;
-        String longitude = "" + latlng_location.longitude;
-        outState.putBoolean("CONTINUE", true);
-        outState.putString("LOCATION", latitude + " " + longitude);
+        if ( latlng_location != null ) {
+            String latitude = "" + latlng_location.latitude;
+            String longitude = "" + latlng_location.longitude;
+            outState.putBoolean("CONTINUE", true);
+            outState.putString("LOCATION", latitude + " " + longitude);
+        }
     }
 }
