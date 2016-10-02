@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,6 +19,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.tommihirvonen.exifnotes.Fragments.CamerasFragment;
+import com.tommihirvonen.exifnotes.Datastructures.Camera;
+import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
+import com.tommihirvonen.exifnotes.Fragments.FramesFragment;
+import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,7 +138,7 @@ public class EditRollNameDialog extends DialogFragment {
         int temp_day;
 
         if ( date.length() > 0 ) {
-            final ArrayList<String> dateValue = FramesFragment.splitDate(date);
+            final ArrayList<String> dateValue = Utilities.splitDate(date);
             temp_year = Integer.parseInt(dateValue.get(0));
             temp_month = Integer.parseInt(dateValue.get(1));
             temp_day = Integer.parseInt(dateValue.get(2));
@@ -139,7 +146,7 @@ public class EditRollNameDialog extends DialogFragment {
         } else {
             date = FramesFragment.getCurrentTime();
 
-            ArrayList<String> dateValue = FramesFragment.splitDate(date);
+            ArrayList<String> dateValue = Utilities.splitDate(date);
             temp_year = Integer.parseInt(dateValue.get(0));
             temp_month = Integer.parseInt(dateValue.get(1));
             temp_day = Integer.parseInt(dateValue.get(2));
@@ -177,13 +184,13 @@ public class EditRollNameDialog extends DialogFragment {
         int temp_minutes;
 
         if ( date.length() > 0 ) {
-            ArrayList<String> timeValue = FramesFragment.splitTime(date);
+            ArrayList<String> timeValue = Utilities.splitTime(date);
             temp_hours = Integer.parseInt(timeValue.get(0));
             temp_minutes = Integer.parseInt(timeValue.get(1));
             if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
             else b_time.setText(temp_hours + ":" + temp_minutes);
         } else {
-            ArrayList<String> timeValue = FramesFragment.splitTime(date);
+            ArrayList<String> timeValue = Utilities.splitTime(date);
             temp_hours = Integer.parseInt(timeValue.get(0));
             temp_minutes = Integer.parseInt(timeValue.get(1));
             if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
@@ -244,6 +251,11 @@ public class EditRollNameDialog extends DialogFragment {
             public void onClick(View v) {
                 String newName = et1.getText().toString();
                 String newNote = et2.getText().toString();
+
+                //Get result strings for illegal character check.
+                String nameResult = Utilities.checkReservedChars(newName);
+                String noteResult = Utilities.checkReservedChars(newNote);
+
                 if (newName.length() != 0 && camera_id != -1) {
                     Intent intent = new Intent();
                     intent.putExtra("ROLL_ID", rollId);
@@ -257,6 +269,10 @@ public class EditRollNameDialog extends DialogFragment {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
                 } else if (newName.length() != 0 && camera_id == -1) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
+                } else if (nameResult.length() > 0) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + nameResult, Toast.LENGTH_LONG).show();
+                } else if (noteResult.length() > 0) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
                 }

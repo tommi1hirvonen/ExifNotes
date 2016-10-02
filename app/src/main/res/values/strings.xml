@@ -3,19 +3,102 @@
 
 
     <!--SimpleEula-->
-    <string name="Updates">Updates in this version:\n- Bug fixes</string>
+    <string name="Updates">
+        Updates in this version:\n
+        -The app can now share two text files when exporting a roll\'s data: one contains the data in csv format and the other contains the ExifTool commands. The user can choose which files to export in the app\'s settings\n
+        -Location info is added to a frame only if the user has enabled location updating in the app\'s settings\n
+        -Added a help/quick guide to the app to set up Exif Notes to work with ExifTool\n
+        -Added version history to the About dialog
+    </string>
+
+
     <!--When updating "eula" also update "about"-->
     <string name="Eula">Copyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
     <string name="Agree">Agree</string>
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.5.1\nCopyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.6.0\nCopyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
 
+    <string name="main_help">
+        This is a quick guide to help you set up Exif Notes so that you can tag your scanned files on your computer using ExifTool. Please visit the homepage of ExifTool by Phil Harvey for more information on how to use ExifTool:\n
+        http://www.sno.phy.queensu.ca/~phil/exiftool/
+        \n\n
+        1. First you should define the artist name and copyright information in the app\'s settings. These can be anything, name, company, year etc.
+        \n\n
+        2. You should define the \’ExifTool path\’ in the app\'s settings if you haven\’t placed it in your PATH file. For example, \’~UserName/Documents/Image-ExifTool-10.13/\’ (without the apostrophes). That is to say the ExifTool executable is in a folder called Image-ExifTool-10.13 in the user\'s Documents folder.
+        \n\n
+        3. Then you should define the \’Path to pictures\’ in the app\'s settings, for example \’~Tommi/Desktop/\’ (without the apostrophes). That is to say the scanned files are on the user\'s desktop.
+        \n\n
+        4. Name the scanned files to 1.jpg, 2.jpg, 3.jpg etc. The number in the file name should correspond to the frame count in the app.
+        \n\n
+        5. Export the roll\’s data by clicking the ellipsis when viewing the frames of a roll and then click \’Export\’. This shares one or two text files (depending on which files the user has chosen to export in the app\'s settings), one containing the rolls data in csv format and the other containing the ExifTool commands. You can save the files in your Dropbox or send them as an email attachment for example.
+        \n\n
+        6. Open the text file containing the ExifTool commands on your computer. Copy the commands for the files you wish to tag and paste them on your terminal. Make sure you run all the commands, you may have to press enter to run the last command.
+        \n\n
+        7. ExifTool will run and update the exif tags of your scanned files. The updated tags are listed below:
+        \n
+        -Artist\n
+        -Copyright\n
+        -Make\n
+        -Model\n
+        -LensMake\n
+        -LensModel\n
+        -DateTime\n
+        -ShutterSpeedValue\n
+        -ApertureValue\n
+        -UserComment\n
+        -GPSLatitude\n
+        -GPSLatitudeRef\n
+        -GPSLongitude\n
+        -GPSLongitudeRef
+    </string>
 
-    <string name="main_help">Help for roll fragment</string>
     <string name="frame_help">Help for frame fragment</string>
+
+    <string name="VersionHistory">
+        Version history\n
+        \n
+        v1.6.0 2016-10-XY:\n
+        -The app can now share two text files when exporting a roll\'s data: one contains the data in csv format and the other contains the ExifTool commands. The user can choose which files to export in the app\'s settings\n
+        -Location info is added to a frame only if the user has enabled location updating in the app\'s settings\n
+        -Added a help/quick guide to the app to set up Exif Notes to work with ExifTool\n
+        -Added version history to the About dialog\n
+        \n
+        v1.5.1 2016-09-13:\n
+        -Fixed bug: the app no longer crashes when picking a location for a frame when the location is empty and the device is rotated\n
+        \n
+        v1.5.0 2016-08-17:\n
+        -Added sorting functionality to both the rolls list and frames list\n
+        \n
+        v1.4.1 2016-08-14:\n
+        -Fixed bug: the keyboard no longer blocks the Notes field when editing a roll\'s or frame\'s information\n
+        \n
+        v1.4 2016-05-30:\n
+        -Fixed broken ExifTool command export. However, exporting a .csv is currently disabled\n
+        \n
+        v1.3 2016-05-18:\n
+        -Bug fixes\n
+        \n
+        v1.2 2016-05-18:\n
+        -UI improvements\n
+        -Ability to export frames as a .csv file\n
+        -Ability to add cameras and lenses when adding new rolls and frames\n
+        -Performance improvements\n
+        -Bug fixes\n
+        \n
+        v1.1 2016-03-20 (beta):\n
+        -ExifTool command creation\n
+        -Camera and lens now contain make and model\n
+        -Minor improvements\n
+        \n
+        v1.0 2016-03-13 (beta):\n
+        -First published version
+    </string>
+
+
+
 
     <!--AllFramesMapsActivity-->
     <string name="AllFrames">All frames</string>
@@ -27,8 +110,8 @@
     <string name="Cameras">CAMERAS</string>
     <string name="PickCamerasToDelete">Choose cameras to delete</string>
     <string name="CameraSameName">Camera with same make and model already exists!</string>
-    <string name="CameraMakeIllegalCharacter">Camera make contains an illegal character:</string>
-    <string name="CameraModelIllegalCharacter">Camera model contains an illegal character:</string>
+    <string name="CameraMakeIllegalCharacter">Camera make contains illegal character(s):</string>
+    <string name="CameraModelIllegalCharacter">Camera model contains illegal character(s):</string>
     <string name="SelectMountableLenses">Select mountable lenses</string>
     <string name="CameraNoColon">Camera</string>
     <string name="IsBeingUsed">is being used!</string>
@@ -54,9 +137,12 @@
     <string name="NoMakeOrModel">No make or model was set!</string>
     <string name="NoMake">No make was set!</string>
     <string name="NoModel">No model was set!</string>
+    <string name="MakeIllegalCharacter">Make contains illegal character(s):</string>
+    <string name="ModelIllegalCharacter">Model contains illegal character(s):</string>
 
     <!--FramesFragment-->
-    <string name="NoteIllegalCharacter">Note contains an illegal character:</string>
+    <string name="NoteIllegalCharacter">Note contains illegal character(s):</string>
+    <string name="Export">Export</string>
     <string name="ExportExif">Export exiftool cmds</string>
     <string name="ExportCSV">Export .csv</string>
 
@@ -70,8 +156,8 @@
     <string name="Lenses">LENSES</string>
     <string name="PickLensesToDelete">Choose lenses to delete</string>
     <string name="LensSameName">Lens with same make and model already exists!</string>
-    <string name="LensMakeIllegalCharacter">Lens make contains an illegal character:</string>
-    <string name="LensModelIllegalCharacter">Lens model contains an illegal character:</string>
+    <string name="LensMakeIllegalCharacter">Lens make contains illegal character(s):</string>
+    <string name="LensModelIllegalCharacter">Lens model contains illegal character(s):</string>
     <string name="SelectMountableCameras">Select mountable cameras</string>
     <string name="LensNoColon">Lens</string>
     <string name="EditLens">Edit lens</string>
@@ -94,7 +180,7 @@
     <string name="Close">Close</string>
     <string name="Help">Help</string>
     <string name="RollSameName">Roll with same name already exists!</string>
-    <string name="RollIllegalCharacter">Roll name contains an illegal character:</string>
+    <string name="RollIllegalCharacter">Roll name contains illegal character(s):</string>
 
     <string name="Preferences">Settings</string>
     <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
@@ -202,6 +288,12 @@
     <string name="Grey">Grey</string>
     <string name="Purple">Purple</string>
     <string name="Cyan">Cyan</string>
+
+    <string name="FilesToExportTitle">Files to export</string>
+    <string name="FilesToExportSummary">Choose which files are exported when exporting/sharing a roll\'s data.</string>
+    <string name="CsvDescription">Text file with the roll\'s data in csv format</string>
+    <string name="ExifToolCommandsDescription">Text file containing the ExifTool commands</string>
+    <string name="Both">Both</string>
 
     <string name="Exiftool_Cap">EXIFTOOL INTEGRATION</string>
     <string name="ArtistName">Artist name</string>

@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Activities;
 
 import android.Manifest;
 import android.content.Intent;
@@ -28,6 +28,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.tommihirvonen.exifnotes.Utilities.GeocodingAsyncTask;
+import com.tommihirvonen.exifnotes.R;
 
 import java.util.Arrays;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+
+import com.tommihirvonen.exifnotes.R;
 
 // Copyright 2015
 // Tommi Hirvonen

@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Dialogs;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -16,6 +16,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 public class EditGearInfoDialog extends DialogFragment {
 
@@ -69,6 +72,9 @@ public class EditGearInfoDialog extends DialogFragment {
                 String make = et1.getText().toString();
                 String model = et2.getText().toString();
 
+                String makeResult = Utilities.checkReservedChars(make);
+                String modelResult = Utilities.checkReservedChars(model);
+
                 if (make.length() != 0 && model.length() != 0) {
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
@@ -78,6 +84,10 @@ public class EditGearInfoDialog extends DialogFragment {
                     intent.putExtra("POSITION", position);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                } else if (makeResult.length() > 0) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.MakeIllegalCharacter) + " " + makeResult, Toast.LENGTH_LONG).show();
+                } else if (modelResult.length() > 0) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.ModelIllegalCharacter) + " " + modelResult, Toast.LENGTH_LONG).show();
                 } else if (make.length() == 0 && model.length() == 0) {
                     // No make or model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();

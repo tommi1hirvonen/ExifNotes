@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Activities;
 
 import android.app.Fragment;
 import android.content.SharedPreferences;
@@ -7,7 +7,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
-import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -15,6 +14,11 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.WindowManager;
+
+import com.tommihirvonen.exifnotes.Adapters.PagerAdapter;
+import com.tommihirvonen.exifnotes.Fragments.CamerasFragment;
+import com.tommihirvonen.exifnotes.Fragments.LensesFragment;
+import com.tommihirvonen.exifnotes.R;
 
 import java.util.Arrays;
 import java.util.List;

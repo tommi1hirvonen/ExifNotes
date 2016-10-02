@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,6 +16,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.WindowManager;
+
+import com.tommihirvonen.exifnotes.Fragments.PreferenceFragment;
+import com.tommihirvonen.exifnotes.R;
 
 import java.util.Arrays;
 import java.util.List;

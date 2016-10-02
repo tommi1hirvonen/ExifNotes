@@ -1,29 +1,25 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Datastructures;
 
 // Copyright 2015
 // Tommi Hirvonen
 
 /**
- * The camera class holds the information of a camera.
+ * Lens class holds the information of one lens.
  */
-import java.util.ArrayList;
-
-public class Camera {
+public class Lens {
 
     public int id;
     public String make;
     public String model;
-    public ArrayList<Lens> mountableLenses;
 
-    public Camera(){
+    public Lens(){
 
     }
 
-    public Camera(int id, String make, String model, ArrayList<Lens> mountableLenses){
+    public Lens(int id, String make, String model){
         this.id = id;
         this.make = make;
         this.model = model;
-        this.mountableLenses = mountableLenses;
     }
 
     public void setId(int input){
@@ -38,10 +34,6 @@ public class Camera {
         this.model = input;
     }
 
-    public void setMountableLenses(ArrayList<Lens> input) {
-        this.mountableLenses = input;
-    }
-
     public int getId(){
         return this.id;
     }
@@ -54,7 +46,4 @@ public class Camera {
         return this.model;
     }
 
-    public ArrayList<Lens> getMountableLenses() {
-        return this.mountableLenses;
-    }
 }

@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Utilities;
 
 // Copyright 2015
 // Tommi Hirvonen

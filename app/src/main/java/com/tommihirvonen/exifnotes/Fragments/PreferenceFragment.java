@@ -1,10 +1,12 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Fragments;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+
+import com.tommihirvonen.exifnotes.R;
 
 // Copyright 2015
 // Tommi Hirvonen

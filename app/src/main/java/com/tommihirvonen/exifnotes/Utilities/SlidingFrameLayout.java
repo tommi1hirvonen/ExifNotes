@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Utilities;
 
 import android.content.Context;
 import android.util.AttributeSet;

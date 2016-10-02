@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -26,11 +25,21 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tommihirvonen.exifnotes.Adapters.RollAdapter;
+import com.tommihirvonen.exifnotes.Activities.AllFramesMapsActivity;
+import com.tommihirvonen.exifnotes.Datastructures.Camera;
+import com.tommihirvonen.exifnotes.Datastructures.Roll;
+import com.tommihirvonen.exifnotes.Dialogs.EditRollNameDialog;
+import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
+import com.tommihirvonen.exifnotes.Activities.GearActivity;
+import com.tommihirvonen.exifnotes.Activities.PreferenceActivity;
+import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -246,11 +255,26 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                 break;
 
+            case R.id.menu_item_help:
+
+                AlertDialog.Builder helpDialog = new AlertDialog.Builder(getActivity());
+                helpDialog.setTitle(R.string.Help);
+                helpDialog.setMessage(R.string.main_help);
+
+                helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+
+                helpDialog.show();
+
+                break;
+
             case R.id.menu_item_about:
 
                 AlertDialog.Builder aboutDialog = new AlertDialog.Builder(getActivity());
                 aboutDialog.setTitle(R.string.app_name);
-                aboutDialog.setMessage(R.string.about);
+                aboutDialog.setMessage(getResources().getString(R.string.about) + "\n\n\n" + getResources().getString(R.string.VersionHistory));
 
                 aboutDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -491,22 +515,15 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                     if (inputName.length() != 0 && camera_id != -1) {
 
                         //Check if there are illegal character in the roll name
-                        String ReservedChars = "|\\?*<\":>/";
-                        for (int i = 0; i < inputName.length(); ++i) {
-                            Character c = inputName.charAt(i);
-                            if (ReservedChars.contains(c.toString())) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
+                        String nameResult = Utilities.checkReservedChars(inputName);
+                        if (nameResult.length() > 0) {
+                            Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + nameResult, Toast.LENGTH_LONG).show();
+                            return;
                         }
-                        for (int i = 0; i < inputNote.length(); ++i) {
-                            Character c = inputNote.charAt(i);
-                            if (ReservedChars.contains(c.toString())) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
+                        String noteResult = Utilities.checkReservedChars(inputNote);
+                        if (noteResult.length() > 0) {
+                            Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
+                            return;
                         }
 
                         Roll roll = new Roll();
@@ -547,25 +564,17 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                     if ( newName.length() != 0 && rollId != -1 && camera_id != -1 ) {
 
-                        //Check if there are illegal character in the roll name
-                        String ReservedChars = "|\\?*<\":>/";
-                        for ( int i = 0; i < newName.length(); ++i ) {
-                            Character c = newName.charAt(i);
-                            if ( ReservedChars.contains(c.toString()) ) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
+                        //Check if there are illegal character in the roll name or the new note
+                        String nameResult = Utilities.checkReservedChars(newName);
+                        if (nameResult.length() > 0) {
+                            Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + nameResult, Toast.LENGTH_LONG).show();
+                            return;
                         }
-                        for ( int i = 0; i < newNote.length(); ++i ) {
-                            Character c = newNote.charAt(i);
-                            if ( ReservedChars.contains(c.toString()) ) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
+                        String noteResult = Utilities.checkReservedChars(newNote);
+                        if (noteResult.length() > 0) {
+                            Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
+                            return;
                         }
-
 
                         // Change the string in mRollList
                         int position = 0;

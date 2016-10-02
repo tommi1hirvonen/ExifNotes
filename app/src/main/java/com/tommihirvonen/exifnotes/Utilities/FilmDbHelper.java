@@ -1,10 +1,15 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Utilities;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.tommihirvonen.exifnotes.Datastructures.Camera;
+import com.tommihirvonen.exifnotes.Datastructures.Frame;
+import com.tommihirvonen.exifnotes.Datastructures.Lens;
+import com.tommihirvonen.exifnotes.Datastructures.Roll;
 
 import java.util.ArrayList;
 

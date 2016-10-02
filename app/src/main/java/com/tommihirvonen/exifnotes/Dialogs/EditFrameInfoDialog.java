@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,6 +23,13 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.tommihirvonen.exifnotes.Datastructures.Lens;
+import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
+import com.tommihirvonen.exifnotes.Fragments.FramesFragment;
+import com.tommihirvonen.exifnotes.Activities.LocationPickActivity;
+import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +64,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     final static int ADD_LENS = 2;
 
 
-    static EditFrameInfoDialog newInstance(int _id, int lens_id, int position, int count,
+    public static EditFrameInfoDialog newInstance(int _id, int lens_id, int position, int count,
                                            String date, String shutter, String aperture,
                                            String note, String location, int camera_id,
                                            String title, String positiveButton) {
@@ -297,7 +304,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         int temp_day;
 
         if ( date.length() > 0 ) {
-            final ArrayList<String> dateValue = FramesFragment.splitDate(date);
+            final ArrayList<String> dateValue = Utilities.splitDate(date);
             temp_year = Integer.parseInt(dateValue.get(0));
             temp_month = Integer.parseInt(dateValue.get(1));
             temp_day = Integer.parseInt(dateValue.get(2));
@@ -305,7 +312,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         } else {
             date = FramesFragment.getCurrentTime();
 
-            ArrayList<String> dateValue = FramesFragment.splitDate(date);
+            ArrayList<String> dateValue = Utilities.splitDate(date);
             temp_year = Integer.parseInt(dateValue.get(0));
             temp_month = Integer.parseInt(dateValue.get(1));
             temp_day = Integer.parseInt(dateValue.get(2));
@@ -342,13 +349,13 @@ public class EditFrameInfoDialog extends DialogFragment {
         int temp_minutes;
 
         if ( date.length() > 0 ) {
-            ArrayList<String> timeValue = FramesFragment.splitTime(date);
+            ArrayList<String> timeValue = Utilities.splitTime(date);
             temp_hours = Integer.parseInt(timeValue.get(0));
             temp_minutes = Integer.parseInt(timeValue.get(1));
             if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
             else b_time.setText(temp_hours + ":" + temp_minutes);
         } else {
-            ArrayList<String> timeValue = FramesFragment.splitTime(date);
+            ArrayList<String> timeValue = Utilities.splitTime(date);
             temp_hours = Integer.parseInt(timeValue.get(0));
             temp_minutes = Integer.parseInt(timeValue.get(1));
             if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
@@ -433,22 +440,27 @@ public class EditFrameInfoDialog extends DialogFragment {
                 count = countPicker.getValue();
                 note = et_note.getText().toString();
 
-                // PARSE THE DATE
-                date = b_date.getText().toString() + " " + b_time.getText().toString();
+                //Check the note for illegal characters
+                String noteResult = Utilities.checkReservedChars(note);
+                if (noteResult.length() > 0) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
+                } else {
+                    // PARSE THE DATE
+                    date = b_date.getText().toString() + " " + b_time.getText().toString();
 
-                // Return the new entered name to the calling activity
-                Intent intent = new Intent();
-                intent.putExtra("ID", _id);
-                intent.putExtra("LENS_ID", lens_id);
-                intent.putExtra("POSITION", position);
-                intent.putExtra("COUNT", count);
-                intent.putExtra("DATE", date);
-                intent.putExtra("SHUTTER", shutter);
-                intent.putExtra("APERTURE", aperture);
-                intent.putExtra("NOTE", note);
-                intent.putExtra("LOCATION", location);
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-
+                    // Return the new entered name to the calling activity
+                    Intent intent = new Intent();
+                    intent.putExtra("ID", _id);
+                    intent.putExtra("LENS_ID", lens_id);
+                    intent.putExtra("POSITION", position);
+                    intent.putExtra("COUNT", count);
+                    intent.putExtra("DATE", date);
+                    intent.putExtra("SHUTTER", shutter);
+                    intent.putExtra("APERTURE", aperture);
+                    intent.putExtra("NOTE", note);
+                    intent.putExtra("LOCATION", location);
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                }
             }
         });
 

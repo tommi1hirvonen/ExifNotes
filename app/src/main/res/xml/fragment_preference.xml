@@ -34,6 +34,15 @@
             android:defaultValue="#ef6c00,#e65100"
             />
 
+        <ListPreference
+            android:key="FilesToExport"
+            android:title="@string/FilesToExportTitle"
+            android:summary="@string/FilesToExportSummary"
+            android:entries="@array/FilesToExportOptions"
+            android:entryValues="@array/FilesToExportData"
+            android:defaultValue="EXIFTOOL"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory

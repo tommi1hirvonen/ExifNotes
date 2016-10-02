@@ -1,12 +1,14 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Activities;
 
-import android.content.Intent;
+// Copyright 2015
+// Tommi Hirvonen
+
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -17,20 +19,25 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.tommihirvonen.exifnotes.Datastructures.Frame;
+import com.tommihirvonen.exifnotes.Datastructures.Roll;
+import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
+import com.tommihirvonen.exifnotes.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class AllFramesMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     FilmDbHelper database;
-    int rollId;
-    ArrayList<Frame> mFrameClassList = new ArrayList<>();
+    ArrayList<Roll> mRollClassList = new ArrayList<>();
     private GoogleMap mMap;
 
     boolean continue_activity;
@@ -43,14 +50,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         else continue_activity = false;
 
         setContentView(R.layout.activity_maps);
-        Intent intent = getIntent();
-        rollId = intent.getIntExtra(FramesFragment.ROLLINFO_EXTRA_MESSAGE, -1);
-
-        // If the rollId is -1, then something went wrong.
-        if ( rollId == -1 ) finish();
 
         database = new FilmDbHelper(this);
-        mFrameClassList = database.getAllFramesFromRoll(rollId);
+        mRollClassList = database.getAllRolls();
 
         // ********** Commands to get the action bar and color it **********
         // Get preferences to determine UI color
@@ -62,7 +64,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         getSupportActionBar().setElevation(0);
-        getSupportActionBar().setTitle(database.getRoll(rollId).getName());
+        getSupportActionBar().setTitle(R.string.AllFrames);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -70,7 +72,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
         }
         // *****************************************************************
-
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -80,9 +81,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
@@ -108,21 +106,47 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         LatLng position;
         ArrayList<Marker> markerArrayList = new ArrayList<>();
+        ArrayList<Frame> mFrameClassList;
 
-        for (Frame frame : mFrameClassList) {
+        // Iterator to change marker color
+        int i = 0;
+        ArrayList<BitmapDescriptor> markerStyles = new ArrayList<>();
+        markerStyles.add(0, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        markerStyles.add(1, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        markerStyles.add(2, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        markerStyles.add(3, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+        markerStyles.add(4, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+        markerStyles.add(5, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+        markerStyles.add(6, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+        markerStyles.add(7, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+        markerStyles.add(8, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+        markerStyles.add(9, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
 
-            // Parse the latlng_location string
-            String location = frame.getLocation();
-            if ( location.length() > 0 && !location.equals("null")) {
-                String latString = location.substring(0, location.indexOf(" "));
-                String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
-                double lat = Double.parseDouble(latString.replace(",", "."));
-                double lng = Double.parseDouble(lngString.replace(",", "."));
-                position = new LatLng(lat, lng);
-                String title = "#" + frame.getCount();
-                String snippet = frame.getDate();
-                markerArrayList.add(mMap.addMarker(new MarkerOptions().position(position).title(title).snippet(snippet)));
+        for ( Roll roll : mRollClassList ) {
+
+            mFrameClassList = database.getAllFramesFromRoll(roll.getId());
+
+            for (Frame frame : mFrameClassList) {
+
+                // Parse the latlng_location string
+                String location = frame.getLocation();
+                if ( location.length() > 0 && !location.equals("null")) {
+                    String latString = location.substring(0, location.indexOf(" "));
+                    String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
+                    double lat = Double.parseDouble(latString.replace(",", "."));
+                    double lng = Double.parseDouble(lngString.replace(",", "."));
+                    position = new LatLng(lat, lng);
+                    String title = "" + roll.getName();
+                    String snippet = "#" + frame.getCount();
+                    markerArrayList.add(mMap.addMarker(new MarkerOptions()
+                            .icon(markerStyles.get(i))
+                            .position(position)
+                            .title(title)
+                            .snippet(snippet)));
+                }
             }
+            ++i;
+            if ( i > 9 ) i = 0;
         }
 
         if ( markerArrayList.size() > 0 ) {

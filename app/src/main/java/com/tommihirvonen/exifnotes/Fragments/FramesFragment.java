@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Fragments;
 
 import android.Manifest;
 import android.app.Activity;
@@ -16,15 +16,19 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,7 +48,23 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.tommihirvonen.exifnotes.Adapters.FrameAdapter;
+import com.tommihirvonen.exifnotes.Datastructures.Frame;
+import com.tommihirvonen.exifnotes.Datastructures.Lens;
+import com.tommihirvonen.exifnotes.Datastructures.Roll;
+import com.tommihirvonen.exifnotes.Dialogs.EditFrameInfoDialog;
+import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
+import com.tommihirvonen.exifnotes.Activities.GearActivity;
+import com.tommihirvonen.exifnotes.Activities.MapsActivity;
+import com.tommihirvonen.exifnotes.Activities.PreferenceActivity;
+import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -102,7 +122,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     ArrayList<Frame> mFrameClassList = new ArrayList<>();
     FrameAdapter mFrameAdapter;
 
-    ShareActionProvider mShareActionProviderExiftoolCmds;
+    ShareActionProvider mShareActionProvider;
+//    ShareActionProvider mShareActionProviderExiftoolCmds;
 //    ShareActionProvider mShareActionProviderCSV;
 
     int rollId;
@@ -238,20 +259,17 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-        MenuItem shareItem1 = menu.add(Menu.NONE, 98, Menu.NONE, R.string.ExportExif);
-//        MenuItem shareItem2 = menu.add(Menu.NONE, 99, Menu.NONE, R.string.ExportCSV);
+        //Add the menu item for export
+        MenuItem shareItem1 = menu.add(Menu.NONE, 98, Menu.NONE, R.string.Export);
 
         if (shareItem1 != null) {
-            mShareActionProviderExiftoolCmds = new ShareActionProvider(getActivity());
-            mShareActionProviderExiftoolCmds.setShareIntent(setShareIntentExiftoolCmds());
+            //Link the Intent to be shared to the ShareActionProvider
+            mShareActionProvider = new ShareActionProvider(getActivity());
+            mShareActionProvider.setShareIntent(setShareIntentExportRoll());
         }
-        MenuItemCompat.setActionProvider(shareItem1, mShareActionProviderExiftoolCmds);
 
-//        if ( shareItem2 != null ) {
-//            mShareActionProviderCSV = new ShareActionProvider(getActivity());
-//            mShareActionProviderCSV.setShareIntent(setShareIntentCSV());
-//        }
-//        MenuItemCompat.setActionProvider(shareItem2, mShareActionProviderCSV);
+        //Link the ShareActionProvider to the menu item
+        MenuItemCompat.setActionProvider(shareItem1, mShareActionProvider);
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -319,8 +337,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
                     else counter = 0;
 
-                    mShareActionProviderExiftoolCmds.setShareIntent(setShareIntentExiftoolCmds());
-//                    mShareActionProviderCSV.setShareIntent(setShareIntentCSV());
+                    mShareActionProvider.setShareIntent(setShareIntentExportRoll());
 
                     return true;
             }
@@ -374,11 +391,26 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                 break;
 
+            case R.id.menu_item_help:
+
+                AlertDialog.Builder helpDialog = new AlertDialog.Builder(getActivity());
+                helpDialog.setTitle(R.string.Help);
+                helpDialog.setMessage(R.string.main_help);
+
+                helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+
+                helpDialog.show();
+
+                break;
+
             case R.id.menu_item_about:
 
                 AlertDialog.Builder aboutDialog = new AlertDialog.Builder(getActivity());
                 aboutDialog.setTitle(R.string.app_name);
-                aboutDialog.setMessage(R.string.about);
+                aboutDialog.setMessage(getResources().getString(R.string.about) + "\n\n\n" + getResources().getString(R.string.VersionHistory));
 
                 aboutDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -546,17 +578,120 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     }
 
     /**
-     * This function creates an Intent to share exiftool commands
+     * This function creates an Intent to share exiftool commands and a csv
      * for the frames of the roll in question.
      *
      * @return The intent to be shared.
      */
-    private Intent setShareIntentExiftoolCmds() {
+    private Intent setShareIntentExportRoll() {
 
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
+        String rollName = database.getRoll(rollId).getName();
 
+        //Get the user setting about which files to export. By default, share both files.
+        // 0 = only csv
+        // 1 = only ExifTool commands
+        // 2 = both
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        String filesToExport = prefs.getString("FilesToExport", "EXIFTOOL");
+
+        //Create the Intent to be shared, no initialization yet
+        Intent shareIntent;
+
+        //Create the files
+
+        //Get the external storage path (not the same as SD card)
+        File externalStorageDir = getActivity().getExternalFilesDir(null);
+
+        //Create the file names for the two files to be put in that intent
+        String fileNameCsv = rollName + "_csv" + ".txt";
+        String fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt";
+
+        //Create the strings to be written on those two files
+        String csvString = createCsvString();
+        String exifToolCmds = createExifToolCmdsString();
+
+        //Create the files in external storage
+        File fileCsv = new File(externalStorageDir, fileNameCsv);
+        File fileExifToolCmds = new File(externalStorageDir, fileNameExifToolCmds);
+
+        FileOutputStream fOut = null;
+
+        //Write the csv file
+        try {
+            fOut = new FileOutputStream(fileCsv);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (fOut != null) {
+            OutputStreamWriter osw = new OutputStreamWriter(fOut);
+            try {
+                osw.write(csvString);
+                osw.flush();
+                osw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //Write the ExifTool commands file
+        try {
+            fOut = new FileOutputStream(fileExifToolCmds);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (fOut != null) {
+            OutputStreamWriter osw = new OutputStreamWriter(fOut);
+            try {
+                osw.write(exifToolCmds);
+                osw.flush();
+                osw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //If the user has chosen to export both files
+        if (filesToExport.equals("BOTH")) {
+            //Create the intent to be shared
+            shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+            shareIntent.setType("text/plain");
+
+            //Create an array with the file names
+            ArrayList<String> filesToSend = new ArrayList<>();
+            filesToSend.add(getActivity().getExternalFilesDir(null) + "/" + fileNameCsv);
+            filesToSend.add(getActivity().getExternalFilesDir(null) + "/" + fileNameExifToolCmds);
+
+            //Create an array of Files
+            ArrayList<Uri> files = new ArrayList<Uri>();
+            for(String path : filesToSend ) {
+                File file = new File(path);
+                Uri uri = Uri.fromFile(file);
+                files.add(uri);
+            }
+
+            //Add the two files to the Intent as extras
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);
+
+        } else {
+            shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            //The user has chosen to export only the csv
+            if (filesToExport.equals("CSV")) shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(fileCsv));
+            //The user has chosen to export only the ExifTool commands
+            else if (filesToExport.equals("EXIFTOOL")) shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(fileExifToolCmds));
+        }
+
+        return shareIntent;
+    }
+
+    /**
+     * This function creates a string containing the ExifTool commands about the roll
+     *
+     * @return String containing the ExifTool commands
+     */
+    private String createExifToolCmdsString() {
         StringBuilder stringBuilder = new StringBuilder();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
@@ -633,103 +768,85 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         }
 
-        String shared = stringBuilder.toString();
-
-        shareIntent.putExtra(Intent.EXTRA_TEXT, shared);
-
-        // Make sure the provider knows
-        // it should work with that Intent
-        return shareIntent;
+        return stringBuilder.toString();
     }
 
-    // TODO: Apparently having two ShareActionProviders in one fragment or menu is not possible.
-    // TODO: A workaround should be developed.
-
     /**
-     * This function creates an Intent to share a .csv file
-     * for the frames of the roll in question.
+     * This function creates a string which contains csv information about the roll.
      *
-     * @return The intent to be shared.
+     * @return String containing the csv information
      */
-//    private Intent setShareIntentCSV() {
-//        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-//        shareIntent.setType("text/plain");
-//        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Android Development");
-//
-//        // Get the roll and its information
-//        Roll roll = database.getRoll(rollId);
-//
-//        final String separator = ",";
-//        StringBuilder stringBuilder = new StringBuilder();
-//
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-//        String artistName = prefs.getString("ArtistName", "");
-//        String copyrightInformation = prefs.getString("CopyrightInformation", "");
-//
-//        stringBuilder.append("Roll name: " + roll.getName() + "\n");
-//        stringBuilder.append("Added: " + roll.getDate() + "\n");
-//        stringBuilder.append("Camera: " + database.getCamera(camera_id).getMake() + " " + database.getCamera(camera_id).getModel() + "\n");
-//        stringBuilder.append("Notes: " + roll.getNote() + "\n");
-//        stringBuilder.append("Artist name: " + artistName + "\n");
-//        stringBuilder.append("Copyright: " + copyrightInformation + "\n");
-//        stringBuilder.append("Frame Count" + separator + "Date" + separator + "Lens" + separator +
-//                "Shutter" + separator + "Aperture" + separator + "Notes" + separator + "Location" + "\n");
-//
-//        for ( Frame frame : mFrameClassList ) {
-//            stringBuilder.append(frame.getCount());
-//            stringBuilder.append(separator);
-//            stringBuilder.append(frame.getDate());
-//            stringBuilder.append(separator);
-//            if ( frame.getLensId() != -1 ) stringBuilder.append(database.getLens(frame.getLensId()).getMake() + " " + database.getLens(frame.getLensId()).getModel());
-//            stringBuilder.append(separator);
-//            if ( !frame.getShutter().contains("<") )stringBuilder.append(frame.getShutter());
-//            stringBuilder.append(separator);
-//            if ( !frame.getAperture().contains("<") )stringBuilder.append(frame.getAperture());
-//            stringBuilder.append(separator);
-//            if ( frame.getNote().length() > 0 ) stringBuilder.append(frame.getNote());
-//            stringBuilder.append(separator);
-//            if ( frame.getLocation().length() > 0 ) {
-//                String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
-//                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
-//                String latRef = "";
-//                if (latString.substring(0, 1).equals("-")) {
-//                    latRef = "S";
-//                    latString = latString.substring(1, latString.length());
-//                } else latRef = "N";
-//                String lngRef = "";
-//                if (lngString.substring(0, 1).equals("-")) {
-//                    lngRef = "W";
-//                    lngString = lngString.substring(1, lngString.length());
-//                } else lngRef = "E";
-//                latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
-//                List<String> latStringList = Arrays.asList(latString.split(":"));
-//                lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
-//                List<String> lngStringList = Arrays.asList(lngString.split(":"));
-//
-//                String space = " ";
-//
-//                stringBuilder.append(latStringList.get(0) + "°" + space +
-//                        latStringList.get(1) + "\'" + space +
-//                        latStringList.get(2).replace(',', '.') + "\"" + space);
-//
-//                stringBuilder.append(latRef + space);
-//
-//                stringBuilder.append(lngStringList.get(0) + "°" + space +
-//                        lngStringList.get(1) + "\'" + space +
-//                        lngStringList.get(2).replace(',', '.') + "\"" + space);
-//
-//                stringBuilder.append(lngRef);
-//            }
-//            stringBuilder.append("\n");
-//        }
-//
-//        String shared = stringBuilder.toString();
-//        shareIntent.putExtra(Intent.EXTRA_TEXT, shared);
-//
-//        // Make sure the provider knows
-//        // it should work with that Intent
-//        return shareIntent;
-//    }
+    private String createCsvString() {
+        // Get the roll and its information
+        Roll roll = database.getRoll(rollId);
+
+        final String separator = ",";
+        StringBuilder stringBuilder = new StringBuilder();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        String artistName = prefs.getString("ArtistName", "");
+        String copyrightInformation = prefs.getString("CopyrightInformation", "");
+
+        stringBuilder.append("Roll name: " + roll.getName() + "\n");
+        stringBuilder.append("Added: " + roll.getDate() + "\n");
+        stringBuilder.append("Camera: " + database.getCamera(camera_id).getMake() + " " + database.getCamera(camera_id).getModel() + "\n");
+        stringBuilder.append("Notes: " + roll.getNote() + "\n");
+        stringBuilder.append("Artist name: " + artistName + "\n");
+        stringBuilder.append("Copyright: " + copyrightInformation + "\n");
+        stringBuilder.append("Frame Count" + separator + "Date" + separator + "Lens" + separator +
+                "Shutter" + separator + "Aperture" + separator + "Notes" + separator + "Location" + "\n");
+
+        for ( Frame frame : mFrameClassList ) {
+            stringBuilder.append(frame.getCount());
+            stringBuilder.append(separator);
+            stringBuilder.append(frame.getDate());
+            stringBuilder.append(separator);
+            if ( frame.getLensId() != -1 ) stringBuilder.append(database.getLens(frame.getLensId()).getMake() + " " + database.getLens(frame.getLensId()).getModel());
+            stringBuilder.append(separator);
+            if ( !frame.getShutter().contains("<") )stringBuilder.append(frame.getShutter());
+            stringBuilder.append(separator);
+            if ( !frame.getAperture().contains("<") )stringBuilder.append("f" + frame.getAperture());
+            stringBuilder.append(separator);
+            if ( frame.getNote().length() > 0 ) stringBuilder.append(frame.getNote());
+            stringBuilder.append(separator);
+            if ( frame.getLocation().length() > 0 ) {
+                String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
+                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
+                String latRef = "";
+                if (latString.substring(0, 1).equals("-")) {
+                    latRef = "S";
+                    latString = latString.substring(1, latString.length());
+                } else latRef = "N";
+                String lngRef = "";
+                if (lngString.substring(0, 1).equals("-")) {
+                    lngRef = "W";
+                    lngString = lngString.substring(1, lngString.length());
+                } else lngRef = "E";
+                latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
+                List<String> latStringList = Arrays.asList(latString.split(":"));
+                lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
+                List<String> lngStringList = Arrays.asList(lngString.split(":"));
+
+                String space = " ";
+
+                stringBuilder.append(latStringList.get(0) + "°" + space +
+                        latStringList.get(1) + "\'" + space +
+                        latStringList.get(2).replace(',', '.') + "\"" + space);
+
+                stringBuilder.append(latRef + space);
+
+                stringBuilder.append(lngStringList.get(0) + "°" + space +
+                        lngStringList.get(1) + "\'" + space +
+                        lngStringList.get(2).replace(',', '.') + "\"" + space);
+
+                stringBuilder.append(lngRef);
+            }
+            stringBuilder.append("\n");
+        }
+
+        return stringBuilder.toString();
+    }
+
 
     /**
      * This function is called when FloatingActionButton is pressed.
@@ -828,7 +945,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String location;
         String title = getActivity().getResources().getString(R.string.NewFrame);
         String positiveButton = getActivity().getResources().getString(R.string.Add);
-        if ( locationEnabled ) location = locationStringFromLocation(mLastLocation);
+
+        //Get the location only if the app has location permission (locationEnabled) and
+        //the user has enabled GPS updates in the app's settings.
+        if ( locationEnabled && PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext()).getBoolean("GPSUpdate", true) ) location = locationStringFromLocation(mLastLocation);
         else location = "";
 
         if (!mFrameClassList.isEmpty()) {
@@ -846,7 +966,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 if (frame.getCount() >= count) count = frame.getCount() + 1;
             }
             lens_id = previousFrame.getLensId();
-            //count = previousFrame.getCount() + 1;
             shutter = previousFrame.getShutter();
             aperture = previousFrame.getAperture();
         } else {
@@ -885,7 +1004,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     String note = data.getStringExtra("NOTE");
                     String location = data.getStringExtra("LOCATION");
 
-                    if (!checkReservedChars(note)) return;
+                    //Check the note for illegal characters.
+                    String noteResult = Utilities.checkReservedChars(note);
+                    if (noteResult.length() > 0) {
+                        Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
+                        return;
+                    }
 
                     if ( count != -1 ) {
 
@@ -905,12 +1029,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         // When the new frame is added jump to view the added entry
                         int pos = 0;
                         pos = mFrameClassList.indexOf(frame);
-                        //mainListView.setSelection(mainListView.getCount() - 1);
                         if (pos < mainListView.getCount()) mainListView.setSelection(pos);
                         // The text you'd like to share has changed,
                         // and you need to update
-                        mShareActionProviderExiftoolCmds.setShareIntent(setShareIntentExiftoolCmds());
-//                        mShareActionProviderCSV.setShareIntent(setShareIntentCSV());
+                        mShareActionProvider.setShareIntent(setShareIntentExportRoll());
                     }
                 } else if ( resultCode == Activity.RESULT_CANCELED ) {
                     // After cancel do nothing
@@ -932,7 +1054,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     String note = data.getStringExtra("NOTE");
                     String location = data.getStringExtra("LOCATION");
 
-                    if (!checkReservedChars(note)) return;
+                    //Check the note for illegal characters.
+                    String noteResult = Utilities.checkReservedChars(note);
+                    if (noteResult.length() > 0) {
+                        Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
+                        return;
+                    }
 
                     if ( _id != -1 && count != -1 && position != -1 ) {
 
@@ -960,8 +1087,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                         // The text you'd like to share has changed,
                         // and you need to update
-                        mShareActionProviderExiftoolCmds.setShareIntent(setShareIntentExiftoolCmds());
-//                        mShareActionProviderCSV.setShareIntent(setShareIntentCSV());
+                        mShareActionProvider.setShareIntent(setShareIntentExportRoll());
                     }
                 } else if ( resultCode == Activity.RESULT_CANCELED ) {
                     // After cancel do nothing
@@ -1026,37 +1152,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return current_time;
     }
 
-    /**
-     * Splits a datetime into an ArrayList with date.
-     *
-     * @param input Datetime string in format YYYY-M-D HH:MM
-     * @return ArrayList with three members: { YYYY, M, D }
-     */
-    public static ArrayList<String> splitDate(String input) {
-        String[] items = input.split(" ");
-        ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
-        // { YYYY-M-D, HH:MM }
-        String[] items2 = itemList.get(0).split("-");
-        itemList = new ArrayList<>(Arrays.asList(items2));
-        // { YYYY, M, D }
-        return itemList;
-    }
 
-    /**
-     * Splits a datetime into an ArrayList with time.
-     *
-     * @param input Datetime string in format YYYY-M-D HH:MM
-     * @return ArrayList with two members: { HH, MM }
-     */
-    public static ArrayList<String> splitTime(String input) {
-        String[] items = input.split(" ");
-        ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
-        // { YYYY-M-D, HH:MM }
-        String[] items2 = itemList.get(1).split(":");
-        itemList = new ArrayList<>(Arrays.asList(items2));
-        // { HH, MM }
-        return itemList;
-    }
 
     /**
      * When the fragment is started connect to Google Play services to get accurate location.
@@ -1105,6 +1201,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+
+        //The user might have changed the export settings. Update the ShareActionProvider.
+        if (mShareActionProvider != null) mShareActionProvider.setShareIntent(setShareIntentExportRoll());
     }
 
     /**
@@ -1233,23 +1332,4 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         }
     }
 
-    /**
-     * Checks if a string has any illegal characters.
-     *
-     * @param input the string to be checked
-     * @return false if string contains an illegal character, else true
-     */
-    private boolean checkReservedChars(String input){
-        //Check if there are illegal character in the input string
-        String ReservedChars = "|\\?*<\":>/";
-        for ( int i = 0; i < input.length(); ++i ) {
-            Character c = input.charAt(i);
-            if ( ReservedChars.contains(c.toString()) ) {
-                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
-                toast.show();
-                return false;
-            }
-        }
-        return true;
-    }
 }

@@ -35,6 +35,18 @@
         <item>#F44336,#D32F2F</item> <!--Red-->
     </string-array>
 
+    <string-array name="FilesToExportOptions">
+        <item>@string/CsvDescription</item>
+        <item>@string/ExifToolCommandsDescription</item>
+        <item>@string/Both</item>
+    </string-array>
+
+    <string-array name="FilesToExportData">
+        <item>CSV</item>
+        <item>EXIFTOOL</item>
+        <item>BOTH</item>
+    </string-array>
+
     <string-array name="FrameSortOptions">
         <item>@string/FrameCountNoColon</item>
         <item>@string/DateNoColon</item>

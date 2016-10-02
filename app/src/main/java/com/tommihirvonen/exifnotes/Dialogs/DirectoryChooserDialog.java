@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes;
+package com.tommihirvonen.exifnotes.Dialogs;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -30,6 +30,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.tommihirvonen.exifnotes.R;
 
 public class DirectoryChooserDialog {
 
