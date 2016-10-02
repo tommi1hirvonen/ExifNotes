@@ -3,6 +3,7 @@ package com.tommihirvonen.exifnotes.Utilities;
 // Copyright 2015
 // Tommi Hirvonen
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -61,6 +62,19 @@ public class Utilities {
         itemList = new ArrayList<>(Arrays.asList(items2));
         // { HH, MM }
         return itemList;
+    }
+
+    /**
+     * This function deletes all the files in a directory
+     *
+     * @param dir the directory whose files are to be deleted
+     */
+    public static void purgeDirectory(File dir) {
+        for(File file: dir.listFiles()) {
+            if (!file.isDirectory()) {
+                file.delete();
+            }
+        }
     }
 
 }

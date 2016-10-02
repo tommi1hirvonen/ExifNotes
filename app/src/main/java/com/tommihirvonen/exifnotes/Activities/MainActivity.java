@@ -25,6 +25,7 @@ import com.tommihirvonen.exifnotes.Dialogs.SimpleEula;
 import com.tommihirvonen.exifnotes.Fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.Fragments.RollsFragment;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.io.File;
 import java.util.Arrays;
@@ -181,31 +182,19 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
 
     }
 
-//    /**
-//     * This function is called when MainActivity is stopped, in other words when the
-//     * application is stopped. All the files created in FramesFragment.setShareIntentExportRoll
-//     * in the application's external storage directory are deleted.
-//     */
-//    @Override
-//    public void onStop(){
-//        //Delete all the files created in FramesFragment.setShareIntentExportRoll
-//        File externalStorageDir = getExternalFilesDir(null);
-//        purgeDirectory(externalStorageDir);
-//        super.onStop();
-//    }
-//
-//    /**
-//     * This function deletes all the files in a directory
-//     *
-//     * @param dir the directory whose files are to be deleted
-//     */
-//    private void purgeDirectory(File dir) {
-//        for(File file: dir.listFiles()) {
-//            if (!file.isDirectory()) {
-//                file.delete();
-//            }
-//        }
-//    }
+    /**
+     * This function is called when MainActivity is started, in other words when the
+     * application is started. All the files created in FramesFragment.setShareIntentExportRoll
+     * in the application's external storage directory are deleted. This way we can keep
+     * the number of files stored to a minimum.
+     */
+    @Override
+    public void onStart(){
+        //Delete all the files created in FramesFragment.setShareIntentExportRoll
+        File externalStorageDir = getExternalFilesDir(null);
+        Utilities.purgeDirectory(externalStorageDir);
+        super.onStart();
+    }
 
     /**
      * This function is called when the user presses a roll in the RollsFragment.
