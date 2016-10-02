@@ -29,7 +29,7 @@
         \n\n
         2. You should define the \’ExifTool path\’ in the app\'s settings if you haven\’t placed it in your PATH file. For example, \’~UserName/Documents/Image-ExifTool-10.13/\’ (without the apostrophes). That is to say the ExifTool executable is in a folder called Image-ExifTool-10.13 in the user\'s Documents folder.
         \n\n
-        3. Then you should define the \’Path to pictures\’ in the app\'s settings, for example \’~Tommi/Desktop/\’ (without the apostrophes). That is to say the scanned files are on the user\'s desktop.
+        3. Then you should define the \’Path to pictures\’ in the app\'s settings, for example \’~UserName/Desktop/\’ (without the apostrophes). That is to say the scanned files are on the user\'s desktop.
         \n\n
         4. Name the scanned files to 1.jpg, 2.jpg, 3.jpg etc. The number in the file name should correspond to the frame count in the app.
         \n\n
@@ -60,7 +60,7 @@
     <string name="VersionHistory">
         Version history\n
         \n
-        v1.6.0 2016-10-XY:\n
+        v1.6.0 2016-10-03:\n
         -The app can now share two text files when exporting a roll\'s data: one contains the data in csv format and the other contains the ExifTool commands. The user can choose which files to export in the app\'s settings\n
         -Location info is added to a frame only if the user has enabled location updating in the app\'s settings\n
         -Added a help/quick guide to the app to set up Exif Notes to work with ExifTool\n
