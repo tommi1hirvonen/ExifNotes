@@ -75,7 +75,7 @@ public class EditGearInfoDialog extends DialogFragment {
                 String makeResult = Utilities.checkReservedChars(make);
                 String modelResult = Utilities.checkReservedChars(model);
 
-                if (make.length() != 0 && model.length() != 0) {
+                if (make.length() != 0 && model.length() != 0 && makeResult.length() == 0 && modelResult.length() == 0) {
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
                     intent.putExtra("MAKE", make);

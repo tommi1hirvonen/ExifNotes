@@ -376,8 +376,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                         String newTime;
                         if (minute < 10) {
                             newTime = hourOfDay + ":0" + minute;
-                        }
-                        else newTime = hourOfDay + ":" + minute;
+                        } else newTime = hourOfDay + ":" + minute;
                         b_time.setText(newTime);
                         date = b_date.getText().toString() + " " + newTime;
                     }
@@ -432,9 +431,28 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         });
 
-
-        alert.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
+        alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+                Intent intent = new Intent();
+                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
+            }
+        });
+
+        alert.setPositiveButton(positiveButton, null);
+
+        final AlertDialog dialog = alert.create();
+
+        //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
+        // so it doesn't need to deal with resizing
+        // but just panned by the framework to ensure the current input focus is visible
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        dialog.show();
+
+        // We override the positive button onClick so that we can dismiss the dialog
+        // only if the note does not contain illegal characters
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 shutter = displayedShutterValues[shutterPicker.getValue()];
                 aperture = displayedApertureValues[aperturePicker.getValue()];
                 count = countPicker.getValue();
@@ -459,24 +477,12 @@ public class EditFrameInfoDialog extends DialogFragment {
                     intent.putExtra("APERTURE", aperture);
                     intent.putExtra("NOTE", note);
                     intent.putExtra("LOCATION", location);
+                    dialog.dismiss();
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
             }
         });
 
-        alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                Intent intent = new Intent();
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
-            }
-        });
-
-        final AlertDialog dialog = alert.create();
-        //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
-        // so it doesn't need to deal with resizing
-        // but just panned by the framework to ensure the current input focus is visible
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        dialog.show();
         return dialog;
     }
 

@@ -256,7 +256,7 @@ public class EditRollNameDialog extends DialogFragment {
                 String nameResult = Utilities.checkReservedChars(newName);
                 String noteResult = Utilities.checkReservedChars(newNote);
 
-                if (newName.length() != 0 && camera_id != -1) {
+                if (newName.length() != 0 && camera_id != -1 && noteResult.length() == 0 && nameResult.length() == 0) {
                     Intent intent = new Intent();
                     intent.putExtra("ROLL_ID", rollId);
                     intent.putExtra("NAME", newName);
