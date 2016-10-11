@@ -119,6 +119,8 @@
 
     <!--DirectoryChooserDialog-->
     <string name="CurrentDirectory">Current directory:</string>
+    <string name="NewFolder">New folder</string>
+    <string name="NewFolderName">New folder name</string>
 
     <!--EditFrameInfoDialog-->
     <string name="UsedLens">Choose used lens</string>
@@ -143,6 +145,7 @@
     <!--FramesFragment-->
     <string name="NoteIllegalCharacter">Note contains illegal character(s):</string>
     <string name="Export">Export</string>
+    <string name="ExportToDevice">Export to device</string>
     <string name="ExportExif">Export exiftool cmds</string>
     <string name="ExportCSV">Export .csv</string>
 
@@ -187,6 +190,7 @@
     <string name="Settings">Settings</string>
     <string name="GPSSettings">GPS Settings</string>
     <string name="GPSNotEnabled">GPS is not enabled. Do you want to go to the settings menu?</string>
+    <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
 
     <!--MapsActivity-->
     <string name="NoFramesToShow">No frames to show on map</string>

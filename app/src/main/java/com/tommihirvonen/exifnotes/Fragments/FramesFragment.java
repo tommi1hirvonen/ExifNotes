@@ -52,6 +52,7 @@ import com.tommihirvonen.exifnotes.Adapters.FrameAdapter;
 import com.tommihirvonen.exifnotes.Datastructures.Frame;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Datastructures.Roll;
+import com.tommihirvonen.exifnotes.Dialogs.DirectoryChooserDialog;
 import com.tommihirvonen.exifnotes.Dialogs.EditFrameInfoDialog;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.Activities.GearActivity;
@@ -260,16 +261,19 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         //Add the menu item for export
-        MenuItem shareItem1 = menu.add(Menu.NONE, 98, Menu.NONE, R.string.Export);
+        MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.Export);
 
-        if (shareItem1 != null) {
+        //Add another menu item for exporting to device using inbuilt directory chooser
+        menu.add(Menu.NONE, 99, Menu.NONE, R.string.ExportToDevice);
+
+        if (shareItem != null) {
             //Link the Intent to be shared to the ShareActionProvider
             mShareActionProvider = new ShareActionProvider(getActivity());
             mShareActionProvider.setShareIntent(setShareIntentExportRoll());
         }
 
         //Link the ShareActionProvider to the menu item
-        MenuItemCompat.setActionProvider(shareItem1, mShareActionProvider);
+        MenuItemCompat.setActionProvider(shareItem, mShareActionProvider);
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -435,8 +439,30 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 startActivity(intent2);
                 break;
 
-        }
+            //Export to device
+            case 99:
 
+                DirectoryChooserDialog directoryChooserDialog = new DirectoryChooserDialog(getActivity(), new DirectoryChooserDialog.ChosenDirectoryListener() {
+                    @Override
+                    public void onChosenDir(String chosenDir) {
+                        if (chosenDir.length() == 0) {
+                            //Something went wrong
+                            Toast.makeText(getActivity(), "Something went wrong!", Toast.LENGTH_SHORT).show();
+
+                        } else {
+                            //Export the files to the given path
+                            // TODO: YET TO IMPLEMENT FILE EXPORTING
+                            Toast.makeText(getActivity(), chosenDir, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+                directoryChooserDialog.setNewFolderEnabled(true);
+                directoryChooserDialog.chooseDirectory();
+
+                break;
+
+        }
 
         return true;
     }
