@@ -121,6 +121,7 @@
     <string name="CurrentDirectory">Current directory:</string>
     <string name="NewFolder">New folder</string>
     <string name="NewFolderName">New folder name</string>
+    <string name="ExportHere">Export here</string>
 
     <!--EditFrameInfoDialog-->
     <string name="UsedLens">Choose used lens</string>

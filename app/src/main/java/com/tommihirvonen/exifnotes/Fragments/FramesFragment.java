@@ -18,17 +18,14 @@ import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -442,23 +439,19 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             //Export to device
             case 99:
 
-                DirectoryChooserDialog directoryChooserDialog = new DirectoryChooserDialog(getActivity(), new DirectoryChooserDialog.ChosenDirectoryListener() {
+                DirectoryChooserDialog dirChooserDialog = DirectoryChooserDialog.newInstance(new DirectoryChooserDialog.OnChosenDirectoryListener() {
                     @Override
-                    public void onChosenDir(String chosenDir) {
-                        if (chosenDir.length() == 0) {
-                            //Something went wrong
-                            Toast.makeText(getActivity(), "Something went wrong!", Toast.LENGTH_SHORT).show();
-
-                        } else {
+                    public void onChosenDir(String dir) {
+                        //dir is empty if the export was canceled.
+                        //Otherwise proceed
+                        if (dir.length() > 0) {
                             //Export the files to the given path
                             // TODO: YET TO IMPLEMENT FILE EXPORTING
-                            Toast.makeText(getActivity(), chosenDir, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), dir, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
-
-                directoryChooserDialog.setNewFolderEnabled(true);
-                directoryChooserDialog.chooseDirectory();
+                dirChooserDialog.show(getFragmentManager(), "DirChooserDialogTag");
 
                 break;
 

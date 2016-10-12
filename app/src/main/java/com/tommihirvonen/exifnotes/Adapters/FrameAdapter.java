@@ -44,6 +44,9 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
      */
     @Override
     public  View getView(int position, View convertView, ViewGroup parent) {
+
+        // TODO: IMPLEMENT ASYNCTASK TO INFLATE THE VIEW. THIS WAY WE CAN REDUCE THE LOAD ON THE MAIN THREAD FOR SMOOTHER UI TRANSITION.
+
         // Get the data item for this position
         Frame frame = getItem(position);
 
