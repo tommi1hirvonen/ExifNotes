@@ -306,22 +306,17 @@ public class EditRollNameDialog extends DialogFragment {
                         }
 
                         //Check if there are illegal character in the camera name
-                        String ReservedChars = "|\\?*<\":>/";
-                        for (int i = 0; i < inputTextMake.length(); ++i) {
-                            Character c = inputTextMake.charAt(i);
-                            if (ReservedChars.contains(c.toString())) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraMakeIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
+                        String makeResult = Utilities.checkReservedChars(inputTextMake);
+                        if (makeResult.length() > 0) {
+                            Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraMakeIllegalCharacter) + " " + makeResult, Toast.LENGTH_LONG);
+                            toast.show();
+                            return;
                         }
-                        for (int i = 0; i < inputTextModel.length(); ++i) {
-                            Character c = inputTextModel.charAt(i);
-                            if (ReservedChars.contains(c.toString())) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraModelIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
+                        String modelResult = Utilities.checkReservedChars(inputTextModel);
+                        if (modelResult.length() > 0) {
+                            Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraModelIllegalCharacter) + " " + modelResult, Toast.LENGTH_LONG);
+                            toast.show();
+                            return;
                         }
 
                         Camera camera = new Camera();
