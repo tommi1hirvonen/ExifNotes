@@ -5,11 +5,12 @@
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
+        -The app now requires write permissions to the phone\'s external storage (see third bullet point)\n
         -The app can now share two text files when exporting a roll\'s data: one contains the data in csv format and the other contains the ExifTool commands. The user can choose which files to export in the app\'s settings\n
-        -Added the possibility to export the csv file and/or ExifTool commands using an inbuilt directory browser (Export files to storage)\n
+        -Added the possibility to export the csv file and/or ExifTool commands using an inbuilt folder browser (Export files to storage). This feature requires write permissions to the phone\'s external storage.\n
         -Location info is added to a frame only if the user has enabled location updating in the app\'s settings\n
         -Added a help/quick guide to the app to set up Exif Notes to work with ExifTool\n
-        -Added version history to the About dialog
+        -Added version history to the About dialog\n
     </string>
 
 
@@ -62,8 +63,9 @@
         Version history\n
         \n
         v1.6.0 2016-10-13:\n
+        -The app now requires write permissions to the phone\'s external storage (see third bullet point)\n
         -The app can now share two text files when exporting a roll\'s data: one contains the data in csv format and the other contains the ExifTool commands. The user can choose which files to export in the app\'s settings\n
-        -Added the possibility to export the csv file and/or ExifTool commands using an inbuilt folder browser (Export files to storage)\n
+        -Added the possibility to export the csv file and/or ExifTool commands using an inbuilt folder browser (Export files to storage). This feature requires write permissions to the phone\'s external storage.\n
         -Location info is added to a frame only if the user has enabled location updating in the app\'s settings\n
         -Added a help/quick guide to the app to set up Exif Notes to work with ExifTool\n
         -Added version history to the About dialog\n
