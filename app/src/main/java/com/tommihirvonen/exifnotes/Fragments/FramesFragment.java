@@ -121,8 +121,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     FrameAdapter mFrameAdapter;
 
     ShareActionProvider mShareActionProvider;
-//    ShareActionProvider mShareActionProviderExiftoolCmds;
-//    ShareActionProvider mShareActionProviderCSV;
 
     int rollId;
     int camera_id;
@@ -258,7 +256,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         //Add the menu item for export
-        MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.Export);
+        MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.ExportOrShare);
 
         //Add another menu item for exporting to device using inbuilt directory chooser
         menu.add(Menu.NONE, 99, Menu.NONE, R.string.ExportToDevice);
@@ -394,31 +392,17 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
             case R.id.menu_item_help:
 
-                AlertDialog.Builder helpDialog = new AlertDialog.Builder(getActivity());
-                helpDialog.setTitle(R.string.Help);
-                helpDialog.setMessage(R.string.main_help);
-
-                helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-
-                helpDialog.show();
+                String helpTitle = getResources().getString(R.string.Help);
+                String helpMessage = getResources().getString(R.string.main_help);
+                Utilities.showGeneralDialog(getActivity(), helpTitle, helpMessage);
 
                 break;
 
             case R.id.menu_item_about:
 
-                AlertDialog.Builder aboutDialog = new AlertDialog.Builder(getActivity());
-                aboutDialog.setTitle(R.string.app_name);
-                aboutDialog.setMessage(getResources().getString(R.string.about) + "\n\n\n" + getResources().getString(R.string.VersionHistory));
-
-                aboutDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-
-                aboutDialog.show();
+                String aboutTitle = getResources().getString(R.string.app_name);
+                String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" + getResources().getString(R.string.VersionHistory);
+                Utilities.showGeneralDialog(getActivity(), aboutTitle, aboutMessage);
 
                 break;
 
@@ -446,8 +430,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         //Otherwise proceed
                         if (dir.length() > 0) {
                             //Export the files to the given path
-                            // TODO: YET TO IMPLEMENT FILE EXPORTING
-                            Toast.makeText(getActivity(), dir, Toast.LENGTH_SHORT).show();
+                            //Inform the user if something went wrong
+                            if (!exportFilesTo(dir)){
+                                Toast.makeText(getActivity(), getResources().getString(R.string.ErrorExporting), Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(getActivity(), getResources().getString(R.string.ExportedFilesTo) + " " + dir, Toast.LENGTH_LONG).show();
+                            }
                         }
                     }
                 });
@@ -597,6 +585,45 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     }
 
     /**
+     * This function is used to export csv and/or exiftool commands to the devices own storage.
+     * @param dir the directory to which the files are to be exported
+     * @return false if something went wrong, true otherwise
+     */
+    private boolean exportFilesTo(String dir){
+
+        String rollName = database.getRoll(rollId).getName();
+
+        //Get the user setting about which files to export. By default, share both files.
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        String filesToExport = prefs.getString("FilesToExport", "BOTH");
+
+        //Create the file names for the two files to be put in that intent
+        String fileNameCsv = rollName + "_csv" + ".txt";
+        String fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt";
+
+        //Create the strings to be written on those two files
+        String csvString = createCsvString();
+        String exifToolCmds = createExifToolCmdsString();
+
+        //Create the files in external storage
+        File fileCsv = new File(dir, fileNameCsv);
+        File fileExifToolCmds = new File(dir, fileNameExifToolCmds);
+
+        if (filesToExport.equals("BOTH") || filesToExport.equals("CSV")) {
+            //Write the csv file
+            if (! Utilities.writeTextFile(fileCsv, csvString)) return false;
+        }
+
+        if (filesToExport.equals("BOTH") || filesToExport.equals("EXIFTOOL")) {
+            //Write the ExifTool commands file
+            if (! Utilities.writeTextFile(fileExifToolCmds, exifToolCmds)) return false;
+        }
+
+        //Export was successful
+        return true;
+    }
+
+    /**
      * This function creates an Intent to share exiftool commands and a csv
      * for the frames of the roll in question.
      *
@@ -606,12 +633,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         String rollName = database.getRoll(rollId).getName();
 
-        //Get the user setting about which files to export. By default, share both files.
-        // 0 = only csv
-        // 1 = only ExifTool commands
-        // 2 = both
+        //Get the user setting about which files to export. By default, share only ExifTool.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-        String filesToExport = prefs.getString("FilesToExport", "EXIFTOOL");
+        String filesToExport = prefs.getString("FilesToExport", "BOTH");
 
         //Create the Intent to be shared, no initialization yet
         Intent shareIntent;
@@ -636,40 +660,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         FileOutputStream fOut = null;
 
         //Write the csv file
-        try {
-            fOut = new FileOutputStream(fileCsv);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (fOut != null) {
-            OutputStreamWriter osw = new OutputStreamWriter(fOut);
-            try {
-                osw.write(csvString);
-                osw.flush();
-                osw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        Utilities.writeTextFile(fileCsv, csvString);
 
         //Write the ExifTool commands file
-        try {
-            fOut = new FileOutputStream(fileExifToolCmds);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (fOut != null) {
-            OutputStreamWriter osw = new OutputStreamWriter(fOut);
-            try {
-                osw.write(exifToolCmds);
-                osw.flush();
-                osw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        Utilities.writeTextFile(fileExifToolCmds, exifToolCmds);
 
         //If the user has chosen to export both files
         if (filesToExport.equals("BOTH")) {
