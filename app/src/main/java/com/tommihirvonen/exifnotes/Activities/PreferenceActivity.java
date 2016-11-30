@@ -58,7 +58,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         actionbar.setTitle(R.string.Preferences);
         actionbar.setBackgroundColor(Color.parseColor(primaryColor));
         actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
-        actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.abc_ic_ab_back_mtrl_am_alpha));
+        actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.abc_ic_ab_back_material));
         actionbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
