@@ -3,182 +3,254 @@ package com.tommihirvonen.exifnotes.Dialogs;
 // Copyright 2015
 // Tommi Hirvonen
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.tommihirvonen.exifnotes.R;
+
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnKeyListener;
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.os.Build;
-import android.os.Environment;
-import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+public class DirectoryChooserDialog extends DialogFragment {
 
-import com.tommihirvonen.exifnotes.R;
-
-public class DirectoryChooserDialog {
-
-    private boolean m_isNewFolderEnabled = true;
-    private String m_sdcardDirectory = "";
-    private Context m_context;
-    private TextView m_currentDirView;
-    private TextView m_titleView;
-
-    private String m_dir = "";
-    private List<String> m_subdirs = null;
-    private ChosenDirectoryListener m_chosenDirectoryListener = null;
-    private ArrayAdapter<String> m_listAdapter = null;
-
-    //////////////////////////////////////////////////////
-    // Callback interface for selected directory
-    //////////////////////////////////////////////////////
-    public interface ChosenDirectoryListener {
-        public void onChosenDir(String chosenDir);
+    /**
+     * The interface to be implemented in the calling class
+     */
+    public interface OnChosenDirectoryListener{
+        void onChosenDir(String dir);
     }
 
-    public DirectoryChooserDialog(Context context, ChosenDirectoryListener chosenDirectoryListener) {
-        m_context = context;
-        m_sdcardDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
-        m_chosenDirectoryListener = chosenDirectoryListener;
+    /**
+     * Empty default constructor is needed for the DialogFragment
+     */
+    public DirectoryChooserDialog(){
 
-        try {
-            m_sdcardDirectory = new File(m_sdcardDirectory).getCanonicalPath();
-        }
-        catch (IOException ioe) {
-        }
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // setNewFolderEnabled() - enable/disable new folder button
-    ///////////////////////////////////////////////////////////////////////
+    OnChosenDirectoryListener mCallback;
+    private TextView mCurrentDirView;
+    private String mDir = "";
+    private List<String> mSubdirs = null;
+    private ArrayAdapter<String> mListAdapter = null;
 
-    public void setNewFolderEnabled(boolean isNewFolderEnabled) {
-        m_isNewFolderEnabled = isNewFolderEnabled;
+    /**
+     * Custom constructor for the DirectoryChooserDialog class.
+     *
+     * @param listener OnChosenDirectoryListener from the activity
+     * @return a new DirectoryChooserDialog
+     */
+    public static DirectoryChooserDialog newInstance(OnChosenDirectoryListener listener) {
+        DirectoryChooserDialog dialog = new DirectoryChooserDialog();
+        dialog.mCallback = listener;
+        return dialog;
     }
 
-    public boolean getNewFolderEnabled() {
-        return m_isNewFolderEnabled;
+    /**
+     * Called when the (dialog)fragment is first attached to its context (the calling activity).
+     * @param activity the calling activity
+     */
+    @Override
+    public void onAttach(Activity activity){
+        super.onAttach(activity);
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // chooseDirectory() - load directory chooser dialog for initial
-    // default sdcard directory
-    ///////////////////////////////////////////////////////////////////////
+    /**
+     * Called when the dialog is to be created.
+     * @param savedInstanceState possible saved state in case the fragment was resumed
+     * @return the inflated dialog
+     */
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState){
 
-    public void chooseDirectory() {
-        // Initial directory is sdcard directory
-        chooseDirectory(m_sdcardDirectory);
-    }
+        // Get preferences to determine UI color
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
+        List<String> colors = Arrays.asList(UIColor.split(","));
+        String primaryColor = colors.get(0);
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // chooseDirectory(String dir) - load directory chooser dialog for initial
-    // input 'dir' directory
-    ////////////////////////////////////////////////////////////////////////////////
+        mDir = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-    public void chooseDirectory(String dir) {
-        File dirFile = new File(dir);
-        if (! dirFile.exists() || ! dirFile.isDirectory()) {
-            dir = m_sdcardDirectory;
-        }
+        mSubdirs = getDirectories(mDir);
 
-        try {
-            dir = new File(dir).getCanonicalPath();
-        }
-        catch (IOException ioe) {
-            return;
-        }
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+        final View inflatedView = layoutInflater.inflate(R.layout.directory_chooser_dialog, null);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        dialogBuilder.setView(inflatedView);
 
-        m_dir = dir;
-        m_subdirs = getDirectories(dir);
+        LinearLayout linearLayout = (LinearLayout) inflatedView.findViewById(R.id.dir_chooser_dialog_top_element);
+        linearLayout.setBackgroundColor(Color.parseColor(primaryColor));
 
-        class DirectoryOnClickListener implements DialogInterface.OnClickListener {
-            public void onClick(DialogInterface dialog, int item) {
-                // Navigate into the sub-directory
-                String text = ((AlertDialog) dialog).getListView().getAdapter().getItem(item).toString();
-                if ( text.equals("..") ) m_dir = m_dir.substring(0, m_dir.lastIndexOf("/"));
-                else m_dir += "/" + text;
-                updateDirectory();
-            }
-        }
+        mCurrentDirView = (TextView) inflatedView.findViewById(R.id.current_directory_textview);
+        mCurrentDirView.setText(mDir);
 
-        AlertDialog.Builder dialogBuilder =
-                createDirectoryChooserDialog(dir, m_subdirs, new DirectoryOnClickListener());
+        ImageView newDirButton = (ImageView) inflatedView.findViewById(R.id.new_directory_button);
+        newDirButton.setClickable(true);
 
-        dialogBuilder.setPositiveButton(m_context.getResources().getString(R.string.OK), new OnClickListener() {
+        newDirButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Current directory chosen
-                if (m_chosenDirectoryListener != null) {
-                    // Call registered listener supplied with the chosen directory
-                    m_chosenDirectoryListener.onChosenDir(m_dir);
-                }
+            public void onClick(View v) {
+                final EditText input = new EditText(getActivity());
+
+                // Show new folder name input dialog
+                new AlertDialog.Builder(getActivity()).
+                        setTitle(getActivity().getResources().getString(R.string.NewFolderName)).
+                        setView(input).setPositiveButton(getActivity().getResources().getString(R.string.OK), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Editable newDir = input.getText();
+                        String newDirName = newDir.toString();
+                        // Create new directory
+                        if (createSubDir(mDir + "/" + newDirName)) {
+                            // Navigate into the new directory
+                            mDir += "/" + newDirName;
+                            updateDirectory();
+                        } else {
+                            Toast.makeText(
+                                    getActivity(), "Failed to create '" + newDirName +
+                                            "' folder", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }).setNegativeButton(getActivity().getResources().getString(R.string.Cancel), null).show();
             }
-        }).setNegativeButton(m_context.getResources().getString(R.string.Cancel), null);
+        });
 
-        final AlertDialog dirsDialog = dialogBuilder.create();
+        ImageView backButton = (ImageView) inflatedView.findViewById(R.id.subdirectory_back_button);
+        backButton.setClickable(true);
 
-        dirsDialog.setOnKeyListener(new OnKeyListener() {
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-                    // Back button pressed
-                    if ( m_dir.equals(m_sdcardDirectory) ) {
-                        // The very top level directory, do nothing
-                        return false;
-                    }
-                    else {
-                        // Navigate back to an upper directory
-                        m_dir = new File(m_dir).getParent();
-                        updateDirectory();
-                    }
-
-                    return true;
-                }
-                else {
-                    return false;
+            public void onClick(View v) {
+                if (!mDir.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
+                    mDir = mDir.substring(0, mDir.lastIndexOf("/"));
+                    updateDirectory();
                 }
             }
         });
 
-        // Show directory chooser dialog
-        dirsDialog.show();
+        //Set up the ListAdapter, ListView and listener
+        mListAdapter = createListAdapter(mSubdirs);
+        ListView listView = (ListView) inflatedView.findViewById(R.id.subdirectories_listview);
+        listView.setAdapter(mListAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String text = mSubdirs.get(position);
+                mDir += "/" + text;
+                updateDirectory();
+            }
+        });
+
+
+        dialogBuilder.setPositiveButton(R.string.ExportHere, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                mCallback.onChosenDir(mDir);
+            }
+        });
+        dialogBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                mCallback.onChosenDir("");
+            }
+        });
+
+
+        dialogBuilder.setCancelable(true);
+
+        return dialogBuilder.create();
     }
 
-    private boolean createSubDir(String newDir) {
-        File newDirFile = new File(newDir);
-        if (! newDirFile.exists() ) {
-            return newDirFile.mkdir();
-        }
 
-        return false;
+    /**
+     * Update the list of directories and the current directory text.
+     */
+    private void updateDirectory() {
+        mSubdirs.clear();
+        mSubdirs.addAll(getDirectories(mDir));
+        mCurrentDirView.setText(mDir);
+        mListAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Creates an ArrayAdapter for the ListView containing all the possible directories
+     *
+     * @param items List of subdirectories
+     * @return inflated view v
+     */
+    private ArrayAdapter<String> createListAdapter(List<String> items) {
+
+        return new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+
+                String text = getItem(position);
+
+                ViewHolder holder;
+
+                if (convertView == null) {
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_directory, parent, false);
+                    holder = new ViewHolder();
+                    holder.tvDirectory = (TextView) convertView.findViewById(R.id.tv_directory_name);
+                    holder.ivFolder = (ImageView) convertView.findViewById(R.id.iv_folder);
+                    convertView.setTag(holder);
+                } else {
+                    holder = (ViewHolder) convertView.getTag();
+                }
+
+                holder.tvDirectory.setText(text);
+                holder.ivFolder.getDrawable().mutate().setColorFilter(ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
+
+                return convertView;
+            }
+        };
+    }
+
+    /**
+     * Class to hold the view objects in the ArrayAdapter and improve performance
+     */
+    static class ViewHolder{
+        TextView tvDirectory;
+        ImageView ivFolder;
+    }
+
+    /**
+     * Gets all the directories in the searched directory
+     * @param dir the directory whose subdirectories are to be listed
+     * @return a List containing all the subdirectories
+     */
     private List<String> getDirectories(String dir) {
         List<String> dirs = new ArrayList<>();
-
         try {
             File dirFile = new File(dir);
-            if (! dirFile.exists() || ! dirFile.isDirectory()) {
+            if (!dirFile.exists() || !dirFile.isDirectory()) {
                 return dirs;
             }
-            dirs.add("..");
+
             for (File file : dirFile.listFiles()) {
                 if ( file.isDirectory() ) {
                     dirs.add( file.getName() );
@@ -197,121 +269,18 @@ public class DirectoryChooserDialog {
         return dirs;
     }
 
-    private AlertDialog.Builder createDirectoryChooserDialog(String title, List<String> listItems,
-                                                             OnClickListener onClickListener) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(m_context);
-
-        // Create custom view for AlertDialog title containing
-        // current directory TextView and possible 'New folder' button.
-        // Current directory TextView allows long directory path to be wrapped to multiple lines.
-        LinearLayout titleLayout = new LinearLayout(m_context);
-        titleLayout.setOrientation(LinearLayout.VERTICAL);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(m_context);
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
-        m_currentDirView = new TextView(m_context);
-        m_titleView = new TextView(m_context);
-
-        m_currentDirView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            m_currentDirView.setTextAppearance(m_context, android.R.style.TextAppearance_Medium);
+    /**
+     * Creates a new directory
+     * @param newDir path of the new folder
+     * @return returns true if creating a new directory was successful, false otherwise
+     */
+    private boolean createSubDir(String newDir) {
+        File newDirFile = new File(newDir);
+        if (! newDirFile.exists() ) {
+            return newDirFile.mkdir();
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            m_currentDirView.setTextAppearance(android.R.style.TextAppearance_Medium);
-        }
-        m_currentDirView.setTextColor(ContextCompat.getColor(m_context, android.R.color.white));
-        m_currentDirView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        m_currentDirView.setText(title);
-        m_currentDirView.setPadding(25, 5, 25, 25);
-        m_currentDirView.setBackgroundColor(Color.parseColor(primaryColor));
 
-        m_titleView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            m_titleView.setTextAppearance(m_context, android.R.style.TextAppearance_Medium);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            m_titleView.setTextAppearance(android.R.style.TextAppearance_Medium);
-        }
-        m_titleView.setTextColor(ContextCompat.getColor(m_context, android.R.color.white));
-        m_titleView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        m_titleView.setText(m_context.getResources().getString(R.string.CurrentDirectory));
-        m_titleView.setPadding(25, 25, 25, 5);
-        m_titleView.setBackgroundColor(Color.parseColor(primaryColor));
-
-        /*Button newDirButton = new Button(m_context);
-        newDirButton.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        newDirButton.setText("New folder");
-        newDirButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final EditText input = new EditText(m_context);
-
-                // Show new folder name input dialog
-                new AlertDialog.Builder(m_context).
-                        setTitle("New folder name").
-                        setView(input).setPositiveButton("OK", new OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Editable newDir = input.getText();
-                        String newDirName = newDir.toString();
-                        // Create new directory
-                        if (createSubDir(m_dir + "/" + newDirName)) {
-                            // Navigate into the new directory
-                            m_dir += "/" + newDirName;
-                            updateDirectory();
-                        } else {
-                            Toast.makeText(
-                                    m_context, "Failed to create '" + newDirName +
-                                            "' folder", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }).setNegativeButton("Cancel", null).show();
-            }
-        });
-
-        if (! m_isNewFolderEnabled) {
-            newDirButton.setVisibility(View.GONE);
-        }*/
-
-        titleLayout.addView(m_titleView);
-        titleLayout.addView(m_currentDirView);
-        //titleLayout.addView(newDirButton);
-
-        dialogBuilder.setCustomTitle(titleLayout);
-
-        m_listAdapter = createListAdapter(listItems);
-
-        dialogBuilder.setSingleChoiceItems(m_listAdapter, -1, onClickListener);
-        dialogBuilder.setCancelable(false);
-
-        return dialogBuilder;
+        return false;
     }
 
-    private void updateDirectory() {
-        m_subdirs.clear();
-        m_subdirs.addAll( getDirectories(m_dir) );
-        m_currentDirView.setText(m_dir);
-
-        m_listAdapter.notifyDataSetChanged();
-    }
-
-    private ArrayAdapter<String> createListAdapter(List<String> items) {
-        return new ArrayAdapter<String>(m_context,
-                android.R.layout.select_dialog_item, android.R.id.text1, items) {
-            @Override
-            public View getView(int position, View convertView,
-                                ViewGroup parent) {
-                View v = super.getView(position, convertView, parent);
-
-                if (v instanceof TextView) {
-                    // Enable list item (directory) text wrapping
-                    TextView tv = (TextView) v;
-                    tv.getLayoutParams().height = LayoutParams.WRAP_CONTENT;
-                    tv.setEllipsize(null);
-                }
-                return v;
-            }
-        };
-    }
 }

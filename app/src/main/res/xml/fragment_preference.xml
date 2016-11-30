@@ -40,7 +40,7 @@
             android:summary="@string/FilesToExportSummary"
             android:entries="@array/FilesToExportOptions"
             android:entryValues="@array/FilesToExportData"
-            android:defaultValue="EXIFTOOL"
+            android:defaultValue="BOTH"
             />
 
     </PreferenceCategory>

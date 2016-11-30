@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.R;
 
@@ -87,7 +88,11 @@ public class SimpleEula {
                         }
 
                     });
-            builder.create().show();
+            AlertDialog dialog = builder.create();
+            dialog.show();
+            //The dialog needs to be shown first. Otherwise textView will be null.
+            TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+            textView.setTextSize(14);
         }
     }
 

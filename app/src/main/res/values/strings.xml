@@ -5,10 +5,12 @@
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
+        -The app now requires write permissions to the phone\'s external storage (see third bullet point)\n
         -The app can now share two text files when exporting a roll\'s data: one contains the data in csv format and the other contains the ExifTool commands. The user can choose which files to export in the app\'s settings\n
+        -Added the possibility to export the csv file and/or ExifTool commands using an inbuilt folder browser (Export files to storage). This feature requires write permissions to the phone\'s external storage.\n
         -Location info is added to a frame only if the user has enabled location updating in the app\'s settings\n
         -Added a help/quick guide to the app to set up Exif Notes to work with ExifTool\n
-        -Added version history to the About dialog
+        -Added version history to the About dialog\n
     </string>
 
 
@@ -33,7 +35,7 @@
         \n\n
         4. Name the scanned files to 1.jpg, 2.jpg, 3.jpg etc. The number in the file name should correspond to the frame count in the app.
         \n\n
-        5. Export the roll\’s data by clicking the ellipsis when viewing the frames of a roll and then click \’Export\’. This shares one or two text files (depending on which files the user has chosen to export in the app\'s settings), one containing the rolls data in csv format and the other containing the ExifTool commands. You can save the files in your Dropbox or send them as an email attachment for example.
+        5. Export the roll\’s data by clicking the ellipsis when viewing the frames of a roll and then click \’Export/share files\’ to share them via another app (Dropbox or Gmail for example) or alternatively click \'Export files to storage\' to export the files using an inbuilt folder browser. This exports one or two text files (depending on which files the user has chosen to export in the app\'s settings), one containing the rolls data in csv format and the other containing the ExifTool commands.
         \n\n
         6. Open the text file containing the ExifTool commands on your computer. Copy the commands for the files you wish to tag and paste them on your terminal. Make sure you run all the commands, you may have to press enter to run the last command.
         \n\n
@@ -60,8 +62,10 @@
     <string name="VersionHistory">
         Version history\n
         \n
-        v1.6.0 2016-10-03:\n
+        v1.6.0 2016-10-13:\n
+        -The app now requires write permissions to the phone\'s external storage (see third bullet point)\n
         -The app can now share two text files when exporting a roll\'s data: one contains the data in csv format and the other contains the ExifTool commands. The user can choose which files to export in the app\'s settings\n
+        -Added the possibility to export the csv file and/or ExifTool commands using an inbuilt folder browser (Export files to storage). This feature requires write permissions to the phone\'s external storage.\n
         -Location info is added to a frame only if the user has enabled location updating in the app\'s settings\n
         -Added a help/quick guide to the app to set up Exif Notes to work with ExifTool\n
         -Added version history to the About dialog\n
@@ -119,6 +123,9 @@
 
     <!--DirectoryChooserDialog-->
     <string name="CurrentDirectory">Current directory:</string>
+    <string name="NewFolder">New folder</string>
+    <string name="NewFolderName">New folder name</string>
+    <string name="ExportHere">Export here</string>
 
     <!--EditFrameInfoDialog-->
     <string name="UsedLens">Choose used lens</string>
@@ -143,8 +150,12 @@
     <!--FramesFragment-->
     <string name="NoteIllegalCharacter">Note contains illegal character(s):</string>
     <string name="Export">Export</string>
+    <string name="ExportOrShare">Export/share files</string>
+    <string name="ExportToDevice">Export files to storage</string>
     <string name="ExportExif">Export exiftool cmds</string>
     <string name="ExportCSV">Export .csv</string>
+    <string name="ErrorExporting">An error occurred while exporting the files.</string>
+    <string name="ExportedFilesTo">Exported file(s) to:</string>
 
     <!--GearActivity-->
     <string name="Gear">Gear</string>
@@ -187,6 +198,7 @@
     <string name="Settings">Settings</string>
     <string name="GPSSettings">GPS Settings</string>
     <string name="GPSNotEnabled">GPS is not enabled. Do you want to go to the settings menu?</string>
+    <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
 
     <!--MapsActivity-->
     <string name="NoFramesToShow">No frames to show on map</string>

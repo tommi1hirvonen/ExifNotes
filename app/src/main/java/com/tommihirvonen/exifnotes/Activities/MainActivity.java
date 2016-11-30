@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Dialogs.SimpleEula;
 import com.tommihirvonen.exifnotes.Fragments.FramesFragment;
@@ -42,6 +43,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements RollsFragment.OnRollSelectedListener, FramesFragment.OnHomeAsUpPressedListener {
 
     private final static int MY_PERMISSIONS_REQUEST_LOCATION = 1;
+    private final static int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
     boolean locationEnabled = false;
 
     /**
@@ -77,6 +79,13 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         // *****************************************************************
 
         LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+
+        //Check if the app has write permission to external storage
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
+                    , MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        }
 
         // Check if the app has latlng_location permission.
         if (ActivityCompat.checkSelfPermission(this,
@@ -271,14 +280,21 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
+            case MY_PERMISSIONS_REQUEST_LOCATION:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     locationEnabled = true;
 
                 }
-            }
+                break;
+
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
+                if (grantResults.length == 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    //In case write permission was denied, inform the user.
+                    Toast.makeText(this, R.string.NoWritePermission, Toast.LENGTH_LONG).show();
+                }
+                break;
         }
     }
 }

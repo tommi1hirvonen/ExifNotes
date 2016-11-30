@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/dir_chooser_dialog_top_element"
+        android:background="@color/dark_grey"
+        android:orientation="horizontal"
+        android:weightSum="20">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="19"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/title_textview"
+                android:text="@string/CurrentDirectory"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="5dp"
+                android:gravity="left" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/current_directory_textview"
+                android:text="@string/Text"
+                android:paddingLeft="10dp"
+                android:paddingBottom="10dp"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:ellipsize="none"/>
+
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/subdirectory_back_button"
+            android:src="@drawable/ic_subdirectory_arrow_left_white_48dp"
+            android:layout_gravity="right|top"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:padding="10dp"
+            android:layout_marginTop="3dp"
+            android:layout_weight="0.5"/>
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/new_directory_button"
+            android:src="@drawable/ic_create_new_folder_white_48dp"
+            android:layout_gravity="right|top"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:padding="10dp"
+            android:layout_marginTop="3dp"
+            android:layout_weight="0.5"/>
+
+    </LinearLayout>
+
+
+    <ListView
+        android:id="@+id/subdirectories_listview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+    </ListView>
+
+
+</LinearLayout>

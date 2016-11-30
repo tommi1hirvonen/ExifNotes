@@ -257,31 +257,17 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
             case R.id.menu_item_help:
 
-                AlertDialog.Builder helpDialog = new AlertDialog.Builder(getActivity());
-                helpDialog.setTitle(R.string.Help);
-                helpDialog.setMessage(R.string.main_help);
-
-                helpDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-
-                helpDialog.show();
+                String helpTitle = getResources().getString(R.string.Help);
+                String helpMessage = getResources().getString(R.string.main_help);
+                Utilities.showGeneralDialog(getActivity(), helpTitle, helpMessage);
 
                 break;
 
             case R.id.menu_item_about:
 
-                AlertDialog.Builder aboutDialog = new AlertDialog.Builder(getActivity());
-                aboutDialog.setTitle(R.string.app_name);
-                aboutDialog.setMessage(getResources().getString(R.string.about) + "\n\n\n" + getResources().getString(R.string.VersionHistory));
-
-                aboutDialog.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-
-                aboutDialog.show();
+                String aboutTitle = getResources().getString(R.string.app_name);
+                String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" + getResources().getString(R.string.VersionHistory);
+                Utilities.showGeneralDialog(getActivity(), aboutTitle, aboutMessage);
 
                 break;
 

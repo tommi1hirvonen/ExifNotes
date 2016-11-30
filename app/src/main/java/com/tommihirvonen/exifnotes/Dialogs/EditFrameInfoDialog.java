@@ -516,22 +516,17 @@ public class EditFrameInfoDialog extends DialogFragment {
                 }
 
                 //Check if there are illegal character in the lens name
-                String ReservedChars = "|\\?*<\":>/";
-                for (int i = 0; i < inputTextMake.length(); ++i) {
-                    Character c = inputTextMake.charAt(i);
-                    if (ReservedChars.contains(c.toString())) {
-                        Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensMakeIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
-                        toast.show();
-                        return;
-                    }
+                String makeResult = Utilities.checkReservedChars(inputTextMake);
+                if (makeResult.length() > 0) {
+                    Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensMakeIllegalCharacter) + " " + makeResult, Toast.LENGTH_LONG);
+                    toast.show();
+                    return;
                 }
-                for (int i = 0; i < inputTextModel.length(); ++i) {
-                    Character c = inputTextModel.charAt(i);
-                    if (ReservedChars.contains(c.toString())) {
-                        Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensModelIllegalCharacter) + " " + c.toString(), Toast.LENGTH_LONG);
-                        toast.show();
-                        return;
-                    }
+                String modelResult = Utilities.checkReservedChars(inputTextModel);
+                if (modelResult.length() > 0) {
+                    Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensModelIllegalCharacter) + " " + modelResult, Toast.LENGTH_LONG);
+                    toast.show();
+                    return;
                 }
 
                 Lens lens = new Lens();

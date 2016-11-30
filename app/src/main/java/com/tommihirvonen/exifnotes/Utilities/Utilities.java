@@ -3,7 +3,18 @@ package com.tommihirvonen.exifnotes.Utilities;
 // Copyright 2015
 // Tommi Hirvonen
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.widget.TextView;
+
+import com.tommihirvonen.exifnotes.R;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -11,6 +22,58 @@ import java.util.Arrays;
  * This class contains utility functions.
  */
 public class Utilities {
+
+    /**
+     * This function shows a general dialog containing a title and a message.
+     *
+     * @param activity the calling activity
+     * @param title the title of the dialog
+     * @param message the message of the dialog
+     */
+    public static void showGeneralDialog(Activity activity, String title, String message){
+        AlertDialog.Builder generalDialogBuilder = new AlertDialog.Builder(activity);
+        generalDialogBuilder.setTitle(title);
+        generalDialogBuilder.setMessage(message);
+
+        generalDialogBuilder.setNeutralButton(R.string.Close, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        AlertDialog generalDialog = generalDialogBuilder.create();
+        generalDialog.show();
+        //The dialog needs to be shown first. Otherwise textView will be null.
+        TextView textView = (TextView) generalDialog.findViewById(android.R.id.message);
+        textView.setTextSize(14);
+    }
+
+    /**
+     * This function writes a text file.
+     * @param file the file to be written to
+     * @param text the text to be written in that file
+     * @return false if something went wrong, true otherwise
+     */
+    public static boolean writeTextFile(File file, String text){
+        FileOutputStream fOut;
+        try {
+            fOut = new FileOutputStream(file);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        OutputStreamWriter osw = new OutputStreamWriter(fOut);
+        try {
+            osw.write(text);
+            osw.flush();
+            osw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
     /**
      * This function checks the input string for illegal characters.
