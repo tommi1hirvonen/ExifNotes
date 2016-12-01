@@ -2,6 +2,9 @@
 *.apk
 *.ap_
 
+#files created by Android Studio
+*.iml
+
 # files for the dex VM
 *.dex
 
