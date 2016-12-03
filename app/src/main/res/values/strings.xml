@@ -173,6 +173,13 @@
     <string name="LensNoColon">Lens</string>
     <string name="EditLens">Edit lens</string>
 
+    <!--FiltersFragment-->
+    <string name="NewFilter">Add new filter</string>
+    <string name="EditFilter">Edit filter</string>
+    <string name="FilterNoColon">Filter</string>
+    <string name="FilterSameName">Filter with same make and model already exists!</string>
+    <string name="Filters">FILTERS</string>
+
     <!--LensNameDialog-->
     <string name="NewLens">Add new lens</string>
     <string name="Add">Add</string>
@@ -230,7 +237,7 @@
 
 
 
-    <!--activity_gearml-->
+    <!--lenses_fragment.xml-->
     <string name="NoLenses">No added lenses</string>
 
     <!--activity_main.xml-->
@@ -241,6 +248,9 @@
 
     <!--cameras_fragment.xml-->
     <string name="NoCameras">No added cameras</string>
+
+    <!--filters_fragment.xml-->
+    <string name="NoFilters">No added filters</string>
 
     <!--roll_info_dialoglog.xml-->
     <string name="Name">Name:</string>

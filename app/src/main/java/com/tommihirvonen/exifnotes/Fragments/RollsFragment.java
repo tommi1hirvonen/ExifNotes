@@ -500,18 +500,6 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                     if (inputName.length() != 0 && camera_id != -1) {
 
-                        //Check if there are illegal character in the roll name
-                        String nameResult = Utilities.checkReservedChars(inputName);
-                        if (nameResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + nameResult, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        String noteResult = Utilities.checkReservedChars(inputNote);
-                        if (noteResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-
                         Roll roll = new Roll();
                         roll.setName(inputName);
                         roll.setDate(date);
@@ -549,18 +537,6 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                     String newDate = data.getStringExtra("DATE");
 
                     if ( newName.length() != 0 && rollId != -1 && camera_id != -1 ) {
-
-                        //Check if there are illegal character in the roll name or the new note
-                        String nameResult = Utilities.checkReservedChars(newName);
-                        if (nameResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + nameResult, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        String noteResult = Utilities.checkReservedChars(newNote);
-                        if (noteResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
-                            return;
-                        }
 
                         // Change the string in mRollList
                         int position = 0;

@@ -215,18 +215,6 @@ public class LensesFragment extends Fragment implements
                             }
                         }
 
-                        //Check if there are illegal character in the lens name or model
-                        String makeResult = Utilities.checkReservedChars(inputTextMake);
-                        if (makeResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.LensMakeIllegalCharacter) + " " + makeResult, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        String modelResult = Utilities.checkReservedChars(inputTextModel);
-                        if (modelResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.LensModelIllegalCharacter) + " " + modelResult, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-
                         mainTextView.setVisibility(View.GONE);
 
                         Lens lens = new Lens();
@@ -268,18 +256,6 @@ public class LensesFragment extends Fragment implements
                                 toast.show();
                                 return;
                             }
-                        }
-
-                        //Check if there are illegal character in the lens name or model
-                        String makeResult = Utilities.checkReservedChars(newMake);
-                        if (makeResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.LensMakeIllegalCharacter) + " " + makeResult, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        String modelResult = Utilities.checkReservedChars(newModel);
-                        if (modelResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.LensModelIllegalCharacter) + " " + modelResult, Toast.LENGTH_LONG).show();
-                            return;
                         }
 
                         Lens lens = mLensList.get(position);

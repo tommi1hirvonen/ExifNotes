@@ -219,18 +219,6 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                             }
                         }
 
-                        //Check if there are illegal character in the camera name or model
-                        String makeResult = Utilities.checkReservedChars(inputTextMake);
-                        if (makeResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.CameraMakeIllegalCharacter) + " " + makeResult, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        String modelResult = Utilities.checkReservedChars(inputTextModel);
-                        if (modelResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.CameraModelIllegalCharacter) + " " + modelResult, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-
                         mainTextView.setVisibility(View.GONE);
 
                         Camera camera = new Camera();
@@ -271,18 +259,6 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                                 toast.show();
                                 return;
                             }
-                        }
-
-                        //Check if there are illegal character in the camera name or model
-                        String makeResult = Utilities.checkReservedChars(newMake);
-                        if (makeResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.CameraMakeIllegalCharacter) + " " + makeResult, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        String modelResult = Utilities.checkReservedChars(newModel);
-                        if (modelResult.length() > 0) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.CameraModelIllegalCharacter) + " " + modelResult, Toast.LENGTH_LONG).show();
-                            return;
                         }
 
                         Camera camera = mCameraList.get(position);

@@ -1,6 +1,7 @@
 package com.tommihirvonen.exifnotes.Adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +24,7 @@ public class RollAdapter extends ArrayAdapter<Roll> {
 
     // This RollAdapter acts as an ArrayAdapter to link an array and a list view together
 
-    FilmDbHelper database;
+    private FilmDbHelper database;
 
     public RollAdapter(Context context,int textViewResourceId, ArrayList<Roll> rolls) {
         super(context, textViewResourceId, rolls);
@@ -38,8 +39,9 @@ public class RollAdapter extends ArrayAdapter<Roll> {
      * @param parent the parent to which the view will eventually be attached.
      * @return the inflated view to be showed in the ListView
      */
+    @NonNull
     @Override
-    public  View getView(int position, View convertView, ViewGroup parent) {
+    public  View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
 
         // Get the data item for this position

@@ -1,6 +1,7 @@
 package com.tommihirvonen.exifnotes.Adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +29,7 @@ public class LensAdapter extends ArrayAdapter<Lens> {
         super(context, textViewResourceId, lenses);
     }
 
-    FilmDbHelper database = new FilmDbHelper(getContext());
+    private FilmDbHelper database = new FilmDbHelper(getContext());
 
     /**
      * This function inflates a view in the ListView.
@@ -38,8 +39,9 @@ public class LensAdapter extends ArrayAdapter<Lens> {
      * @param parent the parent to which the view will eventually be attached.
      * @return the inflated view to be showed in the ListView
      */
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
         Lens lens = getItem(position);
         ArrayList<Camera> mountableCameras = database.getMountableCameras(lens);

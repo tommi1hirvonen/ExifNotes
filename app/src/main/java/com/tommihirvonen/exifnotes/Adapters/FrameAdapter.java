@@ -2,6 +2,7 @@ package com.tommihirvonen.exifnotes.Adapters;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         database = new FilmDbHelper(context);
     }
 
-    FilmDbHelper database;
+    private FilmDbHelper database;
 
     /**
      * This function inflates a view in the ListView.
@@ -42,8 +43,9 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
      * @param parent the parent to which the view will eventually be attached.
      * @return the inflated view to be showed in the ListView
      */
+    @NonNull
     @Override
-    public  View getView(int position, View convertView, ViewGroup parent) {
+    public  View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
         // TODO: IMPLEMENT ASYNCTASK TO INFLATE THE VIEW. THIS WAY WE CAN REDUCE THE LOAD ON THE MAIN THREAD FOR SMOOTHER UI TRANSITION.
 
@@ -95,7 +97,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         return convertView;
     }
 
-    static class ViewHolder{
+    private static class ViewHolder{
         TextView tvCount;
         TextView tvFrameText;
         TextView tvFrameText2;

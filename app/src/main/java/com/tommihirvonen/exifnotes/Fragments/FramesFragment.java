@@ -1017,13 +1017,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     String note = data.getStringExtra("NOTE");
                     String location = data.getStringExtra("LOCATION");
 
-                    //Check the note for illegal characters.
-                    String noteResult = Utilities.checkReservedChars(note);
-                    if (noteResult.length() > 0) {
-                        Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
                     if ( count != -1 ) {
 
                         Frame frame = new Frame(rollId, count, date, lens_id, shutter, aperture, note, location);
@@ -1066,13 +1059,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     String aperture = data.getStringExtra("APERTURE");
                     String note = data.getStringExtra("NOTE");
                     String location = data.getStringExtra("LOCATION");
-
-                    //Check the note for illegal characters.
-                    String noteResult = Utilities.checkReservedChars(note);
-                    if (noteResult.length() > 0) {
-                        Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
-                        return;
-                    }
 
                     if ( _id != -1 && count != -1 && position != -1 ) {
 

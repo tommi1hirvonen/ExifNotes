@@ -9,14 +9,15 @@ import android.app.FragmentManager;
 import android.support.v13.app.FragmentPagerAdapter;
 
 import com.tommihirvonen.exifnotes.Fragments.CamerasFragment;
+import com.tommihirvonen.exifnotes.Fragments.FiltersFragment;
 import com.tommihirvonen.exifnotes.Fragments.LensesFragment;
 import com.tommihirvonen.exifnotes.R;
 
 public class PagerAdapter extends FragmentPagerAdapter {
-    final int PAGE_COUNT = 2;
+    private static final int PAGE_COUNT = 3;
 
-    Activity activity;
-    Fragment Lenses, Cameras;
+    private Activity activity;
+    private Fragment Lenses, Cameras, Filters;
 
     public PagerAdapter(FragmentManager fm, Activity activity) {
         super(fm);
@@ -34,6 +35,10 @@ public class PagerAdapter extends FragmentPagerAdapter {
 //        if (position == 1 ) return new CamerasFragment();
 //        else return null;
         switch (position) {
+            case 2:
+                if(Filters == null)
+                    Filters = new FiltersFragment();
+                return Filters;
             case 1:
                 if(Lenses == null)
                     Lenses = new LensesFragment();
@@ -49,6 +54,9 @@ public class PagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         switch (position) {
+
+            case 2:
+                return activity.getResources().getString(R.string.Filters);
 
             case 1:
                 return activity.getResources().getString(R.string.Lenses);
