@@ -23,32 +23,32 @@ import java.util.ArrayList;
  */
 public class FilmDbHelper extends SQLiteOpenHelper {
 
-    public static final String TABLE_FRAMES = "frames";
-    public static final String TABLE_LENSES = "lenses";
-    public static final String TABLE_ROLLS = "rolls";
-    public static final String TABLE_CAMERAS = "cameras";
-    public static final String TABLE_MOUNTABLES = "mountables";
+    private static final String TABLE_FRAMES = "frames";
+    private static final String TABLE_LENSES = "lenses";
+    private static final String TABLE_ROLLS = "rolls";
+    private static final String TABLE_CAMERAS = "cameras";
+    private static final String TABLE_MOUNTABLES = "mountables";
 
-    public static final String KEY_FRAME_ID = "frame_id";
-    public static final String KEY_COUNT = "count";
-    public static final String KEY_DATE = "date";
-    public static final String KEY_SHUTTER = "shutter";
-    public static final String KEY_APERTURE = "aperture";
-    public static final String KEY_FRAME_NOTE = "frame_note";
-    public static final String KEY_LOCATION = "location";
+    private static final String KEY_FRAME_ID = "frame_id";
+    private static final String KEY_COUNT = "count";
+    private static final String KEY_DATE = "date";
+    private static final String KEY_SHUTTER = "shutter";
+    private static final String KEY_APERTURE = "aperture";
+    private static final String KEY_FRAME_NOTE = "frame_note";
+    private static final String KEY_LOCATION = "location";
 
-    public static final String KEY_LENS_ID = "lens_id";
-    public static final String KEY_LENS_MAKE = "lens_make";
-    public static final String KEY_LENS_MODEL = "lens_model";
+    private static final String KEY_LENS_ID = "lens_id";
+    private static final String KEY_LENS_MAKE = "lens_make";
+    private static final String KEY_LENS_MODEL = "lens_model";
 
-    public static final String KEY_CAMERA_ID = "camera_id";
-    public static final String KEY_CAMERA_MAKE = "camera_make";
-    public static final String KEY_CAMERA_MODEL = "camera_model";
+    private static final String KEY_CAMERA_ID = "camera_id";
+    private static final String KEY_CAMERA_MAKE = "camera_make";
+    private static final String KEY_CAMERA_MODEL = "camera_model";
 
-    public static final String KEY_ROLL_ID = "roll_id";
-    public static final String KEY_ROLLNAME = "rollname";
-    public static final String KEY_ROLL_DATE = "roll_date";
-    public static final String KEY_ROLL_NOTE = "roll_note";
+    private static final String KEY_ROLL_ID = "roll_id";
+    private static final String KEY_ROLLNAME = "rollname";
+    private static final String KEY_ROLL_DATE = "roll_date";
+    private static final String KEY_ROLL_NOTE = "roll_note";
 
     private static final String DATABASE_NAME = "filmnotes.db";
     private static final int DATABASE_VERSION = 13;
@@ -156,9 +156,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public Frame getLastFrame(){
         Frame frame = new Frame();
-        String query = "SELECT * FROM " + TABLE_FRAMES + " ORDER BY " + KEY_FRAME_ID + " DESC limit 1";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_FRAMES, null, null, null, null, null, KEY_FRAME_ID + " DESC", "1");
         if ( cursor != null ) cursor.moveToFirst();
         frame.setId(cursor.getInt(cursor.getColumnIndex(KEY_FRAME_ID)));
         frame.setRoll(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ID)));
@@ -181,11 +180,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public ArrayList<Frame> getAllFramesFromRoll(int roll_id){
         ArrayList<Frame> frames = new ArrayList<>();
-        // Build the query
-        String query = "SELECT * FROM " + TABLE_FRAMES + " WHERE " + KEY_ROLL_ID + " = " + roll_id + " ORDER BY " + KEY_COUNT;
         // Get reference to readable database
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_FRAMES, null, KEY_ROLL_ID + "=?", new String[]{Integer.toString(roll_id)}, null, null, KEY_COUNT);
         Frame frame;
         // Go over each row, build list
         while ( cursor.moveToNext() ) {
@@ -213,17 +210,16 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void updateFrame(Frame frame) {
         // Get reference to writable database
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "UPDATE " + TABLE_FRAMES + " SET "
-                + KEY_ROLL_ID + "=" + frame.getRoll() + ", "
-                + KEY_COUNT + "=" + frame.getCount() + ", "
-                + KEY_DATE + "=\"" + frame.getDate() + "\", "
-                + KEY_LENS_ID + "=\"" + frame.getLensId() + "\", "
-                + KEY_SHUTTER + "=\"" + frame.getShutter().replace("\"", "q") + "\", "
-                + KEY_APERTURE + "=\"" + frame.getAperture() + "\", "
-                + KEY_FRAME_NOTE + "=\"" + frame.getNote() + "\", "
-                + KEY_LOCATION + "=\"" + frame.getLocation() + "\""
-                + " WHERE " + KEY_FRAME_ID + "=" + frame.getId();
-        db.execSQL(query);
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_ROLL_ID, frame.getRoll());
+        contentValues.put(KEY_COUNT, frame.getCount());
+        contentValues.put(KEY_DATE, frame.getDate());
+        contentValues.put(KEY_LENS_ID, frame.getLensId());
+        contentValues.put(KEY_SHUTTER, frame.getShutter().replace("\"", "q"));
+        contentValues.put(KEY_APERTURE, frame.getAperture());
+        contentValues.put(KEY_FRAME_NOTE, frame.getNote());
+        contentValues.put(KEY_LOCATION, frame.getLocation());
+        db.update(TABLE_FRAMES, contentValues, KEY_FRAME_ID + "=?", new String[]{Integer.toString(frame.getId())});
         db.close();
     }
 
@@ -273,9 +269,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public Lens getLastLens(){
         Lens lens = new Lens();
-        String query = "SELECT * FROM " + TABLE_LENSES + " ORDER BY " + KEY_LENS_ID + " DESC limit 1";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_LENSES, null, null, null, null, null, KEY_LENS_ID + " DESC", "1");
         if ( cursor != null ) cursor.moveToFirst();
         lens.setId(cursor.getInt(cursor.getColumnIndex(KEY_LENS_ID)));
         lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
@@ -293,9 +288,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public Lens getLens(int lens_id){
         SQLiteDatabase db = this.getReadableDatabase();
         Lens lens = new Lens();
-        String query = "SELECT * FROM " + TABLE_LENSES + " WHERE "
-                + KEY_LENS_ID + "=" + lens_id;
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_LENSES, null, KEY_LENS_ID + "=?", new String[]{Integer.toString(lens_id)}, null, null, null);
         if ( cursor != null ) cursor.moveToFirst();
         lens.setId(cursor.getInt(0));
         lens.setMake(cursor.getString(1));
@@ -311,9 +304,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public ArrayList<Lens> getAllLenses(){
         ArrayList<Lens> lenses = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_LENSES + " ORDER BY " + KEY_LENS_MAKE;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_LENSES, null, null, null, null, null, KEY_LENS_MAKE);
         Lens lens;
         while ( cursor.moveToNext() ) {
             lens = new Lens();
@@ -345,9 +337,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public boolean isLensInUse(Lens lens){
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT 1 FROM " + TABLE_FRAMES + " WHERE "
-                + KEY_LENS_ID + "=" + lens.getId();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_LENS_ID}, KEY_LENS_ID + "=?", new String[]{Integer.toString(lens.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
             db.close();
@@ -366,11 +356,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void updateLens(Lens lens) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "UPDATE " + TABLE_LENSES + " SET "
-                + KEY_LENS_MAKE + "=\"" + lens.getMake() + "\", "
-                + KEY_LENS_MODEL + "=\"" + lens.getModel() + "\""
-                + " WHERE " + KEY_LENS_ID + "=" + lens.getId();
-        db.execSQL(query);
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_LENS_MAKE, lens.getMake());
+        contentValues.put(KEY_LENS_MODEL, lens.getModel());
+        db.update(TABLE_LENSES, contentValues, KEY_LENS_ID + "=?", new String[]{Integer.toString(lens.getId())});
         db.close();
     }
 
@@ -395,9 +384,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public Camera getLastCamera(){
         Camera camera = new Camera();
-        String query = "SELECT * FROM " + TABLE_CAMERAS + " ORDER BY " + KEY_CAMERA_ID + " DESC limit 1";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_CAMERAS, null, null, null, null, null, KEY_CAMERA_ID + " DESC", "1");
         if (cursor != null ) cursor.moveToFirst();
         camera.setId(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_ID)));
         camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
@@ -415,9 +403,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public Camera getCamera(int camera_id){
         SQLiteDatabase db = this.getReadableDatabase();
         Camera camera = new Camera();
-        String query = "SELECT * FROM " + TABLE_CAMERAS + " WHERE "
-                + KEY_CAMERA_ID + "=" + camera_id;
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_CAMERAS, null, KEY_CAMERA_ID + "=?", new String[]{Integer.toString(camera_id)}, null, null, null);
         if ( cursor != null ) cursor.moveToFirst();
         camera.setId(cursor.getInt(0));
         camera.setMake(cursor.getString(1));
@@ -433,9 +419,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public ArrayList<Camera> getAllCameras(){
         ArrayList<Camera> cameras = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_CAMERAS + " ORDER BY " + KEY_CAMERA_MAKE;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_CAMERAS, null, null, null, null, null, KEY_CAMERA_MAKE);
         Camera camera;
         while ( cursor.moveToNext() ) {
             camera = new Camera();
@@ -467,9 +452,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public boolean isCameraBeingUsed(Camera camera) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT 1 FROM " + TABLE_ROLLS + " WHERE "
-                + KEY_CAMERA_ID + "=" + camera.getId();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_CAMERA_ID}, KEY_CAMERA_ID + "=?", new String[]{Integer.toString(camera.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
             db.close();
@@ -488,11 +471,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void updateCamera(Camera camera) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "UPDATE " + TABLE_CAMERAS + " SET "
-                + KEY_CAMERA_MAKE + "=\"" + camera.getMake() + "\", "
-                + KEY_CAMERA_MODEL + "=\"" + camera.getModel() + "\""
-                + " WHERE " + KEY_CAMERA_ID + "=" + camera.getId();
-        db.execSQL(query);
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_CAMERA_MAKE, camera.getMake());
+        contentValues.put(KEY_CAMERA_MODEL, camera.getModel());
+        db.update(TABLE_CAMERAS, contentValues, KEY_CAMERA_ID + "=?", new String[]{Integer.toString(camera.getId())});
         db.close();
     }
 
@@ -505,6 +487,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void addMountable(Camera camera, Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
+        //Here it is safe to use a raw query, because we only use id values, which are database generated.
+        //So there is no danger of SQL injection.
         String query = "INSERT INTO " + TABLE_MOUNTABLES + "(" + KEY_CAMERA_ID + "," + KEY_LENS_ID
                 + ") SELECT " + camera.getId() + ", " + lens.getId()
                 + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_MOUNTABLES + " WHERE "
@@ -520,10 +504,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void deleteMountable(Camera camera, Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "DELETE FROM " + TABLE_MOUNTABLES + " WHERE "
-                + KEY_CAMERA_ID + "=" + camera.getId() + " AND "
-                + KEY_LENS_ID + "=" + lens.getId();
-        db.execSQL(query);
+        db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ? AND " + KEY_LENS_ID + " = ?",
+                    new String[]{Integer.toString(camera.getId()), Integer.toString(lens.getId())});
         db.close();
     }
 
@@ -534,6 +516,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public ArrayList<Lens> getMountableLenses(Camera camera){
         ArrayList<Lens> lenses = new ArrayList<>();
+        //Here it is safe to use a raw query, because we only use id values, which are database generated.
+        //So there is no danger of SQL injection
         String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
                 + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_MOUNTABLES + " WHERE "
                 + KEY_CAMERA_ID + "=" + camera.getId() + ") ORDER BY " + KEY_LENS_MAKE;
@@ -559,6 +543,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public ArrayList<Camera> getMountableCameras(Lens lens){
         ArrayList<Camera> cameras = new ArrayList<>();
+        //Here it is safe to use a raw query, because we only use id values, which are database generated.
+        //So there is no danger of SQL injection
         String query = "SELECT * FROM " + TABLE_CAMERAS + " WHERE " + KEY_CAMERA_ID + " IN "
                 + "(" + "SELECT " + KEY_CAMERA_ID + " FROM " + TABLE_MOUNTABLES + " WHERE "
                 + KEY_LENS_ID + "=" + lens.getId() + ") ORDER BY " + KEY_CAMERA_MAKE;
@@ -600,9 +586,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public Roll getLastRoll(){
         Roll roll = new Roll();
-        String query = "SELECT * FROM " + TABLE_ROLLS + " ORDER BY " + KEY_ROLL_ID + " DESC limit 1";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_ROLLS, null, null, null, null, null, KEY_ROLL_ID + " DESC", "1");
         if ( cursor != null ) cursor.moveToFirst();
         roll.setId(cursor.getInt(0));
         roll.setName(cursor.getString(1));
@@ -620,9 +605,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public ArrayList<Roll> getAllRolls(){
         ArrayList<Roll> rolls = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_ROLLS + " ORDER BY " + KEY_ROLL_DATE + " DESC";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_ROLLS, null, null, null, null, null, KEY_ROLL_DATE + " DESC");
         Roll roll;
         while ( cursor.moveToNext() ) {
             roll = new Roll();
@@ -646,8 +630,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public Roll getRoll(int id){
         SQLiteDatabase db = this.getReadableDatabase();
         Roll roll = new Roll();
-        String query = "SELECT * FROM " + TABLE_ROLLS + " WHERE " + KEY_ROLL_ID + "=" + id;
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_ROLLS, null, KEY_ROLL_ID + "=?", new String[]{Integer.toString(id)}, null, null, null);
         if ( cursor != null ) cursor.moveToFirst();
         roll.setId(cursor.getInt(0));
         roll.setName(cursor.getString(1));
@@ -675,13 +658,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void updateRoll(Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "UPDATE " + TABLE_ROLLS + " SET "
-                + KEY_ROLLNAME + "=\"" + roll.getName() + "\", "
-                + KEY_ROLL_DATE + "=\"" + roll.getDate() + "\", "
-                + KEY_ROLL_NOTE + "=\"" + roll.getNote() + "\", "
-                + KEY_CAMERA_ID + "=" + roll.getCamera_id()
-                + " WHERE " + KEY_ROLL_ID + "=" + roll.getId();
-        db.execSQL(query);
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_ROLLNAME, roll.getName());
+        contentValues.put(KEY_ROLL_DATE, roll.getDate());
+        contentValues.put(KEY_ROLL_NOTE, roll.getNote());
+        contentValues.put(KEY_CAMERA_ID, roll.getCamera_id());
+        db.update(TABLE_ROLLS, contentValues, KEY_ROLL_ID + "=?", new String[]{Integer.toString(roll.getId())});
         db.close();
     }
 
@@ -692,11 +674,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public int getNumberOfFrames(Roll roll){
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT COUNT(" + KEY_FRAME_ID + ") FROM " + TABLE_FRAMES
-                + " WHERE " + KEY_ROLL_ID + "=" + roll.getId();
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = db.query(TABLE_FRAMES, new String[]{"COUNT(" + KEY_FRAME_ID + ")"}, KEY_ROLL_ID + "=?", new String[]{Integer.toString(roll.getId())}, null, null, null);
         if ( cursor != null ) cursor.moveToFirst();
         db.close();
-        return cursor.getInt(0);
+        int returnValue = cursor.getInt(0);
+        cursor.close();
+        return returnValue;
     }
 }
