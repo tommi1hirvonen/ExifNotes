@@ -37,14 +37,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<Frame> mFrameClassList = new ArrayList<>();
     private GoogleMap mMap;
 
-    boolean continue_activity;
+    boolean continue_activity = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if ( savedInstanceState != null ) continue_activity = true;
-        else continue_activity = false;
 
         setContentView(R.layout.activity_maps);
         Intent intent = getIntent();
@@ -63,12 +62,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        getSupportActionBar().setElevation(0);
-        getSupportActionBar().setTitle(database.getRoll(rollId).getName());
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
+        if ( getSupportActionBar() != null ) {
+            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+            getSupportActionBar().setElevation(0);
+            getSupportActionBar().setTitle(database.getRoll(rollId).getName());
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(Color.parseColor(secondaryColor));

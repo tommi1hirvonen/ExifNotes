@@ -12,6 +12,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -42,8 +43,8 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity implements RollsFragment.OnRollSelectedListener, FramesFragment.OnHomeAsUpPressedListener {
 
-    private final static int MY_PERMISSIONS_REQUEST_LOCATION = 1;
-    private final static int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
+    private final static int MY_MULTIPLE_PERMISSIONS_REQUEST = 1;
+
     boolean locationEnabled = false;
 
     /**
@@ -67,11 +68,12 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        getSupportActionBar().setElevation(0);
-        getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
+        if ( getSupportActionBar() != null ) {
+            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+            getSupportActionBar().setElevation(0);
+            getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
@@ -80,26 +82,20 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
 
         LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
-        //Check if the app has write permission to external storage
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
-                    , MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-        }
+        boolean permissionWriteExternalStorage = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        boolean permissionAccessCoarseLocation = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean permissionAccessFineLocation = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
-        // Check if the app has latlng_location permission.
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
+        //Check if the app has all necessary permissions
+        if ( !permissionWriteExternalStorage || !permissionAccessCoarseLocation || !permissionAccessFineLocation ) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                                                Manifest.permission.ACCESS_FINE_LOCATION}, MY_MULTIPLE_PERMISSIONS_REQUEST);
+        } else {
             locationEnabled = true;
-
         }
-        // It does not. Show dialog to request permission.
-        else ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                MY_PERMISSIONS_REQUEST_LOCATION);
+
+
 
         // getting GPS status
         boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -163,7 +159,9 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
+        if ( getSupportActionBar() != null ) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
         }
@@ -278,22 +276,26 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
      * @param grantResults An array which is empty if the request was cancelled.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION:
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+            case MY_MULTIPLE_PERMISSIONS_REQUEST:
+
+                // If request is cancelled, the result arrays are empty. Thus we check
+                // the length of grantResults first.
+
+                //Check location permissions
+                if ( grantResults.length > 0 && grantResults[1] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[2] == PackageManager.PERMISSION_GRANTED ) {
                     locationEnabled = true;
-
                 }
-                break;
 
-            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
-                if (grantResults.length == 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                //Check write permissions
+                if ( grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED ) {
                     //In case write permission was denied, inform the user.
                     Toast.makeText(this, R.string.NoWritePermission, Toast.LENGTH_LONG).show();
                 }
+
                 break;
         }
     }

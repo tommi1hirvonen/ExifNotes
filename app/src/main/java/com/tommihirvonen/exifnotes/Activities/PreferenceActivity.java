@@ -3,6 +3,7 @@ package com.tommihirvonen.exifnotes.Activities;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -44,13 +45,12 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
 
         prefs.registerOnSharedPreferenceChangeListener(this);
 
-        // This is a way to get the action bar in Preferences.
-        // It will be done only on Androids > 5.0.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
         }
 
+        // This is a way to get the action bar in Preferences.
         // This is a legacy implementation. All this is needed in order to make
         // the action bar title and icon appear in white. WTF!?
         setContentView(R.layout.activity_settings_legacy);
@@ -58,7 +58,12 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         actionbar.setTitle(R.string.Preferences);
         actionbar.setBackgroundColor(Color.parseColor(primaryColor));
         actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
-        actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.abc_ic_ab_back_material));
+        // And even this shit! Since API 23 (M) this is needed to render the back button white.
+        actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_ab_back_material));
+        if (  actionbar.getNavigationIcon() != null ) {
+            actionbar.getNavigationIcon().mutate().setColorFilter(ContextCompat.getColor(getBaseContext(), R.color.white), PorterDuff.Mode.SRC_IN);
+        }
+
         actionbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
