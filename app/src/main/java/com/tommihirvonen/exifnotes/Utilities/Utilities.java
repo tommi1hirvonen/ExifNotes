@@ -76,11 +76,6 @@ public class Utilities {
     }
 
     /**
-     * **************************************************************
-     * Function deprecated because of database changes.
-     * Database queries are now parameterized which allows for
-     * special characters in stored strings.
-     * **************************************************************
      *
      * This function checks the input string for illegal characters.
      *
@@ -88,7 +83,7 @@ public class Utilities {
      * @return String containing a list of the illegal characters found. If no illegal
      * characters were found, the String will be empty.
      */
-    public static String checkReservedChars(String input){
+//    public static String checkReservedChars(String input){
 //        String ReservedChars = "|\\?*<\":>/";
 //        StringBuilder resultBuilder = new StringBuilder();
 //        for ( int i = 0; i < input.length(); ++i ) {
@@ -99,7 +94,18 @@ public class Utilities {
 //            }
 //        }
 //        return resultBuilder.toString();
-        return "";
+//    }
+
+    /**
+     *
+     * This function replaces illegal characters from the input string to make
+     * a valid file name string.
+     *
+     * @param input the string to be handled
+     * @return String where the illegal characters are replaced with an underscore
+     */
+    public static String replaceIllegalChars(String input){
+        return input.replaceAll("[|\\\\?*<\":>/]", "_");
     }
 
     /**

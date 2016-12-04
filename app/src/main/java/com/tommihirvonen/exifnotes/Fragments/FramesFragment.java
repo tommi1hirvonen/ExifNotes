@@ -591,8 +591,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
      */
     private boolean exportFilesTo(String dir){
 
-        String rollName = database.getRoll(rollId).getName();
-
+        //Replace illegal characters from the roll name to make it a valid file name.
+        String rollName = Utilities.replaceIllegalChars(database.getRoll(rollId).getName());
+        
         //Get the user setting about which files to export. By default, share both files.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         String filesToExport = prefs.getString("FilesToExport", "BOTH");
@@ -631,7 +632,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
      */
     private Intent setShareIntentExportRoll() {
 
-        String rollName = database.getRoll(rollId).getName();
+        //Replace illegal characters from the roll name to make it a valid file name.
+        String rollName = Utilities.replaceIllegalChars(database.getRoll(rollId).getName());
 
         //Get the user setting about which files to export. By default, share only ExifTool.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());

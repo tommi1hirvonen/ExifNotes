@@ -458,28 +458,23 @@ public class EditFrameInfoDialog extends DialogFragment {
                 count = countPicker.getValue();
                 note = et_note.getText().toString();
 
-                //Check the note for illegal characters
-                String noteResult = Utilities.checkReservedChars(note);
-                if (noteResult.length() > 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
-                } else {
-                    // PARSE THE DATE
-                    date = b_date.getText().toString() + " " + b_time.getText().toString();
+                // PARSE THE DATE
+                date = b_date.getText().toString() + " " + b_time.getText().toString();
 
-                    // Return the new entered name to the calling activity
-                    Intent intent = new Intent();
-                    intent.putExtra("ID", _id);
-                    intent.putExtra("LENS_ID", lens_id);
-                    intent.putExtra("POSITION", position);
-                    intent.putExtra("COUNT", count);
-                    intent.putExtra("DATE", date);
-                    intent.putExtra("SHUTTER", shutter);
-                    intent.putExtra("APERTURE", aperture);
-                    intent.putExtra("NOTE", note);
-                    intent.putExtra("LOCATION", location);
-                    dialog.dismiss();
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                }
+                // Return the new entered name to the calling activity
+                Intent intent = new Intent();
+                intent.putExtra("ID", _id);
+                intent.putExtra("LENS_ID", lens_id);
+                intent.putExtra("POSITION", position);
+                intent.putExtra("COUNT", count);
+                intent.putExtra("DATE", date);
+                intent.putExtra("SHUTTER", shutter);
+                intent.putExtra("APERTURE", aperture);
+                intent.putExtra("NOTE", note);
+                intent.putExtra("LOCATION", location);
+                dialog.dismiss();
+                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+
             }
         });
 
@@ -513,20 +508,6 @@ public class EditFrameInfoDialog extends DialogFragment {
                         toast.show();
                         return;
                     }
-                }
-
-                //Check if there are illegal character in the lens name
-                String makeResult = Utilities.checkReservedChars(inputTextMake);
-                if (makeResult.length() > 0) {
-                    Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensMakeIllegalCharacter) + " " + makeResult, Toast.LENGTH_LONG);
-                    toast.show();
-                    return;
-                }
-                String modelResult = Utilities.checkReservedChars(inputTextModel);
-                if (modelResult.length() > 0) {
-                    Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensModelIllegalCharacter) + " " + modelResult, Toast.LENGTH_LONG);
-                    toast.show();
-                    return;
                 }
 
                 Lens lens = new Lens();

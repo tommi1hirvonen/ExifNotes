@@ -252,11 +252,7 @@ public class EditRollNameDialog extends DialogFragment {
                 String newName = et1.getText().toString();
                 String newNote = et2.getText().toString();
 
-                //Get result strings for illegal character check.
-                String nameResult = Utilities.checkReservedChars(newName);
-                String noteResult = Utilities.checkReservedChars(newNote);
-
-                if (newName.length() != 0 && camera_id != -1 && noteResult.length() == 0 && nameResult.length() == 0) {
+                if (newName.length() != 0 && camera_id != -1) {
                     Intent intent = new Intent();
                     intent.putExtra("ROLL_ID", rollId);
                     intent.putExtra("NAME", newName);
@@ -269,10 +265,6 @@ public class EditRollNameDialog extends DialogFragment {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
                 } else if (newName.length() != 0 && camera_id == -1) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
-                } else if (nameResult.length() > 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.RollIllegalCharacter) + " " + nameResult, Toast.LENGTH_LONG).show();
-                } else if (noteResult.length() > 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoteIllegalCharacter) + " " + noteResult, Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
                 }
@@ -303,20 +295,6 @@ public class EditRollNameDialog extends DialogFragment {
                                 toast.show();
                                 return;
                             }
-                        }
-
-                        //Check if there are illegal character in the camera name
-                        String makeResult = Utilities.checkReservedChars(inputTextMake);
-                        if (makeResult.length() > 0) {
-                            Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraMakeIllegalCharacter) + " " + makeResult, Toast.LENGTH_LONG);
-                            toast.show();
-                            return;
-                        }
-                        String modelResult = Utilities.checkReservedChars(inputTextModel);
-                        if (modelResult.length() > 0) {
-                            Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraModelIllegalCharacter) + " " + modelResult, Toast.LENGTH_LONG);
-                            toast.show();
-                            return;
                         }
 
                         Camera camera = new Camera();
