@@ -122,8 +122,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
     ShareActionProvider mShareActionProvider;
 
-    int rollId;
-    int camera_id;
+    long rollId;
+    long camera_id;
     int counter = 0;
 
     FloatingActionButton fab;
@@ -149,7 +149,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        rollId = getArguments().getInt("ROLL_ID");
+        rollId = getArguments().getLong("ROLL_ID");
         locationEnabled = getArguments().getBoolean("LOCATION_ENABLED");
 
         database = new FilmDbHelper(getActivity());
@@ -306,8 +306,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     // Edit frame info
                     Frame frame = mFrameClassList.get(position);
-                    int _id = frame.getId();
-                    int lens_id = frame.getLensId();
+                    long _id = frame.getId();
+                    long lens_id = frame.getLensId();
                     int count = frame.getCount();
                     String date = frame.getDate();
                     String shutter = frame.getShutter();
@@ -918,8 +918,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Edit frame info
         Frame frame = mFrameClassList.get(position);
-        int _id = frame.getId();
-        int lens_id = frame.getLensId();
+        long _id = frame.getId();
+        long lens_id = frame.getLensId();
         int count = frame.getCount();
         String date = frame.getDate();
         String shutter = frame.getShutter();
@@ -950,7 +950,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             }
         }
 
-        int lens_id = -1;
+        long lens_id = -1;
         int count = 0;
         String date = getCurrentTime();
         String shutter;
@@ -969,7 +969,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             //Get the information for the last added frame.
             //The last added frame has the highest id number (database autoincrement).
             Frame previousFrame = mFrameClassList.get(mFrameClassList.size() - 1);
-            int i = 0;
+            long i = 0;
             for (Frame frame : mFrameClassList) {
                 if (frame.getId() > i) {
                     i = frame.getId();
@@ -1011,7 +1011,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     int count = data.getIntExtra("COUNT", -1);
                     String date = data.getStringExtra("DATE");
-                    int lens_id = data.getIntExtra("LENS_ID", -1);
+                    long lens_id = data.getLongExtra("LENS_ID", -1);
                     String shutter = data.getStringExtra("SHUTTER");
                     String aperture = data.getStringExtra("APERTURE");
                     String note = data.getStringExtra("NOTE");
@@ -1022,10 +1022,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         Frame frame = new Frame(rollId, count, date, lens_id, shutter, aperture, note, location);
 
                         // Save the file when the new frame has been added
-                        database.addFrame(frame);
-
-                        // When we get the last added frame from the database we get the row id value.
-                        frame = database.getLastFrame();
+                        long rowId = database.addFrame(frame);
+                        frame.setId(rowId);
 
                         mFrameClassList.add(frame);
                         sortFrameList(mFrameClassList);
@@ -1050,11 +1048,11 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                 if ( resultCode == Activity.RESULT_OK ) {
 
-                    int _id = data.getIntExtra("ID", -1);
+                    long _id = data.getLongExtra("ID", -1);
                     int count = data.getIntExtra("COUNT", -1);
                     int position = data.getIntExtra("POSITION", -1);
                     String date = data.getStringExtra("DATE");
-                    int lens_id = data.getIntExtra("LENS_ID", -1);
+                    long lens_id = data.getLongExtra("LENS_ID", -1);
                     String shutter = data.getStringExtra("SHUTTER");
                     String aperture = data.getStringExtra("APERTURE");
                     String note = data.getStringExtra("NOTE");

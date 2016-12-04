@@ -5,7 +5,7 @@ package com.tommihirvonen.exifnotes.Datastructures;
 
 public class Filter {
 
-    public int id;
+    public long id;
     public String make;
     public String model;
 
@@ -13,13 +13,13 @@ public class Filter {
 
     }
 
-    public Filter(int id, String make, String model){
+    public Filter(long id, String make, String model){
         this.id = id;
         this.make = make;
         this.model = model;
     }
 
-    public void setId(int input){
+    public void setId(long input){
         this.id = input;
     }
 
@@ -32,7 +32,7 @@ public class Filter {
     }
 
 
-    public int getId(){
+    public long getId(){
         return this.id;
     }
 

@@ -33,6 +33,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String TABLE_MOUNTABLES = "mountables";
     //Added in database version 14
     private static final String TABLE_FILTERS = "filters";
+    private static final String TABLE_MOUNTABLE_FILTERS_LENSES = "mountable_filters_lenses";
 
     //=============================================================================================
     //Column names
@@ -153,6 +154,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_FILTER_MODEL + " text not null"
             + ");";
 
+    private static final String CREATE_MOUNTABLE_FILTERS_LENSES_TABLE = "create table " + TABLE_MOUNTABLE_FILTERS_LENSES
+            + "(" + KEY_LENS_ID + " integer not null, "
+            + KEY_FILTER_ID + " integer not null"
+            + ");";
+
     //=============================================================================================
     //onUpgrade strings
     private static final String ALTER_TABLE_FRAMES_1 = "ALTER TABLE " + TABLE_FRAMES
@@ -221,6 +227,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_CAMERA_TABLE);
         database.execSQL(CREATE_MOUNTABLES_TABLE);
         database.execSQL(CREATE_FILTER_TABLE);
+        database.execSQL(CREATE_MOUNTABLE_FILTERS_LENSES_TABLE);
     }
 
     /**
@@ -261,6 +268,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             db.execSQL(REPLACE_QUOTE_CHARS);
             //TABLE_FILTERS
             db.execSQL(CREATE_FILTER_TABLE);
+            db.execSQL(CREATE_MOUNTABLE_FILTERS_LENSES_TABLE);
         }
     }
 
@@ -270,50 +278,18 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new frame to the database.
      * @param frame the new frame to be added to the database
      */
-    public void addFrame(Frame frame) {
+    public long addFrame(Frame frame) {
         // Get reference to writable database
         SQLiteDatabase db = this.getWritableDatabase();
         // Create ContentValues to add key "column"/value
-        ContentValues values = new ContentValues();
-        values.put(KEY_ROLL_ID, frame.getRoll());
-        values.put(KEY_COUNT, frame.getCount());
-        values.put(KEY_DATE, frame.getDate());
-        values.put(KEY_LENS_ID, frame.getLensId());
-        values.put(KEY_SHUTTER, frame.getShutter());
-        values.put(KEY_APERTURE, frame.getAperture());
-        values.put(KEY_FRAME_NOTE, frame.getNote());
-        values.put(KEY_LOCATION, frame.getLocation());
+        ContentValues values = buildFrameContentValues(frame);
         // Insert
-        db.insert(TABLE_FRAMES, // table
+        long rowId = db.insert(TABLE_FRAMES, // table
                 null, // nullColumnHack
                 values); // key/value -> keys = column names/ value
         // Close
         db.close();
-    }
-
-    /**
-     * Gets the last inserted frame from the database.
-     * @return the last inserted Frame
-     */
-    public Frame getLastFrame(){
-        Frame frame = new Frame();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, null, null, null, null, null, KEY_FRAME_ID + " DESC", "1");
-        if ( cursor != null ) {
-            cursor.moveToFirst();
-            frame.setId(cursor.getInt(cursor.getColumnIndex(KEY_FRAME_ID)));
-            frame.setRoll(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ID)));
-            frame.setCount(cursor.getInt(cursor.getColumnIndex(KEY_COUNT)));
-            frame.setDate(cursor.getString(cursor.getColumnIndex(KEY_DATE)));
-            frame.setLensId(cursor.getInt(cursor.getColumnIndex(KEY_LENS_ID)));
-            frame.setShutter(cursor.getString(cursor.getColumnIndex(KEY_SHUTTER)));
-            frame.setAperture(cursor.getString(cursor.getColumnIndex(KEY_APERTURE)));
-            frame.setNote(cursor.getString(cursor.getColumnIndex(KEY_FRAME_NOTE)));
-            frame.setLocation(cursor.getString(cursor.getColumnIndex(KEY_LOCATION)));
-            cursor.close();
-        }
-        db.close();
-        return frame;
+        return rowId;
     }
 
     /**
@@ -321,24 +297,15 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param roll_id the id of the roll
      * @return an array of Frames
      */
-    public ArrayList<Frame> getAllFramesFromRoll(int roll_id){
+    public ArrayList<Frame> getAllFramesFromRoll(long roll_id){
         ArrayList<Frame> frames = new ArrayList<>();
         // Get reference to readable database
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, null, KEY_ROLL_ID + "=?", new String[]{Integer.toString(roll_id)}, null, null, KEY_COUNT);
+        Cursor cursor = db.query(TABLE_FRAMES, null, KEY_ROLL_ID + "=?", new String[]{Long.toString(roll_id)}, null, null, KEY_COUNT);
         Frame frame;
         // Go over each row, build list
         while ( cursor.moveToNext() ) {
-            frame = new Frame();
-            frame.setId(cursor.getInt(cursor.getColumnIndex(KEY_FRAME_ID)));
-            frame.setRoll(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ID)));
-            frame.setCount(cursor.getInt(cursor.getColumnIndex(KEY_COUNT)));
-            frame.setDate(cursor.getString(cursor.getColumnIndex(KEY_DATE)));
-            frame.setLensId(cursor.getInt(cursor.getColumnIndex(KEY_LENS_ID)));
-            frame.setShutter(cursor.getString(cursor.getColumnIndex(KEY_SHUTTER)));
-            frame.setAperture(cursor.getString(cursor.getColumnIndex(KEY_APERTURE)));
-            frame.setNote(cursor.getString(cursor.getColumnIndex(KEY_FRAME_NOTE)));
-            frame.setLocation(cursor.getString(cursor.getColumnIndex(KEY_LOCATION)));
+            frame = getFrameFromCursor(cursor);
             frames.add(frame);
         }
         cursor.close();
@@ -353,16 +320,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void updateFrame(Frame frame) {
         // Get reference to writable database
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(KEY_ROLL_ID, frame.getRoll());
-        contentValues.put(KEY_COUNT, frame.getCount());
-        contentValues.put(KEY_DATE, frame.getDate());
-        contentValues.put(KEY_LENS_ID, frame.getLensId());
-        contentValues.put(KEY_SHUTTER, frame.getShutter());
-        contentValues.put(KEY_APERTURE, frame.getAperture());
-        contentValues.put(KEY_FRAME_NOTE, frame.getNote());
-        contentValues.put(KEY_LOCATION, frame.getLocation());
-        db.update(TABLE_FRAMES, contentValues, KEY_FRAME_ID + "=?", new String[]{Integer.toString(frame.getId())});
+        ContentValues contentValues = buildFrameContentValues(frame);
+        db.update(TABLE_FRAMES, contentValues, KEY_FRAME_ID + "=?", new String[]{Long.toString(frame.getId())});
         db.close();
     }
 
@@ -376,7 +335,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         // Delete
         db.delete(TABLE_FRAMES,
                 KEY_FRAME_ID + " = ?",
-                new String[]{String.valueOf(frame.getId())});
+                new String[]{Long.toString(frame.getId())});
         // Close
         db.close();
     }
@@ -385,9 +344,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Deletes all frames from a specified roll.
      * @param roll_id the id of the roll whose frames are to be deleted.
      */
-    public void deleteAllFramesFromRoll(int roll_id){
+    public void deleteAllFramesFromRoll(long roll_id){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_FRAMES, KEY_ROLL_ID + " = ? ", new String[]{String.valueOf(roll_id)});
+        db.delete(TABLE_FRAMES, KEY_ROLL_ID + " = ? ", new String[]{Long.toString(roll_id)});
         db.close();
     }
 
@@ -397,32 +356,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new lens to the database.
      * @param lens the lens to be added to the database
      */
-    public void addLens(Lens lens){
+    public long addLens(Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_LENS_MAKE, lens.getMake());
-        values.put(KEY_LENS_MODEL, lens.getModel());
-        db.insert(TABLE_LENSES, null, values);
+        ContentValues values = buildLensContentValues(lens);
+        long rowId = db.insert(TABLE_LENSES, null, values);
         db.close();
-    }
-
-    /**
-     * Gets the last inserted lens from the database.
-     * @return the last inserted lens
-     */
-    public Lens getLastLens(){
-        Lens lens = new Lens();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_LENSES, null, null, null, null, null, KEY_LENS_ID + " DESC", "1");
-        if ( cursor != null ) {
-            cursor.moveToFirst();
-            lens.setId(cursor.getInt(cursor.getColumnIndex(KEY_LENS_ID)));
-            lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
-            lens.setModel(cursor.getString(cursor.getColumnIndex(KEY_LENS_MODEL)));
-            cursor.close();
-        }
-        db.close();
-        return lens;
+        return rowId;
     }
 
     /**
@@ -430,15 +369,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param lens_id the id of the lens
      * @return a Lens corresponding to the id
      */
-    public Lens getLens(int lens_id){
+    public Lens getLens(long lens_id){
         SQLiteDatabase db = this.getReadableDatabase();
         Lens lens = new Lens();
-        Cursor cursor = db.query(TABLE_LENSES, null, KEY_LENS_ID + "=?", new String[]{Integer.toString(lens_id)}, null, null, null);
+        Cursor cursor = db.query(TABLE_LENSES, null, KEY_LENS_ID + "=?", new String[]{Long.toString(lens_id)}, null, null, null);
         if ( cursor != null ) {
             cursor.moveToFirst();
-            lens.setId(cursor.getInt(cursor.getColumnIndex(KEY_LENS_ID)));
-            lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
-            lens.setModel(cursor.getString(cursor.getColumnIndex(KEY_LENS_MODEL)));
+            lens = getLensFromCursor(cursor, lens);
             cursor.close();
         }
         db.close();
@@ -455,10 +392,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_LENSES, null, null, null, null, null, KEY_LENS_MAKE);
         Lens lens;
         while ( cursor.moveToNext() ) {
-            lens = new Lens();
-            lens.setId(cursor.getInt(cursor.getColumnIndex(KEY_LENS_ID)));
-            lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
-            lens.setModel(cursor.getString(cursor.getColumnIndex(KEY_LENS_MODEL)));
+            lens = getLensFromCursor(cursor);
             lenses.add(lens);
         }
         cursor.close();
@@ -472,8 +406,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void deleteLens(Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_LENSES, KEY_LENS_ID + " = ?", new String[]{String.valueOf(lens.getId())});
-        db.delete(TABLE_MOUNTABLES, KEY_LENS_ID + " = ?", new String[]{String.valueOf(lens.getId())});
+        db.delete(TABLE_LENSES, KEY_LENS_ID + " = ?", new String[]{Long.toString(lens.getId())});
+        db.delete(TABLE_MOUNTABLES, KEY_LENS_ID + " = ?", new String[]{Long.toString(lens.getId())});
         db.close();
     }
 
@@ -484,7 +418,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public boolean isLensInUse(Lens lens){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_LENS_ID}, KEY_LENS_ID + "=?", new String[]{Integer.toString(lens.getId())}, null, null, null);
+        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_LENS_ID}, KEY_LENS_ID + "=?", new String[]{Long.toString(lens.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
             db.close();
@@ -503,10 +437,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void updateLens(Lens lens) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(KEY_LENS_MAKE, lens.getMake());
-        contentValues.put(KEY_LENS_MODEL, lens.getModel());
-        db.update(TABLE_LENSES, contentValues, KEY_LENS_ID + "=?", new String[]{Integer.toString(lens.getId())});
+        ContentValues contentValues = buildLensContentValues(lens);
+        db.update(TABLE_LENSES, contentValues, KEY_LENS_ID + "=?", new String[]{Long.toString(lens.getId())});
         db.close();
     }
 
@@ -516,32 +448,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new camera to the database.
      * @param camera the camera to be added to the database
      */
-    public void addCamera(Camera camera){
+    public long addCamera(Camera camera){
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_CAMERA_MAKE, camera.getMake());
-        values.put(KEY_CAMERA_MODEL, camera.getModel());
-        db.insert(TABLE_CAMERAS, null, values);
+        ContentValues values = buildCameraContentValues(camera);
+        long rowId = db.insert(TABLE_CAMERAS, null, values);
         db.close();
-    }
-
-    /**
-     * Gets the last inserted Camera.
-     * @return the last inserted Camera
-     */
-    public Camera getLastCamera(){
-        Camera camera = new Camera();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_CAMERAS, null, null, null, null, null, KEY_CAMERA_ID + " DESC", "1");
-        if (cursor != null ) {
-            cursor.moveToFirst();
-            camera.setId(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_ID)));
-            camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
-            camera.setModel(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MODEL)));
-            cursor.close();
-        }
-        db.close();
-        return camera;
+        return rowId;
     }
 
     /**
@@ -549,15 +461,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera_id the id of the Camera
      * @return the Camera corresponding to the given id
      */
-    public Camera getCamera(int camera_id){
+    public Camera getCamera(long camera_id){
         SQLiteDatabase db = this.getReadableDatabase();
         Camera camera = new Camera();
-        Cursor cursor = db.query(TABLE_CAMERAS, null, KEY_CAMERA_ID + "=?", new String[]{Integer.toString(camera_id)}, null, null, null);
+        Cursor cursor = db.query(TABLE_CAMERAS, null, KEY_CAMERA_ID + "=?", new String[]{Long.toString(camera_id)}, null, null, null);
         if ( cursor != null ) {
             cursor.moveToFirst();
-            camera.setId(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_ID)));
-            camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
-            camera.setModel(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MODEL)));
+            camera = getCameraFromCursor(cursor, camera);
             cursor.close();
         }
         db.close();
@@ -574,10 +484,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_CAMERAS, null, null, null, null, null, KEY_CAMERA_MAKE);
         Camera camera;
         while ( cursor.moveToNext() ) {
-            camera = new Camera();
-            camera.setId(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_ID)));
-            camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
-            camera.setModel(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MODEL)));
+            camera = getCameraFromCursor(cursor);
             cameras.add(camera);
         }
         cursor.close();
@@ -591,8 +498,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void deleteCamera(Camera camera){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_CAMERAS, KEY_CAMERA_ID + " = ?", new String[]{String.valueOf(camera.getId())});
-        db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ?", new String[]{String.valueOf(camera.getId())});
+        db.delete(TABLE_CAMERAS, KEY_CAMERA_ID + " = ?", new String[]{Long.toString(camera.getId())});
+        db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ?", new String[]{Long.toString(camera.getId())});
         db.close();
     }
 
@@ -603,7 +510,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public boolean isCameraBeingUsed(Camera camera) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_CAMERA_ID}, KEY_CAMERA_ID + "=?", new String[]{Integer.toString(camera.getId())}, null, null, null);
+        Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_CAMERA_ID}, KEY_CAMERA_ID + "=?", new String[]{Long.toString(camera.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
             db.close();
@@ -622,10 +529,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void updateCamera(Camera camera) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(KEY_CAMERA_MAKE, camera.getMake());
-        contentValues.put(KEY_CAMERA_MODEL, camera.getModel());
-        db.update(TABLE_CAMERAS, contentValues, KEY_CAMERA_ID + "=?", new String[]{Integer.toString(camera.getId())});
+        ContentValues contentValues = buildCameraContentValues(camera);
+        db.update(TABLE_CAMERAS, contentValues, KEY_CAMERA_ID + "=?", new String[]{Long.toString(camera.getId())});
         db.close();
     }
 
@@ -656,7 +561,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void deleteMountable(Camera camera, Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ? AND " + KEY_LENS_ID + " = ?",
-                    new String[]{Integer.toString(camera.getId()), Integer.toString(lens.getId())});
+                    new String[]{Long.toString(camera.getId()), Long.toString(lens.getId())});
         db.close();
     }
 
@@ -676,10 +581,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
         Lens lens;
         while ( cursor.moveToNext() ) {
-            lens = new Lens();
-            lens.setId(cursor.getInt(cursor.getColumnIndex(KEY_LENS_ID)));
-            lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
-            lens.setModel(cursor.getString(cursor.getColumnIndex(KEY_LENS_MODEL)));
+            lens = getLensFromCursor(cursor);
             lenses.add(lens);
         }
         cursor.close();
@@ -703,10 +605,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
         Camera camera;
         while ( cursor.moveToNext() ) {
-            camera = new Camera();
-            camera.setId(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_ID)));
-            camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
-            camera.setModel(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MODEL)));
+            camera = getCameraFromCursor(cursor);
             cameras.add(camera);
         }
         cursor.close();
@@ -720,36 +619,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new roll to the database.
      * @param roll the roll to be added
      */
-    public void addRoll(Roll roll){
+    public long addRoll(Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_ROLLNAME, roll.getName());
-        values.put(KEY_ROLL_DATE, roll.getDate());
-        values.put(KEY_ROLL_NOTE, roll.getNote());
-        values.put(KEY_CAMERA_ID, roll.getCamera_id());
-        db.insert(TABLE_ROLLS, null, values);
+        ContentValues values = buildRollContentValues(roll);
+        long rowId = db.insert(TABLE_ROLLS, null, values);
         db.close();
-    }
-
-    /**
-     * Gets the last inserted roll.
-     * @return the last inserted roll
-     */
-    public Roll getLastRoll(){
-        Roll roll = new Roll();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_ROLLS, null, null, null, null, null, KEY_ROLL_ID + " DESC", "1");
-        if ( cursor != null ) {
-            cursor.moveToFirst();
-            roll.setId(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ID)));
-            roll.setName(cursor.getString(cursor.getColumnIndex(KEY_ROLLNAME)));
-            roll.setDate(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE)));
-            roll.setNote(cursor.getString(cursor.getColumnIndex(KEY_ROLL_NOTE)));
-            roll.setCamera_id(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_ID)));
-            cursor.close();
-        }
-        db.close();
-        return roll;
+        return rowId;
     }
 
     /**
@@ -762,12 +637,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_ROLLS, null, null, null, null, null, KEY_ROLL_DATE + " DESC");
         Roll roll;
         while ( cursor.moveToNext() ) {
-            roll = new Roll();
-            roll.setId(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ID)));
-            roll.setName(cursor.getString(cursor.getColumnIndex(KEY_ROLLNAME)));
-            roll.setDate(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE)));
-            roll.setNote(cursor.getString(cursor.getColumnIndex(KEY_ROLL_NOTE)));
-            roll.setCamera_id(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_ID)));
+            roll = getRollFromCursor(cursor);
             rolls.add(roll);
         }
         cursor.close();
@@ -780,17 +650,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param id the id of the roll
      * @return the roll corresponding to the given id
      */
-    public Roll getRoll(int id){
+    public Roll getRoll(long id){
         SQLiteDatabase db = this.getReadableDatabase();
         Roll roll = new Roll();
-        Cursor cursor = db.query(TABLE_ROLLS, null, KEY_ROLL_ID + "=?", new String[]{Integer.toString(id)}, null, null, null);
+        Cursor cursor = db.query(TABLE_ROLLS, null, KEY_ROLL_ID + "=?", new String[]{Long.toString(id)}, null, null, null);
         if ( cursor != null ) {
             cursor.moveToFirst();
-            roll.setId(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ID)));
-            roll.setName(cursor.getString(cursor.getColumnIndex(KEY_ROLLNAME)));
-            roll.setDate(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE)));
-            roll.setNote(cursor.getString(cursor.getColumnIndex(KEY_ROLL_NOTE)));
-            roll.setCamera_id(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_ID)));
+            roll = getRollFromCursor(cursor, roll);
             cursor.close();
         }
         db.close();
@@ -803,7 +669,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void deleteRoll(Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_ROLLS, KEY_ROLL_ID + " = ?", new String[]{String.valueOf(roll.getId())});
+        db.delete(TABLE_ROLLS, KEY_ROLL_ID + " = ?", new String[]{Long.toString(roll.getId())});
         db.close();
     }
 
@@ -813,12 +679,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void updateRoll(Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(KEY_ROLLNAME, roll.getName());
-        contentValues.put(KEY_ROLL_DATE, roll.getDate());
-        contentValues.put(KEY_ROLL_NOTE, roll.getNote());
-        contentValues.put(KEY_CAMERA_ID, roll.getCamera_id());
-        db.update(TABLE_ROLLS, contentValues, KEY_ROLL_ID + "=?", new String[]{Integer.toString(roll.getId())});
+        ContentValues contentValues = buildRollContentValues(roll);
+        db.update(TABLE_ROLLS, contentValues, KEY_ROLL_ID + "=?", new String[]{Long.toString(roll.getId())});
         db.close();
     }
 
@@ -829,7 +691,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public int getNumberOfFrames(Roll roll){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, new String[]{"COUNT(" + KEY_FRAME_ID + ")"}, KEY_ROLL_ID + "=?", new String[]{Integer.toString(roll.getId())}, null, null, null);
+        Cursor cursor = db.query(TABLE_FRAMES, new String[]{"COUNT(" + KEY_FRAME_ID + ")"}, KEY_ROLL_ID + "=?", new String[]{Long.toString(roll.getId())}, null, null, null);
         int returnValue = 0;
         if ( cursor != null ) {
             cursor.moveToFirst();
@@ -847,32 +709,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new filter to the database.
      * @param filter the filter to be added to the database
      */
-    public void addFilter(Filter filter){
+    public long addFilter(Filter filter){
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_FILTER_MAKE, filter.getMake());
-        values.put(KEY_FILTER_MODEL, filter.getModel());
-        db.insert(TABLE_FILTERS, null, values);
+        ContentValues values = buildFilterContentValues(filter);
+        long rowId = db.insert(TABLE_FILTERS, null, values);
         db.close();
-    }
-
-    /**
-     * Gets the last inserted Camera.
-     * @return the last inserted Camera
-     */
-    public Filter getLastFilter(){
-        Filter filter = new Filter();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FILTERS, null, null, null, null, null, KEY_FILTER_ID + " DESC", "1");
-        if (cursor != null ) {
-            cursor.moveToFirst();
-            filter.setId(cursor.getInt(cursor.getColumnIndex(KEY_FILTER_ID)));
-            filter.setMake(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MAKE)));
-            filter.setModel(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MODEL)));
-            cursor.close();
-        }
-        db.close();
-        return filter;
+        return rowId;
     }
 
     /**
@@ -880,15 +722,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter_id the id of the Filter
      * @return the Filter corresponding to the given id
      */
-    public Filter getFilter(int filter_id){
+    public Filter getFilter(long filter_id){
         SQLiteDatabase db = this.getReadableDatabase();
         Filter filter = new Filter();
-        Cursor cursor = db.query(TABLE_FILTERS, null, KEY_FILTER_ID + "=?", new String[]{Integer.toString(filter_id)}, null, null, null);
+        Cursor cursor = db.query(TABLE_FILTERS, null, KEY_FILTER_ID + "=?", new String[]{Long.toString(filter_id)}, null, null, null);
         if ( cursor != null ) {
             cursor.moveToFirst();
-            filter.setId(cursor.getInt(cursor.getColumnIndex(KEY_FILTER_ID)));
-            filter.setMake(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MAKE)));
-            filter.setModel(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MODEL)));
+            filter = getFilterFromCursor(cursor, filter);
             cursor.close();
         }
         db.close();
@@ -905,10 +745,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_FILTERS, null, null, null, null, null, KEY_FILTER_MAKE);
         Filter filter;
         while ( cursor.moveToNext() ) {
-            filter = new Filter();
-            filter.setId(cursor.getInt(cursor.getColumnIndex(KEY_FILTER_ID)));
-            filter.setMake(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MAKE)));
-            filter.setModel(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MODEL)));
+            filter = getFilterFromCursor(cursor);
             filters.add(filter);
         }
         cursor.close();
@@ -922,7 +759,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void deleteFilter(Filter filter){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_FILTERS, KEY_FILTER_ID + " = ?", new String[]{String.valueOf(filter.getId())});
+        db.delete(TABLE_FILTERS, KEY_FILTER_ID + " = ?", new String[]{Long.toString(filter.getId())});
         db.close();
     }
 
@@ -933,7 +770,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public boolean isFilterBeingUsed(Filter filter) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_FILTER_ID}, KEY_FILTER_ID + "=?", new String[]{Integer.toString(filter.getId())}, null, null, null);
+        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_FILTER_ID}, KEY_FILTER_ID + "=?", new String[]{Long.toString(filter.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
             db.close();
@@ -952,10 +789,203 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void updateFilter(Filter filter) {
         SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = buildFilterContentValues(filter);
+        db.update(TABLE_FILTERS, contentValues, KEY_FILTER_ID + "=?", new String[]{Long.toString(filter.getId())});
+        db.close();
+    }
+
+    // ******************** CRUD operations for the mountable lenses filters table ********************
+
+    /**
+     * Adds a mountable combination of filter and lens to the database.
+     * @param filter the filter that can be mounted with the lens
+     * @param lens the lens that can be mounted with the filter
+     */
+    public void addMountableFilterLens(Filter filter, Lens lens){
+        SQLiteDatabase db = this.getWritableDatabase();
+        //Here it is safe to use a raw query, because we only use id values, which are database generated.
+        //So there is no danger of SQL injection.
+        String query = "INSERT INTO " + TABLE_MOUNTABLE_FILTERS_LENSES + "(" + KEY_FILTER_ID + "," + KEY_LENS_ID
+                + ") SELECT " + filter.getId() + ", " + lens.getId()
+                + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_MOUNTABLE_FILTERS_LENSES + " WHERE "
+                + KEY_FILTER_ID + "=" + filter.getId() + " AND " + KEY_LENS_ID + "=" + lens.getId() + ")";
+        db.execSQL(query);
+        db.close();
+    }
+
+    /**
+     * Deletes a mountable combination from the database
+     * @param filter the filter that can be mounted with the lens
+     * @param lens the lens that can be mounted with the filter
+     */
+    public void deleteMountableFilterLens(Filter filter, Lens lens){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_MOUNTABLE_FILTERS_LENSES, KEY_FILTER_ID + " = ? AND " + KEY_LENS_ID + " = ?",
+                new String[]{Long.toString(filter.getId()), Long.toString(lens.getId())});
+        db.close();
+    }
+
+    /**
+     * Gets all the lenses that can be mounted to the specified filter
+     * @param filter the filter whose lenses we want to get
+     * @return an ArrayList of all the mountable lenses
+     */
+    public ArrayList<Lens> getMountableLenses(Filter filter){
+        ArrayList<Lens> lenses = new ArrayList<>();
+        //Here it is safe to use a raw query, because we only use id values, which are database generated.
+        //So there is no danger of SQL injection
+        String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
+                + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_MOUNTABLE_FILTERS_LENSES + " WHERE "
+                + KEY_FILTER_ID + "=" + filter.getId() + ") ORDER BY " + KEY_LENS_MAKE;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        Lens lens;
+        while ( cursor.moveToNext() ) {
+            lens = getLensFromCursor(cursor);
+            lenses.add(lens);
+        }
+        cursor.close();
+        db.close();
+        return lenses;
+    }
+
+    /**
+     * Gets all the filters that can be mounted to the specified lens
+     * @param lens the lens whose filters we want to get
+     * @return an ArrayList of all the mountable filters
+     */
+    public ArrayList<Filter> getMountableFilters(Lens lens){
+        ArrayList<Filter> filters = new ArrayList<>();
+        //Here it is safe to use a raw query, because we only use id values, which are database generated.
+        //So there is no danger of SQL injection
+        String query = "SELECT * FROM " + TABLE_FILTERS + " WHERE " + KEY_FILTER_ID + " IN "
+                + "(" + "SELECT " + KEY_FILTER_ID + " FROM " + TABLE_MOUNTABLE_FILTERS_LENSES + " WHERE "
+                + KEY_LENS_ID + "=" + lens.getId() + ") ORDER BY " + KEY_FILTER_MAKE;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        Filter filter;
+        while ( cursor.moveToNext() ) {
+            filter = getFilterFromCursor(cursor);
+            filters.add(filter);
+        }
+        cursor.close();
+        db.close();
+        return filters;
+    }
+
+
+
+
+    //*********************** METHODS TO GET OBJECTS FROM CURSOR **********************************
+
+
+    private Frame getFrameFromCursor (Cursor cursor) {
+        Frame frame = new Frame();
+        return getFrameFromCursor(cursor, frame);
+    }
+    private Frame getFrameFromCursor (Cursor cursor, Frame frame) {
+        frame.setId(cursor.getLong(cursor.getColumnIndex(KEY_FRAME_ID)));
+        frame.setRoll(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
+        frame.setCount(cursor.getInt(cursor.getColumnIndex(KEY_COUNT)));
+        frame.setDate(cursor.getString(cursor.getColumnIndex(KEY_DATE)));
+        frame.setLensId(cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID)));
+        frame.setShutter(cursor.getString(cursor.getColumnIndex(KEY_SHUTTER)));
+        frame.setAperture(cursor.getString(cursor.getColumnIndex(KEY_APERTURE)));
+        frame.setNote(cursor.getString(cursor.getColumnIndex(KEY_FRAME_NOTE)));
+        frame.setLocation(cursor.getString(cursor.getColumnIndex(KEY_LOCATION)));
+        return frame;
+    }
+
+    private Roll getRollFromCursor (Cursor cursor) {
+        Roll roll = new Roll();
+        return getRollFromCursor(cursor, roll);
+    }
+    private Roll getRollFromCursor (Cursor cursor, Roll roll) {
+        roll.setId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
+        roll.setName(cursor.getString(cursor.getColumnIndex(KEY_ROLLNAME)));
+        roll.setDate(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE)));
+        roll.setNote(cursor.getString(cursor.getColumnIndex(KEY_ROLL_NOTE)));
+        roll.setCamera_id(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
+        return roll;
+    }
+
+    private Lens getLensFromCursor (Cursor cursor) {
+        Lens lens = new Lens();
+        return getLensFromCursor(cursor, lens);
+    }
+    private Lens getLensFromCursor (Cursor cursor, Lens lens) {
+        lens.setId(cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID)));
+        lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
+        lens.setModel(cursor.getString(cursor.getColumnIndex(KEY_LENS_MODEL)));
+        return lens;
+    }
+
+    private Camera getCameraFromCursor (Cursor cursor) {
+        Camera camera = new Camera();
+        return getCameraFromCursor(cursor, camera);
+    }
+    private Camera getCameraFromCursor (Cursor cursor, Camera camera) {
+        camera.setId(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
+        camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
+        camera.setModel(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MODEL)));
+        return camera;
+    }
+
+    private Filter getFilterFromCursor (Cursor cursor) {
+        Filter filter = new Filter();
+        return getFilterFromCursor(cursor, filter);
+    }
+    private Filter getFilterFromCursor (Cursor cursor, Filter filter) {
+        filter.setId(cursor.getLong(cursor.getColumnIndex(KEY_FILTER_ID)));
+        filter.setMake(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MAKE)));
+        filter.setModel(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MODEL)));
+        return filter;
+    }
+
+
+    //*********************** METHODS TO BUILD CONTENT VALUES **********************************
+
+
+    private ContentValues buildFrameContentValues(Frame frame){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_ROLL_ID, frame.getRoll());
+        contentValues.put(KEY_COUNT, frame.getCount());
+        contentValues.put(KEY_DATE, frame.getDate());
+        contentValues.put(KEY_LENS_ID, frame.getLensId());
+        contentValues.put(KEY_SHUTTER, frame.getShutter());
+        contentValues.put(KEY_APERTURE, frame.getAperture());
+        contentValues.put(KEY_FRAME_NOTE, frame.getNote());
+        contentValues.put(KEY_LOCATION, frame.getLocation());
+        return contentValues;
+    }
+
+    private ContentValues buildLensContentValues(Lens lens){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_LENS_MAKE, lens.getMake());
+        contentValues.put(KEY_LENS_MODEL, lens.getModel());
+        return contentValues;
+    }
+
+    private ContentValues buildCameraContentValues(Camera camera){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_CAMERA_MAKE, camera.getMake());
+        contentValues.put(KEY_CAMERA_MODEL, camera.getModel());
+        return contentValues;
+    }
+
+    private ContentValues buildRollContentValues(Roll roll){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_ROLLNAME, roll.getName());
+        contentValues.put(KEY_ROLL_DATE, roll.getDate());
+        contentValues.put(KEY_ROLL_NOTE, roll.getNote());
+        contentValues.put(KEY_CAMERA_ID, roll.getCamera_id());
+        return contentValues;
+    }
+
+    private ContentValues buildFilterContentValues(Filter filter){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_FILTER_MAKE, filter.getMake());
         contentValues.put(KEY_FILTER_MODEL, filter.getModel());
-        db.update(TABLE_FILTERS, contentValues, KEY_FILTER_ID + "=?", new String[]{Integer.toString(filter.getId())});
-        db.close();
+        return contentValues;
     }
 }

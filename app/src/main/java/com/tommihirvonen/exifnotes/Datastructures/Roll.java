@@ -8,17 +8,17 @@ package com.tommihirvonen.exifnotes.Datastructures;
  */
 public class Roll {
 
-    public int id;
+    public long id;
     public String name;
     public String date;
     public String note;
-    public int camera_id;
+    public long camera_id;
 
     public Roll(){
 
     }
 
-    public Roll(int id, String name, String date, String note, int camera_id){
+    public Roll(long id, String name, String date, String note, long camera_id){
         this.id = id;
         this.name = name;
         this.date = date;
@@ -26,7 +26,7 @@ public class Roll {
         this.camera_id = camera_id;
     }
 
-    public void setId(int input) {
+    public void setId(long input) {
         this.id = input;
     }
 
@@ -42,11 +42,11 @@ public class Roll {
         this.note = input;
     }
 
-    public void setCamera_id(int input) {
+    public void setCamera_id(long input) {
         this.camera_id = input;
     }
 
-    public int getId(){
+    public long getId(){
         return this.id;
     }
 
@@ -62,7 +62,7 @@ public class Roll {
         return this.note;
     }
 
-    public int getCamera_id(){
+    public long getCamera_id(){
         return this.camera_id;
     }
 }

@@ -171,7 +171,7 @@ public class LensesFragment extends Fragment implements
                     arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
                     arguments.putString("MAKE", lens.getMake());
                     arguments.putString("MODEL", lens.getModel());
-                    arguments.putInt("GEAR_ID", lens.getId());
+                    arguments.putLong("GEAR_ID", lens.getId());
                     arguments.putInt("POSITION", which);
                     dialog.setArguments(arguments);
                     dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
@@ -220,9 +220,8 @@ public class LensesFragment extends Fragment implements
                         Lens lens = new Lens();
                         lens.setMake(inputTextMake);
                         lens.setModel(inputTextModel);
-                        database.addLens(lens);
-                        // When we get the last added lens from the database we get the row id value.
-                        lens = database.getLastLens();
+                        long rowId = database.addLens(lens);
+                        lens.setId(rowId);
                         mLensList.add(lens);
                         mArrayAdapter.notifyDataSetChanged();
 
@@ -244,7 +243,7 @@ public class LensesFragment extends Fragment implements
 
                     String newMake = data.getStringExtra("MAKE");
                     String newModel = data.getStringExtra("MODEL");
-                    int gearId = data.getIntExtra("GEAR_ID", -1);
+                    long gearId = data.getLongExtra("GEAR_ID", -1);
                     int position = data.getIntExtra("POSITION", -1);
 
                     if ( gearId != -1 && position != -1 && newMake.length() > 0 && newModel.length() > 0 ) {
@@ -301,14 +300,14 @@ public class LensesFragment extends Fragment implements
         // Also make an array list containing all the camera id's for list comparison.
         // Comparing lists containing frames is not easy.
         List<String> listItems = new ArrayList<>();
-        ArrayList<Integer> allCamerasId = new ArrayList<>();
+        ArrayList<Long> allCamerasId = new ArrayList<>();
         for ( int i = 0; i < allCameras.size(); ++i ) {
             listItems.add(allCameras.get(i).getMake() + " " + allCameras.get(i).getModel());
             allCamerasId.add(allCameras.get(i).getId());
         }
 
         // Make an array list containing all mountable camera id's.
-        ArrayList<Integer> mountableCamerasId = new ArrayList<>();
+        ArrayList<Long> mountableCamerasId = new ArrayList<>();
         for ( int i = 0; i < mountableCameras.size(); ++i ) {
             mountableCamerasId.add(mountableCameras.get(i).getId());
         }

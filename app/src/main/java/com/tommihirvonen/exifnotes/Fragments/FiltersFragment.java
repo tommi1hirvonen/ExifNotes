@@ -118,7 +118,7 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
         arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
         arguments.putString("MAKE", filter.getMake());
         arguments.putString("MODEL", filter.getModel());
-        arguments.putInt("GEAR_ID", filter.getId());
+        arguments.putLong("GEAR_ID", filter.getId());
         arguments.putInt("POSITION", i);
         dialog.setArguments(arguments);
         dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
@@ -182,7 +182,7 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
                     arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
                     arguments.putString("MAKE", filter.getMake());
                     arguments.putString("MODEL", filter.getModel());
-                    arguments.putInt("GEAR_ID", filter.getId());
+                    arguments.putLong("GEAR_ID", filter.getId());
                     arguments.putInt("POSITION", which);
                     dialog.setArguments(arguments);
                     dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
@@ -221,9 +221,8 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
                         Filter filter = new Filter();
                         filter.setMake(inputTextMake);
                         filter.setModel(inputTextModel);
-                        database.addFilter(filter);
-                        // When we get the last added lens from the database we get the row id value.
-                        filter = database.getLastFilter();
+                        long rowId = database.addFilter(filter);
+                        filter.setId(rowId);
                         mFilterList.add(filter);
                         mArrayAdapter.notifyDataSetChanged();
 
@@ -244,7 +243,7 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
 
                     String newMake = data.getStringExtra("MAKE");
                     String newModel = data.getStringExtra("MODEL");
-                    int gearId = data.getIntExtra("GEAR_ID", -1);
+                    long gearId = data.getLongExtra("GEAR_ID", -1);
                     int position = data.getIntExtra("POSITION", -1);
 
                     if ( gearId != -1 && position != -1 && newMake.length() > 0 && newModel.length() > 0 ) {

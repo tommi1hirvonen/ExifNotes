@@ -212,10 +212,10 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
      * @param rollId The id of the roll that was pressed.
      */
     @Override
-    public void onRollSelected(int rollId){
+    public void onRollSelected(long rollId){
         FramesFragment newFragment = new FramesFragment();
         Bundle args = new Bundle();
-        args.putInt("ROLL_ID", rollId);
+        args.putLong("ROLL_ID", rollId);
         args.putBoolean("LOCATION_ENABLED", locationEnabled);
         newFragment.setArguments(args);
         getFragmentManager().beginTransaction()

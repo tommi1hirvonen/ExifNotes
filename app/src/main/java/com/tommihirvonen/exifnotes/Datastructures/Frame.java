@@ -8,11 +8,11 @@ package com.tommihirvonen.exifnotes.Datastructures;
  */
 public class Frame {
 
-    public int id;
-    public int roll;
+    public long id;
+    public long roll;
     public int count;
     public String date;
-    public int lens_id;
+    public long lens_id;
     public String shutter;
     public String aperture;
     public String note;
@@ -22,7 +22,7 @@ public class Frame {
         // Empty constructor
     }
 
-    public Frame(int roll, int count, String date, int lens_id, String shutter, String aperture, String note, String location) {
+    public Frame(long roll, int count, String date, long lens_id, String shutter, String aperture, String note, String location) {
         this.roll = roll;
         this.count = count;
         this.date = date;
@@ -35,11 +35,11 @@ public class Frame {
 
 
     // Methods to set members
-    public void setId(int input) {
+    public void setId(long input) {
         this.id = input;
     }
 
-    public void setRoll(int input){
+    public void setRoll(long input){
         this.roll = input;
     }
 
@@ -51,7 +51,7 @@ public class Frame {
         this.date = input;
     }
 
-    public void setLensId(int input){
+    public void setLensId(long input){
         this.lens_id = input;
     }
 
@@ -72,11 +72,11 @@ public class Frame {
     }
 
     //Methods to get members
-    public int getId() {
+    public long getId() {
         return this.id;
     }
 
-    public int getRoll(){
+    public long getRoll(){
         return this.roll;
     }
 
@@ -88,7 +88,7 @@ public class Frame {
         return this.date;
     }
 
-    public int getLensId(){
+    public long getLensId(){
         return this.lens_id;
     }
 

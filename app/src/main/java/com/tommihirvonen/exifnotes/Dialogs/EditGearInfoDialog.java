@@ -40,7 +40,7 @@ public class EditGearInfoDialog extends DialogFragment {
         String positiveButton = getArguments().getString("POSITIVE_BUTTON");
         String make = getArguments().getString("MAKE");
         String model = getArguments().getString("MODEL");
-        final int gearId = getArguments().getInt("GEAR_ID", -1);
+        final long gearId = getArguments().getLong("GEAR_ID", -1);
         final int position = getArguments().getInt("POSITION", -1);
 
         alert.setTitle(title);

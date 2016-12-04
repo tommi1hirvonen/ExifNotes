@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Camera {
 
-    public int id;
+    public long id;
     public String make;
     public String model;
     public ArrayList<Lens> mountableLenses;
@@ -19,14 +19,14 @@ public class Camera {
 
     }
 
-    public Camera(int id, String make, String model, ArrayList<Lens> mountableLenses){
+    public Camera(long id, String make, String model, ArrayList<Lens> mountableLenses){
         this.id = id;
         this.make = make;
         this.model = model;
         this.mountableLenses = mountableLenses;
     }
 
-    public void setId(int input){
+    public void setId(long input){
         this.id = input;
     }
 
@@ -42,7 +42,7 @@ public class Camera {
         this.mountableLenses = input;
     }
 
-    public int getId(){
+    public long getId(){
         return this.id;
     }
 

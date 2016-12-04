@@ -60,7 +60,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
      * This interface is implemented in MainActivity.
      */
     public interface OnRollSelectedListener{
-        void onRollSelected(int rollId);
+        void onRollSelected(long rollId);
     }
 
     /**
@@ -372,7 +372,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // GET ROLL INFO
-        int rollId = mRollList.get(position).getId();
+        long rollId = mRollList.get(position).getId();
         mCallback.onRollSelected(rollId);
     }
 
@@ -388,11 +388,11 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
      * @param date the current date of the roll
      * @param title the current title of the roll
      */
-    private void show_EditRollNameDialog(int rollId, String oldName, String oldNote, int camera_id, String date, String title){
+    private void show_EditRollNameDialog(long rollId, String oldName, String oldNote, long camera_id, String date, String title){
         EditRollNameDialog dialog = new EditRollNameDialog();
         Bundle arguments = new Bundle();
-        arguments.putInt("ROLL_ID", rollId);
-        arguments.putInt("CAMERA_ID", camera_id);
+        arguments.putLong("ROLL_ID", rollId);
+        arguments.putLong("CAMERA_ID", camera_id);
         arguments.putString("OLD_NAME", oldName);
         arguments.putString("OLD_NOTE", oldNote);
         arguments.putString("DATE", date);
@@ -411,8 +411,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
     private void show_RollNameDialog() {
         EditRollNameDialog dialog = new EditRollNameDialog();
         Bundle arguments = new Bundle();
-        arguments.putInt("ROLL_ID", -1);
-        arguments.putInt("CAMERA_ID", -1);
+        arguments.putLong("ROLL_ID", -1);
+        arguments.putLong("CAMERA_ID", -1);
         arguments.putString("OLD_NAME", "");
         arguments.putString("OLD_NOTE", "");
         arguments.putString("DATE", "");
@@ -496,7 +496,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                     String inputName = data.getStringExtra("NAME");
                     String inputNote = data.getStringExtra("NOTE");
                     String date = data.getStringExtra("DATE");
-                    int camera_id = data.getIntExtra("CAMERA_ID", -1);
+                    long camera_id = data.getLongExtra("CAMERA_ID", -1);
 
                     if (inputName.length() != 0 && camera_id != -1) {
 
@@ -505,8 +505,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                         roll.setDate(date);
                         roll.setNote(inputNote);
                         roll.setCamera_id(camera_id);
-                        database.addRoll(roll);
-                        roll = database.getLastRoll();
+                        long rowId = database.addRoll(roll);
+                        roll.setId(rowId);
 
                         mainTextView.setVisibility(View.GONE);
                         // Add new roll to the top of the list
@@ -531,8 +531,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                 if (resultCode == Activity.RESULT_OK) {
 
                     String newName = data.getStringExtra("NAME");
-                    int rollId = data.getIntExtra("ROLL_ID", -1);
-                    int camera_id = data.getIntExtra("CAMERA_ID", -1);
+                    long rollId = data.getLongExtra("ROLL_ID", -1);
+                    long camera_id = data.getLongExtra("CAMERA_ID", -1);
                     String newNote = data.getStringExtra("NOTE");
                     String newDate = data.getStringExtra("DATE");
 

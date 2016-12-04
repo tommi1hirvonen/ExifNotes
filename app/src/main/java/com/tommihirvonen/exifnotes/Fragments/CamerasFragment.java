@@ -167,7 +167,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                     arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
                     arguments.putString("MAKE", camera.getMake());
                     arguments.putString("MODEL", camera.getModel());
-                    arguments.putInt("GEAR_ID", camera.getId());
+                    arguments.putLong("GEAR_ID", camera.getId());
                     arguments.putInt("POSITION", which);
                     dialog.setArguments(arguments);
                     dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
@@ -224,9 +224,8 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                         Camera camera = new Camera();
                         camera.setMake(inputTextMake);
                         camera.setModel(inputTextModel);
-                        database.addCamera(camera);
-                        // When we get the last added lens from the database we get the row id value.
-                        camera = database.getLastCamera();
+                        long rowId = database.addCamera(camera);
+                        camera.setId(rowId);
                         mCameraList.add(camera);
                         mArrayAdapter.notifyDataSetChanged();
 
@@ -295,14 +294,14 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
         // Also make an array list containing all the camera id's for list comparison.
         // Comparing lists containing frames is not easy.
         List<String> listItems = new ArrayList<>();
-        ArrayList<Integer> allLensesId = new ArrayList<>();
+        ArrayList<Long> allLensesId = new ArrayList<>();
         for ( int i = 0; i < allLenses.size(); ++i ) {
             listItems.add(allLenses.get(i).getMake() + " " + allLenses.get(i).getModel());
             allLensesId.add(allLenses.get(i).getId());
         }
 
         // Make an array list containing all mountable camera id's.
-        ArrayList<Integer> mountableLensesId = new ArrayList<>();
+        ArrayList<Long> mountableLensesId = new ArrayList<>();
         for ( int i = 0; i < mountableLenses.size(); ++i ) {
             mountableLensesId.add(mountableLenses.get(i).getId());
         }

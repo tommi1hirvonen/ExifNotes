@@ -42,8 +42,8 @@ import java.util.List;
 public class EditFrameInfoDialog extends DialogFragment {
 
 
-    int _id;
-    int lens_id;
+    long _id;
+    long lens_id;
     String date;
     int position;
     int count;
@@ -53,7 +53,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     String location;
     String title;
     String positiveButton;
-    int camera_id;
+    long camera_id;
     ArrayList<Lens> mountableLenses;
     FilmDbHelper database;
 
@@ -64,14 +64,14 @@ public class EditFrameInfoDialog extends DialogFragment {
     final static int ADD_LENS = 2;
 
 
-    public static EditFrameInfoDialog newInstance(int _id, int lens_id, int position, int count,
+    public static EditFrameInfoDialog newInstance(long _id, long lens_id, int position, int count,
                                            String date, String shutter, String aperture,
-                                           String note, String location, int camera_id,
+                                           String note, String location, long camera_id,
                                            String title, String positiveButton) {
         EditFrameInfoDialog f = new EditFrameInfoDialog();
         Bundle args = new Bundle();
-        args.putInt("_id", _id);
-        args.putInt("lens_id", lens_id);
+        args.putLong("_id", _id);
+        args.putLong("lens_id", lens_id);
         args.putInt("position", position);
         args.putInt("count", count);
         args.putString("date", date);
@@ -79,7 +79,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         args.putString("aperture", aperture);
         args.putString("note", note);
         args.putString("latlng_location", location);
-        args.putInt("camera_id", camera_id);
+        args.putLong("camera_id", camera_id);
         args.putString("title", title);
         args.putString("positive_button", positiveButton);
         f.setArguments(args);
@@ -109,7 +109,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         String shutterIncrements = prefs.getString("ShutterIncrements", "third");
         String apertureIncrements = prefs.getString("ApertureIncrements", "third");
 
-        lens_id = getArguments().getInt("lens_id");
+        lens_id = getArguments().getLong("lens_id");
         date = getArguments().getString("date");
         count = getArguments().getInt("count");
         shutter = getArguments().getString("shutter");
@@ -118,9 +118,9 @@ public class EditFrameInfoDialog extends DialogFragment {
         title = getArguments().getString("title");
         positiveButton = getArguments().getString("positive_button");
         position = getArguments().getInt("position");
-        _id = getArguments().getInt("_id");
+        _id = getArguments().getLong("_id");
         note = getArguments().getString("note");
-        camera_id = getArguments().getInt("camera_id");
+        camera_id = getArguments().getLong("camera_id");
 
         database = new FilmDbHelper(getActivity());
         mountableLenses = database.getMountableLenses(database.getCamera(camera_id));
@@ -532,9 +532,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 Lens lens = new Lens();
                 lens.setMake(inputTextMake);
                 lens.setModel(inputTextModel);
-                database.addLens(lens);
-                // When we get the last added lens from the database we get the row id value.
-                lens = database.getLastLens();
+                long rowId = database.addLens(lens);
+                lens.setId(rowId);
                 database.addMountable(database.getCamera(camera_id), lens);
                 mountableLenses.add(lens);
                 b_lens.setText(lens.getMake() + " " + lens.getModel());

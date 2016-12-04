@@ -37,8 +37,8 @@ public class EditRollNameDialog extends DialogFragment {
 
     public String oldName;
     public String oldNote;
-    public int rollId;
-    int camera_id;
+    public long rollId;
+    long camera_id;
     String date;
     String title;
     String positiveButton;
@@ -59,8 +59,8 @@ public class EditRollNameDialog extends DialogFragment {
 
         oldName = getArguments().getString("OLD_NAME");
         oldNote = getArguments().getString("OLD_NOTE");
-        rollId = getArguments().getInt("ROLL_ID");
-        camera_id = getArguments().getInt("CAMERA_ID", -1);
+        rollId = getArguments().getLong("ROLL_ID");
+        camera_id = getArguments().getLong("CAMERA_ID", -1);
         date = getArguments().getString("DATE");
         title = getArguments().getString("TITLE");
         positiveButton = getArguments().getString("POSITIVE_BUTTON");
@@ -322,9 +322,8 @@ public class EditRollNameDialog extends DialogFragment {
                         Camera camera = new Camera();
                         camera.setMake(inputTextMake);
                         camera.setModel(inputTextModel);
-                        database.addCamera(camera);
-                        // When we get the last added lens from the database we get the row id value.
-                        camera = database.getLastCamera();
+                        long rowId = database.addCamera(camera);
+                        camera.setId(rowId);
                         mCameraList.add(camera);
 
                         b_camera.setText(camera.getMake() + " " + camera.getModel());

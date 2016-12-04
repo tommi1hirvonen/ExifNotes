@@ -48,7 +48,7 @@ public class RollAdapter extends ArrayAdapter<Roll> {
         String roll = getItem(position).getName();
         String date = getItem(position).getDate();
         String note = getItem(position).getNote();
-        int camera_id = getItem(position).getCamera_id();
+        long camera_id = getItem(position).getCamera_id();
         int numberOfFrames = database.getNumberOfFrames(getItem(position));
         // Check if an existing view is being reused, otherwise inflate the view
         if ( convertView == null ) {

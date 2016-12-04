@@ -8,7 +8,7 @@ package com.tommihirvonen.exifnotes.Datastructures;
  */
 public class Lens {
 
-    public int id;
+    public long id;
     public String make;
     public String model;
 
@@ -16,13 +16,13 @@ public class Lens {
 
     }
 
-    public Lens(int id, String make, String model){
+    public Lens(long id, String make, String model){
         this.id = id;
         this.make = make;
         this.model = model;
     }
 
-    public void setId(int input){
+    public void setId(long input){
         this.id = input;
     }
 
@@ -34,7 +34,7 @@ public class Lens {
         this.model = input;
     }
 
-    public int getId(){
+    public long getId(){
         return this.id;
     }
 
