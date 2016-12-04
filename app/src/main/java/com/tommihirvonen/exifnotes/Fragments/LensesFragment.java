@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Adapters.LensAdapter;
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
+import com.tommihirvonen.exifnotes.Datastructures.Filter;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Dialogs.EditGearInfoDialog;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
@@ -138,6 +139,11 @@ public class LensesFragment extends Fragment implements
                 case R.id.menu_item_select_mountable_cameras:
 
                     showSelectMountableCamerasDialog(which);
+                    return true;
+
+                case R.id.menu_item_select_mountable_filters:
+
+                    showSelectMountableFiltersDialog(which);
                     return true;
 
                 case R.id.menu_item_delete:
@@ -383,6 +389,113 @@ public class LensesFragment extends Fragment implements
                         mArrayAdapter.notifyDataSetChanged();
 
                         // Update the CamerasFragment through the parent activity.
+                        GearActivity myActivity = (GearActivity)getActivity();
+                        myActivity.updateFragments();
+                    }
+                })
+                .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    void showSelectMountableFiltersDialog(int position){
+        final Lens lens = mLensList.get(position);
+        final ArrayList<Filter> mountableFilters = database.getMountableFilters(lens);
+        final ArrayList<Filter> allFilters = database.getAllFilters();
+
+        // Make a list of strings for all the filter names to be showed in the
+        // multi choice list.
+        // Also make an array list containing all the filter id's for list comparison.
+        // Comparing lists containing frames is not easy.
+        List<String> listItems = new ArrayList<>();
+        ArrayList<Long> allFiltersId = new ArrayList<>();
+        for ( int i = 0; i < allFilters.size(); ++i ) {
+            listItems.add(allFilters.get(i).getMake() + " " + allFilters.get(i).getModel());
+            allFiltersId.add(allFilters.get(i).getId());
+        }
+
+        // Make an array list containing all mountable filter id's.
+        ArrayList<Long> mountableFiltersId = new ArrayList<>();
+        for ( int i = 0; i < mountableFilters.size(); ++i ) {
+            mountableFiltersId.add(mountableFilters.get(i).getId());
+        }
+
+        // Find the items in the list to be preselected
+        final boolean[] booleans = new boolean[allFilters.size()];
+        for ( int i= 0; i < allFiltersId.size(); ++i ) {
+            if ( mountableFiltersId.contains(allFiltersId.get(i)) ) {
+                booleans[i] = true;
+            }
+            else booleans[i] = false;
+        }
+
+
+
+        final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        // MULTIPLE CHOICE DIALOG
+
+        // Create an array list where the selections are saved. Initialize it with
+        // the booleans array.
+        final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
+        for ( int i = 0; i < booleans.length; ++i ) {
+            if ( booleans[i] ) selectedItemsIndexList.add(i);
+        }
+
+        builder.setTitle(R.string.SelectMountableFilters)
+                .setMultiChoiceItems(items, booleans, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                        if (isChecked) {
+
+                            // If the user checked the item, add it to the selected items
+                            selectedItemsIndexList.add(which);
+
+                        } else if (selectedItemsIndexList.contains(which)) {
+
+                            // Else, if the item is already in the array, remove it
+                            selectedItemsIndexList.remove(Integer.valueOf(which));
+
+                        }
+                    }
+                })
+
+                .setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        // Do something with the selections
+                        Collections.sort(selectedItemsIndexList);
+
+                        // Get the not selected indices.
+                        ArrayList<Integer> notSelectedItemsIndexList = new ArrayList<>();
+                        for (int i = 0; i < allFilters.size(); ++i) {
+                            if (!selectedItemsIndexList.contains(i))
+                                notSelectedItemsIndexList.add(i);
+                        }
+
+                        // Iterate through the selected items
+                        for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                            int which = selectedItemsIndexList.get(i);
+                            Filter filter = allFilters.get(which);
+                            database.addMountableFilterLens(filter, lens);
+                        }
+
+                        // Iterate through the not selected items
+                        for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
+                            int which = notSelectedItemsIndexList.get(i);
+                            Filter filter = allFilters.get(which);
+                            database.deleteMountableFilterLens(filter, lens);
+                        }
+                        mArrayAdapter.notifyDataSetChanged();
+
+                        // Update the FiltersFragment through the parent activity.
                         GearActivity myActivity = (GearActivity)getActivity();
                         myActivity.updateFragments();
                     }

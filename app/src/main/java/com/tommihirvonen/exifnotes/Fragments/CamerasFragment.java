@@ -246,7 +246,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                     String newMake = data.getStringExtra("MAKE");
                     String newModel = data.getStringExtra("MODEL");
-                    int gearId = data.getIntExtra("GEAR_ID", -1);
+                    long gearId = data.getLongExtra("GEAR_ID", -1);
                     int position = data.getIntExtra("POSITION", -1);
 
                     if ( gearId != -1 && position != -1 && newMake.length() > 0 && newModel.length() > 0 ) {

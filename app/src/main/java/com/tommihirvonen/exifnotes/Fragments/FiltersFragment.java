@@ -2,6 +2,7 @@ package com.tommihirvonen.exifnotes.Fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -10,6 +11,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -21,14 +23,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tommihirvonen.exifnotes.Activities.GearActivity;
 import com.tommihirvonen.exifnotes.Adapters.FilterAdapter;
+import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.Datastructures.Filter;
+import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Dialogs.EditGearInfoDialog;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 // Copyright 2016
@@ -104,24 +110,12 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.menu_context_delete_edit, menu);
+        inflater.inflate(R.menu.menu_context_delete_edit_select_lenses, menu);
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Filter filter = mFilterList.get(i);
-
-        EditGearInfoDialog dialog = new EditGearInfoDialog();
-        dialog.setTargetFragment(this, EDIT_FILTER);
-        Bundle arguments = new Bundle();
-        arguments.putString("TITLE", getResources().getString( R.string.EditFilter));
-        arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
-        arguments.putString("MAKE", filter.getMake());
-        arguments.putString("MODEL", filter.getModel());
-        arguments.putLong("GEAR_ID", filter.getId());
-        arguments.putInt("POSITION", i);
-        dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
+        showSelectMountableLensesDialog(i);
     }
 
     @Override
@@ -154,6 +148,11 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
             Filter filter = mFilterList.get(which);
 
             switch (item.getItemId()) {
+
+                case R.id.menu_item_select_mountable_lenses:
+
+                    showSelectMountableLensesDialog(which);
+                    return true;
 
                 case R.id.menu_item_delete:
 
@@ -276,5 +275,116 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
 
                 break;
         }
+    }
+
+    void showSelectMountableLensesDialog(int position){
+        final Filter filter = mFilterList.get(position);
+        final ArrayList<Lens> mountableLenses = database.getMountableLenses(filter);
+        final ArrayList<Lens> allLenses = database.getAllLenses();
+
+        // Make a list of strings for all the lens names to be showed in the
+        // multi choice list.
+        // Also make an array list containing all the lens id's for list comparison.
+        // Comparing lists containing lenses is not easy.
+        List<String> listItems = new ArrayList<>();
+        ArrayList<Long> allLensesId = new ArrayList<>();
+        for ( int i = 0; i < allLenses.size(); ++i ) {
+            listItems.add(allLenses.get(i).getMake() + " " + allLenses.get(i).getModel());
+            allLensesId.add(allLenses.get(i).getId());
+        }
+
+        // Make an array list containing all mountable lens id's.
+        ArrayList<Long> mountableLensesId = new ArrayList<>();
+        for ( int i = 0; i < mountableLenses.size(); ++i ) {
+            mountableLensesId.add(mountableLenses.get(i).getId());
+        }
+
+        // Find the items in the list to be preselected
+        final boolean[] booleans = new boolean[allLenses.size()];
+        for ( int i= 0; i < allLensesId.size(); ++i ) {
+            if ( mountableLensesId.contains(allLensesId.get(i)) ) {
+                booleans[i] = true;
+            }
+            else booleans[i] = false;
+        }
+
+
+
+        final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        // MULTIPLE CHOICE DIALOG
+
+        // Create an array list where the selections are saved. Initialize it with
+        // the booleans array.
+        final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
+        for ( int i = 0; i < booleans.length; ++i ) {
+            if ( booleans[i] ) selectedItemsIndexList.add(i);
+        }
+
+        builder.setTitle(R.string.SelectMountableLenses)
+                .setMultiChoiceItems(items, booleans, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                        if (isChecked) {
+
+                            // If the user checked the item, add it to the selected items
+                            selectedItemsIndexList.add(which);
+
+                        } else if (selectedItemsIndexList.contains(which)) {
+
+                            // Else, if the item is already in the array, remove it
+                            selectedItemsIndexList.remove(Integer.valueOf(which));
+
+                        }
+                    }
+                })
+
+                .setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        // Do something with the selections
+                        Collections.sort(selectedItemsIndexList);
+
+                        // Get the not selected indices.
+                        ArrayList<Integer> notSelectedItemsIndexList = new ArrayList<>();
+                        for (int i = 0; i < allLenses.size(); ++i) {
+                            if (!selectedItemsIndexList.contains(i))
+                                notSelectedItemsIndexList.add(i);
+                        }
+
+                        // Iterate through the selected items
+                        for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                            int which = selectedItemsIndexList.get(i);
+                            Lens lens = allLenses.get(which);
+                            database.addMountableFilterLens(filter, lens);
+                        }
+
+                        // Iterate through the not selected items
+                        for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
+                            int which = notSelectedItemsIndexList.get(i);
+                            Lens lens = allLenses.get(which);
+                            database.deleteMountableFilterLens(filter, lens);
+                        }
+                        mArrayAdapter.notifyDataSetChanged();
+
+                        // Update the LensesFragment through the parent activity.
+                        GearActivity myActivity = (GearActivity)getActivity();
+                        myActivity.updateFragments();
+                    }
+                })
+                .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    public void updateFragment(){
+        mArrayAdapter.notifyDataSetChanged();
     }
 }

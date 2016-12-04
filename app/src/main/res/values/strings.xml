@@ -170,6 +170,7 @@
     <string name="LensMakeIllegalCharacter">Lens make contains illegal character(s):</string>
     <string name="LensModelIllegalCharacter">Lens model contains illegal character(s):</string>
     <string name="SelectMountableCameras">Select mountable cameras</string>
+    <string name="SelectMountableFilters">Select mountable filters</string>
     <string name="LensNoColon">Lens</string>
     <string name="EditLens">Edit lens</string>
 

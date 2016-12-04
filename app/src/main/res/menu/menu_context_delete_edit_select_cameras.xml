@@ -7,6 +7,11 @@
         />
 
     <item
+        android:id="@+id/menu_item_select_mountable_filters"
+        android:title="@string/SelectMountableFilters"
+        />
+
+    <item
         android:id="@+id/menu_item_edit"
         android:title="@string/Edit"
         />

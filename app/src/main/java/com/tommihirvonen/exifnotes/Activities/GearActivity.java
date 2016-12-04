@@ -1,6 +1,5 @@
 package com.tommihirvonen.exifnotes.Activities;
 
-import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -17,6 +16,7 @@ import android.view.WindowManager;
 
 import com.tommihirvonen.exifnotes.Adapters.PagerAdapter;
 import com.tommihirvonen.exifnotes.Fragments.CamerasFragment;
+import com.tommihirvonen.exifnotes.Fragments.FiltersFragment;
 import com.tommihirvonen.exifnotes.Fragments.LensesFragment;
 import com.tommihirvonen.exifnotes.R;
 
@@ -107,11 +107,23 @@ public class GearActivity extends AppCompatActivity {
     }
 
     public void updateFragments(){
-        int pos = viewPager.getCurrentItem();
-        if (pos == 0) pos = 1;
-        else if (pos == 1) pos = 0;
-        Fragment inactiveFragment = pagerAdapter.getItem(pos);
-        if (pos == 1) ((LensesFragment)inactiveFragment).updateFragment();
-        else if (pos == 0) ((CamerasFragment)inactiveFragment).updateFragment();
+        int activeFragment = viewPager.getCurrentItem();
+
+        //If the mountables were changed in one fragment, then update other fragments
+        //to reflect the changes.
+
+        //CamerasFragment is active
+        if (activeFragment == 0) {
+            ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
+        }
+        //LensesFragment is active
+        else if (activeFragment == 1) {
+            ((CamerasFragment)pagerAdapter.getItem(0)).updateFragment();
+            ((FiltersFragment)pagerAdapter.getItem(2)).updateFragment();
+        }
+        //FiltersFragment is active
+        else if (activeFragment == 2) {
+            ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
+        }
     }
 }

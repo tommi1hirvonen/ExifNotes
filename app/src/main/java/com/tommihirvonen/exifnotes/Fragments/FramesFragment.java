@@ -593,7 +593,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         //Replace illegal characters from the roll name to make it a valid file name.
         String rollName = Utilities.replaceIllegalChars(database.getRoll(rollId).getName());
-        
+
         //Get the user setting about which files to export. By default, share both files.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         String filesToExport = prefs.getString("FilesToExport", "BOTH");
