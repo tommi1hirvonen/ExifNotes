@@ -31,6 +31,7 @@ import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.Datastructures.Filter;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Dialogs.EditGearInfoDialog;
+import com.tommihirvonen.exifnotes.Dialogs.EditLensInfoDialog;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.Activities.GearActivity;
 import com.tommihirvonen.exifnotes.R;
@@ -170,17 +171,18 @@ public class LensesFragment extends Fragment implements
 
                 case R.id.menu_item_edit:
 
-                    EditGearInfoDialog dialog = new EditGearInfoDialog();
+                    EditLensInfoDialog dialog = new EditLensInfoDialog();
                     dialog.setTargetFragment(this, EDIT_LENS);
                     Bundle arguments = new Bundle();
                     arguments.putString("TITLE", getResources().getString( R.string.EditLens));
                     arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
-                    arguments.putString("MAKE", lens.getMake());
-                    arguments.putString("MODEL", lens.getModel());
-                    arguments.putLong("GEAR_ID", lens.getId());
+//                    arguments.putString("MAKE", lens.getMake());
+//                    arguments.putString("MODEL", lens.getModel());
+//                    arguments.putLong("GEAR_ID", lens.getId());
+                    arguments.putParcelable("LENS", lens);
                     arguments.putInt("POSITION", which);
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
+                    dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
 
                     return true;
             }
@@ -189,13 +191,13 @@ public class LensesFragment extends Fragment implements
     }
 
     private void showLensNameDialog() {
-        EditGearInfoDialog dialog = new EditGearInfoDialog();
+        EditLensInfoDialog dialog = new EditLensInfoDialog();
         dialog.setTargetFragment(this, ADD_LENS);
         Bundle arguments = new Bundle();
         arguments.putString("TITLE", getResources().getString( R.string.NewLens));
         arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
+        dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
     }
 
     @Override

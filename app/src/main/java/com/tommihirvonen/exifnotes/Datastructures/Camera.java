@@ -6,24 +6,26 @@ package com.tommihirvonen.exifnotes.Datastructures;
 /**
  * The camera class holds the information of a camera.
  */
-import java.util.ArrayList;
-
 public class Camera {
 
-    public long id;
-    public String make;
-    public String model;
-    public ArrayList<Lens> mountableLenses;
+    private long id;
+    private String make;
+    private String model;
+    private String serialNumber;
+    private String minShutter;
+    private String maxShutter;
 
     public Camera(){
 
     }
 
-    public Camera(long id, String make, String model, ArrayList<Lens> mountableLenses){
+    public Camera(long id, String make, String model, String serialNumber, String minShutter, String maxShutter){
         this.id = id;
         this.make = make;
         this.model = model;
-        this.mountableLenses = mountableLenses;
+        this.serialNumber = serialNumber;
+        this.minShutter = minShutter;
+        this.maxShutter = maxShutter;
     }
 
     public void setId(long input){
@@ -38,9 +40,18 @@ public class Camera {
         this.model = input;
     }
 
-    public void setMountableLenses(ArrayList<Lens> input) {
-        this.mountableLenses = input;
+    public void setSerialNumber(String input){
+        this.serialNumber = input;
     }
+
+    public void setMinShutter(String input){
+        this.minShutter = input;
+    }
+
+    public void setMaxShutter(String input){
+        this.maxShutter = input;
+    }
+
 
     public long getId(){
         return this.id;
@@ -54,7 +65,16 @@ public class Camera {
         return this.model;
     }
 
-    public ArrayList<Lens> getMountableLenses() {
-        return this.mountableLenses;
+    public String getSerialNumber(){
+        return this.serialNumber;
     }
+
+    public String getMinShutter(){
+        return this.minShutter;
+    }
+
+    public String getMaxShutter(){
+        return this.maxShutter;
+    }
+
 }

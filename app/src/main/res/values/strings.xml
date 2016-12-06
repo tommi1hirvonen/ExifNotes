@@ -273,6 +273,14 @@
     <!--gear_dialog-->
     <string name="Make">Make:</string>
     <string name="Model">Model:</string>
+    <string name="SerialNumber">Serial number:</string>
+    <string name="MinAperture">Min aperture:</string>
+    <string name="MaxAperture">Max aperture:</string>
+    <string name="MinShutter">Min shutter:</string>
+    <string name="MaxShutter">Max shutter:</string>
+    <string name="ShutterRange">Shutter range:</string>
+    <string name="ApertureRange">Aperture range:</string>
+    <string name="FocalLengthRange">Focal length range:</string>
 
     <!--item_frame.xml-->
     <string name="Text">Text</string>
