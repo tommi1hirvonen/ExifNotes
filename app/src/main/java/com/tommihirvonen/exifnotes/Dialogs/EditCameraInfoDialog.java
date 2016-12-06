@@ -17,11 +17,14 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.R;
 
 public class EditCameraInfoDialog extends DialogFragment {
 
     public static final String TAG = "CameraInfoDialogFragment";
+
+    Camera camera;
 
     public EditCameraInfoDialog(){
 
@@ -37,24 +40,20 @@ public class EditCameraInfoDialog extends DialogFragment {
 
         String title = getArguments().getString("TITLE");
         String positiveButton = getArguments().getString("POSITIVE_BUTTON");
-        String make = getArguments().getString("MAKE");
-        String model = getArguments().getString("MODEL");
-        String serialNumber = getArguments().getString("SERIAL_NUMBER");
-        final long gearId = getArguments().getLong("GEAR_ID", -1);
-        final int position = getArguments().getInt("POSITION", -1);
+        camera = getArguments().getParcelable("CAMERA");
+        if (camera == null) camera = new Camera();
+
 
         alert.setTitle(title);
 
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);
-        et1.setText(make);
+        et1.setText(camera.getMake());
         final EditText et2 = (EditText) inflator.findViewById(R.id.txt_model);
-        et2.setText(model);
+        et2.setText(camera.getModel());
         final EditText et3 = (EditText) inflator.findViewById(R.id.txt_serial_number);
-        et3.setText(serialNumber);
-
-
+        et3.setText(camera.getSerialNumber());
 
         alert.setPositiveButton(positiveButton, null);
 
@@ -75,27 +74,26 @@ public class EditCameraInfoDialog extends DialogFragment {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String make = et1.getText().toString();
-                String model = et2.getText().toString();
-                String serialNumber = et3.getText().toString();
+//                String make = et1.getText().toString();
+//                String model = et2.getText().toString();
+//                String serialNumber = et3.getText().toString();
+                camera.setMake(et1.getText().toString());
+                camera.setModel(et2.getText().toString());
+                camera.setSerialNumber(et3.getText().toString());
 
-                if (make.length() != 0 && model.length() != 0) {
+                if (camera.getMake().length() != 0 && camera.getModel().length() != 0) {
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
-                    intent.putExtra("MAKE", make);
-                    intent.putExtra("MODEL", model);
-                    intent.putExtra("SERIAL_NUMBER", serialNumber);
-                    intent.putExtra("GEAR_ID", gearId);
-                    intent.putExtra("POSITION", position);
+                    intent.putExtra("CAMERA", camera);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                } else if (make.length() == 0 && model.length() == 0) {
+                } else if (camera.getMake().length() == 0 && camera.getModel().length() == 0) {
                     // No make or model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();
-                } else if (make.length() > 0 && model.length() == 0) {
+                } else if (camera.getMake().length() > 0 && camera.getModel().length() == 0) {
                     // No model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
-                } else if (make.length() == 0 && model.length() > 0) {
+                } else if (camera.getMake().length() == 0 && camera.getModel().length() > 0) {
                     // No make was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
                 }

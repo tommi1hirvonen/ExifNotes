@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -166,10 +167,8 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                     Bundle arguments = new Bundle();
                     arguments.putString("TITLE", getResources().getString( R.string.EditCamera));
                     arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
-                    arguments.putString("MAKE", camera.getMake());
-                    arguments.putString("MODEL", camera.getModel());
-                    arguments.putLong("GEAR_ID", camera.getId());
-                    arguments.putInt("POSITION", which);
+                    arguments.putParcelable("CAMERA", camera);
+
                     dialog.setArguments(arguments);
                     dialog.show(getFragmentManager().beginTransaction(), EditCameraInfoDialog.TAG);
 
@@ -206,25 +205,12 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    String inputTextMake = data.getStringExtra("MAKE");
-                    String inputTextModel = data.getStringExtra("MODEL");
+                    Camera camera = data.getParcelableExtra("CAMERA");
 
-                    if ( inputTextMake.length() != 0 && inputTextModel.length() != 0 ) {
-
-                        // Check if a camera with the same name already exists
-                        for ( int i = 0; i < mCameraList.size(); ++i ) {
-                            if ( inputTextMake.equals( mCameraList.get(i).getMake()) && inputTextModel.equals(mCameraList.get(i).getModel())  ) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraSameName), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
-                        }
+                    if ( camera.getMake().length() != 0 && camera.getModel().length() != 0 ) {
 
                         mainTextView.setVisibility(View.GONE);
 
-                        Camera camera = new Camera();
-                        camera.setMake(inputTextMake);
-                        camera.setModel(inputTextModel);
                         long rowId = database.addCamera(camera);
                         camera.setId(rowId);
                         mCameraList.add(camera);
@@ -245,25 +231,9 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    String newMake = data.getStringExtra("MAKE");
-                    String newModel = data.getStringExtra("MODEL");
-                    long gearId = data.getLongExtra("GEAR_ID", -1);
-                    int position = data.getIntExtra("POSITION", -1);
+                    Camera camera = data.getParcelableExtra("CAMERA");
 
-                    if ( gearId != -1 && position != -1 && newMake.length() > 0 && newModel.length() > 0 ) {
-
-                        // Check if a camera with the same name already exists
-                        for ( int i = 0; i < mCameraList.size(); ++i ) {
-                            if ( newMake.equals( mCameraList.get(i).getMake()) && newModel.equals(mCameraList.get(i).getModel())  ) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraSameName), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
-                        }
-
-                        Camera camera = mCameraList.get(position);
-                        camera.setMake(newMake);
-                        camera.setModel(newModel);
+                    if ( camera.getMake().length() > 0 && camera.getModel().length() > 0 ) {
 
                         database.updateCamera(camera);
 

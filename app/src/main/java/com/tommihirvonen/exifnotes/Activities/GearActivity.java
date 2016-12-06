@@ -114,16 +114,16 @@ public class GearActivity extends AppCompatActivity {
 
         //CamerasFragment is active
         if (activeFragment == 0) {
-            ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
+            if ((pagerAdapter.getItem(1)) != null) ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
         }
         //LensesFragment is active
         else if (activeFragment == 1) {
-            ((CamerasFragment)pagerAdapter.getItem(0)).updateFragment();
-            ((FiltersFragment)pagerAdapter.getItem(2)).updateFragment();
+            if ((pagerAdapter.getItem(0)) != null) ((CamerasFragment)pagerAdapter.getItem(0)).updateFragment();
+            if ((pagerAdapter.getItem(2)) != null) ((FiltersFragment)pagerAdapter.getItem(2)).updateFragment();
         }
         //FiltersFragment is active
         else if (activeFragment == 2) {
-            ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
+            if ((pagerAdapter.getItem(1)) != null) ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
         }
     }
 }
