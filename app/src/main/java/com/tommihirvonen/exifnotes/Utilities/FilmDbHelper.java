@@ -885,7 +885,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     }
     private Frame getFrameFromCursor (Cursor cursor, Frame frame) {
         frame.setId(cursor.getLong(cursor.getColumnIndex(KEY_FRAME_ID)));
-        frame.setRoll(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
+        frame.setRollId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
         frame.setCount(cursor.getInt(cursor.getColumnIndex(KEY_COUNT)));
         frame.setDate(cursor.getString(cursor.getColumnIndex(KEY_DATE)));
         frame.setLensId(cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID)));
@@ -948,7 +948,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     private ContentValues buildFrameContentValues(Frame frame){
         ContentValues contentValues = new ContentValues();
-        contentValues.put(KEY_ROLL_ID, frame.getRoll());
+        contentValues.put(KEY_ROLL_ID, frame.getRollId());
         contentValues.put(KEY_COUNT, frame.getCount());
         contentValues.put(KEY_DATE, frame.getDate());
         contentValues.put(KEY_LENS_ID, frame.getLensId());

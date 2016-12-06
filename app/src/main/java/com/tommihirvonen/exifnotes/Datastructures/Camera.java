@@ -3,10 +3,13 @@ package com.tommihirvonen.exifnotes.Datastructures;
 // Copyright 2015
 // Tommi Hirvonen
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * The camera class holds the information of a camera.
  */
-public class Camera {
+public class Camera implements Parcelable {
 
     private long id;
     private String make;
@@ -76,5 +79,41 @@ public class Camera {
     public String getMaxShutter(){
         return this.maxShutter;
     }
+
+    //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
+
+    public Camera(Parcel pc){
+        this.id = pc.readLong();
+        this.make = pc.readString();
+        this.model = pc.readString();
+        this.serialNumber = pc.readString();
+        this.minShutter = pc.readString();
+        this.maxShutter = pc.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeLong(id);
+        parcel.writeString(make);
+        parcel.writeString(model);
+        parcel.writeString(serialNumber);
+        parcel.writeString(minShutter);
+        parcel.writeString(maxShutter);
+    }
+
+    /** Static field used to regenerate object, individually or as arrays */
+    public static final Parcelable.Creator<Camera> CREATOR = new Parcelable.Creator<Camera>() {
+        public Camera createFromParcel(Parcel pc) {
+            return new Camera(pc);
+        }
+        public Camera[] newArray(int size) {
+            return new Camera[size];
+        }
+    };
 
 }

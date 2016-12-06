@@ -3,7 +3,10 @@ package com.tommihirvonen.exifnotes.Datastructures;
 // Copyright 2016
 // Tommi Hirvonen
 
-public class Filter {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Filter implements Parcelable {
 
     public long id;
     public String make;
@@ -43,4 +46,35 @@ public class Filter {
     public String getModel(){
         return this.model;
     }
+
+    //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
+
+    public Filter(Parcel pc){
+        this.id = pc.readLong();
+        this.make = pc.readString();
+        this.model = pc.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeLong(id);
+        parcel.writeString(make);
+        parcel.writeString(model);
+    }
+
+    /** Static field used to regenerate object, individually or as arrays */
+    public static final Parcelable.Creator<Filter> CREATOR = new Parcelable.Creator<Filter>() {
+        public Filter createFromParcel(Parcel pc) {
+            return new Filter(pc);
+        }
+        public Filter[] newArray(int size) {
+            return new Filter[size];
+        }
+    };
+
 }

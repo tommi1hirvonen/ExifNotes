@@ -3,16 +3,19 @@ package com.tommihirvonen.exifnotes.Datastructures;
 // Copyright 2015
 // Tommi Hirvonen
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Roll class holds the information of one roll of film.
  */
-public class Roll {
+public class Roll implements Parcelable {
 
-    public long id;
-    public String name;
-    public String date;
-    public String note;
-    public long camera_id;
+    private long id;
+    private String name;
+    private String date;
+    private String note;
+    private long camera_id;
 
     public Roll(){
 
@@ -65,4 +68,38 @@ public class Roll {
     public long getCamera_id(){
         return this.camera_id;
     }
+
+    //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
+
+    public Roll(Parcel pc){
+        this.id = pc.readLong();
+        this.name = pc.readString();
+        this.date = pc.readString();
+        this.note = pc.readString();
+        this.camera_id = pc.readLong();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeLong(id);
+        parcel.writeString(name);
+        parcel.writeString(date);
+        parcel.writeString(note);
+        parcel.writeLong(camera_id);
+    }
+
+    /** Static field used to regenerate object, individually or as arrays */
+    public static final Parcelable.Creator<Roll> CREATOR = new Parcelable.Creator<Roll>() {
+        public Roll createFromParcel(Parcel pc) {
+            return new Roll(pc);
+        }
+        public Roll[] newArray(int size) {
+            return new Roll[size];
+        }
+    };
 }

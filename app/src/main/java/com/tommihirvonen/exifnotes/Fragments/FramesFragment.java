@@ -59,10 +59,7 @@ import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -1064,7 +1061,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                         Frame frame = new Frame();
                         frame.setId(_id);
-                        frame.setRoll(rollId);
+                        frame.setRollId(rollId);
                         frame.setLensId(lens_id);
                         frame.setCount(count);
                         frame.setDate(date);
