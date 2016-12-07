@@ -30,12 +30,10 @@ import com.tommihirvonen.exifnotes.Adapters.LensAdapter;
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.Datastructures.Filter;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
-import com.tommihirvonen.exifnotes.Dialogs.EditGearInfoDialog;
 import com.tommihirvonen.exifnotes.Dialogs.EditLensInfoDialog;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.Activities.GearActivity;
 import com.tommihirvonen.exifnotes.R;
-import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -176,9 +174,6 @@ public class LensesFragment extends Fragment implements
                     Bundle arguments = new Bundle();
                     arguments.putString("TITLE", getResources().getString( R.string.EditLens));
                     arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
-//                    arguments.putString("MAKE", lens.getMake());
-//                    arguments.putString("MODEL", lens.getModel());
-//                    arguments.putLong("GEAR_ID", lens.getId());
                     arguments.putParcelable("LENS", lens);
                     arguments.putInt("POSITION", which);
                     dialog.setArguments(arguments);
@@ -209,25 +204,13 @@ public class LensesFragment extends Fragment implements
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    String inputTextMake = data.getStringExtra("MAKE");
-                    String inputTextModel = data.getStringExtra("MODEL");
+                    Lens lens = data.getParcelableExtra("LENS");
 
-                    if ( inputTextMake.length() != 0 && inputTextModel.length() != 0 ) {
-
-                        // Check if a lens with the same name already exists
-                        for ( int i = 0; i < mLensList.size(); ++i ) {
-                            if ( inputTextMake.equals( mLensList.get(i).getMake()) && inputTextModel.equals(mLensList.get(i).getModel())  ) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensSameName), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
-                        }
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
+                    if ( lens.getMake().length() != 0 && lens.getModel().length() != 0 ) {
 
                         mainTextView.setVisibility(View.GONE);
 
-                        Lens lens = new Lens();
-                        lens.setMake(inputTextMake);
-                        lens.setModel(inputTextModel);
                         long rowId = database.addLens(lens);
                         lens.setId(rowId);
                         mLensList.add(lens);
@@ -249,25 +232,10 @@ public class LensesFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    String newMake = data.getStringExtra("MAKE");
-                    String newModel = data.getStringExtra("MODEL");
-                    long gearId = data.getLongExtra("GEAR_ID", -1);
-                    int position = data.getIntExtra("POSITION", -1);
+                    Lens lens = data.getParcelableExtra("LENS");
 
-                    if ( gearId != -1 && position != -1 && newMake.length() > 0 && newModel.length() > 0 ) {
-
-                        // Check if a lens with the same name already exists
-                        for ( int i = 0; i < mLensList.size(); ++i ) {
-                            if ( newMake.equals( mLensList.get(i).getMake()) && newModel.equals(mLensList.get(i).getModel())  ) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.LensSameName), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
-                        }
-
-                        Lens lens = mLensList.get(position);
-                        lens.setMake(newMake);
-                        lens.setModel(newModel);
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
+                    if ( lens.getMake().length() > 0 && lens.getModel().length() > 0 && lens.getId() > 0 ) {
 
                         database.updateLens(lens);
 

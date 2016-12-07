@@ -303,19 +303,25 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     // Edit frame info
                     Frame frame = mFrameClassList.get(position);
-                    long _id = frame.getId();
-                    long lens_id = frame.getLensId();
-                    int count = frame.getCount();
-                    String date = frame.getDate();
-                    String shutter = frame.getShutter();
-                    String aperture = frame.getAperture();
-                    String note = frame.getNote();
-                    String location = frame.getLocation();
-                    String title = "" + getActivity().getString(R.string.EditFrame) + count;
+//                    long _id = frame.getId();
+//                    long lens_id = frame.getLensId();
+//                    int count = frame.getCount();
+//                    String date = frame.getDate();
+//                    String shutter = frame.getShutter();
+//                    String aperture = frame.getAperture();
+//                    String note = frame.getNote();
+//                    String location = frame.getLocation();
+                    String title = "" + getActivity().getString(R.string.EditFrame) + frame.getCount();
                     String positiveButton = getActivity().getResources().getString(R.string.OK);
+                    Bundle arguments = new Bundle();
+                    arguments.putString("TITLE", title);
+                    arguments.putString("POSITIVE_BUTTON", positiveButton);
+                    arguments.putParcelable("FRAME", frame);
 
-                    EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id, title, positiveButton);
+//                    EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id, title, positiveButton);
+                    EditFrameInfoDialog dialog = new EditFrameInfoDialog();
                     dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
+                    dialog.setArguments(arguments);
                     dialog.show(getFragmentManager().beginTransaction(), EditFrameInfoDialog.TAG);
 
                     return true;
@@ -917,19 +923,16 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Edit frame info
         Frame frame = mFrameClassList.get(position);
-        long _id = frame.getId();
-        long lens_id = frame.getLensId();
-        int count = frame.getCount();
-        String date = frame.getDate();
-        String shutter = frame.getShutter();
-        String aperture = frame.getAperture();
-        String note = frame.getNote();
-        String location = frame.getLocation();
-        String title = "" + getActivity().getString(R.string.EditFrame) + count;
+        Bundle arguments = new Bundle();
+        String title = "" + getActivity().getString(R.string.EditFrame) + frame.getCount();
         String positiveButton = getActivity().getResources().getString(R.string.OK);
+        arguments.putString("TITLE", title);
+        arguments.putString("POSITIVE_BUTTON", positiveButton);
+        arguments.putParcelable("FRAME", frame);
 
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id, title, positiveButton);
+        EditFrameInfoDialog dialog = new EditFrameInfoDialog();
         dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
+        dialog.setArguments(arguments);
         dialog.show(getFragmentManager().beginTransaction(), EditFrameInfoDialog.TAG);
     }
 
@@ -949,19 +952,18 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             }
         }
 
-        long lens_id = -1;
-        int count = 0;
-        String date = getCurrentTime();
-        String shutter;
-        String aperture;
-        String location;
         String title = getActivity().getResources().getString(R.string.NewFrame);
         String positiveButton = getActivity().getResources().getString(R.string.Add);
 
+        Frame frame = new Frame();
+        frame.setDate(getCurrentTime());
+        frame.setCount(0);
+        frame.setRollId(rollId);
+
         //Get the location only if the app has location permission (locationEnabled) and
         //the user has enabled GPS updates in the app's settings.
-        if ( locationEnabled && PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext()).getBoolean("GPSUpdate", true) ) location = locationStringFromLocation(mLastLocation);
-        else location = "";
+        if ( locationEnabled && PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext()).getBoolean("GPSUpdate", true) ) frame.setLocation(locationStringFromLocation(mLastLocation));
+        //else frame.setLocation("");
 
         if (!mFrameClassList.isEmpty()) {
 
@@ -969,26 +971,30 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             //The last added frame has the highest id number (database autoincrement).
             Frame previousFrame = mFrameClassList.get(mFrameClassList.size() - 1);
             long i = 0;
-            for (Frame frame : mFrameClassList) {
-                if (frame.getId() > i) {
-                    i = frame.getId();
-                    previousFrame = frame;
+            for (Frame frameIterator : mFrameClassList) {
+                if (frameIterator.getId() > i) {
+                    i = frameIterator.getId();
+                    previousFrame = frameIterator;
                 }
                 //Set the frame count to one higher than the highest frame count
-                if (frame.getCount() >= count) count = frame.getCount() + 1;
+                if (frameIterator.getCount() >= frame.getCount()) frame.setCount(frameIterator.getCount() + 1);
             }
-            lens_id = previousFrame.getLensId();
-            shutter = previousFrame.getShutter();
-            aperture = previousFrame.getAperture();
+            frame.setLensId(previousFrame.getLensId());
+            frame.setShutter(previousFrame.getShutter());
+            frame.setAperture(previousFrame.getAperture());
         } else {
-            count = 1;
-            shutter = getResources().getString(R.string.NoValue);
-            aperture = getResources().getString(R.string.NoValue);
+            frame.setCount(1);
+            frame.setShutter(getResources().getString(R.string.NoValue));
+            frame.setAperture(getResources().getString(R.string.NoValue));
         }
 
-        EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(-1, lens_id, -1, count, date,
-                shutter, aperture, "", location, camera_id, title, positiveButton);
+        EditFrameInfoDialog dialog = new EditFrameInfoDialog();
         dialog.setTargetFragment(this, FRAME_INFO_DIALOG);
+        Bundle arguments = new Bundle();
+        arguments.putString("TITLE", title);
+        arguments.putString("POSITIVE_BUTTON", positiveButton);
+        arguments.putParcelable("FRAME", frame);
+        dialog.setArguments(arguments);
         dialog.show(getFragmentManager(), EditFrameInfoDialog.TAG);
     }
 
@@ -1008,17 +1014,10 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                 if ( resultCode == Activity.RESULT_OK ) {
 
-                    int count = data.getIntExtra("COUNT", -1);
-                    String date = data.getStringExtra("DATE");
-                    long lens_id = data.getLongExtra("LENS_ID", -1);
-                    String shutter = data.getStringExtra("SHUTTER");
-                    String aperture = data.getStringExtra("APERTURE");
-                    String note = data.getStringExtra("NOTE");
-                    String location = data.getStringExtra("LOCATION");
+                    Frame frame = data.getParcelableExtra("FRAME");
 
-                    if ( count != -1 ) {
-
-                        Frame frame = new Frame(rollId, count, date, lens_id, shutter, aperture, note, location);
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
+                    if ( frame != null ) {
 
                         // Save the file when the new frame has been added
                         long rowId = database.addFrame(frame);
@@ -1030,8 +1029,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         mainTextView.setVisibility(View.GONE);
 
                         // When the new frame is added jump to view the added entry
-                        int pos = 0;
-                        pos = mFrameClassList.indexOf(frame);
+                        int pos = mFrameClassList.indexOf(frame);
                         if (pos < mainListView.getCount()) mainListView.setSelection(pos);
                         // The text you'd like to share has changed,
                         // and you need to update
@@ -1047,37 +1045,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                 if ( resultCode == Activity.RESULT_OK ) {
 
-                    long _id = data.getLongExtra("ID", -1);
-                    int count = data.getIntExtra("COUNT", -1);
-                    int position = data.getIntExtra("POSITION", -1);
-                    String date = data.getStringExtra("DATE");
-                    long lens_id = data.getLongExtra("LENS_ID", -1);
-                    String shutter = data.getStringExtra("SHUTTER");
-                    String aperture = data.getStringExtra("APERTURE");
-                    String note = data.getStringExtra("NOTE");
-                    String location = data.getStringExtra("LOCATION");
+                    Frame frame = data.getParcelableExtra("FRAME");
 
-                    if ( _id != -1 && count != -1 && position != -1 ) {
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
+                    if ( frame != null ) {
 
-                        Frame frame = new Frame();
-                        frame.setId(_id);
-                        frame.setRollId(rollId);
-                        frame.setLensId(lens_id);
-                        frame.setCount(count);
-                        frame.setDate(date);
-                        frame.setShutter(shutter);
-                        frame.setAperture(aperture);
-                        frame.setNote(note);
-                        frame.setLocation(location);
                         database.updateFrame(frame);
-                        //Make the change in the class list and the list view
-                        mFrameClassList.get(position).setLensId(lens_id);
-                        mFrameClassList.get(position).setCount(count);
-                        mFrameClassList.get(position).setDate(date);
-                        mFrameClassList.get(position).setShutter(shutter);
-                        mFrameClassList.get(position).setAperture(aperture);
-                        mFrameClassList.get(position).setNote(note);
-                        mFrameClassList.get(position).setLocation(location);
                         sortFrameList(mFrameClassList);
                         mFrameAdapter.notifyDataSetChanged();
 

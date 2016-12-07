@@ -17,40 +17,40 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.tommihirvonen.exifnotes.Datastructures.Filter;
 import com.tommihirvonen.exifnotes.R;
-import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
-public class EditGearInfoDialog extends DialogFragment {
+public class EditFilterInfoDialog extends DialogFragment {
 
-    public static final String TAG = "GearInfoDialogFragment";
+    public static final String TAG = "FilterInfoDialogFragment";
 
-    public EditGearInfoDialog(){
+    public EditFilterInfoDialog(){
 
     }
+
+    Filter filter;
 
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        final View inflator = linf.inflate(R.layout.gear_dialog, null);
+        final View inflator = linf.inflate(R.layout.filter_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         String title = getArguments().getString("TITLE");
         String positiveButton = getArguments().getString("POSITIVE_BUTTON");
-        String make = getArguments().getString("MAKE");
-        String model = getArguments().getString("MODEL");
-        final long gearId = getArguments().getLong("GEAR_ID", -1);
-        final int position = getArguments().getInt("POSITION", -1);
+        filter = getArguments().getParcelable("FILTER");
+        if (filter == null) filter = new Filter();
 
         alert.setTitle(title);
 
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);
-        et1.setText(make);
+        et1.setText(filter.getMake());
         final EditText et2 = (EditText) inflator.findViewById(R.id.txt_model);
-        et2.setText(model);
+        et2.setText(filter.getModel());
 
 
         alert.setPositiveButton(positiveButton, null);
@@ -69,25 +69,23 @@ public class EditGearInfoDialog extends DialogFragment {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String make = et1.getText().toString();
-                String model = et2.getText().toString();
+                filter.setMake(et1.getText().toString());
+                filter.setModel(et2.getText().toString());
 
-                if (make.length() != 0 && model.length() != 0) {
+                // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE HERE.
+                if (filter.getMake().length() != 0 && filter.getModel().length() != 0) {
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
-                    intent.putExtra("MAKE", make);
-                    intent.putExtra("MODEL", model);
-                    intent.putExtra("GEAR_ID", gearId);
-                    intent.putExtra("POSITION", position);
+                    intent.putExtra("FILTER", filter);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                } else if (make.length() == 0 && model.length() == 0) {
+                } else if (filter.getMake().length() == 0 && filter.getMake().length() == 0) {
                     // No make or model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();
-                } else if (make.length() > 0 && model.length() == 0) {
+                } else if (filter.getMake().length() > 0 && filter.getMake().length() == 0) {
                     // No model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
-                } else if (make.length() == 0 && model.length() > 0) {
+                } else if (filter.getMake().length() == 0 && filter.getMake().length() > 0) {
                     // No make was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
                 }

@@ -25,10 +25,9 @@ import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Activities.GearActivity;
 import com.tommihirvonen.exifnotes.Adapters.FilterAdapter;
-import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.Datastructures.Filter;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
-import com.tommihirvonen.exifnotes.Dialogs.EditGearInfoDialog;
+import com.tommihirvonen.exifnotes.Dialogs.EditFilterInfoDialog;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 
@@ -128,13 +127,13 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
     }
 
     public void showFilterNameDialog() {
-        EditGearInfoDialog dialog = new EditGearInfoDialog();
+        EditFilterInfoDialog dialog = new EditFilterInfoDialog();
         dialog.setTargetFragment(this, ADD_FILTER);
         Bundle arguments = new Bundle();
         arguments.putString("TITLE", getResources().getString( R.string.NewFilter));
         arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
+        dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
     }
 
     @Override
@@ -174,17 +173,14 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
 
                 case R.id.menu_item_edit:
 
-                    EditGearInfoDialog dialog = new EditGearInfoDialog();
+                    EditFilterInfoDialog dialog = new EditFilterInfoDialog();
                     dialog.setTargetFragment(this, EDIT_FILTER);
                     Bundle arguments = new Bundle();
                     arguments.putString("TITLE", getResources().getString( R.string.EditFilter));
                     arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
-                    arguments.putString("MAKE", filter.getMake());
-                    arguments.putString("MODEL", filter.getModel());
-                    arguments.putLong("GEAR_ID", filter.getId());
-                    arguments.putInt("POSITION", which);
+                    arguments.putParcelable("FILTER", filter);
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
+                    dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
 
                     return true;
             }
@@ -201,25 +197,13 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    String inputTextMake = data.getStringExtra("MAKE");
-                    String inputTextModel = data.getStringExtra("MODEL");
+                    Filter filter = data.getParcelableExtra("FILTER");
 
-                    if ( inputTextMake.length() != 0 && inputTextModel.length() != 0 ) {
-
-                        // Check if a filter with the same name already exists
-                        for ( int i = 0; i < mFilterList.size(); ++i ) {
-                            if ( inputTextMake.equals( mFilterList.get(i).getMake()) && inputTextModel.equals(mFilterList.get(i).getModel())  ) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.FilterSameName), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
-                        }
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
+                    if ( filter.getMake().length() != 0 && filter.getModel().length() != 0 ) {
 
                         mainTextView.setVisibility(View.GONE);
 
-                        Filter filter = new Filter();
-                        filter.setMake(inputTextMake);
-                        filter.setModel(inputTextModel);
                         long rowId = database.addFilter(filter);
                         filter.setId(rowId);
                         mFilterList.add(filter);
@@ -240,25 +224,10 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    String newMake = data.getStringExtra("MAKE");
-                    String newModel = data.getStringExtra("MODEL");
-                    long gearId = data.getLongExtra("GEAR_ID", -1);
-                    int position = data.getIntExtra("POSITION", -1);
+                    Filter filter = data.getParcelableExtra("FILTER");
 
-                    if ( gearId != -1 && position != -1 && newMake.length() > 0 && newModel.length() > 0 ) {
-
-                        // Check if a filter with the same name already exists
-                        for ( int i = 0; i < mFilterList.size(); ++i ) {
-                            if ( newMake.equals( mFilterList.get(i).getMake()) && newModel.equals(mFilterList.get(i).getModel())  ) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.FilterSameName), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
-                        }
-
-                        Filter filter = mFilterList.get(position);
-                        filter.setMake(newMake);
-                        filter.setModel(newModel);
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
+                    if ( filter.getMake().length() > 0 && filter.getModel().length() > 0 ) {
 
                         database.updateFilter(filter);
 

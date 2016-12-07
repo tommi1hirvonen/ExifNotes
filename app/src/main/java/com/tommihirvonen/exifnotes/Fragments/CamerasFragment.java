@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -31,11 +30,9 @@ import com.tommihirvonen.exifnotes.Adapters.CameraAdapter;
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Dialogs.EditCameraInfoDialog;
-import com.tommihirvonen.exifnotes.Dialogs.EditGearInfoDialog;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.Activities.GearActivity;
 import com.tommihirvonen.exifnotes.R;
-import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -207,6 +204,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                     Camera camera = data.getParcelableExtra("CAMERA");
 
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
                     if ( camera.getMake().length() != 0 && camera.getModel().length() != 0 ) {
 
                         mainTextView.setVisibility(View.GONE);
@@ -233,6 +231,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                     Camera camera = data.getParcelableExtra("CAMERA");
 
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
                     if ( camera.getMake().length() > 0 && camera.getModel().length() > 0 ) {
 
                         database.updateCamera(camera);

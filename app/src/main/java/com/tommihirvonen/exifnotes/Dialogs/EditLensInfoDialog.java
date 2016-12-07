@@ -28,6 +28,8 @@ public class EditLensInfoDialog extends DialogFragment {
 
     }
 
+    Lens lens;
+
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
@@ -38,33 +40,19 @@ public class EditLensInfoDialog extends DialogFragment {
 
         String title = getArguments().getString("TITLE");
         String positiveButton = getArguments().getString("POSITIVE_BUTTON");
-//        String make = getArguments().getString("MAKE");
-//        String model = getArguments().getString("MODEL");
-//        String serialNumber = getArguments().getString("SERIAL_NUMBER");
-//        final long gearId = getArguments().getLong("GEAR_ID", -1);
-        String make = "", model = "", serialNumber = "";
-        final long gearId;
-        Lens lens = getArguments().getParcelable("LENS");
-        if (lens != null){
-            make = lens.getMake();
-            model = lens.getModel();
-            serialNumber = lens.getSerialNumber();
-            gearId = lens.getId();
-        } else {
-            gearId = -1;
-        }
-        final int position = getArguments().getInt("POSITION", -1);
+        lens = getArguments().getParcelable("LENS");
+        if (lens == null) lens = new Lens();
 
         alert.setTitle(title);
 
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);
-        et1.setText(make);
+        et1.setText(lens.getMake());
         final EditText et2 = (EditText) inflator.findViewById(R.id.txt_model);
-        et2.setText(model);
+        et2.setText(lens.getModel());
         final EditText et3 = (EditText) inflator.findViewById(R.id.txt_serial_number);
-        et3.setText(serialNumber);
+        et3.setText(lens.getSerialNumber());
 
 
 
@@ -87,27 +75,24 @@ public class EditLensInfoDialog extends DialogFragment {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String make = et1.getText().toString();
-                String model = et2.getText().toString();
-                String serialNumber = et3.getText().toString();
+                lens.setMake(et1.getText().toString());
+                lens.setModel(et2.getText().toString());
+                lens.setSerialNumber(et3.getText().toString());
 
-                if (make.length() != 0 && model.length() != 0) {
+                // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE HERE.
+                if (lens.getMake().length() != 0 && lens.getModel().length() != 0) {
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
-                    intent.putExtra("MAKE", make);
-                    intent.putExtra("MODEL", model);
-                    intent.putExtra("SERIAL_NUMBER", serialNumber);
-                    intent.putExtra("GEAR_ID", gearId);
-                    intent.putExtra("POSITION", position);
+                    intent.putExtra("LENS", lens);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                } else if (make.length() == 0 && model.length() == 0) {
+                } else if (lens.getMake().length() == 0 && lens.getModel().length() == 0) {
                     // No make or model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();
-                } else if (make.length() > 0 && model.length() == 0) {
+                } else if (lens.getMake().length() > 0 && lens.getModel().length() == 0) {
                     // No model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
-                } else if (make.length() == 0 && model.length() > 0) {
+                } else if (lens.getMake().length() == 0 && lens.getModel().length() > 0) {
                     // No make was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
                 }

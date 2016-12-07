@@ -381,24 +381,14 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
      * to edit a roll's information. Shows a DialogFragment to edit
      * the roll's information.
      *
-     * @param rollId the id of the roll
-     * @param oldName the current name of the roll
-     * @param oldNote the current note of the roll
-     * @param camera_id the id of the camera that is used
-     * @param date the current date of the roll
-     * @param title the current title of the roll
+     * @param position the position of the roll in mRollList
      */
-    private void show_EditRollNameDialog(long rollId, String oldName, String oldNote, long camera_id, String date, String title){
+    private void show_EditRollNameDialog(int position){
         EditRollNameDialog dialog = new EditRollNameDialog();
         Bundle arguments = new Bundle();
-        arguments.putLong("ROLL_ID", rollId);
-        arguments.putLong("CAMERA_ID", camera_id);
-        arguments.putString("OLD_NAME", oldName);
-        arguments.putString("OLD_NOTE", oldNote);
-        arguments.putString("DATE", date);
-        arguments.putString("TITLE", title);
+        arguments.putParcelable("ROLL", mRollList.get(position));
+        arguments.putString("TITLE", getActivity().getResources().getString(R.string.EditRoll));
         arguments.putString("POSITIVE_BUTTON", getActivity().getResources().getString(R.string.OK));
-
         dialog.setArguments(arguments);
         dialog.setTargetFragment(this, EDIT_ROLL_NAME_DIALOG);
         dialog.show(getFragmentManager().beginTransaction(), EditRollNameDialog.TAG);
@@ -411,11 +401,6 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
     private void show_RollNameDialog() {
         EditRollNameDialog dialog = new EditRollNameDialog();
         Bundle arguments = new Bundle();
-        arguments.putLong("ROLL_ID", -1);
-        arguments.putLong("CAMERA_ID", -1);
-        arguments.putString("OLD_NAME", "");
-        arguments.putString("OLD_NOTE", "");
-        arguments.putString("DATE", "");
         arguments.putString("TITLE", getActivity().getResources().getString(R.string.NewRoll));
         arguments.putString("POSITIVE_BUTTON", getActivity().getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
@@ -437,8 +422,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
             switch (item.getItemId()) {
                 case R.id.menu_item_edit:
 
-                    int position = info.position;
-                    show_EditRollNameDialog(mRollList.get(position).getId(), mRollList.get(position).getName(), mRollList.get(position).getNote(), mRollList.get(position).getCamera_id(), mRollList.get(position).getDate(), getActivity().getResources().getString(R.string.EditRoll));
+                    show_EditRollNameDialog(info.position);
 
                     return true;
 
@@ -493,18 +477,11 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    String inputName = data.getStringExtra("NAME");
-                    String inputNote = data.getStringExtra("NOTE");
-                    String date = data.getStringExtra("DATE");
-                    long camera_id = data.getLongExtra("CAMERA_ID", -1);
+                    Roll roll = data.getParcelableExtra("ROLL");
 
-                    if (inputName.length() != 0 && camera_id != -1) {
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
+                    if (roll.getName().length() != 0 && roll.getCamera_id() > 0) {
 
-                        Roll roll = new Roll();
-                        roll.setName(inputName);
-                        roll.setDate(date);
-                        roll.setNote(inputNote);
-                        roll.setCamera_id(camera_id);
                         long rowId = database.addRoll(roll);
                         roll.setId(rowId);
 
@@ -515,8 +492,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                         mArrayAdapter.notifyDataSetChanged();
 
                         // When the new roll is added jump to view the added entry
-                        int pos = 0;
-                        pos = mRollList.indexOf(roll);
+                        int pos = mRollList.indexOf(roll);
                         //mainListView.setSelection(mainListView.getCount() - 1);
                         if (pos < mainListView.getCount()) mainListView.setSelection(pos);
                     }
@@ -530,26 +506,11 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    String newName = data.getStringExtra("NAME");
-                    long rollId = data.getLongExtra("ROLL_ID", -1);
-                    long camera_id = data.getLongExtra("CAMERA_ID", -1);
-                    String newNote = data.getStringExtra("NOTE");
-                    String newDate = data.getStringExtra("DATE");
+                    Roll roll = data.getParcelableExtra("ROLL");
 
-                    if ( newName.length() != 0 && rollId != -1 && camera_id != -1 ) {
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
+                    if ( roll.getName().length() != 0 && roll.getCamera_id() > 0 && roll.getId() > 0 ) {
 
-                        // Change the string in mRollList
-                        int position = 0;
-                        for ( int i = 0; i < mRollList.size(); ++i) {
-                            if ( rollId == mRollList.get(i).getId() ) {
-                                position = i;
-                            }
-                        }
-                        Roll roll = mRollList.get(position);
-                        roll.setName(newName);
-                        roll.setNote(newNote);
-                        roll.setCamera_id(camera_id);
-                        roll.setDate(newDate);
                         database.updateRoll(roll);
 
                         // Notify array adapter that the dataset has to be updated

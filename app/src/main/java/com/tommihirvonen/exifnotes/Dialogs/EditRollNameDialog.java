@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.tommihirvonen.exifnotes.Datastructures.Roll;
 import com.tommihirvonen.exifnotes.Fragments.CamerasFragment;
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
@@ -35,11 +36,8 @@ import java.util.List;
 
 public class EditRollNameDialog extends DialogFragment {
 
-    public String oldName;
-    public String oldNote;
-    public long rollId;
-    long camera_id;
-    String date;
+    Roll roll;
+
     String title;
     String positiveButton;
     FilmDbHelper database;
@@ -57,13 +55,10 @@ public class EditRollNameDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
-        oldName = getArguments().getString("OLD_NAME");
-        oldNote = getArguments().getString("OLD_NOTE");
-        rollId = getArguments().getLong("ROLL_ID");
-        camera_id = getArguments().getLong("CAMERA_ID", -1);
-        date = getArguments().getString("DATE");
         title = getArguments().getString("TITLE");
         positiveButton = getArguments().getString("POSITIVE_BUTTON");
+        roll = getArguments().getParcelable("ROLL");
+        if (roll == null) roll = new Roll();
 
         database = new FilmDbHelper(getActivity());
         mCameraList = database.getAllCameras();
@@ -86,7 +81,7 @@ public class EditRollNameDialog extends DialogFragment {
 
         // CAMERA PICK DIALOG
         b_camera.setClickable(true);
-        if ( camera_id != -1 ) b_camera.setText(database.getCamera(camera_id).getMake() + " " + database.getCamera(camera_id).getModel());
+        if ( roll.getCamera_id() > 0 ) b_camera.setText(database.getCamera(roll.getCamera_id()).getMake() + " " + database.getCamera(roll.getCamera_id()).getModel());
         else b_camera.setText(R.string.ClickToSelect);
         b_camera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,7 +98,7 @@ public class EditRollNameDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
                         b_camera.setText(listItems.get(which));
-                        camera_id = mCameraList.get(which).getId();
+                        roll.setCamera_id(mCameraList.get(which).getId());
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -122,13 +117,13 @@ public class EditRollNameDialog extends DialogFragment {
         b_addCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditGearInfoDialog dialog = new EditGearInfoDialog();
+                EditCameraInfoDialog dialog = new EditCameraInfoDialog();
                 dialog.setTargetFragment(EditRollNameDialog.this, CamerasFragment.ADD_CAMERA);
                 Bundle arguments = new Bundle();
                 arguments.putString("TITLE", getResources().getString( R.string.NewCamera));
                 arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
                 dialog.setArguments(arguments);
-                dialog.show(getFragmentManager().beginTransaction(), EditGearInfoDialog.TAG);
+                dialog.show(getFragmentManager().beginTransaction(), EditCameraInfoDialog.TAG);
             }
         });
 
@@ -137,16 +132,16 @@ public class EditRollNameDialog extends DialogFragment {
         int temp_month;
         int temp_day;
 
-        if ( date.length() > 0 ) {
-            final ArrayList<String> dateValue = Utilities.splitDate(date);
+        if ( roll.getDate() != null ) {
+            final ArrayList<String> dateValue = Utilities.splitDate(roll.getDate());
             temp_year = Integer.parseInt(dateValue.get(0));
             temp_month = Integer.parseInt(dateValue.get(1));
             temp_day = Integer.parseInt(dateValue.get(2));
             b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
         } else {
-            date = FramesFragment.getCurrentTime();
+            roll.setDate(FramesFragment.getCurrentTime());
 
-            ArrayList<String> dateValue = Utilities.splitDate(date);
+            ArrayList<String> dateValue = Utilities.splitDate(roll.getDate());
             temp_year = Integer.parseInt(dateValue.get(0));
             temp_month = Integer.parseInt(dateValue.get(1));
             temp_day = Integer.parseInt(dateValue.get(2));
@@ -167,7 +162,7 @@ public class EditRollNameDialog extends DialogFragment {
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         String newDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
                         b_date.setText(newDate);
-                        date = newDate + " " + b_time.getText().toString();
+                        roll.setDate(newDate + " " + b_time.getText().toString());
                     }
                     // One month has to be subtracted from the default shown month, otherwise
                     // the date picker shows one month forward.
@@ -183,14 +178,14 @@ public class EditRollNameDialog extends DialogFragment {
         int temp_hours;
         int temp_minutes;
 
-        if ( date.length() > 0 ) {
-            ArrayList<String> timeValue = Utilities.splitTime(date);
+        if ( roll.getDate() != null ) {
+            ArrayList<String> timeValue = Utilities.splitTime(roll.getDate());
             temp_hours = Integer.parseInt(timeValue.get(0));
             temp_minutes = Integer.parseInt(timeValue.get(1));
             if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
             else b_time.setText(temp_hours + ":" + temp_minutes);
         } else {
-            ArrayList<String> timeValue = Utilities.splitTime(date);
+            ArrayList<String> timeValue = Utilities.splitTime(roll.getDate());
             temp_hours = Integer.parseInt(timeValue.get(0));
             temp_minutes = Integer.parseInt(timeValue.get(1));
             if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
@@ -213,7 +208,7 @@ public class EditRollNameDialog extends DialogFragment {
                             newTime = hourOfDay + ":0" + minute;
                         } else newTime = hourOfDay + ":" + minute;
                         b_time.setText(newTime);
-                        date = b_date.getText().toString() + " " + newTime;
+                        roll.setDate(b_date.getText().toString() + " " + newTime);
                     }
                 }, hours, minutes, true);
 
@@ -223,8 +218,8 @@ public class EditRollNameDialog extends DialogFragment {
         });
 
         // Show old name on the input field by default
-        et1.setText(oldName);
-        et2.setText(oldNote);
+        et1.setText(roll.getName());
+        et2.setText(roll.getNote());
         // Place the cursor at the end of the input field
         et1.setSelection(et1.getText().length());
 
@@ -249,21 +244,18 @@ public class EditRollNameDialog extends DialogFragment {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String newName = et1.getText().toString();
-                String newNote = et2.getText().toString();
+                roll.setName(et1.getText().toString());
+                roll.setNote(et2.getText().toString());
 
-                if (newName.length() != 0 && camera_id != -1) {
+                // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE HERE.
+                if (roll.getName().length() != 0 && roll.getCamera_id() > 0) {
                     Intent intent = new Intent();
-                    intent.putExtra("ROLL_ID", rollId);
-                    intent.putExtra("NAME", newName);
-                    intent.putExtra("NOTE", newNote);
-                    intent.putExtra("CAMERA_ID", camera_id);
-                    intent.putExtra("DATE", date);
+                    intent.putExtra("ROLL", roll);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                } else if (newName.length() == 0 && camera_id != -1) {
+                } else if (roll.getName().length() == 0 && roll.getCamera_id() > 0) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
-                } else if (newName.length() != 0 && camera_id == -1) {
+                } else if (roll.getName().length() != 0 && roll.getCamera_id() <= 0) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
@@ -283,29 +275,17 @@ public class EditRollNameDialog extends DialogFragment {
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    String inputTextMake = data.getStringExtra("MAKE");
-                    String inputTextModel = data.getStringExtra("MODEL");
+                    Camera camera = data.getParcelableExtra("CAMERA");
 
-                    if (inputTextMake.length() != 0 && inputTextModel.length() != 0) {
+                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE ADDING DIALOG.
+                    if (camera.getMake().length() != 0 && camera.getModel().length() != 0) {
 
-                        // Check if a camera with the same name already exists
-                        for (int i = 0; i < mCameraList.size(); ++i) {
-                            if (inputTextMake.equals(mCameraList.get(i).getMake()) && inputTextModel.equals(mCameraList.get(i).getModel())) {
-                                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.CameraSameName), Toast.LENGTH_LONG);
-                                toast.show();
-                                return;
-                            }
-                        }
-
-                        Camera camera = new Camera();
-                        camera.setMake(inputTextMake);
-                        camera.setModel(inputTextModel);
                         long rowId = database.addCamera(camera);
                         camera.setId(rowId);
                         mCameraList.add(camera);
 
                         b_camera.setText(camera.getMake() + " " + camera.getModel());
-                        camera_id = camera.getId();
+                        roll.setCamera_id(camera.getId());
                     }
 
                 } else if (resultCode == Activity.RESULT_CANCELED) {
