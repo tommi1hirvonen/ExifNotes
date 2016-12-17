@@ -199,8 +199,7 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
 
                     Filter filter = data.getParcelableExtra("FILTER");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
-                    if ( filter.getMake().length() != 0 && filter.getModel().length() != 0 ) {
+                    if ( filter.getMake().length() > 0 && filter.getModel().length() > 0 ) {
 
                         mainTextView.setVisibility(View.GONE);
 
@@ -226,8 +225,7 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
 
                     Filter filter = data.getParcelableExtra("FILTER");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
-                    if ( filter.getMake().length() > 0 && filter.getModel().length() > 0 ) {
+                    if ( filter.getMake().length() > 0 && filter.getModel().length() > 0 && filter.getId() > 0 ) {
 
                         database.updateFilter(filter);
 

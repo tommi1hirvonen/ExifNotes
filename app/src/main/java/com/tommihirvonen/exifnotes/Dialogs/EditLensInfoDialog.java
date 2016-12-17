@@ -79,8 +79,7 @@ public class EditLensInfoDialog extends DialogFragment {
                 lens.setModel(et2.getText().toString());
                 lens.setSerialNumber(et3.getText().toString());
 
-                // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE HERE.
-                if (lens.getMake().length() != 0 && lens.getModel().length() != 0) {
+                if (lens.getMake().length() > 0 && lens.getModel().length() > 0) {
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
                     intent.putExtra("LENS", lens);

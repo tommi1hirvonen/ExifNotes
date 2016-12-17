@@ -450,7 +450,6 @@ public class EditFrameInfoDialog extends DialogFragment {
             // After Ok code.
             Lens lens = data.getParcelableExtra("LENS");
 
-            // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE ADDING DIALOG.
             if (lens.getMake().length() != 0 && lens.getModel().length() != 0) {
                 long rowId = database.addLens(lens);
                 lens.setId(rowId);

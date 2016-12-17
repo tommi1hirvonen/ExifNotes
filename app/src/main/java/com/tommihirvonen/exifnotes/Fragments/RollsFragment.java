@@ -479,8 +479,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                     Roll roll = data.getParcelableExtra("ROLL");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
-                    if (roll.getName().length() != 0 && roll.getCamera_id() > 0) {
+                    if (roll.getName().length() > 0 && roll.getCamera_id() > 0) {
 
                         long rowId = database.addRoll(roll);
                         roll.setId(rowId);
@@ -508,8 +507,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                     Roll roll = data.getParcelableExtra("ROLL");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
-                    if ( roll.getName().length() != 0 && roll.getCamera_id() > 0 && roll.getId() > 0 ) {
+                    if ( roll.getName().length() > 0 && roll.getCamera_id() > 0 && roll.getId() > 0 ) {
 
                         database.updateRoll(roll);
 

@@ -206,8 +206,7 @@ public class LensesFragment extends Fragment implements
 
                     Lens lens = data.getParcelableExtra("LENS");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
-                    if ( lens.getMake().length() != 0 && lens.getModel().length() != 0 ) {
+                    if ( lens.getMake().length() > 0 && lens.getModel().length() > 0 ) {
 
                         mainTextView.setVisibility(View.GONE);
 
@@ -234,7 +233,6 @@ public class LensesFragment extends Fragment implements
 
                     Lens lens = data.getParcelableExtra("LENS");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
                     if ( lens.getMake().length() > 0 && lens.getModel().length() > 0 && lens.getId() > 0 ) {
 
                         database.updateLens(lens);

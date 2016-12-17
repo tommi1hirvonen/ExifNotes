@@ -79,8 +79,7 @@ public class EditCameraInfoDialog extends DialogFragment {
                 camera.setModel(et2.getText().toString());
                 camera.setSerialNumber(et3.getText().toString());
 
-                // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE HERE.
-                if (camera.getMake().length() != 0 && camera.getModel().length() != 0) {
+                if (camera.getMake().length() > 0 && camera.getModel().length() > 0) {
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
                     intent.putExtra("CAMERA", camera);

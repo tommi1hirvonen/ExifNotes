@@ -204,8 +204,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                     Camera camera = data.getParcelableExtra("CAMERA");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
-                    if ( camera.getMake().length() != 0 && camera.getModel().length() != 0 ) {
+                    if ( camera.getMake().length() > 0 && camera.getModel().length() > 0 ) {
 
                         mainTextView.setVisibility(View.GONE);
 
@@ -231,8 +230,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                     Camera camera = data.getParcelableExtra("CAMERA");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
-                    if ( camera.getMake().length() > 0 && camera.getModel().length() > 0 ) {
+                    if ( camera.getMake().length() > 0 && camera.getModel().length() > 0 && camera.getId() > 0 ) {
 
                         database.updateCamera(camera);
 

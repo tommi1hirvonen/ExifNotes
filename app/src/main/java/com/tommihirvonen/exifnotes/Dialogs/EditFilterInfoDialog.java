@@ -72,8 +72,7 @@ public class EditFilterInfoDialog extends DialogFragment {
                 filter.setMake(et1.getText().toString());
                 filter.setModel(et2.getText().toString());
 
-                // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE HERE.
-                if (filter.getMake().length() != 0 && filter.getModel().length() != 0) {
+                if (filter.getMake().length() > 0 && filter.getModel().length() > 0) {
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
                     intent.putExtra("FILTER", filter);

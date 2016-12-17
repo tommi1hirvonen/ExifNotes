@@ -247,15 +247,14 @@ public class EditRollNameDialog extends DialogFragment {
                 roll.setName(et1.getText().toString());
                 roll.setNote(et2.getText().toString());
 
-                // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE HERE.
-                if (roll.getName().length() != 0 && roll.getCamera_id() > 0) {
+                if (roll.getName().length() > 0 && roll.getCamera_id() > 0) {
                     Intent intent = new Intent();
                     intent.putExtra("ROLL", roll);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                 } else if (roll.getName().length() == 0 && roll.getCamera_id() > 0) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
-                } else if (roll.getName().length() != 0 && roll.getCamera_id() <= 0) {
+                } else if (roll.getName().length() > 0 && roll.getCamera_id() <= 0) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
@@ -277,8 +276,7 @@ public class EditRollNameDialog extends DialogFragment {
 
                     Camera camera = data.getParcelableExtra("CAMERA");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE ADDING DIALOG.
-                    if (camera.getMake().length() != 0 && camera.getModel().length() != 0) {
+                    if (camera.getMake().length() > 0 && camera.getModel().length() > 0) {
 
                         long rowId = database.addCamera(camera);
                         camera.setId(rowId);

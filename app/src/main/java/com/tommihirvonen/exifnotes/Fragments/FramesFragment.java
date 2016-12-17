@@ -1016,7 +1016,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     Frame frame = data.getParcelableExtra("FRAME");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
                     if ( frame != null ) {
 
                         // Save the file when the new frame has been added
@@ -1047,8 +1046,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     Frame frame = data.getParcelableExtra("FRAME");
 
-                    // TODO: IMPLEMENT NEW APPROPRIATE CRITERIA HERE FOR NEW ROLL INSERTION. COMPARISON TO EXISTING OBJECTS SHOULD BE MADE IN THE DIALOG.
-                    if ( frame != null ) {
+                    if ( frame != null && frame.getId() > 0 ) {
 
                         database.updateFrame(frame);
                         sortFrameList(mFrameClassList);
