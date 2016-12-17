@@ -893,6 +893,14 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setAperture(cursor.getString(cursor.getColumnIndex(KEY_APERTURE)));
         frame.setNote(cursor.getString(cursor.getColumnIndex(KEY_FRAME_NOTE)));
         frame.setLocation(cursor.getString(cursor.getColumnIndex(KEY_LOCATION)));
+        frame.setFocalLength(cursor.getInt(cursor.getColumnIndex(KEY_FOCAL_LENGTH)));
+        frame.setExposureComp(cursor.getString(cursor.getColumnIndex(KEY_EXPOSURE_COMP)));
+        frame.setNoOfExposures(cursor.getInt(cursor.getColumnIndex(KEY_NO_OF_EXPOSURES)));
+        frame.setFlashUsed(cursor.getInt(cursor.getColumnIndex(KEY_FLASH_USED)));
+        frame.setFlashPower(cursor.getString(cursor.getColumnIndex(KEY_FLASH_POWER)));
+        frame.setFlashComp(cursor.getString(cursor.getColumnIndex(KEY_FLASH_COMP)));
+        frame.setFilterId(cursor.getLong(cursor.getColumnIndex(KEY_FILTER_ID)));
+        frame.setMeteringMode(cursor.getString(cursor.getColumnIndex(KEY_METERING_MODE)));
         return frame;
     }
 
@@ -917,6 +925,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         lens.setId(cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID)));
         lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
         lens.setModel(cursor.getString(cursor.getColumnIndex(KEY_LENS_MODEL)));
+        lens.setSerialNumber(cursor.getString(cursor.getColumnIndex(KEY_LENS_SERIAL_NO)));
+        lens.setMinAperture(cursor.getString(cursor.getColumnIndex(KEY_LENS_MIN_APERTURE)));
+        lens.setMaxAperture(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAX_APERTURE)));
+        lens.setMinFocalLength(cursor.getInt(cursor.getColumnIndex(KEY_LENS_MIN_FOCAL_LENGTH)));
+        lens.setMaxFocalLength(cursor.getInt(cursor.getColumnIndex(KEY_LENS_MAX_FOCAL_LENGTH)));
         return lens;
     }
 
@@ -928,6 +941,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         camera.setId(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
         camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
         camera.setModel(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MODEL)));
+        camera.setSerialNumber(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_SERIAL_NO)));
+        camera.setMinShutter(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MIN_SHUTTER)));
+        camera.setMaxShutter(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAX_SHUTTER)));
         return camera;
     }
 
@@ -956,6 +972,14 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_APERTURE, frame.getAperture());
         contentValues.put(KEY_FRAME_NOTE, frame.getNote());
         contentValues.put(KEY_LOCATION, frame.getLocation());
+        contentValues.put(KEY_FOCAL_LENGTH, frame.getFocalLength());
+        contentValues.put(KEY_EXPOSURE_COMP, frame.getExposureComp());
+        contentValues.put(KEY_NO_OF_EXPOSURES, frame.getNoOfExposures());
+        contentValues.put(KEY_FLASH_USED, frame.getFlashUsed());
+        contentValues.put(KEY_FLASH_POWER, frame.getFlashPower());
+        contentValues.put(KEY_FLASH_COMP, frame.getFlashComp());
+        contentValues.put(KEY_FILTER_ID, frame.getFilterId());
+        contentValues.put(KEY_METERING_MODE, frame.getMeteringMode());
         return contentValues;
     }
 
@@ -963,6 +987,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_LENS_MAKE, lens.getMake());
         contentValues.put(KEY_LENS_MODEL, lens.getModel());
+        contentValues.put(KEY_LENS_SERIAL_NO, lens.getSerialNumber());
+        contentValues.put(KEY_LENS_MIN_APERTURE, lens.getMinAperture());
+        contentValues.put(KEY_LENS_MAX_APERTURE, lens.getMaxAperture());
+        contentValues.put(KEY_LENS_MIN_FOCAL_LENGTH, lens.getMinFocalLength());
+        contentValues.put(KEY_LENS_MAX_FOCAL_LENGTH, lens.getMaxFocalLength());
         return contentValues;
     }
 
@@ -970,6 +999,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_CAMERA_MAKE, camera.getMake());
         contentValues.put(KEY_CAMERA_MODEL, camera.getModel());
+        contentValues.put(KEY_CAMERA_SERIAL_NO, camera.getSerialNumber());
+        contentValues.put(KEY_CAMERA_MIN_SHUTTER, camera.getMinShutter());
+        contentValues.put(KEY_CAMERA_MAX_SHUTTER, camera.getMaxShutter());
         return contentValues;
     }
 

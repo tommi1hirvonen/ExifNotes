@@ -21,11 +21,36 @@ public class Frame implements Parcelable {
     private String note;
     private String location;
 
+    private int focal_length;
+    private String exposure_comp;
+    private int no_of_exposures;
+    private int flash_used;
+    private String flash_power;
+    private String flash_comp;
+    private long filter_id;
+    private String metering_mode;
+
     public Frame(){
         // Empty constructor
     }
 
-    public Frame(long roll, int count, String date, long lens_id, String shutter, String aperture, String note, String location) {
+    public Frame(long roll,
+                 int count,
+                 String date,
+                 long lens_id,
+                 String shutter,
+                 String aperture,
+                 String note,
+                 String location,
+                 int focal_length,
+                 String exposure_comp,
+                 int no_of_exposures,
+                 int flash_used,
+                 String flash_power,
+                 String flash_comp,
+                 long filter_id,
+                 String metering_mode
+    ) {
         this.roll_id = roll;
         this.count = count;
         this.date = date;
@@ -34,6 +59,14 @@ public class Frame implements Parcelable {
         this.aperture = aperture;
         this.note = note;
         this.location = location;
+        this.focal_length = focal_length;
+        this.exposure_comp = exposure_comp;
+        this.no_of_exposures = no_of_exposures;
+        this.flash_used = flash_used;
+        this.flash_power = flash_power;
+        this.flash_comp = flash_comp;
+        this.filter_id = filter_id;
+        this.metering_mode = metering_mode;
     }
 
 
@@ -74,6 +107,38 @@ public class Frame implements Parcelable {
         this.location = input;
     }
 
+    public void setFocalLength(int input) {
+        this.focal_length = input;
+    }
+
+    public void setExposureComp(String input) {
+        this.exposure_comp = input;
+    }
+
+    public void setNoOfExposures(int input){
+        this.no_of_exposures = input;
+    }
+
+    public void setFlashUsed(int input){
+        this.flash_used = input;
+    }
+
+    public void setFlashPower(String input){
+        this.flash_power = input;
+    }
+
+    public void setFlashComp(String input){
+        this.flash_comp = input;
+    }
+
+    public void setFilterId(long input){
+        this.filter_id = input;
+    }
+
+    public void setMeteringMode(String input){
+        this.metering_mode = input;
+    }
+
     //Methods to get members
     public long getId() {
         return this.id;
@@ -111,6 +176,38 @@ public class Frame implements Parcelable {
         return this.location;
     }
 
+    public int getFocalLength(){
+        return this.focal_length;
+    }
+
+    public String getExposureComp(){
+        return this.exposure_comp;
+    }
+
+    public int getNoOfExposures(){
+        return this.no_of_exposures;
+    }
+
+    public int getFlashUsed(){
+        return this.flash_used;
+    }
+
+    public String getFlashPower(){
+        return this.flash_power;
+    }
+
+    public String getFlashComp(){
+        return this.flash_comp;
+    }
+
+    public long getFilterId(){
+        return this.filter_id;
+    }
+
+    public String getMeteringMode(){
+        return this.metering_mode;
+    }
+
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
     public Frame(Parcel pc){
@@ -123,6 +220,14 @@ public class Frame implements Parcelable {
         this.aperture = pc.readString();
         this.note = pc.readString();
         this.location = pc.readString();
+        this.focal_length = pc.readInt();
+        this.exposure_comp = pc.readString();
+        this.no_of_exposures = pc.readInt();
+        this.flash_used = pc.readInt();
+        this.flash_power = pc.readString();
+        this.flash_comp = pc.readString();
+        this.filter_id = pc.readLong();
+        this.metering_mode = pc.readString();
     }
 
     @Override
@@ -141,6 +246,14 @@ public class Frame implements Parcelable {
         parcel.writeString(aperture);
         parcel.writeString(note);
         parcel.writeString(location);
+        parcel.writeInt(focal_length);
+        parcel.writeString(exposure_comp);
+        parcel.writeInt(no_of_exposures);
+        parcel.writeInt(flash_used);
+        parcel.writeString(flash_power);
+        parcel.writeString(flash_comp);
+        parcel.writeLong(filter_id);
+        parcel.writeString(metering_mode);
     }
 
     /** Static field used to regenerate object, individually or as arrays */
