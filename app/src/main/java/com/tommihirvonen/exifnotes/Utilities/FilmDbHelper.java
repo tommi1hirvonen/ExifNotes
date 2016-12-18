@@ -914,6 +914,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         roll.setDate(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE)));
         roll.setNote(cursor.getString(cursor.getColumnIndex(KEY_ROLL_NOTE)));
         roll.setCamera_id(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
+        roll.setIso(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ISO)));
+        roll.setPushPull(cursor.getString(cursor.getColumnIndex(KEY_ROLL_PUSH)));
+        roll.setFormat(cursor.getString(cursor.getColumnIndex(KEY_ROLL_FORMAT)));
         return roll;
     }
 
@@ -1011,6 +1014,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_ROLL_DATE, roll.getDate());
         contentValues.put(KEY_ROLL_NOTE, roll.getNote());
         contentValues.put(KEY_CAMERA_ID, roll.getCamera_id());
+        contentValues.put(KEY_ROLL_ISO, roll.getIso());
+        contentValues.put(KEY_ROLL_PUSH, roll.getPushPull());
+        contentValues.put(KEY_ROLL_FORMAT, roll.getFormat());
         return contentValues;
     }
 

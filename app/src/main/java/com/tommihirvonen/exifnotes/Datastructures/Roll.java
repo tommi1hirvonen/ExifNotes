@@ -16,17 +16,31 @@ public class Roll implements Parcelable {
     private String date;
     private String note;
     private long camera_id;
+    private int iso;
+    private String push_pull;
+    private String format;
 
     public Roll(){
 
     }
 
-    public Roll(long id, String name, String date, String note, long camera_id){
+    public Roll(long id,
+                String name,
+                String date,
+                String note,
+                long camera_id,
+                int iso,
+                String push_pull,
+                String format
+    ){
         this.id = id;
         this.name = name;
         this.date = date;
         this.note = note;
         this.camera_id = camera_id;
+        this.iso = iso;
+        this.push_pull = push_pull;
+        this.format = format;
     }
 
     public void setId(long input) {
@@ -49,6 +63,18 @@ public class Roll implements Parcelable {
         this.camera_id = input;
     }
 
+    public void setIso(int input){
+        this.iso = input;
+    }
+
+    public void setPushPull(String input){
+        this.push_pull = input;
+    }
+
+    public void setFormat(String input){
+        this.format = input;
+    }
+
     public long getId(){
         return this.id;
     }
@@ -69,14 +95,29 @@ public class Roll implements Parcelable {
         return this.camera_id;
     }
 
+    public int getIso(){
+        return this.iso;
+    }
+
+    public String getPushPull(){
+        return this.push_pull;
+    }
+
+    public String getFormat(){
+        return this.format;
+    }
+
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
-    public Roll(Parcel pc){
+    private Roll(Parcel pc){
         this.id = pc.readLong();
         this.name = pc.readString();
         this.date = pc.readString();
         this.note = pc.readString();
         this.camera_id = pc.readLong();
+        this.iso = pc.readInt();
+        this.push_pull = pc.readString();
+        this.format = pc.readString();
     }
 
     @Override
@@ -91,6 +132,9 @@ public class Roll implements Parcelable {
         parcel.writeString(date);
         parcel.writeString(note);
         parcel.writeLong(camera_id);
+        parcel.writeInt(iso);
+        parcel.writeString(push_pull);
+        parcel.writeString(format);
     }
 
     /** Static field used to regenerate object, individually or as arrays */
