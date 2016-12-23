@@ -19,11 +19,6 @@
         android:text="@string/NoRolls"/>
 
     <!-- List whose dataset is defined in code with an adapter -->
-    <ListView
-        android:id="@+id/main_listview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -37,5 +32,13 @@
         app:pressedTranslationZ="12dp"
         app:backgroundTint="@color/secondary_color"
         android:src="@drawable/ic_add_a_camera_roll_white_48dp" />
+
+    <ListView
+        android:id="@+id/main_listview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="80dp"
+        android:clipToPadding="false"
+        />
 
 </FrameLayout>

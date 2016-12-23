@@ -23,6 +23,8 @@
         android:id="@+id/main_lenseslistview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="80dp"
+        android:clipToPadding="false"
         />
 
     <android.support.design.widget.FloatingActionButton
