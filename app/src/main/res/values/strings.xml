@@ -258,6 +258,9 @@
     <string name="Note">Notes:</string>
     <string name="Empty">Empty</string>
     <string name="Camera">Camera:</string>
+    <string name="ISO">ISO:</string>
+    <string name="PushPull">Push or pull:</string>
+    <string name="Format">Format:</string>
 
     <!--frame_info_dialog.xml-->
     <string name="Lens">Lens:</string>
