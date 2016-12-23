@@ -269,6 +269,10 @@
     <string name="NoLens">No lens</string>
     <string name="NoValue">&#60;empty&#62;</string>
     <string name="Location">Location:</string>
+    <string name="NoOfExposures">No. of exposures:</string>
+    <string name="FocalLength">Focal length:</string>
+    <string name="ExposureComp">Exposure comp:</string>
+    <string name="Filter">Filter:</string>
 
     <!--gear_dialog-->
     <string name="Make">Make:</string>
@@ -281,6 +285,11 @@
     <string name="ShutterRange">Shutter range:</string>
     <string name="ApertureRange">Aperture range:</string>
     <string name="FocalLengthRange">Focal length range:</string>
+    <string name="MeteringMode">Metering mode:</string>
+    <string name="Flash">Flash:</string>
+    <string name="FlashPower">Flash power:</string>
+    <string name="FlashComp">Flash comp:</string>
+
 
     <!--item_frame.xml-->
     <string name="Text">Text</string>

@@ -12,6 +12,8 @@
         android:layout_margin="8dp"
         android:focusableInTouchMode="true">
 
+        <!--LENS-->
+
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -59,6 +61,8 @@
 
         </LinearLayout>
 
+        <!--DATE AND TIME TEXT VIEWS-->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,6 +89,7 @@
                 />
         </LinearLayout>
 
+        <!--DATE AND TIME BUTTONS-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -108,12 +113,15 @@
                 android:gravity="center"/>
         </LinearLayout>
 
+        <!--FRAME, SHUTTER AND APERTURE PICKERS-->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="3">
+
+            <!--FRAME-->
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -136,6 +144,8 @@
                     android:gravity="center_horizontal" />
             </LinearLayout>
 
+            <!--SHUTTER-->
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -156,6 +166,8 @@
                     android:layout_gravity="center_horizontal"
                     android:gravity="center_horizontal" />
             </LinearLayout>
+
+            <!--APERTURE-->
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -181,6 +193,8 @@
 
         </LinearLayout>
 
+        <!--NOTES-->
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -189,7 +203,7 @@
             android:layout_marginRight="3dp"
             android:layout_marginTop="10dp"
             android:text="@string/Note"
-            />
+            android:id="@+id/textView" />
 
         <EditText
             android:id="@+id/txt_note"
@@ -200,6 +214,8 @@
             android:inputType="textCapSentences|textMultiLine"
             android:maxLength="200"
             android:maxLines="2"/>
+
+        <!--LOCATION-->
 
         <TextView
             android:layout_width="wrap_content"
@@ -220,6 +236,240 @@
             android:layout_marginBottom="10dp"
             android:clickable="true"
             android:gravity="center" />
+
+        <!--FOCAL LENGTH, EXP COMP AND NO OF EXP PICKERS-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <!--FOCAL LENGTH-->
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/FocalLength"
+                    android:layout_gravity="center_horizontal"
+                    />
+                <NumberPicker
+                    android:layout_width="wrap_content"
+                    android:layout_height="150dp"
+                    android:id="@+id/focalLengthPicker"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal" />
+            </LinearLayout>
+
+            <!--EXPOSURE COMP-->
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/ExposureComp"
+                    android:layout_gravity="center_horizontal"
+                    />
+                <NumberPicker
+                    android:layout_width="wrap_content"
+                    android:layout_height="150dp"
+                    android:id="@+id/exposureCompPicker"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal" />
+            </LinearLayout>
+
+            <!--NO OF EXPOSURES-->
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/NoOfExposures"
+                    android:layout_gravity="center_horizontal"
+                    />
+                <NumberPicker
+                    android:layout_width="wrap_content"
+                    android:layout_height="150dp"
+                    android:id="@+id/noOfExposuresPicker"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <!--FILTER-->
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/Filter"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="20">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="17"
+                android:id="@+id/btn_filter"
+                android:textAllCaps="false"
+                android:textSize="20sp"
+                android:layout_marginTop="5dp"
+                android:clickable="true"
+                android:gravity="center" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:id="@+id/btn_add_filter"
+                android:textAllCaps="false"
+                android:textSize="20sp"
+                android:layout_marginTop="5dp"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="+"/>
+
+        </LinearLayout>
+
+        <!--METERING MODE-->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/MeteringMode"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_metering_mode"
+            android:textAllCaps="false"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:clickable="true"
+            android:gravity="center" />
+
+        <!--FLASH-->
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/Flash"
+                />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/checkbox_flash"
+                android:layout_marginTop="7dp"
+                android:layout_marginLeft="10dp"
+                />
+
+        </LinearLayout>
+
+        <!--FLASH POWER AND COMPENSATION-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <!--EXPOSURE COMP-->
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/FlashPower"
+                    android:layout_gravity="center_horizontal"
+                    />
+                <NumberPicker
+                    android:layout_width="wrap_content"
+                    android:layout_height="150dp"
+                    android:id="@+id/flashPowerPicker"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal" />
+            </LinearLayout>
+
+            <!--NO OF EXPOSURES-->
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/FlashComp"
+                    android:layout_gravity="center_horizontal"
+                    />
+                <NumberPicker
+                    android:layout_width="wrap_content"
+                    android:layout_height="150dp"
+                    android:id="@+id/flashCompPicker"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal" />
+            </LinearLayout>
+
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
