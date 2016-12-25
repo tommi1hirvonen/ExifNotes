@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, firstFragment, "ROLLSFRAGMENT").commit();
+                    .add(R.id.fragment_container, firstFragment, RollsFragment.ROLLS_FRAGMENT_TAG).commit();
         }
     }
 
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         newFragment.setArguments(args);
         getFragmentManager().beginTransaction()
                 .setCustomAnimations(R.animator.slide_left, R.animator.slide_right, R.animator.slide_left, R.animator.slide_right)
-                .replace(R.id.fragment_container, newFragment, "FRAMESFRAGMENT")
+                .replace(R.id.fragment_container, newFragment, FramesFragment.FRAMES_FRAGMENT_TAG)
                 .addToBackStack(null).commit();
         View shadow = findViewById(R.id.shadow);
         shadow.bringToFront();

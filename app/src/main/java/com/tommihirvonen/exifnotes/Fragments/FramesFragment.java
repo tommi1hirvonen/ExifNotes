@@ -111,6 +111,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
     public final static String ROLLINFO_EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
 
+    public static final String FRAMES_FRAGMENT_TAG = "FRAMES_FRAGMENT";
+
     FilmDbHelper database;
     TextView mainTextView;
     ListView mainListView;
@@ -1283,7 +1285,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             if (savedInstanceState != null) {
-                setTargetFragment(getActivity().getFragmentManager().findFragmentByTag("FRAMESFRAGMENT"), ERROR_DIALOG);
+                setTargetFragment(getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG), ERROR_DIALOG);
             }
             // Get the error code and retrieve the appropriate dialog
             int errorCode = this.getArguments().getInt(DIALOG_ERROR);
@@ -1293,7 +1295,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-            FramesFragment framesfragment = (FramesFragment)getActivity().getFragmentManager().findFragmentByTag("FRAMESFRAGMENT");
+            FramesFragment framesfragment = (FramesFragment)getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG);
             framesfragment.onDialogDismissed();
         }
     }

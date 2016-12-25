@@ -84,6 +84,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         mCallback = (OnRollSelectedListener) c;
     }
 
+    public static final String ROLLS_FRAGMENT_TAG = "ROLLS_FRAGMENT";
 
     FloatingActionButton fab;
     TextView mainTextView;
