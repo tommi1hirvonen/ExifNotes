@@ -50,12 +50,12 @@ public class FilterAdapter extends ArrayAdapter<Filter> {
         TextView tvMountables = (TextView) convertView.findViewById(R.id.tv_mountables);
 
         // Populate the data into the template view using the data object
-        tvFilterName.setText(filter.getMake() + " " + filter.getModel());
+        if (filter != null) tvFilterName.setText(filter.getMake() + " " + filter.getModel());
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getContext().getResources().getString(R.string.MountsTo));
         for ( Lens lens : mountableLenses ) {
-            stringBuilder.append("\n- " + lens.getMake() + " " + lens.getModel());
+            stringBuilder.append("\n- ").append(lens.getMake()).append(" ").append(lens.getModel());
         }
         String mountables_string = stringBuilder.toString();
         tvMountables.setText(mountables_string);

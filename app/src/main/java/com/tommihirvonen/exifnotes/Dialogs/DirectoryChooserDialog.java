@@ -3,6 +3,7 @@ package com.tommihirvonen.exifnotes.Dialogs;
 // Copyright 2015
 // Tommi Hirvonen
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,6 +15,7 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.view.LayoutInflater;
@@ -75,6 +77,7 @@ public class DirectoryChooserDialog extends DialogFragment {
      * Called when the (dialog)fragment is first attached to its context (the calling activity).
      * @param activity the calling activity
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
@@ -99,7 +102,7 @@ public class DirectoryChooserDialog extends DialogFragment {
         mSubdirs = getDirectories(mDir);
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        final View inflatedView = layoutInflater.inflate(R.layout.directory_chooser_dialog, null);
+        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(R.layout.directory_chooser_dialog, null);
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         dialogBuilder.setView(inflatedView);
 
@@ -205,8 +208,9 @@ public class DirectoryChooserDialog extends DialogFragment {
     private ArrayAdapter<String> createListAdapter(List<String> items) {
 
         return new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items) {
+            @NonNull
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
+            public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
                 String text = getItem(position);
 
@@ -258,6 +262,7 @@ public class DirectoryChooserDialog extends DialogFragment {
             }
         }
         catch (Exception e) {
+            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + dir, Toast.LENGTH_LONG).show();
         }
 
         Collections.sort(dirs, new Comparator<String>() {
@@ -276,11 +281,7 @@ public class DirectoryChooserDialog extends DialogFragment {
      */
     private boolean createSubDir(String newDir) {
         File newDirFile = new File(newDir);
-        if (! newDirFile.exists() ) {
-            return newDirFile.mkdir();
-        }
-
-        return false;
+        return !newDirFile.exists() && newDirFile.mkdir();
     }
 
 }

@@ -3,6 +3,7 @@ package com.tommihirvonen.exifnotes.Fragments;
 // Copyright 2015
 // Tommi Hirvonen
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -75,7 +76,7 @@ public class LensesFragment extends Fragment implements
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
+        //String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
 
                 // Also change the floating action button color. Use the darker secondaryColor for this.
@@ -123,6 +124,7 @@ public class LensesFragment extends Fragment implements
 
     }
 
+    @SuppressLint("CommitTransaction")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -185,6 +187,7 @@ public class LensesFragment extends Fragment implements
         return false;
     }
 
+    @SuppressLint("CommitTransaction")
     private void showLensNameDialog() {
         EditLensInfoDialog dialog = new EditLensInfoDialog();
         dialog.setTargetFragment(this, ADD_LENS);
@@ -289,10 +292,7 @@ public class LensesFragment extends Fragment implements
         // Find the items in the list to be preselected
         final boolean[] booleans = new boolean[allCameras.size()];
         for ( int i= 0; i < allCamerasId.size(); ++i ) {
-            if ( mountableCamerasId.contains(allCamerasId.get(i)) ) {
-                booleans[i] = true;
-            }
-            else booleans[i] = false;
+            booleans[i] = mountableCamerasId.contains(allCamerasId.get(i));
         }
 
 
@@ -396,10 +396,7 @@ public class LensesFragment extends Fragment implements
         // Find the items in the list to be preselected
         final boolean[] booleans = new boolean[allFilters.size()];
         for ( int i= 0; i < allFiltersId.size(); ++i ) {
-            if ( mountableFiltersId.contains(allFiltersId.get(i)) ) {
-                booleans[i] = true;
-            }
-            else booleans[i] = false;
+            booleans[i] = mountableFiltersId.contains(allFiltersId.get(i));
         }
 
 

@@ -9,6 +9,7 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
@@ -72,11 +73,13 @@ public class EditRollNameDialog extends DialogFragment {
         @SuppressLint("InflateParams") final View inflator = linf.inflate(R.layout.roll_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        // Set ScrollIndicators
-        FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
-        NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(R.id.nested_scroll_view);
-        Utilities.setScrollIndicators(rootLayout, nestedScrollView,
-                ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
+        // Set ScrollIndicators only if Material Design is used with the current Android version
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
+            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(R.id.nested_scroll_view);
+            Utilities.setScrollIndicators(rootLayout, nestedScrollView,
+                    ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
+        }
 
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflator);

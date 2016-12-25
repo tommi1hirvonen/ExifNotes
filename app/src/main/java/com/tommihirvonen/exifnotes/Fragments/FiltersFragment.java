@@ -1,5 +1,6 @@
 package com.tommihirvonen.exifnotes.Fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -70,7 +71,7 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
+        //String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
@@ -126,6 +127,7 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
         }
     }
 
+    @SuppressLint("CommitTransaction")
     public void showFilterNameDialog() {
         EditFilterInfoDialog dialog = new EditFilterInfoDialog();
         dialog.setTargetFragment(this, ADD_FILTER);
@@ -136,6 +138,7 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
         dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
     }
 
+    @SuppressLint("CommitTransaction")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -269,10 +272,7 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
         // Find the items in the list to be preselected
         final boolean[] booleans = new boolean[allLenses.size()];
         for ( int i= 0; i < allLensesId.size(); ++i ) {
-            if ( mountableLensesId.contains(allLensesId.get(i)) ) {
-                booleans[i] = true;
-            }
-            else booleans[i] = false;
+            booleans[i] = mountableLensesId.contains(allLensesId.get(i));
         }
 
 

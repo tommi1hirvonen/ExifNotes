@@ -43,32 +43,37 @@ public class RollAdapter extends ArrayAdapter<Roll> {
     @Override
     public  View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
-
+        Roll roll = getItem(position);
         // Get the data item for this position
-        String roll = getItem(position).getName();
-        String date = getItem(position).getDate();
-        String note = getItem(position).getNote();
-        long camera_id = getItem(position).getCamera_id();
-        int numberOfFrames = database.getNumberOfFrames(getItem(position));
-        // Check if an existing view is being reused, otherwise inflate the view
-        if ( convertView == null ) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_roll, parent, false);
-        }
-        // Lookup view for data population
-        TextView tvRollName = (TextView) convertView.findViewById(R.id.tv_roll_name);
-        TextView tvRollDate = (TextView) convertView.findViewById(R.id.tv_roll_date);
-        TextView tvRollNote = (TextView) convertView.findViewById(R.id.tv_roll_note);
-        TextView tvPhotos = (TextView) convertView.findViewById(R.id.tv_photos);
-        TextView tvCamera = (TextView) convertView.findViewById(R.id.tv_camera);
+        if (roll != null) {
+            String rollName = roll.getName();
+            String date = roll.getDate();
+            String note = roll.getNote();
+            long camera_id = roll.getCamera_id();
+            int numberOfFrames = database.getNumberOfFrames(getItem(position));
+            // Check if an existing view is being reused, otherwise inflate the view
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_roll, parent, false);
+            }
+            // Lookup view for data population
+            TextView tvRollName = (TextView) convertView.findViewById(R.id.tv_roll_name);
+            TextView tvRollDate = (TextView) convertView.findViewById(R.id.tv_roll_date);
+            TextView tvRollNote = (TextView) convertView.findViewById(R.id.tv_roll_note);
+            TextView tvPhotos = (TextView) convertView.findViewById(R.id.tv_photos);
+            TextView tvCamera = (TextView) convertView.findViewById(R.id.tv_camera);
 
-        // Populate the data into the template view using the data object
-        tvRollName.setText(roll);
-        tvRollDate.setText(date);
-        tvRollNote.setText(note);
-        tvCamera.setText(database.getCamera(camera_id).getMake() + " " + database.getCamera(camera_id).getModel());
-        if ( numberOfFrames == 1) tvPhotos.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photo));
-        else if ( numberOfFrames == 0 ) tvPhotos.setText(getContext().getString(R.string.NoPhotos));
-        else tvPhotos.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photos));
+            // Populate the data into the template view using the data object
+            tvRollName.setText(rollName);
+            tvRollDate.setText(date);
+            tvRollNote.setText(note);
+            tvCamera.setText(database.getCamera(camera_id).getMake() + " " + database.getCamera(camera_id).getModel());
+            if (numberOfFrames == 1)
+                tvPhotos.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photo));
+            else if (numberOfFrames == 0)
+                tvPhotos.setText(getContext().getString(R.string.NoPhotos));
+            else
+                tvPhotos.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photos));
+        }
         return convertView;
     }
 

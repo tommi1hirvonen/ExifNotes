@@ -57,22 +57,23 @@ public class LensAdapter extends ArrayAdapter<Lens> {
         TextView tvMountables = (TextView) convertView.findViewById(R.id.tv_mountables);
 
         // Populate the data into the template view using the data object
-        tvLensName.setText(lens.getMake() + " " + lens.getModel());
+        if (lens != null) {
+            tvLensName.setText(lens.getMake() + " " + lens.getModel());
 
-        //Build string to display mountable cameras and filters
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getContext().getResources().getString(R.string.MountsTo));
-        for ( Camera camera : mountableCameras ) {
-            stringBuilder.append("\n- " + camera.getMake() + " " + camera.getModel());
+            //Build string to display mountable cameras and filters
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(getContext().getResources().getString(R.string.MountsTo));
+            for (Camera camera : mountableCameras) {
+                stringBuilder.append("\n- ").append(camera.getMake()).append(" ").append(camera.getModel());
+            }
+            //Add extra line change if there are mountable filters
+            if (mountableFilters.size() > 0) stringBuilder.append("\n");
+            for (Filter filter : mountableFilters) {
+                stringBuilder.append("\n- ").append(filter.getMake()).append(" ").append(filter.getModel());
+            }
+            String mountables_string = stringBuilder.toString();
+            tvMountables.setText(mountables_string);
         }
-        //Add extra line change if there are mountable filters
-        if ( mountableFilters.size() > 0 ) stringBuilder.append("\n");
-        for (Filter filter : mountableFilters) {
-            stringBuilder.append("\n- " + filter.getMake() + " " + filter.getModel());
-        }
-        String mountables_string = stringBuilder.toString();
-        tvMountables.setText(mountables_string);
-
         return convertView;
     }
 }

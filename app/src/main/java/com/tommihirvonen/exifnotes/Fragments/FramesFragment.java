@@ -1,10 +1,10 @@
 package com.tommihirvonen.exifnotes.Fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -59,7 +59,6 @@ import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -93,6 +92,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
      * This on attach is called before API 23
      * @param a Activity to which the OnHomeAsUpPressedListener is attached.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void onAttach(Activity a) {
         super.onAttach(a);
@@ -134,12 +134,13 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
     public static final int FRAME_INFO_DIALOG = 1;
     public static final int EDIT_FRAME_INFO_DIALOG = 2;
+    public static final int ERROR_DIALOG = 3;
 
     /**
      * Called when the fragment is created.
      * Get the frames from the roll and enable location updating.
      *
-     * @param savedInstanceState
+     * @param savedInstanceState saved state of the Fragment
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -172,7 +173,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             // 10 seconds
             mLocationRequest.setInterval(10*1000);
             // 1 second
-            mLocationRequest.setFastestInterval(1*1000);
+            mLocationRequest.setFastestInterval(1000);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
         // This can be done anyway. It only has effect if locationEnabled is true.
@@ -195,8 +196,12 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         final View view = linf.inflate(R.layout.frames_fragment, container, false);
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(database.getRoll(rollId).getName());
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+            //noinspection ConstantConditions
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(database.getRoll(rollId).getName());
+            //noinspection ConstantConditions
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(this);
@@ -206,7 +211,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
+        //String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
@@ -290,6 +295,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
      * @param item the context menu item that was selected
      * @return true if the FramesFragment is in front, false if it is not
      */
+    @SuppressLint("CommitTransaction")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -303,14 +309,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     // Edit frame info
                     Frame frame = mFrameClassList.get(position);
-//                    long _id = frame.getId();
-//                    long lens_id = frame.getLensId();
-//                    int count = frame.getCount();
-//                    String date = frame.getDate();
-//                    String shutter = frame.getShutter();
-//                    String aperture = frame.getAperture();
-//                    String note = frame.getNote();
-//                    String location = frame.getLocation();
                     String title = "" + getActivity().getString(R.string.EditFrame) + frame.getCount();
                     String positiveButton = getActivity().getResources().getString(R.string.OK);
                     Bundle arguments = new Bundle();
@@ -318,7 +316,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     arguments.putString("POSITIVE_BUTTON", positiveButton);
                     arguments.putParcelable("FRAME", frame);
 
-//                    EditFrameInfoDialog dialog = EditFrameInfoDialog.newInstance(_id, lens_id, position, count, date, shutter, aperture, note, location, camera_id, title, positiveButton);
                     EditFrameInfoDialog dialog = new EditFrameInfoDialog();
                     dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
                     dialog.setArguments(arguments);
@@ -367,7 +364,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putInt("FrameSortOrder", which);
-                        editor.commit();
+                        editor.apply();
                         dialog.dismiss();
                         sortFrameList(mFrameClassList);
                         mFrameAdapter.notifyDataSetChanged();
@@ -466,7 +463,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         // Negative to reverse the sorting order
                         int count1 = o1.getCount();
                         int count2 = o2.getCount();
-                        int result = 0;
+                        int result;
                         if (count1 < count2) result = -1;
                         else result = 1;
                         return result;
@@ -481,7 +478,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     public int compare(Frame o1, Frame o2) {
                         String date1 = o1.getDate();
                         String date2 = o2.getDate();
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-M-d H:m");
+                        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-M-d H:m");
                         Date d1 = null;
                         Date d2 = null;
                         try {
@@ -491,7 +488,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                             e.printStackTrace();
                         }
 
-                        int result = 0;
+                        int result;
                         long diff = 0;
                         //Handle possible NullPointerException
                         if (d1 != null && d2 != null) diff = d1.getTime() - d2.getTime();
@@ -521,7 +518,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                             if (aperture1.equals(allApertureValues[i])) pos1 = i;
                             if (aperture2.equals(allApertureValues[i])) pos2 = i;
                         }
-                        int result = 0;
+                        int result;
                         if (pos1 < pos2) result = -1;
                         else result = 1;
                         return result;
@@ -552,7 +549,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                             if (shutter1.equals(allShutterValues[i])) pos1 = i;
                             if (shutter2.equals(allShutterValues[i])) pos2 = i;
                         }
-                        int result = 0;
+                        int result;
                         if (pos1 < pos2) result = -1;
                         else result = 1;
                         return result;
@@ -662,7 +659,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         File fileCsv = new File(externalStorageDir, fileNameCsv);
         File fileExifToolCmds = new File(externalStorageDir, fileNameExifToolCmds);
 
-        FileOutputStream fOut = null;
+        //FileOutputStream fOut = null;
 
         //Write the csv file
         Utilities.writeTextFile(fileCsv, csvString);
@@ -682,7 +679,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             filesToSend.add(getActivity().getExternalFilesDir(null) + "/" + fileNameExifToolCmds);
 
             //Create an array of Files
-            ArrayList<Uri> files = new ArrayList<Uri>();
+            ArrayList<Uri> files = new ArrayList<>();
             for(String path : filesToSend ) {
                 File file = new File(path);
                 Uri uri = Uri.fromFile(file);
@@ -740,27 +737,28 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         for ( Frame frame : mFrameClassList ) {
             if ( exiftoolPath.length() > 0 ) stringBuilder.append(exiftoolPath);
-            stringBuilder.append(exiftoolCmd + space);
-            stringBuilder.append(cameraMakeTag + quote + database.getCamera(camera_id).getMake() + quote + space);
-            stringBuilder.append(cameraModelTag + quote + database.getCamera(camera_id).getModel() + quote + space);
+            stringBuilder.append(exiftoolCmd).append(space);
+            stringBuilder.append(cameraMakeTag).append(quote).append(database.getCamera(camera_id).getMake()).append(quote).append(space);
+            stringBuilder.append(cameraModelTag).append(quote).append(database.getCamera(camera_id).getModel()).append(quote).append(space);
             if ( frame.getLensId() != -1 ) {
-                stringBuilder.append(lensMakeTag + quote + database.getLens(frame.getLensId()).getMake() + quote + space);
-                stringBuilder.append(lensModelTag + quote + database.getLens(frame.getLensId()).getModel() + quote + space);
+                stringBuilder.append(lensMakeTag).append(quote).append(database.getLens(frame.getLensId()).getMake()).append(quote).append(space);
+                stringBuilder.append(lensModelTag).append(quote).append(database.getLens(frame.getLensId()).getModel()).append(quote).append(space);
             }
-            stringBuilder.append(dateTag + quote + frame.getDate().replace("-", ":") + quote + space);
-            if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag + quote + frame.getShutter().replace("\"","") + quote + space);
-            if ( !frame.getAperture().contains("<") )stringBuilder.append(apertureTag + quote + frame.getAperture() + quote + space);
-            if ( frame.getNote().length() > 0 ) stringBuilder.append(commentTag + quote + Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "") + quote + space);
+            stringBuilder.append(dateTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
+            if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
+            if ( !frame.getAperture().contains("<") )
+                stringBuilder.append(apertureTag).append(quote).append(frame.getAperture()).append(quote).append(space);
+            if ( frame.getNote().length() > 0 ) stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
 
             if ( frame.getLocation().length() > 0 ) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
                 String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
-                String latRef = "";
+                String latRef;
                 if (latString.substring(0, 1).equals("-")) {
                     latRef = "S";
                     latString = latString.substring(1, latString.length());
                 } else latRef = "N";
-                String lngRef = "";
+                String lngRef;
                 if (lngString.substring(0, 1).equals("-")) {
                     lngRef = "W";
                     lngString = lngString.substring(1, lngString.length());
@@ -770,19 +768,19 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
                 List<String> lngStringList = Arrays.asList(lngString.split(":"));
 
-                stringBuilder.append(gpsLatTag + quote + latStringList.get(0) + space + latStringList.get(1) + space + latStringList.get(2) + quote + space);
-                stringBuilder.append(gpsLatRefTag + quote + latRef + quote + space);
-                stringBuilder.append(gpsLngTag + quote + lngStringList.get(0) + space + lngStringList.get(1) + space + lngStringList.get(2) + quote + space);
-                stringBuilder.append(gpsLngRefTag + quote + lngRef + quote + space);
+                stringBuilder.append(gpsLatTag).append(quote).append(latStringList.get(0)).append(space).append(latStringList.get(1)).append(space).append(latStringList.get(2)).append(quote).append(space);
+                stringBuilder.append(gpsLatRefTag).append(quote).append(latRef).append(quote).append(space);
+                stringBuilder.append(gpsLngTag).append(quote).append(lngStringList.get(0)).append(space).append(lngStringList.get(1)).append(space).append(lngStringList.get(2)).append(quote).append(space);
+                stringBuilder.append(gpsLngRefTag).append(quote).append(lngRef).append(quote).append(space);
             }
 
-            if ( artistName.length() > 0 ) stringBuilder.append(artistTag + quote + artistName + quote + space);
-            if ( copyrightInformation.length() > 0 ) stringBuilder.append(copyrightTag + quote + copyrightInformation + quote + space);
+            if ( artistName.length() > 0 ) stringBuilder.append(artistTag).append(quote).append(artistName).append(quote).append(space);
+            if ( copyrightInformation.length() > 0 ) stringBuilder.append(copyrightTag).append(quote).append(copyrightInformation).append(quote).append(space);
             if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
             if ( picturesPath.length() > 0 ) stringBuilder.append(picturesPath);
-            stringBuilder.append(frame.getCount() + fileEnding);
+            stringBuilder.append(frame.getCount()).append(fileEnding);
             if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
-            stringBuilder.append(";" + lineSep + lineSep);
+            stringBuilder.append(";").append(lineSep).append(lineSep);
 
         }
 
@@ -805,37 +803,37 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String artistName = prefs.getString("ArtistName", "");
         String copyrightInformation = prefs.getString("CopyrightInformation", "");
 
-        stringBuilder.append("Roll name: " + roll.getName() + "\n");
-        stringBuilder.append("Added: " + roll.getDate() + "\n");
-        stringBuilder.append("Camera: " + database.getCamera(camera_id).getMake() + " " + database.getCamera(camera_id).getModel() + "\n");
-        stringBuilder.append("Notes: " + roll.getNote() + "\n");
-        stringBuilder.append("Artist name: " + artistName + "\n");
-        stringBuilder.append("Copyright: " + copyrightInformation + "\n");
-        stringBuilder.append("Frame Count" + separator + "Date" + separator + "Lens" + separator +
-                "Shutter" + separator + "Aperture" + separator + "Notes" + separator + "Location" + "\n");
+        stringBuilder.append("Roll name: ").append(roll.getName()).append("\n");
+        stringBuilder.append("Added: ").append(roll.getDate()).append("\n");
+        stringBuilder.append("Camera: ").append(database.getCamera(camera_id).getMake()).append(" ").append(database.getCamera(camera_id).getModel()).append("\n");
+        stringBuilder.append("Notes: ").append(roll.getNote()).append("\n");
+        stringBuilder.append("Artist name: ").append(artistName).append("\n");
+        stringBuilder.append("Copyright: ").append(copyrightInformation).append("\n");
+        stringBuilder.append("Frame Count").append(separator).append("Date").append(separator).append("Lens").append(separator).append("Shutter").append(separator).append("Aperture").append(separator).append("Notes").append(separator).append("Location").append("\n");
 
         for ( Frame frame : mFrameClassList ) {
             stringBuilder.append(frame.getCount());
             stringBuilder.append(separator);
             stringBuilder.append(frame.getDate());
             stringBuilder.append(separator);
-            if ( frame.getLensId() != -1 ) stringBuilder.append(database.getLens(frame.getLensId()).getMake() + " " + database.getLens(frame.getLensId()).getModel());
+            if ( frame.getLensId() != -1 ) stringBuilder.append(database.getLens(frame.getLensId()).getMake()).append(" ").append(database.getLens(frame.getLensId()).getModel());
             stringBuilder.append(separator);
             if ( !frame.getShutter().contains("<") )stringBuilder.append(frame.getShutter());
             stringBuilder.append(separator);
-            if ( !frame.getAperture().contains("<") )stringBuilder.append("f" + frame.getAperture());
+            if ( !frame.getAperture().contains("<") )
+                stringBuilder.append("f").append(frame.getAperture());
             stringBuilder.append(separator);
             if ( frame.getNote().length() > 0 ) stringBuilder.append(frame.getNote());
             stringBuilder.append(separator);
             if ( frame.getLocation().length() > 0 ) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
                 String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
-                String latRef = "";
+                String latRef;
                 if (latString.substring(0, 1).equals("-")) {
                     latRef = "S";
                     latString = latString.substring(1, latString.length());
                 } else latRef = "N";
-                String lngRef = "";
+                String lngRef;
                 if (lngString.substring(0, 1).equals("-")) {
                     lngRef = "W";
                     lngString = lngString.substring(1, lngString.length());
@@ -847,15 +845,11 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                 String space = " ";
 
-                stringBuilder.append(latStringList.get(0) + "°" + space +
-                        latStringList.get(1) + "\'" + space +
-                        latStringList.get(2).replace(',', '.') + "\"" + space);
+                stringBuilder.append(latStringList.get(0)).append("°").append(space).append(latStringList.get(1)).append("\'").append(space).append(latStringList.get(2).replace(',', '.')).append("\"").append(space);
 
-                stringBuilder.append(latRef + space);
+                stringBuilder.append(latRef).append(space);
 
-                stringBuilder.append(lngStringList.get(0) + "°" + space +
-                        lngStringList.get(1) + "\'" + space +
-                        lngStringList.get(2).replace(',', '.') + "\"" + space);
+                stringBuilder.append(lngStringList.get(0)).append("°").append(space).append(lngStringList.get(1)).append("\'").append(space).append(lngStringList.get(2).replace(',', '.')).append("\"").append(space);
 
                 stringBuilder.append(lngRef);
             }
@@ -919,6 +913,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
      * @param position position of the item in the ListView
      * @param id id of the item clicked, not used
      */
+    @SuppressLint("CommitTransaction")
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Edit frame info
@@ -1150,7 +1145,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
      * This function is called when the fragment is paused.
      */
     protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if (mGoogleApiClient.isConnected()) LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
     /**
@@ -1165,7 +1160,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
+        //String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
 
@@ -1178,12 +1173,11 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
      */
     protected void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getActivity(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
+                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
-        else LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     /**
@@ -1193,11 +1187,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     @Override
     public void onConnected(Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-        } else {
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             if (mRequestingLocationUpdates) {
                 startLocationUpdates();
@@ -1244,10 +1236,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
      */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult result) {
-        if (mResolvingError) {
-            // Already attempting to resolve an error.
-            return;
-        } else if (result.hasResolution()) {
+        if (result.hasResolution() && !mResolvingError) {
             try {
                 mResolvingError = true;
                 result.startResolutionForResult(getActivity(), REQUEST_RESOLVE_ERROR);
@@ -1272,6 +1261,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         Bundle args = new Bundle();
         args.putInt(DIALOG_ERROR, errorCode);
         dialogFragment.setArguments(args);
+        dialogFragment.setTargetFragment(this, ERROR_DIALOG);
         dialogFragment.show(getFragmentManager(), "errordialog");
     }
 
@@ -1281,7 +1271,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     }
 
     /* A fragment to display an error dialog */
-    public static class ErrorDialogFragment extends DialogFragment {
+    public static class ErrorDialogFragment extends com.google.android.gms.common.ErrorDialogFragment {
         public ErrorDialogFragment() { }
 
         @NonNull
@@ -1295,7 +1285,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-
+            FramesFragment framesfragment = (FramesFragment)getActivity().getFragmentManager().findFragmentByTag("FRAMESFRAGMENT");
+            framesfragment.onDialogDismissed();
         }
     }
 

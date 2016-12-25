@@ -1,5 +1,6 @@
 package com.tommihirvonen.exifnotes.Dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -36,7 +37,7 @@ public class EditLensInfoDialog extends DialogFragment {
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        final View inflator = linf.inflate(R.layout.lens_dialog, null);
+        @SuppressLint("InflateParams") final View inflator = linf.inflate(R.layout.lens_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         String title = getArguments().getString("TITLE");
@@ -69,7 +70,7 @@ public class EditLensInfoDialog extends DialogFragment {
         //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
         // so it doesn't need to deal with resizing
         // but just panned by the framework to ensure the current input focus is visible
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.show();
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.

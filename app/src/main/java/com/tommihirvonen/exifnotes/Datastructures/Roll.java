@@ -24,24 +24,24 @@ public class Roll implements Parcelable {
 
     }
 
-    public Roll(long id,
-                String name,
-                String date,
-                String note,
-                long camera_id,
-                int iso,
-                String push_pull,
-                String format
-    ){
-        this.id = id;
-        this.name = name;
-        this.date = date;
-        this.note = note;
-        this.camera_id = camera_id;
-        this.iso = iso;
-        this.push_pull = push_pull;
-        this.format = format;
-    }
+//    public Roll(long id,
+//                String name,
+//                String date,
+//                String note,
+//                long camera_id,
+//                int iso,
+//                String push_pull,
+//                String format
+//    ){
+//        this.id = id;
+//        this.name = name;
+//        this.date = date;
+//        this.note = note;
+//        this.camera_id = camera_id;
+//        this.iso = iso;
+//        this.push_pull = push_pull;
+//        this.format = format;
+//    }
 
     public void setId(long input) {
         this.id = input;

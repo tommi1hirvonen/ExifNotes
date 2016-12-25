@@ -3,6 +3,7 @@ package com.tommihirvonen.exifnotes.Dialogs;
 // Copyright 2015
 // Tommi Hirvonen
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -36,7 +37,7 @@ public class EditFilterInfoDialog extends DialogFragment {
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        final View inflator = linf.inflate(R.layout.filter_dialog, null);
+        @SuppressLint("InflateParams") final View inflator = linf.inflate(R.layout.filter_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         String title = getArguments().getString("TITLE");
@@ -63,7 +64,7 @@ public class EditFilterInfoDialog extends DialogFragment {
             }
         });
         final AlertDialog dialog = alert.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.

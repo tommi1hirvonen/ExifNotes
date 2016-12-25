@@ -45,14 +45,13 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
     LatLng latlng_location;
     String location = "";
 
-    boolean continue_activity;
+    boolean continue_activity = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if ( savedInstanceState != null ) continue_activity = true;
-        else continue_activity = false;
 
         setContentView(R.layout.activity_location_pick);
 

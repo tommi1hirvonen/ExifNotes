@@ -40,14 +40,13 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     ArrayList<Roll> mRollClassList = new ArrayList<>();
     private GoogleMap mMap;
 
-    boolean continue_activity;
+    boolean continue_activity = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if ( savedInstanceState != null ) continue_activity = true;
-        else continue_activity = false;
 
         setContentView(R.layout.activity_maps);
 

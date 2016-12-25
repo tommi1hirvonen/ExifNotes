@@ -27,7 +27,7 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
     public interface AsyncResponse {
         void processFinish(String output, String formattedAddress);
     }
-    public AsyncResponse delegate = null;
+    private AsyncResponse delegate = null;
 
     public GeocodingAsyncTask(AsyncResponse delegate){
         this.delegate = delegate;
@@ -70,7 +70,7 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
 
 
 
-    public String getLatLongByURL(String requestURL) {
+    private String getLatLongByURL(String requestURL) {
         URL url;
         String response = "";
         try {

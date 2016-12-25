@@ -126,6 +126,7 @@
     <string name="NewFolder">New folder</string>
     <string name="NewFolderName">New folder name</string>
     <string name="ExportHere">Export here</string>
+    <string name="CouldNotReadDirectories">Could not read directories in directory:</string>
 
     <!--EditFrameInfoDialog-->
     <string name="UsedLens">Choose used lens</string>

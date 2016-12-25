@@ -1,5 +1,6 @@
 package com.tommihirvonen.exifnotes.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
@@ -43,6 +44,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
      * @param parent the parent to which the view will eventually be attached.
      * @return the inflated view to be showed in the ListView
      */
+    @SuppressLint("SetTextI18n")
     @NonNull
     @Override
     public  View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -76,24 +78,26 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         holder.aperture.getDrawable().mutate().setColorFilter(ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
 
         // Populate the data into the template view using the data object
-        holder.tvFrameText.setText(frame.getDate());
-        holder.tvCount.setText("" + frame.getCount());
-        if ( frame.getLensId() != -1 ) {
-            Lens lens = database.getLens(frame.getLensId());
-            holder.tvFrameText2.setText( lens.getMake() + " " + lens.getModel() );
-        }
-        else {
-            holder.tvFrameText2.setText(getContext().getString(R.string.NoLens));
-        }
-        holder.tvNote.setText(frame.getNote());
+        if (frame != null) {
+            holder.tvFrameText.setText(frame.getDate());
+            holder.tvCount.setText("" + frame.getCount());
+            if (frame.getLensId() != -1) {
+                Lens lens = database.getLens(frame.getLensId());
+                holder.tvFrameText2.setText(lens.getMake() + " " + lens.getModel());
+            } else {
+                holder.tvFrameText2.setText(getContext().getString(R.string.NoLens));
+            }
+            holder.tvNote.setText(frame.getNote());
 
-        // If the aperture is empty, then don't show anything.
-        if( !frame.getAperture().contains("<") ) holder.tvAperture.setText("f/" + frame.getAperture());
-        else holder.tvAperture.setText("");
+            // If the aperture is empty, then don't show anything.
+            if (!frame.getAperture().contains("<"))
+                holder.tvAperture.setText("f/" + frame.getAperture());
+            else holder.tvAperture.setText("");
 
-        // If the shutter is empty, then don't show anything.
-        if ( !frame.getShutter().contains("<"))  holder.tvShutter.setText(frame.getShutter());
-        else holder.tvShutter.setText("");
+            // If the shutter is empty, then don't show anything.
+            if (!frame.getShutter().contains("<")) holder.tvShutter.setText(frame.getShutter());
+            else holder.tvShutter.setText("");
+        }
         return convertView;
     }
 

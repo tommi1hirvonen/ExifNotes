@@ -16,11 +16,11 @@ public class Filter implements Parcelable {
 
     }
 
-    public Filter(long id, String make, String model){
-        this.id = id;
-        this.make = make;
-        this.model = model;
-    }
+//    public Filter(long id, String make, String model){
+//        this.id = id;
+//        this.make = make;
+//        this.model = model;
+//    }
 
     public void setId(long input){
         this.id = input;

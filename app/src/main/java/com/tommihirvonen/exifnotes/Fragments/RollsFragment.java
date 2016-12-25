@@ -1,5 +1,6 @@
 package com.tommihirvonen.exifnotes.Fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -23,7 +24,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Adapters.RollAdapter;
 import com.tommihirvonen.exifnotes.Activities.AllFramesMapsActivity;
@@ -67,6 +67,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
      * This on attach is called before API 23
      * @param a Activity to which the onRollSelectedListener is attached.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void onAttach(Activity a) {
         super.onAttach(a);
@@ -121,14 +122,19 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                              Bundle savedInstanceState) {
         LayoutInflater linf = getActivity().getLayoutInflater();
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+            //noinspection ConstantConditions
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
+            //noinspection ConstantConditions
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+            //noinspection ConstantConditions
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
+        //String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
 
         database = new FilmDbHelper(getActivity());
@@ -189,7 +195,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
+        //String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
     }
@@ -229,7 +235,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putInt("RollSortOrder", which);
-                        editor.commit();
+                        editor.apply();
                         dialog.dismiss();
                         sortRollList(mRollList);
                         mArrayAdapter.notifyDataSetChanged();
@@ -297,7 +303,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                     public int compare(Roll o1, Roll o2) {
                         String date1 = o1.getDate();
                         String date2 = o2.getDate();
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-M-d H:m");
+                        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-M-d H:m");
                         Date d1 = null;
                         Date d2 = null;
                         try {
@@ -307,7 +313,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                             e.printStackTrace();
                         }
 
-                        int result = 0;
+                        int result;
                         long diff = 0;
                         //Handle possible NullPointerException
                         if (d1 != null && d2 != null) diff = d1.getTime() - d2.getTime();
@@ -383,6 +389,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
      *
      * @param position the position of the roll in mRollList
      */
+    @SuppressLint("CommitTransaction")
     private void show_EditRollNameDialog(int position){
         EditRollNameDialog dialog = new EditRollNameDialog();
         Bundle arguments = new Bundle();
@@ -398,6 +405,7 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
      * Called when the user presses the FloatingActionButton.
      * Shows a DialogFragment to add a new roll.
      */
+    @SuppressLint("CommitTransaction")
     private void show_RollNameDialog() {
         EditRollNameDialog dialog = new EditRollNameDialog();
         Bundle arguments = new Bundle();

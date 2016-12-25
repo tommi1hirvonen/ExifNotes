@@ -34,40 +34,40 @@ public class Frame implements Parcelable {
         // Empty constructor
     }
 
-    public Frame(long roll,
-                 int count,
-                 String date,
-                 long lens_id,
-                 String shutter,
-                 String aperture,
-                 String note,
-                 String location,
-                 int focal_length,
-                 String exposure_comp,
-                 int no_of_exposures,
-                 int flash_used,
-                 String flash_power,
-                 String flash_comp,
-                 long filter_id,
-                 String metering_mode
-    ) {
-        this.roll_id = roll;
-        this.count = count;
-        this.date = date;
-        this.lens_id = lens_id;
-        this.shutter = shutter;
-        this.aperture = aperture;
-        this.note = note;
-        this.location = location;
-        this.focal_length = focal_length;
-        this.exposure_comp = exposure_comp;
-        this.no_of_exposures = no_of_exposures;
-        this.flash_used = flash_used;
-        this.flash_power = flash_power;
-        this.flash_comp = flash_comp;
-        this.filter_id = filter_id;
-        this.metering_mode = metering_mode;
-    }
+//    public Frame(long roll,
+//                 int count,
+//                 String date,
+//                 long lens_id,
+//                 String shutter,
+//                 String aperture,
+//                 String note,
+//                 String location,
+//                 int focal_length,
+//                 String exposure_comp,
+//                 int no_of_exposures,
+//                 int flash_used,
+//                 String flash_power,
+//                 String flash_comp,
+//                 long filter_id,
+//                 String metering_mode
+//    ) {
+//        this.roll_id = roll;
+//        this.count = count;
+//        this.date = date;
+//        this.lens_id = lens_id;
+//        this.shutter = shutter;
+//        this.aperture = aperture;
+//        this.note = note;
+//        this.location = location;
+//        this.focal_length = focal_length;
+//        this.exposure_comp = exposure_comp;
+//        this.no_of_exposures = no_of_exposures;
+//        this.flash_used = flash_used;
+//        this.flash_power = flash_power;
+//        this.flash_comp = flash_comp;
+//        this.filter_id = filter_id;
+//        this.metering_mode = metering_mode;
+//    }
 
 
     // Methods to set members
@@ -210,7 +210,7 @@ public class Frame implements Parcelable {
 
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
-    public Frame(Parcel pc){
+    private Frame(Parcel pc){
         this.id = pc.readLong();
         this.roll_id = pc.readLong();
         this.count = pc.readInt();

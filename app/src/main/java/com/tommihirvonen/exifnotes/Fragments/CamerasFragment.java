@@ -3,6 +3,7 @@ package com.tommihirvonen.exifnotes.Fragments;
 // Copyright 2015
 // Tommi Hirvonen
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -70,7 +71,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
+        //String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
@@ -118,6 +119,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
     }
 
+    @SuppressLint("CommitTransaction")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -175,6 +177,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
         return false;
     }
 
+    @SuppressLint("CommitTransaction")
     public void showCameraNameDialog() {
         EditCameraInfoDialog dialog = new EditCameraInfoDialog();
         dialog.setTargetFragment(this, ADD_CAMERA);
@@ -277,10 +280,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
         // Find the items in the list to be preselected
         final boolean[] booleans = new boolean[allLenses.size()];
         for ( int i= 0; i < allLensesId.size(); ++i ) {
-            if ( mountableLensesId.contains(allLensesId.get(i)) ) {
-                booleans[i] = true;
-            }
-            else booleans[i] = false;
+            booleans[i] = mountableLensesId.contains(allLensesId.get(i));
         }
 
 
