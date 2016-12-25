@@ -1274,9 +1274,17 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     public static class ErrorDialogFragment extends com.google.android.gms.common.ErrorDialogFragment {
         public ErrorDialogFragment() { }
 
+        @Override
+        public void onSaveInstanceState(final Bundle outState){
+            setTargetFragment(null, -1);
+        }
+
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+            if (savedInstanceState != null) {
+                setTargetFragment(getActivity().getFragmentManager().findFragmentByTag("FRAMESFRAGMENT"), ERROR_DIALOG);
+            }
             // Get the error code and retrieve the appropriate dialog
             int errorCode = this.getArguments().getInt(DIALOG_ERROR);
             return GoogleApiAvailability.getInstance().getErrorDialog(

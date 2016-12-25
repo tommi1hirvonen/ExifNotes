@@ -30,6 +30,7 @@ public class SlidingFrameLayout extends FrameLayout {
 
     private ViewTreeObserver.OnPreDrawListener preDrawListener = null;
 
+    @SuppressWarnings("unused")
     public void setYFraction(float fraction) {
 
         this.yFraction = fraction;
@@ -53,10 +54,13 @@ public class SlidingFrameLayout extends FrameLayout {
         setTranslationY(translationY);
     }
 
+    @SuppressWarnings("unused")
     public float getYFraction() {
         return this.yFraction;
     }
 
+
+    @SuppressWarnings("unused")
     public void setXFraction(float fraction) {
 
         this.xFraction = fraction;
@@ -80,6 +84,7 @@ public class SlidingFrameLayout extends FrameLayout {
         setTranslationX(translationX);
     }
 
+    @SuppressWarnings("unused")
     public float getXFraction() {
         return this.xFraction;
     }
