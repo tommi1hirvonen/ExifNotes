@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 public class EditCameraInfoDialog extends DialogFragment {
 
@@ -44,8 +45,7 @@ public class EditCameraInfoDialog extends DialogFragment {
         if (camera == null) camera = new Camera();
 
 
-        alert.setTitle(title);
-
+        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);

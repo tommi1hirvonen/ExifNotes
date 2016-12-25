@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 //Copyright 2016
 //Tommi Hirvonen
@@ -43,7 +44,7 @@ public class EditLensInfoDialog extends DialogFragment {
         lens = getArguments().getParcelable("LENS");
         if (lens == null) lens = new Lens();
 
-        alert.setTitle(title);
+        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
 
         alert.setView(inflator);
 

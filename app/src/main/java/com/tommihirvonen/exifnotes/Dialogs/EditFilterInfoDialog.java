@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Datastructures.Filter;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 public class EditFilterInfoDialog extends DialogFragment {
 
@@ -43,7 +44,7 @@ public class EditFilterInfoDialog extends DialogFragment {
         filter = getArguments().getParcelable("FILTER");
         if (filter == null) filter = new Filter();
 
-        alert.setTitle(title);
+        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
 
         alert.setView(inflator);
 

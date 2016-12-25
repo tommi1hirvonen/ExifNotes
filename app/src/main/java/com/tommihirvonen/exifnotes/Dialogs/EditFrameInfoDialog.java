@@ -1,5 +1,6 @@
 package com.tommihirvonen.exifnotes.Dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -12,6 +13,8 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -19,10 +22,10 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Datastructures.Frame;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
@@ -89,12 +92,16 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        final View inflator = linf.inflate(R.layout.frame_info_dialog, null);
+        @SuppressLint("InflateParams") final View inflator = linf.inflate(R.layout.frame_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
+        // Set ScrollIndicators
+        FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
+        NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(R.id.nested_scroll_view);
+        Utilities.setScrollIndicators(rootLayout, nestedScrollView,
+                ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
 
-        alert.setTitle(title);
-
+        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflator);
 
         final TextView et_note = (TextView) inflator.findViewById(R.id.txt_note);
@@ -245,6 +252,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         // LENS ADD DIALOG
         b_addLens.setClickable(true);
         b_addLens.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CommitTransaction")
             @Override
             public void onClick(View v) {
                 EditLensInfoDialog dialog = new EditLensInfoDialog();
@@ -407,8 +415,9 @@ public class EditFrameInfoDialog extends DialogFragment {
         //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
         // so it doesn't need to deal with resizing
         // but just panned by the framework to ensure the current input focus is visible
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.show();
+
 
         // We override the positive button onClick so that we can dismiss the dialog
         // only if the note does not contain illegal characters

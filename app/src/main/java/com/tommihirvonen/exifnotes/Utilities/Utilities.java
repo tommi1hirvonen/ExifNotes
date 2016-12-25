@@ -3,13 +3,15 @@ package com.tommihirvonen.exifnotes.Utilities;
 // Copyright 2015
 // Tommi Hirvonen
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -151,6 +153,7 @@ public class Utilities {
      *
      * @param dir the directory whose files are to be deleted
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void purgeDirectory(File dir) {
         for(File file: dir.listFiles()) {
             if (!file.isDirectory()) {
@@ -249,6 +252,27 @@ public class Utilities {
                 downIndicator.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    /**
+     * Method to build a custom AlertDialog title TextView. This way we can imitate
+     * the default AlertDialog title and its padding.
+     *
+     * @param context Context of the application
+     * @param titleText the text to be displayed by the generated TextView
+     * @return generated TextView object
+     */
+    @SuppressWarnings("deprecation")
+    @SuppressLint("RtlHardcoded")
+    public static TextView buildCustomDialogTitleTextView(Context context, String titleText){
+        TextView titleTextView = new TextView(context);
+        if (Build.VERSION.SDK_INT < 23) titleTextView.setTextAppearance(context, android.R.style.TextAppearance_DeviceDefault_DialogWindowTitle);
+        else titleTextView.setTextAppearance(android.R.style.TextAppearance_DeviceDefault_DialogWindowTitle);
+        float dpi = context.getResources().getDisplayMetrics().density;
+        titleTextView.setPadding((int)(20*dpi), (int)(20*dpi), (int)(20*dpi), (int)(10*dpi));
+        titleTextView.setText(titleText);
+        titleTextView.setGravity(Gravity.LEFT);
+        return titleTextView;
     }
 
 }

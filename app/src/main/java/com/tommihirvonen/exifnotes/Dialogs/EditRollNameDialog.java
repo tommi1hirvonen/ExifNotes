@@ -1,5 +1,6 @@
 package com.tommihirvonen.exifnotes.Dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -19,7 +20,6 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -69,7 +69,7 @@ public class EditRollNameDialog extends DialogFragment {
 
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        final View inflator = linf.inflate(R.layout.roll_info_dialog, null);
+        @SuppressLint("InflateParams") final View inflator = linf.inflate(R.layout.roll_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         // Set ScrollIndicators
@@ -78,7 +78,7 @@ public class EditRollNameDialog extends DialogFragment {
         Utilities.setScrollIndicators(rootLayout, nestedScrollView,
                 ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
 
-        alert.setTitle(title);
+        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById((R.id.txt_name));
@@ -125,6 +125,7 @@ public class EditRollNameDialog extends DialogFragment {
         // CAMERA ADD DIALOG
         b_addCamera.setClickable(true);
         b_addCamera.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CommitTransaction")
             @Override
             public void onClick(View v) {
                 EditCameraInfoDialog dialog = new EditCameraInfoDialog();
@@ -246,7 +247,7 @@ public class EditRollNameDialog extends DialogFragment {
         //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
         // so it doesn't need to deal with resizing
         // but just panned by the framework to ensure the current input focus is visible
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.show();
 
         // We override the positive button onClick so that we can dismiss the dialog
