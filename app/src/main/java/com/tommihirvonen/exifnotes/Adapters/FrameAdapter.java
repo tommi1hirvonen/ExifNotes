@@ -81,7 +81,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         if (frame != null) {
             holder.tvFrameText.setText(frame.getDate());
             holder.tvCount.setText("" + frame.getCount());
-            if (frame.getLensId() != -1) {
+            if (frame.getLensId() > 0) {
                 Lens lens = database.getLens(frame.getLensId());
                 holder.tvFrameText2.setText(lens.getMake() + " " + lens.getModel());
             } else {

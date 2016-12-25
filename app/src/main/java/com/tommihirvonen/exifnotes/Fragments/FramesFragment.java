@@ -47,8 +47,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.tommihirvonen.exifnotes.Adapters.FrameAdapter;
 import com.tommihirvonen.exifnotes.Datastructures.Frame;
-import com.tommihirvonen.exifnotes.Datastructures.Lens;
-import com.tommihirvonen.exifnotes.Datastructures.Roll;
 import com.tommihirvonen.exifnotes.Dialogs.DirectoryChooserDialog;
 import com.tommihirvonen.exifnotes.Dialogs.EditFrameInfoDialog;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
@@ -59,15 +57,8 @@ import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.io.File;
-import java.text.Normalizer;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 // Copyright 2015
@@ -118,6 +109,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     ListView mainListView;
     ArrayList<Frame> mFrameClassList = new ArrayList<>();
     FrameAdapter mFrameAdapter;
+    Utilities utilities;
 
     ShareActionProvider mShareActionProvider;
 
@@ -149,6 +141,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
+        utilities = new Utilities(getActivity());
+
         rollId = getArguments().getLong("ROLL_ID");
         locationEnabled = getArguments().getBoolean("LOCATION_ENABLED");
 
@@ -157,7 +151,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         camera_id = database.getRoll(rollId).getCamera_id();
 
         //Sort the list according to preferences
-        sortFrameList(mFrameClassList);
+        utilities.sortFrameList(getActivity(), database, mFrameClassList);
 
         // Activate GPS locating if the user has granted permission.
         if (locationEnabled) {
@@ -368,7 +362,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         editor.putInt("FrameSortOrder", which);
                         editor.apply();
                         dialog.dismiss();
-                        sortFrameList(mFrameClassList);
+                        utilities.sortFrameList(getActivity(), database, mFrameClassList);
                         mFrameAdapter.notifyDataSetChanged();
                     }
                 });
@@ -450,141 +444,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         return true;
     }
 
-    /**
-     * This function is called when the user has selected a sorting criteria.
-     */
-    public void sortFrameList(ArrayList<Frame> listToSort) {
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        int sortId = sharedPref.getInt("FrameSortOrder", 0);
-        switch (sortId){
-            //Sort by count
-            case 0:
-                Collections.sort(listToSort, new Comparator<Frame>() {
-                    @Override
-                    public int compare(Frame o1, Frame o2) {
-                        // Negative to reverse the sorting order
-                        int count1 = o1.getCount();
-                        int count2 = o2.getCount();
-                        int result;
-                        if (count1 < count2) result = -1;
-                        else result = 1;
-                        return result;
-                    }
-                });
-                break;
 
-            //Sort by date
-            case 1:
-                Collections.sort(listToSort, new Comparator<Frame>() {
-                    @Override
-                    public int compare(Frame o1, Frame o2) {
-                        String date1 = o1.getDate();
-                        String date2 = o2.getDate();
-                        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-M-d H:m");
-                        Date d1 = null;
-                        Date d2 = null;
-                        try {
-                            d1 = format.parse(date1);
-                            d2 = format.parse(date2);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                        int result;
-                        long diff = 0;
-                        //Handle possible NullPointerException
-                        if (d1 != null && d2 != null) diff = d1.getTime() - d2.getTime();
-                        if (diff < 0 ) result = -1;
-                        else result = 1;
-
-                        return result;
-                    }
-                });
-                break;
-
-            //Sort by f-stop
-            case 2:
-                Collections.sort(listToSort, new Comparator<Frame>() {
-                    @Override
-                    public int compare(Frame o1, Frame o2) {
-
-                        final String[] allApertureValues = new String[]{getActivity().getString(R.string.NoValue), "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
-                                "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "6.7", "7.1", "8", "9", "9.5",
-                                "10", "11", "13", "14", "16", "18", "19", "20", "22", "25", "27", "29", "32", "36", "38",
-                                "42", "45", "50", "57", "64"};
-                        String aperture1 = o1.getAperture();
-                        String aperture2 = o2.getAperture();
-                        int pos1 = 0;
-                        int pos2 = 0;
-                        for (int i = 0; i < allApertureValues.length; ++i){
-                            if (aperture1.equals(allApertureValues[i])) pos1 = i;
-                            if (aperture2.equals(allApertureValues[i])) pos2 = i;
-                        }
-                        int result;
-                        if (pos1 < pos2) result = -1;
-                        else result = 1;
-                        return result;
-                    }
-                });
-                break;
-
-            //Sort by shutter speed
-            case 3:
-                Collections.sort(listToSort, new Comparator<Frame>() {
-                    @Override
-                    public int compare(Frame o1, Frame o2) {
-
-                        final String[] allShutterValues = new String[]{getActivity().getString(R.string.NoValue), "B", "30", "25", "20", "15", "13", "10", "8", "6", "5", "4",
-                                "3.2", "3", "2.5", "2", "1.6", "1.5","1.3", "1", "0.8", "0.7", "0.6", "1/2", "0.4", "1/3", "0.3",
-                                "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
-                                "1/30", "1/40", "1/45", "1/50", "1/60", "1/80", "1/90", "1/100", "1/125", "1/160", "1/180", "1/200",
-                                "1/250", "1/320", "1/350", "1/400", "1/500", "1/640", "1/750", "1/800", "1/1000", "1/1250", "1/1500",
-                                "1/1600", "1/2000", "1/2500", "1/3000", "1/3200", "1/4000", "1/5000", "1/6000", "1/6400", "1/8000"};
-
-                        //Shutter speed strings need to be modified so that the sorting
-                        //works properly.
-                        String shutter1 = o1.getShutter().replace("\"", "");
-                        String shutter2 = o2.getShutter().replace("\"", "");
-                        int pos1 = 0;
-                        int pos2 = 0;
-                        for (int i = 0; i < allShutterValues.length; ++i){
-                            if (shutter1.equals(allShutterValues[i])) pos1 = i;
-                            if (shutter2.equals(allShutterValues[i])) pos2 = i;
-                        }
-                        int result;
-                        if (pos1 < pos2) result = -1;
-                        else result = 1;
-                        return result;
-                    }
-                });
-                break;
-
-            //Sort by lens
-            case 4:
-                Collections.sort(listToSort, new Comparator<Frame>() {
-                    @Override
-                    public int compare(Frame o1, Frame o2) {
-                        String s1;
-                        Lens lens1;
-
-                        String s2;
-                        Lens lens2;
-
-                        if (o1.getLensId() != -1) {
-                            lens1 = database.getLens(o1.getLensId());
-                            s1 = lens1.getMake() + lens1.getModel();
-                        } else s1 = "-1";
-                        if (o2.getLensId() != -1) {
-                            lens2 = database.getLens(o2.getLensId());
-                            s2 = lens2.getMake() + lens2.getModel();
-                        } else s2 = "-1";
-
-                        return s1.compareTo(s2);
-                    }
-                });
-                break;
-        }
-    }
 
     /**
      * This function is used to export csv and/or exiftool commands to the devices own storage.
@@ -605,8 +465,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt";
 
         //Create the strings to be written on those two files
-        String csvString = createCsvString();
-        String exifToolCmds = createExifToolCmdsString();
+        String csvString = Utilities.createCsvString(getActivity(), database, rollId);
+        String exifToolCmds = Utilities.createExifToolCmdsString(getActivity(), database, rollId);
 
         //Create the files in external storage
         File fileCsv = new File(dir, fileNameCsv);
@@ -654,8 +514,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt";
 
         //Create the strings to be written on those two files
-        String csvString = createCsvString();
-        String exifToolCmds = createExifToolCmdsString();
+        String csvString = Utilities.createCsvString(getActivity(), database, rollId);
+        String exifToolCmds = Utilities.createExifToolCmdsString(getActivity(), database, rollId);
 
         //Create the files in external storage
         File fileCsv = new File(externalStorageDir, fileNameCsv);
@@ -701,164 +561,6 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         }
 
         return shareIntent;
-    }
-
-    /**
-     * This function creates a string containing the ExifTool commands about the roll
-     *
-     * @return String containing the ExifTool commands
-     */
-    private String createExifToolCmdsString() {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-        String artistName = prefs.getString("ArtistName", "");
-        String copyrightInformation = prefs.getString("CopyrightInformation", "");
-        String exiftoolPath = prefs.getString("ExiftoolPath", "");
-        String picturesPath = prefs.getString("PicturesPath", "");
-
-        String exiftoolCmd = "exiftool";
-        String artistTag = "-Artist=";
-        String copyrightTag = "-Copyright=";
-        String cameraMakeTag = "-Make=";
-        String cameraModelTag = "-Model=";
-        String lensMakeTag = "-LensMake=";
-        String lensModelTag = "-LensModel=";
-        String dateTag = "-DateTime=";
-        String shutterTag = "-ShutterSpeedValue=";
-        String apertureTag = "-ApertureValue=";
-        String commentTag = "-UserComment=";
-        String gpsLatTag = "-GPSLatitude=";
-        String gpsLatRefTag = "-GPSLatitudeRef=";
-        String gpsLngTag = "-GPSLongitude=";
-        String gpsLngRefTag = "-GPSLongitudeRef=";
-        String fileEnding = ".jpg";
-        String quote = "\"";
-        String space = " ";
-        String lineSep = System.getProperty("line.separator");
-
-        for ( Frame frame : mFrameClassList ) {
-            if ( exiftoolPath.length() > 0 ) stringBuilder.append(exiftoolPath);
-            stringBuilder.append(exiftoolCmd).append(space);
-            stringBuilder.append(cameraMakeTag).append(quote).append(database.getCamera(camera_id).getMake()).append(quote).append(space);
-            stringBuilder.append(cameraModelTag).append(quote).append(database.getCamera(camera_id).getModel()).append(quote).append(space);
-            if ( frame.getLensId() != -1 ) {
-                stringBuilder.append(lensMakeTag).append(quote).append(database.getLens(frame.getLensId()).getMake()).append(quote).append(space);
-                stringBuilder.append(lensModelTag).append(quote).append(database.getLens(frame.getLensId()).getModel()).append(quote).append(space);
-            }
-            stringBuilder.append(dateTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
-            if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
-            if ( !frame.getAperture().contains("<") )
-                stringBuilder.append(apertureTag).append(quote).append(frame.getAperture()).append(quote).append(space);
-            if ( frame.getNote().length() > 0 ) stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
-
-            if ( frame.getLocation().length() > 0 ) {
-                String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
-                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
-                String latRef;
-                if (latString.substring(0, 1).equals("-")) {
-                    latRef = "S";
-                    latString = latString.substring(1, latString.length());
-                } else latRef = "N";
-                String lngRef;
-                if (lngString.substring(0, 1).equals("-")) {
-                    lngRef = "W";
-                    lngString = lngString.substring(1, lngString.length());
-                } else lngRef = "E";
-                latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
-                List<String> latStringList = Arrays.asList(latString.split(":"));
-                lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
-                List<String> lngStringList = Arrays.asList(lngString.split(":"));
-
-                stringBuilder.append(gpsLatTag).append(quote).append(latStringList.get(0)).append(space).append(latStringList.get(1)).append(space).append(latStringList.get(2)).append(quote).append(space);
-                stringBuilder.append(gpsLatRefTag).append(quote).append(latRef).append(quote).append(space);
-                stringBuilder.append(gpsLngTag).append(quote).append(lngStringList.get(0)).append(space).append(lngStringList.get(1)).append(space).append(lngStringList.get(2)).append(quote).append(space);
-                stringBuilder.append(gpsLngRefTag).append(quote).append(lngRef).append(quote).append(space);
-            }
-
-            if ( artistName.length() > 0 ) stringBuilder.append(artistTag).append(quote).append(artistName).append(quote).append(space);
-            if ( copyrightInformation.length() > 0 ) stringBuilder.append(copyrightTag).append(quote).append(copyrightInformation).append(quote).append(space);
-            if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
-            if ( picturesPath.length() > 0 ) stringBuilder.append(picturesPath);
-            stringBuilder.append(frame.getCount()).append(fileEnding);
-            if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
-            stringBuilder.append(";").append(lineSep).append(lineSep);
-
-        }
-
-        return stringBuilder.toString();
-    }
-
-    /**
-     * This function creates a string which contains csv information about the roll.
-     *
-     * @return String containing the csv information
-     */
-    private String createCsvString() {
-        // Get the roll and its information
-        Roll roll = database.getRoll(rollId);
-
-        final String separator = ",";
-        StringBuilder stringBuilder = new StringBuilder();
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-        String artistName = prefs.getString("ArtistName", "");
-        String copyrightInformation = prefs.getString("CopyrightInformation", "");
-
-        stringBuilder.append("Roll name: ").append(roll.getName()).append("\n");
-        stringBuilder.append("Added: ").append(roll.getDate()).append("\n");
-        stringBuilder.append("Camera: ").append(database.getCamera(camera_id).getMake()).append(" ").append(database.getCamera(camera_id).getModel()).append("\n");
-        stringBuilder.append("Notes: ").append(roll.getNote()).append("\n");
-        stringBuilder.append("Artist name: ").append(artistName).append("\n");
-        stringBuilder.append("Copyright: ").append(copyrightInformation).append("\n");
-        stringBuilder.append("Frame Count").append(separator).append("Date").append(separator).append("Lens").append(separator).append("Shutter").append(separator).append("Aperture").append(separator).append("Notes").append(separator).append("Location").append("\n");
-
-        for ( Frame frame : mFrameClassList ) {
-            stringBuilder.append(frame.getCount());
-            stringBuilder.append(separator);
-            stringBuilder.append(frame.getDate());
-            stringBuilder.append(separator);
-            if ( frame.getLensId() != -1 ) stringBuilder.append(database.getLens(frame.getLensId()).getMake()).append(" ").append(database.getLens(frame.getLensId()).getModel());
-            stringBuilder.append(separator);
-            if ( !frame.getShutter().contains("<") )stringBuilder.append(frame.getShutter());
-            stringBuilder.append(separator);
-            if ( !frame.getAperture().contains("<") )
-                stringBuilder.append("f").append(frame.getAperture());
-            stringBuilder.append(separator);
-            if ( frame.getNote().length() > 0 ) stringBuilder.append(frame.getNote());
-            stringBuilder.append(separator);
-            if ( frame.getLocation().length() > 0 ) {
-                String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
-                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
-                String latRef;
-                if (latString.substring(0, 1).equals("-")) {
-                    latRef = "S";
-                    latString = latString.substring(1, latString.length());
-                } else latRef = "N";
-                String lngRef;
-                if (lngString.substring(0, 1).equals("-")) {
-                    lngRef = "W";
-                    lngString = lngString.substring(1, lngString.length());
-                } else lngRef = "E";
-                latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
-                List<String> latStringList = Arrays.asList(latString.split(":"));
-                lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
-                List<String> lngStringList = Arrays.asList(lngString.split(":"));
-
-                String space = " ";
-
-                stringBuilder.append(latStringList.get(0)).append("°").append(space).append(latStringList.get(1)).append("\'").append(space).append(latStringList.get(2).replace(',', '.')).append("\"").append(space);
-
-                stringBuilder.append(latRef).append(space);
-
-                stringBuilder.append(lngStringList.get(0)).append("°").append(space).append(lngStringList.get(1)).append("\'").append(space).append(lngStringList.get(2).replace(',', '.')).append("\"").append(space);
-
-                stringBuilder.append(lngRef);
-            }
-            stringBuilder.append("\n");
-        }
-
-        return stringBuilder.toString();
     }
 
 
@@ -953,13 +655,13 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String positiveButton = getActivity().getResources().getString(R.string.Add);
 
         Frame frame = new Frame();
-        frame.setDate(getCurrentTime());
+        frame.setDate(Utilities.getCurrentTime());
         frame.setCount(0);
         frame.setRollId(rollId);
 
         //Get the location only if the app has location permission (locationEnabled) and
         //the user has enabled GPS updates in the app's settings.
-        if ( locationEnabled && PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext()).getBoolean("GPSUpdate", true) ) frame.setLocation(locationStringFromLocation(mLastLocation));
+        if ( locationEnabled && PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext()).getBoolean("GPSUpdate", true) ) frame.setLocation(Utilities.locationStringFromLocation(mLastLocation));
         //else frame.setLocation("");
 
         if (!mFrameClassList.isEmpty()) {
@@ -1020,7 +722,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                         frame.setId(rowId);
 
                         mFrameClassList.add(frame);
-                        sortFrameList(mFrameClassList);
+                        utilities.sortFrameList(getActivity(), database, mFrameClassList);
                         mFrameAdapter.notifyDataSetChanged();
                         mainTextView.setVisibility(View.GONE);
 
@@ -1046,7 +748,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     if ( frame != null && frame.getId() > 0 ) {
 
                         database.updateFrame(frame);
-                        sortFrameList(mFrameClassList);
+                        utilities.sortFrameList(getActivity(), database, mFrameClassList);
                         mFrameAdapter.notifyDataSetChanged();
 
                         // The text you'd like to share has changed,
@@ -1086,35 +788,7 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
     }
 
-    /**
-     * This function is used to convert a Location to a string.
-     *
-     * @param location Location to be converted
-     * @return the converted string
-     */
-    public static String locationStringFromLocation(final Location location) {
-        if (location != null)
-            return (Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + " " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)).replace(",", ".");
-        else return "";
-    }
 
-    /**
-     * Gets the current date and time.
-     * @return Date and time as a string in format YYYY-M-D H:MM
-     */
-    public static String getCurrentTime() {
-        final Calendar c = Calendar.getInstance();
-        int iYear = c.get(Calendar.YEAR);
-        int iMonth = c.get(Calendar.MONTH) + 1;
-        int iDay = c.get(Calendar.DAY_OF_MONTH);
-        int iHour = c.get(Calendar.HOUR_OF_DAY);
-        int iMin = c.get(Calendar.MINUTE);
-        String current_time;
-        if (iMin < 10) {
-            current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
-        } else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
-        return current_time;
-    }
 
 
 

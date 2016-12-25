@@ -70,6 +70,8 @@ public class EditFrameInfoDialog extends DialogFragment {
     NumberPicker shutterPicker;
     NumberPicker aperturePicker;
 
+    Utilities utilities;
+
     String[] displayedShutterValues;
     String[] displayedApertureValues;
 
@@ -81,6 +83,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String shutterIncrements = prefs.getString("ShutterIncrements", "third");
         String apertureIncrements = prefs.getString("ApertureIncrements", "third");
+
+        utilities = new Utilities(getActivity());
 
         title = getArguments().getString("TITLE");
         positiveButton = getArguments().getString("POSITIVE_BUTTON");
@@ -119,35 +123,19 @@ public class EditFrameInfoDialog extends DialogFragment {
         shutterPicker = (NumberPicker) inflator.findViewById(R.id.shutterPicker);
         aperturePicker = (NumberPicker) inflator.findViewById(R.id.aperturePicker);
 
-        // Shutter values in 1/3 increments
-        final String[] shutterValuesThird = new String[]{getActivity().getString(R.string.NoValue), "B", "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
-                                                    "3.2\"", "2.5\"", "2\"", "1.6\"", "1.3\"", "1\"", "0.8\"", "0.6\"", "1/2", "0.4\"", "0.3\"",
-                                                    "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
-                                                    "1/30", "1/40", "1/50", "1/60", "1/80", "1/100", "1/125", "1/160", "1/200",
-                                                    "1/250", "1/320", "1/400", "1/500", "1/640", "1/800", "1/1000", "1/1250",
-                                                    "1/1600", "1/2000", "1/2500", "1/3200", "1/4000", "1/5000", "1/6400", "1/8000"};
-        // Shutter values in 1/2 increments
-        final String[] shutterValuesHalf = new String[]{ getActivity().getString(R.string.NoValue), "B", "30\"", "20\"", "15\"", "10\"", "8\"", "6\"", "4\"", "3\"", "2\"", "1.5\"",
-                                                    "1\"", "0.7\"", "1/2", "1/3", "1/4", "1/6", "1/8", "1/10", "1/15", "1/20",
-                                                    "1/30", "1/45", "1/60", "1/90", "1/125", "1/180", "1/250", "1/350",
-                                                    "1/500", "1/750", "1/1000", "1/1500", "1/2000", "1/3000", "1/4000", "1/6000", "1/8000" };
-        // Shutter values in full stop increments
-        final String[] shutterValuesFull = new String[]{ getActivity().getString(R.string.NoValue), "B", "30\"", "15\"", "8\"", "4\"", "2\"", "1\"", "1/2", "1/4", "1/8",
-                                                        "1/15", "1/30", "1/60", "1/125", "1/250", "1/500", "1/1000", "1/2000", "1/4000", "1/8000" };
-
         // Set the increments according to settings
         switch (shutterIncrements) {
             case "third":
-                displayedShutterValues = shutterValuesThird;
+                displayedShutterValues = utilities.shutterValuesThird;
                 break;
             case "half":
-                displayedShutterValues = shutterValuesHalf;
+                displayedShutterValues = utilities.shutterValuesHalf;
                 break;
             case "full":
-                displayedShutterValues = shutterValuesFull;
+                displayedShutterValues = utilities.shutterValuesFull;
                 break;
             default:
-                displayedShutterValues = shutterValuesThird;
+                displayedShutterValues = utilities.shutterValuesThird;
                 break;
         }
         // By reversing the order we can reverse the order in the numberpicker too
@@ -166,29 +154,19 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         }
 
-        final String[] apertureValuesThird = new String[]{getActivity().getString(R.string.NoValue), "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
-                                                        "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "7.1", "8", "9",
-                                                        "10", "11", "13", "14", "16", "18", "20", "22", "25", "29", "32", "36",
-                                                        "42", "45", "50", "57", "64"};
-        final String[] apertureValuesHalf = new String[]{ getActivity().getString(R.string.NoValue), "1.0", "1.2", "1.4", "1.8", "2.0", "2.5", "2.8", "3.5",
-                                                            "4.0", "4.5", "5.6", "6.7", "8", "9.5", "11", "13", "16", "19",
-                                                            "22", "27", "32", "38", "45", "64" };
-        final String[] apertureValuesFull = new String[]{ getActivity().getString(R.string.NoValue), "1.0", "1.4", "2.0", "2.8", "4.0", "5.6", "8", "11",
-                                                            "16", "22", "32", "45", "64" };
-
         // Set the increments according to settings
         switch (apertureIncrements) {
             case "third":
-                displayedApertureValues = apertureValuesThird;
+                displayedApertureValues = utilities.apertureValuesThird;
                 break;
             case "half":
-                displayedApertureValues = apertureValuesHalf;
+                displayedApertureValues = utilities.apertureValuesHalf;
                 break;
             case "full":
-                displayedApertureValues = apertureValuesFull;
+                displayedApertureValues = utilities.apertureValuesFull;
                 break;
             default:
-                displayedApertureValues = apertureValuesThird;
+                displayedApertureValues = utilities.apertureValuesThird;
                 break;
         }
         // By reversing the order we can reverse the order in the numberpicker too
@@ -282,7 +260,7 @@ public class EditFrameInfoDialog extends DialogFragment {
             temp_day = Integer.parseInt(dateValue.get(2));
             b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
         } else {
-            frame.setDate(FramesFragment.getCurrentTime());
+            frame.setDate(Utilities.getCurrentTime());
 
             ArrayList<String> dateValue = Utilities.splitDate(frame.getDate());
             temp_year = Integer.parseInt(dateValue.get(0));

@@ -147,6 +147,7 @@
     <string name="NoModel">No model was set!</string>
     <string name="MakeIllegalCharacter">Make contains illegal character(s):</string>
     <string name="ModelIllegalCharacter">Model contains illegal character(s):</string>
+    <string name="NoMinOrMaxShutter">One end of the shutter range was empty!</string>
 
     <!--FramesFragment-->
     <string name="NoteIllegalCharacter">Note contains illegal character(s):</string>

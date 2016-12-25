@@ -14,19 +14,25 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 public class EditCameraInfoDialog extends DialogFragment {
 
     public static final String TAG = "CameraInfoDialogFragment";
 
     Camera camera;
+    Utilities utilities;
 
     public EditCameraInfoDialog(){
 
@@ -35,6 +41,9 @@ public class EditCameraInfoDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
+
+        utilities = new Utilities(getActivity());
+
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams") final View inflator = linf.inflate(R.layout.camera_dialog, null);
@@ -49,12 +58,41 @@ public class EditCameraInfoDialog extends DialogFragment {
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflator);
 
+        //EDIT TEXT FIELDS
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);
         et1.setText(camera.getMake());
         final EditText et2 = (EditText) inflator.findViewById(R.id.txt_model);
         et2.setText(camera.getModel());
         final EditText et3 = (EditText) inflator.findViewById(R.id.txt_serial_number);
         et3.setText(camera.getSerialNumber());
+
+        //SHUTTER RANGE NUMBER PICKERS
+        final NumberPicker minShutterPicker = (NumberPicker) inflator.findViewById(R.id.minShutterPicker);
+        final NumberPicker maxShutterPicker = (NumberPicker) inflator.findViewById(R.id.maxShutterPicker);
+        final String[] allShutterValuesNoBulb = utilities.allShutterValuesNoBulb;
+        Collections.reverse(Arrays.asList(allShutterValuesNoBulb));
+        minShutterPicker.setMinValue(0);
+        maxShutterPicker.setMinValue(0);
+        minShutterPicker.setMaxValue(allShutterValuesNoBulb.length-1);
+        maxShutterPicker.setMaxValue(allShutterValuesNoBulb.length-1);
+        minShutterPicker.setDisplayedValues(allShutterValuesNoBulb);
+        maxShutterPicker.setDisplayedValues(allShutterValuesNoBulb);
+        minShutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        maxShutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        minShutterPicker.setValue(allShutterValuesNoBulb.length-1);
+        maxShutterPicker.setValue(allShutterValuesNoBulb.length-1);
+        for (int i = 0; i < allShutterValuesNoBulb.length; ++i) {
+            if (allShutterValuesNoBulb[i].equals(camera.getMinShutter())) {
+                minShutterPicker.setValue(i);
+                break;
+            }
+        }
+        for (int i = 0; i < allShutterValuesNoBulb.length; ++i) {
+            if (allShutterValuesNoBulb[i].equals(camera.getMaxShutter())) {
+                maxShutterPicker.setValue(i);
+                break;
+            }
+        }
 
         alert.setPositiveButton(positiveButton, null);
 
@@ -76,26 +114,42 @@ public class EditCameraInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
 
-                camera.setMake(et1.getText().toString());
-                camera.setModel(et2.getText().toString());
-                camera.setSerialNumber(et3.getText().toString());
+                String make = et1.getText().toString();
+                String model = et2.getText().toString();
+                String serialNumber = et3.getText().toString();
 
-                if (camera.getMake().length() > 0 && camera.getModel().length() > 0) {
+                if (make.length() == 0 && model.length() == 0) {
+                    // No make or model was set
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();
+                } else if (make.length() > 0 && model.length() == 0) {
+                    // No model was set
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
+                } else if (make.length() == 0 && model.length() > 0) {
+                    // No make was set
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
+                } else if ((minShutterPicker.getValue() == allShutterValuesNoBulb.length-1 && maxShutterPicker.getValue() != allShutterValuesNoBulb.length-1)
+                            ||
+                            (minShutterPicker.getValue() != allShutterValuesNoBulb.length-1 && maxShutterPicker.getValue() == allShutterValuesNoBulb.length-1)){
+                    // No min or max shutter was set
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxShutter), Toast.LENGTH_LONG).show();
+                } else {
+                    camera.setMake(make); camera.setModel(model);
+                    camera.setSerialNumber(serialNumber);
+                    if (minShutterPicker.getValue() < maxShutterPicker.getValue()) {
+                        camera.setMinShutter(allShutterValuesNoBulb[minShutterPicker.getValue()]);
+                        camera.setMaxShutter(allShutterValuesNoBulb[maxShutterPicker.getValue()]);
+                    } else {
+                        camera.setMinShutter(allShutterValuesNoBulb[maxShutterPicker.getValue()]);
+                        camera.setMaxShutter(allShutterValuesNoBulb[minShutterPicker.getValue()]);
+                    }
+
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
                     intent.putExtra("CAMERA", camera);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                } else if (camera.getMake().length() == 0 && camera.getModel().length() == 0) {
-                    // No make or model was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();
-                } else if (camera.getMake().length() > 0 && camera.getModel().length() == 0) {
-                    // No model was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
-                } else if (camera.getMake().length() == 0 && camera.getModel().length() > 0) {
-                    // No make was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
         return dialog;

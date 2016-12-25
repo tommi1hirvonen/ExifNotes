@@ -153,7 +153,7 @@ public class EditRollNameDialog extends DialogFragment {
             temp_day = Integer.parseInt(dateValue.get(2));
             b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
         } else {
-            roll.setDate(FramesFragment.getCurrentTime());
+            roll.setDate(Utilities.getCurrentTime());
 
             ArrayList<String> dateValue = Utilities.splitDate(roll.getDate());
             temp_year = Integer.parseInt(dateValue.get(0));
