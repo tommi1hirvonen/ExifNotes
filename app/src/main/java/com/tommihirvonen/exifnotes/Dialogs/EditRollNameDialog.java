@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -54,8 +55,13 @@ public class EditRollNameDialog extends DialogFragment {
 
     TextView b_camera;
 
+    //These variables are used so that the object itself is not updated
+    //unless the user presses ok.
     long newCameraId;
     String newDate;
+
+    NumberPicker isoPicker;
+    NumberPicker pushPullPicker;
 
 
     @NonNull
@@ -117,7 +123,6 @@ public class EditRollNameDialog extends DialogFragment {
                         // listItems also contains the No lens option
                         b_camera.setText(listItems.get(which));
                         newCameraId = mCameraList.get(which).getId();
-                        //roll.setCamera_id(mCameraList.get(which).getId());
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -148,44 +153,31 @@ public class EditRollNameDialog extends DialogFragment {
         });
 
         // DATE PICK DIALOG
-        int temp_year;
-        int temp_month;
-        int temp_day;
+        if (roll.getDate() == null) roll.setDate(Utilities.getCurrentTime());
+        ArrayList<String> dateValue = Utilities.splitDate(roll.getDate());
+        int temp_year = Integer.parseInt(dateValue.get(0));
+        int temp_month = Integer.parseInt(dateValue.get(1));
+        int temp_day = Integer.parseInt(dateValue.get(2));
+        b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
 
-        if ( roll.getDate() != null ) {
-            final ArrayList<String> dateValue = Utilities.splitDate(roll.getDate());
-            temp_year = Integer.parseInt(dateValue.get(0));
-            temp_month = Integer.parseInt(dateValue.get(1));
-            temp_day = Integer.parseInt(dateValue.get(2));
-            b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
-        } else {
-            roll.setDate(Utilities.getCurrentTime());
-
-            ArrayList<String> dateValue = Utilities.splitDate(roll.getDate());
-            temp_year = Integer.parseInt(dateValue.get(0));
-            temp_month = Integer.parseInt(dateValue.get(1));
-            temp_day = Integer.parseInt(dateValue.get(2));
-            b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
-        }
         b_date.setClickable(true);
 
         newDate = roll.getDate();
-
-        final int i_year = temp_year;
-        final int i_month = temp_month;
-        final int i_day = temp_day;
 
         b_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // DATE PICKER DIALOG IMPLEMENTATION HERE
+                ArrayList<String> dateValue = Utilities.splitDate(newDate);
+                int i_year = Integer.parseInt(dateValue.get(0));
+                int i_month = Integer.parseInt(dateValue.get(1));
+                int i_day = Integer.parseInt(dateValue.get(2));
                 DatePickerDialog dialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         String newInnerDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
                         b_date.setText(newInnerDate);
                         newDate = newInnerDate + " " + b_time.getText().toString();
-                        //roll.setDate(newDate + " " + b_time.getText().toString());
                     }
                     // One month has to be subtracted from the default shown month, otherwise
                     // the date picker shows one month forward.
@@ -197,32 +189,21 @@ public class EditRollNameDialog extends DialogFragment {
         });
 
         // TIME PICK DIALOG
+        ArrayList<String> timeValue = Utilities.splitTime(roll.getDate());
+        int temp_hours = Integer.parseInt(timeValue.get(0));
+        int temp_minutes = Integer.parseInt(timeValue.get(1));
+        if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
+        else b_time.setText(temp_hours + ":" + temp_minutes);
 
-        int temp_hours;
-        int temp_minutes;
-
-        if ( roll.getDate() != null ) {
-            ArrayList<String> timeValue = Utilities.splitTime(roll.getDate());
-            temp_hours = Integer.parseInt(timeValue.get(0));
-            temp_minutes = Integer.parseInt(timeValue.get(1));
-            if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
-            else b_time.setText(temp_hours + ":" + temp_minutes);
-        } else {
-            ArrayList<String> timeValue = Utilities.splitTime(roll.getDate());
-            temp_hours = Integer.parseInt(timeValue.get(0));
-            temp_minutes = Integer.parseInt(timeValue.get(1));
-            if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
-            else b_time.setText(temp_hours + ":" + temp_minutes);
-        }
         b_time.setClickable(true);
-
-        final int hours = temp_hours;
-        final int minutes = temp_minutes;
 
         b_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TIME PICKER DIALOG IMPLEMENTATION HERE
+                ArrayList<String> timeValue = Utilities.splitTime(newDate);
+                int hours = Integer.parseInt(timeValue.get(0));
+                int minutes = Integer.parseInt(timeValue.get(1));
                 TimePickerDialog dialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -232,7 +213,6 @@ public class EditRollNameDialog extends DialogFragment {
                         } else newTime = hourOfDay + ":" + minute;
                         b_time.setText(newTime);
                         newDate = b_date.getText().toString() + " " + newTime;
-                        //roll.setDate(b_date.getText().toString() + " " + newTime);
                     }
                 }, hours, minutes, true);
 
@@ -240,6 +220,36 @@ public class EditRollNameDialog extends DialogFragment {
 
             }
         });
+
+        //ISO PICKER
+        isoPicker = (NumberPicker) inflator.findViewById(R.id.isoPicker);
+        isoPicker.setMinValue(0);
+        isoPicker.setMaxValue(Utilities.isoValues.length-1);
+        isoPicker.setDisplayedValues(Utilities.isoValues);
+        isoPicker.setValue(0);
+        for (int i = 0; i < Utilities.isoValues.length; ++i) {
+            if (roll.getIso() == Integer.parseInt(Utilities.isoValues[i])) {
+                isoPicker.setValue(i);
+                break;
+            }
+        }
+
+        //PUSH PULL PICKER
+        pushPullPicker = (NumberPicker) inflator.findViewById(R.id.pushPullPicker);
+        pushPullPicker.setMinValue(0);
+        pushPullPicker.setMaxValue(Utilities.compValues.length-1);
+        pushPullPicker.setDisplayedValues(Utilities.compValues);
+        pushPullPicker.setValue(9);
+        for (int i = 0; i < Utilities.compValues.length; ++i) {
+            if (roll.getPushPull().equals(Utilities.compValues[i])) {
+                pushPullPicker.setValue(i);
+                break;
+            }
+        }
+
+
+
+        //FINALISE SETTING UP THE DIALOG
 
         // Show old name on the input field by default
         et1.setText(roll.getName());
@@ -280,6 +290,8 @@ public class EditRollNameDialog extends DialogFragment {
                     roll.setNote(et2.getText().toString());
                     roll.setCamera_id(newCameraId);
                     roll.setDate(newDate);
+                    roll.setIso(Integer.parseInt(Utilities.isoValues[isoPicker.getValue()]));
+                    roll.setPushPull(Utilities.compValues[pushPullPicker.getValue()]);
 
                     Intent intent = new Intent();
                     intent.putExtra("ROLL", roll);
@@ -310,7 +322,7 @@ public class EditRollNameDialog extends DialogFragment {
                         mCameraList.add(camera);
 
                         b_camera.setText(camera.getMake() + " " + camera.getModel());
-                        roll.setCamera_id(camera.getId());
+                        newCameraId = camera.getId();
                     }
 
                 } else if (resultCode == Activity.RESULT_CANCELED) {

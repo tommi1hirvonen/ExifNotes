@@ -66,6 +66,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         // Empty constructor required for DialogFragment
     }
 
+    //These variables are used so that the object itself is not updated
+    //unless the user presses ok.
     long newLensId;
     String newDate;
     String newLocation;
@@ -223,15 +225,14 @@ public class EditFrameInfoDialog extends DialogFragment {
                         // listItems also contains the No lens option
                         b_lens.setText(listItems.get(which));
                         if (which > 0) {
-                            //frame.setLensId(mountableLenses.get(which - 1).getId());
                             newLensId = mountableLenses.get(which - 1).getId();
-                            if ( focalLengthPicker.getValue() > database.getLens( newLensId /*frame.getLensId()*/).getMaxFocalLength() ) {
-                                focalLengthPicker.setValue(database.getLens(newLensId /*frame.getLensId()*/).getMaxFocalLength());
-                            } else if ( focalLengthPicker.getValue() < database.getLens(newLensId /*frame.getLensId()*/).getMinFocalLength() ) {
-                                focalLengthPicker.setValue(database.getLens(newLensId /*frame.getLensId()*/).getMinFocalLength());
+                            if ( focalLengthPicker.getValue() > database.getLens( newLensId ).getMaxFocalLength() ) {
+                                focalLengthPicker.setValue(database.getLens(newLensId ).getMaxFocalLength());
+                            } else if ( focalLengthPicker.getValue() < database.getLens(newLensId ).getMinFocalLength() ) {
+                                focalLengthPicker.setValue(database.getLens(newLensId ).getMinFocalLength());
                             }
-                            focalLengthPicker.setMinValue(database.getLens(newLensId /*frame.getLensId()*/).getMinFocalLength());
-                            focalLengthPicker.setMaxValue(database.getLens(newLensId /*frame.getLensId()*/).getMaxFocalLength());
+                            focalLengthPicker.setMinValue(database.getLens(newLensId ).getMinFocalLength());
+                            focalLengthPicker.setMaxValue(database.getLens(newLensId ).getMaxFocalLength());
                         }
                         else if (which == 0) {
                             //frame.setLensId(-1);
@@ -270,47 +271,31 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // DATE PICK DIALOG
+        if (frame.getDate() == null) frame.setDate(Utilities.getCurrentTime());
+        ArrayList<String> dateValue = Utilities.splitDate(frame.getDate());
+        int temp_year = Integer.parseInt(dateValue.get(0));
+        int temp_month = Integer.parseInt(dateValue.get(1));
+        int temp_day = Integer.parseInt(dateValue.get(2));
+        b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
 
-        // The date is in format "YYYY-M-D HH:MM"
-
-        int temp_year;
-        int temp_month;
-        int temp_day;
-
-        if ( frame.getDate().length() > 0 ) {
-            final ArrayList<String> dateValue = Utilities.splitDate(frame.getDate());
-            temp_year = Integer.parseInt(dateValue.get(0));
-            temp_month = Integer.parseInt(dateValue.get(1));
-            temp_day = Integer.parseInt(dateValue.get(2));
-            b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
-        } else {
-            frame.setDate(Utilities.getCurrentTime());
-
-            ArrayList<String> dateValue = Utilities.splitDate(frame.getDate());
-            temp_year = Integer.parseInt(dateValue.get(0));
-            temp_month = Integer.parseInt(dateValue.get(1));
-            temp_day = Integer.parseInt(dateValue.get(2));
-            b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
-        }
         b_date.setClickable(true);
 
         newDate = frame.getDate();
-
-        final int i_year = temp_year;
-        final int i_month = temp_month;
-        final int i_day = temp_day;
 
         b_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // DATE PICKER DIALOG IMPLEMENTATION HERE
+                ArrayList<String> dateValue = Utilities.splitDate(newDate);
+                int i_year = Integer.parseInt(dateValue.get(0));
+                int i_month = Integer.parseInt(dateValue.get(1));
+                int i_day = Integer.parseInt(dateValue.get(2));
                 DatePickerDialog dialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         String newInnerDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
                         b_date.setText(newInnerDate);
                         newDate = newInnerDate + " " + b_time.getText().toString();
-                        //frame.setDate(newInnerDate + " " + b_time.getText().toString());
                     }
                     // One month has to be subtracted from the default shown month, otherwise
                     // the date picker shows one month forward.
@@ -322,31 +307,21 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // TIME PICK DIALOG
-        int temp_hours;
-        int temp_minutes;
+        ArrayList<String> timeValue = Utilities.splitTime(frame.getDate());
+        int temp_hours = Integer.parseInt(timeValue.get(0));
+        int temp_minutes = Integer.parseInt(timeValue.get(1));
+        if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
+        else b_time.setText(temp_hours + ":" + temp_minutes);
 
-        if ( frame.getDate().length() > 0 ) {
-            ArrayList<String> timeValue = Utilities.splitTime(frame.getDate());
-            temp_hours = Integer.parseInt(timeValue.get(0));
-            temp_minutes = Integer.parseInt(timeValue.get(1));
-            if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
-            else b_time.setText(temp_hours + ":" + temp_minutes);
-        } else {
-            ArrayList<String> timeValue = Utilities.splitTime(frame.getDate());
-            temp_hours = Integer.parseInt(timeValue.get(0));
-            temp_minutes = Integer.parseInt(timeValue.get(1));
-            if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
-            else b_time.setText(temp_hours + ":" + temp_minutes);
-        }
         b_time.setClickable(true);
-
-        final int hours = temp_hours;
-        final int minutes = temp_minutes;
 
         b_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TIME PICKER DIALOG IMPLEMENTATION HERE
+                ArrayList<String> timeValue = Utilities.splitTime(newDate);
+                int hours = Integer.parseInt(timeValue.get(0));
+                int minutes = Integer.parseInt(timeValue.get(1));
                 TimePickerDialog dialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -356,7 +331,6 @@ public class EditFrameInfoDialog extends DialogFragment {
                         } else newTime = hourOfDay + ":" + minute;
                         b_time.setText(newTime);
                         newDate = b_date.getText().toString() + " " + newTime;
-                        //frame.setDate(b_date.getText().toString() + " " + newTime);
                     }
                 }, hours, minutes, true);
 
@@ -387,7 +361,6 @@ public class EditFrameInfoDialog extends DialogFragment {
                             // Clear
                             case 0:
                                 b_location.setText("");
-                                //frame.setLocation("");
                                 newLocation = "";
                                 break;
 
@@ -455,7 +428,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 frame.setNote(et_note.getText().toString());
 
                 // PARSE THE DATE
-                frame.setDate(b_date.getText().toString() + " " + b_time.getText().toString());
+                frame.setDate(newDate);
 
                 frame.setLensId(newLensId);
                 frame.setLocation(newLocation);
@@ -477,7 +450,6 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         if ( requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK ) {
             if (data.hasExtra("LATITUDE") && data.hasExtra("LONGITUDE")) {
-                //frame.setLocation("" + data.getStringExtra("LATITUDE") + " " + data.getStringExtra("LONGITUDE"));
                 newLocation = "" + data.getStringExtra("LATITUDE") + " " + data.getStringExtra("LONGITUDE");
                 b_location.setText(frame.getLocation());
             }
@@ -489,15 +461,21 @@ public class EditFrameInfoDialog extends DialogFragment {
             // After Ok code.
             Lens lens = data.getParcelableExtra("LENS");
 
-            if (lens.getMake().length() != 0 && lens.getModel().length() != 0) {
-                long rowId = database.addLens(lens);
-                lens.setId(rowId);
-                database.addMountable(database.getCamera(camera_id), lens);
-                mountableLenses.add(lens);
-                b_lens.setText(lens.getMake() + " " + lens.getModel());
-                //frame.setLensId(lens.getId());
-                newLensId = lens.getId();
+            long rowId = database.addLens(lens);
+            lens.setId(rowId);
+            database.addMountable(database.getCamera(camera_id), lens);
+            mountableLenses.add(lens);
+            b_lens.setText(lens.getMake() + " " + lens.getModel());
+            newLensId = lens.getId();
+
+            if ( focalLengthPicker.getValue() > database.getLens( newLensId ).getMaxFocalLength() ) {
+                focalLengthPicker.setValue(database.getLens(newLensId ).getMaxFocalLength());
+            } else if ( focalLengthPicker.getValue() < database.getLens(newLensId ).getMinFocalLength() ) {
+                focalLengthPicker.setValue(database.getLens(newLensId ).getMinFocalLength());
             }
+            focalLengthPicker.setMinValue(database.getLens(newLensId ).getMinFocalLength());
+            focalLengthPicker.setMaxValue(database.getLens(newLensId ).getMaxFocalLength());
+
         }
     }
 }
