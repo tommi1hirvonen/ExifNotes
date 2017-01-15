@@ -391,7 +391,7 @@
 
             <!--METERING MODE-->
 
-            <TextView
+            <!--<TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
@@ -411,7 +411,7 @@
                 android:clickable="true"
                 android:gravity="center" />
 
-            <!--FLASH-->
+            &lt;!&ndash;FLASH&ndash;&gt;
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -437,7 +437,7 @@
 
             </LinearLayout>
 
-            <!--FLASH POWER AND COMPENSATION-->
+            &lt;!&ndash;FLASH POWER AND COMPENSATION&ndash;&gt;
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -445,7 +445,7 @@
                 android:orientation="horizontal"
                 android:weightSum="2">
 
-                <!--EXPOSURE COMP-->
+                &lt;!&ndash;EXPOSURE COMP&ndash;&gt;
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -468,7 +468,7 @@
                         android:gravity="center_horizontal" />
                 </LinearLayout>
 
-                <!--NO OF EXPOSURES-->
+                &lt;!&ndash;NO OF EXPOSURES&ndash;&gt;
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -492,7 +492,7 @@
                 </LinearLayout>
 
 
-            </LinearLayout>
+            </LinearLayout>-->
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>

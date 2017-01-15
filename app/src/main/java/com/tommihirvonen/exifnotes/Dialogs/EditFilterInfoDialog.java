@@ -71,16 +71,8 @@ public class EditFilterInfoDialog extends DialogFragment {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filter.setMake(et1.getText().toString());
-                filter.setModel(et2.getText().toString());
 
-                if (filter.getMake().length() > 0 && filter.getModel().length() > 0) {
-                    // Return the new entered name to the calling activity
-                    Intent intent = new Intent();
-                    intent.putExtra("FILTER", filter);
-                    dialog.dismiss();
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                } else if (filter.getMake().length() == 0 && filter.getMake().length() == 0) {
+                if (filter.getMake().length() == 0 && filter.getMake().length() == 0) {
                     // No make or model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();
                 } else if (filter.getMake().length() > 0 && filter.getMake().length() == 0) {
@@ -89,6 +81,14 @@ public class EditFilterInfoDialog extends DialogFragment {
                 } else if (filter.getMake().length() == 0 && filter.getMake().length() > 0) {
                     // No make was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
+                } else {
+                    filter.setMake(et1.getText().toString());
+                    filter.setModel(et2.getText().toString());
+                    // Return the new entered name to the calling activity
+                    Intent intent = new Intent();
+                    intent.putExtra("FILTER", filter);
+                    dialog.dismiss();
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
             }
         });

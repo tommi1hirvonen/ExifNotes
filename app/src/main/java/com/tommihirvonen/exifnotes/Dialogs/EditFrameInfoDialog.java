@@ -66,9 +66,15 @@ public class EditFrameInfoDialog extends DialogFragment {
         // Empty constructor required for DialogFragment
     }
 
+    long newLensId;
+    String newDate;
+    String newLocation;
+    long newFilterId;
+
     NumberPicker countPicker;
     NumberPicker shutterPicker;
     NumberPicker aperturePicker;
+    NumberPicker focalLengthPicker;
 
     Utilities utilities;
 
@@ -169,6 +175,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 displayedApertureValues = utilities.apertureValuesThird;
                 break;
         }
+
         // By reversing the order we can reverse the order in the numberpicker too
         Collections.reverse(Arrays.asList(displayedApertureValues));
 
@@ -197,6 +204,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         else b_lens.setText(getResources().getString(R.string.NoLens));
 
         // LENS PICK DIALOG
+        newLensId = frame.getLensId();
         b_lens.setClickable(true);
         b_lens.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,8 +222,24 @@ public class EditFrameInfoDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
                         b_lens.setText(listItems.get(which));
-                        if (which > 0) frame.setLensId(mountableLenses.get(which - 1).getId());
-                        else if (which == 0) frame.setLensId(-1);
+                        if (which > 0) {
+                            //frame.setLensId(mountableLenses.get(which - 1).getId());
+                            newLensId = mountableLenses.get(which - 1).getId();
+                            if ( focalLengthPicker.getValue() > database.getLens( newLensId /*frame.getLensId()*/).getMaxFocalLength() ) {
+                                focalLengthPicker.setValue(database.getLens(newLensId /*frame.getLensId()*/).getMaxFocalLength());
+                            } else if ( focalLengthPicker.getValue() < database.getLens(newLensId /*frame.getLensId()*/).getMinFocalLength() ) {
+                                focalLengthPicker.setValue(database.getLens(newLensId /*frame.getLensId()*/).getMinFocalLength());
+                            }
+                            focalLengthPicker.setMinValue(database.getLens(newLensId /*frame.getLensId()*/).getMinFocalLength());
+                            focalLengthPicker.setMaxValue(database.getLens(newLensId /*frame.getLensId()*/).getMaxFocalLength());
+                        }
+                        else if (which == 0) {
+                            //frame.setLensId(-1);
+                            newLensId = -1;
+                            focalLengthPicker.setMinValue(0);
+                            focalLengthPicker.setMaxValue(0);
+                            focalLengthPicker.setValue(0);
+                        }
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -270,6 +294,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         }
         b_date.setClickable(true);
 
+        newDate = frame.getDate();
+
         final int i_year = temp_year;
         final int i_month = temp_month;
         final int i_day = temp_day;
@@ -281,9 +307,10 @@ public class EditFrameInfoDialog extends DialogFragment {
                 DatePickerDialog dialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        String newDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
-                        b_date.setText(newDate);
-                        frame.setDate(newDate + " " + b_time.getText().toString());
+                        String newInnerDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+                        b_date.setText(newInnerDate);
+                        newDate = newInnerDate + " " + b_time.getText().toString();
+                        //frame.setDate(newInnerDate + " " + b_time.getText().toString());
                     }
                     // One month has to be subtracted from the default shown month, otherwise
                     // the date picker shows one month forward.
@@ -328,7 +355,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                             newTime = hourOfDay + ":0" + minute;
                         } else newTime = hourOfDay + ":" + minute;
                         b_time.setText(newTime);
-                        frame.setDate(b_date.getText().toString() + " " + newTime);
+                        newDate = b_date.getText().toString() + " " + newTime;
+                        //frame.setDate(b_date.getText().toString() + " " + newTime);
                     }
                 }, hours, minutes, true);
 
@@ -338,6 +366,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // LOCATION PICK DIALOG
+        newLocation = frame.getLocation();
         b_location.setText(frame.getLocation());
         b_location.setClickable(true);
         b_location.setOnClickListener(new View.OnClickListener() {
@@ -358,13 +387,14 @@ public class EditFrameInfoDialog extends DialogFragment {
                             // Clear
                             case 0:
                                 b_location.setText("");
-                                frame.setLocation("");
+                                //frame.setLocation("");
+                                newLocation = "";
                                 break;
 
                             // Reacquire/Edit on map. LocationPickActivity!
                             case 1:
                                 Intent intent = new Intent(getActivity(), LocationPickActivity.class);
-                                intent.putExtra("LOCATION", frame.getLocation());
+                                intent.putExtra("LOCATION", newLocation);
                                 startActivityForResult(intent, PLACE_PICKER_REQUEST);
                                 break;
                         }
@@ -380,6 +410,21 @@ public class EditFrameInfoDialog extends DialogFragment {
                 alert.show();
             }
         });
+
+        //FOCAL LENGTH PICKER
+        focalLengthPicker = (NumberPicker) inflator.findViewById(R.id.focalLengthPicker);
+        if ( frame.getLensId() > 0 ) {
+            focalLengthPicker.setMinValue(database.getLens(frame.getLensId()).getMinFocalLength());
+            focalLengthPicker.setMaxValue(database.getLens(frame.getLensId()).getMaxFocalLength());
+            focalLengthPicker.setValue(frame.getFocalLength());
+        }
+
+
+
+
+
+
+        //FINALISE BUILDING THE DIALOG
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
@@ -412,6 +457,10 @@ public class EditFrameInfoDialog extends DialogFragment {
                 // PARSE THE DATE
                 frame.setDate(b_date.getText().toString() + " " + b_time.getText().toString());
 
+                frame.setLensId(newLensId);
+                frame.setLocation(newLocation);
+                frame.setFilterId(newFilterId);
+
                 // Return the new entered name to the calling activity
                 Intent intent = new Intent();
                 intent.putExtra("FRAME", frame);
@@ -428,7 +477,8 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         if ( requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK ) {
             if (data.hasExtra("LATITUDE") && data.hasExtra("LONGITUDE")) {
-                frame.setLocation("" + data.getStringExtra("LATITUDE") + " " + data.getStringExtra("LONGITUDE"));
+                //frame.setLocation("" + data.getStringExtra("LATITUDE") + " " + data.getStringExtra("LONGITUDE"));
+                newLocation = "" + data.getStringExtra("LATITUDE") + " " + data.getStringExtra("LONGITUDE");
                 b_location.setText(frame.getLocation());
             }
         }
@@ -445,7 +495,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 database.addMountable(database.getCamera(camera_id), lens);
                 mountableLenses.add(lens);
                 b_lens.setText(lens.getMake() + " " + lens.getModel());
-                frame.setLensId(lens.getId());
+                //frame.setLensId(lens.getId());
+                newLensId = lens.getId();
             }
         }
     }

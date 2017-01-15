@@ -135,7 +135,10 @@ public class EditCameraInfoDialog extends DialogFragment {
                 } else {
                     camera.setMake(make); camera.setModel(model);
                     camera.setSerialNumber(serialNumber);
-                    if (minShutterPicker.getValue() < maxShutterPicker.getValue()) {
+                    if ( minShutterPicker.getValue() == allShutterValuesNoBulb.length-1 && maxShutterPicker.getValue() == allShutterValuesNoBulb.length-1 ) {
+                        camera.setMinShutter(null);
+                        camera.setMaxShutter(null);
+                    } else if (minShutterPicker.getValue() < maxShutterPicker.getValue()) {
                         camera.setMinShutter(allShutterValuesNoBulb[minShutterPicker.getValue()]);
                         camera.setMaxShutter(allShutterValuesNoBulb[maxShutterPicker.getValue()]);
                     } else {

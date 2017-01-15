@@ -29,7 +29,6 @@ import com.tommihirvonen.exifnotes.Datastructures.Roll;
 import com.tommihirvonen.exifnotes.Fragments.CamerasFragment;
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
-import com.tommihirvonen.exifnotes.Fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
@@ -55,6 +54,9 @@ public class EditRollNameDialog extends DialogFragment {
 
     TextView b_camera;
 
+    long newCameraId;
+    String newDate;
+
 
     @NonNull
     @Override
@@ -64,6 +66,9 @@ public class EditRollNameDialog extends DialogFragment {
         positiveButton = getArguments().getString("POSITIVE_BUTTON");
         roll = getArguments().getParcelable("ROLL");
         if (roll == null) roll = new Roll();
+
+        newCameraId = roll.getCamera_id();
+
 
         database = new FilmDbHelper(getActivity());
         mCameraList = database.getAllCameras();
@@ -111,7 +116,8 @@ public class EditRollNameDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
                         b_camera.setText(listItems.get(which));
-                        roll.setCamera_id(mCameraList.get(which).getId());
+                        newCameraId = mCameraList.get(which).getId();
+                        //roll.setCamera_id(mCameraList.get(which).getId());
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -163,6 +169,8 @@ public class EditRollNameDialog extends DialogFragment {
         }
         b_date.setClickable(true);
 
+        newDate = roll.getDate();
+
         final int i_year = temp_year;
         final int i_month = temp_month;
         final int i_day = temp_day;
@@ -174,9 +182,10 @@ public class EditRollNameDialog extends DialogFragment {
                 DatePickerDialog dialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        String newDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
-                        b_date.setText(newDate);
-                        roll.setDate(newDate + " " + b_time.getText().toString());
+                        String newInnerDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+                        b_date.setText(newInnerDate);
+                        newDate = newInnerDate + " " + b_time.getText().toString();
+                        //roll.setDate(newDate + " " + b_time.getText().toString());
                     }
                     // One month has to be subtracted from the default shown month, otherwise
                     // the date picker shows one month forward.
@@ -222,7 +231,8 @@ public class EditRollNameDialog extends DialogFragment {
                             newTime = hourOfDay + ":0" + minute;
                         } else newTime = hourOfDay + ":" + minute;
                         b_time.setText(newTime);
-                        roll.setDate(b_date.getText().toString() + " " + newTime);
+                        newDate = b_date.getText().toString() + " " + newTime;
+                        //roll.setDate(b_date.getText().toString() + " " + newTime);
                     }
                 }, hours, minutes, true);
 
@@ -258,20 +268,23 @@ public class EditRollNameDialog extends DialogFragment {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                roll.setName(et1.getText().toString());
-                roll.setNote(et2.getText().toString());
 
-                if (roll.getName().length() > 0 && roll.getCamera_id() > 0) {
+                if (roll.getName().length() == 0 && roll.getCamera_id() > 0) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
+                } else if (roll.getName().length() > 0 && roll.getCamera_id() <= 0) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
+                } else if (roll.getName().length() == 0 && roll.getCamera_id() <= 0) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
+                } else {
+                    roll.setName(et1.getText().toString());
+                    roll.setNote(et2.getText().toString());
+                    roll.setCamera_id(newCameraId);
+                    roll.setDate(newDate);
+
                     Intent intent = new Intent();
                     intent.putExtra("ROLL", roll);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-                } else if (roll.getName().length() == 0 && roll.getCamera_id() > 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
-                } else if (roll.getName().length() > 0 && roll.getCamera_id() <= 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
                 }
 
             }
