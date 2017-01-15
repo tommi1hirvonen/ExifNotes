@@ -77,6 +77,8 @@ public class EditFrameInfoDialog extends DialogFragment {
     NumberPicker shutterPicker;
     NumberPicker aperturePicker;
     NumberPicker focalLengthPicker;
+    NumberPicker exposureCompPicker;
+    NumberPicker noOfExposuresPicker;
 
     Utilities utilities;
 
@@ -392,6 +394,30 @@ public class EditFrameInfoDialog extends DialogFragment {
             focalLengthPicker.setValue(frame.getFocalLength());
         }
 
+        //EXPOSURE COMP PICKER
+        exposureCompPicker = (NumberPicker) inflator.findViewById(R.id.exposureCompPicker);
+        exposureCompPicker.setMinValue(0);
+        exposureCompPicker.setMaxValue(Utilities.compValues.length-1);
+        exposureCompPicker.setDisplayedValues(Utilities.compValues);
+        exposureCompPicker.setValue(9);
+        if ( frame.getExposureComp() != null ) {
+            for (int i = 0; i < Utilities.compValues.length; ++i) {
+                if (frame.getExposureComp().equals(Utilities.compValues[i])) {
+                    exposureCompPicker.setValue(i);
+                    break;
+                }
+            }
+        }
+
+        //NO OF EXPOSURES PICKER
+        noOfExposuresPicker = (NumberPicker) inflator.findViewById(R.id.noOfExposuresPicker);
+        noOfExposuresPicker.setMinValue(1);
+        noOfExposuresPicker.setMaxValue(10);
+        noOfExposuresPicker.setValue(1);
+        if ( frame.getNoOfExposures() > 1 ) {
+            noOfExposuresPicker.setValue(frame.getNoOfExposures());
+        }
+
 
 
 
@@ -433,6 +459,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 frame.setLensId(newLensId);
                 frame.setLocation(newLocation);
                 frame.setFilterId(newFilterId);
+                frame.setExposureComp(Utilities.compValues[exposureCompPicker.getValue()]);
+                frame.setNoOfExposures(noOfExposuresPicker.getValue());
 
                 // Return the new entered name to the calling activity
                 Intent intent = new Intent();

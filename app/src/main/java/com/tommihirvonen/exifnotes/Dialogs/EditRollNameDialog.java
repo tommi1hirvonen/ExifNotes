@@ -17,6 +17,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -54,11 +55,13 @@ public class EditRollNameDialog extends DialogFragment {
     }
 
     TextView b_camera;
+    TextView b_format;
 
     //These variables are used so that the object itself is not updated
     //unless the user presses ok.
     long newCameraId;
     String newDate;
+    String newFormat;
 
     NumberPicker isoPicker;
     NumberPicker pushPullPicker;
@@ -240,12 +243,43 @@ public class EditRollNameDialog extends DialogFragment {
         pushPullPicker.setMaxValue(Utilities.compValues.length-1);
         pushPullPicker.setDisplayedValues(Utilities.compValues);
         pushPullPicker.setValue(9);
-        for (int i = 0; i < Utilities.compValues.length; ++i) {
-            if (roll.getPushPull().equals(Utilities.compValues[i])) {
-                pushPullPicker.setValue(i);
-                break;
+        if (roll.getPushPull() != null) {
+            for (int i = 0; i < Utilities.compValues.length; ++i) {
+                if (roll.getPushPull().equals(Utilities.compValues[i])) {
+                    pushPullPicker.setValue(i);
+                    break;
+                }
             }
         }
+
+        //FORMAT PICK DIALOG
+        b_format = (TextView) inflator.findViewById(R.id.btn_format);
+        b_format.setClickable(true);
+        if (roll.getFormat() == null) roll.setFormat(getResources().getStringArray(R.array.FilmFormats)[0]);
+        b_format.setText(roll.getFormat());
+        newFormat = roll.getFormat();
+        b_format.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getResources().getString(R.string.ChooseFormat));
+                builder.setItems(R.array.FilmFormats, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String[] filmFormats = getResources().getStringArray(R.array.FilmFormats);
+                        newFormat = filmFormats[i];
+                        b_format.setText(newFormat);
+                    }
+                });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
+                builder.create().show();
+            }
+        });
 
 
 
@@ -292,6 +326,7 @@ public class EditRollNameDialog extends DialogFragment {
                     roll.setDate(newDate);
                     roll.setIso(Integer.parseInt(Utilities.isoValues[isoPicker.getValue()]));
                     roll.setPushPull(Utilities.compValues[pushPullPicker.getValue()]);
+                    roll.setFormat(newFormat);
 
                     Intent intent = new Intent();
                     intent.putExtra("ROLL", roll);

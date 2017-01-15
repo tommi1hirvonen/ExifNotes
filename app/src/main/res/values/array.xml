@@ -61,4 +61,11 @@
         <item>@string/CameraNoColon</item>
     </string-array>
 
+    <string-array name="FilmFormats">
+        <item>35 mm</item>
+        <item>120</item>
+        <item>110</item>
+        <item>Sheet</item>
+    </string-array>
+
 </resources>

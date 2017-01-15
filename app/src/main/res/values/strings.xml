@@ -238,6 +238,7 @@
     <string name="NoName">No name was set!</string>
     <string name="NoCamera">No camera was set!</string>
     <string name="NoNameOrCamera">No name or camera was set!</string>
+    <string name="ChooseFormat">Choose format</string>
 
 
 
