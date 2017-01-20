@@ -7,13 +7,17 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
@@ -54,8 +58,15 @@ public class EditLensInfoDialog extends DialogFragment {
         lens = getArguments().getParcelable("LENS");
         if (lens == null) lens = new Lens();
 
-        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
+        // Set ScrollIndicators only if Material Design is used with the current Android version
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
+            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(R.id.nested_scroll_view);
+            Utilities.setScrollIndicators(rootLayout, nestedScrollView,
+                    ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
+        }
 
+        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflator);
 
         final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);

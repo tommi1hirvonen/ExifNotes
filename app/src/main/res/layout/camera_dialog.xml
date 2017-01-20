@@ -1,122 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="8dp">
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/root"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    >
+    <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
+     doesn't get focus when the Dialog is first shown. -->
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginLeft="3dp"
-        android:layout_marginRight="3dp"
-        android:layout_marginTop="15dp"
-        android:text="@string/Make"
-        />
+    <View
+        android:id="@+id/scrollIndicatorUp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center_horizontal|top"
+        android:background="@color/black"
+        android:alpha="0.15"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
-    <EditText
-        android:id="@+id/txt_make"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:hint="@string/Empty"
-        android:inputType="textCapSentences"
-        android:maxLength="100"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginLeft="3dp"
-        android:layout_marginRight="3dp"
-        android:layout_marginTop="15dp"
-        android:text="@string/Model"
-        />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/txt_model"
-        android:layout_marginTop="5dp"
-        android:hint="@string/Empty"
-        android:inputType="textCapSentences"
-        android:maxLength="100"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginLeft="3dp"
-        android:layout_marginRight="3dp"
-        android:layout_marginTop="15dp"
-        android:text="@string/SerialNumber"
-        />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/txt_serial_number"
-        android:layout_marginTop="5dp"
-        android:hint="@string/Empty"
-        android:inputType="textCapCharacters"
-        android:maxLength="100"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="5dp"
-        android:textSize="15sp"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/ShutterRange"
-        />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1"
-            android:paddingLeft="100dp"
-            >
-
-            <NumberPicker
-                android:layout_width="wrap_content"
-                android:layout_height="150dp"
-                android:id="@+id/minShutterPicker"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center_horizontal" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
+        android:fillViewport="true"
+        android:id="@+id/nested_scroll_view"
+        >
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical" android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="-"
-            android:textSize="48sp"
-            android:gravity="center"
-            />
+            android:padding="8dp">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1"
-            android:paddingRight="100dp"
-            >
-
-            <NumberPicker
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="150dp"
-                android:id="@+id/maxShutterPicker"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_marginTop="15dp"
+                android:text="@string/Make"
+                />
+
+            <EditText
+                android:id="@+id/txt_make"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:hint="@string/Empty"
+                android:inputType="textCapSentences"
+                android:maxLength="100"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_marginTop="15dp"
+                android:text="@string/Model"
+                />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/txt_model"
+                android:layout_marginTop="5dp"
+                android:hint="@string/Empty"
+                android:inputType="textCapSentences"
+                android:maxLength="100"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_marginTop="15dp"
+                android:text="@string/SerialNumber"
+                />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/txt_serial_number"
+                android:layout_marginTop="5dp"
+                android:hint="@string/Empty"
+                android:inputType="textCapCharacters"
+                android:maxLength="100"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="5dp"
+                android:textSize="15sp"
                 android:layout_gravity="center_horizontal"
-                android:gravity="center_horizontal" />
+                android:text="@string/ShutterRange"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    >
+
+                    <NumberPicker
+                        android:layout_width="wrap_content"
+                        android:layout_height="150dp"
+                        android:id="@+id/minShutterPicker"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center_horizontal"
+                        android:layout_marginLeft="25dp"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="-"
+                    android:textSize="48sp"
+                    android:gravity="center"
+                    />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    >
+
+                    <NumberPicker
+                        android:layout_width="wrap_content"
+                        android:layout_height="150dp"
+                        android:id="@+id/maxShutterPicker"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center_horizontal"
+                        android:layout_marginRight="25dp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
 
-    </LinearLayout>
+    <View
+        android:id="@+id/scrollIndicatorDown"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:background="@color/black"
+        android:alpha="0.15"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
-</LinearLayout>
+</FrameLayout>
