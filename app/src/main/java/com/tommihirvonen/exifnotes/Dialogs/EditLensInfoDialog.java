@@ -19,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
@@ -41,6 +42,9 @@ public class EditLensInfoDialog extends DialogFragment {
 
     Lens lens;
     Utilities utilities;
+    int newApertureIncrements;
+
+    TextView bApertureIncrements;
 
     @NonNull
     @Override
@@ -75,6 +79,33 @@ public class EditLensInfoDialog extends DialogFragment {
         et2.setText(lens.getModel());
         final EditText et3 = (EditText) inflator.findViewById(R.id.txt_serial_number);
         et3.setText(lens.getSerialNumber());
+
+        //APERTURE INCREMENTS BUTTON
+        newApertureIncrements = lens.getApertureIncrements();
+        bApertureIncrements = (TextView) inflator.findViewById(R.id.btn_apertureIncrements);
+        bApertureIncrements.setClickable(true);
+        bApertureIncrements.setText(getResources().getStringArray(R.array.StopIncrements)[lens.getApertureIncrements()]);
+        bApertureIncrements.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getResources().getString(R.string.ChooseIncrements));
+                builder.setItems(R.array.StopIncrements, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        newApertureIncrements = i;
+                        bApertureIncrements.setText(getResources().getStringArray(R.array.StopIncrements)[i]);
+                    }
+                });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
+                builder.create().show();
+            }
+        });
 
         //FOCAL LENGTH RANGE PICKERS
         final NumberPicker minFocalLengthPicker = (NumberPicker) inflator.findViewById(R.id.minFocalLengthPicker);
@@ -170,6 +201,7 @@ public class EditLensInfoDialog extends DialogFragment {
                     lens.setMake(make);
                     lens.setModel(model);
                     lens.setSerialNumber(serialNumber);
+                    lens.setApertureIncrements(newApertureIncrements);
 
                     if ( minFocalLengthPicker.getValue() == 0 || maxFocalLengthPicker.getValue() == 0 ) {
                         lens.setMaxFocalLength(0);

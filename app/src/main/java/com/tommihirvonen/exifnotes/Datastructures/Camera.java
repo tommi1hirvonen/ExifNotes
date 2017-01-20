@@ -17,18 +17,25 @@ public class Camera implements Parcelable {
     private String serialNumber;
     private String minShutter;
     private String maxShutter;
+    private int shutterIncrements = 0;
+    // 0 = third stop (default)
+    // 1 = half stop
+    // 2 = full stop
 
     public Camera(){
 
     }
 
-    public Camera(long id, String make, String model, String serialNumber, String minShutter, String maxShutter){
+    public Camera(long id, String make, String model, String serialNumber, String minShutter, String maxShutter, int shutterIncrements){
         this.id = id;
         this.make = make;
         this.model = model;
         this.serialNumber = serialNumber;
         this.minShutter = minShutter;
         this.maxShutter = maxShutter;
+        if (shutterIncrements <= 2 && shutterIncrements >= 0) {
+            this.shutterIncrements = shutterIncrements;
+        }
     }
 
     public void setId(long input){
@@ -53,6 +60,12 @@ public class Camera implements Parcelable {
 
     public void setMaxShutter(String input){
         this.maxShutter = input;
+    }
+
+    public void setShutterIncrements(int input){
+        if (input <= 2 && input >= 0) {
+            this.shutterIncrements = input;
+        }
     }
 
 
@@ -80,6 +93,10 @@ public class Camera implements Parcelable {
         return this.maxShutter;
     }
 
+    public int getShutterIncrements(){
+        return this.shutterIncrements;
+    }
+
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
     public Camera(Parcel pc){
@@ -89,6 +106,7 @@ public class Camera implements Parcelable {
         this.serialNumber = pc.readString();
         this.minShutter = pc.readString();
         this.maxShutter = pc.readString();
+        this.shutterIncrements = pc.readInt();
     }
 
     @Override
@@ -104,6 +122,7 @@ public class Camera implements Parcelable {
         parcel.writeString(serialNumber);
         parcel.writeString(minShutter);
         parcel.writeString(maxShutter);
+        parcel.writeInt(shutterIncrements);
     }
 
     /** Static field used to regenerate object, individually or as arrays */

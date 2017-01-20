@@ -24,10 +24,6 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         addPreferencesFromResource(R.xml.fragment_preference);
 
         // Set summaries for the list preferences
-        Preference shutterIncrements = findPreference("ShutterIncrements");
-        shutterIncrements.setSummary(((ListPreference) shutterIncrements).getEntry());
-        Preference apertureIncrements = findPreference("ApertureIncrements");
-        apertureIncrements.setSummary(((ListPreference) apertureIncrements).getEntry());
 //        Preference artistName = findPreference("ArtistName");
 //        artistName.setSummary(((EditTextPreference) artistName).getText());
         Preference UIColor = findPreference("UIColor");
@@ -51,10 +47,6 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         // Set summaries for the list preferences
-        Preference shutterIncrements = findPreference("ShutterIncrements");
-        shutterIncrements.setSummary(((ListPreference) shutterIncrements).getEntry());
-        Preference apertureIncrements = findPreference("ApertureIncrements");
-        apertureIncrements.setSummary(((ListPreference) apertureIncrements).getEntry());
 //        Preference artistName = findPreference("ArtistName");
 //        artistName.setSummary(((EditTextPreference) artistName).getText());
         Preference UIColor = findPreference("UIColor");

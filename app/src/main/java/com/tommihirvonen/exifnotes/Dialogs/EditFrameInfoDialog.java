@@ -89,11 +89,6 @@ public class EditFrameInfoDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
-        // Let's check what values the user has set for the shutter and aperture increments
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String shutterIncrements = prefs.getString("ShutterIncrements", "third");
-        String apertureIncrements = prefs.getString("ApertureIncrements", "third");
-
         utilities = new Utilities(getActivity());
 
         title = getArguments().getString("TITLE");
@@ -104,6 +99,12 @@ public class EditFrameInfoDialog extends DialogFragment {
         database = new FilmDbHelper(getActivity());
         camera_id = database.getRoll(frame.getRollId()).getCamera_id();
         mountableLenses = database.getMountableLenses(database.getCamera(camera_id));
+
+        int shutterIncrements = database.getCamera(camera_id).getShutterIncrements();
+        int apertureIncrements = 0;
+        if ( frame.getLensId() > 0 ) {
+            apertureIncrements = database.getLens(frame.getLensId()).getApertureIncrements();
+        }
 
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
@@ -135,13 +136,13 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         // Set the increments according to settings
         switch (shutterIncrements) {
-            case "third":
+            case 0:
                 displayedShutterValues = utilities.shutterValuesThird;
                 break;
-            case "half":
+            case 1:
                 displayedShutterValues = utilities.shutterValuesHalf;
                 break;
-            case "full":
+            case 2:
                 displayedShutterValues = utilities.shutterValuesFull;
                 break;
             default:
@@ -166,13 +167,13 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         // Set the increments according to settings
         switch (apertureIncrements) {
-            case "third":
+            case 0:
                 displayedApertureValues = utilities.apertureValuesThird;
                 break;
-            case "half":
+            case 1:
                 displayedApertureValues = utilities.apertureValuesHalf;
                 break;
-            case "full":
+            case 2:
                 displayedApertureValues = utilities.apertureValuesFull;
                 break;
             default:

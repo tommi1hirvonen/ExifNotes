@@ -63,6 +63,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_LENS_MAX_FOCAL_LENGTH = "lens_max_focal_length";
     private static final String KEY_LENS_MIN_FOCAL_LENGTH = "lens_min_focal_length";
     private static final String KEY_LENS_SERIAL_NO = "lens_serial_no";
+    private static final String KEY_LENS_APERTURE_INCREMENTS = "aperture_increments";
 
     private static final String KEY_CAMERA_ID = "camera_id";
     private static final String KEY_CAMERA_MAKE = "camera_make";
@@ -71,6 +72,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_CAMERA_MAX_SHUTTER = "camera_max_shutter";
     private static final String KEY_CAMERA_MIN_SHUTTER = "camera_min_shutter";
     private static final String KEY_CAMERA_SERIAL_NO = "camera_serial_no";
+    private static final String KEY_CAMERA_SHUTTER_INCREMENTS = "shutter_increments";
 
     private static final String KEY_ROLL_ID = "roll_id";
     private static final String KEY_ROLLNAME = "rollname";
@@ -113,7 +115,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_FLASH_COMP + " text, "
             + KEY_FRAME_SIZE + " text, "
             + KEY_FILTER_ID + " integer, "
-            + KEY_METERING_MODE + " text"
+            + KEY_METERING_MODE + " int"
             + ");";
     private static final String CREATE_LENS_TABLE = "create table " + TABLE_LENSES
             + "(" + KEY_LENS_ID + " integer primary key autoincrement, "
@@ -123,7 +125,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_LENS_MIN_APERTURE + " text, "
             + KEY_LENS_MAX_FOCAL_LENGTH + " integer, "
             + KEY_LENS_MIN_FOCAL_LENGTH + " integer, "
-            + KEY_LENS_SERIAL_NO + " text"
+            + KEY_LENS_SERIAL_NO + " text, "
+            + KEY_LENS_APERTURE_INCREMENTS + " int not null"
             + ");";
     private static final String CREATE_CAMERA_TABLE = "create table " + TABLE_CAMERAS
             + "(" + KEY_CAMERA_ID + " integer primary key autoincrement, "
@@ -131,7 +134,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_CAMERA_MODEL + " text not null, "
             + KEY_CAMERA_MAX_SHUTTER + " text, "
             + KEY_CAMERA_MIN_SHUTTER + " text, "
-            + KEY_CAMERA_SERIAL_NO + " text"
+            + KEY_CAMERA_SERIAL_NO + " text, "
+            + KEY_CAMERA_SHUTTER_INCREMENTS + " int not null"
             + ");";
     private static final String CREATE_ROLL_TABLE = "create table " + TABLE_ROLLS
             + "(" + KEY_ROLL_ID + " integer primary key autoincrement, "
@@ -141,7 +145,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_CAMERA_ID + " integer not null, "
             + KEY_ROLL_ISO + " integer, "
             + KEY_ROLL_PUSH + " text, "
-            + KEY_ROLL_FORMAT + " text"
+            + KEY_ROLL_FORMAT + " int"
             + ");";
     private static final String CREATE_MOUNTABLES_TABLE = "create table " + TABLE_MOUNTABLES
             + "(" + KEY_CAMERA_ID + " integer not null, "
@@ -178,7 +182,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String ALTER_TABLE_FRAMES_8 = "ALTER TABLE " + TABLE_FRAMES
             + " ADD COLUMN " + KEY_FILTER_ID + " integer;";
     private static final String ALTER_TABLE_FRAMES_9 = "ALTER TABLE " + TABLE_FRAMES
-            + " ADD COLUMN " + KEY_METERING_MODE + " text;";
+            + " ADD COLUMN " + KEY_METERING_MODE + " int;";
 
     private static final String ALTER_TABLE_LENSES_1 = "ALTER TABLE " + TABLE_LENSES
             + " ADD COLUMN " + KEY_LENS_MAX_APERTURE + " text;";
@@ -190,6 +194,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " ADD COLUMN " + KEY_LENS_MIN_FOCAL_LENGTH + " integer;";
     private static final String ALTER_TABLE_LENSES_5 = "ALTER TABLE " + TABLE_LENSES
             + " ADD COLUMN " + KEY_LENS_SERIAL_NO + " text;";
+    private static final String ALTER_TABLE_LENSES_6 = "ALTER TABLE" + TABLE_LENSES
+            + " ADD COLUMN " + KEY_LENS_APERTURE_INCREMENTS + " int not null;";
 
     private static final String ALTER_TABLE_CAMERAS_1 = "ALTER TABLE " + TABLE_CAMERAS
             + " ADD COLUMN " + KEY_CAMERA_MAX_SHUTTER + " text;";
@@ -197,13 +203,15 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " ADD COLUMN " + KEY_CAMERA_MIN_SHUTTER + " text;";
     private static final String ALTER_TABLE_CAMERAS_3 = "ALTER TABLE " + TABLE_CAMERAS
             + " ADD COLUMN " + KEY_CAMERA_SERIAL_NO + " text;";
+    private static final String ALTER_TABLE_CAMERAS_4 = "ALTER TABLE " + TABLE_CAMERAS
+            + " ADD COLUMN " + KEY_CAMERA_SHUTTER_INCREMENTS + " int not null;";
 
     private static final String ALTER_TABLE_ROLLS_1 = "ALTER TABLE " + TABLE_ROLLS
             + " ADD COLUMN " + KEY_ROLL_ISO + " integer;";
     private static final String ALTER_TABLE_ROLLS_2 = "ALTER TABLE " + TABLE_ROLLS
             + " ADD COLUMN " + KEY_ROLL_PUSH + " text;";
     private static final String ALTER_TABLE_ROLLS_3 = "ALTER TABLE " + TABLE_ROLLS
-            + " ADD COLUMN " + KEY_ROLL_FORMAT + " text;";
+            + " ADD COLUMN " + KEY_ROLL_FORMAT + " int;";
 
     private static final String REPLACE_QUOTE_CHARS = "UPDATE " + TABLE_FRAMES
             + " SET " + KEY_SHUTTER + " = REPLACE(" + KEY_SHUTTER + ", \'q\', \'\"\')"
@@ -255,10 +263,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             db.execSQL(ALTER_TABLE_LENSES_3);
             db.execSQL(ALTER_TABLE_LENSES_4);
             db.execSQL(ALTER_TABLE_LENSES_5);
+            db.execSQL(ALTER_TABLE_LENSES_6);
             //TABLE_CAMERAS
             db.execSQL(ALTER_TABLE_CAMERAS_1);
             db.execSQL(ALTER_TABLE_CAMERAS_2);
             db.execSQL(ALTER_TABLE_CAMERAS_3);
+            db.execSQL(ALTER_TABLE_CAMERAS_4);
             //TABLE_ROLLS
             db.execSQL(ALTER_TABLE_ROLLS_1);
             db.execSQL(ALTER_TABLE_ROLLS_2);
@@ -900,7 +910,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setFlashPower(cursor.getString(cursor.getColumnIndex(KEY_FLASH_POWER)));
         frame.setFlashComp(cursor.getString(cursor.getColumnIndex(KEY_FLASH_COMP)));
         frame.setFilterId(cursor.getLong(cursor.getColumnIndex(KEY_FILTER_ID)));
-        frame.setMeteringMode(cursor.getString(cursor.getColumnIndex(KEY_METERING_MODE)));
+        frame.setMeteringMode(cursor.getInt(cursor.getColumnIndex(KEY_METERING_MODE)));
         return frame;
     }
 
@@ -916,7 +926,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         roll.setCamera_id(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
         roll.setIso(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ISO)));
         roll.setPushPull(cursor.getString(cursor.getColumnIndex(KEY_ROLL_PUSH)));
-        roll.setFormat(cursor.getString(cursor.getColumnIndex(KEY_ROLL_FORMAT)));
+        roll.setFormat(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_FORMAT)));
         return roll;
     }
 
@@ -933,6 +943,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         lens.setMaxAperture(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAX_APERTURE)));
         lens.setMinFocalLength(cursor.getInt(cursor.getColumnIndex(KEY_LENS_MIN_FOCAL_LENGTH)));
         lens.setMaxFocalLength(cursor.getInt(cursor.getColumnIndex(KEY_LENS_MAX_FOCAL_LENGTH)));
+        lens.setApertureIncrements(cursor.getInt(cursor.getColumnIndex(KEY_LENS_APERTURE_INCREMENTS)));
         return lens;
     }
 
@@ -947,6 +958,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         camera.setSerialNumber(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_SERIAL_NO)));
         camera.setMinShutter(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MIN_SHUTTER)));
         camera.setMaxShutter(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAX_SHUTTER)));
+        camera.setShutterIncrements(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_SHUTTER_INCREMENTS)));
         return camera;
     }
 
@@ -995,6 +1007,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_LENS_MAX_APERTURE, lens.getMaxAperture());
         contentValues.put(KEY_LENS_MIN_FOCAL_LENGTH, lens.getMinFocalLength());
         contentValues.put(KEY_LENS_MAX_FOCAL_LENGTH, lens.getMaxFocalLength());
+        contentValues.put(KEY_LENS_APERTURE_INCREMENTS, lens.getApertureIncrements());
         return contentValues;
     }
 
@@ -1005,6 +1018,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_CAMERA_SERIAL_NO, camera.getSerialNumber());
         contentValues.put(KEY_CAMERA_MIN_SHUTTER, camera.getMinShutter());
         contentValues.put(KEY_CAMERA_MAX_SHUTTER, camera.getMaxShutter());
+        contentValues.put(KEY_CAMERA_SHUTTER_INCREMENTS, camera.getShutterIncrements());
         return contentValues;
     }
 

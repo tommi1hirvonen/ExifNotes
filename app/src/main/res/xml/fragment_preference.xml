@@ -13,20 +13,6 @@
             />
 
         <ListPreference
-            android:key="ShutterIncrements"
-            android:title="@string/ShutterIncrementsTitle"
-            android:entries="@array/StopIncrements"
-            android:entryValues="@array/StopIncrementsData"
-            android:defaultValue="third"/>
-
-        <ListPreference
-            android:key="ApertureIncrements"
-            android:title="@string/ApertureIncrementsTitle"
-            android:entries="@array/StopIncrements"
-            android:entryValues="@array/StopIncrementsData"
-            android:defaultValue="third"/>
-
-        <ListPreference
             android:key="UIColor"
             android:title="@string/UIColorTitle"
             android:entries="@array/UIColorOptions"

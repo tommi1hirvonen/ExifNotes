@@ -19,6 +19,10 @@ public class Lens implements Parcelable {
     private String maxAperture;
     private int minFocalLength;
     private int maxFocalLength;
+    private int apertureIncrements = 0;
+    // 0 = third stop (default)
+    // 1 = half stop
+    // 2 = full stop
 
     /**
      * Empty constructor
@@ -30,7 +34,8 @@ public class Lens implements Parcelable {
     /**
      * Constructor which sets all the members
      */
-    public Lens(long id, String make, String model, String serialNumber, String minAperture, String maxAperture, int minFocalLength, int maxFocalLength){
+    public Lens(long id, String make, String model, String serialNumber, String minAperture,
+                String maxAperture, int minFocalLength, int maxFocalLength, int apertureIncrements){
         this.id = id;
         this.make = make;
         this.model = model;
@@ -39,6 +44,9 @@ public class Lens implements Parcelable {
         this.maxAperture = maxAperture;
         this.minFocalLength = minFocalLength;
         this.maxFocalLength = maxFocalLength;
+        if (apertureIncrements <= 2 && apertureIncrements >= 0){
+            this.apertureIncrements = apertureIncrements;
+        }
     }
 
     // GETTERS AND SETTERS
@@ -75,6 +83,12 @@ public class Lens implements Parcelable {
         this.maxFocalLength = input;
     }
 
+    public void setApertureIncrements(int input){
+        if (input <= 2 && input >= 0){
+            this.apertureIncrements = input;
+        }
+    }
+
     public long getId(){
         return this.id;
     }
@@ -107,6 +121,9 @@ public class Lens implements Parcelable {
         return this.maxFocalLength;
     }
 
+    public int getApertureIncrements(){
+        return this.apertureIncrements;
+    }
 
 
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
@@ -120,6 +137,7 @@ public class Lens implements Parcelable {
         this.maxAperture = pc.readString();
         this.minFocalLength = pc.readInt();
         this.maxFocalLength = pc.readInt();
+        this.apertureIncrements = pc.readInt();
     }
 
     @Override
@@ -137,6 +155,7 @@ public class Lens implements Parcelable {
         parcel.writeString(maxAperture);
         parcel.writeInt(minFocalLength);
         parcel.writeInt(maxFocalLength);
+        parcel.writeInt(apertureIncrements);
     }
 
     /** Static field used to regenerate object, individually or as arrays */

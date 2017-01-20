@@ -61,7 +61,7 @@ public class EditRollNameDialog extends DialogFragment {
     //unless the user presses ok.
     long newCameraId;
     String newDate;
-    String newFormat;
+    int newFormat;
 
     NumberPicker isoPicker;
     NumberPicker pushPullPicker;
@@ -255,8 +255,8 @@ public class EditRollNameDialog extends DialogFragment {
         //FORMAT PICK DIALOG
         b_format = (TextView) inflator.findViewById(R.id.btn_format);
         b_format.setClickable(true);
-        if (roll.getFormat() == null) roll.setFormat(getResources().getStringArray(R.array.FilmFormats)[0]);
-        b_format.setText(roll.getFormat());
+        if (roll.getFormat() == 0) roll.setFormat(0);
+        b_format.setText(getResources().getStringArray(R.array.FilmFormats)[roll.getFormat()]);
         newFormat = roll.getFormat();
         b_format.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -266,9 +266,8 @@ public class EditRollNameDialog extends DialogFragment {
                 builder.setItems(R.array.FilmFormats, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String[] filmFormats = getResources().getStringArray(R.array.FilmFormats);
-                        newFormat = filmFormats[i];
-                        b_format.setText(newFormat);
+                        newFormat = i;
+                        b_format.setText(getResources().getStringArray(R.array.FilmFormats)[i]);
                     }
                 });
                 builder.setNegativeButton(getResources().getString(R.string.Cancel), new DialogInterface.OnClickListener() {
@@ -313,14 +312,16 @@ public class EditRollNameDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
 
-                if (roll.getName().length() == 0 && roll.getCamera_id() > 0) {
+                String name = et1.getText().toString();
+
+                if (name.length() == 0 && newCameraId > 0) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
-                } else if (roll.getName().length() > 0 && roll.getCamera_id() <= 0) {
+                } else if (name.length() > 0 && newCameraId <= 0) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
-                } else if (roll.getName().length() == 0 && roll.getCamera_id() <= 0) {
+                } else if (name.length() == 0 && newCameraId <= 0) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
                 } else {
-                    roll.setName(et1.getText().toString());
+                    roll.setName(name);
                     roll.setNote(et2.getText().toString());
                     roll.setCamera_id(newCameraId);
                     roll.setDate(newDate);

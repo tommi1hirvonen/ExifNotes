@@ -296,6 +296,10 @@
     <string name="Flash">Flash:</string>
     <string name="FlashPower">Flash power:</string>
     <string name="FlashComp">Flash comp:</string>
+    <string name="ShutterSpeedIncrements">Shutter speed increments:</string>
+    <string name="ChooseIncrements">Choose increments</string>
+    <string name="Sheet">Sheet</string>
+    <string name="ApertureIncrements">Aperture increments:</string>
 
 
     <!--item_frame.xml-->

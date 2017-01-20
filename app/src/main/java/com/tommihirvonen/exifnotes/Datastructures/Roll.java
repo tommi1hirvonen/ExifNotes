@@ -18,7 +18,7 @@ public class Roll implements Parcelable {
     private long camera_id;
     private int iso;
     private String push_pull;
-    private String format;
+    private int format;
 
     public Roll(){
 
@@ -71,7 +71,7 @@ public class Roll implements Parcelable {
         this.push_pull = input;
     }
 
-    public void setFormat(String input){
+    public void setFormat(int input){
         this.format = input;
     }
 
@@ -103,7 +103,7 @@ public class Roll implements Parcelable {
         return this.push_pull;
     }
 
-    public String getFormat(){
+    public int getFormat(){
         return this.format;
     }
 
@@ -117,7 +117,7 @@ public class Roll implements Parcelable {
         this.camera_id = pc.readLong();
         this.iso = pc.readInt();
         this.push_pull = pc.readString();
-        this.format = pc.readString();
+        this.format = pc.readInt();
     }
 
     @Override
@@ -134,7 +134,7 @@ public class Roll implements Parcelable {
         parcel.writeLong(camera_id);
         parcel.writeInt(iso);
         parcel.writeString(push_pull);
-        parcel.writeString(format);
+        parcel.writeInt(format);
     }
 
     /** Static field used to regenerate object, individually or as arrays */

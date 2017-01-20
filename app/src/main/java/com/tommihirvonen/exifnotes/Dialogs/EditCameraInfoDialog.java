@@ -22,6 +22,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
@@ -37,6 +38,9 @@ public class EditCameraInfoDialog extends DialogFragment {
 
     Camera camera;
     Utilities utilities;
+    int newShutterIncrements;
+
+    TextView bShutterSpeedIncrements;
 
     public EditCameraInfoDialog(){
 
@@ -76,6 +80,33 @@ public class EditCameraInfoDialog extends DialogFragment {
         et2.setText(camera.getModel());
         final EditText et3 = (EditText) inflator.findViewById(R.id.txt_serial_number);
         et3.setText(camera.getSerialNumber());
+
+        //SHUTTER SPEED INCREMENTS BUTTON
+        newShutterIncrements = camera.getShutterIncrements();
+        bShutterSpeedIncrements = (TextView) inflator.findViewById(R.id.btn_shutterSpeedIncrements);
+        bShutterSpeedIncrements.setClickable(true);
+        bShutterSpeedIncrements.setText(getResources().getStringArray(R.array.StopIncrements)[camera.getShutterIncrements()]);
+        bShutterSpeedIncrements.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getResources().getString(R.string.ChooseIncrements));
+                builder.setItems(R.array.StopIncrements, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        newShutterIncrements = i;
+                        bShutterSpeedIncrements.setText(getResources().getStringArray(R.array.StopIncrements)[i]);
+                    }
+                });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
+                builder.create().show();
+            }
+        });
 
         //SHUTTER RANGE NUMBER PICKERS
         final NumberPicker minShutterPicker = (NumberPicker) inflator.findViewById(R.id.minShutterPicker);
@@ -146,6 +177,7 @@ public class EditCameraInfoDialog extends DialogFragment {
                 } else {
                     camera.setMake(make); camera.setModel(model);
                     camera.setSerialNumber(serialNumber);
+                    camera.setShutterIncrements(newShutterIncrements);
                     if ( minShutterPicker.getValue() == allShutterValuesNoBulb.length-1 && maxShutterPicker.getValue() == allShutterValuesNoBulb.length-1 ) {
                         camera.setMinShutter(null);
                         camera.setMaxShutter(null);

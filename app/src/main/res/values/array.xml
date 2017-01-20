@@ -65,7 +65,7 @@
         <item>35 mm</item>
         <item>120</item>
         <item>110</item>
-        <item>Sheet</item>
+        <item>@string/Sheet</item>
     </string-array>
 
 </resources>

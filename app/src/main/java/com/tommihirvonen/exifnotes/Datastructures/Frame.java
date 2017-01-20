@@ -28,7 +28,7 @@ public class Frame implements Parcelable {
     private String flash_power;
     private String flash_comp;
     private long filter_id;
-    private String metering_mode;
+    private int metering_mode;
 
     public Frame(){
         // Empty constructor
@@ -135,7 +135,7 @@ public class Frame implements Parcelable {
         this.filter_id = input;
     }
 
-    public void setMeteringMode(String input){
+    public void setMeteringMode(int input){
         this.metering_mode = input;
     }
 
@@ -204,7 +204,7 @@ public class Frame implements Parcelable {
         return this.filter_id;
     }
 
-    public String getMeteringMode(){
+    public int getMeteringMode(){
         return this.metering_mode;
     }
 
@@ -227,7 +227,7 @@ public class Frame implements Parcelable {
         this.flash_power = pc.readString();
         this.flash_comp = pc.readString();
         this.filter_id = pc.readLong();
-        this.metering_mode = pc.readString();
+        this.metering_mode = pc.readInt();
     }
 
     @Override
@@ -253,7 +253,7 @@ public class Frame implements Parcelable {
         parcel.writeString(flash_power);
         parcel.writeString(flash_comp);
         parcel.writeLong(filter_id);
-        parcel.writeString(metering_mode);
+        parcel.writeInt(metering_mode);
     }
 
     /** Static field used to regenerate object, individually or as arrays */
