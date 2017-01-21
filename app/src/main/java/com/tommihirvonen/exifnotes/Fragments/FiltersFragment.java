@@ -172,6 +172,10 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
                     if (mFilterList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
                     mArrayAdapter.notifyDataSetChanged();
 
+                    // Update the LensesFragment through the parent activity.
+                    GearActivity myActivity = (GearActivity)getActivity();
+                    myActivity.updateFragments();
+
                     return true;
 
                 case R.id.menu_item_edit:

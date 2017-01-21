@@ -13,6 +13,9 @@ import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Datastructures.Roll;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -1047,5 +1050,21 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public static File getDatabaseFile(Context context){
         String databasePath = context.getDatabasePath(DATABASE_NAME).getAbsolutePath();
         return new File(databasePath);
+    }
+
+    public boolean importDatabase(Context context, String importDatabasePath) throws IOException {
+        // Close the SQLiteOpenHelper so it will commit the created empty
+        // database to internal storage.
+        close();
+        File newDb = new File(importDatabasePath);
+        File oldDb = getDatabaseFile(context);
+        if (newDb.exists()) {
+            Utilities.copyFile(new FileInputStream(newDb), new FileOutputStream(oldDb));
+            // Access the copied database so SQLiteHelper will cache it and mark
+            // it as created.
+            getWritableDatabase().close();
+            return true;
+        }
+        return false;
     }
 }

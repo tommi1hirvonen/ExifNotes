@@ -361,7 +361,7 @@
 
     <string name="DatabaseCap">DATABASE</string>
     <string name="ExportDatabaseTitle">Export database</string>
-    <string name="ExportDatabaseSummary">Export SQL database file</string>
+    <string name="ExportDatabaseSummary">Export SQL database file (filmnotes.db)</string>
     <string name="ImportDatabaseTitle">Import database</string>
     <string name="ImportDatabaseSummary">Import SQL database from a previously exported file</string>
 
@@ -369,5 +369,18 @@
     <string name="ErrorBuildingOutputFile">Error building output file: </string>
     <string name="ErrorCopyingFile">Error copying file</string>
     <string name="DatabaseCopiedTo">Database copied to: </string>
+    <string name="ImportDatabaseVerification">
+        Are you sure you want to continue importing?
+        \n\n
+        This will replace the current database with the imported one.
+        \n\n
+        IMPORTANT! The imported database file must be in exactly the same format as the exported file.
+        If structural changes have been to the database file or the file is otherwise corrupted, the app will not work!
+        In such a case the app\'s data needs to be cleared and the app needs to be reinstalled.
+    </string>
+    <string name="Continue">Continue</string>
+    <string name="No">No</string>
+    <string name="ErrorImportingDatabaseFrom">Error importing database from: </string>
+    <string name="DatabaseImported">Database imported. Restart app to see changes.</string>
 
 </resources>

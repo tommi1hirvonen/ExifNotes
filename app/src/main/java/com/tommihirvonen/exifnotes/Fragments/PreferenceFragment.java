@@ -1,5 +1,7 @@
 package com.tommihirvonen.exifnotes.Fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -7,6 +9,7 @@ import android.preference.Preference;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Dialogs.DirectoryChooserDialog;
+import com.tommihirvonen.exifnotes.Dialogs.FileChooserDialog;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
@@ -86,7 +89,39 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         importDatabase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Toast.makeText(getActivity(), "Feature coming soon!", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getResources().getString(R.string.ImportDatabaseTitle));
+                builder.setMessage(getResources().getString(R.string.ImportDatabaseVerification));
+                builder.setPositiveButton(getResources().getString(R.string.Continue), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        FileChooserDialog fileChooserDialog = FileChooserDialog.newInstance(new FileChooserDialog.OnChosenFileListener() {
+                            @Override
+                            public void onChosenFile(String filePath) {
+                                //If the length of filePath is 0, then the user canceled the import.
+                                if (filePath.length()>0) {
+                                    FilmDbHelper database = new FilmDbHelper(getActivity());
+                                    try {
+                                        database.importDatabase(getActivity(), filePath);
+                                    } catch (IOException e) {
+                                        Toast.makeText(getActivity(), getResources().getString(R.string.ErrorImportingDatabaseFrom) + filePath, Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    Toast.makeText(getActivity(), getResources().getString(R.string.DatabaseImported), Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                        fileChooserDialog.show(getFragmentManager(), "FileChooserDialogTag");
+                    }
+                });
+                builder.setNegativeButton(getResources().getString(R.string.No), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Do nothing
+                    }
+                });
+                builder.create().show();
+
                 return false;
             }
         });
