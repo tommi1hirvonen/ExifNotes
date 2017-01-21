@@ -119,8 +119,9 @@ public class EditLensInfoDialog extends DialogFragment {
         maxFocalLengthPicker.setMinValue(0);
         minFocalLengthPicker.setMaxValue(1500);
         maxFocalLengthPicker.setMaxValue(1500);
-        minFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        maxFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        //We want to enable manual editing of the focal length range.
+//        minFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+//        maxFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         minFocalLengthPicker.setValue(50);
         maxFocalLengthPicker.setValue(50);
         for (int i = 0; i < 1501; ++i) {

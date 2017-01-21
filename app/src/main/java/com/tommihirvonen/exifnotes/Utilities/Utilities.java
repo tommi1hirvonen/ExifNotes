@@ -46,19 +46,15 @@ import java.util.List;
 public class Utilities {
 
 
-    public final String[] allApertureValues;
+    private final String[] allApertureValues;
     public final String[] apertureValuesThird;
     public final String[] apertureValuesHalf;
     public final String[] apertureValuesFull;
 
     private final String[] allShutterValues;
-//    public final String[] allShutterValuesNoBulb;
     public final String[] shutterValuesThird;
-    public final String[] shutterValuesThirdNoBulb;
     public final String[] shutterValuesHalf;
-    public final String[] shutterValuesHalfNoBulb;
     public final String[] shutterValuesFull;
-    public final String[] shutterValuesFullNoBulb;
 
     public Utilities(Context context){
         allApertureValues = new String[]{context.getResources().getString(R.string.NoValue), "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
@@ -81,35 +77,19 @@ public class Utilities {
                 "1/30", "1/40", "1/45", "1/50", "1/60", "1/80", "1/90", "1/100", "1/125", "1/160", "1/180", "1/200",
                 "1/250", "1/320", "1/350", "1/400", "1/500", "1/640", "1/750", "1/800", "1/1000", "1/1250", "1/1500",
                 "1/1600", "1/2000", "1/2500", "1/3000", "1/3200", "1/4000", "1/5000", "1/6000", "1/6400", "1/8000"};
-//        allShutterValuesNoBulb = new String[]{context.getResources().getString(R.string.NoValue), "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
-//                "3.2\"", "3\"", "2.5\"", "2\"", "1.6\"", "1.5\"","1.3\"", "1\"", "0.8\"", "0.7\"", "0.6\"", "1/2", "0.4\"", "1/3", "0.3\"",
-//                "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
-//                "1/30", "1/40", "1/45", "1/50", "1/60", "1/80", "1/90", "1/100", "1/125", "1/160", "1/180", "1/200",
-//                "1/250", "1/320", "1/350", "1/400", "1/500", "1/640", "1/750", "1/800", "1/1000", "1/1250", "1/1500",
-//                "1/1600", "1/2000", "1/2500", "1/3000", "1/3200", "1/4000", "1/5000", "1/6000", "1/6400", "1/8000"};
-        shutterValuesThird = new String[]{context.getResources().getString(R.string.NoValue), "B", "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
+        shutterValuesThird = new String[]{context.getResources().getString(R.string.NoValue), "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
                 "3.2\"", "2.5\"", "2\"", "1.6\"", "1.3\"", "1\"", "0.8\"", "0.6\"", "1/2", "0.4\"", "0.3\"",
                 "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
                 "1/30", "1/40", "1/50", "1/60", "1/80", "1/100", "1/125", "1/160", "1/200",
                 "1/250", "1/320", "1/400", "1/500", "1/640", "1/800", "1/1000", "1/1250",
                 "1/1600", "1/2000", "1/2500", "1/3200", "1/4000", "1/5000", "1/6400", "1/8000"};
-        shutterValuesThirdNoBulb = new String[]{context.getResources().getString(R.string.NoValue), "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
-                "3.2\"", "2.5\"", "2\"", "1.6\"", "1.3\"", "1\"", "0.8\"", "0.6\"", "1/2", "0.4\"", "0.3\"",
-                "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
-                "1/30", "1/40", "1/50", "1/60", "1/80", "1/100", "1/125", "1/160", "1/200",
-                "1/250", "1/320", "1/400", "1/500", "1/640", "1/800", "1/1000", "1/1250",
-                "1/1600", "1/2000", "1/2500", "1/3200", "1/4000", "1/5000", "1/6400", "1/8000"};
-        shutterValuesHalf = new String[]{context.getResources().getString(R.string.NoValue), "B", "30\"", "20\"", "15\"", "10\"", "8\"", "6\"", "4\"", "3\"", "2\"", "1.5\"",
+
+        shutterValuesHalf = new String[]{context.getResources().getString(R.string.NoValue), "30\"", "20\"", "15\"", "10\"", "8\"", "6\"", "4\"", "3\"", "2\"", "1.5\"",
                 "1\"", "0.7\"", "1/2", "1/3", "1/4", "1/6", "1/8", "1/10", "1/15", "1/20",
                 "1/30", "1/45", "1/60", "1/90", "1/125", "1/180", "1/250", "1/350",
                 "1/500", "1/750", "1/1000", "1/1500", "1/2000", "1/3000", "1/4000", "1/6000", "1/8000" };
-        shutterValuesHalfNoBulb = new String[]{context.getResources().getString(R.string.NoValue), "30\"", "20\"", "15\"", "10\"", "8\"", "6\"", "4\"", "3\"", "2\"", "1.5\"",
-                "1\"", "0.7\"", "1/2", "1/3", "1/4", "1/6", "1/8", "1/10", "1/15", "1/20",
-                "1/30", "1/45", "1/60", "1/90", "1/125", "1/180", "1/250", "1/350",
-                "1/500", "1/750", "1/1000", "1/1500", "1/2000", "1/3000", "1/4000", "1/6000", "1/8000" };
-        shutterValuesFull = new String[]{context.getResources().getString(R.string.NoValue), "B", "30\"", "15\"", "8\"", "4\"", "2\"", "1\"", "1/2", "1/4", "1/8",
-                "1/15", "1/30", "1/60", "1/125", "1/250", "1/500", "1/1000", "1/2000", "1/4000", "1/8000" };
-        shutterValuesFullNoBulb = new String[]{context.getResources().getString(R.string.NoValue), "30\"", "15\"", "8\"", "4\"", "2\"", "1\"", "1/2", "1/4", "1/8",
+
+        shutterValuesFull = new String[]{context.getResources().getString(R.string.NoValue), "30\"", "15\"", "8\"", "4\"", "2\"", "1\"", "1/2", "1/4", "1/8",
                 "1/15", "1/30", "1/60", "1/125", "1/250", "1/500", "1/1000", "1/2000", "1/4000", "1/8000" };
     }
 

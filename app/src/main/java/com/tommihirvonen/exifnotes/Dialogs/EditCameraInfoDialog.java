@@ -192,16 +192,16 @@ public class EditCameraInfoDialog extends DialogFragment {
     private void initialiseShutterRangePickers() {
         switch ( newShutterIncrements ) {
             case 0:
-                displayedShutterValues = utilities.shutterValuesThirdNoBulb;
+                displayedShutterValues = utilities.shutterValuesThird;
                 break;
             case 1:
-                displayedShutterValues = utilities.shutterValuesHalfNoBulb;
+                displayedShutterValues = utilities.shutterValuesHalf;
                 break;
             case 2:
-                displayedShutterValues = utilities.shutterValuesFullNoBulb;
+                displayedShutterValues = utilities.shutterValuesFull;
                 break;
             default:
-                displayedShutterValues = utilities.shutterValuesThirdNoBulb;
+                displayedShutterValues = utilities.shutterValuesThird;
                 break;
         }
         if ( displayedShutterValues[0].equals(getResources().getString(R.string.NoValue)) ) {
