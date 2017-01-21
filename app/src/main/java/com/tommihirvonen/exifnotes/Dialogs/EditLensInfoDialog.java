@@ -221,7 +221,7 @@ public class EditLensInfoDialog extends DialogFragment {
         });
         return dialog;
     }
-    
+
     private void initialiseApertureRangePickers(){
         switch ( newApertureIncrements ) {
             case 0:

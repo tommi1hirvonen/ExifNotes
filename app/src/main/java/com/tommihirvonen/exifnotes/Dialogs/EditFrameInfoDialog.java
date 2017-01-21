@@ -8,9 +8,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -28,10 +26,10 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.Datastructures.Frame;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
-import com.tommihirvonen.exifnotes.Fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.Activities.LocationPickActivity;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
@@ -49,6 +47,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     String title;
     String positiveButton;
     long camera_id;
+    Camera camera;
     Frame frame;
     ArrayList<Lens> mountableLenses;
     FilmDbHelper database;
@@ -72,6 +71,8 @@ public class EditFrameInfoDialog extends DialogFragment {
     String newDate;
     String newLocation;
     long newFilterId;
+    int apertureIncrements;
+    int shutterIncrements;
 
     NumberPicker countPicker;
     NumberPicker shutterPicker;
@@ -84,6 +85,7 @@ public class EditFrameInfoDialog extends DialogFragment {
 
     String[] displayedShutterValues;
     String[] displayedApertureValues;
+
 
     @NonNull
     @Override
@@ -98,10 +100,11 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         database = new FilmDbHelper(getActivity());
         camera_id = database.getRoll(frame.getRollId()).getCamera_id();
-        mountableLenses = database.getMountableLenses(database.getCamera(camera_id));
+        camera = database.getCamera(camera_id);
+        mountableLenses = database.getMountableLenses(camera);
 
-        int shutterIncrements = database.getCamera(camera_id).getShutterIncrements();
-        int apertureIncrements = 0;
+        shutterIncrements = camera.getShutterIncrements();
+        apertureIncrements = 0;
         if ( frame.getLensId() > 0 ) {
             apertureIncrements = database.getLens(frame.getLensId()).getApertureIncrements();
         }
@@ -121,87 +124,11 @@ public class EditFrameInfoDialog extends DialogFragment {
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflator);
 
-        final TextView et_note = (TextView) inflator.findViewById(R.id.txt_note);
-        et_note.setText(frame.getNote());
-        b_location = (TextView) inflator.findViewById(R.id.btn_location);
 
+
+
+        //LENS BUTTON
         b_lens = (TextView) inflator.findViewById(R.id.btn_lens);
-        final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
-        final TextView b_time = (TextView) inflator.findViewById(R.id.btn_time);
-        final Button b_addLens = (Button) inflator.findViewById(R.id.btn_add_lens);
-
-        countPicker = (NumberPicker) inflator.findViewById(R.id.countPicker);
-        shutterPicker = (NumberPicker) inflator.findViewById(R.id.shutterPicker);
-        aperturePicker = (NumberPicker) inflator.findViewById(R.id.aperturePicker);
-
-        // Set the increments according to settings
-        switch (shutterIncrements) {
-            case 0:
-                displayedShutterValues = utilities.shutterValuesThird;
-                break;
-            case 1:
-                displayedShutterValues = utilities.shutterValuesHalf;
-                break;
-            case 2:
-                displayedShutterValues = utilities.shutterValuesFull;
-                break;
-            default:
-                displayedShutterValues = utilities.shutterValuesThird;
-                break;
-        }
-        // By reversing the order we can reverse the order in the numberpicker too
-        Collections.reverse(Arrays.asList(displayedShutterValues));
-
-        shutterPicker.setMinValue(0);
-        shutterPicker.setMaxValue(displayedShutterValues.length - 1);
-        shutterPicker.setDisplayedValues(displayedShutterValues);
-        // With the following command we can avoid popping up the keyboard
-        shutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        shutterPicker.setValue(displayedShutterValues.length - 1);
-        for (int i = 0; i < displayedShutterValues.length; ++i) {
-            if (displayedShutterValues[i].equals(frame.getShutter()) ) {
-                shutterPicker.setValue(i);
-                break;
-            }
-        }
-
-        // Set the increments according to settings
-        switch (apertureIncrements) {
-            case 0:
-                displayedApertureValues = utilities.apertureValuesThird;
-                break;
-            case 1:
-                displayedApertureValues = utilities.apertureValuesHalf;
-                break;
-            case 2:
-                displayedApertureValues = utilities.apertureValuesFull;
-                break;
-            default:
-                displayedApertureValues = utilities.apertureValuesThird;
-                break;
-        }
-
-        // By reversing the order we can reverse the order in the numberpicker too
-        Collections.reverse(Arrays.asList(displayedApertureValues));
-
-        aperturePicker.setMinValue(0);
-        aperturePicker.setMaxValue(displayedApertureValues.length - 1);
-        aperturePicker.setDisplayedValues(displayedApertureValues);
-        aperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        aperturePicker.setValue(displayedApertureValues.length - 1);
-        for (int i = 0; i < displayedApertureValues.length; ++i) {
-            if ( displayedApertureValues[i].equals(frame.getAperture()) ) {
-                aperturePicker.setValue(i);
-                break;
-            }
-        }
-
-        countPicker.setMinValue(0);
-        countPicker.setMaxValue(100);
-        countPicker.setValue(frame.getCount());
-        countPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-
-
         if ( frame.getLensId() > 0 ) {
             Lens currentLens = database.getLens(frame.getLensId());
             b_lens.setText(currentLens.getMake() + " " + currentLens.getModel());
@@ -229,13 +156,9 @@ public class EditFrameInfoDialog extends DialogFragment {
                         b_lens.setText(listItems.get(which));
                         if (which > 0) {
                             newLensId = mountableLenses.get(which - 1).getId();
-                            if ( focalLengthPicker.getValue() > database.getLens( newLensId ).getMaxFocalLength() ) {
-                                focalLengthPicker.setValue(database.getLens(newLensId ).getMaxFocalLength());
-                            } else if ( focalLengthPicker.getValue() < database.getLens(newLensId ).getMinFocalLength() ) {
-                                focalLengthPicker.setValue(database.getLens(newLensId ).getMinFocalLength());
-                            }
-                            focalLengthPicker.setMinValue(database.getLens(newLensId ).getMinFocalLength());
-                            focalLengthPicker.setMaxValue(database.getLens(newLensId ).getMaxFocalLength());
+                            initialiseFocalLengthPicker();
+                            apertureIncrements = database.getLens(newLensId).getApertureIncrements();
+                            initialiseAperturePicker();
                         }
                         else if (which == 0) {
                             //frame.setLensId(-1);
@@ -243,6 +166,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                             focalLengthPicker.setMinValue(0);
                             focalLengthPicker.setMaxValue(0);
                             focalLengthPicker.setValue(0);
+                            apertureIncrements = 0;
+                            initialiseAperturePicker();
                         }
                     }
                 });
@@ -258,6 +183,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // LENS ADD DIALOG
+        final Button b_addLens = (Button) inflator.findViewById(R.id.btn_add_lens);
         b_addLens.setClickable(true);
         b_addLens.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CommitTransaction")
@@ -274,6 +200,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // DATE PICK DIALOG
+        final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
+        final TextView b_time = (TextView) inflator.findViewById(R.id.btn_time);
         if (frame.getDate() == null) frame.setDate(Utilities.getCurrentTime());
         ArrayList<String> dateValue = Utilities.splitDate(frame.getDate());
         int temp_year = Integer.parseInt(dateValue.get(0));
@@ -342,7 +270,30 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         });
 
+        //NOTES FIELD
+        final TextView et_note = (TextView) inflator.findViewById(R.id.txt_note);
+        et_note.setText(frame.getNote());
+
+        //SHUTTER SPEED PICKER
+        shutterPicker = (NumberPicker) inflator.findViewById(R.id.shutterPicker);
+        initialiseShutterPicker();
+        // With the following command we can avoid popping up the keyboard
+        shutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+
+        //COUNT PICKER
+        countPicker = (NumberPicker) inflator.findViewById(R.id.countPicker);
+        countPicker.setMinValue(0);
+        countPicker.setMaxValue(100);
+        countPicker.setValue(frame.getCount());
+        countPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+
+        //APERTURE PICKER
+        aperturePicker = (NumberPicker) inflator.findViewById(R.id.aperturePicker);
+        initialiseAperturePicker();
+        aperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+
         // LOCATION PICK DIALOG
+        b_location = (TextView) inflator.findViewById(R.id.btn_location);
         newLocation = frame.getLocation();
         b_location.setText(frame.getLocation());
         b_location.setClickable(true);
@@ -496,16 +447,121 @@ public class EditFrameInfoDialog extends DialogFragment {
             mountableLenses.add(lens);
             b_lens.setText(lens.getMake() + " " + lens.getModel());
             newLensId = lens.getId();
-
-            if ( focalLengthPicker.getValue() > database.getLens( newLensId ).getMaxFocalLength() ) {
-                focalLengthPicker.setValue(database.getLens(newLensId ).getMaxFocalLength());
-            } else if ( focalLengthPicker.getValue() < database.getLens(newLensId ).getMinFocalLength() ) {
-                focalLengthPicker.setValue(database.getLens(newLensId ).getMinFocalLength());
-            }
-            focalLengthPicker.setMinValue(database.getLens(newLensId ).getMinFocalLength());
-            focalLengthPicker.setMaxValue(database.getLens(newLensId ).getMaxFocalLength());
-
+            apertureIncrements = lens.getApertureIncrements();
+            initialiseAperturePicker();
+            initialiseFocalLengthPicker();
         }
+    }
+
+    @SuppressWarnings("ManualArrayToCollectionCopy")
+    private void initialiseAperturePicker(){
+        switch (apertureIncrements) {
+            case 0:
+                displayedApertureValues = utilities.apertureValuesThird;
+                break;
+            case 1:
+                displayedApertureValues = utilities.apertureValuesHalf;
+                break;
+            case 2:
+                displayedApertureValues = utilities.apertureValuesFull;
+                break;
+            default:
+                displayedApertureValues = utilities.apertureValuesThird;
+                break;
+        }
+        if ( displayedApertureValues[0].equals(getResources().getString(R.string.NoValue)) ) {
+            // By reversing the order we can reverse the order in the NumberPicker too
+            Collections.reverse(Arrays.asList(displayedApertureValues));
+        }
+
+        //If no lens is selected, end here
+        if (newLensId <= 0) return;
+
+        //Otherwise continue to set min and max apertures
+        Lens lens = database.getLens(newLensId);
+        ArrayList<String> apertureValuesList = new ArrayList<>();
+        int minIndex = 0;
+        int maxIndex = displayedApertureValues.length-1;
+        for ( int i = 0; i < displayedApertureValues.length; ++i ) {
+            if (lens.getMinAperture().equals(displayedApertureValues[i])) {
+                minIndex = i;
+            }
+            if (lens.getMaxAperture().equals(displayedApertureValues[i])) {
+                maxIndex = i;
+            }
+        }
+        apertureValuesList.add(getResources().getString(R.string.NoValue));
+        for ( int i = minIndex; i <= maxIndex; ++i ) {
+            apertureValuesList.add(displayedApertureValues[i]);
+        }
+        displayedApertureValues = apertureValuesList.toArray(new String[0]);
+        aperturePicker.setMinValue(0);
+        aperturePicker.setMaxValue(displayedApertureValues.length-1);
+        aperturePicker.setDisplayedValues(displayedApertureValues);
+        aperturePicker.setValue(0);
+        for ( int i = 0; i < displayedApertureValues.length; ++i ) {
+            if ( frame.getAperture().equals(displayedApertureValues[i]) ) {
+                aperturePicker.setValue(i);
+            }
+        }
+    }
+
+    @SuppressWarnings("ManualArrayToCollectionCopy")
+    private void initialiseShutterPicker(){
+        // Set the increments according to settings
+        switch (shutterIncrements) {
+            case 0:
+                displayedShutterValues = utilities.shutterValuesThird;
+                break;
+            case 1:
+                displayedShutterValues = utilities.shutterValuesHalf;
+                break;
+            case 2:
+                displayedShutterValues = utilities.shutterValuesFull;
+                break;
+            default:
+                displayedShutterValues = utilities.shutterValuesThird;
+                break;
+        }
+        // By reversing the order we can reverse the order in the NumberPicker too
+        Collections.reverse(Arrays.asList(displayedShutterValues));
+        ArrayList<String> shutterValuesList = new ArrayList<>();
+        int minIndex = 0;
+        int maxIndex = displayedShutterValues.length-1;
+        for ( int i = 0; i < displayedShutterValues.length; ++i ) {
+            if (camera.getMinShutter().equals(displayedShutterValues[i])) {
+                minIndex = i;
+            }
+            if (camera.getMaxShutter().equals(displayedShutterValues[i])) {
+                maxIndex = i;
+            }
+        }
+        shutterValuesList.add(getResources().getString(R.string.NoValue));
+        for ( int i = minIndex; i <= maxIndex; ++i ) {
+            shutterValuesList.add(displayedShutterValues[i]);
+        }
+        shutterValuesList.add("B");
+        displayedShutterValues = shutterValuesList.toArray(new String[0]);
+        shutterPicker.setMinValue(0);
+        shutterPicker.setMaxValue(displayedShutterValues.length-1);
+        shutterPicker.setDisplayedValues(displayedShutterValues);
+        shutterPicker.setValue(0);
+        for ( int i = 0; i < displayedShutterValues.length; ++i ) {
+            if ( frame.getShutter().equals(displayedShutterValues[i]) ) {
+                shutterPicker.setValue(i);
+            }
+        }
+    }
+
+    private void initialiseFocalLengthPicker(){
+        Lens lens = database.getLens(newLensId);
+        if ( focalLengthPicker.getValue() > lens.getMaxFocalLength() ) {
+            focalLengthPicker.setValue(lens.getMaxFocalLength());
+        } else if ( focalLengthPicker.getValue() < lens.getMinFocalLength() ) {
+            focalLengthPicker.setValue(lens.getMinFocalLength());
+        }
+        focalLengthPicker.setMinValue(lens.getMinFocalLength());
+        focalLengthPicker.setMaxValue(lens.getMaxFocalLength());
     }
 }
 
