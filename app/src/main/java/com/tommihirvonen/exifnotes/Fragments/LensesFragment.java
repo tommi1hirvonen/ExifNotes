@@ -119,9 +119,7 @@ public class LensesFragment extends Fragment implements
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-        showSelectMountableCamerasDialog(position);
-
+        view.performLongClick();
     }
 
     @SuppressLint("CommitTransaction")

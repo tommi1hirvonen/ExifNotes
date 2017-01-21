@@ -353,15 +353,6 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //FOCAL LENGTH PICKER
         focalLengthPicker = (NumberPicker) inflator.findViewById(R.id.focalLengthPicker);
-        if ( frame.getLensId() > 0 ) {
-            focalLengthPicker.setMinValue(database.getLens(frame.getLensId()).getMinFocalLength());
-            focalLengthPicker.setMaxValue(database.getLens(frame.getLensId()).getMaxFocalLength());
-            focalLengthPicker.setValue(frame.getFocalLength());
-        }
-        focalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-
-        //EXPOSURE COMP PICKER
-        exposureCompPicker = (NumberPicker) inflator.findViewById(R.id.exposureCompPicker);
         //--------------------------------------------------------
         //This little trick is used to fix a bug which Google hasn't been able to fix in five years.
         //https://code.google.com/p/android/issues/detail?id=35482
@@ -378,13 +369,32 @@ public class EditFrameInfoDialog extends DialogFragment {
             f.setAccessible(true);
             EditText inputText = null;
             try {
-                inputText = (EditText) f.get(exposureCompPicker);
+                inputText = (EditText) f.get(focalLengthPicker);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
             if (inputText != null) inputText.setFilters(new InputFilter[0]);
         }
         //--------------------------------------------------------
+        if ( frame.getLensId() > 0 ) {
+            focalLengthPicker.setMinValue(database.getLens(frame.getLensId()).getMinFocalLength());
+            focalLengthPicker.setMaxValue(database.getLens(frame.getLensId()).getMaxFocalLength());
+            focalLengthPicker.setValue(frame.getFocalLength());
+        }
+        focalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+
+        //EXPOSURE COMP PICKER
+        exposureCompPicker = (NumberPicker) inflator.findViewById(R.id.exposureCompPicker);
+        if (f != null) {
+            f.setAccessible(true);
+            EditText inputText = null;
+            try {
+                inputText = (EditText) f.get(exposureCompPicker);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            if (inputText != null) inputText.setFilters(new InputFilter[0]);
+        }
         exposureCompPicker.setMinValue(0);
         exposureCompPicker.setMaxValue(Utilities.compValues.length-1);
         exposureCompPicker.setDisplayedValues(Utilities.compValues);
@@ -524,6 +534,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 frame.setFilterId(newFilterId);
                 frame.setExposureComp(Utilities.compValues[exposureCompPicker.getValue()]);
                 frame.setNoOfExposures(noOfExposuresPicker.getValue());
+                frame.setFocalLength(focalLengthPicker.getValue());
 
                 // Return the new entered name to the calling activity
                 Intent intent = new Intent();

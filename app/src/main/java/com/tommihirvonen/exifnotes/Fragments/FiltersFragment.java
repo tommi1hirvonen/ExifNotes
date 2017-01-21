@@ -115,7 +115,7 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        showSelectMountableLensesDialog(i);
+        view.performLongClick();
     }
 
     @Override
