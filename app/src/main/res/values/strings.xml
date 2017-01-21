@@ -280,6 +280,9 @@
     <string name="FocalLength">Focal\nlength:</string>
     <string name="ExposureComp">Exposure\ncomp:</string>
     <string name="Filter">Filter:</string>
+    <string name="NoFilter">No filter</string>
+    <string name="UsedFilter">Choose used filter</string>
+    <string name="SelectLensToAddFilters">Select a lens to add filters.</string>
 
     <!--gear_dialog-->
     <string name="Make">Make:</string>

@@ -25,8 +25,10 @@ import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
+import com.tommihirvonen.exifnotes.Datastructures.Filter;
 import com.tommihirvonen.exifnotes.Datastructures.Frame;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
@@ -50,13 +52,16 @@ public class EditFrameInfoDialog extends DialogFragment {
     Camera camera;
     Frame frame;
     ArrayList<Lens> mountableLenses;
+    ArrayList<Filter> mountableFilters;
     FilmDbHelper database;
 
     TextView b_location;
     TextView b_lens;
+    TextView b_filter;
 
     final static int PLACE_PICKER_REQUEST = 1;
     final static int ADD_LENS = 2;
+    final static int ADD_FILTER = 3;
 
     public static final String TAG = "EditFrameInfoDialogFragment";
 
@@ -159,15 +164,16 @@ public class EditFrameInfoDialog extends DialogFragment {
                             initialiseFocalLengthPicker();
                             apertureIncrements = database.getLens(newLensId).getApertureIncrements();
                             initialiseAperturePicker();
+                            initialiseFilters();
                         }
                         else if (which == 0) {
-                            //frame.setLensId(-1);
                             newLensId = -1;
                             focalLengthPicker.setMinValue(0);
                             focalLengthPicker.setMaxValue(0);
                             focalLengthPicker.setValue(0);
                             apertureIncrements = 0;
                             initialiseAperturePicker();
+                            initialiseFilters();
                         }
                     }
                 });
@@ -370,6 +376,78 @@ public class EditFrameInfoDialog extends DialogFragment {
             noOfExposuresPicker.setValue(frame.getNoOfExposures());
         }
 
+        //FILTER BUTTON
+        b_filter = (TextView) inflator.findViewById(R.id.btn_filter);
+        if ( frame.getFilterId() > 0 ) {
+            Filter currentFilter = database.getFilter(frame.getFilterId());
+            b_filter.setText(currentFilter.getMake() + " " + currentFilter.getModel());
+        }
+        else {
+            b_filter.setText(getResources().getString(R.string.NoFilter));
+        }
+
+        // FILTER PICK DIALOG
+        newFilterId = frame.getFilterId();
+        b_filter.setClickable(true);
+        b_filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final List<String> listItems = new ArrayList<>();
+                listItems.add(getResources().getString(R.string.NoFilter));
+                if (newLensId > 0) {
+                    mountableFilters = database.getMountableFilters(database.getLens(newLensId));
+                    for (int i = 0; i < mountableFilters.size(); ++i) {
+                        listItems.add(mountableFilters.get(i).getMake() + " " + mountableFilters.get(i).getModel());
+                    }
+                }
+                final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.UsedFilter);
+                builder.setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // listItems also contains the No lens option
+                        b_filter.setText(listItems.get(which));
+                        if (which > 0) {
+                            newFilterId = mountableFilters.get(which - 1).getId();
+                        }
+                        else if (which == 0) {
+                            newFilterId = -1;
+                        }
+                    }
+                });
+                builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
+
+        // FILTER ADD DIALOG
+        final Button b_addFilter = (Button) inflator.findViewById(R.id.btn_add_filter);
+        b_addFilter.setClickable(true);
+        b_addFilter.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CommitTransaction")
+            @Override
+            public void onClick(View v) {
+                if ( newLensId <= 0 ) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters), Toast.LENGTH_LONG).show();
+                    return;
+                }
+                EditFilterInfoDialog dialog = new EditFilterInfoDialog();
+                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_FILTER);
+                Bundle arguments = new Bundle();
+                arguments.putString("TITLE", getResources().getString(R.string.NewFilter));
+                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+                dialog.setArguments(arguments);
+                dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
+            }
+        });
+
 
 
 
@@ -435,8 +513,6 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         }
 
-
-
         if ( requestCode == ADD_LENS && resultCode == Activity.RESULT_OK) {
             // After Ok code.
             Lens lens = data.getParcelableExtra("LENS");
@@ -450,6 +526,18 @@ public class EditFrameInfoDialog extends DialogFragment {
             apertureIncrements = lens.getApertureIncrements();
             initialiseAperturePicker();
             initialiseFocalLengthPicker();
+            initialiseFilters();
+        }
+
+        if ( requestCode == ADD_FILTER && resultCode == Activity.RESULT_OK) {
+            // After Ok code.
+            Filter filter = data.getParcelableExtra("FILTER");
+            long rowId = database.addFilter(filter);
+            filter.setId(rowId);
+            database.addMountableFilterLens(filter, database.getLens(newLensId));
+            mountableFilters.add(filter);
+            b_filter.setText(filter.getMake() + " " + filter.getModel());
+            newFilterId = filter.getId();
         }
     }
 
@@ -495,9 +583,9 @@ public class EditFrameInfoDialog extends DialogFragment {
             apertureValuesList.add(displayedApertureValues[i]);
         }
         displayedApertureValues = apertureValuesList.toArray(new String[0]);
+        aperturePicker.setDisplayedValues(displayedApertureValues);
         aperturePicker.setMinValue(0);
         aperturePicker.setMaxValue(displayedApertureValues.length-1);
-        aperturePicker.setDisplayedValues(displayedApertureValues);
         aperturePicker.setValue(0);
         for ( int i = 0; i < displayedApertureValues.length; ++i ) {
             if ( frame.getAperture().equals(displayedApertureValues[i]) ) {
@@ -562,6 +650,26 @@ public class EditFrameInfoDialog extends DialogFragment {
         }
         focalLengthPicker.setMinValue(lens.getMinFocalLength());
         focalLengthPicker.setMaxValue(lens.getMaxFocalLength());
+    }
+
+    private void initialiseFilters(){
+        //Update mountable filters
+        if (newLensId <= 0) {
+            if ( mountableFilters != null ) mountableFilters.clear();
+            b_filter.setText(getResources().getString(R.string.NoFilter));
+            newFilterId = -1;
+        } else {
+            mountableFilters = database.getMountableFilters(database.getLens(newLensId));
+            //If the new list contains the current filter, do nothing (return)
+            for (Filter filter : mountableFilters) {
+                if (filter.getId() == newFilterId) {
+                    return;
+                }
+            }
+            //Else reset the filter
+            b_filter.setText(getResources().getString(R.string.NoFilter));
+            newFilterId = -1;
+        }
     }
 }
 

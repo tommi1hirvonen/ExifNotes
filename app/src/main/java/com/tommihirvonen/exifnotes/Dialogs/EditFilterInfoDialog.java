@@ -72,18 +72,21 @@ public class EditFilterInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
 
-                if (filter.getMake().length() == 0 && filter.getMake().length() == 0) {
+                String make = et1.getText().toString();
+                String model = et2.getText().toString();
+
+                if (make.length() == 0 && model.length() == 0) {
                     // No make or model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();
-                } else if (filter.getMake().length() > 0 && filter.getMake().length() == 0) {
+                } else if (make.length() > 0 && model.length() == 0) {
                     // No model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
-                } else if (filter.getMake().length() == 0 && filter.getMake().length() > 0) {
+                } else if (make.length() == 0 && model.length() > 0) {
                     // No make was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
                 } else {
-                    filter.setMake(et1.getText().toString());
-                    filter.setModel(et2.getText().toString());
+                    filter.setMake(make);
+                    filter.setModel(model);
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
                     intent.putExtra("FILTER", filter);

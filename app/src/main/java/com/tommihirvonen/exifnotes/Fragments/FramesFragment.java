@@ -681,6 +681,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             frame.setLensId(previousFrame.getLensId());
             frame.setShutter(previousFrame.getShutter());
             frame.setAperture(previousFrame.getAperture());
+            frame.setFilterId(previousFrame.getFilterId());
+            frame.setFocalLength(previousFrame.getFocalLength());
+            frame.setExposureComp(previousFrame.getExposureComp());
         } else {
             frame.setCount(1);
             frame.setShutter(getResources().getString(R.string.NoValue));
