@@ -12,6 +12,7 @@ import com.tommihirvonen.exifnotes.Datastructures.Frame;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Datastructures.Roll;
 
+import java.io.File;
 import java.util.ArrayList;
 
 
@@ -90,7 +91,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     //=============================================================================================
     //Database information
-    private static final String DATABASE_NAME = "filmnotes.db";
+    public static final String DATABASE_NAME = "filmnotes.db";
 
     //Updated version from 13 to 14 - 2016-12-03
     private static final int DATABASE_VERSION = 14;
@@ -1039,5 +1040,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_FILTER_MAKE, filter.getMake());
         contentValues.put(KEY_FILTER_MODEL, filter.getModel());
         return contentValues;
+    }
+
+    //*********************** METHODS TO EXPORT AND IMPORT DATABASE *******************************
+
+    public static File getDatabaseFile(Context context){
+        String databasePath = context.getDatabasePath(DATABASE_NAME).getAbsolutePath();
+        return new File(databasePath);
     }
 }

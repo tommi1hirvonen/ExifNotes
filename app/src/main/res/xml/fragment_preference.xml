@@ -65,5 +65,23 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="@string/DatabaseCap"
+        >
+
+        <Preference
+            android:key="ExportDatabase"
+            android:title="@string/ExportDatabaseTitle"
+            android:summary="@string/ExportDatabaseSummary"
+            />
+
+        <Preference
+            android:key="ImportDatabase"
+            android:title="@string/ImportDatabaseTitle"
+            android:summary="@string/ImportDatabaseSummary"
+            />
+
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

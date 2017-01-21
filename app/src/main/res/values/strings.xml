@@ -359,4 +359,15 @@
     <string name="PicturesPathTitle">Path to pictures</string>
     <string name="PicturesPathSummary">"If the picture files you want to edit are in a certain folder, you can define its path here ending with '/' or '\\' depending on your OS."</string>
 
+    <string name="DatabaseCap">DATABASE</string>
+    <string name="ExportDatabaseTitle">Export database</string>
+    <string name="ExportDatabaseSummary">Export SQL database file</string>
+    <string name="ImportDatabaseTitle">Import database</string>
+    <string name="ImportDatabaseSummary">Import SQL database from a previously exported file</string>
+
+    <string name="ErrorBuildingDatabaseFile">Error building database file</string>
+    <string name="ErrorBuildingOutputFile">Error building output file: </string>
+    <string name="ErrorCopyingFile">Error copying file</string>
+    <string name="DatabaseCopiedTo">Database copied to: </string>
+
 </resources>

@@ -25,10 +25,12 @@ import com.tommihirvonen.exifnotes.Datastructures.Roll;
 import com.tommihirvonen.exifnotes.R;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.channels.FileChannel;
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -662,6 +664,41 @@ public class Utilities {
             current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
         } else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
         return current_time;
+    }
+
+    /**
+     * Creates the specified toFile as a byte for byte copy of the
+     * fromFile. If toFile already exists, then it
+     * will be replaced with a copy of fromFile. The name and path
+     * of toFile will be that of toFile.
+     *
+     * Note: fromFile and toFile will be closed by
+     * this function.
+     *
+     * @param fromFile
+     *            - FileInputStream for the file to copy from.
+     * @param toFile
+     *            - FileInputStream for the file to copy to.
+     */
+    @SuppressWarnings("ThrowFromFinallyBlock")
+    public static void copyFile(FileInputStream fromFile, FileOutputStream toFile) throws IOException {
+        FileChannel fromChannel = null;
+        FileChannel toChannel = null;
+        try {
+            fromChannel = fromFile.getChannel();
+            toChannel = toFile.getChannel();
+            fromChannel.transferTo(0, fromChannel.size(), toChannel);
+        } finally {
+            try {
+                if (fromChannel != null) {
+                    fromChannel.close();
+                }
+            } finally {
+                if (toChannel != null) {
+                    toChannel.close();
+                }
+            }
+        }
     }
 
 }
