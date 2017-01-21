@@ -39,8 +39,12 @@ public class EditCameraInfoDialog extends DialogFragment {
     Camera camera;
     Utilities utilities;
     int newShutterIncrements;
+    String[] displayedShutterValues;
 
     TextView bShutterSpeedIncrements;
+
+    NumberPicker minShutterPicker;
+    NumberPicker maxShutterPicker;
 
     public EditCameraInfoDialog(){
 
@@ -96,6 +100,9 @@ public class EditCameraInfoDialog extends DialogFragment {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         newShutterIncrements = i;
                         bShutterSpeedIncrements.setText(getResources().getStringArray(R.array.StopIncrements)[i]);
+                        //Shutter speed increments were changed, make changes to shutter range pickers
+                        initialiseShutterRangePickers();
+
                     }
                 });
                 builder.setNegativeButton(getResources().getString(R.string.Cancel), new DialogInterface.OnClickListener() {
@@ -109,33 +116,14 @@ public class EditCameraInfoDialog extends DialogFragment {
         });
 
         //SHUTTER RANGE NUMBER PICKERS
-        final NumberPicker minShutterPicker = (NumberPicker) inflator.findViewById(R.id.minShutterPicker);
-        final NumberPicker maxShutterPicker = (NumberPicker) inflator.findViewById(R.id.maxShutterPicker);
-        final String[] allShutterValuesNoBulb = utilities.allShutterValuesNoBulb;
-        Collections.reverse(Arrays.asList(allShutterValuesNoBulb));
-        minShutterPicker.setMinValue(0);
-        maxShutterPicker.setMinValue(0);
-        minShutterPicker.setMaxValue(allShutterValuesNoBulb.length-1);
-        maxShutterPicker.setMaxValue(allShutterValuesNoBulb.length-1);
-        minShutterPicker.setDisplayedValues(allShutterValuesNoBulb);
-        maxShutterPicker.setDisplayedValues(allShutterValuesNoBulb);
+        minShutterPicker = (NumberPicker) inflator.findViewById(R.id.minShutterPicker);
+        maxShutterPicker = (NumberPicker) inflator.findViewById(R.id.maxShutterPicker);
+        initialiseShutterRangePickers();
         minShutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         maxShutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        minShutterPicker.setValue(allShutterValuesNoBulb.length-1);
-        maxShutterPicker.setValue(allShutterValuesNoBulb.length-1);
-        for (int i = 0; i < allShutterValuesNoBulb.length; ++i) {
-            if (allShutterValuesNoBulb[i].equals(camera.getMinShutter())) {
-                minShutterPicker.setValue(i);
-                break;
-            }
-        }
-        for (int i = 0; i < allShutterValuesNoBulb.length; ++i) {
-            if (allShutterValuesNoBulb[i].equals(camera.getMaxShutter())) {
-                maxShutterPicker.setValue(i);
-                break;
-            }
-        }
 
+
+        //FINALISE BUILDING THE DIALOG
         alert.setPositiveButton(positiveButton, null);
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -169,24 +157,24 @@ public class EditCameraInfoDialog extends DialogFragment {
                 } else if (make.length() == 0 && model.length() > 0) {
                     // No make was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
-                } else if ((minShutterPicker.getValue() == allShutterValuesNoBulb.length-1 && maxShutterPicker.getValue() != allShutterValuesNoBulb.length-1)
+                } else if ((minShutterPicker.getValue() == displayedShutterValues.length-1 && maxShutterPicker.getValue() != displayedShutterValues.length-1)
                             ||
-                            (minShutterPicker.getValue() != allShutterValuesNoBulb.length-1 && maxShutterPicker.getValue() == allShutterValuesNoBulb.length-1)){
+                            (minShutterPicker.getValue() != displayedShutterValues.length-1 && maxShutterPicker.getValue() == displayedShutterValues.length-1)){
                     // No min or max shutter was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxShutter), Toast.LENGTH_LONG).show();
                 } else {
                     camera.setMake(make); camera.setModel(model);
                     camera.setSerialNumber(serialNumber);
                     camera.setShutterIncrements(newShutterIncrements);
-                    if ( minShutterPicker.getValue() == allShutterValuesNoBulb.length-1 && maxShutterPicker.getValue() == allShutterValuesNoBulb.length-1 ) {
+                    if ( minShutterPicker.getValue() == displayedShutterValues.length-1 && maxShutterPicker.getValue() == displayedShutterValues.length-1 ) {
                         camera.setMinShutter(null);
                         camera.setMaxShutter(null);
                     } else if (minShutterPicker.getValue() < maxShutterPicker.getValue()) {
-                        camera.setMinShutter(allShutterValuesNoBulb[minShutterPicker.getValue()]);
-                        camera.setMaxShutter(allShutterValuesNoBulb[maxShutterPicker.getValue()]);
+                        camera.setMinShutter(displayedShutterValues[minShutterPicker.getValue()]);
+                        camera.setMaxShutter(displayedShutterValues[maxShutterPicker.getValue()]);
                     } else {
-                        camera.setMinShutter(allShutterValuesNoBulb[maxShutterPicker.getValue()]);
-                        camera.setMaxShutter(allShutterValuesNoBulb[minShutterPicker.getValue()]);
+                        camera.setMinShutter(displayedShutterValues[maxShutterPicker.getValue()]);
+                        camera.setMaxShutter(displayedShutterValues[minShutterPicker.getValue()]);
                     }
 
                     // Return the new entered name to the calling activity
@@ -199,6 +187,46 @@ public class EditCameraInfoDialog extends DialogFragment {
             }
         });
         return dialog;
+    }
+
+    private void initialiseShutterRangePickers() {
+        switch ( newShutterIncrements ) {
+            case 0:
+                displayedShutterValues = utilities.shutterValuesThirdNoBulb;
+                break;
+            case 1:
+                displayedShutterValues = utilities.shutterValuesHalfNoBulb;
+                break;
+            case 2:
+                displayedShutterValues = utilities.shutterValuesFullNoBulb;
+                break;
+            default:
+                displayedShutterValues = utilities.shutterValuesThirdNoBulb;
+                break;
+        }
+        if ( displayedShutterValues[0].equals(getResources().getString(R.string.NoValue)) ) {
+            Collections.reverse(Arrays.asList(displayedShutterValues));
+        }
+        minShutterPicker.setMinValue(0);
+        maxShutterPicker.setMinValue(0);
+        minShutterPicker.setMaxValue(displayedShutterValues.length-1);
+        maxShutterPicker.setMaxValue(displayedShutterValues.length-1);
+        minShutterPicker.setDisplayedValues(displayedShutterValues);
+        maxShutterPicker.setDisplayedValues(displayedShutterValues);
+        minShutterPicker.setValue(displayedShutterValues.length-1);
+        maxShutterPicker.setValue(displayedShutterValues.length-1);
+        for (int i = 0; i < displayedShutterValues.length; ++i) {
+            if (displayedShutterValues[i].equals(camera.getMinShutter())) {
+                minShutterPicker.setValue(i);
+                break;
+            }
+        }
+        for (int i = 0; i < displayedShutterValues.length; ++i) {
+            if (displayedShutterValues[i].equals(camera.getMaxShutter())) {
+                maxShutterPicker.setValue(i);
+                break;
+            }
+        }
     }
 
 }

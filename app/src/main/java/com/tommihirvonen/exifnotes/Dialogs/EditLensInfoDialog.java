@@ -43,8 +43,12 @@ public class EditLensInfoDialog extends DialogFragment {
     Lens lens;
     Utilities utilities;
     int newApertureIncrements;
+    String[] displayedApertureValues;
 
     TextView bApertureIncrements;
+
+    NumberPicker minAperturePicker;
+    NumberPicker maxAperturePicker;
 
     @NonNull
     @Override
@@ -95,6 +99,7 @@ public class EditLensInfoDialog extends DialogFragment {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         newApertureIncrements = i;
                         bApertureIncrements.setText(getResources().getStringArray(R.array.StopIncrements)[i]);
+                        initialiseApertureRangePickers();
                     }
                 });
                 builder.setNegativeButton(getResources().getString(R.string.Cancel), new DialogInterface.OnClickListener() {
@@ -132,33 +137,14 @@ public class EditLensInfoDialog extends DialogFragment {
         }
 
         //APERTURE RANGE PICKERS
-        final NumberPicker minAperturePicker = (NumberPicker) inflator.findViewById(R.id.minAperturePicker);
-        final NumberPicker maxAperturePicker = (NumberPicker) inflator.findViewById(R.id.maxAperturePicker);
-        final String[] allApertureValues = utilities.allApertureValues;
-        Collections.reverse(Arrays.asList(allApertureValues));
-        minAperturePicker.setMinValue(0);
-        maxAperturePicker.setMinValue(0);
-        minAperturePicker.setMaxValue(allApertureValues.length-1);
-        maxAperturePicker.setMaxValue(allApertureValues.length-1);
-        minAperturePicker.setDisplayedValues(allApertureValues);
-        maxAperturePicker.setDisplayedValues(allApertureValues);
+        minAperturePicker = (NumberPicker) inflator.findViewById(R.id.minAperturePicker);
+        maxAperturePicker = (NumberPicker) inflator.findViewById(R.id.maxAperturePicker);
+        initialiseApertureRangePickers();
         minAperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         maxAperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        minAperturePicker.setValue(allApertureValues.length-1);
-        maxAperturePicker.setValue(allApertureValues.length-1);
-        for (int i = 0; i < allApertureValues.length; ++i) {
-            if (allApertureValues[i].equals(lens.getMinAperture())) {
-                minAperturePicker.setValue(i);
-                break;
-            }
-        }
-        for (int i = 0; i < allApertureValues.length; ++i) {
-            if (allApertureValues[i].equals(lens.getMaxAperture())) {
-                maxAperturePicker.setValue(i);
-                break;
-            }
-        }
 
+
+        //FINALISE BUILDING THE DIALOG
         alert.setPositiveButton(positiveButton, null);
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -192,9 +178,9 @@ public class EditLensInfoDialog extends DialogFragment {
                 } else if (make.length() == 0 && model.length() > 0) {
                     // No make was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
-                } else if ((minAperturePicker.getValue() == allApertureValues.length-1 && maxAperturePicker.getValue() != allApertureValues.length-1)
+                } else if ((minAperturePicker.getValue() == displayedApertureValues.length-1 && maxAperturePicker.getValue() != displayedApertureValues.length-1)
                         ||
-                        (minAperturePicker.getValue() != allApertureValues.length-1 && maxAperturePicker.getValue() == allApertureValues.length-1)){
+                        (minAperturePicker.getValue() != displayedApertureValues.length-1 && maxAperturePicker.getValue() == displayedApertureValues.length-1)){
                     // No min or max shutter was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxAperture), Toast.LENGTH_LONG).show();
                 } else {
@@ -214,16 +200,16 @@ public class EditLensInfoDialog extends DialogFragment {
                         lens.setMinFocalLength(maxFocalLengthPicker.getValue());
                     }
 
-                    if ( minAperturePicker.getValue() == allApertureValues.length-1 && maxAperturePicker.getValue() == allApertureValues.length-1 ) {
+                    if ( minAperturePicker.getValue() == displayedApertureValues.length-1 && maxAperturePicker.getValue() == displayedApertureValues.length-1 ) {
                         lens.setMinAperture(null);
                         lens.setMaxAperture(null);
                     }
                     if ( minAperturePicker.getValue() < maxAperturePicker.getValue() ) {
-                        lens.setMinAperture(allApertureValues[minAperturePicker.getValue()]);
-                        lens.setMaxAperture(allApertureValues[maxAperturePicker.getValue()]);
+                        lens.setMinAperture(displayedApertureValues[minAperturePicker.getValue()]);
+                        lens.setMaxAperture(displayedApertureValues[maxAperturePicker.getValue()]);
                     } else {
-                        lens.setMinAperture(allApertureValues[maxAperturePicker.getValue()]);
-                        lens.setMaxAperture(allApertureValues[minAperturePicker.getValue()]);
+                        lens.setMinAperture(displayedApertureValues[maxAperturePicker.getValue()]);
+                        lens.setMaxAperture(displayedApertureValues[minAperturePicker.getValue()]);
                     }
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
@@ -234,6 +220,46 @@ public class EditLensInfoDialog extends DialogFragment {
             }
         });
         return dialog;
+    }
+    
+    private void initialiseApertureRangePickers(){
+        switch ( newApertureIncrements ) {
+            case 0:
+                displayedApertureValues = utilities.apertureValuesThird;
+                break;
+            case 1:
+                displayedApertureValues = utilities.apertureValuesHalf;
+                break;
+            case 2:
+                displayedApertureValues = utilities.apertureValuesFull;
+                break;
+            default:
+                displayedApertureValues = utilities.apertureValuesThird;
+                break;
+        }
+        if ( displayedApertureValues[0].equals(getResources().getString(R.string.NoValue)) ) {
+            Collections.reverse(Arrays.asList(displayedApertureValues));
+        }
+        minAperturePicker.setMinValue(0);
+        maxAperturePicker.setMinValue(0);
+        minAperturePicker.setMaxValue(displayedApertureValues.length-1);
+        maxAperturePicker.setMaxValue(displayedApertureValues.length-1);
+        minAperturePicker.setDisplayedValues(displayedApertureValues);
+        maxAperturePicker.setDisplayedValues(displayedApertureValues);
+        minAperturePicker.setValue(displayedApertureValues.length-1);
+        maxAperturePicker.setValue(displayedApertureValues.length-1);
+        for (int i = 0; i < displayedApertureValues.length; ++i) {
+            if (displayedApertureValues[i].equals(lens.getMinAperture())) {
+                minAperturePicker.setValue(i);
+                break;
+            }
+        }
+        for (int i = 0; i < displayedApertureValues.length; ++i) {
+            if (displayedApertureValues[i].equals(lens.getMaxAperture())) {
+                maxAperturePicker.setValue(i);
+                break;
+            }
+        }
     }
 
 }
