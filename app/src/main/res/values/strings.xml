@@ -277,7 +277,7 @@
     <string name="NoValue">&#60;empty&#62;</string>
     <string name="Location">Location:</string>
     <string name="NoOfExposures">No. of\nexposures:</string>
-    <string name="FocalLength">Focal\nlength:</string>
+    <string name="FocalLength">Focal\nlength (mm):</string>
     <string name="ExposureComp">Exposure\ncomp:</string>
     <string name="Filter">Filter:</string>
     <string name="NoFilter">No filter</string>
@@ -294,7 +294,7 @@
     <string name="MaxShutter">Max shutter:</string>
     <string name="ShutterRange">Shutter range:</string>
     <string name="ApertureRange">Aperture range:</string>
-    <string name="FocalLengthRange">Focal length range:</string>
+    <string name="FocalLengthRange">Focal length range (mm):</string>
     <string name="MeteringMode">Metering mode:</string>
     <string name="Flash">Flash:</string>
     <string name="FlashPower">Flash power:</string>

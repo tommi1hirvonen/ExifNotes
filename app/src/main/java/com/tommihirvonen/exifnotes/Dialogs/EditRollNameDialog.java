@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -34,6 +35,7 @@ import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -239,6 +241,29 @@ public class EditRollNameDialog extends DialogFragment {
 
         //PUSH PULL PICKER
         pushPullPicker = (NumberPicker) inflator.findViewById(R.id.pushPullPicker);
+        //--------------------------------------------------------
+        //This little trick is used to fix a bug which Google hasn't been able to fix in five years.
+        //https://code.google.com/p/android/issues/detail?id=35482
+        //Seriously, what the hell!?
+        //Initially the NumberPicker shows the wrong value, but when the Picker is first scrolled,
+        //the displayed value changes to the correct one.
+        Field f = null;
+        try {
+            f = NumberPicker.class.getDeclaredField("mInputText");
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        if (f != null) {
+            f.setAccessible(true);
+            EditText inputText = null;
+            try {
+                inputText = (EditText) f.get(pushPullPicker);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            if (inputText != null) inputText.setFilters(new InputFilter[0]);
+        }
+        //--------------------------------------------------------
         pushPullPicker.setMinValue(0);
         pushPullPicker.setMaxValue(Utilities.compValues.length-1);
         pushPullPicker.setDisplayedValues(Utilities.compValues);

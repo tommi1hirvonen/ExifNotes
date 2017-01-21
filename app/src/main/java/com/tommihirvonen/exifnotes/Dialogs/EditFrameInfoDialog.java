@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -21,6 +22,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -36,6 +38,9 @@ import com.tommihirvonen.exifnotes.Activities.LocationPickActivity;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -95,6 +100,8 @@ public class EditFrameInfoDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
+
+
 
         utilities = new Utilities(getActivity());
 
@@ -351,9 +358,33 @@ public class EditFrameInfoDialog extends DialogFragment {
             focalLengthPicker.setMaxValue(database.getLens(frame.getLensId()).getMaxFocalLength());
             focalLengthPicker.setValue(frame.getFocalLength());
         }
+        focalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
         //EXPOSURE COMP PICKER
         exposureCompPicker = (NumberPicker) inflator.findViewById(R.id.exposureCompPicker);
+        //--------------------------------------------------------
+        //This little trick is used to fix a bug which Google hasn't been able to fix in five years.
+        //https://code.google.com/p/android/issues/detail?id=35482
+        //Seriously, what the hell!?
+        //Initially the NumberPicker shows the wrong value, but when the Picker is first scrolled,
+        //the displayed value changes to the correct one.
+        Field f = null;
+        try {
+            f = NumberPicker.class.getDeclaredField("mInputText");
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        if (f != null) {
+            f.setAccessible(true);
+            EditText inputText = null;
+            try {
+                inputText = (EditText) f.get(exposureCompPicker);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            if (inputText != null) inputText.setFilters(new InputFilter[0]);
+        }
+        //--------------------------------------------------------
         exposureCompPicker.setMinValue(0);
         exposureCompPicker.setMaxValue(Utilities.compValues.length-1);
         exposureCompPicker.setDisplayedValues(Utilities.compValues);
@@ -366,6 +397,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 }
             }
         }
+        exposureCompPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
         //NO OF EXPOSURES PICKER
         noOfExposuresPicker = (NumberPicker) inflator.findViewById(R.id.noOfExposuresPicker);
@@ -375,6 +407,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         if ( frame.getNoOfExposures() > 1 ) {
             noOfExposuresPicker.setValue(frame.getNoOfExposures());
         }
+        noOfExposuresPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
         //FILTER BUTTON
         b_filter = (TextView) inflator.findViewById(R.id.btn_filter);
@@ -583,9 +616,16 @@ public class EditFrameInfoDialog extends DialogFragment {
             apertureValuesList.add(displayedApertureValues[i]);
         }
         displayedApertureValues = apertureValuesList.toArray(new String[0]);
-        aperturePicker.setDisplayedValues(displayedApertureValues);
+        //Set the displayed values to null. If we set the displayed values
+        //and the maxValue is smaller than the length of the new displayed values array,
+        //ArrayIndexOutOfBounds is thrown.
+        //Also if we set maxValue and the currently displayed values array length is smaller,
+        //ArrayIndexOutOfBounds is thrown.
+        //Setting displayed values to null solves this problem.
+        aperturePicker.setDisplayedValues(null);
         aperturePicker.setMinValue(0);
         aperturePicker.setMaxValue(displayedApertureValues.length-1);
+        aperturePicker.setDisplayedValues(displayedApertureValues);
         aperturePicker.setValue(0);
         for ( int i = 0; i < displayedApertureValues.length; ++i ) {
             if ( frame.getAperture().equals(displayedApertureValues[i]) ) {
