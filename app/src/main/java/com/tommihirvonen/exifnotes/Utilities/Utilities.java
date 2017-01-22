@@ -524,9 +524,9 @@ public class Utilities {
             if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
             if ( !frame.getAperture().contains("<") )
                 stringBuilder.append(apertureTag).append(quote).append(frame.getAperture()).append(quote).append(space);
-            if ( frame.getNote().length() > 0 ) stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
+            if ( frame.getNote() != null && frame.getNote().length() > 0 ) stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
 
-            if ( frame.getLocation().length() > 0 ) {
+            if ( frame.getLocation() != null && frame.getLocation().length() > 0 ) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
                 String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
                 String latRef;
@@ -600,9 +600,9 @@ public class Utilities {
             if ( !frame.getAperture().contains("<") )
                 stringBuilder.append("f").append(frame.getAperture());
             stringBuilder.append(separator);
-            if ( frame.getNote().length() > 0 ) stringBuilder.append(frame.getNote());
+            if ( frame.getNote() != null && frame.getNote().length() > 0 ) stringBuilder.append(frame.getNote());
             stringBuilder.append(separator);
-            if ( frame.getLocation().length() > 0 ) {
+            if ( frame.getLocation() != null && frame.getLocation().length() > 0 ) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
                 String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
                 String latRef;
