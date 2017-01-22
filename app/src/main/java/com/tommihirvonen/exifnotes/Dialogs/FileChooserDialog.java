@@ -53,10 +53,11 @@ public class FileChooserDialog extends DialogFragment {
 
     }
 
-    private class FileDir{
+    //Private class to hold both directories and files.
+    private class FileOrDirectory {
         String path;
         boolean directory; //true if dir, false if file
-        FileDir(String path, boolean directory){
+        FileOrDirectory(String path, boolean directory){
             this.path = path;
             this.directory = directory;
         }
@@ -64,9 +65,9 @@ public class FileChooserDialog extends DialogFragment {
 
     FileChooserDialog.OnChosenFileListener mCallback;
     private TextView mCurrentDirView;
-    private String mDir = "";
-    private List<FileDir> mFileDirs = null;
-    private ArrayAdapter<FileDir> mListAdapter = null;
+    private String mCurrentDirectory = "";
+    private List<FileOrDirectory> mFileOrDirectories = null;
+    private ArrayAdapter<FileOrDirectory> mListAdapter = null;
 
     /**
      * Custom constructor for the FileChooserDialog class.
@@ -104,9 +105,9 @@ public class FileChooserDialog extends DialogFragment {
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
 
-        mDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        mCurrentDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-        mFileDirs = getFileDirs(mDir);
+        mFileOrDirectories = getFileDirs(mCurrentDirectory);
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(R.layout.directory_chooser_dialog, null);
@@ -117,7 +118,7 @@ public class FileChooserDialog extends DialogFragment {
         linearLayout.setBackgroundColor(Color.parseColor(primaryColor));
 
         mCurrentDirView = (TextView) inflatedView.findViewById(R.id.current_directory_textview);
-        mCurrentDirView.setText(mDir);
+        mCurrentDirView.setText(mCurrentDirectory);
 
         ImageView backButton = (ImageView) inflatedView.findViewById(R.id.subdirectory_back_button);
         backButton.setClickable(true);
@@ -125,27 +126,27 @@ public class FileChooserDialog extends DialogFragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!mDir.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
-                    mDir = mDir.substring(0, mDir.lastIndexOf("/"));
+                if (!mCurrentDirectory.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
+                    mCurrentDirectory = mCurrentDirectory.substring(0, mCurrentDirectory.lastIndexOf("/"));
                     updateDirectory();
                 }
             }
         });
 
         //Set up the ListAdapter, ListView and listener
-        mListAdapter = createListAdapter(mFileDirs);
+        mListAdapter = createListAdapter(mFileOrDirectories);
         ListView listView = (ListView) inflatedView.findViewById(R.id.subdirectories_listview);
         listView.setAdapter(mListAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                FileDir selectedFileDir = mFileDirs.get(position);
-                if ( selectedFileDir.directory ) {
-                    mDir += "/" + selectedFileDir.path;
+                FileOrDirectory selectedFileOrDirectory = mFileOrDirectories.get(position);
+                if ( selectedFileOrDirectory.directory ) {
+                    mCurrentDirectory += "/" + selectedFileOrDirectory.path;
                     updateDirectory();
                 } else {
                     dismiss();
-                    mCallback.onChosenFile(mDir + "/" + selectedFileDir.path);
+                    mCallback.onChosenFile(mCurrentDirectory + "/" + selectedFileOrDirectory.path);
                 }
             }
         });
@@ -169,9 +170,9 @@ public class FileChooserDialog extends DialogFragment {
      * Update the list of directories and the current directory text.
      */
     private void updateDirectory() {
-        mFileDirs.clear();
-        mFileDirs.addAll(getFileDirs(mDir));
-        mCurrentDirView.setText(mDir);
+        mFileOrDirectories.clear();
+        mFileOrDirectories.addAll(getFileDirs(mCurrentDirectory));
+        mCurrentDirView.setText(mCurrentDirectory);
         mListAdapter.notifyDataSetChanged();
     }
 
@@ -181,15 +182,15 @@ public class FileChooserDialog extends DialogFragment {
      * @param items List of subdirectories
      * @return inflated view v
      */
-    private ArrayAdapter<FileDir> createListAdapter(List<FileDir> items) {
+    private ArrayAdapter<FileOrDirectory> createListAdapter(List<FileOrDirectory> items) {
 
-        return new ArrayAdapter<FileDir>(getActivity(), android.R.layout.simple_list_item_1, items) {
+        return new ArrayAdapter<FileOrDirectory>(getActivity(), android.R.layout.simple_list_item_1, items) {
             @NonNull
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
 //                String text = getItem(position);
-                FileDir fileDir = getItem(position);
+                FileOrDirectory fileOrDirectory = getItem(position);
 
                 FileChooserDialog.ViewHolder holder;
 
@@ -203,9 +204,9 @@ public class FileChooserDialog extends DialogFragment {
                     holder = (FileChooserDialog.ViewHolder) convertView.getTag();
                 }
 
-                if ( fileDir != null ) {
-                    holder.tvDirectory.setText(fileDir.path);
-                    if (fileDir.directory) {
+                if ( fileOrDirectory != null ) {
+                    holder.tvDirectory.setText(fileOrDirectory.path);
+                    if (fileOrDirectory.directory) {
                         holder.ivFolder.getDrawable().mutate().setColorFilter(ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
                         holder.ivFolder.setVisibility(View.VISIBLE);
                     } else {
@@ -230,19 +231,19 @@ public class FileChooserDialog extends DialogFragment {
      * @param dir the directory whose subdirectories are to be listed
      * @return a List containing all the subdirectories
      */
-    private List<FileDir> getFileDirs(String dir) {
-        List<FileDir> fileDirs = new ArrayList<>();
+    private List<FileOrDirectory> getFileDirs(String dir) {
+        List<FileOrDirectory> fileOrDirectories = new ArrayList<>();
         try {
             File dirFile = new File(dir);
             if (!dirFile.exists() || !dirFile.isDirectory()) {
-                return fileDirs;
+                return fileOrDirectories;
             }
 
             for (File file : dirFile.listFiles()) {
                 if ( file.isDirectory() ) {
-                    fileDirs.add( new FileDir(file.getName(), true) );
+                    fileOrDirectories.add( new FileOrDirectory(file.getName(), true) );
                 } else {
-                    fileDirs.add( new FileDir(file.getName(), false) );
+                    fileOrDirectories.add( new FileOrDirectory(file.getName(), false) );
                 }
             }
         }
@@ -250,8 +251,8 @@ public class FileChooserDialog extends DialogFragment {
             Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + dir, Toast.LENGTH_LONG).show();
         }
 
-        Collections.sort(fileDirs, new Comparator<FileDir>() {
-            public int compare(FileDir o1, FileDir o2) {
+        Collections.sort(fileOrDirectories, new Comparator<FileOrDirectory>() {
+            public int compare(FileOrDirectory o1, FileOrDirectory o2) {
                 if (o1.directory == o2.directory) {
                     return o1.path.compareTo(o2.path);
                 } else {
@@ -261,7 +262,7 @@ public class FileChooserDialog extends DialogFragment {
             }
         });
 
-        return fileDirs;
+        return fileOrDirectories;
     }
 
 

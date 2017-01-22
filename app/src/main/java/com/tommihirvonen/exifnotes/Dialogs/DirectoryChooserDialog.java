@@ -57,8 +57,8 @@ public class DirectoryChooserDialog extends DialogFragment {
 
     OnChosenDirectoryListener mCallback;
     private TextView mCurrentDirView;
-    private String mDir = "";
-    private List<String> mSubdirs = null;
+    private String mCurrentDirectory = "";
+    private List<String> mSubdirectories = null;
     private ArrayAdapter<String> mListAdapter = null;
 
     /**
@@ -97,9 +97,9 @@ public class DirectoryChooserDialog extends DialogFragment {
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
 
-        mDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+        mCurrentDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-        mSubdirs = getDirectories(mDir);
+        mSubdirectories = getDirectories(mCurrentDirectory);
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(R.layout.directory_chooser_dialog, null);
@@ -110,7 +110,7 @@ public class DirectoryChooserDialog extends DialogFragment {
         linearLayout.setBackgroundColor(Color.parseColor(primaryColor));
 
         mCurrentDirView = (TextView) inflatedView.findViewById(R.id.current_directory_textview);
-        mCurrentDirView.setText(mDir);
+        mCurrentDirView.setText(mCurrentDirectory);
 
         ImageView newDirButton = (ImageView) inflatedView.findViewById(R.id.new_directory_button);
         newDirButton.setClickable(true);
@@ -125,16 +125,15 @@ public class DirectoryChooserDialog extends DialogFragment {
                         setTitle(getActivity().getResources().getString(R.string.NewFolderName)).
                         setView(input).setPositiveButton(getActivity().getResources().getString(R.string.OK), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        Editable newDir = input.getText();
-                        String newDirName = newDir.toString();
+                        String newDirectoryName = input.getText().toString();
                         // Create new directory
-                        if (createSubDir(mDir + "/" + newDirName)) {
+                        if (createSubDir(mCurrentDirectory + "/" + newDirectoryName)) {
                             // Navigate into the new directory
-                            mDir += "/" + newDirName;
+                            mCurrentDirectory += "/" + newDirectoryName;
                             updateDirectory();
                         } else {
                             Toast.makeText(
-                                    getActivity(), "Failed to create '" + newDirName +
+                                    getActivity(), "Failed to create '" + newDirectoryName +
                                             "' folder", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -148,22 +147,22 @@ public class DirectoryChooserDialog extends DialogFragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!mDir.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
-                    mDir = mDir.substring(0, mDir.lastIndexOf("/"));
+                if (!mCurrentDirectory.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
+                    mCurrentDirectory = mCurrentDirectory.substring(0, mCurrentDirectory.lastIndexOf("/"));
                     updateDirectory();
                 }
             }
         });
 
         //Set up the ListAdapter, ListView and listener
-        mListAdapter = createListAdapter(mSubdirs);
+        mListAdapter = createListAdapter(mSubdirectories);
         ListView listView = (ListView) inflatedView.findViewById(R.id.subdirectories_listview);
         listView.setAdapter(mListAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String text = mSubdirs.get(position);
-                mDir += "/" + text;
+                String text = mSubdirectories.get(position);
+                mCurrentDirectory += "/" + text;
                 updateDirectory();
             }
         });
@@ -172,7 +171,7 @@ public class DirectoryChooserDialog extends DialogFragment {
         dialogBuilder.setPositiveButton(R.string.ExportHere, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mCallback.onChosenDir(mDir);
+                mCallback.onChosenDir(mCurrentDirectory);
             }
         });
         dialogBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -193,9 +192,9 @@ public class DirectoryChooserDialog extends DialogFragment {
      * Update the list of directories and the current directory text.
      */
     private void updateDirectory() {
-        mSubdirs.clear();
-        mSubdirs.addAll(getDirectories(mDir));
-        mCurrentDirView.setText(mDir);
+        mSubdirectories.clear();
+        mSubdirectories.addAll(getDirectories(mCurrentDirectory));
+        mCurrentDirView.setText(mCurrentDirectory);
         mListAdapter.notifyDataSetChanged();
     }
 
@@ -244,44 +243,44 @@ public class DirectoryChooserDialog extends DialogFragment {
 
     /**
      * Gets all the directories in the searched directory
-     * @param dir the directory whose subdirectories are to be listed
+     * @param directoryPath the directory whose subdirectories are to be listed
      * @return a List containing all the subdirectories
      */
-    private List<String> getDirectories(String dir) {
-        List<String> dirs = new ArrayList<>();
+    private List<String> getDirectories(String directoryPath) {
+        List<String> directories = new ArrayList<>();
         try {
-            File dirFile = new File(dir);
-            if (!dirFile.exists() || !dirFile.isDirectory()) {
-                return dirs;
+            File directoryFile = new File(directoryPath);
+            if (!directoryFile.exists() || !directoryFile.isDirectory()) {
+                return directories;
             }
 
-            for (File file : dirFile.listFiles()) {
+            for (File file : directoryFile.listFiles()) {
                 if ( file.isDirectory() ) {
-                    dirs.add( file.getName() );
+                    directories.add( file.getName() );
                 }
             }
         }
         catch (Exception e) {
-            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + dir, Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + directoryPath, Toast.LENGTH_LONG).show();
         }
 
-        Collections.sort(dirs, new Comparator<String>() {
+        Collections.sort(directories, new Comparator<String>() {
             public int compare(String o1, String o2) {
                 return o1.compareTo(o2);
             }
         });
 
-        return dirs;
+        return directories;
     }
 
     /**
      * Creates a new directory
-     * @param newDir path of the new folder
+     * @param newDirectory path of the new folder
      * @return returns true if creating a new directory was successful, false otherwise
      */
-    private boolean createSubDir(String newDir) {
-        File newDirFile = new File(newDir);
-        return !newDirFile.exists() && newDirFile.mkdir();
+    private boolean createSubDir(String newDirectory) {
+        File newDirectoryFile = new File(newDirectory);
+        return !newDirectoryFile.exists() && newDirectoryFile.mkdir();
     }
 
 }

@@ -375,7 +375,7 @@
         This will replace the current database with the imported one.
         \n\n
         IMPORTANT! The imported database file must be in exactly the same format as the exported file.
-        If structural changes have been to the database file or the file is otherwise corrupted, the app will not work!
+        If structural changes have been made to the database file or the file is otherwise corrupted, the app will not work!
         In such a case the app\'s data needs to be cleared and the app needs to be reinstalled.
     </string>
     <string name="Continue">Continue</string>
