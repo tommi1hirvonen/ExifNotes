@@ -862,10 +862,14 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     @Override
     public void onResume() {
         super.onResume();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        //Check if GPSUpdate preference has been changed meanwhile
+        mRequestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
         if (locationEnabled && mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
             startLocationUpdates();
+        } else {
+            stopLocationUpdates();
         }
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
         //String primaryColor = colors.get(0);
