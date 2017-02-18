@@ -580,7 +580,7 @@ public class Utilities {
             if (camera.getSerialNumber() != null && camera.getSerialNumber().length() > 0)
                 stringBuilder.append(serialNumberTag).append(quote).append(camera.getSerialNumber()).append(quote).append(space);
             //LensSerialNumber
-            if (lens != null && lens.getSerialNumber() != null)
+            if (lens != null && lens.getSerialNumber() != null && lens.getSerialNumber().length() > 0)
                 stringBuilder.append(lensSerialNumberTag).append(quote).append(lens.getSerialNumber()).append(quote).append(space);
 
             //Artist
@@ -610,6 +610,7 @@ public class Utilities {
 
         ArrayList<Frame> frameList = database.getAllFramesFromRoll(rollId);
         Roll roll = database.getRoll(rollId);
+        Camera camera = database.getCamera(roll.getCamera_id());
 
         final String separator = ",";
         StringBuilder stringBuilder = new StringBuilder();
@@ -618,28 +619,81 @@ public class Utilities {
         String artistName = prefs.getString("ArtistName", "");
         String copyrightInformation = prefs.getString("CopyrightInformation", "");
 
+        //Roll and camera information
         stringBuilder.append("Roll name: ").append(roll.getName()).append("\n");
         stringBuilder.append("Added: ").append(roll.getDate()).append("\n");
-        stringBuilder.append("Camera: ").append(database.getCamera(roll.getCamera_id()).getMake()).append(" ").append(database.getCamera(roll.getCamera_id()).getModel()).append("\n");
+        stringBuilder.append("ISO: ").append(roll.getIso()).append("\n");
+        stringBuilder.append("Format: ").append(context.getResources().getStringArray(R.array.FilmFormats)[roll.getFormat()]).append("\n");
+        stringBuilder.append("Push/pull: ").append(roll.getPushPull()).append("\n");
+        stringBuilder.append("Camera: ").append(camera.getMake()).append(" ").append(camera.getModel()).append("\n");
+        stringBuilder.append("Serial number: ").append(camera.getSerialNumber()).append("\n");
         stringBuilder.append("Notes: ").append(roll.getNote()).append("\n");
         stringBuilder.append("Artist name: ").append(artistName).append("\n");
         stringBuilder.append("Copyright: ").append(copyrightInformation).append("\n");
-        stringBuilder.append("Frame Count").append(separator).append("Date").append(separator).append("Lens").append(separator).append("Shutter").append(separator).append("Aperture").append(separator).append("Notes").append(separator).append("Location").append("\n");
+
+        //Column headers
+        stringBuilder
+                .append("Frame Count").append(separator)
+                .append("Date").append(separator)
+                .append("Lens").append(separator)
+                .append("Lens serial number").append(separator)
+                .append("Shutter").append(separator)
+                .append("Aperture").append(separator)
+                .append("Focal length").append(separator)
+                .append("Exposure compensation").append(separator)
+                .append("Notes").append(separator)
+                .append("No of exposures").append(separator)
+                .append("Location").append("\n");
 
         for ( Frame frame : frameList ) {
+
+            Lens lens = null;
+            if (frame.getLensId() > 0) lens = database.getLens(frame.getLensId());
+
+            //FrameCount
             stringBuilder.append(frame.getCount());
             stringBuilder.append(separator);
+
+            //Date
             stringBuilder.append(frame.getDate());
             stringBuilder.append(separator);
-            if ( frame.getLensId() > 0 ) stringBuilder.append(database.getLens(frame.getLensId()).getMake()).append(" ").append(database.getLens(frame.getLensId()).getModel());
+
+            //Lens make and model
+            if ( lens != null ) stringBuilder.append(lens.getMake()).append(" ").append(lens.getModel());
             stringBuilder.append(separator);
+
+            //Lens serial number
+            if (lens != null && lens.getSerialNumber() != null && lens.getSerialNumber().length() > 0)
+                stringBuilder.append(lens.getSerialNumber());
+            stringBuilder.append(separator);
+
+            // /Shutter speed
             if ( !frame.getShutter().contains("<") )stringBuilder.append(frame.getShutter());
             stringBuilder.append(separator);
+
+            //Aperture
             if ( !frame.getAperture().contains("<") )
                 stringBuilder.append("f").append(frame.getAperture());
             stringBuilder.append(separator);
+
+            //Focal length
+            if (frame.getFocalLength() > 0) stringBuilder.append(frame.getFocalLength());
+            stringBuilder.append(separator);
+
+            //Exposure compensation
+            if (frame.getExposureComp() != null && frame.getExposureComp().length() > 1)
+                stringBuilder.append(frame.getExposureComp());
+            stringBuilder.append(separator);
+
+            //Note
             if ( frame.getNote() != null && frame.getNote().length() > 0 ) stringBuilder.append(frame.getNote());
             stringBuilder.append(separator);
+
+            //Number of exposures
+            stringBuilder.append(frame.getNoOfExposures());
+            stringBuilder.append(separator);
+
+            //Location
             if ( frame.getLocation() != null && frame.getLocation().length() > 0 ) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
                 String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
@@ -668,6 +722,7 @@ public class Utilities {
 
                 stringBuilder.append(lngRef);
             }
+
             stringBuilder.append("\n");
         }
 
