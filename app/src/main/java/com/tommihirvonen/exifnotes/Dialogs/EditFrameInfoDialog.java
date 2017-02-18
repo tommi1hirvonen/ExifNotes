@@ -551,7 +551,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         if ( requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK ) {
             if (data.hasExtra("LATITUDE") && data.hasExtra("LONGITUDE")) {
                 newLocation = "" + data.getStringExtra("LATITUDE") + " " + data.getStringExtra("LONGITUDE");
-                b_location.setText(frame.getLocation());
+                b_location.setText(newLocation);
             }
         }
 

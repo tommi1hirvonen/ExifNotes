@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.Datastructures.Frame;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Datastructures.Roll;
@@ -503,29 +504,49 @@ public class Utilities {
         String gpsLatRefTag = "-GPSLatitudeRef=";
         String gpsLngTag = "-GPSLongitude=";
         String gpsLngRefTag = "-GPSLongitudeRef=";
-        String fileEnding = ".jpg";
+        String exposureCompTag = "-ExposureCompensation=";
+        String focalLengthTag = "-FocalLength=";
+        String isoTag = "-ISO=";
+        String serialNumberTag = "-SerialNumber=";
+        String lensSerialNumberTag = "-LensSerialNumber=";
+
+        String fileEnding = ".{jpg,JPG,jpeg,JPEG,tif,tiff,TIF,TIFF,png,PNG}";
         String quote = "\"";
         String space = " ";
         String lineSep = System.getProperty("line.separator");
 
         ArrayList<Frame> frameList = database.getAllFramesFromRoll(rollId);
         Roll roll = database.getRoll(rollId);
+        Camera camera = database.getCamera(roll.getCamera_id());
 
         for ( Frame frame : frameList ) {
+
+            Lens lens = null;
+            if (frame.getLensId() > 0) lens = database.getLens(frame.getLensId());
+
+            //ExifTool path
             if ( exiftoolPath.length() > 0 ) stringBuilder.append(exiftoolPath);
+            //ExifTool command
             stringBuilder.append(exiftoolCmd).append(space);
+            //CameraMakeTag
             stringBuilder.append(cameraMakeTag).append(quote).append(database.getCamera(roll.getCamera_id()).getMake()).append(quote).append(space);
+            //CameraModelTag
             stringBuilder.append(cameraModelTag).append(quote).append(database.getCamera(roll.getCamera_id()).getModel()).append(quote).append(space);
-            if ( frame.getLensId() > 0 ) {
-                stringBuilder.append(lensMakeTag).append(quote).append(database.getLens(frame.getLensId()).getMake()).append(quote).append(space);
-                stringBuilder.append(lensModelTag).append(quote).append(database.getLens(frame.getLensId()).getModel()).append(quote).append(space);
+            //LensMakeTag & LensModelTag
+            if ( lens != null ) {
+                stringBuilder.append(lensMakeTag).append(quote).append(lens.getMake()).append(quote).append(space);
+                stringBuilder.append(lensModelTag).append(quote).append(lens.getModel()).append(quote).append(space);
             }
+            //DateTime
             stringBuilder.append(dateTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
+            //ShutterSpeedValue
             if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
+            //ApertureValue
             if ( !frame.getAperture().contains("<") )
                 stringBuilder.append(apertureTag).append(quote).append(frame.getAperture()).append(quote).append(space);
+            //UserComment
             if ( frame.getNote() != null && frame.getNote().length() > 0 ) stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
-
+            //GPSLatitude & GPSLongitude & GPSLatitudeRef & GPSLongitudeRef
             if ( frame.getLocation() != null && frame.getLocation().length() > 0 ) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
                 String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
@@ -549,13 +570,30 @@ public class Utilities {
                 stringBuilder.append(gpsLngTag).append(quote).append(lngStringList.get(0)).append(space).append(lngStringList.get(1)).append(space).append(lngStringList.get(2)).append(quote).append(space);
                 stringBuilder.append(gpsLngRefTag).append(quote).append(lngRef).append(quote).append(space);
             }
+            //ExposureCompensation
+            if (frame.getExposureComp() != null) stringBuilder.append(exposureCompTag).append(quote).append(frame.getExposureComp()).append(quote).append(space);
+            //FocalLength
+            if (frame.getFocalLength() > 0) stringBuilder.append(focalLengthTag).append(quote).append(frame.getFocalLength()).append(quote).append(space);
+            //ISO
+            if (roll.getIso() > 0) stringBuilder.append(isoTag).append(quote).append(roll.getIso()).append(quote).append(space);
+            //SerialNumber
+            if (camera.getSerialNumber() != null && camera.getSerialNumber().length() > 0)
+                stringBuilder.append(serialNumberTag).append(quote).append(camera.getSerialNumber()).append(quote).append(space);
+            //LensSerialNumber
+            if (lens != null && lens.getSerialNumber() != null)
+                stringBuilder.append(lensSerialNumberTag).append(quote).append(lens.getSerialNumber()).append(quote).append(space);
 
+            //Artist
             if ( artistName.length() > 0 ) stringBuilder.append(artistTag).append(quote).append(artistName).append(quote).append(space);
+            //Copyright
             if ( copyrightInformation.length() > 0 ) stringBuilder.append(copyrightTag).append(quote).append(copyrightInformation).append(quote).append(space);
+            //Path to pictures
             if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
             if ( picturesPath.length() > 0 ) stringBuilder.append(picturesPath);
-            stringBuilder.append(frame.getCount()).append(fileEnding);
+            //File ending
+            stringBuilder.append("*").append(frame.getCount()).append(fileEnding);
             if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
+            //Semicolon and new line
             stringBuilder.append(";").append(lineSep).append(lineSep);
 
         }

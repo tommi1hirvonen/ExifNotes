@@ -17,12 +17,14 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
@@ -544,7 +546,14 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             ArrayList<Uri> files = new ArrayList<>();
             for(String path : filesToSend ) {
                 File file = new File(path);
-                Uri uri = Uri.fromFile(file);
+                Uri uri;
+                //Android Nougat requires that the file is given via FileProvider
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext()
+                            .getPackageName() + ".provider", file);
+                } else {
+                    uri = Uri.fromFile(file);
+                }
                 files.add(uri);
             }
 
@@ -555,9 +564,29 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             //The user has chosen to export only the csv
-            if (filesToExport.equals("CSV")) shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(fileCsv));
+            if (filesToExport.equals("CSV")) {
+                Uri uri;
+                //Android Nougat requires that the file is given via FileProvider
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext()
+                            .getPackageName() + ".provider", fileCsv);
+                } else {
+                    uri = Uri.fromFile(fileCsv);
+                }
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            }
             //The user has chosen to export only the ExifTool commands
-            else if (filesToExport.equals("EXIFTOOL")) shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(fileExifToolCmds));
+            else if (filesToExport.equals("EXIFTOOL")) {
+                Uri uri;
+                //Android Nougat requires that the file is given via FileProvider
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext()
+                            .getPackageName() + ".provider", fileExifToolCmds);
+                } else {
+                    uri = Uri.fromFile(fileExifToolCmds);
+                }
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            }
         }
 
         return shareIntent;
