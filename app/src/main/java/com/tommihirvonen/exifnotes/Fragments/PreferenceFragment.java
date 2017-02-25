@@ -101,13 +101,14 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                                 //If the length of filePath is 0, then the user canceled the import.
                                 if (filePath.length()>0) {
                                     FilmDbHelper database = new FilmDbHelper(getActivity());
+                                    boolean importSuccess;
                                     try {
-                                        database.importDatabase(getActivity(), filePath);
+                                        importSuccess = database.importDatabase(getActivity(), filePath);
                                     } catch (IOException e) {
                                         Toast.makeText(getActivity(), getResources().getString(R.string.ErrorImportingDatabaseFrom) + filePath, Toast.LENGTH_SHORT).show();
                                         return;
                                     }
-                                    Toast.makeText(getActivity(), getResources().getString(R.string.DatabaseImported), Toast.LENGTH_LONG).show();
+                                    if (importSuccess) Toast.makeText(getActivity(), getResources().getString(R.string.DatabaseImported), Toast.LENGTH_LONG).show();
                                 }
                             }
                         });

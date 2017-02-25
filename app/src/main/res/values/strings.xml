@@ -241,6 +241,11 @@
     <string name="ChooseFormat">Choose format</string>
 
 
+    <!--FilmDbHelper-->
+    <string name="CouldNotReadDatabase">Could not read the new database file. The old one will be used.</string>
+    <string name="IntegrityCheckFailed">Database integrity check failed. The old database will be used.</string>
+
+
 
     <!--lenses_fragment.xml-->
     <string name="NoLenses">No added lenses</string>

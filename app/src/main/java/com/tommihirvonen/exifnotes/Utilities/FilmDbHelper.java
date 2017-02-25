@@ -4,13 +4,16 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
 import com.tommihirvonen.exifnotes.Datastructures.Filter;
 import com.tommihirvonen.exifnotes.Datastructures.Frame;
 import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Datastructures.Roll;
+import com.tommihirvonen.exifnotes.R;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -119,7 +122,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_FLASH_COMP + " text, "
             + KEY_FRAME_SIZE + " text, "
             + KEY_FILTER_ID + " integer, "
-            + KEY_METERING_MODE + " int"
+            + KEY_METERING_MODE + " integer"
             + ");";
     private static final String CREATE_LENS_TABLE = "create table " + TABLE_LENSES
             + "(" + KEY_LENS_ID + " integer primary key autoincrement, "
@@ -130,7 +133,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_LENS_MAX_FOCAL_LENGTH + " integer, "
             + KEY_LENS_MIN_FOCAL_LENGTH + " integer, "
             + KEY_LENS_SERIAL_NO + " text, "
-            + KEY_LENS_APERTURE_INCREMENTS + " int not null"
+            + KEY_LENS_APERTURE_INCREMENTS + " integer not null"
             + ");";
     private static final String CREATE_CAMERA_TABLE = "create table " + TABLE_CAMERAS
             + "(" + KEY_CAMERA_ID + " integer primary key autoincrement, "
@@ -139,7 +142,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_CAMERA_MAX_SHUTTER + " text, "
             + KEY_CAMERA_MIN_SHUTTER + " text, "
             + KEY_CAMERA_SERIAL_NO + " text, "
-            + KEY_CAMERA_SHUTTER_INCREMENTS + " int not null"
+            + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null"
             + ");";
     private static final String CREATE_ROLL_TABLE = "create table " + TABLE_ROLLS
             + "(" + KEY_ROLL_ID + " integer primary key autoincrement, "
@@ -149,7 +152,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_CAMERA_ID + " integer not null, "
             + KEY_ROLL_ISO + " integer, "
             + KEY_ROLL_PUSH + " text, "
-            + KEY_ROLL_FORMAT + " int"
+            + KEY_ROLL_FORMAT + " integer"
             + ");";
     private static final String CREATE_MOUNTABLES_TABLE = "create table " + TABLE_MOUNTABLES
             + "(" + KEY_CAMERA_ID + " integer not null, "
@@ -186,7 +189,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String ALTER_TABLE_FRAMES_8 = "ALTER TABLE " + TABLE_FRAMES
             + " ADD COLUMN " + KEY_FILTER_ID + " integer;";
     private static final String ALTER_TABLE_FRAMES_9 = "ALTER TABLE " + TABLE_FRAMES
-            + " ADD COLUMN " + KEY_METERING_MODE + " int;";
+            + " ADD COLUMN " + KEY_METERING_MODE + " integer;";
 
     private static final String ALTER_TABLE_LENSES_1 = "ALTER TABLE " + TABLE_LENSES
             + " ADD COLUMN " + KEY_LENS_MAX_APERTURE + " text;";
@@ -199,7 +202,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String ALTER_TABLE_LENSES_5 = "ALTER TABLE " + TABLE_LENSES
             + " ADD COLUMN " + KEY_LENS_SERIAL_NO + " text;";
     private static final String ALTER_TABLE_LENSES_6 = "ALTER TABLE" + TABLE_LENSES
-            + " ADD COLUMN " + KEY_LENS_APERTURE_INCREMENTS + " int not null;";
+            + " ADD COLUMN " + KEY_LENS_APERTURE_INCREMENTS + " integer not null;";
 
     private static final String ALTER_TABLE_CAMERAS_1 = "ALTER TABLE " + TABLE_CAMERAS
             + " ADD COLUMN " + KEY_CAMERA_MAX_SHUTTER + " text;";
@@ -208,14 +211,14 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String ALTER_TABLE_CAMERAS_3 = "ALTER TABLE " + TABLE_CAMERAS
             + " ADD COLUMN " + KEY_CAMERA_SERIAL_NO + " text;";
     private static final String ALTER_TABLE_CAMERAS_4 = "ALTER TABLE " + TABLE_CAMERAS
-            + " ADD COLUMN " + KEY_CAMERA_SHUTTER_INCREMENTS + " int not null;";
+            + " ADD COLUMN " + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null;";
 
     private static final String ALTER_TABLE_ROLLS_1 = "ALTER TABLE " + TABLE_ROLLS
             + " ADD COLUMN " + KEY_ROLL_ISO + " integer;";
     private static final String ALTER_TABLE_ROLLS_2 = "ALTER TABLE " + TABLE_ROLLS
             + " ADD COLUMN " + KEY_ROLL_PUSH + " text;";
     private static final String ALTER_TABLE_ROLLS_3 = "ALTER TABLE " + TABLE_ROLLS
-            + " ADD COLUMN " + KEY_ROLL_FORMAT + " int;";
+            + " ADD COLUMN " + KEY_ROLL_FORMAT + " integer;";
 
     private static final String REPLACE_QUOTE_CHARS = "UPDATE " + TABLE_FRAMES
             + " SET " + KEY_SHUTTER + " = REPLACE(" + KEY_SHUTTER + ", \'q\', \'\"\')"
@@ -1057,14 +1060,146 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         // database to internal storage.
         close();
         File newDb = new File(importDatabasePath);
+        File oldDbBackup = new File(context.getDatabasePath(DATABASE_NAME).getAbsolutePath() + "_backup");
         File oldDb = getDatabaseFile(context);
+
         if (newDb.exists()) {
+
+            //Backup the old database file in case the new file is corrupted.
+            Utilities.copyFile(new FileInputStream(oldDb), new FileOutputStream(oldDbBackup));
+
+            //Replace the old database file with the new one.
             Utilities.copyFile(new FileInputStream(newDb), new FileOutputStream(oldDb));
             // Access the copied database so SQLiteHelper will cache it and mark
             // it as created.
-            getWritableDatabase().close();
+            SQLiteDatabase db;
+            try {
+                db = this.getWritableDatabase();
+
+            } catch (SQLiteException e) {
+                //If the new database file couldn't be accesses, replace it with the backup.
+                Utilities.copyFile(new FileInputStream(oldDbBackup), new FileOutputStream(oldDb));
+                Toast.makeText(context, context.getResources().getString(R.string.CouldNotReadDatabase), Toast.LENGTH_LONG).show();
+                return false;
+            }
+            if (!runIntegrityCheck()) {
+                //If the new database file failed the integrity check, replace it with the backup.
+                db.close();
+                Utilities.copyFile(new FileInputStream(oldDbBackup), new FileOutputStream(oldDb));
+                Toast.makeText(context, context.getResources().getString(R.string.IntegrityCheckFailed), Toast.LENGTH_LONG).show();
+                return false;
+            }
+            db.close();
             return true;
         }
         return false;
     }
+
+    private boolean runIntegrityCheck() {
+
+        final String INTEGER = "int";
+        final String TEXT = "text";
+        //Run integrity checks to see if the current database is whole
+        return checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_ID, INTEGER, 0, 1, true) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAKE, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MODEL, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAX_SHUTTER, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MIN_SHUTTER, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SERIAL_NO, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SHUTTER_INCREMENTS, INTEGER, 1, 0, false) &&
+
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_ID, INTEGER, 0, 1, true) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAKE, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MODEL, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_APERTURE, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_APERTURE, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_FOCAL_LENGTH, INTEGER, 0, 0, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_FOCAL_LENGTH, INTEGER, 0, 0, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_SERIAL_NO, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_APERTURE_INCREMENTS, INTEGER, 1, 0, false) &&
+
+                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_ID, INTEGER, 0, 1, true) &&
+                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MAKE, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MODEL, TEXT, 1, 0, false) &&
+
+                checkColumnProperties(TABLE_MOUNTABLES, KEY_CAMERA_ID, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_MOUNTABLES, KEY_LENS_ID, INTEGER, 1, 0, false) &&
+
+                checkColumnProperties(TABLE_MOUNTABLE_FILTERS_LENSES, KEY_LENS_ID, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_MOUNTABLE_FILTERS_LENSES, KEY_FILTER_ID, INTEGER, 1, 0, false) &&
+
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ID, INTEGER, 0, 1, true) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLLNAME, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_DATE, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_NOTE, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_CAMERA_ID, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ISO, INTEGER, 0, 0, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_PUSH, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_FORMAT, INTEGER, 0, 0, false) &&
+
+                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_ID, INTEGER, 0, 1, true) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_ROLL_ID, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_COUNT, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_DATE, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_LENS_ID, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_SHUTTER, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_APERTURE, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_NOTE, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_LOCATION, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FOCAL_LENGTH, INTEGER, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_EXPOSURE_COMP, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_NO_OF_EXPOSURES, INTEGER, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_USED, INTEGER, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_POWER, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_COMP, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_SIZE, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FILTER_ID, INTEGER, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_METERING_MODE, INTEGER, 0, 0, false)
+                ;
+
+    }
+
+    private boolean checkColumnProperties(String tableNameInput, String columnNameInput, String columnTypeInput,
+                                          int notNullInput, int primaryKeyInput, boolean autoIncrementInput) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "PRAGMA TABLE_INFO('" + tableNameInput + "');";
+        Cursor cursor = db.rawQuery(query, null);
+
+        //Check for possible autoincrement
+        if (autoIncrementInput) {
+            String incrementQuery = "SELECT * FROM sqlite_sequence WHERE name = '" + tableNameInput + "';";
+            Cursor incrementCursor = db.rawQuery(incrementQuery, null);
+            if (!incrementCursor.moveToFirst()) {
+                //No rows were returned. The table has no autoincrement. Integrity check fails.
+                incrementCursor.close();
+                return false;
+            }
+            incrementCursor.close();
+        }
+
+        //Iterate the result rows...
+        while (cursor.moveToNext()) {
+
+            String columnName = cursor.getString(cursor.getColumnIndex("name"));
+            // ...until the name checks.
+            if (columnName.equals(columnNameInput)) {
+
+                String columnType = cursor.getString(cursor.getColumnIndex("type"));
+                int notNull = cursor.getInt(cursor.getColumnIndex("notnull"));
+                int primaryKey = cursor.getInt(cursor.getColumnIndex("pk"));
+
+                cursor.close();
+                //Check that the attributes are correct and return the result
+                return columnType.startsWith(columnTypeInput) && //type can be int or integer
+                        notNull == notNullInput &&
+                        primaryKey == primaryKeyInput;
+
+            }
+        }
+        //We get here if no matching column names were found
+        cursor.close();
+        return false;
+    }
+
 }

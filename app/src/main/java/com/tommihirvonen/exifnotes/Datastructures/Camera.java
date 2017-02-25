@@ -135,4 +135,15 @@ public class Camera implements Parcelable {
         }
     };
 
+    @Override
+    public boolean equals(Object obj) {
+        Camera camera;
+        if (obj instanceof Camera) camera = (Camera) obj;
+        else return false;
+        return camera.getId() == id && camera.getMake().equals(make) &&
+                camera.getModel().equals(model) && camera.getSerialNumber().equals(serialNumber) &&
+                camera.getMaxShutter().equals(maxShutter) && camera.getMinShutter().equals(minShutter) &&
+                camera.getShutterIncrements() == shutterIncrements;
+    }
+
 }

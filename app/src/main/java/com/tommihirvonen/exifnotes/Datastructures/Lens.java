@@ -167,4 +167,16 @@ public class Lens implements Parcelable {
             return new Lens[size];
         }
     };
+
+    @Override
+    public boolean equals(Object obj) {
+        Lens lens;
+        if (obj instanceof Lens) lens = (Lens) obj;
+        else return false;
+        return lens.getId() == id && lens.getMake().equals(make) &&
+                lens.getModel().equals(model) && lens.getSerialNumber().equals(serialNumber) &&
+                lens.getMaxAperture().equals(maxAperture) && lens.getMinAperture().equals(minAperture) &&
+                lens.getApertureIncrements() == apertureIncrements &&
+                lens.getMinFocalLength() == minFocalLength && lens.getMaxFocalLength() == maxFocalLength;
+    }
 }

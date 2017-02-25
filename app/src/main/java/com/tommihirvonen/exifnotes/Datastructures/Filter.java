@@ -16,11 +16,11 @@ public class Filter implements Parcelable {
 
     }
 
-//    public Filter(long id, String make, String model){
-//        this.id = id;
-//        this.make = make;
-//        this.model = model;
-//    }
+    public Filter(long id, String make, String model){
+        this.id = id;
+        this.make = make;
+        this.model = model;
+    }
 
     public void setId(long input){
         this.id = input;
@@ -76,5 +76,14 @@ public class Filter implements Parcelable {
             return new Filter[size];
         }
     };
+
+    @Override
+    public boolean equals(Object obj) {
+        Filter filter;
+        if (obj instanceof Filter) filter = (Filter) obj;
+        else return false;
+        return filter.getId() == id && filter.getMake().equals(make) &&
+                filter.getModel().equals(model);
+    }
 
 }
