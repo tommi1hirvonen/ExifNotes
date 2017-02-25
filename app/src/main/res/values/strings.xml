@@ -5,62 +5,31 @@
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -The app now requires write permissions to the phone\'s external storage (see third bullet point)\n
-        -The app can now share two text files when exporting a roll\'s data: one contains the data in csv format and the other contains the ExifTool commands. The user can choose which files to export in the app\'s settings\n
-        -Added the possibility to export the csv file and/or ExifTool commands using an inbuilt folder browser (Export files to storage). This feature requires write permissions to the phone\'s external storage.\n
-        -Location info is added to a frame only if the user has enabled location updating in the app\'s settings\n
-        -Added a help/quick guide to the app to set up Exif Notes to work with ExifTool\n
-        -Added version history to the About dialog\n
+        -Bug fixes\n
+        -Special characters are now allowed when entering text anywhere in the app.\n
+        -Filters can now be added to the database and frame\'s information.\n
+        -Shutter speed and aperture increment are now camera and lens specific respectively instead of global settings.\n
+        -Lens now has an aperture range, focal length range and aperture increment setting.\n
+        -Camera now has a shutter speed range and a shutter speed increment setting.\n
+        -Roll now has ISO, push/pull and format attributes.\n
+        -Frame now has focal length, exposure comp, no. of exposures and filter attributes.
+        -The user can now export and import the entire database as a .db file. This is useful when you want to transfer all your data to a new phone for example.\n
+        -Changes to ExifTool commands: file names can now have a prefix before the frame number and support for several file endings was added.\n
     </string>
-
-
-    <!--When updating "eula" also update "about"-->
-    <string name="Eula">Copyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
-    <string name="Agree">Agree</string>
-    <string name="Decline">Decline</string>
-
-    <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.6.0\nCopyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
-
-
-    <string name="main_help">
-        This is a quick guide to help you set up Exif Notes so that you can tag your scanned files on your computer using ExifTool. Please visit the homepage of ExifTool by Phil Harvey for more information on how to use ExifTool:\n
-        http://www.sno.phy.queensu.ca/~phil/exiftool/
-        \n\n
-        1. First you should define the artist name and copyright information in the app\'s settings. These can be anything, name, company, year etc.
-        \n\n
-        2. You should define the \’ExifTool path\’ in the app\'s settings if you haven\’t placed it in your PATH file. For example, \’~UserName/Documents/Image-ExifTool-10.13/\’ (without the apostrophes). That is to say the ExifTool executable is in a folder called Image-ExifTool-10.13 in the user\'s Documents folder.
-        \n\n
-        3. Then you should define the \’Path to pictures\’ in the app\'s settings, for example \’~UserName/Desktop/\’ (without the apostrophes). That is to say the scanned files are on the user\'s desktop.
-        \n\n
-        4. Name the scanned files to 1.jpg, 2.jpg, 3.jpg etc. The number in the file name should correspond to the frame count in the app.
-        \n\n
-        5. Export the roll\’s data by clicking the ellipsis when viewing the frames of a roll and then click \’Export/share files\’ to share them via another app (Dropbox or Gmail for example) or alternatively click \'Export files to storage\' to export the files using an inbuilt folder browser. This exports one or two text files (depending on which files the user has chosen to export in the app\'s settings), one containing the rolls data in csv format and the other containing the ExifTool commands.
-        \n\n
-        6. Open the text file containing the ExifTool commands on your computer. Copy the commands for the files you wish to tag and paste them on your terminal. Make sure you run all the commands, you may have to press enter to run the last command.
-        \n\n
-        7. ExifTool will run and update the exif tags of your scanned files. The updated tags are listed below:
-        \n
-        -Artist\n
-        -Copyright\n
-        -Make\n
-        -Model\n
-        -LensMake\n
-        -LensModel\n
-        -DateTime\n
-        -ShutterSpeedValue\n
-        -ApertureValue\n
-        -UserComment\n
-        -GPSLatitude\n
-        -GPSLatitudeRef\n
-        -GPSLongitude\n
-        -GPSLongitudeRef
-    </string>
-
-    <string name="frame_help">Help for frame fragment</string>
-
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.7.0 2017-03-01:\n
+        -Bug fixes\n
+        -Special characters are now allowed when entering text anywhere in the app.\n
+        -Filters can now be added to the database and frame\'s information.\n
+        -Shutter speed and aperture increment are now camera and lens specific respectively instead of global settings.\n
+        -Lens now has an aperture range, focal length range and aperture increment setting.\n
+        -Camera now has a shutter speed range and a shutter speed increment setting.\n
+        -Roll now has ISO, push/pull and format attributes.\n
+        -Frame now has focal length, exposure comp, no. of exposures and filter attributes.
+        -The user can now export and import the entire database as a .db file. This is useful when you want to transfer all your data to a new phone for example.\n
+        -Changes to ExifTool commands: file names can now have a prefix before the frame number and support for several file endings was added.\n
         \n
         v1.6.0 2016-10-13:\n
         -The app now requires write permissions to the phone\'s external storage (see third bullet point)\n
@@ -101,6 +70,55 @@
         -First published version
     </string>
 
+    <!--When updating "eula" also update "about"-->
+    <string name="Eula">Copyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="Agree">Agree</string>
+    <string name="Decline">Decline</string>
+
+    <!--When updating "about" also update "eula"-->
+    <string name="about">Version 1.6.0\nCopyright 2016 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+
+
+    <string name="main_help">
+        This is a quick guide to help you set up Exif Notes so that you can tag your scanned files on your computer using ExifTool. Please visit the homepage of ExifTool by Phil Harvey for more information on how to use ExifTool:\n
+        http://www.sno.phy.queensu.ca/~phil/exiftool/
+        \n\n
+        1. First you should define the artist name and copyright information in the app\'s settings. These can be anything, name, company, year etc.
+        \n\n
+        2. You should define the \’ExifTool path\’ in the app\'s settings if you haven\’t placed it in your PATH file. For example, \’~UserName/Documents/Image-ExifTool-10.13/\’ (without the apostrophes). That is to say the ExifTool executable is in a folder called Image-ExifTool-10.13 in the user\'s Documents folder.
+        \n\n
+        3. Then you should define the \’Path to pictures\’ in the app\'s settings, for example \’~UserName/Desktop/\’ (without the apostrophes). That is to say the scanned files are on the user\'s desktop.
+        \n\n
+        4. Name the scanned files in such a way, that the name ends with some kind of delimiter and the frame\'s number. The number in the file name should correspond to the frame count in the app. Supported file endings are {jpg,JPG,jpeg,JPEG,tif,tiff,TIF,TIFF,png,PNG}. These examples are all valid file names: 2016-02-03_1.jpg, Example-10.tiff, FileName_15.PNG
+        \n\n
+        5. Export the roll\’s data by clicking the ellipsis when viewing the frames of a roll and then click \’Export/share files\’ to share them via another app (Dropbox or Gmail for example) or alternatively click \'Export files to storage\' to export the files using an inbuilt folder browser. This exports one or two text files (depending on which files the user has chosen to export in the app\'s settings), one containing the rolls data in csv format and the other containing the ExifTool commands.
+        \n\n
+        6. Open the text file containing the ExifTool commands on your computer. Copy the commands for the files you wish to tag and paste them on your terminal. Make sure you run all the commands, you may have to press enter to run the last command.
+        \n\n
+        7. ExifTool will run and update the exif tags of your scanned files. The updated tags are listed below:
+        \n
+        -Artist\n
+        -Copyright\n
+        -Make\n
+        -Model\n
+        -LensMake\n
+        -LensModel\n
+        -DateTime\n
+        -ShutterSpeedValue\n
+        -ApertureValue\n
+        -UserComment\n
+        -GPSLatitude\n
+        -GPSLatitudeRef\n
+        -GPSLongitude\n
+        -GPSLongitudeRef\n
+        -ExposureCompensation\n
+        -FocalLength\n
+        -ISO\n
+        -SerialNumber\n
+        -LensSerialNumber
+    </string>
+
+    <string name="frame_help">Help for frame fragment</string>
 
 
 
@@ -334,9 +352,9 @@
     <string name="AlwaysShowLensSelectionSummary">If unchecked, the previously used lens will be selected by default when adding a new frame.</string>
     <string name="ShutterIncrementsTitle">Shutter speed increments</string>
     <string name="ApertureIncrementsTitle">Aperture value increments</string>
-    <string name="ThirdStop">1/3 stop</string>
-    <string name="HalfStop">1/2 stop</string>
-    <string name="FullStop">Full stop</string>
+    <string name="ThirdStop">&#8531; stop</string>
+    <string name="HalfStop">&#189; stop</string>
+    <string name="FullStop">1 stop</string>
     <string name="UIColorTitle">User interface color </string>
     <string name="UIColorToast">Color change may require app relaunch to fully take effect</string>
     <string name="Orange">Orange</string>
@@ -380,8 +398,8 @@
         This will replace the current database with the imported one.
         \n\n
         IMPORTANT! The imported database file must be in exactly the same format as the exported file.
-        If structural changes have been made to the database file or the file is otherwise corrupted, the app will not work!
-        In such a case the app\'s data needs to be cleared and the app needs to be reinstalled.
+        If structural changes have been made to the database file or the file is otherwise corrupted, the import will fail!
+        In this case the old database will be used.
     </string>
     <string name="Continue">Continue</string>
     <string name="No">No</string>
