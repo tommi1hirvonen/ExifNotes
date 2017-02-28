@@ -100,7 +100,8 @@ public class LensesFragment extends Fragment implements
 
         // Color the item dividers of the ListView
         int[] dividerColors = {0, R.color.grey, 0};
-        mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+        mainListView.setDivider(
+                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
         mainListView.setDividerHeight(2);
 
         if ( mLensList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
@@ -149,7 +150,9 @@ public class LensesFragment extends Fragment implements
 
                     // Check if the lens is being used with one of the frames.
                     if (database.isLensInUse(lens)) {
-                        Toast.makeText(getActivity(), getResources().getString(R.string.LensNoColon) + " " + lens.getMake() + " " + lens.getModel() + " " + getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getResources().getString(R.string.LensNoColon) +
+                                " " + lens.getMake() + " " + lens.getModel() + " " +
+                                getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
                         return true;
                     }
 
@@ -234,7 +237,9 @@ public class LensesFragment extends Fragment implements
 
                     Lens lens = data.getParcelableExtra("LENS");
 
-                    if ( lens.getMake().length() > 0 && lens.getModel().length() > 0 && lens.getId() > 0 ) {
+                    if ( lens.getMake().length() > 0 &&
+                            lens.getModel().length() > 0 &&
+                            lens.getId() > 0 ) {
 
                         database.updateLens(lens);
 
@@ -244,7 +249,8 @@ public class LensesFragment extends Fragment implements
                         myActivity.updateFragments();
 
                     } else {
-                        Toast.makeText(getActivity(), "Something went wrong :(", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Something went wrong :(",
+                                Toast.LENGTH_SHORT).show();
                     }
 
                 } else if (resultCode == Activity.RESULT_CANCELED){

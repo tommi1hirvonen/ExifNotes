@@ -66,7 +66,8 @@ public class RollAdapter extends ArrayAdapter<Roll> {
             tvRollName.setText(rollName);
             tvRollDate.setText(date);
             tvRollNote.setText(note);
-            tvCamera.setText(database.getCamera(camera_id).getMake() + " " + database.getCamera(camera_id).getModel());
+            tvCamera.setText(database.getCamera(camera_id).getMake() + " " +
+                    database.getCamera(camera_id).getModel());
             if (numberOfFrames == 1)
                 tvPhotos.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photo));
             else if (numberOfFrames == 0)

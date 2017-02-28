@@ -70,7 +70,14 @@ import java.util.List;
  * FramesFragment is the fragment which is called when the user presses on a roll
  * on the ListView in RollsFragment.
  */
-public class FramesFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnLongClickListener, AbsListView.OnScrollListener {
+public class FramesFragment extends Fragment implements
+        View.OnClickListener,
+        AdapterView.OnItemClickListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener,
+        View.OnLongClickListener,
+        AbsListView.OnScrollListener {
 
     OnHomeAsUpPressedListener mCallback;
 
@@ -175,7 +182,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
         // This can be done anyway. It only has effect if locationEnabled is true.
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                getActivity().getBaseContext());
         mRequestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
     }
 
@@ -196,7 +204,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
             //noinspection ConstantConditions
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(database.getRoll(rollId).getName());
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(
+                    database.getRoll(rollId).getName());
             //noinspection ConstantConditions
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -206,7 +215,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         fab.setOnLongClickListener(this);
 
         // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                getActivity().getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
         //String primaryColor = colors.get(0);
@@ -220,7 +230,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         // Access the ListView
         mainListView = (ListView) view.findViewById(R.id.frames_listview);
         // Create an ArrayAdapter for the ListView
-        mFrameAdapter = new FrameAdapter(getActivity(), android.R.layout.simple_list_item_1, mFrameClassList);
+        mFrameAdapter = new FrameAdapter(
+                getActivity(), android.R.layout.simple_list_item_1, mFrameClassList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(mFrameAdapter);
@@ -231,7 +242,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         // Color the item dividers of the ListView
         int[] dividerColors = {0, R.color.grey, 0};
-        mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+        mainListView.setDivider(
+                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
         mainListView.setDividerHeight(1);
 
         if (mFrameClassList.size() >= 1) {
@@ -331,7 +343,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                     if (mFrameClassList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
                     mFrameAdapter.notifyDataSetChanged();
-                    if (mFrameClassList.size() >= 1) counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
+                    if (mFrameClassList.size() >= 1)
+                        counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
                     else counter = 0;
 
                     mShareActionProvider.setShareIntent(setShareIntentExportRoll());
@@ -356,7 +369,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                 int checkedItem = sharedPref.getInt("FrameSortOrder", 0);
                 AlertDialog.Builder sortDialog = new AlertDialog.Builder(getActivity());
                 sortDialog.setTitle(R.string.SortBy);
-                sortDialog.setSingleChoiceItems(R.array.FrameSortOptions, checkedItem, new DialogInterface.OnClickListener() {
+                sortDialog.setSingleChoiceItems(
+                        R.array.FrameSortOptions, checkedItem, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -381,8 +395,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
                 Intent preferences_intent = new Intent(getActivity(), PreferenceActivity.class);
                 // With these extras we can skip the headers in the preferences.
-                preferences_intent.putExtra( PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName() );
-                preferences_intent.putExtra( PreferenceActivity.EXTRA_NO_HEADERS, true );
+                preferences_intent.putExtra(
+                        PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName());
+                preferences_intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
 
                 startActivity(preferences_intent);
 
@@ -399,7 +414,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             case R.id.menu_item_about:
 
                 String aboutTitle = getResources().getString(R.string.app_name);
-                String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" + getResources().getString(R.string.VersionHistory);
+                String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" +
+                        getResources().getString(R.string.VersionHistory);
                 Utilities.showGeneralDialog(getActivity(), aboutTitle, aboutMessage);
 
                 break;
@@ -421,7 +437,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
             //Export to device
             case 99:
 
-                DirectoryChooserDialog dirChooserDialog = DirectoryChooserDialog.newInstance(new DirectoryChooserDialog.OnChosenDirectoryListener() {
+                DirectoryChooserDialog dirChooserDialog = DirectoryChooserDialog.newInstance(
+                        new DirectoryChooserDialog.OnChosenDirectoryListener() {
                     @Override
                     public void onChosenDir(String dir) {
                         //dir is empty if the export was canceled.
@@ -430,9 +447,13 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                             //Export the files to the given path
                             //Inform the user if something went wrong
                             if (!exportFilesTo(dir)){
-                                Toast.makeText(getActivity(), getResources().getString(R.string.ErrorExporting), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getActivity(),
+                                        getResources().getString(R.string.ErrorExporting),
+                                        Toast.LENGTH_LONG).show();
                             } else {
-                                Toast.makeText(getActivity(), getResources().getString(R.string.ExportedFilesTo) + " " + dir, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getActivity(),
+                                        getResources().getString(R.string.ExportedFilesTo) + " " + dir,
+                                        Toast.LENGTH_LONG).show();
                             }
                         }
                     }
@@ -459,7 +480,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String rollName = Utilities.replaceIllegalChars(database.getRoll(rollId).getName());
 
         //Get the user setting about which files to export. By default, share both files.
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                getActivity().getBaseContext());
         String filesToExport = prefs.getString("FilesToExport", "BOTH");
 
         //Create the file names for the two files to be put in that intent
@@ -500,7 +522,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         String rollName = Utilities.replaceIllegalChars(database.getRoll(rollId).getName());
 
         //Get the user setting about which files to export. By default, share only ExifTool.
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                getActivity().getBaseContext());
         String filesToExport = prefs.getString("FilesToExport", "BOTH");
 
         //Create the Intent to be shared, no initialization yet
@@ -674,7 +697,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         if (!mFrameClassList.isEmpty()) {
             int countCheck = mFrameClassList.get(mFrameClassList.size() - 1).getCount() + 1;
             if (countCheck > 100) {
-                Toast toast = Toast.makeText(getActivity(), getResources().getString(R.string.TooManyFrames), Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(getActivity(),
+                        getResources().getString(R.string.TooManyFrames), Toast.LENGTH_LONG);
                 toast.show();
                 return;
             }
@@ -690,7 +714,11 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         //Get the location only if the app has location permission (locationEnabled) and
         //the user has enabled GPS updates in the app's settings.
-        if ( locationEnabled && PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext()).getBoolean("GPSUpdate", true) ) frame.setLocation(Utilities.locationStringFromLocation(mLastLocation));
+        if ( locationEnabled &&
+                PreferenceManager.getDefaultSharedPreferences(
+                        getActivity().
+                        getBaseContext()).getBoolean("GPSUpdate", true) )
+            frame.setLocation(Utilities.locationStringFromLocation(mLastLocation));
         //else frame.setLocation("");
 
         if (!mFrameClassList.isEmpty()) {
@@ -705,7 +733,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
                     previousFrame = frameIterator;
                 }
                 //Set the frame count to one higher than the highest frame count
-                if (frameIterator.getCount() >= frame.getCount()) frame.setCount(frameIterator.getCount() + 1);
+                if (frameIterator.getCount() >= frame.getCount())
+                    frame.setCount(frameIterator.getCount() + 1);
             }
             frame.setLensId(previousFrame.getLensId());
             frame.setShutter(previousFrame.getShutter());
@@ -853,7 +882,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
      * This function is called when the fragment is paused.
      */
     protected void stopLocationUpdates() {
-        if (mGoogleApiClient.isConnected()) LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if (mGoogleApiClient.isConnected())
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
     /**
@@ -862,7 +892,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
     @Override
     public void onResume() {
         super.onResume();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                getActivity().getBaseContext());
         //Check if GPSUpdate preference has been changed meanwhile
         mRequestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
         if (locationEnabled && mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
@@ -877,7 +908,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
 
         //The user might have changed the export settings. Update the ShareActionProvider.
-        if (mShareActionProvider != null) mShareActionProvider.setShareIntent(setShareIntentExportRoll());
+        if (mShareActionProvider != null)
+            mShareActionProvider.setShareIntent(setShareIntentExportRoll());
     }
 
     /**
@@ -995,7 +1027,9 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             if (savedInstanceState != null) {
-                setTargetFragment(getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG), ERROR_DIALOG);
+                setTargetFragment(
+                        getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG),
+                        ERROR_DIALOG);
             }
             // Get the error code and retrieve the appropriate dialog
             int errorCode = this.getArguments().getInt(DIALOG_ERROR);
@@ -1005,7 +1039,8 @@ public class FramesFragment extends Fragment implements View.OnClickListener, Ad
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-            FramesFragment framesfragment = (FramesFragment)getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG);
+            FramesFragment framesfragment =
+                    (FramesFragment)getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG);
             framesfragment.onDialogDismissed();
         }
     }

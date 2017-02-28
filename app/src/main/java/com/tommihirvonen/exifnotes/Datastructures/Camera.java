@@ -26,7 +26,8 @@ public class Camera implements Parcelable {
 
     }
 
-    public Camera(long id, String make, String model, String serialNumber, String minShutter, String maxShutter, int shutterIncrements){
+    public Camera(long id, String make, String model, String serialNumber, String minShutter,
+                  String maxShutter, int shutterIncrements){
         this.id = id;
         this.make = make;
         this.model = model;

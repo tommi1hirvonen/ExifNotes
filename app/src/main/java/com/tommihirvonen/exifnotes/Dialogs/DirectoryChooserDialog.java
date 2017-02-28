@@ -92,7 +92,8 @@ public class DirectoryChooserDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState){
 
         // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                getActivity().getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
@@ -102,11 +103,13 @@ public class DirectoryChooserDialog extends DialogFragment {
         mSubdirectories = getDirectories(mCurrentDirectory);
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(R.layout.directory_chooser_dialog, null);
+        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
+                R.layout.directory_chooser_dialog, null);
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         dialogBuilder.setView(inflatedView);
 
-        LinearLayout linearLayout = (LinearLayout) inflatedView.findViewById(R.id.dir_chooser_dialog_top_element);
+        LinearLayout linearLayout = (LinearLayout) inflatedView.findViewById(
+                R.id.dir_chooser_dialog_top_element);
         linearLayout.setBackgroundColor(Color.parseColor(primaryColor));
 
         mCurrentDirView = (TextView) inflatedView.findViewById(R.id.current_directory_textview);
@@ -216,7 +219,8 @@ public class DirectoryChooserDialog extends DialogFragment {
                 ViewHolder holder;
 
                 if (convertView == null) {
-                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_directory, parent, false);
+                    convertView = LayoutInflater.from(getContext()).inflate(
+                            R.layout.item_directory, parent, false);
                     holder = new ViewHolder();
                     holder.tvDirectory = (TextView) convertView.findViewById(R.id.tv_directory_name);
                     holder.ivFolder = (ImageView) convertView.findViewById(R.id.iv_folder);
@@ -226,7 +230,8 @@ public class DirectoryChooserDialog extends DialogFragment {
                 }
 
                 holder.tvDirectory.setText(text);
-                holder.ivFolder.getDrawable().mutate().setColorFilter(ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
+                holder.ivFolder.getDrawable().mutate().setColorFilter(ContextCompat.getColor(
+                        getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
 
                 return convertView;
             }
@@ -261,7 +266,8 @@ public class DirectoryChooserDialog extends DialogFragment {
             }
         }
         catch (Exception e) {
-            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + directoryPath, Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " +
+                    directoryPath, Toast.LENGTH_LONG).show();
         }
 
         Collections.sort(directories, new Comparator<String>() {

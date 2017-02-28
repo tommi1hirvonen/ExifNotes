@@ -40,7 +40,9 @@ import java.util.List;
 // Copyright 2016
 // Tommi Hirvonen
 
-public class FiltersFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
+public class FiltersFragment extends Fragment implements
+        AdapterView.OnItemClickListener,
+        View.OnClickListener {
 
     TextView mainTextView;
     ListView mainListView;
@@ -83,7 +85,8 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
         mainListView = (ListView) view.findViewById(R.id.main_filterslistview);
 
         // Create an ArrayAdapter for the ListView
-        mArrayAdapter = new FilterAdapter(getActivity(), android.R.layout.simple_list_item_1, mFilterList);
+        mArrayAdapter = new FilterAdapter(
+                getActivity(), android.R.layout.simple_list_item_1, mFilterList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(mArrayAdapter);
@@ -95,7 +98,8 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
 
         // Color the item dividers of the ListView
         int[] dividerColors = {0, R.color.grey, 0};
-        mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+        mainListView.setDivider(
+                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
         mainListView.setDividerHeight(2);
 
         if ( mFilterList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
@@ -160,7 +164,9 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
 
                     // Check if the filter is being used with one of the rolls.
                     if (database.isFilterBeingUsed(filter)) {
-                        Toast.makeText(getActivity(), getResources().getString(R.string.FilterNoColon) + " " + filter.getMake() + " " + filter.getModel() + " " + getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getResources().getString(R.string.FilterNoColon) +
+                                " " + filter.getMake() + " " + filter.getModel() + " " +
+                                getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
                         return true;
                     }
 
@@ -232,14 +238,17 @@ public class FiltersFragment extends Fragment implements AdapterView.OnItemClick
 
                     Filter filter = data.getParcelableExtra("FILTER");
 
-                    if ( filter.getMake().length() > 0 && filter.getModel().length() > 0 && filter.getId() > 0 ) {
+                    if ( filter.getMake().length() > 0 &&
+                            filter.getModel().length() > 0 &&
+                            filter.getId() > 0 ) {
 
                         database.updateFilter(filter);
 
                         mArrayAdapter.notifyDataSetChanged();
 
                     } else {
-                        Toast.makeText(getActivity(), "Something went wrong :(", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Something went wrong :(",
+                                Toast.LENGTH_SHORT).show();
                     }
 
                 } else if (resultCode == Activity.RESULT_CANCELED){

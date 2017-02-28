@@ -28,7 +28,8 @@ import java.util.List;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class PreferenceActivity extends android.preference.PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class PreferenceActivity extends android.preference.PreferenceActivity implements
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     Toolbar actionbar;
 
@@ -61,7 +62,8 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         // And even this shit! Since API 23 (M) this is needed to render the back button white.
         actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_ab_back_material));
         if (  actionbar.getNavigationIcon() != null ) {
-            actionbar.getNavigationIcon().mutate().setColorFilter(ContextCompat.getColor(getBaseContext(), R.color.white), PorterDuff.Mode.SRC_IN);
+            actionbar.getNavigationIcon().mutate().setColorFilter(
+                    ContextCompat.getColor(getBaseContext(), R.color.white), PorterDuff.Mode.SRC_IN);
         }
 
         actionbar.setNavigationOnClickListener(new View.OnClickListener() {

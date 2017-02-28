@@ -125,7 +125,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 position = new LatLng(lat, lng);
                 String title = "#" + frame.getCount();
                 String snippet = frame.getDate();
-                markerArrayList.add(mMap.addMarker(new MarkerOptions().position(position).title(title).snippet(snippet)));
+                markerArrayList.add(mMap.addMarker(
+                        new MarkerOptions().position(position).title(title).snippet(snippet)));
             }
         }
 

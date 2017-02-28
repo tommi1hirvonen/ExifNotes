@@ -86,13 +86,15 @@ public class EditRollNameDialog extends DialogFragment {
 
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams") final View inflator = linf.inflate(R.layout.roll_info_dialog, null);
+        @SuppressLint("InflateParams") final View inflator = linf.inflate(
+                R.layout.roll_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(R.id.nested_scroll_view);
+            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(
+                    R.id.nested_scroll_view);
             Utilities.setScrollIndicators(rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
         }
@@ -110,7 +112,9 @@ public class EditRollNameDialog extends DialogFragment {
 
         // CAMERA PICK DIALOG
         b_camera.setClickable(true);
-        if ( roll.getCamera_id() > 0 ) b_camera.setText(database.getCamera(roll.getCamera_id()).getMake() + " " + database.getCamera(roll.getCamera_id()).getModel());
+        if ( roll.getCamera_id() > 0 ) b_camera.setText(
+                database.getCamera(roll.getCamera_id())
+                        .getMake() + " " + database.getCamera(roll.getCamera_id()).getModel());
         else b_camera.setText(R.string.ClickToSelect);
         b_camera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,7 +181,8 @@ public class EditRollNameDialog extends DialogFragment {
                 int i_year = Integer.parseInt(dateValue.get(0));
                 int i_month = Integer.parseInt(dateValue.get(1));
                 int i_day = Integer.parseInt(dateValue.get(2));
-                DatePickerDialog dialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+                DatePickerDialog dialog = new DatePickerDialog(
+                        getActivity(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         String newInnerDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
@@ -209,7 +214,8 @@ public class EditRollNameDialog extends DialogFragment {
                 ArrayList<String> timeValue = Utilities.splitTime(newDate);
                 int hours = Integer.parseInt(timeValue.get(0));
                 int minutes = Integer.parseInt(timeValue.get(1));
-                TimePickerDialog dialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+                TimePickerDialog dialog = new TimePickerDialog(
+                        getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         String newTime;
@@ -321,14 +327,16 @@ public class EditRollNameDialog extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 //dialog.cancel();
                 Intent intent = new Intent();
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
+                getTargetFragment().onActivityResult(
+                        getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }
         });
         final AlertDialog dialog = alert.create();
         //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
         // so it doesn't need to deal with resizing
         // but just panned by the framework to ensure the current input focus is visible
-        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.show();
 
         // We override the positive button onClick so that we can dismiss the dialog
@@ -340,11 +348,14 @@ public class EditRollNameDialog extends DialogFragment {
                 String name = et1.getText().toString();
 
                 if (name.length() == 0 && newCameraId > 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoName), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoName),
+                            Toast.LENGTH_SHORT).show();
                 } else if (name.length() > 0 && newCameraId <= 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera),
+                            Toast.LENGTH_SHORT).show();
                 } else if (name.length() == 0 && newCameraId <= 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera),
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     roll.setName(name);
                     roll.setNote(et2.getText().toString());
@@ -357,7 +368,8 @@ public class EditRollNameDialog extends DialogFragment {
                     Intent intent = new Intent();
                     intent.putExtra("ROLL", roll);
                     dialog.dismiss();
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                    getTargetFragment().onActivityResult(
+                            getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
 
             }

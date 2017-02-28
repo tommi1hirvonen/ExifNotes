@@ -52,7 +52,9 @@ import java.util.List;
  * RollFragment is the fragment that is displayed first in MainActivity. It contains
  * a list of rolls the user has saved in the database.
  */
-public class RollsFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class RollsFragment extends Fragment implements
+        View.OnClickListener,
+        AdapterView.OnItemClickListener {
 
     OnRollSelectedListener mCallback;
 
@@ -125,14 +127,16 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
         if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
             //noinspection ConstantConditions
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("  " +
+                    getResources().getString(R.string.MainActivityTitle));
             //noinspection ConstantConditions
             ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
             //noinspection ConstantConditions
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                getActivity().getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
         //String primaryColor = colors.get(0);
@@ -172,7 +176,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
         // Color the item dividers of the ListView
         int[] dividerColors = {0, R.color.grey, 0};
-        mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+        mainListView.setDivider(
+                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
         mainListView.setDividerHeight(2);
 
         //Jump to last item
@@ -193,7 +198,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
         super.onResume();
         mArrayAdapter.notifyDataSetChanged();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                getActivity().getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
         //String primaryColor = colors.get(0);
@@ -230,7 +236,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                 int checkedItem = sharedPref.getInt("RollSortOrder", 0);
                 AlertDialog.Builder sortDialog = new AlertDialog.Builder(getActivity());
                 sortDialog.setTitle(R.string.SortBy);
-                sortDialog.setSingleChoiceItems(R.array.RollSortOptions, checkedItem, new DialogInterface.OnClickListener() {
+                sortDialog.setSingleChoiceItems(R.array.RollSortOptions, checkedItem,
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -255,8 +262,9 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                 Intent preferences_intent = new Intent(getActivity(), PreferenceActivity.class);
                 // With these extras we can skip the headers in the preferences.
-                preferences_intent.putExtra( PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName() );
-                preferences_intent.putExtra( PreferenceActivity.EXTRA_NO_HEADERS, true );
+                preferences_intent.putExtra(
+                        PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName());
+                preferences_intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
 
                 startActivity(preferences_intent);
 
@@ -273,7 +281,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
             case R.id.menu_item_about:
 
                 String aboutTitle = getResources().getString(R.string.app_name);
-                String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" + getResources().getString(R.string.VersionHistory);
+                String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" +
+                        getResources().getString(R.string.VersionHistory);
                 Utilities.showGeneralDialog(getActivity(), aboutTitle, aboutMessage);
 
                 break;
@@ -304,7 +313,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                     public int compare(Roll o1, Roll o2) {
                         String date1 = o1.getDate();
                         String date2 = o2.getDate();
-                        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-M-d H:m");
+                        @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
+                                new SimpleDateFormat("yyyy-M-d H:m");
                         Date d1 = null;
                         Date d2 = null;
                         try {
@@ -440,7 +450,8 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
                     final int rollPosition = info.position;
 
                     AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-                    alertBuilder.setTitle(getResources().getString(R.string.ConfirmRollDelete) + " " + mRollList.get(rollPosition).getName() + "?");
+                    alertBuilder.setTitle(getResources().getString(R.string.ConfirmRollDelete)
+                            + " " + mRollList.get(rollPosition).getName() + "?");
                     alertBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -516,7 +527,9 @@ public class RollsFragment extends Fragment implements View.OnClickListener, Ada
 
                     Roll roll = data.getParcelableExtra("ROLL");
 
-                    if ( roll.getName().length() > 0 && roll.getCamera_id() > 0 && roll.getId() > 0 ) {
+                    if ( roll.getName().length() > 0 &&
+                            roll.getCamera_id() > 0 &&
+                            roll.getId() > 0 ) {
 
                         database.updateRoll(roll);
 

@@ -60,11 +60,13 @@ public class EditFilterInfoDialog extends DialogFragment {
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 Intent intent = new Intent();
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
+                getTargetFragment().onActivityResult(
+                        getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }
         });
         final AlertDialog dialog = alert.create();
-        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.
@@ -77,7 +79,8 @@ public class EditFilterInfoDialog extends DialogFragment {
 
                 if (make.length() == 0 && model.length() == 0) {
                     // No make or model was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel),
+                            Toast.LENGTH_SHORT).show();
                 } else if (make.length() > 0 && model.length() == 0) {
                     // No model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
@@ -91,7 +94,8 @@ public class EditFilterInfoDialog extends DialogFragment {
                     Intent intent = new Intent();
                     intent.putExtra("FILTER", filter);
                     dialog.dismiss();
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                    getTargetFragment().onActivityResult(
+                            getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
             }
         });

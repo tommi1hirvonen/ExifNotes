@@ -318,7 +318,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         ArrayList<Frame> frames = new ArrayList<>();
         // Get reference to readable database
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, null, KEY_ROLL_ID + "=?", new String[]{Long.toString(roll_id)}, null, null, KEY_COUNT);
+        Cursor cursor = db.query(
+                TABLE_FRAMES, null, KEY_ROLL_ID + "=?",
+                new String[]{Long.toString(roll_id)}, null, null, KEY_COUNT);
         Frame frame;
         // Go over each row, build list
         while ( cursor.moveToNext() ) {
@@ -338,7 +340,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         // Get reference to writable database
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = buildFrameContentValues(frame);
-        db.update(TABLE_FRAMES, contentValues, KEY_FRAME_ID + "=?", new String[]{Long.toString(frame.getId())});
+        db.update(TABLE_FRAMES, contentValues, KEY_FRAME_ID + "=?",
+                new String[]{Long.toString(frame.getId())});
         db.close();
     }
 
@@ -389,7 +392,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public Lens getLens(long lens_id){
         SQLiteDatabase db = this.getReadableDatabase();
         Lens lens = new Lens();
-        Cursor cursor = db.query(TABLE_LENSES, null, KEY_LENS_ID + "=?", new String[]{Long.toString(lens_id)}, null, null, null);
+        Cursor cursor = db.query(TABLE_LENSES, null, KEY_LENS_ID + "=?",
+                new String[]{Long.toString(lens_id)}, null, null, null);
         if ( cursor != null ) {
             cursor.moveToFirst();
             lens = getLensFromCursor(cursor, lens);
@@ -435,7 +439,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public boolean isLensInUse(Lens lens){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_LENS_ID}, KEY_LENS_ID + "=?", new String[]{Long.toString(lens.getId())}, null, null, null);
+        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_LENS_ID}, KEY_LENS_ID + "=?",
+                new String[]{Long.toString(lens.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
             db.close();
@@ -455,7 +460,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void updateLens(Lens lens) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = buildLensContentValues(lens);
-        db.update(TABLE_LENSES, contentValues, KEY_LENS_ID + "=?", new String[]{Long.toString(lens.getId())});
+        db.update(TABLE_LENSES, contentValues, KEY_LENS_ID + "=?",
+                new String[]{Long.toString(lens.getId())});
         db.close();
     }
 
@@ -481,7 +487,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public Camera getCamera(long camera_id){
         SQLiteDatabase db = this.getReadableDatabase();
         Camera camera = new Camera();
-        Cursor cursor = db.query(TABLE_CAMERAS, null, KEY_CAMERA_ID + "=?", new String[]{Long.toString(camera_id)}, null, null, null);
+        Cursor cursor = db.query(TABLE_CAMERAS, null, KEY_CAMERA_ID + "=?",
+                new String[]{Long.toString(camera_id)}, null, null, null);
         if ( cursor != null ) {
             cursor.moveToFirst();
             camera = getCameraFromCursor(cursor, camera);
@@ -515,8 +522,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public void deleteCamera(Camera camera){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_CAMERAS, KEY_CAMERA_ID + " = ?", new String[]{Long.toString(camera.getId())});
-        db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ?", new String[]{Long.toString(camera.getId())});
+        db.delete(TABLE_CAMERAS, KEY_CAMERA_ID + " = ?",
+                new String[]{Long.toString(camera.getId())});
+        db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ?",
+                new String[]{Long.toString(camera.getId())});
         db.close();
     }
 
@@ -527,7 +536,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public boolean isCameraBeingUsed(Camera camera) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_CAMERA_ID}, KEY_CAMERA_ID + "=?", new String[]{Long.toString(camera.getId())}, null, null, null);
+        Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_CAMERA_ID}, KEY_CAMERA_ID + "=?",
+                new String[]{Long.toString(camera.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
             db.close();
@@ -547,7 +557,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void updateCamera(Camera camera) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = buildCameraContentValues(camera);
-        db.update(TABLE_CAMERAS, contentValues, KEY_CAMERA_ID + "=?", new String[]{Long.toString(camera.getId())});
+        db.update(TABLE_CAMERAS, contentValues, KEY_CAMERA_ID + "=?",
+                new String[]{Long.toString(camera.getId())});
         db.close();
     }
 
@@ -670,7 +681,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public Roll getRoll(long id){
         SQLiteDatabase db = this.getReadableDatabase();
         Roll roll = new Roll();
-        Cursor cursor = db.query(TABLE_ROLLS, null, KEY_ROLL_ID + "=?", new String[]{Long.toString(id)}, null, null, null);
+        Cursor cursor = db.query(TABLE_ROLLS, null, KEY_ROLL_ID + "=?",
+                new String[]{Long.toString(id)}, null, null, null);
         if ( cursor != null ) {
             cursor.moveToFirst();
             roll = getRollFromCursor(cursor, roll);
@@ -697,7 +709,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void updateRoll(Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = buildRollContentValues(roll);
-        db.update(TABLE_ROLLS, contentValues, KEY_ROLL_ID + "=?", new String[]{Long.toString(roll.getId())});
+        db.update(TABLE_ROLLS, contentValues, KEY_ROLL_ID + "=?",
+                new String[]{Long.toString(roll.getId())});
         db.close();
     }
 
@@ -708,7 +721,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public int getNumberOfFrames(Roll roll){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, new String[]{"COUNT(" + KEY_FRAME_ID + ")"}, KEY_ROLL_ID + "=?", new String[]{Long.toString(roll.getId())}, null, null, null);
+        Cursor cursor = db.query(TABLE_FRAMES, new String[]{"COUNT(" + KEY_FRAME_ID + ")"}, KEY_ROLL_ID + "=?",
+                new String[]{Long.toString(roll.getId())}, null, null, null);
         int returnValue = 0;
         if ( cursor != null ) {
             cursor.moveToFirst();
@@ -742,7 +756,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public Filter getFilter(long filter_id){
         SQLiteDatabase db = this.getReadableDatabase();
         Filter filter = new Filter();
-        Cursor cursor = db.query(TABLE_FILTERS, null, KEY_FILTER_ID + "=?", new String[]{Long.toString(filter_id)}, null, null, null);
+        Cursor cursor = db.query(TABLE_FILTERS, null, KEY_FILTER_ID + "=?",
+                new String[]{Long.toString(filter_id)}, null, null, null);
         if ( cursor != null ) {
             cursor.moveToFirst();
             filter = getFilterFromCursor(cursor, filter);
@@ -787,7 +802,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public boolean isFilterBeingUsed(Filter filter) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_FILTER_ID}, KEY_FILTER_ID + "=?", new String[]{Long.toString(filter.getId())}, null, null, null);
+        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_FILTER_ID}, KEY_FILTER_ID + "=?",
+                new String[]{Long.toString(filter.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
             db.close();
@@ -807,7 +823,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void updateFilter(Filter filter) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = buildFilterContentValues(filter);
-        db.update(TABLE_FILTERS, contentValues, KEY_FILTER_ID + "=?", new String[]{Long.toString(filter.getId())});
+        db.update(TABLE_FILTERS, contentValues, KEY_FILTER_ID + "=?",
+                new String[]{Long.toString(filter.getId())});
         db.close();
     }
 
@@ -1079,14 +1096,16 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             } catch (SQLiteException e) {
                 //If the new database file couldn't be accesses, replace it with the backup.
                 Utilities.copyFile(new FileInputStream(oldDbBackup), new FileOutputStream(oldDb));
-                Toast.makeText(context, context.getResources().getString(R.string.CouldNotReadDatabase), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, context.getResources().getString(R.string.CouldNotReadDatabase),
+                        Toast.LENGTH_LONG).show();
                 return false;
             }
             if (!runIntegrityCheck()) {
                 //If the new database file failed the integrity check, replace it with the backup.
                 db.close();
                 Utilities.copyFile(new FileInputStream(oldDbBackup), new FileOutputStream(oldDb));
-                Toast.makeText(context, context.getResources().getString(R.string.IntegrityCheckFailed), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, context.getResources().getString(R.string.IntegrityCheckFailed),
+                        Toast.LENGTH_LONG).show();
                 return false;
             }
             db.close();

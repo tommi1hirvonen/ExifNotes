@@ -41,7 +41,9 @@ import java.util.List;
  * It contains the RollsFragment and FramesFragment fragments.
  * The activity switches between these two fragments.
  */
-public class MainActivity extends AppCompatActivity implements RollsFragment.OnRollSelectedListener, FramesFragment.OnHomeAsUpPressedListener {
+public class MainActivity extends AppCompatActivity implements
+        RollsFragment.OnRollSelectedListener,
+        FramesFragment.OnHomeAsUpPressedListener {
 
     private final static int MY_MULTIPLE_PERMISSIONS_REQUEST = 1;
 
@@ -82,15 +84,20 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
 
         LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
-        boolean permissionWriteExternalStorage = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-        boolean permissionAccessCoarseLocation = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        boolean permissionAccessFineLocation = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean permissionWriteExternalStorage = ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        boolean permissionAccessCoarseLocation = ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean permissionAccessFineLocation = ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
         //Check if the app has all necessary permissions
         if ( !permissionWriteExternalStorage || !permissionAccessCoarseLocation || !permissionAccessFineLocation ) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                                                Manifest.permission.ACCESS_FINE_LOCATION}, MY_MULTIPLE_PERMISSIONS_REQUEST);
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_MULTIPLE_PERMISSIONS_REQUEST);
         } else {
             locationEnabled = true;
         }
@@ -219,7 +226,11 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         args.putBoolean("LOCATION_ENABLED", locationEnabled);
         newFragment.setArguments(args);
         getFragmentManager().beginTransaction()
-                .setCustomAnimations(R.animator.slide_left, R.animator.slide_right, R.animator.slide_left, R.animator.slide_right)
+                .setCustomAnimations(
+                        R.animator.slide_left,
+                        R.animator.slide_right,
+                        R.animator.slide_left,
+                        R.animator.slide_right)
                 .replace(R.id.fragment_container, newFragment, FramesFragment.FRAMES_FRAGMENT_TAG)
                 .addToBackStack(null).commit();
         View shadow = findViewById(R.id.shadow);

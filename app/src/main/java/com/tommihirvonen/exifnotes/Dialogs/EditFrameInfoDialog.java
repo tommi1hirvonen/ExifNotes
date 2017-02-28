@@ -121,13 +121,15 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams") final View inflator = linf.inflate(R.layout.frame_info_dialog, null);
+        @SuppressLint("InflateParams") final View inflator = linf.inflate(
+                R.layout.frame_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(R.id.nested_scroll_view);
+            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(
+                    R.id.nested_scroll_view);
             Utilities.setScrollIndicators(rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
         }
@@ -154,7 +156,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 final List<String> listItems = new ArrayList<>();
                 listItems.add(getResources().getString(R.string.NoLens));
                 for (int i = 0; i < mountableLenses.size(); ++i) {
-                    listItems.add(mountableLenses.get(i).getMake() + " " + mountableLenses.get(i).getModel());
+                    listItems.add(mountableLenses.get(i).getMake() + " " +
+                            mountableLenses.get(i).getModel());
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -232,7 +235,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 int i_year = Integer.parseInt(dateValue.get(0));
                 int i_month = Integer.parseInt(dateValue.get(1));
                 int i_day = Integer.parseInt(dateValue.get(2));
-                DatePickerDialog dialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+                DatePickerDialog dialog = new DatePickerDialog(
+                        getActivity(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         String newInnerDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
@@ -264,7 +268,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 ArrayList<String> timeValue = Utilities.splitTime(newDate);
                 int hours = Integer.parseInt(timeValue.get(0));
                 int minutes = Integer.parseInt(timeValue.get(1));
-                TimePickerDialog dialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+                TimePickerDialog dialog = new TimePickerDialog(
+                        getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         String newTime;
@@ -438,7 +443,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 if (newLensId > 0) {
                     mountableFilters = database.getMountableFilters(database.getLens(newLensId));
                     for (int i = 0; i < mountableFilters.size(); ++i) {
-                        listItems.add(mountableFilters.get(i).getMake() + " " + mountableFilters.get(i).getModel());
+                        listItems.add(mountableFilters.get(i).getMake() + " " +
+                                mountableFilters.get(i).getModel());
                     }
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
@@ -476,7 +482,8 @@ public class EditFrameInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if ( newLensId <= 0 ) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters),
+                            Toast.LENGTH_LONG).show();
                     return;
                 }
                 EditFilterInfoDialog dialog = new EditFilterInfoDialog();
@@ -499,7 +506,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 Intent intent = new Intent();
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
+                getTargetFragment().onActivityResult(
+                        getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }
         });
 
@@ -510,7 +518,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
         // so it doesn't need to deal with resizing
         // but just panned by the framework to ensure the current input focus is visible
-        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.show();
 
 
@@ -538,7 +547,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                 Intent intent = new Intent();
                 intent.putExtra("FRAME", frame);
                 dialog.dismiss();
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                getTargetFragment().onActivityResult(
+                        getTargetRequestCode(), Activity.RESULT_OK, intent);
 
             }
         });
@@ -550,7 +560,8 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         if ( requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK ) {
             if (data.hasExtra("LATITUDE") && data.hasExtra("LONGITUDE")) {
-                newLocation = "" + data.getStringExtra("LATITUDE") + " " + data.getStringExtra("LONGITUDE");
+                newLocation = "" + data.getStringExtra("LATITUDE") + " " +
+                        data.getStringExtra("LONGITUDE");
                 b_location.setText(newLocation);
             }
         }

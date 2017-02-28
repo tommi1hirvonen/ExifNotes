@@ -37,7 +37,11 @@ import java.util.List;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class LocationPickActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, View.OnClickListener, android.support.v7.widget.SearchView.OnQueryTextListener {
+public class LocationPickActivity extends AppCompatActivity implements
+        OnMapReadyCallback,
+        GoogleMap.OnMapClickListener,
+        View.OnClickListener,
+        android.support.v7.widget.SearchView.OnQueryTextListener {
 
     private GoogleMap mMap;
     Marker marker;
@@ -107,7 +111,9 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_location_pick, menu);
         // Retrieve the SearchView and plug it into SearchManager
-        android.support.v7.widget.SearchView searchView = (android.support.v7.widget.SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        android.support.v7.widget.SearchView searchView =
+                (android.support.v7.widget.SearchView) MenuItemCompat.getActionView(
+                        menu.findItem(R.id.action_search));
         searchView.setOnQueryTextListener(this);
         return super.onCreateOptionsMenu(menu);
     }
@@ -141,7 +147,10 @@ public class LocationPickActivity extends AppCompatActivity implements OnMapRead
         mMap = googleMap;
         mMap.setOnMapClickListener(this);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
         }
 

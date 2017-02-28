@@ -37,7 +37,16 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
     protected String[] doInBackground(String... params) {
         String response;
         try {
-            String queryUrl = new Uri.Builder().scheme("http").authority("maps.google.com").appendPath("maps").appendPath("api").appendPath("geocode").appendPath("json").appendQueryParameter("address", params[0]).appendQueryParameter("sensor", "false").build().toString();
+            String queryUrl = new Uri.Builder()
+                    .scheme("http")
+                    .authority("maps.google.com")
+                    .appendPath("maps")
+                    .appendPath("api")
+                    .appendPath("geocode")
+                    .appendPath("json")
+                    .appendQueryParameter("address", params[0])
+                    .appendQueryParameter("sensor", "false")
+                    .build().toString();
             response = getLatLongByURL(queryUrl);
             return new String[]{response};
         } catch (Exception e) {

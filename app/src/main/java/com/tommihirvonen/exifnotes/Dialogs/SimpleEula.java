@@ -35,7 +35,8 @@ public class SimpleEula {
     private PackageInfo getPackageInfo() {
         PackageInfo pi = null;
         try {
-            pi = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), PackageManager.GET_ACTIVITIES);
+            pi = mActivity.getPackageManager().getPackageInfo(
+                    mActivity.getPackageName(), PackageManager.GET_ACTIVITIES);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -62,7 +63,8 @@ public class SimpleEula {
             String title = mActivity.getString(R.string.app_name) + " v" + versionInfo.versionName;
 
             //Includes the updates as well so users know what changed.
-            String message = mActivity.getString(R.string.Updates) + "\n\n" + mActivity.getString(R.string.Eula);
+            String message = mActivity.getString(R.string.Updates) + "\n\n" +
+                    mActivity.getString(R.string.Eula);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(mActivity)
                     .setCancelable(false)

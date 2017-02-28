@@ -58,7 +58,8 @@ public class EditCameraInfoDialog extends DialogFragment {
 
         LayoutInflater linf = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams") final View inflator = linf.inflate(R.layout.camera_dialog, null);
+        @SuppressLint("InflateParams") final View inflator = linf.inflate(
+                R.layout.camera_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         String title = getArguments().getString("TITLE");
@@ -69,7 +70,8 @@ public class EditCameraInfoDialog extends DialogFragment {
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(R.id.nested_scroll_view);
+            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(
+                    R.id.nested_scroll_view);
             Utilities.setScrollIndicators(rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
         }
@@ -89,7 +91,8 @@ public class EditCameraInfoDialog extends DialogFragment {
         newShutterIncrements = camera.getShutterIncrements();
         bShutterSpeedIncrements = (TextView) inflator.findViewById(R.id.btn_shutterSpeedIncrements);
         bShutterSpeedIncrements.setClickable(true);
-        bShutterSpeedIncrements.setText(getResources().getStringArray(R.array.StopIncrements)[camera.getShutterIncrements()]);
+        bShutterSpeedIncrements.setText(
+                getResources().getStringArray(R.array.StopIncrements)[camera.getShutterIncrements()]);
         bShutterSpeedIncrements.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,7 +102,8 @@ public class EditCameraInfoDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         newShutterIncrements = i;
-                        bShutterSpeedIncrements.setText(getResources().getStringArray(R.array.StopIncrements)[i]);
+                        bShutterSpeedIncrements.setText(
+                                getResources().getStringArray(R.array.StopIncrements)[i]);
                         //Shutter speed increments were changed, make changes to shutter range pickers
                         initialiseShutterRangePickers();
 
@@ -129,14 +133,16 @@ public class EditCameraInfoDialog extends DialogFragment {
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 Intent intent = new Intent();
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
+                getTargetFragment().onActivityResult(
+                        getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }
         });
         final AlertDialog dialog = alert.create();
         //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
         // so it doesn't need to deal with resizing
         // but just panned by the framework to ensure the current input focus is visible
-        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.show();
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.
@@ -157,16 +163,20 @@ public class EditCameraInfoDialog extends DialogFragment {
                 } else if (make.length() == 0 && model.length() > 0) {
                     // No make was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
-                } else if ((minShutterPicker.getValue() == displayedShutterValues.length-1 && maxShutterPicker.getValue() != displayedShutterValues.length-1)
+                } else if ((minShutterPicker.getValue() == displayedShutterValues.length-1 &&
+                        maxShutterPicker.getValue() != displayedShutterValues.length-1)
                             ||
-                            (minShutterPicker.getValue() != displayedShutterValues.length-1 && maxShutterPicker.getValue() == displayedShutterValues.length-1)){
+                            (minShutterPicker.getValue() != displayedShutterValues.length-1 &&
+                                    maxShutterPicker.getValue() == displayedShutterValues.length-1)){
                     // No min or max shutter was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxShutter), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxShutter),
+                            Toast.LENGTH_LONG).show();
                 } else {
                     camera.setMake(make); camera.setModel(model);
                     camera.setSerialNumber(serialNumber);
                     camera.setShutterIncrements(newShutterIncrements);
-                    if ( minShutterPicker.getValue() == displayedShutterValues.length-1 && maxShutterPicker.getValue() == displayedShutterValues.length-1 ) {
+                    if ( minShutterPicker.getValue() == displayedShutterValues.length-1 &&
+                            maxShutterPicker.getValue() == displayedShutterValues.length-1 ) {
                         camera.setMinShutter(null);
                         camera.setMaxShutter(null);
                     } else if (minShutterPicker.getValue() < maxShutterPicker.getValue()) {
@@ -181,7 +191,8 @@ public class EditCameraInfoDialog extends DialogFragment {
                     Intent intent = new Intent();
                     intent.putExtra("CAMERA", camera);
                     dialog.dismiss();
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                    getTargetFragment().onActivityResult(
+                            getTargetRequestCode(), Activity.RESULT_OK, intent);
                 }
 
             }

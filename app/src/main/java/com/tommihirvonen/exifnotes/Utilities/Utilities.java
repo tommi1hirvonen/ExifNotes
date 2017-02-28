@@ -60,39 +60,47 @@ public class Utilities {
     public final String[] shutterValuesFull;
 
     public Utilities(Context context){
-        allApertureValues = new String[]{context.getResources().getString(R.string.NoValue), "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
+        allApertureValues = new String[]{context.getResources().getString(R.string.NoValue),
+                "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
                 "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "6.7", "7.1", "8", "9", "9.5",
                 "10", "11", "13", "14", "16", "18", "19", "20", "22", "25", "27", "29", "32", "36", "38",
                 "42", "45", "50", "57", "64"};
-        apertureValuesThird = new String[]{context.getResources().getString(R.string.NoValue), "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
+        apertureValuesThird = new String[]{context.getResources().getString(R.string.NoValue),
+                "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
                 "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "7.1", "8", "9",
                 "10", "11", "13", "14", "16", "18", "20", "22", "25", "29", "32", "36",
                 "42", "45", "50", "57", "64"};
-        apertureValuesHalf = new String[]{context.getResources().getString(R.string.NoValue), "1.0", "1.2", "1.4", "1.8", "2.0", "2.5", "2.8", "3.5",
+        apertureValuesHalf = new String[]{context.getResources().getString(R.string.NoValue),
+                "1.0", "1.2", "1.4", "1.8", "2.0", "2.5", "2.8", "3.5",
                 "4.0", "4.5", "5.6", "6.7", "8", "9.5", "11", "13", "16", "19",
                 "22", "27", "32", "38", "45", "64" };
-        apertureValuesFull = new String[]{context.getResources().getString(R.string.NoValue), "1.0", "1.4", "2.0", "2.8", "4.0", "5.6", "8", "11",
+        apertureValuesFull = new String[]{context.getResources().getString(R.string.NoValue),
+                "1.0", "1.4", "2.0", "2.8", "4.0", "5.6", "8", "11",
                 "16", "22", "32", "45", "64" };
 
-        allShutterValues = new String[]{context.getResources().getString(R.string.NoValue), "B", "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
+        allShutterValues = new String[]{context.getResources().getString(R.string.NoValue),
+                "B", "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
                 "3.2\"", "3\"", "2.5\"", "2\"", "1.6\"", "1.5\"","1.3\"", "1\"", "0.8\"", "0.7\"", "0.6\"", "1/2", "0.4\"", "1/3", "0.3\"",
                 "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
                 "1/30", "1/40", "1/45", "1/50", "1/60", "1/80", "1/90", "1/100", "1/125", "1/160", "1/180", "1/200",
                 "1/250", "1/320", "1/350", "1/400", "1/500", "1/640", "1/750", "1/800", "1/1000", "1/1250", "1/1500",
                 "1/1600", "1/2000", "1/2500", "1/3000", "1/3200", "1/4000", "1/5000", "1/6000", "1/6400", "1/8000"};
-        shutterValuesThird = new String[]{context.getResources().getString(R.string.NoValue), "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
+        shutterValuesThird = new String[]{context.getResources().getString(R.string.NoValue),
+                "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
                 "3.2\"", "2.5\"", "2\"", "1.6\"", "1.3\"", "1\"", "0.8\"", "0.6\"", "1/2", "0.4\"", "0.3\"",
                 "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
                 "1/30", "1/40", "1/50", "1/60", "1/80", "1/100", "1/125", "1/160", "1/200",
                 "1/250", "1/320", "1/400", "1/500", "1/640", "1/800", "1/1000", "1/1250",
                 "1/1600", "1/2000", "1/2500", "1/3200", "1/4000", "1/5000", "1/6400", "1/8000"};
 
-        shutterValuesHalf = new String[]{context.getResources().getString(R.string.NoValue), "30\"", "20\"", "15\"", "10\"", "8\"", "6\"", "4\"", "3\"", "2\"", "1.5\"",
+        shutterValuesHalf = new String[]{context.getResources().getString(R.string.NoValue),
+                "30\"", "20\"", "15\"", "10\"", "8\"", "6\"", "4\"", "3\"", "2\"", "1.5\"",
                 "1\"", "0.7\"", "1/2", "1/3", "1/4", "1/6", "1/8", "1/10", "1/15", "1/20",
                 "1/30", "1/45", "1/60", "1/90", "1/125", "1/180", "1/250", "1/350",
                 "1/500", "1/750", "1/1000", "1/1500", "1/2000", "1/3000", "1/4000", "1/6000", "1/8000" };
 
-        shutterValuesFull = new String[]{context.getResources().getString(R.string.NoValue), "30\"", "15\"", "8\"", "4\"", "2\"", "1\"", "1/2", "1/4", "1/8",
+        shutterValuesFull = new String[]{context.getResources().getString(R.string.NoValue),
+                "30\"", "15\"", "8\"", "4\"", "2\"", "1\"", "1/2", "1/4", "1/8",
                 "1/15", "1/30", "1/60", "1/125", "1/250", "1/500", "1/1000", "1/2000", "1/4000", "1/8000" };
     }
 
@@ -243,7 +251,8 @@ public class Utilities {
      *
      * @param root the root view containing the NestedScrollView element
      * @param content the NestedScrollView element
-     * @param indicators ScrollIndicators in bitwise or format, for example ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM
+     * @param indicators ScrollIndicators in bitwise or format,
+     *                   for example ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM
      */
     public static void setScrollIndicators(ViewGroup root, final NestedScrollView content,
                                             final int indicators) {
@@ -340,8 +349,10 @@ public class Utilities {
     @SuppressLint("RtlHardcoded")
     public static TextView buildCustomDialogTitleTextView(Context context, String titleText){
         TextView titleTextView = new TextView(context);
-        if (Build.VERSION.SDK_INT < 23) titleTextView.setTextAppearance(context, android.R.style.TextAppearance_DeviceDefault_DialogWindowTitle);
-        else titleTextView.setTextAppearance(android.R.style.TextAppearance_DeviceDefault_DialogWindowTitle);
+        if (Build.VERSION.SDK_INT < 23) titleTextView.setTextAppearance(
+                context, android.R.style.TextAppearance_DeviceDefault_DialogWindowTitle);
+        else titleTextView.setTextAppearance(
+                android.R.style.TextAppearance_DeviceDefault_DialogWindowTitle);
         float dpi = context.getResources().getDisplayMetrics().density;
         titleTextView.setPadding((int)(20*dpi), (int)(20*dpi), (int)(20*dpi), (int)(10*dpi));
         titleTextView.setText(titleText);
@@ -380,7 +391,8 @@ public class Utilities {
                     public int compare(Frame o1, Frame o2) {
                         String date1 = o1.getDate();
                         String date2 = o2.getDate();
-                        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-M-d H:m");
+                        @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
+                                new SimpleDateFormat("yyyy-M-d H:m");
                         Date d1 = null;
                         Date d2 = null;
                         try {
@@ -737,7 +749,8 @@ public class Utilities {
      */
     public static String locationStringFromLocation(final Location location) {
         if (location != null)
-            return (Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + " " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)).replace(",", ".");
+            return (Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + " " +
+                    Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)).replace(",", ".");
         else return "";
     }
 

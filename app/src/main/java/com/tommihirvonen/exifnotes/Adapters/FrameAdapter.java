@@ -74,8 +74,10 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         }
 
         // With these commands we can color the black png images grey. Very nice! I like!
-        holder.clock.getDrawable().mutate().setColorFilter(ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
-        holder.aperture.getDrawable().mutate().setColorFilter(ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
+        holder.clock.getDrawable().mutate().setColorFilter(
+                ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
+        holder.aperture.getDrawable().mutate().setColorFilter(
+                ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
 
         // Populate the data into the template view using the data object
         if (frame != null) {

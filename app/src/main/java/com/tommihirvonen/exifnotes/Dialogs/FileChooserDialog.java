@@ -100,7 +100,8 @@ public class FileChooserDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState){
 
         // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                getActivity().getBaseContext());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
@@ -110,11 +111,13 @@ public class FileChooserDialog extends DialogFragment {
         mFileOrDirectories = getFileDirs(mCurrentDirectory);
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(R.layout.directory_chooser_dialog, null);
+        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
+                R.layout.directory_chooser_dialog, null);
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         dialogBuilder.setView(inflatedView);
 
-        LinearLayout linearLayout = (LinearLayout) inflatedView.findViewById(R.id.dir_chooser_dialog_top_element);
+        LinearLayout linearLayout = (LinearLayout) inflatedView.findViewById(
+                R.id.dir_chooser_dialog_top_element);
         linearLayout.setBackgroundColor(Color.parseColor(primaryColor));
 
         mCurrentDirView = (TextView) inflatedView.findViewById(R.id.current_directory_textview);
@@ -184,7 +187,9 @@ public class FileChooserDialog extends DialogFragment {
      */
     private ArrayAdapter<FileOrDirectory> createListAdapter(List<FileOrDirectory> items) {
 
-        return new ArrayAdapter<FileOrDirectory>(getActivity(), android.R.layout.simple_list_item_1, items) {
+        return new ArrayAdapter<FileOrDirectory>(getActivity(),
+                android.R.layout.simple_list_item_1,
+                items) {
             @NonNull
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -195,7 +200,8 @@ public class FileChooserDialog extends DialogFragment {
                 FileChooserDialog.ViewHolder holder;
 
                 if (convertView == null) {
-                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_directory, parent, false);
+                    convertView = LayoutInflater.from(getContext()).inflate(
+                            R.layout.item_directory, parent, false);
                     holder = new FileChooserDialog.ViewHolder();
                     holder.tvDirectory = (TextView) convertView.findViewById(R.id.tv_directory_name);
                     holder.ivFolder = (ImageView) convertView.findViewById(R.id.iv_folder);
@@ -207,7 +213,8 @@ public class FileChooserDialog extends DialogFragment {
                 if ( fileOrDirectory != null ) {
                     holder.tvDirectory.setText(fileOrDirectory.path);
                     if (fileOrDirectory.directory) {
-                        holder.ivFolder.getDrawable().mutate().setColorFilter(ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
+                        holder.ivFolder.getDrawable().mutate().setColorFilter(
+                                ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
                         holder.ivFolder.setVisibility(View.VISIBLE);
                     } else {
                         holder.ivFolder.setVisibility(View.INVISIBLE);
@@ -248,7 +255,8 @@ public class FileChooserDialog extends DialogFragment {
             }
         }
         catch (Exception e) {
-            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + dir, Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + dir,
+                    Toast.LENGTH_LONG).show();
         }
 
         Collections.sort(fileOrDirectories, new Comparator<FileOrDirectory>() {

@@ -40,7 +40,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class CamerasFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class CamerasFragment extends Fragment implements
+        View.OnClickListener,
+        AdapterView.OnItemClickListener {
 
     TextView mainTextView;
     ListView mainListView;
@@ -83,7 +85,8 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
         mainListView = (ListView) view.findViewById(R.id.main_cameraslistview);
 
         // Create an ArrayAdapter for the ListView
-        mArrayAdapter = new CameraAdapter(getActivity(), android.R.layout.simple_list_item_1, mCameraList);
+        mArrayAdapter = new CameraAdapter(
+                getActivity(), android.R.layout.simple_list_item_1, mCameraList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(mArrayAdapter);
@@ -95,7 +98,8 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
         // Color the item dividers of the ListView
         int[] dividerColors = {0, R.color.grey, 0};
-        mainListView.setDivider(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+        mainListView.setDivider(
+                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
         mainListView.setDividerHeight(2);
 
         if ( mCameraList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
@@ -139,7 +143,9 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                     // Check if the camera is being used with one of the rolls.
                     if (database.isCameraBeingUsed(camera)) {
-                        Toast.makeText(getActivity(), getResources().getString(R.string.CameraNoColon) + " " + camera.getMake() + " " + camera.getModel() + " " + getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getResources().getString(R.string.CameraNoColon) +
+                                " " + camera.getMake() + " " + camera.getModel() + " " +
+                                getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
                         return true;
                     }
 
@@ -231,7 +237,9 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
 
                     Camera camera = data.getParcelableExtra("CAMERA");
 
-                    if ( camera.getMake().length() > 0 && camera.getModel().length() > 0 && camera.getId() > 0 ) {
+                    if ( camera.getMake().length() > 0 &&
+                            camera.getModel().length() > 0 &&
+                            camera.getId() > 0 ) {
 
                         database.updateCamera(camera);
 
@@ -241,7 +249,8 @@ public class CamerasFragment extends Fragment implements View.OnClickListener, A
                         myActivity.updateFragments();
 
                     } else {
-                        Toast.makeText(getActivity(), "Something went wrong :(", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Something went wrong :(",
+                                Toast.LENGTH_SHORT).show();
                     }
 
                 } else if (resultCode == Activity.RESULT_CANCELED){

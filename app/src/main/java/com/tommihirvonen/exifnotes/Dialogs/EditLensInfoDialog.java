@@ -69,7 +69,8 @@ public class EditLensInfoDialog extends DialogFragment {
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(R.id.nested_scroll_view);
+            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(
+                    R.id.nested_scroll_view);
             Utilities.setScrollIndicators(rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
         }
@@ -88,7 +89,8 @@ public class EditLensInfoDialog extends DialogFragment {
         newApertureIncrements = lens.getApertureIncrements();
         bApertureIncrements = (TextView) inflator.findViewById(R.id.btn_apertureIncrements);
         bApertureIncrements.setClickable(true);
-        bApertureIncrements.setText(getResources().getStringArray(R.array.StopIncrements)[lens.getApertureIncrements()]);
+        bApertureIncrements.setText(
+                getResources().getStringArray(R.array.StopIncrements)[lens.getApertureIncrements()]);
         bApertureIncrements.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -98,7 +100,8 @@ public class EditLensInfoDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         newApertureIncrements = i;
-                        bApertureIncrements.setText(getResources().getStringArray(R.array.StopIncrements)[i]);
+                        bApertureIncrements.setText(
+                                getResources().getStringArray(R.array.StopIncrements)[i]);
                         initialiseApertureRangePickers();
                     }
                 });
@@ -113,8 +116,10 @@ public class EditLensInfoDialog extends DialogFragment {
         });
 
         //FOCAL LENGTH RANGE PICKERS
-        final NumberPicker minFocalLengthPicker = (NumberPicker) inflator.findViewById(R.id.minFocalLengthPicker);
-        final NumberPicker maxFocalLengthPicker = (NumberPicker) inflator.findViewById(R.id.maxFocalLengthPicker);
+        final NumberPicker minFocalLengthPicker = (NumberPicker) inflator.findViewById(
+                R.id.minFocalLengthPicker);
+        final NumberPicker maxFocalLengthPicker = (NumberPicker) inflator.findViewById(
+                R.id.maxFocalLengthPicker);
         minFocalLengthPicker.setMinValue(0);
         maxFocalLengthPicker.setMinValue(0);
         minFocalLengthPicker.setMaxValue(1500);
@@ -151,14 +156,16 @@ public class EditLensInfoDialog extends DialogFragment {
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 Intent intent = new Intent();
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
+                getTargetFragment().onActivityResult(
+                        getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
             }
         });
         final AlertDialog dialog = alert.create();
         //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
         // so it doesn't need to deal with resizing
         // but just panned by the framework to ensure the current input focus is visible
-        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.show();
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.
@@ -172,18 +179,22 @@ public class EditLensInfoDialog extends DialogFragment {
 
                 if (make.length() == 0 && model.length() == 0) {
                     // No make or model was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel),
+                            Toast.LENGTH_SHORT).show();
                 } else if (make.length() > 0 && model.length() == 0) {
                     // No model was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
                 } else if (make.length() == 0 && model.length() > 0) {
                     // No make was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
-                } else if ((minAperturePicker.getValue() == displayedApertureValues.length-1 && maxAperturePicker.getValue() != displayedApertureValues.length-1)
+                } else if ((minAperturePicker.getValue() == displayedApertureValues.length-1 &&
+                        maxAperturePicker.getValue() != displayedApertureValues.length-1)
                         ||
-                        (minAperturePicker.getValue() != displayedApertureValues.length-1 && maxAperturePicker.getValue() == displayedApertureValues.length-1)){
+                        (minAperturePicker.getValue() != displayedApertureValues.length-1 &&
+                                maxAperturePicker.getValue() == displayedApertureValues.length-1)){
                     // No min or max shutter was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxAperture), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxAperture),
+                            Toast.LENGTH_LONG).show();
                 } else {
                     lens.setMake(make);
                     lens.setModel(model);
@@ -201,7 +212,8 @@ public class EditLensInfoDialog extends DialogFragment {
                         lens.setMinFocalLength(maxFocalLengthPicker.getValue());
                     }
 
-                    if ( minAperturePicker.getValue() == displayedApertureValues.length-1 && maxAperturePicker.getValue() == displayedApertureValues.length-1 ) {
+                    if ( minAperturePicker.getValue() == displayedApertureValues.length-1 &&
+                            maxAperturePicker.getValue() == displayedApertureValues.length-1 ) {
                         lens.setMinAperture(null);
                         lens.setMaxAperture(null);
                     }

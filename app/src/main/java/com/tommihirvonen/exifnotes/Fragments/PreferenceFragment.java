@@ -22,7 +22,8 @@ import java.io.IOException;
 // Copyright 2015
 // Tommi Hirvonen
 
-public class PreferenceFragment extends android.preference.PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class PreferenceFragment extends android.preference.PreferenceFragment implements
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
 
     // Notice that all we need to do is invoke the addPreferencesFromResource(..) method,
@@ -48,11 +49,14 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                 try {
                     databaseFile = new FileInputStream(FilmDbHelper.getDatabaseFile(getActivity()));
                 } catch (FileNotFoundException e) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.ErrorBuildingDatabaseFile), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(),
+                            getResources().getString(R.string.ErrorBuildingDatabaseFile),
+                            Toast.LENGTH_SHORT).show();
                     return false;
                 }
 
-                DirectoryChooserDialog dirChooserDialog = DirectoryChooserDialog.newInstance(new DirectoryChooserDialog.OnChosenDirectoryListener() {
+                DirectoryChooserDialog dirChooserDialog = DirectoryChooserDialog.newInstance(
+                        new DirectoryChooserDialog.OnChosenDirectoryListener() {
                     @Override
                     public void onChosenDir(String dir) {
                         //dir is empty if the export was canceled.
@@ -65,16 +69,22 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                             try {
                                 outputFile = new FileOutputStream(dir);
                             } catch (FileNotFoundException e) {
-                                Toast.makeText(getActivity(), getResources().getString(R.string.ErrorBuildingOutputFile) + dir, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(),
+                                        getResources().getString(R.string.ErrorBuildingOutputFile) + dir,
+                                        Toast.LENGTH_SHORT).show();
                                 return;
                             }
                             try {
                                 Utilities.copyFile(databaseFile, outputFile);
                             } catch (IOException e){
-                                Toast.makeText(getActivity(), getResources().getString(R.string.ErrorCopyingFile), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(),
+                                        getResources().getString(R.string.ErrorCopyingFile),
+                                        Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            Toast.makeText(getActivity(), getResources().getString(R.string.DatabaseCopiedTo) + dir, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(),
+                                    getResources().getString(R.string.DatabaseCopiedTo) + dir,
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -92,10 +102,12 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(getResources().getString(R.string.ImportDatabaseTitle));
                 builder.setMessage(getResources().getString(R.string.ImportDatabaseVerification));
-                builder.setPositiveButton(getResources().getString(R.string.Continue), new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(getResources().getString(R.string.Continue),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        FileChooserDialog fileChooserDialog = FileChooserDialog.newInstance(new FileChooserDialog.OnChosenFileListener() {
+                        FileChooserDialog fileChooserDialog = FileChooserDialog.newInstance(
+                                new FileChooserDialog.OnChosenFileListener() {
                             @Override
                             public void onChosenFile(String filePath) {
                                 //If the length of filePath is 0, then the user canceled the import.
@@ -105,17 +117,23 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                                     try {
                                         importSuccess = database.importDatabase(getActivity(), filePath);
                                     } catch (IOException e) {
-                                        Toast.makeText(getActivity(), getResources().getString(R.string.ErrorImportingDatabaseFrom) + filePath, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getActivity(),
+                                                getResources().getString(R.string.ErrorImportingDatabaseFrom) +
+                                                        filePath,
+                                                Toast.LENGTH_SHORT).show();
                                         return;
                                     }
-                                    if (importSuccess) Toast.makeText(getActivity(), getResources().getString(R.string.DatabaseImported), Toast.LENGTH_LONG).show();
+                                    if (importSuccess) Toast.makeText(getActivity(),
+                                            getResources().getString(R.string.DatabaseImported),
+                                            Toast.LENGTH_LONG).show();
                                 }
                             }
                         });
                         fileChooserDialog.show(getFragmentManager(), "FileChooserDialogTag");
                     }
                 });
-                builder.setNegativeButton(getResources().getString(R.string.No), new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(getResources().getString(R.string.No),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Do nothing
