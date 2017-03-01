@@ -17,7 +17,7 @@ import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
 
-import java.util.ArrayList;
+import java.util.List;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -29,12 +29,12 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
 
     // This FrameAdapter acts as an ArrayAdapter to link an array and a list view together
 
-    public FrameAdapter(Context context,int textViewResourceId, ArrayList<Frame> frames) {
+    private FilmDbHelper database;
+
+    public FrameAdapter(Context context,int textViewResourceId, List<Frame> frames) {
         super(context, textViewResourceId, frames);
         database = new FilmDbHelper(context);
     }
-
-    private FilmDbHelper database;
 
     /**
      * This function inflates a view in the ListView.
@@ -57,61 +57,61 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         ViewHolder holder;
 
         // Check if an existing view is being reused, otherwise inflate the view
-        if ( convertView == null ) {
+        if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_frame_relative, parent, false);
             holder = new ViewHolder();
-            holder.tvCount = (TextView) convertView.findViewById(R.id.tvCount);
-            holder.tvFrameText = (TextView) convertView.findViewById(R.id.tvFrameText);
-            holder.tvFrameText2 = (TextView) convertView.findViewById(R.id.tvFrameText2);
-            holder.tvShutter = (TextView) convertView.findViewById(R.id.tvShutter);
-            holder.tvAperture = (TextView) convertView.findViewById(R.id.tvAperture);
-            holder.tvNote = (TextView) convertView.findViewById(R.id.tv_frame_note);
-            holder.clock = (ImageView) convertView.findViewById(R.id.drawable_clock);
-            holder.aperture = (ImageView) convertView.findViewById(R.id.drawable_aperture);
+            holder.countTextView = (TextView) convertView.findViewById(R.id.tvCount);
+            holder.frameTextView = (TextView) convertView.findViewById(R.id.tvFrameText);
+            holder.frameTextView2 = (TextView) convertView.findViewById(R.id.tvFrameText2);
+            holder.shutterTextView = (TextView) convertView.findViewById(R.id.tvShutter);
+            holder.apertureTextView = (TextView) convertView.findViewById(R.id.tvAperture);
+            holder.noteTextView = (TextView) convertView.findViewById(R.id.tv_frame_note);
+            holder.clockImageView = (ImageView) convertView.findViewById(R.id.drawable_clock);
+            holder.apertureImageView = (ImageView) convertView.findViewById(R.id.drawable_aperture);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
         // With these commands we can color the black png images grey. Very nice! I like!
-        holder.clock.getDrawable().mutate().setColorFilter(
+        holder.clockImageView.getDrawable().mutate().setColorFilter(
                 ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
-        holder.aperture.getDrawable().mutate().setColorFilter(
+        holder.apertureImageView.getDrawable().mutate().setColorFilter(
                 ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
 
         // Populate the data into the template view using the data object
         if (frame != null) {
-            holder.tvFrameText.setText(frame.getDate());
-            holder.tvCount.setText("" + frame.getCount());
+            holder.frameTextView.setText(frame.getDate());
+            holder.countTextView.setText("" + frame.getCount());
             if (frame.getLensId() > 0) {
                 Lens lens = database.getLens(frame.getLensId());
-                holder.tvFrameText2.setText(lens.getMake() + " " + lens.getModel());
+                holder.frameTextView2.setText(lens.getMake() + " " + lens.getModel());
             } else {
-                holder.tvFrameText2.setText(getContext().getString(R.string.NoLens));
+                holder.frameTextView2.setText(getContext().getString(R.string.NoLens));
             }
-            holder.tvNote.setText(frame.getNote());
+            holder.noteTextView.setText(frame.getNote());
 
-            // If the aperture is empty, then don't show anything.
+            // If the apertureImageView is empty, then don't show anything.
             if (!frame.getAperture().contains("<"))
-                holder.tvAperture.setText("f/" + frame.getAperture());
-            else holder.tvAperture.setText("");
+                holder.apertureTextView.setText("f/" + frame.getAperture());
+            else holder.apertureTextView.setText("");
 
             // If the shutter is empty, then don't show anything.
-            if (!frame.getShutter().contains("<")) holder.tvShutter.setText(frame.getShutter());
-            else holder.tvShutter.setText("");
+            if (!frame.getShutter().contains("<")) holder.shutterTextView.setText(frame.getShutter());
+            else holder.shutterTextView.setText("");
         }
         return convertView;
     }
 
     private static class ViewHolder{
-        TextView tvCount;
-        TextView tvFrameText;
-        TextView tvFrameText2;
-        TextView tvShutter;
-        TextView tvAperture;
-        TextView tvNote;
-        ImageView clock;
-        ImageView aperture;
+        TextView countTextView;
+        TextView frameTextView;
+        TextView frameTextView2;
+        TextView shutterTextView;
+        TextView apertureTextView;
+        TextView noteTextView;
+        ImageView clockImageView;
+        ImageView apertureImageView;
     }
 
 }

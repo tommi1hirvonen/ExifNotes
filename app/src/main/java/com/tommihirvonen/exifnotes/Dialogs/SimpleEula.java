@@ -22,10 +22,10 @@ import com.tommihirvonen.exifnotes.R;
  */
 public class SimpleEula {
 
-    private Activity mActivity;
+    private Activity activity;
 
     public SimpleEula(Activity context) {
-        mActivity = context;
+        activity = context;
     }
 
     /**
@@ -33,14 +33,14 @@ public class SimpleEula {
      * @return  PackageInfo regarding the current version of the app.
      */
     private PackageInfo getPackageInfo() {
-        PackageInfo pi = null;
+        PackageInfo packageInfo = null;
         try {
-            pi = mActivity.getPackageManager().getPackageInfo(
-                    mActivity.getPackageName(), PackageManager.GET_ACTIVITIES);
+            packageInfo = activity.getPackageManager().getPackageInfo(
+                    activity.getPackageName(), PackageManager.GET_ACTIVITIES);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        return pi;
+        return packageInfo;
     }
 
     /**
@@ -54,19 +54,19 @@ public class SimpleEula {
         String eulaPrefix = "eula_";
         final String eulaKey = eulaPrefix + versionInfo.versionCode;
 
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
         boolean hasBeenShown = prefs.getBoolean(eulaKey, false);
 
         if(!hasBeenShown){
 
             // Show the Eula
-            String title = mActivity.getString(R.string.app_name) + " v" + versionInfo.versionName;
+            String title = activity.getString(R.string.app_name) + " v" + versionInfo.versionName;
 
             //Includes the updates as well so users know what changed.
-            String message = mActivity.getString(R.string.Updates) + "\n\n" +
-                    mActivity.getString(R.string.Eula);
+            String message = activity.getString(R.string.Updates) + "\n\n" +
+                    activity.getString(R.string.Eula);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity)
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                     .setCancelable(false)
                     .setTitle(title)
                     .setMessage(message)
@@ -86,7 +86,7 @@ public class SimpleEula {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // Close the activity as they have declined the EULA
-                            mActivity.finish();
+                            activity.finish();
                         }
 
                     });

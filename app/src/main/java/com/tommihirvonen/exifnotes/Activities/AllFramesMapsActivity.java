@@ -37,21 +37,20 @@ import java.util.List;
 public class AllFramesMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     FilmDbHelper database;
-    ArrayList<Roll> mRollClassList = new ArrayList<>();
-    private GoogleMap mMap;
-
-    boolean continue_activity = false;
+    List<Roll> rollList = new ArrayList<>();
+    private GoogleMap googleMap;
+    boolean continueActivity = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if ( savedInstanceState != null ) continue_activity = true;
+        if (savedInstanceState != null) continueActivity = true;
 
         setContentView(R.layout.activity_maps);
 
         database = new FilmDbHelper(this);
-        mRollClassList = database.getAllRolls();
+        rollList = database.getAllRolls();
 
         // ********** Commands to get the action bar and color it **********
         // Get preferences to determine UI color
@@ -60,7 +59,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
-        if ( getSupportActionBar() != null ) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
             getSupportActionBar().setElevation(0);
             getSupportActionBar().setTitle(R.string.AllFrames);
@@ -102,11 +101,11 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        this.googleMap = googleMap;
 
         LatLng position;
-        ArrayList<Marker> markerArrayList = new ArrayList<>();
-        ArrayList<Frame> mFrameClassList;
+        List<Marker> markerList = new ArrayList<>();
+        List<Frame> frameList;
 
         // Iterator to change marker color
         int i = 0;
@@ -122,15 +121,15 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         markerStyles.add(8, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
         markerStyles.add(9, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
 
-        for ( Roll roll : mRollClassList ) {
+        for (Roll roll : rollList) {
 
-            mFrameClassList = database.getAllFramesFromRoll(roll.getId());
+            frameList = database.getAllFramesFromRoll(roll.getId());
 
-            for (Frame frame : mFrameClassList) {
+            for (Frame frame : frameList) {
 
-                // Parse the latlng_location string
+                // Parse the latLngLocation string
                 String location = frame.getLocation();
-                if ( location.length() > 0 && !location.equals("null")) {
+                if (location.length() > 0 && !location.equals("null")) {
                     String latString = location.substring(0, location.indexOf(" "));
                     String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
                     double lat = Double.parseDouble(latString.replace(",", "."));
@@ -138,7 +137,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                     position = new LatLng(lat, lng);
                     String title = "" + roll.getName();
                     String snippet = "#" + frame.getCount();
-                    markerArrayList.add(mMap.addMarker(new MarkerOptions()
+                    markerList.add(this.googleMap.addMarker(new MarkerOptions()
                             .icon(markerStyles.get(i))
                             .position(position)
                             .title(title)
@@ -146,21 +145,21 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                 }
             }
             ++i;
-            if ( i > 9 ) i = 0;
+            if (i > 9) i = 0;
         }
 
-        if ( markerArrayList.size() > 0 ) {
+        if (markerList.size() > 0) {
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
-            for (Marker marker : markerArrayList) {
+            for (Marker marker : markerList) {
                 builder.include(marker.getPosition());
             }
             final LatLngBounds bounds = builder.build();
 
-            if ( !continue_activity ) mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            if (!continueActivity) this.googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
                     int padding = 100;
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+                    AllFramesMapsActivity.this.googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
                 }
             });
         }

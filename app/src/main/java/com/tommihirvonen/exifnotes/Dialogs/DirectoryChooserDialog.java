@@ -17,7 +17,6 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,11 +40,17 @@ import java.util.List;
 
 public class DirectoryChooserDialog extends DialogFragment {
 
+    OnChosenDirectoryListener callback;
+    private TextView currentDirectoryTextView;
+    private String currentDirectory = "";
+    private List<String> subdirectories = null;
+    private ArrayAdapter<String> listAdapter = null;
+
     /**
      * The interface to be implemented in the calling class
      */
     public interface OnChosenDirectoryListener{
-        void onChosenDir(String dir);
+        void onChosenDirectory(String directory);
     }
 
     /**
@@ -55,12 +60,6 @@ public class DirectoryChooserDialog extends DialogFragment {
 
     }
 
-    OnChosenDirectoryListener mCallback;
-    private TextView mCurrentDirView;
-    private String mCurrentDirectory = "";
-    private List<String> mSubdirectories = null;
-    private ArrayAdapter<String> mListAdapter = null;
-
     /**
      * Custom constructor for the DirectoryChooserDialog class.
      *
@@ -69,7 +68,7 @@ public class DirectoryChooserDialog extends DialogFragment {
      */
     public static DirectoryChooserDialog newInstance(OnChosenDirectoryListener listener) {
         DirectoryChooserDialog dialog = new DirectoryChooserDialog();
-        dialog.mCallback = listener;
+        dialog.callback = listener;
         return dialog;
     }
 
@@ -98,9 +97,9 @@ public class DirectoryChooserDialog extends DialogFragment {
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
 
-        mCurrentDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
+        currentDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-        mSubdirectories = getDirectories(mCurrentDirectory);
+        subdirectories = getDirectories(currentDirectory);
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
@@ -112,13 +111,13 @@ public class DirectoryChooserDialog extends DialogFragment {
                 R.id.dir_chooser_dialog_top_element);
         linearLayout.setBackgroundColor(Color.parseColor(primaryColor));
 
-        mCurrentDirView = (TextView) inflatedView.findViewById(R.id.current_directory_textview);
-        mCurrentDirView.setText(mCurrentDirectory);
+        currentDirectoryTextView = (TextView) inflatedView.findViewById(R.id.current_directory_textview);
+        currentDirectoryTextView.setText(currentDirectory);
 
-        ImageView newDirButton = (ImageView) inflatedView.findViewById(R.id.new_directory_button);
-        newDirButton.setClickable(true);
+        ImageView newDirectoryButton = (ImageView) inflatedView.findViewById(R.id.new_directory_button);
+        newDirectoryButton.setClickable(true);
 
-        newDirButton.setOnClickListener(new View.OnClickListener() {
+        newDirectoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final EditText input = new EditText(getActivity());
@@ -130,9 +129,9 @@ public class DirectoryChooserDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String newDirectoryName = input.getText().toString();
                         // Create new directory
-                        if (createSubDir(mCurrentDirectory + "/" + newDirectoryName)) {
+                        if (createSubDir(currentDirectory + "/" + newDirectoryName)) {
                             // Navigate into the new directory
-                            mCurrentDirectory += "/" + newDirectoryName;
+                            currentDirectory += "/" + newDirectoryName;
                             updateDirectory();
                         } else {
                             Toast.makeText(
@@ -150,22 +149,22 @@ public class DirectoryChooserDialog extends DialogFragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!mCurrentDirectory.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
-                    mCurrentDirectory = mCurrentDirectory.substring(0, mCurrentDirectory.lastIndexOf("/"));
+                if (!currentDirectory.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
+                    currentDirectory = currentDirectory.substring(0, currentDirectory.lastIndexOf("/"));
                     updateDirectory();
                 }
             }
         });
 
         //Set up the ListAdapter, ListView and listener
-        mListAdapter = createListAdapter(mSubdirectories);
+        listAdapter = createListAdapter(subdirectories);
         ListView listView = (ListView) inflatedView.findViewById(R.id.subdirectories_listview);
-        listView.setAdapter(mListAdapter);
+        listView.setAdapter(listAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String text = mSubdirectories.get(position);
-                mCurrentDirectory += "/" + text;
+                String text = subdirectories.get(position);
+                currentDirectory += "/" + text;
                 updateDirectory();
             }
         });
@@ -174,13 +173,13 @@ public class DirectoryChooserDialog extends DialogFragment {
         dialogBuilder.setPositiveButton(R.string.ExportHere, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mCallback.onChosenDir(mCurrentDirectory);
+                callback.onChosenDirectory(currentDirectory);
             }
         });
         dialogBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mCallback.onChosenDir("");
+                callback.onChosenDirectory("");
             }
         });
 
@@ -195,10 +194,10 @@ public class DirectoryChooserDialog extends DialogFragment {
      * Update the list of directories and the current directory text.
      */
     private void updateDirectory() {
-        mSubdirectories.clear();
-        mSubdirectories.addAll(getDirectories(mCurrentDirectory));
-        mCurrentDirView.setText(mCurrentDirectory);
-        mListAdapter.notifyDataSetChanged();
+        subdirectories.clear();
+        subdirectories.addAll(getDirectories(currentDirectory));
+        currentDirectoryTextView.setText(currentDirectory);
+        listAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -222,15 +221,15 @@ public class DirectoryChooserDialog extends DialogFragment {
                     convertView = LayoutInflater.from(getContext()).inflate(
                             R.layout.item_directory, parent, false);
                     holder = new ViewHolder();
-                    holder.tvDirectory = (TextView) convertView.findViewById(R.id.tv_directory_name);
-                    holder.ivFolder = (ImageView) convertView.findViewById(R.id.iv_folder);
+                    holder.directoryTextView = (TextView) convertView.findViewById(R.id.tv_directory_name);
+                    holder.folderImageView = (ImageView) convertView.findViewById(R.id.iv_folder);
                     convertView.setTag(holder);
                 } else {
                     holder = (ViewHolder) convertView.getTag();
                 }
 
-                holder.tvDirectory.setText(text);
-                holder.ivFolder.getDrawable().mutate().setColorFilter(ContextCompat.getColor(
+                holder.directoryTextView.setText(text);
+                holder.folderImageView.getDrawable().mutate().setColorFilter(ContextCompat.getColor(
                         getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
 
                 return convertView;
@@ -242,8 +241,8 @@ public class DirectoryChooserDialog extends DialogFragment {
      * Class to hold the view objects in the ArrayAdapter and improve performance
      */
     static class ViewHolder{
-        TextView tvDirectory;
-        ImageView ivFolder;
+        TextView directoryTextView;
+        ImageView folderImageView;
     }
 
     /**

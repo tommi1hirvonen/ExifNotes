@@ -34,26 +34,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     FilmDbHelper database;
     long rollId;
-    ArrayList<Frame> mFrameClassList = new ArrayList<>();
-    private GoogleMap mMap;
-
-    boolean continue_activity = false;
+    List<Frame> frameList = new ArrayList<>();
+    private GoogleMap googleMap;
+    boolean continueActivity = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if ( savedInstanceState != null ) continue_activity = true;
+        if (savedInstanceState != null) continueActivity = true;
 
         setContentView(R.layout.activity_maps);
         Intent intent = getIntent();
         rollId = intent.getLongExtra(FramesFragment.ROLLINFO_EXTRA_MESSAGE, -1);
 
         // If the rollId is -1, then something went wrong.
-        if ( rollId == -1 ) finish();
+        if (rollId == -1) finish();
 
         database = new FilmDbHelper(this);
-        mFrameClassList = database.getAllFramesFromRoll(rollId);
+        frameList = database.getAllFramesFromRoll(rollId);
 
         // ********** Commands to get the action bar and color it **********
         // Get preferences to determine UI color
@@ -108,16 +107,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        this.googleMap = googleMap;
 
         LatLng position;
         ArrayList<Marker> markerArrayList = new ArrayList<>();
 
-        for (Frame frame : mFrameClassList) {
+        for (Frame frame : frameList) {
 
-            // Parse the latlng_location string
+            // Parse the latLngLocation string
             String location = frame.getLocation();
-            if ( location.length() > 0 && !location.equals("null")) {
+            if (location.length() > 0 && !location.equals("null")) {
                 String latString = location.substring(0, location.indexOf(" "));
                 String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
                 double lat = Double.parseDouble(latString.replace(",", "."));
@@ -125,23 +124,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 position = new LatLng(lat, lng);
                 String title = "#" + frame.getCount();
                 String snippet = frame.getDate();
-                markerArrayList.add(mMap.addMarker(
+                markerArrayList.add(this.googleMap.addMarker(
                         new MarkerOptions().position(position).title(title).snippet(snippet)));
             }
         }
 
-        if ( markerArrayList.size() > 0 ) {
+        if (markerArrayList.size() > 0) {
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             for (Marker marker : markerArrayList) {
                 builder.include(marker.getPosition());
             }
             final LatLngBounds bounds = builder.build();
 
-            if ( !continue_activity ) mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            if (!continueActivity) this.googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
                     int padding = 100;
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+                    MapsActivity.this.googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
                 }
             });
         }

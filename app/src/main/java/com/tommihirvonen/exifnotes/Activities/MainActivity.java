@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements
         FramesFragment.OnHomeAsUpPressedListener {
 
     private final static int MY_MULTIPLE_PERMISSIONS_REQUEST = 1;
-
     boolean locationEnabled = false;
 
     /**
@@ -70,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
-        if ( getSupportActionBar() != null ) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
             getSupportActionBar().setElevation(0);
             getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
@@ -92,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements
                 this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
         //Check if the app has all necessary permissions
-        if ( !permissionWriteExternalStorage || !permissionAccessCoarseLocation || !permissionAccessFineLocation ) {
+        if (!permissionWriteExternalStorage || !permissionAccessCoarseLocation || !permissionAccessFineLocation) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                 Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements
 
         // getting GPS status
         boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if ( !isGPSEnabled ) showSettingsAlert();
+        if (!isGPSEnabled) showSettingsAlert();
 
 
         // Check that the activity is using the layout version with
@@ -296,13 +295,13 @@ public class MainActivity extends AppCompatActivity implements
                 // the length of grantResults first.
 
                 //Check location permissions
-                if ( grantResults.length > 0 && grantResults[1] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[2] == PackageManager.PERMISSION_GRANTED ) {
+                if (grantResults.length > 0 && grantResults[1] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
                     locationEnabled = true;
                 }
 
                 //Check write permissions
-                if ( grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED ) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
                     //In case write permission was denied, inform the user.
                     Toast.makeText(this, R.string.NoWritePermission, Toast.LENGTH_LONG).show();
                 }

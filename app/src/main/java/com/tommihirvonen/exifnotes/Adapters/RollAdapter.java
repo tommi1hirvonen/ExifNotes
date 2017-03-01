@@ -12,7 +12,7 @@ import com.tommihirvonen.exifnotes.Datastructures.Roll;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
 
-import java.util.ArrayList;
+import java.util.List;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -26,7 +26,7 @@ public class RollAdapter extends ArrayAdapter<Roll> {
 
     private FilmDbHelper database;
 
-    public RollAdapter(Context context,int textViewResourceId, ArrayList<Roll> rolls) {
+    public RollAdapter(Context context,int textViewResourceId, List<Roll> rolls) {
         super(context, textViewResourceId, rolls);
         database = new FilmDbHelper(context);
     }
@@ -49,31 +49,31 @@ public class RollAdapter extends ArrayAdapter<Roll> {
             String rollName = roll.getName();
             String date = roll.getDate();
             String note = roll.getNote();
-            long camera_id = roll.getCamera_id();
+            long cameraId = roll.getCameraId();
             int numberOfFrames = database.getNumberOfFrames(getItem(position));
             // Check if an existing view is being reused, otherwise inflate the view
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_roll, parent, false);
             }
             // Lookup view for data population
-            TextView tvRollName = (TextView) convertView.findViewById(R.id.tv_roll_name);
-            TextView tvRollDate = (TextView) convertView.findViewById(R.id.tv_roll_date);
-            TextView tvRollNote = (TextView) convertView.findViewById(R.id.tv_roll_note);
-            TextView tvPhotos = (TextView) convertView.findViewById(R.id.tv_photos);
-            TextView tvCamera = (TextView) convertView.findViewById(R.id.tv_camera);
+            TextView nameTextView = (TextView) convertView.findViewById(R.id.tv_roll_name);
+            TextView dateTextView = (TextView) convertView.findViewById(R.id.tv_roll_date);
+            TextView noteTextView = (TextView) convertView.findViewById(R.id.tv_roll_note);
+            TextView photosTextView = (TextView) convertView.findViewById(R.id.tv_photos);
+            TextView cameraTextView = (TextView) convertView.findViewById(R.id.tv_camera);
 
             // Populate the data into the template view using the data object
-            tvRollName.setText(rollName);
-            tvRollDate.setText(date);
-            tvRollNote.setText(note);
-            tvCamera.setText(database.getCamera(camera_id).getMake() + " " +
-                    database.getCamera(camera_id).getModel());
+            nameTextView.setText(rollName);
+            dateTextView.setText(date);
+            noteTextView.setText(note);
+            cameraTextView.setText(database.getCamera(cameraId).getMake() + " " +
+                    database.getCamera(cameraId).getModel());
             if (numberOfFrames == 1)
-                tvPhotos.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photo));
+                photosTextView.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photo));
             else if (numberOfFrames == 0)
-                tvPhotos.setText(getContext().getString(R.string.NoPhotos));
+                photosTextView.setText(getContext().getString(R.string.NoPhotos));
             else
-                tvPhotos.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photos));
+                photosTextView.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photos));
         }
         return convertView;
     }

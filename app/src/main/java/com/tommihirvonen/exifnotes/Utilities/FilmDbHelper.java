@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 // Copyright 2015
@@ -314,8 +315,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param roll_id the id of the roll
      * @return an array of Frames
      */
-    public ArrayList<Frame> getAllFramesFromRoll(long roll_id){
-        ArrayList<Frame> frames = new ArrayList<>();
+    public List<Frame> getAllFramesFromRoll(long roll_id){
+        List<Frame> frames = new ArrayList<>();
         // Get reference to readable database
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(
@@ -405,10 +406,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     /**
      * Gets all the lenses from the database.
-     * @return an ArrayList of all the lenses in the database.
+     * @return a List of all the lenses in the database.
      */
-    public ArrayList<Lens> getAllLenses(){
-        ArrayList<Lens> lenses = new ArrayList<>();
+    public List<Lens> getAllLenses(){
+        List<Lens> lenses = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_LENSES, null, null, null, null, null, KEY_LENS_MAKE);
         Lens lens;
@@ -500,10 +501,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     /**
      * Gets all the cameras from the database
-     * @return an ArrayList of all the cameras in the database
+     * @return a List of all the cameras in the database
      */
-    public ArrayList<Camera> getAllCameras(){
-        ArrayList<Camera> cameras = new ArrayList<>();
+    public List<Camera> getAllCameras(){
+        List<Camera> cameras = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_CAMERAS, null, null, null, null, null, KEY_CAMERA_MAKE);
         Camera camera;
@@ -596,10 +597,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     /**
      * Gets all the lenses that can be mounted to the specified camera
      * @param camera the camera whose lenses we want to get
-     * @return an ArrayList of all the mountable lenses
+     * @return a List of all the mountable lenses
      */
-    public ArrayList<Lens> getMountableLenses(Camera camera){
-        ArrayList<Lens> lenses = new ArrayList<>();
+    public List<Lens> getMountableLenses(Camera camera){
+        List<Lens> lenses = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
@@ -620,10 +621,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     /**
      * Gets all the camras that can be mounted to the specified lens
      * @param lens the lens whose cameras we want to get
-     * @return an ArrayList of all the mountable cameras
+     * @return a List of all the mountable cameras
      */
-    public ArrayList<Camera> getMountableCameras(Lens lens){
-        ArrayList<Camera> cameras = new ArrayList<>();
+    public List<Camera> getMountableCameras(Lens lens){
+        List<Camera> cameras = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         String query = "SELECT * FROM " + TABLE_CAMERAS + " WHERE " + KEY_CAMERA_ID + " IN "
@@ -657,10 +658,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     /**
      * Gets all the rolls in the database
-     * @return an ArrayList of all the rolls in the database
+     * @return a List of all the rolls in the database
      */
-    public ArrayList<Roll> getAllRolls(){
-        ArrayList<Roll> rolls = new ArrayList<>();
+    public List<Roll> getAllRolls(){
+        List<Roll> rolls = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_ROLLS, null, null, null, null, null, KEY_ROLL_DATE + " DESC");
         Roll roll;
@@ -769,10 +770,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     /**
      * Gets all the filters from the database
-     * @return an ArrayList of all the filters in the database
+     * @return a List of all the filters in the database
      */
-    public ArrayList<Filter> getAllFilters(){
-        ArrayList<Filter> filters = new ArrayList<>();
+    public List<Filter> getAllFilters(){
+        List<Filter> filters = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_FILTERS, null, null, null, null, null, KEY_FILTER_MAKE);
         Filter filter;
@@ -862,10 +863,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     /**
      * Gets all the lenses that can be mounted to the specified filter
      * @param filter the filter whose lenses we want to get
-     * @return an ArrayList of all the mountable lenses
+     * @return a List of all the mountable lenses
      */
-    public ArrayList<Lens> getMountableLenses(Filter filter){
-        ArrayList<Lens> lenses = new ArrayList<>();
+    public List<Lens> getMountableLenses(Filter filter){
+        List<Lens> lenses = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
@@ -886,10 +887,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     /**
      * Gets all the filters that can be mounted to the specified lens
      * @param lens the lens whose filters we want to get
-     * @return an ArrayList of all the mountable filters
+     * @return a List of all the mountable filters
      */
-    public ArrayList<Filter> getMountableFilters(Lens lens){
-        ArrayList<Filter> filters = new ArrayList<>();
+    public List<Filter> getMountableFilters(Lens lens){
+        List<Filter> filters = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         String query = "SELECT * FROM " + TABLE_FILTERS + " WHERE " + KEY_FILTER_ID + " IN "
@@ -947,7 +948,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         roll.setName(cursor.getString(cursor.getColumnIndex(KEY_ROLLNAME)));
         roll.setDate(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE)));
         roll.setNote(cursor.getString(cursor.getColumnIndex(KEY_ROLL_NOTE)));
-        roll.setCamera_id(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
+        roll.setCameraId(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
         roll.setIso(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ISO)));
         roll.setPushPull(cursor.getString(cursor.getColumnIndex(KEY_ROLL_PUSH)));
         roll.setFormat(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_FORMAT)));
@@ -1051,7 +1052,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_ROLLNAME, roll.getName());
         contentValues.put(KEY_ROLL_DATE, roll.getDate());
         contentValues.put(KEY_ROLL_NOTE, roll.getNote());
-        contentValues.put(KEY_CAMERA_ID, roll.getCamera_id());
+        contentValues.put(KEY_CAMERA_ID, roll.getCameraId());
         contentValues.put(KEY_ROLL_ISO, roll.getIso());
         contentValues.put(KEY_ROLL_PUSH, roll.getPushPull());
         contentValues.put(KEY_ROLL_FORMAT, roll.getFormat());

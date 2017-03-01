@@ -44,13 +44,13 @@ public class CamerasFragment extends Fragment implements
         View.OnClickListener,
         AdapterView.OnItemClickListener {
 
-    TextView mainTextView;
-    ListView mainListView;
-    CameraAdapter mArrayAdapter;
-    ArrayList<Camera> mCameraList;
-    FilmDbHelper database;
     public static final int ADD_CAMERA = 1;
     public static final int EDIT_CAMERA = 2;
+    TextView mainTextView;
+    ListView mainListView;
+    CameraAdapter cameraAdapter;
+    List<Camera> cameraList;
+    FilmDbHelper database;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,12 +63,12 @@ public class CamerasFragment extends Fragment implements
         LayoutInflater linf = getActivity().getLayoutInflater();
 
         database = new FilmDbHelper(getActivity());
-        mCameraList = database.getAllCameras();
+        cameraList = database.getAllCameras();
 
         final View view = linf.inflate(R.layout.cameras_fragment, container, false);
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_cameras);
-        fab.setOnClickListener(this);
+        FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab_cameras);
+        floatingActionButton.setOnClickListener(this);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
@@ -77,7 +77,7 @@ public class CamerasFragment extends Fragment implements
         String secondaryColor = colors.get(1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
 
         mainTextView = (TextView) view.findViewById(R.id.no_added_cameras);
 
@@ -85,11 +85,11 @@ public class CamerasFragment extends Fragment implements
         mainListView = (ListView) view.findViewById(R.id.main_cameraslistview);
 
         // Create an ArrayAdapter for the ListView
-        mArrayAdapter = new CameraAdapter(
-                getActivity(), android.R.layout.simple_list_item_1, mCameraList);
+        cameraAdapter = new CameraAdapter(
+                getActivity(), android.R.layout.simple_list_item_1, cameraList);
 
         // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(mArrayAdapter);
+        mainListView.setAdapter(cameraAdapter);
 
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
@@ -102,9 +102,9 @@ public class CamerasFragment extends Fragment implements
                 new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
         mainListView.setDividerHeight(2);
 
-        if ( mCameraList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
+        if (cameraList.size() >= 1) mainTextView.setVisibility(View.GONE);
 
-        mArrayAdapter.notifyDataSetChanged();
+        cameraAdapter.notifyDataSetChanged();
 
         return view;
     }
@@ -127,10 +127,10 @@ public class CamerasFragment extends Fragment implements
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
-        if ( getUserVisibleHint() ) {
+        if (getUserVisibleHint()) {
 
             int which = info.position;
-            Camera camera = mCameraList.get(which);
+            Camera camera = cameraList.get(which);
 
             switch (item.getItemId()) {
 
@@ -151,11 +151,11 @@ public class CamerasFragment extends Fragment implements
 
                     database.deleteCamera(camera);
 
-                    // Remove the roll from the mLensList. Do this last!!!
-                    mCameraList.remove(which);
+                    // Remove the roll from the lensList. Do this last!!!
+                    cameraList.remove(which);
 
-                    if (mCameraList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                    mArrayAdapter.notifyDataSetChanged();
+                    if (cameraList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                    cameraAdapter.notifyDataSetChanged();
 
                     // Update the LensesFragment through the parent activity.
                     GearActivity myActivity = (GearActivity)getActivity();
@@ -211,14 +211,14 @@ public class CamerasFragment extends Fragment implements
 
                     Camera camera = data.getParcelableExtra("CAMERA");
 
-                    if ( camera.getMake().length() > 0 && camera.getModel().length() > 0 ) {
+                    if (camera.getMake().length() > 0 && camera.getModel().length() > 0) {
 
                         mainTextView.setVisibility(View.GONE);
 
                         long rowId = database.addCamera(camera);
                         camera.setId(rowId);
-                        mCameraList.add(camera);
-                        mArrayAdapter.notifyDataSetChanged();
+                        cameraList.add(camera);
+                        cameraAdapter.notifyDataSetChanged();
 
                         // When the lens is added jump to view the last entry
                         mainListView.setSelection(mainListView.getCount() - 1);
@@ -237,16 +237,16 @@ public class CamerasFragment extends Fragment implements
 
                     Camera camera = data.getParcelableExtra("CAMERA");
 
-                    if ( camera.getMake().length() > 0 &&
+                    if (camera.getMake().length() > 0 &&
                             camera.getModel().length() > 0 &&
-                            camera.getId() > 0 ) {
+                            camera.getId() > 0) {
 
                         database.updateCamera(camera);
 
-                        mArrayAdapter.notifyDataSetChanged();
+                        cameraAdapter.notifyDataSetChanged();
                         // Update the LensesFragment through the parent activity.
-                        GearActivity myActivity = (GearActivity)getActivity();
-                        myActivity.updateFragments();
+                        GearActivity gearActivity = (GearActivity)getActivity();
+                        gearActivity.updateFragments();
 
                     } else {
                         Toast.makeText(getActivity(), "Something went wrong :(",
@@ -263,34 +263,32 @@ public class CamerasFragment extends Fragment implements
     }
 
     void showSelectMountableLensesDialog(int position){
-        final Camera camera = mCameraList.get(position);
-        final ArrayList<Lens> mountableLenses = database.getMountableLenses(camera);
-        final ArrayList<Lens> allLenses = database.getAllLenses();
+        final Camera camera = cameraList.get(position);
+        final List<Lens> mountableLenses = database.getMountableLenses(camera);
+        final List<Lens> allLenses = database.getAllLenses();
 
         // Make a list of strings for all the camera names to be showed in the
         // multi choice list.
         // Also make an array list containing all the camera id's for list comparison.
         // Comparing lists containing frames is not easy.
         List<String> listItems = new ArrayList<>();
-        ArrayList<Long> allLensesId = new ArrayList<>();
-        for ( int i = 0; i < allLenses.size(); ++i ) {
+        List<Long> allLensesId = new ArrayList<>();
+        for (int i = 0; i < allLenses.size(); ++i) {
             listItems.add(allLenses.get(i).getMake() + " " + allLenses.get(i).getModel());
             allLensesId.add(allLenses.get(i).getId());
         }
 
         // Make an array list containing all mountable camera id's.
-        ArrayList<Long> mountableLensesId = new ArrayList<>();
-        for ( int i = 0; i < mountableLenses.size(); ++i ) {
+        List<Long> mountableLensesId = new ArrayList<>();
+        for (int i = 0; i < mountableLenses.size(); ++i) {
             mountableLensesId.add(mountableLenses.get(i).getId());
         }
 
         // Find the items in the list to be preselected
         final boolean[] booleans = new boolean[allLenses.size()];
-        for ( int i= 0; i < allLensesId.size(); ++i ) {
+        for (int i= 0; i < allLensesId.size(); ++i) {
             booleans[i] = mountableLensesId.contains(allLensesId.get(i));
         }
-
-
 
         final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -299,9 +297,9 @@ public class CamerasFragment extends Fragment implements
 
         // Create an array list where the selections are saved. Initialize it with
         // the booleans array.
-        final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
-        for ( int i = 0; i < booleans.length; ++i ) {
-            if ( booleans[i] ) selectedItemsIndexList.add(i);
+        final List<Integer> selectedItemsIndexList = new ArrayList<>();
+        for (int i = 0; i < booleans.length; ++i) {
+            if (booleans[i]) selectedItemsIndexList.add(i);
         }
 
         builder.setTitle(R.string.SelectMountableLenses)
@@ -349,11 +347,11 @@ public class CamerasFragment extends Fragment implements
                             Lens lens = allLenses.get(which);
                             database.deleteMountable(camera, lens);
                         }
-                        mArrayAdapter.notifyDataSetChanged();
+                        cameraAdapter.notifyDataSetChanged();
 
                         // Update the LensesFragment through the parent activity.
-                        GearActivity myActivity = (GearActivity)getActivity();
-                        myActivity.updateFragments();
+                        GearActivity gearActivity = (GearActivity)getActivity();
+                        gearActivity.updateFragments();
                     }
                 })
                 .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -367,6 +365,6 @@ public class CamerasFragment extends Fragment implements
     }
 
     public void updateFragment(){
-        mArrayAdapter.notifyDataSetChanged();
+        cameraAdapter.notifyDataSetChanged();
     }
 }

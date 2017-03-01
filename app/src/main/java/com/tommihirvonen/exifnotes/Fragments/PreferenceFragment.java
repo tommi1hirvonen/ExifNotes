@@ -55,22 +55,22 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                     return false;
                 }
 
-                DirectoryChooserDialog dirChooserDialog = DirectoryChooserDialog.newInstance(
+                DirectoryChooserDialog directoryChooserDialog = DirectoryChooserDialog.newInstance(
                         new DirectoryChooserDialog.OnChosenDirectoryListener() {
                     @Override
-                    public void onChosenDir(String dir) {
+                    public void onChosenDirectory(String directory) {
                         //dir is empty if the export was canceled.
                         //Otherwise proceed
-                        if (dir.length() > 0) {
+                        if (directory.length() > 0) {
                             //Export the files to the given path
                             //Inform the user if something went wrong
-                            dir = dir + "/" + FilmDbHelper.DATABASE_NAME;
+                            directory = directory + "/" + FilmDbHelper.DATABASE_NAME;
                             FileOutputStream outputFile;
                             try {
-                                outputFile = new FileOutputStream(dir);
+                                outputFile = new FileOutputStream(directory);
                             } catch (FileNotFoundException e) {
                                 Toast.makeText(getActivity(),
-                                        getResources().getString(R.string.ErrorBuildingOutputFile) + dir,
+                                        getResources().getString(R.string.ErrorBuildingOutputFile) + directory,
                                         Toast.LENGTH_SHORT).show();
                                 return;
                             }
@@ -83,12 +83,12 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                                 return;
                             }
                             Toast.makeText(getActivity(),
-                                    getResources().getString(R.string.DatabaseCopiedTo) + dir,
+                                    getResources().getString(R.string.DatabaseCopiedTo) + directory,
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
-                dirChooserDialog.show(getFragmentManager(), "DirChooserDialogTag");
+                directoryChooserDialog.show(getFragmentManager(), "DirChooserDialogTag");
 
 
                 return true;

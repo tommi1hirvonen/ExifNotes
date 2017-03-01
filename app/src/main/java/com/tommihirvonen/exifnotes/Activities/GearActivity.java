@@ -46,7 +46,7 @@ public class GearActivity extends AppCompatActivity {
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
-        if ( getSupportActionBar() != null ) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
             getSupportActionBar().setElevation(0);
             getSupportActionBar().setTitle(R.string.Gear);
@@ -84,7 +84,7 @@ public class GearActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch ( item.getItemId() ) {
+        switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
                 return true;

@@ -35,20 +35,19 @@ import java.util.Collections;
 public class EditLensInfoDialog extends DialogFragment {
 
     public static final String TAG = "LensInfoDialogFragment";
-
-    public EditLensInfoDialog(){
-
-    }
-
     Lens lens;
     Utilities utilities;
     int newApertureIncrements;
     String[] displayedApertureValues;
 
-    TextView bApertureIncrements;
+    TextView apertureIncrementsTextView;
 
     NumberPicker minAperturePicker;
     NumberPicker maxAperturePicker;
+
+    public EditLensInfoDialog(){
+
+    }
 
     @NonNull
     @Override
@@ -78,20 +77,20 @@ public class EditLensInfoDialog extends DialogFragment {
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflator);
 
-        final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);
-        et1.setText(lens.getMake());
-        final EditText et2 = (EditText) inflator.findViewById(R.id.txt_model);
-        et2.setText(lens.getModel());
-        final EditText et3 = (EditText) inflator.findViewById(R.id.txt_serial_number);
-        et3.setText(lens.getSerialNumber());
+        final EditText makeEditText = (EditText) inflator.findViewById(R.id.txt_make);
+        makeEditText.setText(lens.getMake());
+        final EditText modelEditText = (EditText) inflator.findViewById(R.id.txt_model);
+        modelEditText.setText(lens.getModel());
+        final EditText serialNumberEditText = (EditText) inflator.findViewById(R.id.txt_serial_number);
+        serialNumberEditText.setText(lens.getSerialNumber());
 
         //APERTURE INCREMENTS BUTTON
         newApertureIncrements = lens.getApertureIncrements();
-        bApertureIncrements = (TextView) inflator.findViewById(R.id.btn_apertureIncrements);
-        bApertureIncrements.setClickable(true);
-        bApertureIncrements.setText(
+        apertureIncrementsTextView = (TextView) inflator.findViewById(R.id.btn_apertureIncrements);
+        apertureIncrementsTextView.setClickable(true);
+        apertureIncrementsTextView.setText(
                 getResources().getStringArray(R.array.StopIncrements)[lens.getApertureIncrements()]);
-        bApertureIncrements.setOnClickListener(new View.OnClickListener() {
+        apertureIncrementsTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -100,7 +99,7 @@ public class EditLensInfoDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         newApertureIncrements = i;
-                        bApertureIncrements.setText(
+                        apertureIncrementsTextView.setText(
                                 getResources().getStringArray(R.array.StopIncrements)[i]);
                         initialiseApertureRangePickers();
                     }
@@ -130,7 +129,7 @@ public class EditLensInfoDialog extends DialogFragment {
         minFocalLengthPicker.setValue(50);
         maxFocalLengthPicker.setValue(50);
         for (int i = 0; i < 1501; ++i) {
-            if ( i == lens.getMinFocalLength() ) {
+            if (i == lens.getMinFocalLength()) {
                 minFocalLengthPicker.setValue(i);
                 break;
             }
@@ -173,9 +172,9 @@ public class EditLensInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
 
-                String make = et1.getText().toString();
-                String model = et2.getText().toString();
-                String serialNumber = et3.getText().toString();
+                String make = makeEditText.getText().toString();
+                String model = modelEditText.getText().toString();
+                String serialNumber = serialNumberEditText.getText().toString();
 
                 if (make.length() == 0 && model.length() == 0) {
                     // No make or model was set
@@ -236,7 +235,7 @@ public class EditLensInfoDialog extends DialogFragment {
     }
 
     private void initialiseApertureRangePickers(){
-        switch ( newApertureIncrements ) {
+        switch (newApertureIncrements) {
             case 0:
                 displayedApertureValues = utilities.apertureValuesThird;
                 break;
@@ -250,7 +249,7 @@ public class EditLensInfoDialog extends DialogFragment {
                 displayedApertureValues = utilities.apertureValuesThird;
                 break;
         }
-        if ( displayedApertureValues[0].equals(getResources().getString(R.string.NoValue)) ) {
+        if (displayedApertureValues[0].equals(getResources().getString(R.string.NoValue))) {
             Collections.reverse(Arrays.asList(displayedApertureValues));
         }
         minAperturePicker.setMinValue(0);

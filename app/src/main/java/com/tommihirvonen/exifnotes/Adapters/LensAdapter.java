@@ -14,7 +14,7 @@ import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
 
-import java.util.ArrayList;
+import java.util.List;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -26,11 +26,11 @@ public class LensAdapter extends ArrayAdapter<Lens> {
 
     // This LensAdapter acts as an ArrayAdapter to link an array and a list view together
 
-    public LensAdapter(Context context, int textViewResourceId, ArrayList<Lens> lenses) {
+    private FilmDbHelper database = new FilmDbHelper(getContext());
+
+    public LensAdapter(Context context, int textViewResourceId, List<Lens> lenses) {
         super(context, textViewResourceId, lenses);
     }
-
-    private FilmDbHelper database = new FilmDbHelper(getContext());
 
     /**
      * This function inflates a view in the ListView.
@@ -45,20 +45,20 @@ public class LensAdapter extends ArrayAdapter<Lens> {
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
         Lens lens = getItem(position);
-        ArrayList<Camera> mountableCameras = database.getMountableCameras(lens);
-        ArrayList<Filter> mountableFilters = database.getMountableFilters(lens);
+        List<Camera> mountableCameras = database.getMountableCameras(lens);
+        List<Filter> mountableFilters = database.getMountableFilters(lens);
 
         // Check if an existing view is being used, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_gear, parent, false);
         }
         // Lookup view for data population
-        TextView tvLensName = (TextView) convertView.findViewById(R.id.tv_gear_name);
-        TextView tvMountables = (TextView) convertView.findViewById(R.id.tv_mountables);
+        TextView nameTextView = (TextView) convertView.findViewById(R.id.tv_gear_name);
+        TextView mountablesTextView = (TextView) convertView.findViewById(R.id.tv_mountables);
 
         // Populate the data into the template view using the data object
         if (lens != null) {
-            tvLensName.setText(lens.getMake() + " " + lens.getModel());
+            nameTextView.setText(lens.getMake() + " " + lens.getModel());
 
             //Build string to display mountable cameras and filters
             StringBuilder stringBuilder = new StringBuilder();
@@ -71,8 +71,8 @@ public class LensAdapter extends ArrayAdapter<Lens> {
             for (Filter filter : mountableFilters) {
                 stringBuilder.append("\n- ").append(filter.getMake()).append(" ").append(filter.getModel());
             }
-            String mountables_string = stringBuilder.toString();
-            tvMountables.setText(mountables_string);
+            String mountablesString = stringBuilder.toString();
+            mountablesTextView.setText(mountablesString);
         }
         return convertView;
     }

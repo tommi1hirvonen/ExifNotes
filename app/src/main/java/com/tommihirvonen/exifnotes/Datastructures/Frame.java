@@ -12,23 +12,23 @@ import android.os.Parcelable;
 public class Frame implements Parcelable {
 
     private long id;
-    private long roll_id;
+    private long rollId;
     private int count;
     private String date;
-    private long lens_id;
+    private long lensId;
     private String shutter;
     private String aperture;
     private String note;
     private String location;
 
-    private int focal_length;
-    private String exposure_comp;
-    private int no_of_exposures;
-    private int flash_used;
-    private String flash_power;
-    private String flash_comp;
-    private long filter_id;
-    private int metering_mode;
+    private int focalLength;
+    private String exposureComp;
+    private int noOfExposures;
+    private int flashUsed;
+    private String flashPower;
+    private String flashComp;
+    private long filterId;
+    private int meteringMode;
 
     public Frame(){
         // Empty constructor
@@ -37,36 +37,36 @@ public class Frame implements Parcelable {
 //    public Frame(long roll,
 //                 int count,
 //                 String date,
-//                 long lens_id,
+//                 long lensId,
 //                 String shutter,
 //                 String aperture,
 //                 String note,
 //                 String location,
-//                 int focal_length,
-//                 String exposure_comp,
-//                 int no_of_exposures,
-//                 int flash_used,
-//                 String flash_power,
-//                 String flash_comp,
-//                 long filter_id,
-//                 String metering_mode
+//                 int focalLength,
+//                 String exposureComp,
+//                 int noOfExposures,
+//                 int flashUsed,
+//                 String flashPower,
+//                 String flashComp,
+//                 long filterId,
+//                 String meteringMode
 //    ) {
-//        this.roll_id = roll;
+//        this.rollId = roll;
 //        this.count = count;
 //        this.date = date;
-//        this.lens_id = lens_id;
+//        this.lensId = lensId;
 //        this.shutter = shutter;
 //        this.aperture = aperture;
 //        this.note = note;
 //        this.location = location;
-//        this.focal_length = focal_length;
-//        this.exposure_comp = exposure_comp;
-//        this.no_of_exposures = no_of_exposures;
-//        this.flash_used = flash_used;
-//        this.flash_power = flash_power;
-//        this.flash_comp = flash_comp;
-//        this.filter_id = filter_id;
-//        this.metering_mode = metering_mode;
+//        this.focalLength = focalLength;
+//        this.exposureComp = exposureComp;
+//        this.noOfExposures = noOfExposures;
+//        this.flashUsed = flashUsed;
+//        this.flashPower = flashPower;
+//        this.flashComp = flashComp;
+//        this.filterId = filterId;
+//        this.meteringMode = meteringMode;
 //    }
 
 
@@ -76,7 +76,7 @@ public class Frame implements Parcelable {
     }
 
     public void setRollId(long input){
-        this.roll_id = input;
+        this.rollId = input;
     }
 
     public void setCount(int input){
@@ -88,7 +88,7 @@ public class Frame implements Parcelable {
     }
 
     public void setLensId(long input){
-        this.lens_id = input;
+        this.lensId = input;
     }
 
     public void setShutter(String input) {
@@ -108,35 +108,35 @@ public class Frame implements Parcelable {
     }
 
     public void setFocalLength(int input) {
-        this.focal_length = input;
+        this.focalLength = input;
     }
 
     public void setExposureComp(String input) {
-        this.exposure_comp = input;
+        this.exposureComp = input;
     }
 
     public void setNoOfExposures(int input){
-        this.no_of_exposures = input;
+        this.noOfExposures = input;
     }
 
     public void setFlashUsed(int input){
-        this.flash_used = input;
+        this.flashUsed = input;
     }
 
     public void setFlashPower(String input){
-        this.flash_power = input;
+        this.flashPower = input;
     }
 
     public void setFlashComp(String input){
-        this.flash_comp = input;
+        this.flashComp = input;
     }
 
     public void setFilterId(long input){
-        this.filter_id = input;
+        this.filterId = input;
     }
 
     public void setMeteringMode(int input){
-        this.metering_mode = input;
+        this.meteringMode = input;
     }
 
     //Methods to get members
@@ -145,7 +145,7 @@ public class Frame implements Parcelable {
     }
 
     public long getRollId(){
-        return this.roll_id;
+        return this.rollId;
     }
 
     public int getCount(){
@@ -157,7 +157,7 @@ public class Frame implements Parcelable {
     }
 
     public long getLensId(){
-        return this.lens_id;
+        return this.lensId;
     }
 
     public String getShutter(){
@@ -177,57 +177,57 @@ public class Frame implements Parcelable {
     }
 
     public int getFocalLength(){
-        return this.focal_length;
+        return this.focalLength;
     }
 
     public String getExposureComp(){
-        return this.exposure_comp;
+        return this.exposureComp;
     }
 
     public int getNoOfExposures(){
-        return this.no_of_exposures;
+        return this.noOfExposures;
     }
 
     public int getFlashUsed(){
-        return this.flash_used;
+        return this.flashUsed;
     }
 
     public String getFlashPower(){
-        return this.flash_power;
+        return this.flashPower;
     }
 
     public String getFlashComp(){
-        return this.flash_comp;
+        return this.flashComp;
     }
 
     public long getFilterId(){
-        return this.filter_id;
+        return this.filterId;
     }
 
     public int getMeteringMode(){
-        return this.metering_mode;
+        return this.meteringMode;
     }
 
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
     private Frame(Parcel pc){
         this.id = pc.readLong();
-        this.roll_id = pc.readLong();
+        this.rollId = pc.readLong();
         this.count = pc.readInt();
         this.date = pc.readString();
-        this.lens_id = pc.readLong();
+        this.lensId = pc.readLong();
         this.shutter = pc.readString();
         this.aperture = pc.readString();
         this.note = pc.readString();
         this.location = pc.readString();
-        this.focal_length = pc.readInt();
-        this.exposure_comp = pc.readString();
-        this.no_of_exposures = pc.readInt();
-        this.flash_used = pc.readInt();
-        this.flash_power = pc.readString();
-        this.flash_comp = pc.readString();
-        this.filter_id = pc.readLong();
-        this.metering_mode = pc.readInt();
+        this.focalLength = pc.readInt();
+        this.exposureComp = pc.readString();
+        this.noOfExposures = pc.readInt();
+        this.flashUsed = pc.readInt();
+        this.flashPower = pc.readString();
+        this.flashComp = pc.readString();
+        this.filterId = pc.readLong();
+        this.meteringMode = pc.readInt();
     }
 
     @Override
@@ -238,22 +238,22 @@ public class Frame implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeLong(id);
-        parcel.writeLong(roll_id);
+        parcel.writeLong(rollId);
         parcel.writeInt(count);
         parcel.writeString(date);
-        parcel.writeLong(lens_id);
+        parcel.writeLong(lensId);
         parcel.writeString(shutter);
         parcel.writeString(aperture);
         parcel.writeString(note);
         parcel.writeString(location);
-        parcel.writeInt(focal_length);
-        parcel.writeString(exposure_comp);
-        parcel.writeInt(no_of_exposures);
-        parcel.writeInt(flash_used);
-        parcel.writeString(flash_power);
-        parcel.writeString(flash_comp);
-        parcel.writeLong(filter_id);
-        parcel.writeInt(metering_mode);
+        parcel.writeInt(focalLength);
+        parcel.writeString(exposureComp);
+        parcel.writeInt(noOfExposures);
+        parcel.writeInt(flashUsed);
+        parcel.writeString(flashPower);
+        parcel.writeString(flashComp);
+        parcel.writeLong(filterId);
+        parcel.writeInt(meteringMode);
     }
 
     /** Static field used to regenerate object, individually or as arrays */

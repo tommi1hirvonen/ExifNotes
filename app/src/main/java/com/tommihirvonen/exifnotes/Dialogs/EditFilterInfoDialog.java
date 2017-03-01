@@ -25,12 +25,11 @@ import com.tommihirvonen.exifnotes.Utilities.Utilities;
 public class EditFilterInfoDialog extends DialogFragment {
 
     public static final String TAG = "FilterInfoDialogFragment";
+    Filter filter;
 
     public EditFilterInfoDialog(){
 
     }
-
-    Filter filter;
 
     @NonNull
     @Override
@@ -49,10 +48,10 @@ public class EditFilterInfoDialog extends DialogFragment {
 
         alert.setView(inflator);
 
-        final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);
-        et1.setText(filter.getMake());
-        final EditText et2 = (EditText) inflator.findViewById(R.id.txt_model);
-        et2.setText(filter.getModel());
+        final EditText makeEditText = (EditText) inflator.findViewById(R.id.txt_make);
+        makeEditText.setText(filter.getMake());
+        final EditText modelEditText = (EditText) inflator.findViewById(R.id.txt_model);
+        modelEditText.setText(filter.getModel());
 
 
         alert.setPositiveButton(positiveButton, null);
@@ -74,8 +73,8 @@ public class EditFilterInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
 
-                String make = et1.getText().toString();
-                String model = et2.getText().toString();
+                String make = makeEditText.getText().toString();
+                String model = modelEditText.getText().toString();
 
                 if (make.length() == 0 && model.length() == 0) {
                     // No make or model was set

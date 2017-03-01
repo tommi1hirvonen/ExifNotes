@@ -144,20 +144,20 @@ public class Utilities {
      * @return false if something went wrong, true otherwise
      */
     public static boolean writeTextFile(File file, String text){
-        FileOutputStream fOut;
+        FileOutputStream fileOutputStream;
         try {
-            fOut = new FileOutputStream(file);
+            fileOutputStream = new FileOutputStream(file);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return false;
         }
 
-        OutputStreamWriter osw = new OutputStreamWriter(fOut);
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
         try {
-            osw.write(text);
-            osw.flush();
-            osw.close();
+            outputStreamWriter.write(text);
+            outputStreamWriter.flush();
+            outputStreamWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -204,9 +204,9 @@ public class Utilities {
      * @param input Datetime string in format YYYY-M-D HH:MM
      * @return ArrayList with three members: { YYYY, M, D }
      */
-    public static ArrayList<String> splitDate(String input) {
+    public static List<String> splitDate(String input) {
         String[] items = input.split(" ");
-        ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
+        List<String> itemList = new ArrayList<>(Arrays.asList(items));
         // { YYYY-M-D, HH:MM }
         String[] items2 = itemList.get(0).split("-");
         itemList = new ArrayList<>(Arrays.asList(items2));
@@ -220,9 +220,9 @@ public class Utilities {
      * @param input Datetime string in format YYYY-M-D HH:MM
      * @return ArrayList with two members: { HH, MM }
      */
-    public static ArrayList<String> splitTime(String input) {
+    public static List<String> splitTime(String input) {
         String[] items = input.split(" ");
-        ArrayList<String> itemList = new ArrayList<>(Arrays.asList(items));
+        List<String> itemList = new ArrayList<>(Arrays.asList(items));
         // { YYYY-M-D, HH:MM }
         String[] items2 = itemList.get(1).split(":");
         itemList = new ArrayList<>(Arrays.asList(items2));
@@ -233,11 +233,11 @@ public class Utilities {
     /**
      * This function deletes all the files in a directory
      *
-     * @param dir the directory whose files are to be deleted
+     * @param directory the directory whose files are to be deleted
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void purgeDirectory(File dir) {
-        for(File file: dir.listFiles()) {
+    public static void purgeDirectory(File directory) {
+        for(File file: directory.listFiles()) {
             if (!file.isDirectory()) {
                 file.delete();
             }
@@ -363,7 +363,7 @@ public class Utilities {
     /**
      * This function is called when the user has selected a sorting criteria.
      */
-    public void sortFrameList(Context context, final FilmDbHelper database, ArrayList<Frame> listToSort) {
+    public void sortFrameList(Context context, final FilmDbHelper database, List<Frame> listToSort) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         final Utilities utilities = new Utilities(context);
         int sortId = sharedPref.getInt("FrameSortOrder", 0);
@@ -527,39 +527,39 @@ public class Utilities {
         String space = " ";
         String lineSep = System.getProperty("line.separator");
 
-        ArrayList<Frame> frameList = database.getAllFramesFromRoll(rollId);
+        List<Frame> frameList = database.getAllFramesFromRoll(rollId);
         Roll roll = database.getRoll(rollId);
-        Camera camera = database.getCamera(roll.getCamera_id());
+        Camera camera = database.getCamera(roll.getCameraId());
 
-        for ( Frame frame : frameList ) {
+        for (Frame frame : frameList) {
 
             Lens lens = null;
             if (frame.getLensId() > 0) lens = database.getLens(frame.getLensId());
 
             //ExifTool path
-            if ( exiftoolPath.length() > 0 ) stringBuilder.append(exiftoolPath);
+            if (exiftoolPath.length() > 0) stringBuilder.append(exiftoolPath);
             //ExifTool command
             stringBuilder.append(exiftoolCmd).append(space);
             //CameraMakeTag
-            stringBuilder.append(cameraMakeTag).append(quote).append(database.getCamera(roll.getCamera_id()).getMake()).append(quote).append(space);
+            stringBuilder.append(cameraMakeTag).append(quote).append(database.getCamera(roll.getCameraId()).getMake()).append(quote).append(space);
             //CameraModelTag
-            stringBuilder.append(cameraModelTag).append(quote).append(database.getCamera(roll.getCamera_id()).getModel()).append(quote).append(space);
+            stringBuilder.append(cameraModelTag).append(quote).append(database.getCamera(roll.getCameraId()).getModel()).append(quote).append(space);
             //LensMakeTag & LensModelTag
-            if ( lens != null ) {
+            if (lens != null) {
                 stringBuilder.append(lensMakeTag).append(quote).append(lens.getMake()).append(quote).append(space);
                 stringBuilder.append(lensModelTag).append(quote).append(lens.getModel()).append(quote).append(space);
             }
             //DateTime
             stringBuilder.append(dateTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
             //ShutterSpeedValue
-            if ( !frame.getShutter().contains("<") ) stringBuilder.append(shutterTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
+            if (!frame.getShutter().contains("<")) stringBuilder.append(shutterTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
             //ApertureValue
-            if ( !frame.getAperture().contains("<") )
+            if (!frame.getAperture().contains("<"))
                 stringBuilder.append(apertureTag).append(quote).append(frame.getAperture()).append(quote).append(space);
             //UserComment
-            if ( frame.getNote() != null && frame.getNote().length() > 0 ) stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
+            if (frame.getNote() != null && frame.getNote().length() > 0) stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
             //GPSLatitude & GPSLongitude & GPSLatitudeRef & GPSLongitudeRef
-            if ( frame.getLocation() != null && frame.getLocation().length() > 0 ) {
+            if (frame.getLocation() != null && frame.getLocation().length() > 0) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
                 String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
                 String latRef;
@@ -596,15 +596,15 @@ public class Utilities {
                 stringBuilder.append(lensSerialNumberTag).append(quote).append(lens.getSerialNumber()).append(quote).append(space);
 
             //Artist
-            if ( artistName.length() > 0 ) stringBuilder.append(artistTag).append(quote).append(artistName).append(quote).append(space);
+            if (artistName.length() > 0) stringBuilder.append(artistTag).append(quote).append(artistName).append(quote).append(space);
             //Copyright
-            if ( copyrightInformation.length() > 0 ) stringBuilder.append(copyrightTag).append(quote).append(copyrightInformation).append(quote).append(space);
+            if (copyrightInformation.length() > 0) stringBuilder.append(copyrightTag).append(quote).append(copyrightInformation).append(quote).append(space);
             //Path to pictures
-            if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
-            if ( picturesPath.length() > 0 ) stringBuilder.append(picturesPath);
+            if (picturesPath.contains(" ")) stringBuilder.append(quote);
+            if (picturesPath.length() > 0) stringBuilder.append(picturesPath);
             //File ending
             stringBuilder.append("*").append(frame.getCount()).append(fileEnding);
-            if ( picturesPath.contains(" ") ) stringBuilder.append(quote);
+            if (picturesPath.contains(" ")) stringBuilder.append(quote);
             //Semicolon and new line
             stringBuilder.append(";").append(lineSep).append(lineSep);
 
@@ -620,9 +620,9 @@ public class Utilities {
      */
     public static String createCsvString(Context context, FilmDbHelper database, long rollId) {
 
-        ArrayList<Frame> frameList = database.getAllFramesFromRoll(rollId);
+        List<Frame> frameList = database.getAllFramesFromRoll(rollId);
         Roll roll = database.getRoll(rollId);
-        Camera camera = database.getCamera(roll.getCamera_id());
+        Camera camera = database.getCamera(roll.getCameraId());
 
         final String separator = ",";
         StringBuilder stringBuilder = new StringBuilder();
@@ -657,7 +657,7 @@ public class Utilities {
                 .append("No of exposures").append(separator)
                 .append("Location").append("\n");
 
-        for ( Frame frame : frameList ) {
+        for (Frame frame : frameList) {
 
             Lens lens = null;
             if (frame.getLensId() > 0) lens = database.getLens(frame.getLensId());
@@ -671,7 +671,7 @@ public class Utilities {
             stringBuilder.append(separator);
 
             //Lens make and model
-            if ( lens != null ) stringBuilder.append(lens.getMake()).append(" ").append(lens.getModel());
+            if (lens != null) stringBuilder.append(lens.getMake()).append(" ").append(lens.getModel());
             stringBuilder.append(separator);
 
             //Lens serial number
@@ -680,11 +680,11 @@ public class Utilities {
             stringBuilder.append(separator);
 
             // /Shutter speed
-            if ( !frame.getShutter().contains("<") )stringBuilder.append(frame.getShutter());
+            if (!frame.getShutter().contains("<"))stringBuilder.append(frame.getShutter());
             stringBuilder.append(separator);
 
             //Aperture
-            if ( !frame.getAperture().contains("<") )
+            if (!frame.getAperture().contains("<"))
                 stringBuilder.append("f").append(frame.getAperture());
             stringBuilder.append(separator);
 
@@ -698,7 +698,7 @@ public class Utilities {
             stringBuilder.append(separator);
 
             //Note
-            if ( frame.getNote() != null && frame.getNote().length() > 0 ) stringBuilder.append(frame.getNote());
+            if (frame.getNote() != null && frame.getNote().length() > 0) stringBuilder.append(frame.getNote());
             stringBuilder.append(separator);
 
             //Number of exposures
@@ -706,7 +706,7 @@ public class Utilities {
             stringBuilder.append(separator);
 
             //Location
-            if ( frame.getLocation() != null && frame.getLocation().length() > 0 ) {
+            if (frame.getLocation() != null && frame.getLocation().length() > 0) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
                 String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
                 String latRef;
@@ -760,16 +760,16 @@ public class Utilities {
      */
     public static String getCurrentTime() {
         final Calendar c = Calendar.getInstance();
-        int iYear = c.get(Calendar.YEAR);
-        int iMonth = c.get(Calendar.MONTH) + 1;
-        int iDay = c.get(Calendar.DAY_OF_MONTH);
-        int iHour = c.get(Calendar.HOUR_OF_DAY);
-        int iMin = c.get(Calendar.MINUTE);
-        String current_time;
-        if (iMin < 10) {
-            current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":0" + iMin;
-        } else current_time = iYear + "-" + iMonth + "-" + iDay + " " + iHour + ":" + iMin;
-        return current_time;
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH) + 1;
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = c.get(Calendar.MINUTE);
+        String currentTime;
+        if (minute < 10) {
+            currentTime = year + "-" + month + "-" + day + " " + hour + ":0" + minute;
+        } else currentTime = year + "-" + month + "-" + day + " " + hour + ":" + minute;
+        return currentTime;
     }
 
     /**

@@ -15,9 +15,9 @@ public class Roll implements Parcelable {
     private String name;
     private String date;
     private String note;
-    private long camera_id;
+    private long cameraId;
     private int iso;
-    private String push_pull;
+    private String pushPull;
     private int format;
 
     public Roll(){
@@ -28,18 +28,18 @@ public class Roll implements Parcelable {
 //                String name,
 //                String date,
 //                String note,
-//                long camera_id,
+//                long cameraId,
 //                int iso,
-//                String push_pull,
+//                String pushPull,
 //                String format
 //    ){
 //        this.id = id;
 //        this.name = name;
 //        this.date = date;
 //        this.note = note;
-//        this.camera_id = camera_id;
+//        this.cameraId = cameraId;
 //        this.iso = iso;
-//        this.push_pull = push_pull;
+//        this.pushPull = pushPull;
 //        this.format = format;
 //    }
 
@@ -59,8 +59,8 @@ public class Roll implements Parcelable {
         this.note = input;
     }
 
-    public void setCamera_id(long input) {
-        this.camera_id = input;
+    public void setCameraId(long input) {
+        this.cameraId = input;
     }
 
     public void setIso(int input){
@@ -68,7 +68,7 @@ public class Roll implements Parcelable {
     }
 
     public void setPushPull(String input){
-        this.push_pull = input;
+        this.pushPull = input;
     }
 
     public void setFormat(int input){
@@ -91,8 +91,8 @@ public class Roll implements Parcelable {
         return this.note;
     }
 
-    public long getCamera_id(){
-        return this.camera_id;
+    public long getCameraId(){
+        return this.cameraId;
     }
 
     public int getIso(){
@@ -100,7 +100,7 @@ public class Roll implements Parcelable {
     }
 
     public String getPushPull(){
-        return this.push_pull;
+        return this.pushPull;
     }
 
     public int getFormat(){
@@ -114,9 +114,9 @@ public class Roll implements Parcelable {
         this.name = pc.readString();
         this.date = pc.readString();
         this.note = pc.readString();
-        this.camera_id = pc.readLong();
+        this.cameraId = pc.readLong();
         this.iso = pc.readInt();
-        this.push_pull = pc.readString();
+        this.pushPull = pc.readString();
         this.format = pc.readInt();
     }
 
@@ -131,9 +131,9 @@ public class Roll implements Parcelable {
         parcel.writeString(name);
         parcel.writeString(date);
         parcel.writeString(note);
-        parcel.writeLong(camera_id);
+        parcel.writeLong(cameraId);
         parcel.writeInt(iso);
-        parcel.writeString(push_pull);
+        parcel.writeString(pushPull);
         parcel.writeInt(format);
     }
 

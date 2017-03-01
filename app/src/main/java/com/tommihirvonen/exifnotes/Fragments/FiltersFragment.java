@@ -44,13 +44,13 @@ public class FiltersFragment extends Fragment implements
         AdapterView.OnItemClickListener,
         View.OnClickListener {
 
-    TextView mainTextView;
-    ListView mainListView;
-    FilterAdapter mArrayAdapter;
-    ArrayList<Filter> mFilterList;
-    FilmDbHelper database;
     public static final int ADD_FILTER = 1;
     public static final int EDIT_FILTER = 2;
+    TextView mainTextView;
+    ListView mainListView;
+    FilterAdapter filterAdapter;
+    List<Filter> filterList;
+    FilmDbHelper database;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,12 +63,12 @@ public class FiltersFragment extends Fragment implements
         LayoutInflater linf = getActivity().getLayoutInflater();
 
         database = new FilmDbHelper(getActivity());
-        mFilterList = database.getAllFilters();
+        filterList = database.getAllFilters();
 
         final View view = linf.inflate(R.layout.filters_fragment, container, false);
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_filters);
-        fab.setOnClickListener(this);
+        FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab_filters);
+        floatingActionButton.setOnClickListener(this);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
@@ -77,7 +77,7 @@ public class FiltersFragment extends Fragment implements
         String secondaryColor = colors.get(1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
 
         mainTextView = (TextView) view.findViewById(R.id.no_added_filters);
 
@@ -85,11 +85,11 @@ public class FiltersFragment extends Fragment implements
         mainListView = (ListView) view.findViewById(R.id.main_filterslistview);
 
         // Create an ArrayAdapter for the ListView
-        mArrayAdapter = new FilterAdapter(
-                getActivity(), android.R.layout.simple_list_item_1, mFilterList);
+        filterAdapter = new FilterAdapter(
+                getActivity(), android.R.layout.simple_list_item_1, filterList);
 
         // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(mArrayAdapter);
+        mainListView.setAdapter(filterAdapter);
 
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
@@ -102,9 +102,9 @@ public class FiltersFragment extends Fragment implements
                 new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
         mainListView.setDividerHeight(2);
 
-        if ( mFilterList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
+        if (filterList.size() >= 1) mainTextView.setVisibility(View.GONE);
 
-        mArrayAdapter.notifyDataSetChanged();
+        filterAdapter.notifyDataSetChanged();
 
         return view;
     }
@@ -148,10 +148,10 @@ public class FiltersFragment extends Fragment implements
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
-        if ( getUserVisibleHint() ) {
+        if (getUserVisibleHint()) {
 
             int which = info.position;
-            Filter filter = mFilterList.get(which);
+            Filter filter = filterList.get(which);
 
             switch (item.getItemId()) {
 
@@ -172,15 +172,15 @@ public class FiltersFragment extends Fragment implements
 
                     database.deleteFilter(filter);
 
-                    // Remove the roll from the mLensList. Do this last!!!
-                    mFilterList.remove(which);
+                    // Remove the roll from the lensList. Do this last!!!
+                    filterList.remove(which);
 
-                    if (mFilterList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                    mArrayAdapter.notifyDataSetChanged();
+                    if (filterList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                    filterAdapter.notifyDataSetChanged();
 
                     // Update the LensesFragment through the parent activity.
-                    GearActivity myActivity = (GearActivity)getActivity();
-                    myActivity.updateFragments();
+                    GearActivity gearActivity = (GearActivity)getActivity();
+                    gearActivity.updateFragments();
 
                     return true;
 
@@ -212,14 +212,14 @@ public class FiltersFragment extends Fragment implements
 
                     Filter filter = data.getParcelableExtra("FILTER");
 
-                    if ( filter.getMake().length() > 0 && filter.getModel().length() > 0 ) {
+                    if (filter.getMake().length() > 0 && filter.getModel().length() > 0) {
 
                         mainTextView.setVisibility(View.GONE);
 
                         long rowId = database.addFilter(filter);
                         filter.setId(rowId);
-                        mFilterList.add(filter);
-                        mArrayAdapter.notifyDataSetChanged();
+                        filterList.add(filter);
+                        filterAdapter.notifyDataSetChanged();
 
                         // When the lens is added jump to view the last entry
                         mainListView.setSelection(mainListView.getCount() - 1);
@@ -238,13 +238,13 @@ public class FiltersFragment extends Fragment implements
 
                     Filter filter = data.getParcelableExtra("FILTER");
 
-                    if ( filter.getMake().length() > 0 &&
+                    if (filter.getMake().length() > 0 &&
                             filter.getModel().length() > 0 &&
-                            filter.getId() > 0 ) {
+                            filter.getId() > 0) {
 
                         database.updateFilter(filter);
 
-                        mArrayAdapter.notifyDataSetChanged();
+                        filterAdapter.notifyDataSetChanged();
 
                     } else {
                         Toast.makeText(getActivity(), "Something went wrong :(",
@@ -261,30 +261,30 @@ public class FiltersFragment extends Fragment implements
     }
 
     void showSelectMountableLensesDialog(int position){
-        final Filter filter = mFilterList.get(position);
-        final ArrayList<Lens> mountableLenses = database.getMountableLenses(filter);
-        final ArrayList<Lens> allLenses = database.getAllLenses();
+        final Filter filter = filterList.get(position);
+        final List<Lens> mountableLenses = database.getMountableLenses(filter);
+        final List<Lens> allLenses = database.getAllLenses();
 
         // Make a list of strings for all the lens names to be showed in the
         // multi choice list.
         // Also make an array list containing all the lens id's for list comparison.
         // Comparing lists containing lenses is not easy.
         List<String> listItems = new ArrayList<>();
-        ArrayList<Long> allLensesId = new ArrayList<>();
-        for ( int i = 0; i < allLenses.size(); ++i ) {
+        List<Long> allLensesId = new ArrayList<>();
+        for (int i = 0; i < allLenses.size(); ++i) {
             listItems.add(allLenses.get(i).getMake() + " " + allLenses.get(i).getModel());
             allLensesId.add(allLenses.get(i).getId());
         }
 
         // Make an array list containing all mountable lens id's.
-        ArrayList<Long> mountableLensesId = new ArrayList<>();
-        for ( int i = 0; i < mountableLenses.size(); ++i ) {
+        List<Long> mountableLensesId = new ArrayList<>();
+        for (int i = 0; i < mountableLenses.size(); ++i) {
             mountableLensesId.add(mountableLenses.get(i).getId());
         }
 
         // Find the items in the list to be preselected
         final boolean[] booleans = new boolean[allLenses.size()];
-        for ( int i= 0; i < allLensesId.size(); ++i ) {
+        for (int i= 0; i < allLensesId.size(); ++i) {
             booleans[i] = mountableLensesId.contains(allLensesId.get(i));
         }
 
@@ -297,8 +297,8 @@ public class FiltersFragment extends Fragment implements
 
         // Create an array list where the selections are saved. Initialize it with
         // the booleans array.
-        final ArrayList<Integer> selectedItemsIndexList = new ArrayList<>();
-        for ( int i = 0; i < booleans.length; ++i ) {
+        final List<Integer> selectedItemsIndexList = new ArrayList<>();
+        for (int i = 0; i < booleans.length; ++i) {
             if ( booleans[i] ) selectedItemsIndexList.add(i);
         }
 
@@ -328,7 +328,7 @@ public class FiltersFragment extends Fragment implements
                         Collections.sort(selectedItemsIndexList);
 
                         // Get the not selected indices.
-                        ArrayList<Integer> notSelectedItemsIndexList = new ArrayList<>();
+                        List<Integer> notSelectedItemsIndexList = new ArrayList<>();
                         for (int i = 0; i < allLenses.size(); ++i) {
                             if (!selectedItemsIndexList.contains(i))
                                 notSelectedItemsIndexList.add(i);
@@ -347,7 +347,7 @@ public class FiltersFragment extends Fragment implements
                             Lens lens = allLenses.get(which);
                             database.deleteMountableFilterLens(filter, lens);
                         }
-                        mArrayAdapter.notifyDataSetChanged();
+                        filterAdapter.notifyDataSetChanged();
 
                         // Update the LensesFragment through the parent activity.
                         GearActivity myActivity = (GearActivity)getActivity();
@@ -365,6 +365,6 @@ public class FiltersFragment extends Fragment implements
     }
 
     public void updateFragment(){
-        mArrayAdapter.notifyDataSetChanged();
+        filterAdapter.notifyDataSetChanged();
     }
 }

@@ -16,15 +16,15 @@ import com.tommihirvonen.exifnotes.Datastructures.Lens;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class FilterAdapter extends ArrayAdapter<Filter> {
 
-    public FilterAdapter(Context context, int resource, ArrayList<Filter> filters) {
+    private FilmDbHelper database = new FilmDbHelper(getContext());
+
+    public FilterAdapter(Context context, int resource, List<Filter> filters) {
         super(context, resource, filters);
     }
-
-    private FilmDbHelper database = new FilmDbHelper(getContext());
 
     /**
      * This function inflates a view in the ListView.
@@ -39,26 +39,26 @@ public class FilterAdapter extends ArrayAdapter<Filter> {
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
         Filter filter = getItem(position);
-        ArrayList<Lens> mountableLenses = database.getMountableLenses(filter);
+        List<Lens> mountableLenses = database.getMountableLenses(filter);
 
         // Check if an existing view is being used, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_gear, parent, false);
         }
         // Lookup view for data population
-        TextView tvFilterName = (TextView) convertView.findViewById(R.id.tv_gear_name);
-        TextView tvMountables = (TextView) convertView.findViewById(R.id.tv_mountables);
+        TextView nameTextView = (TextView) convertView.findViewById(R.id.tv_gear_name);
+        TextView mountablesTextView = (TextView) convertView.findViewById(R.id.tv_mountables);
 
         // Populate the data into the template view using the data object
-        if (filter != null) tvFilterName.setText(filter.getMake() + " " + filter.getModel());
+        if (filter != null) nameTextView.setText(filter.getMake() + " " + filter.getModel());
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getContext().getResources().getString(R.string.MountsTo));
-        for ( Lens lens : mountableLenses ) {
+        for (Lens lens : mountableLenses) {
             stringBuilder.append("\n- ").append(lens.getMake()).append(" ").append(lens.getModel());
         }
-        String mountables_string = stringBuilder.toString();
-        tvMountables.setText(mountables_string);
+        String mountablesString = stringBuilder.toString();
+        mountablesTextView.setText(mountablesString);
 
         return convertView;
     }

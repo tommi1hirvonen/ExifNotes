@@ -14,8 +14,8 @@ import com.tommihirvonen.exifnotes.Fragments.LensesFragment;
 import com.tommihirvonen.exifnotes.R;
 
 public class PagerAdapter extends FragmentPagerAdapter {
-    private static final int PAGE_COUNT = 3;
 
+    private static final int PAGE_COUNT = 3;
     private Activity activity;
     private Fragment Lenses, Cameras, Filters;
 
@@ -54,17 +54,13 @@ public class PagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         switch (position) {
-
             case 2:
                 return activity.getResources().getString(R.string.Filters);
-
             case 1:
                 return activity.getResources().getString(R.string.Lenses);
-
             case 0:
                 return activity.getResources().getString(R.string.Cameras);
         }
-
         return null;
     }
 }

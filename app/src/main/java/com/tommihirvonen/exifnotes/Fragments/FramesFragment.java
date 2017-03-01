@@ -19,7 +19,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -35,7 +34,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -75,11 +73,37 @@ public class FramesFragment extends Fragment implements
         AdapterView.OnItemClickListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener,
-        View.OnLongClickListener,
-        AbsListView.OnScrollListener {
+        LocationListener {
 
-    OnHomeAsUpPressedListener mCallback;
+    public final static String ROLLINFO_EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
+    public static final String FRAMES_FRAGMENT_TAG = "FRAMES_FRAGMENT";
+    public static final int FRAME_INFO_DIALOG = 1;
+    public static final int EDIT_FRAME_INFO_DIALOG = 2;
+    public static final int ERROR_DIALOG = 3;
+
+    FilmDbHelper database;
+    TextView mainTextView;
+    ListView mainListView;
+    List<Frame> frameList = new ArrayList<>();
+    FrameAdapter frameAdapter;
+    Utilities utilities;
+
+    ShareActionProvider shareActionProvider;
+
+    long rollId;
+    long cameraId;
+    int counter = 0;
+
+    FloatingActionButton floatingActionButton;
+
+    // Google client to interact with Google API
+    boolean locationEnabled;
+    private GoogleApiClient googleApiClient;
+    Location lastLocation;
+    LocationRequest locationRequest;
+    boolean requestingLocationUpdates;
+
+    OnHomeAsUpPressedListener callback;
 
     /**
      * This interface is implemented in MainActivity.
@@ -96,7 +120,7 @@ public class FramesFragment extends Fragment implements
     @Override
     public void onAttach(Activity a) {
         super.onAttach(a);
-        mCallback = (OnHomeAsUpPressedListener) a;
+        callback = (OnHomeAsUpPressedListener) a;
     }
 
     /**
@@ -106,38 +130,10 @@ public class FramesFragment extends Fragment implements
     @Override
     public void onAttach(Context c) {
         super.onAttach(c);
-        mCallback = (OnHomeAsUpPressedListener) c;
+        callback = (OnHomeAsUpPressedListener) c;
     }
 
-    public final static String ROLLINFO_EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
 
-    public static final String FRAMES_FRAGMENT_TAG = "FRAMES_FRAGMENT";
-
-    FilmDbHelper database;
-    TextView mainTextView;
-    ListView mainListView;
-    ArrayList<Frame> mFrameClassList = new ArrayList<>();
-    FrameAdapter mFrameAdapter;
-    Utilities utilities;
-
-    ShareActionProvider mShareActionProvider;
-
-    long rollId;
-    long camera_id;
-    int counter = 0;
-
-    FloatingActionButton fab;
-
-    // Google client to interact with Google API
-    boolean locationEnabled;
-    private GoogleApiClient mGoogleApiClient;
-    Location mLastLocation;
-    LocationRequest mLocationRequest;
-    boolean mRequestingLocationUpdates;
-
-    public static final int FRAME_INFO_DIALOG = 1;
-    public static final int EDIT_FRAME_INFO_DIALOG = 2;
-    public static final int ERROR_DIALOG = 3;
 
     /**
      * Called when the fragment is created.
@@ -156,35 +152,35 @@ public class FramesFragment extends Fragment implements
         locationEnabled = getArguments().getBoolean("LOCATION_ENABLED");
 
         database = new FilmDbHelper(getActivity());
-        mFrameClassList = database.getAllFramesFromRoll(rollId);
-        camera_id = database.getRoll(rollId).getCamera_id();
+        frameList = database.getAllFramesFromRoll(rollId);
+        cameraId = database.getRoll(rollId).getCameraId();
 
         //Sort the list according to preferences
-        utilities.sortFrameList(getActivity(), database, mFrameClassList);
+        utilities.sortFrameList(getActivity(), database, frameList);
 
         // Activate GPS locating if the user has granted permission.
         if (locationEnabled) {
 
             // Create an instance of GoogleAPIClient for latlng_location services.
-            if (mGoogleApiClient == null) {
-                mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+            if (googleApiClient == null) {
+                googleApiClient = new GoogleApiClient.Builder(getActivity())
                         .addConnectionCallbacks(this)
                         .addOnConnectionFailedListener(this)
                         .addApi(LocationServices.API)
                         .build();
             }
             // Create locationRequest to update the current latlng_location.
-            mLocationRequest = new LocationRequest();
+            locationRequest = new LocationRequest();
             // 10 seconds
-            mLocationRequest.setInterval(10*1000);
+            locationRequest.setInterval(10*1000);
             // 1 second
-            mLocationRequest.setFastestInterval(1000);
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setFastestInterval(1000);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
         // This can be done anyway. It only has effect if locationEnabled is true.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
-        mRequestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
+        requestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
     }
 
     /**
@@ -210,9 +206,9 @@ public class FramesFragment extends Fragment implements
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        fab = (FloatingActionButton) view.findViewById(R.id.fab);
-        fab.setOnClickListener(this);
-        fab.setOnLongClickListener(this);
+        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(this);
+        //floatingActionButton.setOnLongClickListener(this);
 
         // Get preferences to determine UI color
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
@@ -223,18 +219,18 @@ public class FramesFragment extends Fragment implements
         String secondaryColor = colors.get(1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
 
         mainTextView = (TextView) view.findViewById(R.id.no_added_frames);
 
         // Access the ListView
         mainListView = (ListView) view.findViewById(R.id.frames_listview);
         // Create an ArrayAdapter for the ListView
-        mFrameAdapter = new FrameAdapter(
-                getActivity(), android.R.layout.simple_list_item_1, mFrameClassList);
+        frameAdapter = new FrameAdapter(
+                getActivity(), android.R.layout.simple_list_item_1, frameList);
 
         // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(mFrameAdapter);
+        mainListView.setAdapter(frameAdapter);
 
         mainListView.setOnItemClickListener(this);
 
@@ -246,14 +242,12 @@ public class FramesFragment extends Fragment implements
                 new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
         mainListView.setDividerHeight(1);
 
-        if (mFrameClassList.size() >= 1) {
-            counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
+        if (frameList.size() >= 1) {
+            counter = frameList.get(frameList.size() - 1).getCount();
             mainTextView.setVisibility(View.GONE);
         }
 
         if (mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
-
-        mainListView.setOnScrollListener(this);
 
         return view;
     }
@@ -275,12 +269,12 @@ public class FramesFragment extends Fragment implements
 
         if (shareItem != null) {
             //Link the Intent to be shared to the ShareActionProvider
-            mShareActionProvider = new ShareActionProvider(getActivity());
-            mShareActionProvider.setShareIntent(setShareIntentExportRoll());
+            shareActionProvider = new ShareActionProvider(getActivity());
+            shareActionProvider.setShareIntent(setShareIntentExportRoll());
         }
 
         //Link the ShareActionProvider to the menu item
-        MenuItemCompat.setActionProvider(shareItem, mShareActionProvider);
+        MenuItemCompat.setActionProvider(shareItem, shareActionProvider);
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -311,14 +305,14 @@ public class FramesFragment extends Fragment implements
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
-        if ( getUserVisibleHint() ) {
+        if (getUserVisibleHint()) {
             switch (item.getItemId()) {
                 case R.id.menu_item_edit:
 
                     int position = info.position;
 
                     // Edit frame info
-                    Frame frame = mFrameClassList.get(position);
+                    Frame frame = frameList.get(position);
                     String title = "" + getActivity().getString(R.string.EditFrame) + frame.getCount();
                     String positiveButton = getActivity().getResources().getString(R.string.OK);
                     Bundle arguments = new Bundle();
@@ -337,17 +331,17 @@ public class FramesFragment extends Fragment implements
 
                     int which = info.position;
 
-                    Frame deletableFrame = mFrameClassList.get(which);
+                    Frame deletableFrame = frameList.get(which);
                     database.deleteFrame(deletableFrame);
-                    mFrameClassList.remove(which);
+                    frameList.remove(which);
 
-                    if (mFrameClassList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                    mFrameAdapter.notifyDataSetChanged();
-                    if (mFrameClassList.size() >= 1)
-                        counter = mFrameClassList.get(mFrameClassList.size() - 1).getCount();
+                    if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                    frameAdapter.notifyDataSetChanged();
+                    if (frameList.size() >= 1)
+                        counter = frameList.get(frameList.size() - 1).getCount();
                     else counter = 0;
 
-                    mShareActionProvider.setShareIntent(setShareIntentExportRoll());
+                    shareActionProvider.setShareIntent(setShareIntentExportRoll());
 
                     return true;
             }
@@ -378,8 +372,8 @@ public class FramesFragment extends Fragment implements
                         editor.putInt("FrameSortOrder", which);
                         editor.apply();
                         dialog.dismiss();
-                        utilities.sortFrameList(getActivity(), database, mFrameClassList);
-                        mFrameAdapter.notifyDataSetChanged();
+                        utilities.sortFrameList(getActivity(), database, frameList);
+                        frameAdapter.notifyDataSetChanged();
                     }
                 });
                 sortDialog.show();
@@ -423,7 +417,7 @@ public class FramesFragment extends Fragment implements
             case android.R.id.home:
 
                 // INTERFACE TO MAINACTIVITY
-                mCallback.onHomeAsUpPressed();
+                callback.onHomeAsUpPressed();
 
                 break;
 
@@ -440,19 +434,19 @@ public class FramesFragment extends Fragment implements
                 DirectoryChooserDialog dirChooserDialog = DirectoryChooserDialog.newInstance(
                         new DirectoryChooserDialog.OnChosenDirectoryListener() {
                     @Override
-                    public void onChosenDir(String dir) {
+                    public void onChosenDirectory(String directory) {
                         //dir is empty if the export was canceled.
                         //Otherwise proceed
-                        if (dir.length() > 0) {
+                        if (directory.length() > 0) {
                             //Export the files to the given path
                             //Inform the user if something went wrong
-                            if (!exportFilesTo(dir)){
+                            if (!exportFilesTo(directory)){
                                 Toast.makeText(getActivity(),
                                         getResources().getString(R.string.ErrorExporting),
                                         Toast.LENGTH_LONG).show();
                             } else {
                                 Toast.makeText(getActivity(),
-                                        getResources().getString(R.string.ExportedFilesTo) + " " + dir,
+                                        getResources().getString(R.string.ExportedFilesTo) + " " + directory,
                                         Toast.LENGTH_LONG).show();
                             }
                         }
@@ -498,12 +492,12 @@ public class FramesFragment extends Fragment implements
 
         if (filesToExport.equals("BOTH") || filesToExport.equals("CSV")) {
             //Write the csv file
-            if (! Utilities.writeTextFile(fileCsv, csvString)) return false;
+            if (!Utilities.writeTextFile(fileCsv, csvString)) return false;
         }
 
         if (filesToExport.equals("BOTH") || filesToExport.equals("EXIFTOOL")) {
             //Write the ExifTool commands file
-            if (! Utilities.writeTextFile(fileExifToolCmds, exifToolCmds)) return false;
+            if (!Utilities.writeTextFile(fileExifToolCmds, exifToolCmds)) return false;
         }
 
         //Export was successful
@@ -561,11 +555,12 @@ public class FramesFragment extends Fragment implements
             shareIntent.setType("text/plain");
 
             //Create an array with the file names
-            ArrayList<String> filesToSend = new ArrayList<>();
+            List<String> filesToSend = new ArrayList<>();
             filesToSend.add(getActivity().getExternalFilesDir(null) + "/" + fileNameCsv);
             filesToSend.add(getActivity().getExternalFilesDir(null) + "/" + fileNameExifToolCmds);
 
-            //Create an array of Files
+            //Create an ArrayList of files.
+            //NOTE: putParcelableArrayListExtra requires an ArrayList as its argument
             ArrayList<Uri> files = new ArrayList<>();
             for(String path : filesToSend ) {
                 File file = new File(path);
@@ -626,38 +621,9 @@ public class FramesFragment extends Fragment implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab:
-
                 showFrameInfoDialog();
-
                 break;
         }
-    }
-
-    /**
-     * If the FloatingActionButton is long pressed then hide it for three seconds
-     * or until the ListView is scrolled.
-     *
-     * @param v the view that was clicked
-     * @return true because the click was consumed
-     */
-    @Override
-    public boolean onLongClick(View v) {
-        switch (v.getId()) {
-            case R.id.fab:
-
-                fab.hide();
-
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        fab.show();
-                    }
-                }, 3000);
-
-                break;
-        }
-        return true;
     }
 
     /**
@@ -673,7 +639,7 @@ public class FramesFragment extends Fragment implements
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // Edit frame info
-        Frame frame = mFrameClassList.get(position);
+        Frame frame = frameList.get(position);
         Bundle arguments = new Bundle();
         String title = "" + getActivity().getString(R.string.EditFrame) + frame.getCount();
         String positiveButton = getActivity().getResources().getString(R.string.OK);
@@ -694,8 +660,8 @@ public class FramesFragment extends Fragment implements
     private void showFrameInfoDialog() {
 
         // If the frame count is greater than 100, then don't add a new frame.
-        if (!mFrameClassList.isEmpty()) {
-            int countCheck = mFrameClassList.get(mFrameClassList.size() - 1).getCount() + 1;
+        if (!frameList.isEmpty()) {
+            int countCheck = frameList.get(frameList.size() - 1).getCount() + 1;
             if (countCheck > 100) {
                 Toast toast = Toast.makeText(getActivity(),
                         getResources().getString(R.string.TooManyFrames), Toast.LENGTH_LONG);
@@ -714,20 +680,20 @@ public class FramesFragment extends Fragment implements
 
         //Get the location only if the app has location permission (locationEnabled) and
         //the user has enabled GPS updates in the app's settings.
-        if ( locationEnabled &&
+        if (locationEnabled &&
                 PreferenceManager.getDefaultSharedPreferences(
                         getActivity().
-                        getBaseContext()).getBoolean("GPSUpdate", true) )
-            frame.setLocation(Utilities.locationStringFromLocation(mLastLocation));
+                        getBaseContext()).getBoolean("GPSUpdate", true))
+            frame.setLocation(Utilities.locationStringFromLocation(lastLocation));
         //else frame.setLocation("");
 
-        if (!mFrameClassList.isEmpty()) {
+        if (!frameList.isEmpty()) {
 
             //Get the information for the last added frame.
             //The last added frame has the highest id number (database autoincrement).
-            Frame previousFrame = mFrameClassList.get(mFrameClassList.size() - 1);
+            Frame previousFrame = frameList.get(frameList.size() - 1);
             long i = 0;
-            for (Frame frameIterator : mFrameClassList) {
+            for (Frame frameIterator : frameList) {
                 if (frameIterator.getId() > i) {
                     i = frameIterator.getId();
                     previousFrame = frameIterator;
@@ -772,29 +738,29 @@ public class FramesFragment extends Fragment implements
 
             case FRAME_INFO_DIALOG:
 
-                if ( resultCode == Activity.RESULT_OK ) {
+                if (resultCode == Activity.RESULT_OK) {
 
                     Frame frame = data.getParcelableExtra("FRAME");
 
-                    if ( frame != null ) {
+                    if (frame != null) {
 
                         // Save the file when the new frame has been added
                         long rowId = database.addFrame(frame);
                         frame.setId(rowId);
 
-                        mFrameClassList.add(frame);
-                        utilities.sortFrameList(getActivity(), database, mFrameClassList);
-                        mFrameAdapter.notifyDataSetChanged();
+                        frameList.add(frame);
+                        utilities.sortFrameList(getActivity(), database, frameList);
+                        frameAdapter.notifyDataSetChanged();
                         mainTextView.setVisibility(View.GONE);
 
                         // When the new frame is added jump to view the added entry
-                        int pos = mFrameClassList.indexOf(frame);
+                        int pos = frameList.indexOf(frame);
                         if (pos < mainListView.getCount()) mainListView.setSelection(pos);
                         // The text you'd like to share has changed,
                         // and you need to update
-                        mShareActionProvider.setShareIntent(setShareIntentExportRoll());
+                        shareActionProvider.setShareIntent(setShareIntentExportRoll());
                     }
-                } else if ( resultCode == Activity.RESULT_CANCELED ) {
+                } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After cancel do nothing
                     return;
                 }
@@ -802,21 +768,21 @@ public class FramesFragment extends Fragment implements
 
             case EDIT_FRAME_INFO_DIALOG:
 
-                if ( resultCode == Activity.RESULT_OK ) {
+                if (resultCode == Activity.RESULT_OK) {
 
                     Frame frame = data.getParcelableExtra("FRAME");
 
-                    if ( frame != null && frame.getId() > 0 ) {
+                    if (frame != null && frame.getId() > 0) {
 
                         database.updateFrame(frame);
-                        utilities.sortFrameList(getActivity(), database, mFrameClassList);
-                        mFrameAdapter.notifyDataSetChanged();
+                        utilities.sortFrameList(getActivity(), database, frameList);
+                        frameAdapter.notifyDataSetChanged();
 
                         // The text you'd like to share has changed,
                         // and you need to update
-                        mShareActionProvider.setShareIntent(setShareIntentExportRoll());
+                        shareActionProvider.setShareIntent(setShareIntentExportRoll());
                     }
-                } else if ( resultCode == Activity.RESULT_CANCELED ) {
+                } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After cancel do nothing
                     return;
                 }
@@ -826,38 +792,10 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * This function is called when the user scrolls the ListView.
-     * It displays the FloatingActionButton in case it was hidden.
-     *
-     * @param view not used
-     * @param scrollState not used
-     */
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        fab.show();
-    }
-
-    /**
-     * Not used
-     * @param view not used
-     * @param firstVisibleItem not used
-     * @param visibleItemCount not used
-     * @param totalItemCount not used
-     */
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-    }
-
-
-
-
-
-    /**
      * When the fragment is started connect to Google Play services to get accurate location.
      */
     public void onStart() {
-        if ( locationEnabled ) mGoogleApiClient.connect();
+        if (locationEnabled) googleApiClient.connect();
         super.onStart();
     }
 
@@ -865,7 +803,7 @@ public class FramesFragment extends Fragment implements
      * When the fragment is stopped disconnect from the Google Play service.s
      */
     public void onStop() {
-        if ( locationEnabled ) mGoogleApiClient.disconnect();
+        if (locationEnabled) googleApiClient.disconnect();
         super.onStop();
     }
 
@@ -875,15 +813,15 @@ public class FramesFragment extends Fragment implements
     @Override
     public void onPause() {
         super.onPause();
-        if ( locationEnabled ) stopLocationUpdates();
+        if (locationEnabled) stopLocationUpdates();
     }
 
     /**
      * This function is called when the fragment is paused.
      */
     protected void stopLocationUpdates() {
-        if (mGoogleApiClient.isConnected())
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if (googleApiClient.isConnected())
+            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
 
     /**
@@ -895,8 +833,8 @@ public class FramesFragment extends Fragment implements
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
         //Check if GPSUpdate preference has been changed meanwhile
-        mRequestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
-        if (locationEnabled && mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
+        requestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
+        if (locationEnabled && googleApiClient.isConnected() && requestingLocationUpdates) {
             startLocationUpdates();
         } else {
             stopLocationUpdates();
@@ -905,11 +843,11 @@ public class FramesFragment extends Fragment implements
         List<String> colors = Arrays.asList(UIColor.split(","));
         //String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
 
         //The user might have changed the export settings. Update the ShareActionProvider.
-        if (mShareActionProvider != null)
-            mShareActionProvider.setShareIntent(setShareIntentExportRoll());
+        if (shareActionProvider != null)
+            shareActionProvider.setShareIntent(setShareIntentExportRoll());
     }
 
     /**
@@ -920,7 +858,7 @@ public class FramesFragment extends Fragment implements
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getActivity(),
                         Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
         }
     }
 
@@ -934,8 +872,8 @@ public class FramesFragment extends Fragment implements
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            if (mRequestingLocationUpdates) {
+            lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            if (requestingLocationUpdates) {
                 startLocationUpdates();
             }
         }
@@ -947,7 +885,7 @@ public class FramesFragment extends Fragment implements
      */
     @Override
     public void onConnectionSuspended(int i) {
-        if ( locationEnabled ) mGoogleApiClient.connect();
+        if ( locationEnabled ) googleApiClient.connect();
     }
 
     /**
@@ -956,7 +894,7 @@ public class FramesFragment extends Fragment implements
      */
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
+        lastLocation = location;
     }
 
 
@@ -972,7 +910,7 @@ public class FramesFragment extends Fragment implements
     // Unique tag for the error dialog fragment
     private static final String DIALOG_ERROR = "dialog_error";
     // Bool to track whether the app is already resolving an error
-    private boolean mResolvingError = false;
+    private boolean resolvingError = false;
 
     /**
      * Called if the connection to the Google API has failed.
@@ -980,18 +918,18 @@ public class FramesFragment extends Fragment implements
      */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult result) {
-        if (result.hasResolution() && !mResolvingError) {
+        if (result.hasResolution() && !resolvingError) {
             try {
-                mResolvingError = true;
+                resolvingError = true;
                 result.startResolutionForResult(getActivity(), REQUEST_RESOLVE_ERROR);
             } catch (IntentSender.SendIntentException e) {
                 // There was an error with the resolution intent. Try again.
-                mGoogleApiClient.connect();
+                googleApiClient.connect();
             }
         } else {
             // Show dialog using GoogleApiAvailability.getErrorDialog()
             showErrorDialog(result.getErrorCode());
-            mResolvingError = true;
+            resolvingError = true;
         }
     }
 
@@ -1011,7 +949,7 @@ public class FramesFragment extends Fragment implements
 
     /* Called from ErrorDialogFragment when the dialog is dismissed. */
     public void onDialogDismissed() {
-        mResolvingError = false;
+        resolvingError = false;
     }
 
     /* A fragment to display an error dialog */

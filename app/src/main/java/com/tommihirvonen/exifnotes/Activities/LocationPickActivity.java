@@ -43,19 +43,17 @@ public class LocationPickActivity extends AppCompatActivity implements
         View.OnClickListener,
         android.support.v7.widget.SearchView.OnQueryTextListener {
 
-    private GoogleMap mMap;
+    private GoogleMap googleMap;
     Marker marker;
-
-    LatLng latlng_location;
+    LatLng latLngLocation;
     String location = "";
-
-    boolean continue_activity = false;
+    boolean continueActivity = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if ( savedInstanceState != null ) continue_activity = true;
+        if ( savedInstanceState != null ) continueActivity = true;
 
         setContentView(R.layout.activity_location_pick);
 
@@ -69,7 +67,7 @@ public class LocationPickActivity extends AppCompatActivity implements
         List<String> colors = Arrays.asList(UIColor.split(","));
         String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
-        if ( getSupportActionBar() != null ) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
             getSupportActionBar().setElevation(0);
             getSupportActionBar().setTitle(getResources().getString(R.string.PickLocation));
@@ -90,7 +88,7 @@ public class LocationPickActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        if ( savedInstanceState != null ) {
+        if (savedInstanceState != null) {
             location = savedInstanceState.getString("LOCATION");
         } else {
             Intent intent = getIntent();
@@ -102,7 +100,7 @@ public class LocationPickActivity extends AppCompatActivity implements
                 String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
                 double lat = Double.parseDouble(latString.replace(",", "."));
                 double lng = Double.parseDouble(lngString.replace(",", "."));
-                latlng_location = new LatLng(lat, lng);
+                latLngLocation = new LatLng(lat, lng);
             }
         }
     }
@@ -144,31 +142,31 @@ public class LocationPickActivity extends AppCompatActivity implements
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setOnMapClickListener(this);
+        this.googleMap = googleMap;
+        this.googleMap.setOnMapClickListener(this);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                         PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(true);
+            this.googleMap.setMyLocationEnabled(true);
         }
 
-        // If the latlng_location is not empty
-        if ( location != null ) {
+        // If the latLngLocation is not empty
+        if (location != null) {
             if (location.length() > 0 && !location.equals("null")) {
                 String latString = location.substring(0, location.indexOf(" "));
                 String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
                 double lat = Double.parseDouble(latString.replace(",", "."));
                 double lng = Double.parseDouble(lngString.replace(",", "."));
                 final LatLng position = new LatLng(lat, lng);
-                marker = mMap.addMarker(new MarkerOptions().position(position));
+                marker = this.googleMap.addMarker(new MarkerOptions().position(position));
 
-                if (!continue_activity)
-                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                if (!continueActivity)
+                    this.googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                         @Override
                         public void onMapLoaded() {
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                            LocationPickActivity.this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
                             // Show hint toast
                             Toast.makeText(getBaseContext(), getResources().getString(R.string.TapOnMap), Toast.LENGTH_SHORT).show();
                         }
@@ -180,11 +178,11 @@ public class LocationPickActivity extends AppCompatActivity implements
     @Override
     public void onMapClick(LatLng latLng) {
         // In case the location was cleared before clicking Edit on map
-        if ( marker == null) {
-            marker = mMap.addMarker(new MarkerOptions().position(latLng));
+        if (marker == null) {
+            marker = googleMap.addMarker(new MarkerOptions().position(latLng));
         }
         marker.setPosition(latLng);
-        latlng_location = latLng;
+        latLngLocation = latLng;
     }
 
 
@@ -194,7 +192,7 @@ public class LocationPickActivity extends AppCompatActivity implements
         new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
             @Override
             public void processFinish(String output, String formatted_address) {
-                if ( output.length() != 0 ) {
+                if (output.length() != 0 ) {
 
                     String latString = output.substring(0, output.indexOf(" "));
                     String lngString = output.substring(output.indexOf(" ") + 1, output.length() - 1);
@@ -202,8 +200,8 @@ public class LocationPickActivity extends AppCompatActivity implements
                     double lng = Double.parseDouble(lngString.replace(",", "."));
                     final LatLng position = new LatLng(lat, lng);
                     marker.setPosition(position);
-                    latlng_location = position;
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                    latLngLocation = position;
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
                     Toast.makeText(getBaseContext(), formatted_address, Toast.LENGTH_LONG).show();
 
                 } else {
@@ -226,12 +224,12 @@ public class LocationPickActivity extends AppCompatActivity implements
         switch (v.getId()) {
             case R.id.fab:
 
-                if ( latlng_location == null ) {
+                if (latLngLocation == null) {
                     Toast.makeText(getBaseContext(), R.string.NoLocation, Toast.LENGTH_SHORT).show();
                     break;
                 } else {
-                    String latitude = "" + latlng_location.latitude;
-                    String longitude = "" + latlng_location.longitude;
+                    String latitude = "" + latLngLocation.latitude;
+                    String longitude = "" + latLngLocation.longitude;
                     Intent intent = new Intent();
                     intent.putExtra("LATITUDE", latitude);
                     intent.putExtra("LONGITUDE", longitude);
@@ -244,9 +242,9 @@ public class LocationPickActivity extends AppCompatActivity implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if ( latlng_location != null ) {
-            String latitude = "" + latlng_location.latitude;
-            String longitude = "" + latlng_location.longitude;
+        if (latLngLocation != null) {
+            String latitude = "" + latLngLocation.latitude;
+            String longitude = "" + latLngLocation.longitude;
             outState.putBoolean("CONTINUE", true);
             outState.putString("LOCATION", latitude + " " + longitude);
         }

@@ -18,6 +18,9 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
+
+    private AsyncResponse delegate = null;
+
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
@@ -27,7 +30,6 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
     public interface AsyncResponse {
         void processFinish(String output, String formattedAddress);
     }
-    private AsyncResponse delegate = null;
 
     public GeocodingAsyncTask(AsyncResponse delegate){
         this.delegate = delegate;

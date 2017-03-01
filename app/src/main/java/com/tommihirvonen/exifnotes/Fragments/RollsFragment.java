@@ -56,7 +56,18 @@ public class RollsFragment extends Fragment implements
         View.OnClickListener,
         AdapterView.OnItemClickListener {
 
-    OnRollSelectedListener mCallback;
+    public static final String ROLLS_FRAGMENT_TAG = "ROLLS_FRAGMENT";
+    public static final int ROLL_NAME_DIALOG = 1;
+    public static final int EDIT_ROLL_NAME_DIALOG = 2;
+
+    OnRollSelectedListener callback;
+
+    FloatingActionButton floatingActionButton;
+    TextView mainTextView;
+    ListView mainListView;
+    RollAdapter rollAdapter;
+    List<Roll> rollList = new ArrayList<>();
+    FilmDbHelper database;
 
     /**
      * This interface is implemented in MainActivity.
@@ -73,7 +84,7 @@ public class RollsFragment extends Fragment implements
     @Override
     public void onAttach(Activity a) {
         super.onAttach(a);
-        mCallback = (OnRollSelectedListener) a;
+        callback = (OnRollSelectedListener) a;
     }
 
     /**
@@ -83,20 +94,10 @@ public class RollsFragment extends Fragment implements
     @Override
     public void onAttach(Context c) {
         super.onAttach(c);
-        mCallback = (OnRollSelectedListener) c;
+        callback = (OnRollSelectedListener) c;
     }
 
-    public static final String ROLLS_FRAGMENT_TAG = "ROLLS_FRAGMENT";
 
-    FloatingActionButton fab;
-    TextView mainTextView;
-    ListView mainListView;
-    RollAdapter mArrayAdapter;
-    ArrayList<Roll> mRollList = new ArrayList<>();
-    FilmDbHelper database;
-
-    public static final int ROLL_NAME_DIALOG = 1;
-    public static final int EDIT_ROLL_NAME_DIALOG = 2;
 
     /**
      * Called when the fragment is created.
@@ -143,15 +144,15 @@ public class RollsFragment extends Fragment implements
         String secondaryColor = colors.get(1);
 
         database = new FilmDbHelper(getActivity());
-        mRollList = database.getAllRolls();
+        rollList = database.getAllRolls();
 
         //Order the roll list according to preferences
-        sortRollList(mRollList);
+        sortRollList(rollList);
 
         final View view = linf.inflate(R.layout.rolls_fragment, container, false);
 
-        fab = (FloatingActionButton) view.findViewById(R.id.fab);
-        fab.setOnClickListener(this);
+        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(this);
 
         mainTextView = (TextView) view.findViewById(R.id.no_added_rolls);
 
@@ -159,12 +160,12 @@ public class RollsFragment extends Fragment implements
         mainListView = (ListView) view.findViewById(R.id.main_listview);
 
         // Create an ArrayAdapter for the ListView
-        mArrayAdapter = new RollAdapter(getActivity(), android.R.layout.simple_list_item_1, mRollList);
+        rollAdapter = new RollAdapter(getActivity(), android.R.layout.simple_list_item_1, rollList);
 
         // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(mArrayAdapter);
+        mainListView.setAdapter(rollAdapter);
 
-        if ( mRollList.size() >= 1 ) mainTextView.setVisibility(View.GONE);
+        if (rollList.size() >= 1) mainTextView.setVisibility(View.GONE);
 
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
@@ -184,7 +185,7 @@ public class RollsFragment extends Fragment implements
         //if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
 
         return view;
     }
@@ -196,7 +197,7 @@ public class RollsFragment extends Fragment implements
     @Override
     public void onResume(){
         super.onResume();
-        mArrayAdapter.notifyDataSetChanged();
+        rollAdapter.notifyDataSetChanged();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
@@ -204,7 +205,7 @@ public class RollsFragment extends Fragment implements
         List<String> colors = Arrays.asList(UIColor.split(","));
         //String primaryColor = colors.get(0);
         String secondaryColor = colors.get(1);
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
     }
 
     /**
@@ -245,8 +246,8 @@ public class RollsFragment extends Fragment implements
                         editor.putInt("RollSortOrder", which);
                         editor.apply();
                         dialog.dismiss();
-                        sortRollList(mRollList);
-                        mArrayAdapter.notifyDataSetChanged();
+                        sortRollList(rollList);
+                        rollAdapter.notifyDataSetChanged();
                     }
                 });
                 sortDialog.show();
@@ -302,7 +303,7 @@ public class RollsFragment extends Fragment implements
     /**
      * This function is called when the user has selected a sorting criteria.
      */
-    public void sortRollList(ArrayList<Roll> listToSort) {
+    public void sortRollList(List<Roll> listToSort) {
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         int sortId = sharedPref.getInt("RollSortOrder", 0);
         switch (sortId){
@@ -351,9 +352,9 @@ public class RollsFragment extends Fragment implements
                 Collections.sort(listToSort, new Comparator<Roll>() {
                     @Override
                     public int compare(Roll o1, Roll o2) {
-                        Camera camera1 = database.getCamera(o1.getCamera_id());
+                        Camera camera1 = database.getCamera(o1.getCameraId());
                         String s1 = camera1.getMake() + camera1.getModel();
-                        Camera camera2 = database.getCamera(o2.getCamera_id());
+                        Camera camera2 = database.getCamera(o2.getCameraId());
                         String s2 = camera2.getMake() + camera2.getModel();
                         return s1.compareTo(s2);
                     }
@@ -372,7 +373,7 @@ public class RollsFragment extends Fragment implements
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.fab:
-                show_RollNameDialog();
+                showRollNameDialog();
                 break;
         }
     }
@@ -389,8 +390,8 @@ public class RollsFragment extends Fragment implements
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // GET ROLL INFO
-        long rollId = mRollList.get(position).getId();
-        mCallback.onRollSelected(rollId);
+        long rollId = rollList.get(position).getId();
+        callback.onRollSelected(rollId);
     }
 
     /**
@@ -398,13 +399,13 @@ public class RollsFragment extends Fragment implements
      * to edit a roll's information. Shows a DialogFragment to edit
      * the roll's information.
      *
-     * @param position the position of the roll in mRollList
+     * @param position the position of the roll in rollList
      */
     @SuppressLint("CommitTransaction")
-    private void show_EditRollNameDialog(int position){
+    private void showEditRollNameDialog(int position){
         EditRollNameDialog dialog = new EditRollNameDialog();
         Bundle arguments = new Bundle();
-        arguments.putParcelable("ROLL", mRollList.get(position));
+        arguments.putParcelable("ROLL", rollList.get(position));
         arguments.putString("TITLE", getActivity().getResources().getString(R.string.EditRoll));
         arguments.putString("POSITIVE_BUTTON", getActivity().getResources().getString(R.string.OK));
         dialog.setArguments(arguments);
@@ -417,7 +418,7 @@ public class RollsFragment extends Fragment implements
      * Shows a DialogFragment to add a new roll.
      */
     @SuppressLint("CommitTransaction")
-    private void show_RollNameDialog() {
+    private void showRollNameDialog() {
         EditRollNameDialog dialog = new EditRollNameDialog();
         Bundle arguments = new Bundle();
         arguments.putString("TITLE", getActivity().getResources().getString(R.string.NewRoll));
@@ -437,11 +438,11 @@ public class RollsFragment extends Fragment implements
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
-        if ( getUserVisibleHint() ) {
+        if (getUserVisibleHint()) {
             switch (item.getItemId()) {
                 case R.id.menu_item_edit:
 
-                    show_EditRollNameDialog(info.position);
+                    showEditRollNameDialog(info.position);
 
                     return true;
 
@@ -451,7 +452,7 @@ public class RollsFragment extends Fragment implements
 
                     AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
                     alertBuilder.setTitle(getResources().getString(R.string.ConfirmRollDelete)
-                            + " " + mRollList.get(rollPosition).getName() + "?");
+                            + " " + rollList.get(rollPosition).getName() + "?");
                     alertBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -462,15 +463,15 @@ public class RollsFragment extends Fragment implements
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // Delete all the frames from the frames database
-                            database.deleteAllFramesFromRoll(mRollList.get(rollPosition).getId());
+                            database.deleteAllFramesFromRoll(rollList.get(rollPosition).getId());
 
-                            database.deleteRoll(mRollList.get(rollPosition));
+                            database.deleteRoll(rollList.get(rollPosition));
 
-                            // Remove the roll from the mRollList. Do this last!!!
-                            mRollList.remove(rollPosition);
+                            // Remove the roll from the rollList. Do this last!!!
+                            rollList.remove(rollPosition);
 
-                            if (mRollList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                            mArrayAdapter.notifyDataSetChanged();
+                            if (rollList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                            rollAdapter.notifyDataSetChanged();
                         }
                     });
                     alertBuilder.create().show();
@@ -499,23 +500,23 @@ public class RollsFragment extends Fragment implements
 
                     Roll roll = data.getParcelableExtra("ROLL");
 
-                    if (roll.getName().length() > 0 && roll.getCamera_id() > 0) {
+                    if (roll.getName().length() > 0 && roll.getCameraId() > 0) {
 
                         long rowId = database.addRoll(roll);
                         roll.setId(rowId);
 
                         mainTextView.setVisibility(View.GONE);
                         // Add new roll to the top of the list
-                        mRollList.add(0, roll);
-                        sortRollList(mRollList);
-                        mArrayAdapter.notifyDataSetChanged();
+                        rollList.add(0, roll);
+                        sortRollList(rollList);
+                        rollAdapter.notifyDataSetChanged();
 
                         // When the new roll is added jump to view the added entry
-                        int pos = mRollList.indexOf(roll);
+                        int pos = rollList.indexOf(roll);
                         //mainListView.setSelection(mainListView.getCount() - 1);
                         if (pos < mainListView.getCount()) mainListView.setSelection(pos);
                     }
-                } else if ( resultCode == Activity.RESULT_CANCELED ) {
+                } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After cancel do nothing
                     return;
                 }
@@ -527,17 +528,17 @@ public class RollsFragment extends Fragment implements
 
                     Roll roll = data.getParcelableExtra("ROLL");
 
-                    if ( roll.getName().length() > 0 &&
-                            roll.getCamera_id() > 0 &&
-                            roll.getId() > 0 ) {
+                    if (roll.getName().length() > 0 &&
+                            roll.getCameraId() > 0 &&
+                            roll.getId() > 0) {
 
                         database.updateRoll(roll);
 
                         // Notify array adapter that the dataset has to be updated
-                        sortRollList(mRollList);
-                        mArrayAdapter.notifyDataSetChanged();
+                        sortRollList(rollList);
+                        rollAdapter.notifyDataSetChanged();
                     }
-                } else if ( resultCode == Activity.RESULT_CANCELED ) {
+                } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After cancel do nothing
                     return;
                 }

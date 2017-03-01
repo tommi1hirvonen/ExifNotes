@@ -49,29 +49,23 @@ import java.util.List;
 
 public class EditFrameInfoDialog extends DialogFragment {
 
-    String title;
-    String positiveButton;
-    long camera_id;
-    Camera camera;
-    Frame frame;
-    ArrayList<Lens> mountableLenses;
-    ArrayList<Filter> mountableFilters;
-    FilmDbHelper database;
-
-    TextView b_location;
-    TextView b_lens;
-    TextView b_filter;
-
+    public static final String TAG = "EditFrameInfoDialogFragment";
     final static int PLACE_PICKER_REQUEST = 1;
     final static int ADD_LENS = 2;
     final static int ADD_FILTER = 3;
 
-    public static final String TAG = "EditFrameInfoDialogFragment";
+    String title;
+    String positiveButton;
+    long cameraId;
+    Camera camera;
+    Frame frame;
+    List<Lens> mountableLenses;
+    List<Filter> mountableFilters;
+    FilmDbHelper database;
 
-
-    public EditFrameInfoDialog() {
-        // Empty constructor required for DialogFragment
-    }
+    TextView locationTextView;
+    TextView lensTextView;
+    TextView filterTextView;
 
     //These variables are used so that the object itself is not updated
     //unless the user presses ok.
@@ -94,12 +88,13 @@ public class EditFrameInfoDialog extends DialogFragment {
     String[] displayedShutterValues;
     String[] displayedApertureValues;
 
+    public EditFrameInfoDialog() {
+        // Empty constructor required for DialogFragment
+    }
 
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
-
-
 
         utilities = new Utilities(getActivity());
 
@@ -109,13 +104,13 @@ public class EditFrameInfoDialog extends DialogFragment {
         if (frame == null) frame = new Frame();
 
         database = new FilmDbHelper(getActivity());
-        camera_id = database.getRoll(frame.getRollId()).getCamera_id();
-        camera = database.getCamera(camera_id);
+        cameraId = database.getRoll(frame.getRollId()).getCameraId();
+        camera = database.getCamera(cameraId);
         mountableLenses = database.getMountableLenses(camera);
 
         shutterIncrements = camera.getShutterIncrements();
         apertureIncrements = 0;
-        if ( frame.getLensId() > 0 ) {
+        if (frame.getLensId() > 0) {
             apertureIncrements = database.getLens(frame.getLensId()).getApertureIncrements();
         }
 
@@ -140,17 +135,17 @@ public class EditFrameInfoDialog extends DialogFragment {
 
 
         //LENS BUTTON
-        b_lens = (TextView) inflator.findViewById(R.id.btn_lens);
-        if ( frame.getLensId() > 0 ) {
+        lensTextView = (TextView) inflator.findViewById(R.id.btn_lens);
+        if (frame.getLensId() > 0) {
             Lens currentLens = database.getLens(frame.getLensId());
-            b_lens.setText(currentLens.getMake() + " " + currentLens.getModel());
+            lensTextView.setText(currentLens.getMake() + " " + currentLens.getModel());
         }
-        else b_lens.setText(getResources().getString(R.string.NoLens));
+        else lensTextView.setText(getResources().getString(R.string.NoLens));
 
         // LENS PICK DIALOG
         newLensId = frame.getLensId();
-        b_lens.setClickable(true);
-        b_lens.setOnClickListener(new View.OnClickListener() {
+        lensTextView.setClickable(true);
+        lensTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final List<String> listItems = new ArrayList<>();
@@ -166,7 +161,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
-                        b_lens.setText(listItems.get(which));
+                        lensTextView.setText(listItems.get(which));
                         if (which > 0) {
                             newLensId = mountableLenses.get(which - 1).getId();
                             initialiseFocalLengthPicker();
@@ -197,9 +192,9 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // LENS ADD DIALOG
-        final Button b_addLens = (Button) inflator.findViewById(R.id.btn_add_lens);
-        b_addLens.setClickable(true);
-        b_addLens.setOnClickListener(new View.OnClickListener() {
+        final Button addLensButton = (Button) inflator.findViewById(R.id.btn_add_lens);
+        addLensButton.setClickable(true);
+        addLensButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CommitTransaction")
             @Override
             public void onClick(View v) {
@@ -214,38 +209,38 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // DATE PICK DIALOG
-        final TextView b_date = (TextView) inflator.findViewById(R.id.btn_date);
-        final TextView b_time = (TextView) inflator.findViewById(R.id.btn_time);
+        final TextView dateTextView = (TextView) inflator.findViewById(R.id.btn_date);
+        final TextView timeTextView = (TextView) inflator.findViewById(R.id.btn_time);
         if (frame.getDate() == null) frame.setDate(Utilities.getCurrentTime());
-        ArrayList<String> dateValue = Utilities.splitDate(frame.getDate());
-        int temp_year = Integer.parseInt(dateValue.get(0));
-        int temp_month = Integer.parseInt(dateValue.get(1));
-        int temp_day = Integer.parseInt(dateValue.get(2));
-        b_date.setText(temp_year + "-" + temp_month + "-" + temp_day);
+        List<String> dateValue = Utilities.splitDate(frame.getDate());
+        int tempYear = Integer.parseInt(dateValue.get(0));
+        int tempMonth = Integer.parseInt(dateValue.get(1));
+        int tempDay = Integer.parseInt(dateValue.get(2));
+        dateTextView.setText(tempYear + "-" + tempMonth + "-" + tempDay);
 
-        b_date.setClickable(true);
+        dateTextView.setClickable(true);
 
         newDate = frame.getDate();
 
-        b_date.setOnClickListener(new View.OnClickListener() {
+        dateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // DATE PICKER DIALOG IMPLEMENTATION HERE
-                ArrayList<String> dateValue = Utilities.splitDate(newDate);
-                int i_year = Integer.parseInt(dateValue.get(0));
-                int i_month = Integer.parseInt(dateValue.get(1));
-                int i_day = Integer.parseInt(dateValue.get(2));
+                List<String> dateValue = Utilities.splitDate(newDate);
+                int year = Integer.parseInt(dateValue.get(0));
+                int month = Integer.parseInt(dateValue.get(1));
+                int day = Integer.parseInt(dateValue.get(2));
                 DatePickerDialog dialog = new DatePickerDialog(
                         getActivity(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         String newInnerDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
-                        b_date.setText(newInnerDate);
-                        newDate = newInnerDate + " " + b_time.getText().toString();
+                        dateTextView.setText(newInnerDate);
+                        newDate = newInnerDate + " " + timeTextView.getText().toString();
                     }
                     // One month has to be subtracted from the default shown month, otherwise
                     // the date picker shows one month forward.
-                }, i_year, (i_month - 1), i_day);
+                }, year, (month - 1), day);
 
                 dialog.show();
 
@@ -253,19 +248,19 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // TIME PICK DIALOG
-        ArrayList<String> timeValue = Utilities.splitTime(frame.getDate());
-        int temp_hours = Integer.parseInt(timeValue.get(0));
-        int temp_minutes = Integer.parseInt(timeValue.get(1));
-        if (temp_minutes < 10) b_time.setText(temp_hours + ":0" + temp_minutes);
-        else b_time.setText(temp_hours + ":" + temp_minutes);
+        List<String> timeValue = Utilities.splitTime(frame.getDate());
+        int tempHours = Integer.parseInt(timeValue.get(0));
+        int tempMinutes = Integer.parseInt(timeValue.get(1));
+        if (tempMinutes < 10) timeTextView.setText(tempHours + ":0" + tempMinutes);
+        else timeTextView.setText(tempHours + ":" + tempMinutes);
 
-        b_time.setClickable(true);
+        timeTextView.setClickable(true);
 
-        b_time.setOnClickListener(new View.OnClickListener() {
+        timeTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TIME PICKER DIALOG IMPLEMENTATION HERE
-                ArrayList<String> timeValue = Utilities.splitTime(newDate);
+                List<String> timeValue = Utilities.splitTime(newDate);
                 int hours = Integer.parseInt(timeValue.get(0));
                 int minutes = Integer.parseInt(timeValue.get(1));
                 TimePickerDialog dialog = new TimePickerDialog(
@@ -276,8 +271,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                         if (minute < 10) {
                             newTime = hourOfDay + ":0" + minute;
                         } else newTime = hourOfDay + ":" + minute;
-                        b_time.setText(newTime);
-                        newDate = b_date.getText().toString() + " " + newTime;
+                        timeTextView.setText(newTime);
+                        newDate = dateTextView.getText().toString() + " " + newTime;
                     }
                 }, hours, minutes, true);
 
@@ -287,8 +282,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         //NOTES FIELD
-        final TextView et_note = (TextView) inflator.findViewById(R.id.txt_note);
-        et_note.setText(frame.getNote());
+        final TextView noteTextView = (TextView) inflator.findViewById(R.id.txt_note);
+        noteTextView.setText(frame.getNote());
 
         //SHUTTER SPEED PICKER
         shutterPicker = (NumberPicker) inflator.findViewById(R.id.shutterPicker);
@@ -309,11 +304,11 @@ public class EditFrameInfoDialog extends DialogFragment {
         aperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
         // LOCATION PICK DIALOG
-        b_location = (TextView) inflator.findViewById(R.id.btn_location);
+        locationTextView = (TextView) inflator.findViewById(R.id.btn_location);
         newLocation = frame.getLocation();
-        b_location.setText(frame.getLocation());
-        b_location.setClickable(true);
-        b_location.setOnClickListener(new View.OnClickListener() {
+        locationTextView.setText(frame.getLocation());
+        locationTextView.setClickable(true);
+        locationTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // LOCATION PICKER DIALOG IMPLEMENTATION HERE
@@ -330,7 +325,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                         switch (which) {
                             // Clear
                             case 0:
-                                b_location.setText("");
+                                locationTextView.setText("");
                                 newLocation = "";
                                 break;
 
@@ -362,24 +357,24 @@ public class EditFrameInfoDialog extends DialogFragment {
         //Seriously, what the hell!?
         //Initially the NumberPicker shows the wrong value, but when the Picker is first scrolled,
         //the displayed value changes to the correct one.
-        Field f = null;
+        Field field = null;
         try {
-            f = NumberPicker.class.getDeclaredField("mInputText");
+            field = NumberPicker.class.getDeclaredField("mInputText");
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
-        if (f != null) {
-            f.setAccessible(true);
+        if (field != null) {
+            field.setAccessible(true);
             EditText inputText = null;
             try {
-                inputText = (EditText) f.get(focalLengthPicker);
+                inputText = (EditText) field.get(focalLengthPicker);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
             if (inputText != null) inputText.setFilters(new InputFilter[0]);
         }
         //--------------------------------------------------------
-        if ( frame.getLensId() > 0 ) {
+        if (frame.getLensId() > 0) {
             focalLengthPicker.setMinValue(database.getLens(frame.getLensId()).getMinFocalLength());
             focalLengthPicker.setMaxValue(database.getLens(frame.getLensId()).getMaxFocalLength());
             focalLengthPicker.setValue(frame.getFocalLength());
@@ -388,11 +383,11 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //EXPOSURE COMP PICKER
         exposureCompPicker = (NumberPicker) inflator.findViewById(R.id.exposureCompPicker);
-        if (f != null) {
-            f.setAccessible(true);
+        if (field != null) {
+            field.setAccessible(true);
             EditText inputText = null;
             try {
-                inputText = (EditText) f.get(exposureCompPicker);
+                inputText = (EditText) field.get(exposureCompPicker);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
@@ -402,7 +397,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         exposureCompPicker.setMaxValue(Utilities.compValues.length-1);
         exposureCompPicker.setDisplayedValues(Utilities.compValues);
         exposureCompPicker.setValue(9);
-        if ( frame.getExposureComp() != null ) {
+        if (frame.getExposureComp() != null) {
             for (int i = 0; i < Utilities.compValues.length; ++i) {
                 if (frame.getExposureComp().equals(Utilities.compValues[i])) {
                     exposureCompPicker.setValue(i);
@@ -417,25 +412,25 @@ public class EditFrameInfoDialog extends DialogFragment {
         noOfExposuresPicker.setMinValue(1);
         noOfExposuresPicker.setMaxValue(10);
         noOfExposuresPicker.setValue(1);
-        if ( frame.getNoOfExposures() > 1 ) {
+        if (frame.getNoOfExposures() > 1) {
             noOfExposuresPicker.setValue(frame.getNoOfExposures());
         }
         noOfExposuresPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
         //FILTER BUTTON
-        b_filter = (TextView) inflator.findViewById(R.id.btn_filter);
-        if ( frame.getFilterId() > 0 ) {
+        filterTextView = (TextView) inflator.findViewById(R.id.btn_filter);
+        if (frame.getFilterId() > 0) {
             Filter currentFilter = database.getFilter(frame.getFilterId());
-            b_filter.setText(currentFilter.getMake() + " " + currentFilter.getModel());
+            filterTextView.setText(currentFilter.getMake() + " " + currentFilter.getModel());
         }
         else {
-            b_filter.setText(getResources().getString(R.string.NoFilter));
+            filterTextView.setText(getResources().getString(R.string.NoFilter));
         }
 
         // FILTER PICK DIALOG
         newFilterId = frame.getFilterId();
-        b_filter.setClickable(true);
-        b_filter.setOnClickListener(new View.OnClickListener() {
+        filterTextView.setClickable(true);
+        filterTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final List<String> listItems = new ArrayList<>();
@@ -454,7 +449,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
-                        b_filter.setText(listItems.get(which));
+                        filterTextView.setText(listItems.get(which));
                         if (which > 0) {
                             newFilterId = mountableFilters.get(which - 1).getId();
                         }
@@ -475,13 +470,13 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // FILTER ADD DIALOG
-        final Button b_addFilter = (Button) inflator.findViewById(R.id.btn_add_filter);
-        b_addFilter.setClickable(true);
-        b_addFilter.setOnClickListener(new View.OnClickListener() {
+        final Button addFilterButton = (Button) inflator.findViewById(R.id.btn_add_filter);
+        addFilterButton.setClickable(true);
+        addFilterButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CommitTransaction")
             @Override
             public void onClick(View v) {
-                if ( newLensId <= 0 ) {
+                if (newLensId <= 0) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters),
                             Toast.LENGTH_LONG).show();
                     return;
@@ -531,7 +526,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 frame.setShutter( displayedShutterValues[shutterPicker.getValue()]);
                 frame.setAperture(displayedApertureValues[aperturePicker.getValue()]);
                 frame.setCount(countPicker.getValue());
-                frame.setNote(et_note.getText().toString());
+                frame.setNote(noteTextView.getText().toString());
 
                 // PARSE THE DATE
                 frame.setDate(newDate);
@@ -558,23 +553,23 @@ public class EditFrameInfoDialog extends DialogFragment {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if ( requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK ) {
+        if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
             if (data.hasExtra("LATITUDE") && data.hasExtra("LONGITUDE")) {
                 newLocation = "" + data.getStringExtra("LATITUDE") + " " +
                         data.getStringExtra("LONGITUDE");
-                b_location.setText(newLocation);
+                locationTextView.setText(newLocation);
             }
         }
 
-        if ( requestCode == ADD_LENS && resultCode == Activity.RESULT_OK) {
+        if (requestCode == ADD_LENS && resultCode == Activity.RESULT_OK) {
             // After Ok code.
             Lens lens = data.getParcelableExtra("LENS");
 
             long rowId = database.addLens(lens);
             lens.setId(rowId);
-            database.addMountable(database.getCamera(camera_id), lens);
+            database.addMountable(database.getCamera(cameraId), lens);
             mountableLenses.add(lens);
-            b_lens.setText(lens.getMake() + " " + lens.getModel());
+            lensTextView.setText(lens.getMake() + " " + lens.getModel());
             newLensId = lens.getId();
             apertureIncrements = lens.getApertureIncrements();
             initialiseAperturePicker();
@@ -582,14 +577,14 @@ public class EditFrameInfoDialog extends DialogFragment {
             initialiseFilters();
         }
 
-        if ( requestCode == ADD_FILTER && resultCode == Activity.RESULT_OK) {
+        if (requestCode == ADD_FILTER && resultCode == Activity.RESULT_OK) {
             // After Ok code.
             Filter filter = data.getParcelableExtra("FILTER");
             long rowId = database.addFilter(filter);
             filter.setId(rowId);
             database.addMountableFilterLens(filter, database.getLens(newLensId));
             mountableFilters.add(filter);
-            b_filter.setText(filter.getMake() + " " + filter.getModel());
+            filterTextView.setText(filter.getMake() + " " + filter.getModel());
             newFilterId = filter.getId();
         }
     }
@@ -610,7 +605,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 displayedApertureValues = utilities.apertureValuesThird;
                 break;
         }
-        if ( displayedApertureValues[0].equals(getResources().getString(R.string.NoValue)) ) {
+        if (displayedApertureValues[0].equals(getResources().getString(R.string.NoValue))) {
             // By reversing the order we can reverse the order in the NumberPicker too
             Collections.reverse(Arrays.asList(displayedApertureValues));
         }
@@ -620,10 +615,10 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //Otherwise continue to set min and max apertures
         Lens lens = database.getLens(newLensId);
-        ArrayList<String> apertureValuesList = new ArrayList<>();
+        List<String> apertureValuesList = new ArrayList<>();
         int minIndex = 0;
         int maxIndex = displayedApertureValues.length-1;
-        for ( int i = 0; i < displayedApertureValues.length; ++i ) {
+        for (int i = 0; i < displayedApertureValues.length; ++i) {
             if (lens.getMinAperture().equals(displayedApertureValues[i])) {
                 minIndex = i;
             }
@@ -632,7 +627,7 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         }
         apertureValuesList.add(getResources().getString(R.string.NoValue));
-        for ( int i = minIndex; i <= maxIndex; ++i ) {
+        for (int i = minIndex; i <= maxIndex; ++i) {
             apertureValuesList.add(displayedApertureValues[i]);
         }
         displayedApertureValues = apertureValuesList.toArray(new String[0]);
@@ -647,8 +642,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         aperturePicker.setMaxValue(displayedApertureValues.length-1);
         aperturePicker.setDisplayedValues(displayedApertureValues);
         aperturePicker.setValue(0);
-        for ( int i = 0; i < displayedApertureValues.length; ++i ) {
-            if ( frame.getAperture().equals(displayedApertureValues[i]) ) {
+        for (int i = 0; i < displayedApertureValues.length; ++i) {
+            if (frame.getAperture().equals(displayedApertureValues[i])) {
                 aperturePicker.setValue(i);
             }
         }
@@ -673,10 +668,10 @@ public class EditFrameInfoDialog extends DialogFragment {
         }
         // By reversing the order we can reverse the order in the NumberPicker too
         Collections.reverse(Arrays.asList(displayedShutterValues));
-        ArrayList<String> shutterValuesList = new ArrayList<>();
+        List<String> shutterValuesList = new ArrayList<>();
         int minIndex = 0;
         int maxIndex = displayedShutterValues.length-1;
-        for ( int i = 0; i < displayedShutterValues.length; ++i ) {
+        for (int i = 0; i < displayedShutterValues.length; ++i) {
             if (camera.getMinShutter().equals(displayedShutterValues[i])) {
                 minIndex = i;
             }
@@ -685,7 +680,7 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         }
         shutterValuesList.add(getResources().getString(R.string.NoValue));
-        for ( int i = minIndex; i <= maxIndex; ++i ) {
+        for (int i = minIndex; i <= maxIndex; ++i) {
             shutterValuesList.add(displayedShutterValues[i]);
         }
         shutterValuesList.add("B");
@@ -694,8 +689,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         shutterPicker.setMaxValue(displayedShutterValues.length-1);
         shutterPicker.setDisplayedValues(displayedShutterValues);
         shutterPicker.setValue(0);
-        for ( int i = 0; i < displayedShutterValues.length; ++i ) {
-            if ( frame.getShutter().equals(displayedShutterValues[i]) ) {
+        for (int i = 0; i < displayedShutterValues.length; ++i) {
+            if (frame.getShutter().equals(displayedShutterValues[i])) {
                 shutterPicker.setValue(i);
             }
         }
@@ -703,9 +698,9 @@ public class EditFrameInfoDialog extends DialogFragment {
 
     private void initialiseFocalLengthPicker(){
         Lens lens = database.getLens(newLensId);
-        if ( focalLengthPicker.getValue() > lens.getMaxFocalLength() ) {
+        if (focalLengthPicker.getValue() > lens.getMaxFocalLength()) {
             focalLengthPicker.setValue(lens.getMaxFocalLength());
-        } else if ( focalLengthPicker.getValue() < lens.getMinFocalLength() ) {
+        } else if (focalLengthPicker.getValue() < lens.getMinFocalLength()) {
             focalLengthPicker.setValue(lens.getMinFocalLength());
         }
         focalLengthPicker.setMinValue(lens.getMinFocalLength());
@@ -715,8 +710,8 @@ public class EditFrameInfoDialog extends DialogFragment {
     private void initialiseFilters(){
         //Update mountable filters
         if (newLensId <= 0) {
-            if ( mountableFilters != null ) mountableFilters.clear();
-            b_filter.setText(getResources().getString(R.string.NoFilter));
+            if (mountableFilters != null) mountableFilters.clear();
+            filterTextView.setText(getResources().getString(R.string.NoFilter));
             newFilterId = -1;
         } else {
             mountableFilters = database.getMountableFilters(database.getLens(newLensId));
@@ -727,7 +722,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 }
             }
             //Else reset the filter
-            b_filter.setText(getResources().getString(R.string.NoFilter));
+            filterTextView.setText(getResources().getString(R.string.NoFilter));
             newFilterId = -1;
         }
     }

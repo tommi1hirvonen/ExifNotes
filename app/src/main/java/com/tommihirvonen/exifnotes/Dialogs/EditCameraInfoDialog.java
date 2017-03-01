@@ -41,7 +41,7 @@ public class EditCameraInfoDialog extends DialogFragment {
     int newShutterIncrements;
     String[] displayedShutterValues;
 
-    TextView bShutterSpeedIncrements;
+    TextView shutterSpeedIncrementsTextView;
 
     NumberPicker minShutterPicker;
     NumberPicker maxShutterPicker;
@@ -80,20 +80,20 @@ public class EditCameraInfoDialog extends DialogFragment {
         alert.setView(inflator);
 
         //EDIT TEXT FIELDS
-        final EditText et1 = (EditText) inflator.findViewById(R.id.txt_make);
-        et1.setText(camera.getMake());
-        final EditText et2 = (EditText) inflator.findViewById(R.id.txt_model);
-        et2.setText(camera.getModel());
-        final EditText et3 = (EditText) inflator.findViewById(R.id.txt_serial_number);
-        et3.setText(camera.getSerialNumber());
+        final EditText makeEditText = (EditText) inflator.findViewById(R.id.txt_make);
+        makeEditText.setText(camera.getMake());
+        final EditText modelEditText = (EditText) inflator.findViewById(R.id.txt_model);
+        modelEditText.setText(camera.getModel());
+        final EditText serialNumberEditText = (EditText) inflator.findViewById(R.id.txt_serial_number);
+        serialNumberEditText.setText(camera.getSerialNumber());
 
         //SHUTTER SPEED INCREMENTS BUTTON
         newShutterIncrements = camera.getShutterIncrements();
-        bShutterSpeedIncrements = (TextView) inflator.findViewById(R.id.btn_shutterSpeedIncrements);
-        bShutterSpeedIncrements.setClickable(true);
-        bShutterSpeedIncrements.setText(
+        shutterSpeedIncrementsTextView = (TextView) inflator.findViewById(R.id.btn_shutterSpeedIncrements);
+        shutterSpeedIncrementsTextView.setClickable(true);
+        shutterSpeedIncrementsTextView.setText(
                 getResources().getStringArray(R.array.StopIncrements)[camera.getShutterIncrements()]);
-        bShutterSpeedIncrements.setOnClickListener(new View.OnClickListener() {
+        shutterSpeedIncrementsTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -102,7 +102,7 @@ public class EditCameraInfoDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         newShutterIncrements = i;
-                        bShutterSpeedIncrements.setText(
+                        shutterSpeedIncrementsTextView.setText(
                                 getResources().getStringArray(R.array.StopIncrements)[i]);
                         //Shutter speed increments were changed, make changes to shutter range pickers
                         initialiseShutterRangePickers();
@@ -150,9 +150,9 @@ public class EditCameraInfoDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
 
-                String make = et1.getText().toString();
-                String model = et2.getText().toString();
-                String serialNumber = et3.getText().toString();
+                String make = makeEditText.getText().toString();
+                String model = modelEditText.getText().toString();
+                String serialNumber = serialNumberEditText.getText().toString();
 
                 if (make.length() == 0 && model.length() == 0) {
                     // No make or model was set
@@ -175,8 +175,8 @@ public class EditCameraInfoDialog extends DialogFragment {
                     camera.setMake(make); camera.setModel(model);
                     camera.setSerialNumber(serialNumber);
                     camera.setShutterIncrements(newShutterIncrements);
-                    if ( minShutterPicker.getValue() == displayedShutterValues.length-1 &&
-                            maxShutterPicker.getValue() == displayedShutterValues.length-1 ) {
+                    if (minShutterPicker.getValue() == displayedShutterValues.length-1 &&
+                            maxShutterPicker.getValue() == displayedShutterValues.length-1) {
                         camera.setMinShutter(null);
                         camera.setMaxShutter(null);
                     } else if (minShutterPicker.getValue() < maxShutterPicker.getValue()) {
@@ -201,7 +201,7 @@ public class EditCameraInfoDialog extends DialogFragment {
     }
 
     private void initialiseShutterRangePickers() {
-        switch ( newShutterIncrements ) {
+        switch (newShutterIncrements) {
             case 0:
                 displayedShutterValues = utilities.shutterValuesThird;
                 break;
@@ -215,7 +215,7 @@ public class EditCameraInfoDialog extends DialogFragment {
                 displayedShutterValues = utilities.shutterValuesThird;
                 break;
         }
-        if ( displayedShutterValues[0].equals(getResources().getString(R.string.NoValue)) ) {
+        if (displayedShutterValues[0].equals(getResources().getString(R.string.NoValue))) {
             Collections.reverse(Arrays.asList(displayedShutterValues));
         }
         minShutterPicker.setMinValue(0);
