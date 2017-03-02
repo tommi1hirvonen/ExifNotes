@@ -1,27 +1,20 @@
 package com.tommihirvonen.exifnotes.Activities;
 
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.view.WindowManager;
 
 import com.tommihirvonen.exifnotes.Adapters.PagerAdapter;
 import com.tommihirvonen.exifnotes.Fragments.CamerasFragment;
 import com.tommihirvonen.exifnotes.Fragments.FiltersFragment;
 import com.tommihirvonen.exifnotes.Fragments.LensesFragment;
 import com.tommihirvonen.exifnotes.R;
-
-import java.util.Arrays;
-import java.util.List;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -39,26 +32,8 @@ public class GearActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // ********** Commands to get the action bar and color it **********
-        // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-            getSupportActionBar().setElevation(0);
-            getSupportActionBar().setTitle(R.string.Gear);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
-        }
-        // *****************************************************************
-
+        Utilities.setUiColor(this, true);
+        if (getSupportActionBar() != null) getSupportActionBar().setTitle(R.string.Gear);
 
         setContentView(R.layout.activity_gear);
 
@@ -71,7 +46,8 @@ public class GearActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white));
-        tabLayout.setBackgroundColor(Color.parseColor(primaryColor));
+        tabLayout.setBackgroundColor(Utilities.getPrimaryUiColor(getBaseContext()));
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         viewPager.setCurrentItem(prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, 0));
     }
 

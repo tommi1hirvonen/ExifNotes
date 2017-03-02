@@ -9,14 +9,19 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
@@ -138,6 +143,84 @@ public class Utilities {
     }
 
     /**
+     * Function to set the ActionBar and StatusBar colours of an AppCompatActivity.
+     * This function should be called in the onCreate() of every activity.
+     *
+     * @param activity AppCompatActivity whose ui elements should be coloured
+     */
+    public static void setUiColor(AppCompatActivity activity, boolean displayHomeAsUp) {
+        int primaryColor = getPrimaryUiColor(activity);
+        int secondaryColor = getSecondaryUiColor(activity);
+        if (activity.getSupportActionBar() != null) {
+            activity.getSupportActionBar().setDisplayOptions(
+                    ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+            activity.getSupportActionBar().setElevation(0);
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(displayHomeAsUp);
+        }
+        setSupportActionBarColor(activity, primaryColor);
+        setStatusBarColor(activity, secondaryColor);
+    }
+
+    /**
+     * Function to color the ActionBar of an AppCompatActivity
+     *
+     * @param activity the activity whose ActionBar is colored
+     * @param color the color to which the ActionBar is colored
+     */
+    public static void setSupportActionBarColor(AppCompatActivity activity, int color) {
+        if (activity.getSupportActionBar() != null)
+            activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+    }
+
+    /**
+     * Function to set the status bar color
+     *
+     * @param activity the base acitivty
+     * @param color the color to be set to the status bar
+     */
+    public static void setStatusBarColor(Activity activity, int color) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            activity.getWindow().addFlags(
+                    WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            activity.getWindow().setStatusBarColor(color);
+        }
+    }
+
+    /**
+     * Get the primary color of the app's ui
+     *
+     * @param context the base context of the application
+     * @return the primary color as an integer
+     */
+    public static int getPrimaryUiColor(Context context) {
+        List<String> colors = getUiColorList(context);
+        return Color.parseColor(colors.get(0));
+    }
+
+    /**
+     * Get the secondary color of the app's ui
+     *
+     * @param context the base context of the application
+     * @return the secondary color as an integer
+     */
+    public static int getSecondaryUiColor(Context context) {
+        List<String> colors = getUiColorList(context);
+        return Color.parseColor(colors.get(1));
+    }
+
+    /**
+     * Funtion to get a List containing the ui color codes in String format.
+     *
+     * @param context the base context of the application
+     * @return List containing the ui color codes in String format
+     */
+    private static List<String> getUiColorList(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
+        return Arrays.asList(UIColor.split(","));
+    }
+
+    /**
      * This function writes a text file.
      * @param file the file to be written to
      * @param text the text to be written in that file
@@ -164,27 +247,6 @@ public class Utilities {
         }
         return true;
     }
-
-    /**
-     *
-     * This function checks the input string for illegal characters.
-     *
-     * @param input the string to be checked
-     * @return String containing a list of the illegal characters found. If no illegal
-     * characters were found, the String will be empty.
-     */
-//    public static String checkReservedChars(String input){
-//        String ReservedChars = "|\\?*<\":>/";
-//        StringBuilder resultBuilder = new StringBuilder();
-//        for ( int i = 0; i < input.length(); ++i ) {
-//            Character c = input.charAt(i);
-//            if ( ReservedChars.contains(c.toString()) ) {
-//                if (resultBuilder.toString().length() > 0) resultBuilder.append(", ");
-//                resultBuilder.append(c.toString());
-//            }
-//        }
-//        return resultBuilder.toString();
-//    }
 
     /**
      *

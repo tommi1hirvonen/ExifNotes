@@ -3,16 +3,9 @@ package com.tommihirvonen.exifnotes.Activities;
 // Copyright 2015
 // Tommi Hirvonen
 
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,9 +22,9 @@ import com.tommihirvonen.exifnotes.Datastructures.Frame;
 import com.tommihirvonen.exifnotes.Datastructures.Roll;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class AllFramesMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -52,25 +45,9 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         database = new FilmDbHelper(this);
         rollList = database.getAllRolls();
 
-        // ********** Commands to get the action bar and color it **********
-        // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-            getSupportActionBar().setElevation(0);
-            getSupportActionBar().setTitle(R.string.AllFrames);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
-        }
-        // *****************************************************************
+        Utilities.setUiColor(this, true);
+        if (getSupportActionBar() != null) getSupportActionBar().setTitle(
+                R.string.AllFrames);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

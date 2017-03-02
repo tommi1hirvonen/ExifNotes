@@ -13,7 +13,6 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.net.Uri;
@@ -58,7 +57,6 @@ import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 // Copyright 2015
@@ -210,16 +208,10 @@ public class FramesFragment extends Fragment implements
         floatingActionButton.setOnClickListener(this);
         //floatingActionButton.setOnLongClickListener(this);
 
-        // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
-                getActivity().getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        //String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
+        int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         mainTextView = (TextView) view.findViewById(R.id.no_added_frames);
 
@@ -839,11 +831,9 @@ public class FramesFragment extends Fragment implements
         } else {
             stopLocationUpdates();
         }
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        //String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
-        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+
+        int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         //The user might have changed the export settings. Update the ShareActionProvider.
         if (shareActionProvider != null)

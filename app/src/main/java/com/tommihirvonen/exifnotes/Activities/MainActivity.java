@@ -4,23 +4,18 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.Dialogs.SimpleEula;
@@ -30,8 +25,6 @@ import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -62,24 +55,9 @@ public class MainActivity extends AppCompatActivity implements
 
         new SimpleEula(this).show();
 
-        // ********** Commands to get the action bar and color it **********
-        // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-            getSupportActionBar().setElevation(0);
-            getSupportActionBar().setTitle("  " + getResources().getString(R.string.MainActivityTitle));
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
-        }
-        // *****************************************************************
+        Utilities.setUiColor(this, false);
+        if (getSupportActionBar() != null) getSupportActionBar().setTitle(
+                "  " + getResources().getString(R.string.MainActivityTitle));
 
         LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
@@ -160,17 +138,10 @@ public class MainActivity extends AppCompatActivity implements
     public void onResume(){
         super.onResume();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
-        if ( getSupportActionBar() != null ) {
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
-        }
+        int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
+        int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
+        Utilities.setSupportActionBarColor(this, primaryColor);
+        Utilities.setStatusBarColor(this, secondaryColor);
     }
 
     /**

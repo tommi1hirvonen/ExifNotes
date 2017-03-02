@@ -2,23 +2,16 @@ package com.tommihirvonen.exifnotes.Activities;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,9 +23,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.tommihirvonen.exifnotes.Utilities.GeocodingAsyncTask;
 import com.tommihirvonen.exifnotes.R;
-
-import java.util.Arrays;
-import java.util.List;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 // Copyright 2015
 // Tommi Hirvonen
@@ -57,31 +48,17 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_location_pick);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(this);
+        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(this);
 
-        // ********** Commands to get the action bar and color it **********
-        // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-            getSupportActionBar().setElevation(0);
-            getSupportActionBar().setTitle(getResources().getString(R.string.PickLocation));
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(primaryColor)));
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
-        }
-        // *****************************************************************
+        Utilities.setUiColor(this, true);
+        if (getSupportActionBar() != null) getSupportActionBar().setTitle(
+                getResources().getString(R.string.PickLocation));
+
+        int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

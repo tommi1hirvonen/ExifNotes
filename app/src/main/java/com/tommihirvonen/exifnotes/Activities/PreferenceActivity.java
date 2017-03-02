@@ -2,7 +2,6 @@ package com.tommihirvonen.exifnotes.Activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,13 +15,10 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.WindowManager;
 
 import com.tommihirvonen.exifnotes.Fragments.PreferenceFragment;
 import com.tommihirvonen.exifnotes.R;
-
-import java.util.Arrays;
-import java.util.List;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 
 // Copyright 2015
@@ -37,19 +33,13 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        final String primaryColor = colors.get(0);
-        final String secondaryColor = colors.get(1);
+        final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         prefs.registerOnSharedPreferenceChangeListener(this);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor(Color.parseColor(secondaryColor));
-        }
+        Utilities.setStatusBarColor(this, secondaryColor);
 
         // This is a way to get the action bar in Preferences.
         // This is a legacy implementation. All this is needed in order to make
@@ -57,7 +47,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         setContentView(R.layout.activity_settings_legacy);
         actionbar = (Toolbar) findViewById(R.id.actionbar);
         actionbar.setTitle(R.string.Preferences);
-        actionbar.setBackgroundColor(Color.parseColor(primaryColor));
+        actionbar.setBackgroundColor(primaryColor);
         actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
         // And even this shit! Since API 23 (M) this is needed to render the back button white.
         actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_ab_back_material));
@@ -105,25 +95,16 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
 
 
     @Override
-    protected boolean isValidFragment(String fragmentName)
-    {
+    protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        final String primaryColor = colors.get(0);
-        final String secondaryColor = colors.get(1);
-        // This is a way to get the action bar in Preferences.
-        // It will be done only on Androids > 5.0.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor( Color.parseColor(secondaryColor) );
-        }
+        final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
+        Utilities.setStatusBarColor(this, secondaryColor);
         actionbar = (Toolbar) findViewById(R.id.actionbar);
-        actionbar.setBackgroundColor(Color.parseColor(primaryColor));
+        actionbar.setBackgroundColor(primaryColor);
     }
 }

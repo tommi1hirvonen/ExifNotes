@@ -136,13 +136,6 @@ public class RollsFragment extends Fragment implements
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
-                getActivity().getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        //String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
-
         database = new FilmDbHelper(getActivity());
         rollList = database.getAllRolls();
 
@@ -185,7 +178,8 @@ public class RollsFragment extends Fragment implements
         //if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         return view;
     }

@@ -6,12 +6,9 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -26,10 +23,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -99,13 +96,6 @@ public class FileChooserDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
 
-        // Get preferences to determine UI color
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
-                getActivity().getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        String primaryColor = colors.get(0);
-
         currentDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
 
         fileOrDirectoryList = getFileDirs(currentDirectory);
@@ -118,7 +108,9 @@ public class FileChooserDialog extends DialogFragment {
 
         LinearLayout linearLayout = (LinearLayout) inflatedView.findViewById(
                 R.id.dir_chooser_dialog_top_element);
-        linearLayout.setBackgroundColor(Color.parseColor(primaryColor));
+
+        int primaryColor = Utilities.getPrimaryUiColor(getActivity());
+        linearLayout.setBackgroundColor(primaryColor);
 
         currentDirectoryTextView = (TextView) inflatedView.findViewById(R.id.current_directory_textview);
         currentDirectoryTextView.setText(currentDirectory);

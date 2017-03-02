@@ -35,6 +35,7 @@ import com.tommihirvonen.exifnotes.Dialogs.EditLensInfoDialog;
 import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.Activities.GearActivity;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,14 +73,10 @@ public class LensesFragment extends Fragment implements
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_lenses);
         fab.setOnClickListener(this);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        //String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
+        int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
 
-                // Also change the floating action button color. Use the darker secondaryColor for this.
-        fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        // Also change the floating action button color. Use the darker secondaryColor for this.
+        fab.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         mainTextView = (TextView) view.findViewById(R.id.no_added_lenses);
 
