@@ -202,8 +202,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " ADD COLUMN " + KEY_LENS_MIN_FOCAL_LENGTH + " integer;";
     private static final String ALTER_TABLE_LENSES_5 = "ALTER TABLE " + TABLE_LENSES
             + " ADD COLUMN " + KEY_LENS_SERIAL_NO + " text;";
-    private static final String ALTER_TABLE_LENSES_6 = "ALTER TABLE" + TABLE_LENSES
-            + " ADD COLUMN " + KEY_LENS_APERTURE_INCREMENTS + " integer not null;";
+    private static final String ALTER_TABLE_LENSES_6 = "ALTER TABLE " + TABLE_LENSES
+            + " ADD COLUMN " + KEY_LENS_APERTURE_INCREMENTS + " integer not null default 0;";
 
     private static final String ALTER_TABLE_CAMERAS_1 = "ALTER TABLE " + TABLE_CAMERAS
             + " ADD COLUMN " + KEY_CAMERA_MAX_SHUTTER + " text;";
@@ -212,7 +212,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String ALTER_TABLE_CAMERAS_3 = "ALTER TABLE " + TABLE_CAMERAS
             + " ADD COLUMN " + KEY_CAMERA_SERIAL_NO + " text;";
     private static final String ALTER_TABLE_CAMERAS_4 = "ALTER TABLE " + TABLE_CAMERAS
-            + " ADD COLUMN " + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null;";
+            + " ADD COLUMN " + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null default 0;";
 
     private static final String ALTER_TABLE_ROLLS_1 = "ALTER TABLE " + TABLE_ROLLS
             + " ADD COLUMN " + KEY_ROLL_ISO + " integer;";
