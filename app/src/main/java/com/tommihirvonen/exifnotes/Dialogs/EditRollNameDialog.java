@@ -14,9 +14,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -34,7 +34,6 @@ import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,9 +57,8 @@ public class EditRollNameDialog extends DialogFragment {
     long newCameraId;
     String newDate;
     int newFormat;
-
-    NumberPicker isoPicker;
-    NumberPicker pushPullPicker;
+    int newIso;
+    String newPushPull;
 
     public EditRollNameDialog () {
 
@@ -76,6 +74,8 @@ public class EditRollNameDialog extends DialogFragment {
         if (roll == null) roll = new Roll();
 
         newCameraId = roll.getCameraId();
+        newIso = roll.getIso();
+        newPushPull = roll.getPushPull();
 
         database = FilmDbHelper.getInstance(getActivity());
         cameraList = database.getAllCameras();
@@ -232,55 +232,102 @@ public class EditRollNameDialog extends DialogFragment {
         });
 
         //ISO PICKER
-        isoPicker = (NumberPicker) inflator.findViewById(R.id.isoPicker);
-        isoPicker.setMinValue(0);
-        isoPicker.setMaxValue(Utilities.isoValues.length-1);
-        isoPicker.setDisplayedValues(Utilities.isoValues);
-        isoPicker.setValue(0);
-        for (int i = 0; i < Utilities.isoValues.length; ++i) {
-            if (roll.getIso() == Integer.parseInt(Utilities.isoValues[i])) {
-                isoPicker.setValue(i);
-                break;
+        final Button isoButton = (Button) inflator.findViewById(R.id.btn_iso);
+        isoButton.setText(String.valueOf(newIso));
+        isoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                @SuppressLint("InflateParams")
+                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                final NumberPicker isoPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                isoPicker.setMinValue(0);
+                isoPicker.setMaxValue(Utilities.isoValues.length-1);
+                isoPicker.setDisplayedValues(Utilities.isoValues);
+                isoPicker.setValue(0);
+                for (int i = 0; i < Utilities.isoValues.length; ++i) {
+                    if (newIso == Integer.parseInt(Utilities.isoValues[i])) {
+                        isoPicker.setValue(i);
+                        break;
+                    }
+                }
+                //To prevent text edit
+                isoPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                builder.setView(dialogView);
+                builder.setTitle("Choose ISO");
+                builder.setPositiveButton(getResources().getString(R.string.OK),
+                    new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        newIso = Integer.parseInt(Utilities.isoValues[isoPicker.getValue()]);
+                        isoButton.setText(String.valueOf(newIso));
+                    }
+                });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
-        }
+        });
+
 
         //PUSH PULL PICKER
-        pushPullPicker = (NumberPicker) inflator.findViewById(R.id.pushPullPicker);
-        //--------------------------------------------------------
-        //This little trick is used to fix a bug which Google hasn't been able to fix in five years.
-        //https://code.google.com/p/android/issues/detail?id=35482
-        //Seriously, what the hell!?
-        //Initially the NumberPicker shows the wrong value, but when the Picker is first scrolled,
-        //the displayed value changes to the correct one.
-        Field field = null;
-        try {
-            field = NumberPicker.class.getDeclaredField("mInputText");
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-        if (field != null) {
-            field.setAccessible(true);
-            EditText inputText = null;
-            try {
-                inputText = (EditText) field.get(pushPullPicker);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-            if (inputText != null) inputText.setFilters(new InputFilter[0]);
-        }
-        //--------------------------------------------------------
-        pushPullPicker.setMinValue(0);
-        pushPullPicker.setMaxValue(Utilities.compValues.length-1);
-        pushPullPicker.setDisplayedValues(Utilities.compValues);
-        pushPullPicker.setValue(9);
-        if (roll.getPushPull() != null) {
-            for (int i = 0; i < Utilities.compValues.length; ++i) {
-                if (roll.getPushPull().equals(Utilities.compValues[i])) {
-                    pushPullPicker.setValue(i);
-                    break;
+        final Button pushPullButton = (Button) inflator.findViewById(R.id.btn_push_pull);
+        pushPullButton.setText(
+                newPushPull == null || newPushPull.equals("0") ? "±0" : newPushPull
+        );
+        pushPullButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                @SuppressLint("InflateParams")
+                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                final NumberPicker pushPullPicker =
+                        Utilities.fixNumberPicker((NumberPicker) dialogView.findViewById(R.id.number_picker));
+                pushPullPicker.setMinValue(0);
+                pushPullPicker.setMaxValue(Utilities.compValues.length-1);
+                pushPullPicker.setDisplayedValues(Utilities.compValues);
+                pushPullPicker.setValue(9);
+                if (newPushPull != null) {
+                    for (int i = 0; i < Utilities.compValues.length; ++i) {
+                        if (newPushPull.equals(Utilities.compValues[i])) {
+                            pushPullPicker.setValue(i);
+                            break;
+                        }
+                    }
                 }
+                //To prevent text edit
+                pushPullPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                builder.setView(dialogView);
+                builder.setTitle("Choose push/pull");
+                builder.setPositiveButton(getResources().getString(R.string.OK),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            newPushPull = Utilities.compValues[pushPullPicker.getValue()];
+                            pushPullButton.setText(
+                                    newPushPull.equals("0") ? "±0" : newPushPull
+                            );
+                        }
+                });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
-        }
+        });
 
         //FORMAT PICK DIALOG
         formatTextView = (TextView) inflator.findViewById(R.id.btn_format);
@@ -364,8 +411,8 @@ public class EditRollNameDialog extends DialogFragment {
                     roll.setNote(noteEditText.getText().toString());
                     roll.setCameraId(newCameraId);
                     roll.setDate(newDate);
-                    roll.setIso(Integer.parseInt(Utilities.isoValues[isoPicker.getValue()]));
-                    roll.setPushPull(Utilities.compValues[pushPullPicker.getValue()]);
+                    roll.setIso(newIso);
+                    roll.setPushPull(newPushPull);
                     roll.setFormat(newFormat);
 
                     Intent intent = new Intent();

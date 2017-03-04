@@ -18,10 +18,13 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputFilter;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
@@ -36,6 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Field;
 import java.nio.channels.FileChannel;
 import java.text.Normalizer;
 import java.text.ParseException;
@@ -218,6 +222,37 @@ public class Utilities {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
         return Arrays.asList(UIColor.split(","));
+    }
+
+    /**
+     * This function is used to fix a bug which Google hasn't been able to fix in five years.
+     * https://code.google.com/p/android/issues/detail?id=35482
+     *
+     * Initially the NumberPicker shows the wrong value, but when the Picker is first scrolled,
+     * the displayed value changes to the correct one. This function fixes this and shows
+     * the correct value immediately.
+     *
+     * @param numberPicker the NumberPicker to be fixed
+     * @return reference to the fixed NumberPicker
+     */
+    public static NumberPicker fixNumberPicker(NumberPicker numberPicker) {
+        Field field = null;
+        try {
+            field = NumberPicker.class.getDeclaredField("mInputText");
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        if (field != null) {
+            field.setAccessible(true);
+            EditText inputText = null;
+            try {
+                inputText = (EditText) field.get(numberPicker);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            if (inputText != null) inputText.setFilters(new InputFilter[0]);
+        }
+        return numberPicker;
     }
 
     /**
