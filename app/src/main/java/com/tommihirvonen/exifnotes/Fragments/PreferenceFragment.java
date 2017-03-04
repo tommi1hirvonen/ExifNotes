@@ -112,7 +112,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                             public void onChosenFile(String filePath) {
                                 //If the length of filePath is 0, then the user canceled the import.
                                 if (filePath.length()>0) {
-                                    FilmDbHelper database = new FilmDbHelper(getActivity());
+                                    FilmDbHelper database = FilmDbHelper.getInstance(getActivity());
                                     boolean importSuccess;
                                     try {
                                         importSuccess = database.importDatabase(getActivity(), filePath);

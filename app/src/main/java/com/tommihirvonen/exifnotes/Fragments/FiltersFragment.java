@@ -5,12 +5,9 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.view.ContextMenu;
@@ -34,7 +31,6 @@ import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,7 +59,7 @@ public class FiltersFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LayoutInflater linf = getActivity().getLayoutInflater();
 
-        database = new FilmDbHelper(getActivity());
+        database = FilmDbHelper.getInstance(getActivity());
         filterList = database.getAllFilters();
 
         final View view = linf.inflate(R.layout.filters_fragment, container, false);

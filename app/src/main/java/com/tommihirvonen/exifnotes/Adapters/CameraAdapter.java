@@ -25,7 +25,7 @@ public class CameraAdapter extends ArrayAdapter<Camera> {
 
     // This CameraAdapter acts as an ArrayAdapter to link an array and a list view together
 
-    private FilmDbHelper database = new FilmDbHelper(getContext());
+    private FilmDbHelper database = FilmDbHelper.getInstance(getContext());
 
     public CameraAdapter(Context context, int textViewResourceId, List<Camera> cameras) {
         super(context, textViewResourceId, cameras);

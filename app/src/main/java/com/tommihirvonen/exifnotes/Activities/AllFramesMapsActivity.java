@@ -42,7 +42,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
 
         setContentView(R.layout.activity_maps);
 
-        database = new FilmDbHelper(this);
+        database = FilmDbHelper.getInstance(this);
         rollList = database.getAllRolls();
 
         Utilities.setUiColor(this, true);

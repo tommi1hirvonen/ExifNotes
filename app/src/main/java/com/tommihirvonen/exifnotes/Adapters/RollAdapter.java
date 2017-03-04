@@ -28,7 +28,7 @@ public class RollAdapter extends ArrayAdapter<Roll> {
 
     public RollAdapter(Context context,int textViewResourceId, List<Roll> rolls) {
         super(context, textViewResourceId, rolls);
-        database = new FilmDbHelper(context);
+        database = FilmDbHelper.getInstance(context);
     }
 
     /**

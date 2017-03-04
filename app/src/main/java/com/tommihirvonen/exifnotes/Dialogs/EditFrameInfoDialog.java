@@ -103,7 +103,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         frame = getArguments().getParcelable("FRAME");
         if (frame == null) frame = new Frame();
 
-        database = new FilmDbHelper(getActivity());
+        database = FilmDbHelper.getInstance(getActivity());
         cameraId = database.getRoll(frame.getRollId()).getCameraId();
         camera = database.getCamera(cameraId);
         mountableLenses = database.getMountableLenses(camera);

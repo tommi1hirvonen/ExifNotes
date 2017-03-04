@@ -33,7 +33,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
 
     public FrameAdapter(Context context,int textViewResourceId, List<Frame> frames) {
         super(context, textViewResourceId, frames);
-        database = new FilmDbHelper(context);
+        database = FilmDbHelper.getInstance(context);
     }
 
     /**

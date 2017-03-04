@@ -226,8 +226,34 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " WHERE " + KEY_SHUTTER + " LIKE \'%q\';";
 
 
+    /**
+     * Store reference to the singleton instance.
+     */
+    private static FilmDbHelper instance;
 
-    public FilmDbHelper(Context context) {
+    /**
+     * Singleton method to get reference to the database instance
+     *
+     * @param context current context
+     * @return reference to the database singleton instance
+     */
+    public static synchronized FilmDbHelper getInstance(Context context) {
+
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (instance == null) {
+            instance = new FilmDbHelper(context.getApplicationContext());
+        }
+        return instance;
+    }
+
+    /**
+     * Private constructor only to be called from getInstance()
+     *
+     * @param context the current context
+     */
+    private FilmDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -302,12 +328,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         // Create ContentValues to add key "column"/value
         ContentValues values = buildFrameContentValues(frame);
         // Insert
-        long rowId = db.insert(TABLE_FRAMES, // table
+        return db.insert(TABLE_FRAMES, // table
                 null, // nullColumnHack
-                values); // key/value -> keys = column names/ value
-        // Close
-        db.close();
-        return rowId;
+                values);
     }
 
     /**
@@ -329,7 +352,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             frames.add(frame);
         }
         cursor.close();
-        db.close();
         return frames;
     }
 
@@ -343,7 +365,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = buildFrameContentValues(frame);
         db.update(TABLE_FRAMES, contentValues, KEY_FRAME_ID + "=?",
                 new String[]{Long.toString(frame.getId())});
-        db.close();
     }
 
     /**
@@ -357,8 +378,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         db.delete(TABLE_FRAMES,
                 KEY_FRAME_ID + " = ?",
                 new String[]{Long.toString(frame.getId())});
-        // Close
-        db.close();
     }
 
     /**
@@ -368,7 +387,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void deleteAllFramesFromRoll(long roll_id){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_FRAMES, KEY_ROLL_ID + " = ? ", new String[]{Long.toString(roll_id)});
-        db.close();
     }
 
     // ******************** CRUD operations for the lenses table ********************
@@ -380,9 +398,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public long addLens(Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = buildLensContentValues(lens);
-        long rowId = db.insert(TABLE_LENSES, null, values);
-        db.close();
-        return rowId;
+        return db.insert(TABLE_LENSES, null, values);
     }
 
     /**
@@ -400,7 +416,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             lens = getLensFromCursor(cursor, lens);
             cursor.close();
         }
-        db.close();
         return lens;
     }
 
@@ -418,7 +433,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             lenses.add(lens);
         }
         cursor.close();
-        db.close();
         return lenses;
     }
 
@@ -430,7 +444,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_LENSES, KEY_LENS_ID + " = ?", new String[]{Long.toString(lens.getId())});
         db.delete(TABLE_MOUNTABLES, KEY_LENS_ID + " = ?", new String[]{Long.toString(lens.getId())});
-        db.close();
     }
 
     /**
@@ -444,12 +457,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 new String[]{Long.toString(lens.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
-            db.close();
             return true;
         }
         else {
             cursor.close();
-            db.close();
             return false;
         }
     }
@@ -463,7 +474,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = buildLensContentValues(lens);
         db.update(TABLE_LENSES, contentValues, KEY_LENS_ID + "=?",
                 new String[]{Long.toString(lens.getId())});
-        db.close();
     }
 
     // ******************** CRUD operations for the cameras table ********************
@@ -475,9 +485,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public long addCamera(Camera camera){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = buildCameraContentValues(camera);
-        long rowId = db.insert(TABLE_CAMERAS, null, values);
-        db.close();
-        return rowId;
+        return db.insert(TABLE_CAMERAS, null, values);
     }
 
     /**
@@ -495,7 +503,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             camera = getCameraFromCursor(cursor, camera);
             cursor.close();
         }
-        db.close();
         return camera;
     }
 
@@ -513,7 +520,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             cameras.add(camera);
         }
         cursor.close();
-        db.close();
         return cameras;
     }
 
@@ -527,7 +533,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 new String[]{Long.toString(camera.getId())});
         db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ?",
                 new String[]{Long.toString(camera.getId())});
-        db.close();
     }
 
     /**
@@ -541,12 +546,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 new String[]{Long.toString(camera.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
-            db.close();
             return true;
         }
         else {
             cursor.close();
-            db.close();
             return false;
         }
     }
@@ -560,7 +563,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = buildCameraContentValues(camera);
         db.update(TABLE_CAMERAS, contentValues, KEY_CAMERA_ID + "=?",
                 new String[]{Long.toString(camera.getId())});
-        db.close();
     }
 
     // ******************** CRUD operations for the mountables table ********************
@@ -579,7 +581,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_MOUNTABLES + " WHERE "
                 + KEY_CAMERA_ID + "=" + camera.getId() + " AND " + KEY_LENS_ID + "=" + lens.getId() + ")";
         db.execSQL(query);
-        db.close();
     }
 
     /**
@@ -591,7 +592,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ? AND " + KEY_LENS_ID + " = ?",
                     new String[]{Long.toString(camera.getId()), Long.toString(lens.getId())});
-        db.close();
     }
 
     /**
@@ -614,7 +614,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             lenses.add(lens);
         }
         cursor.close();
-        db.close();
         return lenses;
     }
 
@@ -638,7 +637,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             cameras.add(camera);
         }
         cursor.close();
-        db.close();
         return cameras;
     }
 
@@ -651,9 +649,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public long addRoll(Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = buildRollContentValues(roll);
-        long rowId = db.insert(TABLE_ROLLS, null, values);
-        db.close();
-        return rowId;
+        return db.insert(TABLE_ROLLS, null, values);
     }
 
     /**
@@ -670,7 +666,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             rolls.add(roll);
         }
         cursor.close();
-        db.close();
         return rolls;
     }
 
@@ -689,7 +684,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             roll = getRollFromCursor(cursor, roll);
             cursor.close();
         }
-        db.close();
         return roll;
     }
 
@@ -700,7 +694,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void deleteRoll(Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_ROLLS, KEY_ROLL_ID + " = ?", new String[]{Long.toString(roll.getId())});
-        db.close();
     }
 
     /**
@@ -712,7 +705,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = buildRollContentValues(roll);
         db.update(TABLE_ROLLS, contentValues, KEY_ROLL_ID + "=?",
                 new String[]{Long.toString(roll.getId())});
-        db.close();
     }
 
     /**
@@ -730,7 +722,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             returnValue = cursor.getInt(0);
             cursor.close();
         }
-        db.close();
         return returnValue;
     }
 
@@ -744,9 +735,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public long addFilter(Filter filter){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = buildFilterContentValues(filter);
-        long rowId = db.insert(TABLE_FILTERS, null, values);
-        db.close();
-        return rowId;
+        return db.insert(TABLE_FILTERS, null, values);
     }
 
     /**
@@ -764,7 +753,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             filter = getFilterFromCursor(cursor, filter);
             cursor.close();
         }
-        db.close();
         return filter;
     }
 
@@ -782,7 +770,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             filters.add(filter);
         }
         cursor.close();
-        db.close();
         return filters;
     }
 
@@ -793,7 +780,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void deleteFilter(Filter filter){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_FILTERS, KEY_FILTER_ID + " = ?", new String[]{Long.toString(filter.getId())});
-        db.close();
     }
 
     /**
@@ -807,12 +793,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 new String[]{Long.toString(filter.getId())}, null, null, null);
         if ( cursor.moveToFirst() ) {
             cursor.close();
-            db.close();
             return true;
         }
         else {
             cursor.close();
-            db.close();
             return false;
         }
     }
@@ -826,7 +810,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = buildFilterContentValues(filter);
         db.update(TABLE_FILTERS, contentValues, KEY_FILTER_ID + "=?",
                 new String[]{Long.toString(filter.getId())});
-        db.close();
     }
 
     // ******************** CRUD operations for the mountable lenses filters table ********************
@@ -845,7 +828,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_MOUNTABLE_FILTERS_LENSES + " WHERE "
                 + KEY_FILTER_ID + "=" + filter.getId() + " AND " + KEY_LENS_ID + "=" + lens.getId() + ")";
         db.execSQL(query);
-        db.close();
     }
 
     /**
@@ -857,7 +839,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_MOUNTABLE_FILTERS_LENSES, KEY_FILTER_ID + " = ? AND " + KEY_LENS_ID + " = ?",
                 new String[]{Long.toString(filter.getId()), Long.toString(lens.getId())});
-        db.close();
     }
 
     /**
@@ -880,7 +861,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             lenses.add(lens);
         }
         cursor.close();
-        db.close();
         return lenses;
     }
 
@@ -904,7 +884,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             filters.add(filter);
         }
         cursor.close();
-        db.close();
         return filters;
     }
 
@@ -1074,14 +1053,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     }
 
     public boolean importDatabase(Context context, String importDatabasePath) throws IOException {
-        // Close the SQLiteOpenHelper so it will commit the created empty
-        // database to internal storage.
-        close();
         File newDb = new File(importDatabasePath);
         File oldDbBackup = new File(context.getDatabasePath(DATABASE_NAME).getAbsolutePath() + "_backup");
         File oldDb = getDatabaseFile(context);
 
         if (newDb.exists()) {
+
+            close();
 
             //Backup the old database file in case the new file is corrupted.
             Utilities.copyFile(new FileInputStream(oldDb), new FileOutputStream(oldDbBackup));
@@ -1109,7 +1087,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                         Toast.LENGTH_LONG).show();
                 return false;
             }
-            db.close();
             return true;
         }
         return false;

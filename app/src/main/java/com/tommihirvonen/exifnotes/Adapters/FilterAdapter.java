@@ -20,7 +20,7 @@ import java.util.List;
 
 public class FilterAdapter extends ArrayAdapter<Filter> {
 
-    private FilmDbHelper database = new FilmDbHelper(getContext());
+    private FilmDbHelper database = FilmDbHelper.getInstance(getContext());
 
     public FilterAdapter(Context context, int resource, List<Filter> filters) {
         super(context, resource, filters);

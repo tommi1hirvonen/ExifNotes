@@ -136,7 +136,7 @@ public class RollsFragment extends Fragment implements
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
-        database = new FilmDbHelper(getActivity());
+        database = FilmDbHelper.getInstance(getActivity());
         rollList = database.getAllRolls();
 
         //Order the roll list according to preferences

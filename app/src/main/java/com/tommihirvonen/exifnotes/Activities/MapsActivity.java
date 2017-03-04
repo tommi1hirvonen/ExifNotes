@@ -44,7 +44,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // If the rollId is -1, then something went wrong.
         if (rollId == -1) finish();
 
-        database = new FilmDbHelper(this);
+        database = FilmDbHelper.getInstance(this);
         frameList = database.getAllFramesFromRoll(rollId);
 
         Utilities.setUiColor(this, true);

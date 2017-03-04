@@ -77,7 +77,7 @@ public class EditRollNameDialog extends DialogFragment {
 
         newCameraId = roll.getCameraId();
 
-        database = new FilmDbHelper(getActivity());
+        database = FilmDbHelper.getInstance(getActivity());
         cameraList = database.getAllCameras();
 
         LayoutInflater linf = getActivity().getLayoutInflater();

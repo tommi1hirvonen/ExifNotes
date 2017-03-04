@@ -149,7 +149,7 @@ public class FramesFragment extends Fragment implements
         rollId = getArguments().getLong("ROLL_ID");
         locationEnabled = getArguments().getBoolean("LOCATION_ENABLED");
 
-        database = new FilmDbHelper(getActivity());
+        database = FilmDbHelper.getInstance(getActivity());
         frameList = database.getAllFramesFromRoll(rollId);
         cameraId = database.getRoll(rollId).getCameraId();
 

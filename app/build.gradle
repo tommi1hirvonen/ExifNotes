@@ -5,7 +5,7 @@ android {
         config {
             keyAlias '***REMOVED***'
             keyPassword '***REMOVED***'
-            storeFile file('C:\\Users\\Tommi\\Ohjelmointi\\Harrasteprojektit\\Avaimet\\android.jks')
+            storeFile file('/Users/Tommi/Documents/Ohjelmointi/Harrasteprojektit/Avaimet/android.jks')
             storePassword '***REMOVED***'
         }
     }
@@ -38,7 +38,9 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.android.support:recyclerview-v7:25.0.1'
     compile 'com.android.support:design:25.0.1'
+    //noinspection GradleDependency
     compile 'com.google.android.gms:play-services-maps:9.6.0'
+    //noinspection GradleDependency
     compile 'com.google.android.gms:play-services-location:9.6.0'
     compile 'com.android.support:support-v13:25.0.1'
     compile 'com.android.support:percent:25.0.1'

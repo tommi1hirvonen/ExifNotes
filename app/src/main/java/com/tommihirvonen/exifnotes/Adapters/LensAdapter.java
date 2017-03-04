@@ -26,7 +26,7 @@ public class LensAdapter extends ArrayAdapter<Lens> {
 
     // This LensAdapter acts as an ArrayAdapter to link an array and a list view together
 
-    private FilmDbHelper database = new FilmDbHelper(getContext());
+    private FilmDbHelper database = FilmDbHelper.getInstance(getContext());
 
     public LensAdapter(Context context, int textViewResourceId, List<Lens> lenses) {
         super(context, textViewResourceId, lenses);
