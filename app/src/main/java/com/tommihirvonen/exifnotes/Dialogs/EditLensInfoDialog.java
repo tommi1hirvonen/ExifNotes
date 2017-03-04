@@ -93,18 +93,22 @@ public class EditLensInfoDialog extends DialogFragment {
         apertureIncrementsTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                int checkedItem = newApertureIncrements;
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(getResources().getString(R.string.ChooseIncrements));
-                builder.setItems(R.array.StopIncrements, new DialogInterface.OnClickListener() {
+                builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem,
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         newApertureIncrements = i;
                         apertureIncrementsTextView.setText(
                                 getResources().getStringArray(R.array.StopIncrements)[i]);
                         initialiseApertureRangePickers();
+                        dialogInterface.dismiss();
                     }
                 });
-                builder.setNegativeButton(getResources().getString(R.string.Cancel), new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //Do nothing

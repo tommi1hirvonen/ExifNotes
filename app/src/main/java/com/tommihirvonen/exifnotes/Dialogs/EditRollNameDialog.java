@@ -116,18 +116,21 @@ public class EditRollNameDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 final List<String> listItems = new ArrayList<>();
+                int checkedItem = -1;
                 for (int i = 0; i < cameraList.size(); ++i) {
                     listItems.add(cameraList.get(i).getMake() + " " + cameraList.get(i).getModel());
+                    if (cameraList.get(i).getId() == newCameraId) checkedItem = i;
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.UsedCamera);
-                builder.setItems(items, new DialogInterface.OnClickListener() {
+                builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(DialogInterface dialogInterface, int which) {
                         // listItems also contains the No lens option
                         cameraTextView.setText(listItems.get(which));
                         newCameraId = cameraList.get(which).getId();
+                        dialogInterface.dismiss();
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -288,16 +291,20 @@ public class EditRollNameDialog extends DialogFragment {
         formatTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                int checkedItem = newFormat;
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(getResources().getString(R.string.ChooseFormat));
-                builder.setItems(R.array.FilmFormats, new DialogInterface.OnClickListener() {
+                builder.setSingleChoiceItems(R.array.FilmFormats, checkedItem,
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         newFormat = i;
                         formatTextView.setText(getResources().getStringArray(R.array.FilmFormats)[i]);
+                        dialogInterface.dismiss();
                     }
                 });
-                builder.setNegativeButton(getResources().getString(R.string.Cancel), new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //Do nothing

@@ -96,9 +96,10 @@ public class EditCameraInfoDialog extends DialogFragment {
         shutterSpeedIncrementsTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                int checkedItem = newShutterIncrements;
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(getResources().getString(R.string.ChooseIncrements));
-                builder.setItems(R.array.StopIncrements, new DialogInterface.OnClickListener() {
+                builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         newShutterIncrements = i;
@@ -106,7 +107,7 @@ public class EditCameraInfoDialog extends DialogFragment {
                                 getResources().getStringArray(R.array.StopIncrements)[i]);
                         //Shutter speed increments were changed, make changes to shutter range pickers
                         initialiseShutterRangePickers();
-
+                        dialogInterface.dismiss();
                     }
                 });
                 builder.setNegativeButton(getResources().getString(R.string.Cancel), new DialogInterface.OnClickListener() {

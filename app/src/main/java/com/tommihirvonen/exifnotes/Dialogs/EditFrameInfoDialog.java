@@ -148,16 +148,21 @@ public class EditFrameInfoDialog extends DialogFragment {
         lensTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int checkedItem = 0; // default option is 'no lens' (first one the list)
                 final List<String> listItems = new ArrayList<>();
                 listItems.add(getResources().getString(R.string.NoLens));
                 for (int i = 0; i < mountableLenses.size(); ++i) {
                     listItems.add(mountableLenses.get(i).getMake() + " " +
                             mountableLenses.get(i).getModel());
+
+                    //If the id's match, set the initial checkedItem.
+                    // Account for the 'no lens' option with the + 1
+                    if (mountableLenses.get(i).getId() == newLensId) checkedItem = i + 1;
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.UsedLens);
-                builder.setItems(items, new DialogInterface.OnClickListener() {
+                builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
@@ -166,8 +171,6 @@ public class EditFrameInfoDialog extends DialogFragment {
                             newLensId = mountableLenses.get(which - 1).getId();
                             initialiseFocalLengthPicker();
                             apertureIncrements = database.getLens(newLensId).getApertureIncrements();
-                            initialiseAperturePicker();
-                            initialiseFilters();
                         }
                         else if (which == 0) {
                             newLensId = -1;
@@ -175,9 +178,10 @@ public class EditFrameInfoDialog extends DialogFragment {
                             focalLengthPicker.setMaxValue(0);
                             focalLengthPicker.setValue(0);
                             apertureIncrements = 0;
-                            initialiseAperturePicker();
-                            initialiseFilters();
                         }
+                        initialiseAperturePicker();
+                        initialiseFilters();
+                        dialog.dismiss();
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -433,6 +437,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         filterTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int checkedItem = 0; //default option is 0, no filter
                 final List<String> listItems = new ArrayList<>();
                 listItems.add(getResources().getString(R.string.NoFilter));
                 if (newLensId > 0) {
@@ -440,12 +445,13 @@ public class EditFrameInfoDialog extends DialogFragment {
                     for (int i = 0; i < mountableFilters.size(); ++i) {
                         listItems.add(mountableFilters.get(i).getMake() + " " +
                                 mountableFilters.get(i).getModel());
+                        if (mountableFilters.get(i).getId() == newFilterId) checkedItem = i + 1;
                     }
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.UsedFilter);
-                builder.setItems(items, new DialogInterface.OnClickListener() {
+                builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
@@ -456,6 +462,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                         else if (which == 0) {
                             newFilterId = -1;
                         }
+                        dialog.dismiss();
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {

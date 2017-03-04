@@ -368,6 +368,13 @@ public class FramesFragment extends Fragment implements
                         frameAdapter.notifyDataSetChanged();
                     }
                 });
+                sortDialog.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
                 sortDialog.show();
 
                 break;

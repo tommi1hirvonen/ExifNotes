@@ -244,8 +244,14 @@ public class RollsFragment extends Fragment implements
                         rollAdapter.notifyDataSetChanged();
                     }
                 });
+                sortDialog.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
                 sortDialog.show();
-
                 break;
 
             case R.id.menu_item_lenses:
