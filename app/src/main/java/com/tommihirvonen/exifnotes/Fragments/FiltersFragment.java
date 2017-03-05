@@ -358,6 +358,6 @@ public class FiltersFragment extends Fragment implements
     }
 
     public void updateFragment(){
-        filterAdapter.notifyDataSetChanged();
+        if (filterAdapter != null) filterAdapter.notifyDataSetChanged();
     }
 }

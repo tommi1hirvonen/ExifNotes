@@ -358,6 +358,6 @@ public class CamerasFragment extends Fragment implements
     }
 
     public void updateFragment(){
-        cameraAdapter.notifyDataSetChanged();
+        if (cameraAdapter != null) cameraAdapter.notifyDataSetChanged();
     }
 }

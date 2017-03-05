@@ -169,6 +169,8 @@
     <string name="ModelIllegalCharacter">Model contains illegal character(s):</string>
     <string name="NoMinOrMaxShutter">One end of the shutter range was empty!</string>
     <string name="NoMinOrMaxAperture">One end of the aperture range was empty!</string>
+    <string name="ChooseShutterRange">Choose shutter range</string>
+    <string name="ClickToSet">Click to set</string>
 
     <!--FramesFragment-->
     <string name="NoteIllegalCharacter">Note contains illegal character(s):</string>

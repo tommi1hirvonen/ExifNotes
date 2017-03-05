@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
@@ -42,9 +43,13 @@ public class EditCameraInfoDialog extends DialogFragment {
     String[] displayedShutterValues;
 
     TextView shutterSpeedIncrementsTextView;
+    Button shutterRangeButton;
 
-    NumberPicker minShutterPicker;
-    NumberPicker maxShutterPicker;
+//    NumberPicker minShutterPicker;
+//    NumberPicker maxShutterPicker;
+
+    String newMinShutter;
+    String newMaxShutter;
 
     public EditCameraInfoDialog(){
 
@@ -56,9 +61,9 @@ public class EditCameraInfoDialog extends DialogFragment {
 
         utilities = new Utilities(getActivity());
 
-        LayoutInflater linf = getActivity().getLayoutInflater();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams") final View inflator = linf.inflate(
+        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
                 R.layout.camera_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
@@ -67,29 +72,32 @@ public class EditCameraInfoDialog extends DialogFragment {
         camera = getArguments().getParcelable("CAMERA");
         if (camera == null) camera = new Camera();
 
+        newMinShutter = camera.getMinShutter();
+        newMaxShutter = camera.getMaxShutter();
+
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(
+            FrameLayout rootLayout = (FrameLayout) inflatedView.findViewById(R.id.root);
+            NestedScrollView nestedScrollView = (NestedScrollView) inflatedView.findViewById(
                     R.id.nested_scroll_view);
             Utilities.setScrollIndicators(rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
         }
 
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
-        alert.setView(inflator);
+        alert.setView(inflatedView);
 
         //EDIT TEXT FIELDS
-        final EditText makeEditText = (EditText) inflator.findViewById(R.id.txt_make);
+        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.txt_make);
         makeEditText.setText(camera.getMake());
-        final EditText modelEditText = (EditText) inflator.findViewById(R.id.txt_model);
+        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.txt_model);
         modelEditText.setText(camera.getModel());
-        final EditText serialNumberEditText = (EditText) inflator.findViewById(R.id.txt_serial_number);
+        final EditText serialNumberEditText = (EditText) inflatedView.findViewById(R.id.txt_serial_number);
         serialNumberEditText.setText(camera.getSerialNumber());
 
         //SHUTTER SPEED INCREMENTS BUTTON
         newShutterIncrements = camera.getShutterIncrements();
-        shutterSpeedIncrementsTextView = (TextView) inflator.findViewById(R.id.btn_shutterSpeedIncrements);
+        shutterSpeedIncrementsTextView = (TextView) inflatedView.findViewById(R.id.btn_shutterSpeedIncrements);
         shutterSpeedIncrementsTextView.setClickable(true);
         shutterSpeedIncrementsTextView.setText(
                 getResources().getStringArray(R.array.StopIncrements)[camera.getShutterIncrements()]);
@@ -105,8 +113,37 @@ public class EditCameraInfoDialog extends DialogFragment {
                         newShutterIncrements = i;
                         shutterSpeedIncrementsTextView.setText(
                                 getResources().getStringArray(R.array.StopIncrements)[i]);
-                        //Shutter speed increments were changed, make changes to shutter range pickers
-                        initialiseShutterRangePickers();
+
+                        //Shutter speed increments were changed, make update
+                        //Check if the new increments include both min and max values.
+                        //Otherwise reset them to null
+                        boolean minFound = false, maxFound = false;
+                        switch (newShutterIncrements) {
+                            case 0:
+                                displayedShutterValues = utilities.shutterValuesThird;
+                                break;
+                            case 1:
+                                displayedShutterValues = utilities.shutterValuesHalf;
+                                break;
+                            case 2:
+                                displayedShutterValues = utilities.shutterValuesFull;
+                                break;
+                            default:
+                                displayedShutterValues = utilities.shutterValuesThird;
+                                break;
+                        }
+                        for (String string : displayedShutterValues) {
+                            if (!minFound && string.equals(newMinShutter)) minFound = true;
+                            if (!maxFound && string.equals(newMaxShutter)) maxFound = true;
+                            if (minFound && maxFound) break;
+                        }
+                        //If either one wasn't found in the new values array, null them.
+                        if (!minFound || !maxFound) {
+                            newMinShutter = null;
+                            newMaxShutter = null;
+                            updateShutterRangeButton();
+                        }
+
                         dialogInterface.dismiss();
                     }
                 });
@@ -120,12 +157,68 @@ public class EditCameraInfoDialog extends DialogFragment {
             }
         });
 
-        //SHUTTER RANGE NUMBER PICKERS
-        minShutterPicker = (NumberPicker) inflator.findViewById(R.id.minShutterPicker);
-        maxShutterPicker = (NumberPicker) inflator.findViewById(R.id.maxShutterPicker);
-        initialiseShutterRangePickers();
-        minShutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        maxShutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        //SHUTTER RANGE BUTTON
+        shutterRangeButton = (Button) inflatedView.findViewById(R.id.btn_shutterRange);
+        updateShutterRangeButton();
+        shutterRangeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                @SuppressLint("InflateParams")
+                View dialogView = inflater.inflate(R.layout.double_numberpicker_dialog, null);
+                final NumberPicker minShutterPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker_one);
+                final NumberPicker maxShutterPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
+
+                //To prevent text edit
+                minShutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                maxShutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+
+                initialiseShutterRangePickers(minShutterPicker, maxShutterPicker);
+
+                builder.setView(dialogView);
+                builder.setTitle(getResources().getString(R.string.ChooseShutterRange));
+                builder.setPositiveButton(getResources().getString(R.string.OK), null);
+                builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
+                final AlertDialog dialog = builder.create();
+                dialog.show();
+                //Override the positiveButton to check the range before accepting.
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if ((minShutterPicker.getValue() == displayedShutterValues.length-1 &&
+                                maxShutterPicker.getValue() != displayedShutterValues.length-1)
+                                ||
+                                (minShutterPicker.getValue() != displayedShutterValues.length-1 &&
+                                        maxShutterPicker.getValue() == displayedShutterValues.length-1)) {
+                            // No min or max shutter was set
+                            Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxShutter),
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            if (minShutterPicker.getValue() == displayedShutterValues.length-1 &&
+                                    maxShutterPicker.getValue() == displayedShutterValues.length-1) {
+                                newMinShutter = null;
+                                newMaxShutter = null;
+                            } else if (minShutterPicker.getValue() < maxShutterPicker.getValue()) {
+                                newMinShutter = displayedShutterValues[minShutterPicker.getValue()];
+                                newMaxShutter = displayedShutterValues[maxShutterPicker.getValue()];
+                            } else {
+                                newMinShutter = displayedShutterValues[maxShutterPicker.getValue()];
+                                newMaxShutter = displayedShutterValues[minShutterPicker.getValue()];
+                            }
+                            updateShutterRangeButton();
+                        }
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
 
 
         //FINALISE BUILDING THE DIALOG
@@ -164,29 +257,12 @@ public class EditCameraInfoDialog extends DialogFragment {
                 } else if (make.length() == 0 && model.length() > 0) {
                     // No make was set
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
-                } else if ((minShutterPicker.getValue() == displayedShutterValues.length-1 &&
-                        maxShutterPicker.getValue() != displayedShutterValues.length-1)
-                            ||
-                            (minShutterPicker.getValue() != displayedShutterValues.length-1 &&
-                                    maxShutterPicker.getValue() == displayedShutterValues.length-1)){
-                    // No min or max shutter was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxShutter),
-                            Toast.LENGTH_LONG).show();
                 } else {
                     camera.setMake(make); camera.setModel(model);
                     camera.setSerialNumber(serialNumber);
                     camera.setShutterIncrements(newShutterIncrements);
-                    if (minShutterPicker.getValue() == displayedShutterValues.length-1 &&
-                            maxShutterPicker.getValue() == displayedShutterValues.length-1) {
-                        camera.setMinShutter(null);
-                        camera.setMaxShutter(null);
-                    } else if (minShutterPicker.getValue() < maxShutterPicker.getValue()) {
-                        camera.setMinShutter(displayedShutterValues[minShutterPicker.getValue()]);
-                        camera.setMaxShutter(displayedShutterValues[maxShutterPicker.getValue()]);
-                    } else {
-                        camera.setMinShutter(displayedShutterValues[maxShutterPicker.getValue()]);
-                        camera.setMaxShutter(displayedShutterValues[minShutterPicker.getValue()]);
-                    }
+                    camera.setMinShutter(newMinShutter);
+                    camera.setMaxShutter(newMaxShutter);
 
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
@@ -201,7 +277,8 @@ public class EditCameraInfoDialog extends DialogFragment {
         return dialog;
     }
 
-    private void initialiseShutterRangePickers() {
+    private void initialiseShutterRangePickers(NumberPicker minShutterPicker,
+                                               NumberPicker maxShutterPicker) {
         switch (newShutterIncrements) {
             case 0:
                 displayedShutterValues = utilities.shutterValuesThird;
@@ -228,17 +305,24 @@ public class EditCameraInfoDialog extends DialogFragment {
         minShutterPicker.setValue(displayedShutterValues.length-1);
         maxShutterPicker.setValue(displayedShutterValues.length-1);
         for (int i = 0; i < displayedShutterValues.length; ++i) {
-            if (displayedShutterValues[i].equals(camera.getMinShutter())) {
+            if (displayedShutterValues[i].equals(newMinShutter)) {
                 minShutterPicker.setValue(i);
                 break;
             }
         }
         for (int i = 0; i < displayedShutterValues.length; ++i) {
-            if (displayedShutterValues[i].equals(camera.getMaxShutter())) {
+            if (displayedShutterValues[i].equals(newMaxShutter)) {
                 maxShutterPicker.setValue(i);
                 break;
             }
         }
+    }
+
+    private void updateShutterRangeButton(){
+        shutterRangeButton.setText(newMinShutter == null || newMaxShutter == null ?
+                getResources().getString(R.string.ClickToSet) :
+                newMinShutter + " - " + newMaxShutter
+        );
     }
 
 }

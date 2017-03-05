@@ -80,31 +80,31 @@ public class EditRollNameDialog extends DialogFragment {
         database = FilmDbHelper.getInstance(getActivity());
         cameraList = database.getAllCameras();
 
-        LayoutInflater linf = getActivity().getLayoutInflater();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams") final View inflator = linf.inflate(
+        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
                 R.layout.roll_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(
+            FrameLayout rootLayout = (FrameLayout) inflatedView.findViewById(R.id.root);
+            NestedScrollView nestedScrollView = (NestedScrollView) inflatedView.findViewById(
                     R.id.nested_scroll_view);
             Utilities.setScrollIndicators(rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
         }
 
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
-        alert.setView(inflator);
+        alert.setView(inflatedView);
 
-        final EditText nameEditText = (EditText) inflator.findViewById((R.id.txt_name));
-        final EditText noteEditText = (EditText) inflator.findViewById(R.id.txt_note);
+        final EditText nameEditText = (EditText) inflatedView.findViewById((R.id.txt_name));
+        final EditText noteEditText = (EditText) inflatedView.findViewById(R.id.txt_note);
 
-        cameraTextView = (TextView) inflator.findViewById(R.id.btn_camera);
-        final TextView dateTextView = (TextView) inflator.findViewById(R.id.btn_date);
-        final TextView timeTextView = (TextView) inflator.findViewById(R.id.btn_time);
-        final Button addCameraButton = (Button) inflator.findViewById(R.id.btn_add_camera);
+        cameraTextView = (TextView) inflatedView.findViewById(R.id.btn_camera);
+        final TextView dateTextView = (TextView) inflatedView.findViewById(R.id.btn_date);
+        final TextView timeTextView = (TextView) inflatedView.findViewById(R.id.btn_time);
+        final Button addCameraButton = (Button) inflatedView.findViewById(R.id.btn_add_camera);
 
         // CAMERA PICK DIALOG
         cameraTextView.setClickable(true);
@@ -232,7 +232,7 @@ public class EditRollNameDialog extends DialogFragment {
         });
 
         //ISO PICKER
-        final Button isoButton = (Button) inflator.findViewById(R.id.btn_iso);
+        final Button isoButton = (Button) inflatedView.findViewById(R.id.btn_iso);
         isoButton.setText(String.valueOf(newIso));
         isoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -278,7 +278,7 @@ public class EditRollNameDialog extends DialogFragment {
 
 
         //PUSH PULL PICKER
-        final Button pushPullButton = (Button) inflator.findViewById(R.id.btn_push_pull);
+        final Button pushPullButton = (Button) inflatedView.findViewById(R.id.btn_push_pull);
         pushPullButton.setText(
                 newPushPull == null || newPushPull.equals("0") ? "±0" : newPushPull
         );
@@ -330,7 +330,7 @@ public class EditRollNameDialog extends DialogFragment {
         });
 
         //FORMAT PICK DIALOG
-        formatTextView = (TextView) inflator.findViewById(R.id.btn_format);
+        formatTextView = (TextView) inflatedView.findViewById(R.id.btn_format);
         formatTextView.setClickable(true);
         if (roll.getFormat() == 0) roll.setFormat(0);
         formatTextView.setText(getResources().getStringArray(R.array.FilmFormats)[roll.getFormat()]);

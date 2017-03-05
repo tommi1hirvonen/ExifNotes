@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -220,13 +219,10 @@ public class EditLensInfoDialog extends DialogFragment {
                     }
 
                     //Do the same for the min and max aperture values.
-                    Log.d("ExifNotes", "" + minAperturePicker.getValue() + " " + maxAperturePicker.getValue());
-                    Log.d("ExifNotes", "" + (displayedApertureValues.length-1));
                     if (minAperturePicker.getValue() == displayedApertureValues.length-1 &&
                             maxAperturePicker.getValue() == displayedApertureValues.length-1) {
                         lens.setMinAperture(null);
                         lens.setMaxAperture(null);
-                        Log.d("ExifNotes", lens.getMinAperture() + " " + lens.getMaxAperture());
                     } else if (minAperturePicker.getValue() < maxAperturePicker.getValue()) {
                         lens.setMinAperture(displayedApertureValues[minAperturePicker.getValue()]);
                         lens.setMaxAperture(displayedApertureValues[maxAperturePicker.getValue()]);
