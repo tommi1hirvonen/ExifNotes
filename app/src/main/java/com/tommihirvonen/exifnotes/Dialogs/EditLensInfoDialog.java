@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -199,15 +200,18 @@ public class EditLensInfoDialog extends DialogFragment {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxAperture),
                             Toast.LENGTH_LONG).show();
                 } else {
+                    //All the required information was given. Save.
                     lens.setMake(make);
                     lens.setModel(model);
                     lens.setSerialNumber(serialNumber);
                     lens.setApertureIncrements(newApertureIncrements);
 
-                    if ( minFocalLengthPicker.getValue() == 0 || maxFocalLengthPicker.getValue() == 0 ) {
+                    //Set the max and min focal lengths. Check which is smaller and set it to be
+                    //min and vice versa.
+                    if (minFocalLengthPicker.getValue() == 0 || maxFocalLengthPicker.getValue() == 0) {
                         lens.setMaxFocalLength(0);
                         lens.setMinFocalLength(0);
-                    } else if ( minFocalLengthPicker.getValue() < maxFocalLengthPicker.getValue() ) {
+                    } else if (minFocalLengthPicker.getValue() < maxFocalLengthPicker.getValue()) {
                         lens.setMaxFocalLength(maxFocalLengthPicker.getValue());
                         lens.setMinFocalLength(minFocalLengthPicker.getValue());
                     } else {
@@ -215,12 +219,15 @@ public class EditLensInfoDialog extends DialogFragment {
                         lens.setMinFocalLength(maxFocalLengthPicker.getValue());
                     }
 
-                    if ( minAperturePicker.getValue() == displayedApertureValues.length-1 &&
-                            maxAperturePicker.getValue() == displayedApertureValues.length-1 ) {
+                    //Do the same for the min and max aperture values.
+                    Log.d("ExifNotes", "" + minAperturePicker.getValue() + " " + maxAperturePicker.getValue());
+                    Log.d("ExifNotes", "" + (displayedApertureValues.length-1));
+                    if (minAperturePicker.getValue() == displayedApertureValues.length-1 &&
+                            maxAperturePicker.getValue() == displayedApertureValues.length-1) {
                         lens.setMinAperture(null);
                         lens.setMaxAperture(null);
-                    }
-                    if ( minAperturePicker.getValue() < maxAperturePicker.getValue() ) {
+                        Log.d("ExifNotes", lens.getMinAperture() + " " + lens.getMaxAperture());
+                    } else if (minAperturePicker.getValue() < maxAperturePicker.getValue()) {
                         lens.setMinAperture(displayedApertureValues[minAperturePicker.getValue()]);
                         lens.setMaxAperture(displayedApertureValues[maxAperturePicker.getValue()]);
                     } else {

@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -496,7 +497,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                frame.setShutter( displayedShutterValues[shutterPicker.getValue()]);
+                frame.setShutter(displayedShutterValues[shutterPicker.getValue()]);
                 frame.setAperture(displayedApertureValues[aperturePicker.getValue()]);
                 frame.setCount(countPicker.getValue());
                 frame.setNote(noteTextView.getText().toString());
@@ -564,6 +565,7 @@ public class EditFrameInfoDialog extends DialogFragment {
 
     @SuppressWarnings("ManualArrayToCollectionCopy")
     private void initialiseAperturePicker(){
+        //Get the array of displayed aperture values according to the set increments.
         switch (apertureIncrements) {
             case 0:
                 displayedApertureValues = utilities.apertureValuesThird;
@@ -578,32 +580,51 @@ public class EditFrameInfoDialog extends DialogFragment {
                 displayedApertureValues = utilities.apertureValuesThird;
                 break;
         }
+        //Reverse the order if necessary.
         if (displayedApertureValues[0].equals(getResources().getString(R.string.NoValue))) {
             // By reversing the order we can reverse the order in the NumberPicker too
             Collections.reverse(Arrays.asList(displayedApertureValues));
         }
 
         //If no lens is selected, end here
-        if (newLensId <= 0) return;
+        if (newLensId <= 0) {
+            displayedApertureValues = new String[]{getResources().getString(R.string.NoValue)};
+            aperturePicker.setDisplayedValues(null);
+            aperturePicker.setMinValue(0);
+            aperturePicker.setMaxValue(displayedApertureValues.length-1);
+            aperturePicker.setDisplayedValues(displayedApertureValues);
+            aperturePicker.setValue(0);
+            return;
+        }
 
         //Otherwise continue to set min and max apertures
         Lens lens = database.getLens(newLensId);
-        List<String> apertureValuesList = new ArrayList<>();
+        List<String> apertureValuesList = new ArrayList<>(); //to store the temporary values
         int minIndex = 0;
-        int maxIndex = displayedApertureValues.length-1;
-        for (int i = 0; i < displayedApertureValues.length; ++i) {
-            if (lens.getMinAperture().equals(displayedApertureValues[i])) {
-                minIndex = i;
+        int maxIndex = displayedApertureValues.length-1; //we begin the maxIndex from the last element
+
+        //Set the min and max values only if they are set for the lens.
+        //Otherwise the displayedApertureValues array will be left alone
+        //(all aperture values available, since min and max were not defined).
+        if (lens.getMinAperture() != null && lens.getMaxAperture() != null) {
+            for (int i = 0; i < displayedApertureValues.length; ++i) {
+                if (lens.getMinAperture().equals(displayedApertureValues[i])) {
+                    minIndex = i;
+                }
+                if (lens.getMaxAperture().equals(displayedApertureValues[i])) {
+                    maxIndex = i;
+                }
             }
-            if (lens.getMaxAperture().equals(displayedApertureValues[i])) {
-                maxIndex = i;
+            //Add the <empty> option to the beginning of the temp list.
+            apertureValuesList.add(getResources().getString(R.string.NoValue));
+            //Add the values between and min and max to the temp list from the initial array.
+            for (int i = minIndex; i <= maxIndex; ++i) {
+                apertureValuesList.add(displayedApertureValues[i]);
             }
+            //Copy the temp list over the initial array.
+            displayedApertureValues = apertureValuesList.toArray(new String[0]);
         }
-        apertureValuesList.add(getResources().getString(R.string.NoValue));
-        for (int i = minIndex; i <= maxIndex; ++i) {
-            apertureValuesList.add(displayedApertureValues[i]);
-        }
-        displayedApertureValues = apertureValuesList.toArray(new String[0]);
+
         //Set the displayed values to null. If we set the displayed values
         //and the maxValue is smaller than the length of the new displayed values array,
         //ArrayIndexOutOfBounds is thrown.
@@ -644,20 +665,30 @@ public class EditFrameInfoDialog extends DialogFragment {
         List<String> shutterValuesList = new ArrayList<>();
         int minIndex = 0;
         int maxIndex = displayedShutterValues.length-1;
-        for (int i = 0; i < displayedShutterValues.length; ++i) {
-            if (camera.getMinShutter().equals(displayedShutterValues[i])) {
-                minIndex = i;
+
+        //Set the min and max values only if they are set for the camera.
+        //Otherwise the displayedShutterValues array will be left alone
+        //(all shutter values available, since min and max were not defined).
+        if (camera.getMinShutter() != null && camera.getMaxShutter() != null) {
+            for (int i = 0; i < displayedShutterValues.length; ++i) {
+                if (camera.getMinShutter().equals(displayedShutterValues[i])) {
+                    minIndex = i;
+                }
+                if (camera.getMaxShutter().equals(displayedShutterValues[i])) {
+                    maxIndex = i;
+                }
             }
-            if (camera.getMaxShutter().equals(displayedShutterValues[i])) {
-                maxIndex = i;
+            //Add the no value option to the beginning.
+            shutterValuesList.add(0, getResources().getString(R.string.NoValue));
+            //Add the values between and min and max to the temp list from the initial array.
+            for (int i = minIndex; i <= maxIndex; ++i) {
+                shutterValuesList.add(displayedShutterValues[i]);
             }
+            //Also add the bulb mode option.
+            shutterValuesList.add("B");
+            displayedShutterValues = shutterValuesList.toArray(new String[0]);
         }
-        shutterValuesList.add(getResources().getString(R.string.NoValue));
-        for (int i = minIndex; i <= maxIndex; ++i) {
-            shutterValuesList.add(displayedShutterValues[i]);
-        }
-        shutterValuesList.add("B");
-        displayedShutterValues = shutterValuesList.toArray(new String[0]);
+
         shutterPicker.setMinValue(0);
         shutterPicker.setMaxValue(displayedShutterValues.length-1);
         shutterPicker.setDisplayedValues(displayedShutterValues);

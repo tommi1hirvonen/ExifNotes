@@ -13,6 +13,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -229,16 +230,21 @@ public class LensesFragment extends Fragment implements
 
                     Lens lens = data.getParcelableExtra("LENS");
 
+
                     if (lens.getMake().length() > 0 &&
                             lens.getModel().length() > 0 &&
                             lens.getId() > 0) {
 
+
+
                         database.updateLens(lens);
+
+                        Log.d("ExifNotes", lens.getMinAperture() + " " + lens.getMaxAperture());
 
                         lensAdapter.notifyDataSetChanged();
                         // Update the LensesFragment through the parent activity.
-                        GearActivity myActivity = (GearActivity)getActivity();
-                        myActivity.updateFragments();
+                        GearActivity gearActivity = (GearActivity)getActivity();
+                        gearActivity.updateFragments();
 
                     } else {
                         Toast.makeText(getActivity(), "Something went wrong :(",

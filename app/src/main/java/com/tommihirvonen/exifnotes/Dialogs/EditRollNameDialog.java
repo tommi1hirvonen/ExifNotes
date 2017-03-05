@@ -255,7 +255,7 @@ public class EditRollNameDialog extends DialogFragment {
                 //To prevent text edit
                 isoPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
                 builder.setView(dialogView);
-                builder.setTitle("Choose ISO");
+                builder.setTitle(getResources().getString(R.string.ChooseISO));
                 builder.setPositiveButton(getResources().getString(R.string.OK),
                     new DialogInterface.OnClickListener() {
                     @Override
@@ -306,7 +306,7 @@ public class EditRollNameDialog extends DialogFragment {
                 //To prevent text edit
                 pushPullPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
                 builder.setView(dialogView);
-                builder.setTitle("Choose push/pull");
+                builder.setTitle(getResources().getString(R.string.ChoosePushOrPull));
                 builder.setPositiveButton(getResources().getString(R.string.OK),
                     new DialogInterface.OnClickListener() {
                         @Override

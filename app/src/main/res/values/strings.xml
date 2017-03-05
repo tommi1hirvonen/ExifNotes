@@ -158,6 +158,8 @@
     <string name="RenameRoll">Rename roll</string>
     <string name="Rename">Rename</string>
     <string name="EditRoll">Edit roll info</string>
+    <string name="ChooseISO">Choose ISO</string>
+    <string name="ChoosePushOrPull">Choose push(+) or pull(-)</string>
 
     <!--EditGearInfoFialog-->
     <string name="NoMakeOrModel">No make or model was set!</string>
@@ -286,7 +288,7 @@
     <string name="Empty">Empty</string>
     <string name="Camera">Camera:</string>
     <string name="ISO">ISO:</string>
-    <string name="PushPull">Push or pull:</string>
+    <string name="PushPull">Push(+)/pull(-):</string>
     <string name="Format">Format:</string>
 
     <!--frame_info_dialog.xml-->
