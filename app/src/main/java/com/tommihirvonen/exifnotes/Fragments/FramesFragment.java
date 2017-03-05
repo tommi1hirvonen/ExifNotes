@@ -154,7 +154,7 @@ public class FramesFragment extends Fragment implements
         cameraId = database.getRoll(rollId).getCameraId();
 
         //Sort the list according to preferences
-        utilities.sortFrameList(getActivity(), database, frameList);
+        Utilities.sortFrameList(getActivity(), database, frameList);
 
         // Activate GPS locating if the user has granted permission.
         if (locationEnabled) {
@@ -351,6 +351,12 @@ public class FramesFragment extends Fragment implements
         switch (item.getItemId()) {
 
             case R.id.menu_item_sort:
+                //==================================================================================
+                //getActivity().getPreferences() returns a preferences file related to the
+                //activity it is opened from. getDefaultSharedPreferences() returns the
+                //applications global preferences. This is something to keep in mind.
+                //If the same sort order setting is to be used elsewhere in the app, then
+                //getDefaultSharedPreferences() should be used.
                 final SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                 int checkedItem = sharedPref.getInt("FrameSortOrder", 0);
                 AlertDialog.Builder sortDialog = new AlertDialog.Builder(getActivity());
@@ -364,7 +370,7 @@ public class FramesFragment extends Fragment implements
                         editor.putInt("FrameSortOrder", which);
                         editor.apply();
                         dialog.dismiss();
-                        utilities.sortFrameList(getActivity(), database, frameList);
+                        Utilities.sortFrameList(getActivity(), database, frameList);
                         frameAdapter.notifyDataSetChanged();
                     }
                 });
@@ -748,7 +754,7 @@ public class FramesFragment extends Fragment implements
                         frame.setId(rowId);
 
                         frameList.add(frame);
-                        utilities.sortFrameList(getActivity(), database, frameList);
+                        Utilities.sortFrameList(getActivity(), database, frameList);
                         frameAdapter.notifyDataSetChanged();
                         mainTextView.setVisibility(View.GONE);
 
@@ -774,7 +780,7 @@ public class FramesFragment extends Fragment implements
                     if (frame != null && frame.getId() > 0) {
 
                         database.updateFrame(frame);
-                        utilities.sortFrameList(getActivity(), database, frameList);
+                        Utilities.sortFrameList(getActivity(), database, frameList);
                         frameAdapter.notifyDataSetChanged();
 
                         // The text you'd like to share has changed,

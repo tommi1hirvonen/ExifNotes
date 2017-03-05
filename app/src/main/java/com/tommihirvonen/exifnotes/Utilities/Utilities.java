@@ -19,6 +19,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -459,10 +460,11 @@ public class Utilities {
 
     /**
      * This function is called when the user has selected a sorting criteria.
+     * Java is pass-by-value, so return the sorted the List.
      */
-    public void sortFrameList(Context context, final FilmDbHelper database, List<Frame> listToSort) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        final Utilities utilities = new Utilities(context);
+    public static void sortFrameList(Activity activity, final FilmDbHelper database, List<Frame> listToSort) {
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        final Utilities utilities = new Utilities(activity);
         int sortId = sharedPref.getInt("FrameSortOrder", 0);
         switch (sortId){
             //Sort by count
@@ -479,6 +481,7 @@ public class Utilities {
                         return result;
                     }
                 });
+                Log.d("EXIFNOTES", "Sort by count");
                 break;
 
             //Sort by date
@@ -509,6 +512,7 @@ public class Utilities {
                         return result;
                     }
                 });
+                Log.d("EXIFNOTES", "Sort by date");
                 break;
 
             //Sort by f-stop
@@ -531,6 +535,7 @@ public class Utilities {
                         return result;
                     }
                 });
+                Log.d("EXIFNOTES", "Sort by f-stop");
                 break;
 
             //Sort by shutter speed
@@ -555,6 +560,7 @@ public class Utilities {
                         return result;
                     }
                 });
+                Log.d("EXIFNOTES", "Sort by shutter speed");
                 break;
 
             //Sort by lens
@@ -580,6 +586,7 @@ public class Utilities {
                         return s1.compareTo(s2);
                     }
                 });
+                Log.d("EXIFNOTES", "Sort by lens");
                 break;
         }
     }
