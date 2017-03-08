@@ -79,5 +79,14 @@
         android:layout_weight="1">
     </ListView>
 
+    <View
+        android:id="@+id/scrollIndicatorDown"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:background="@color/black"
+        android:alpha="0.15"
+        android:visibility="visible"/>
+
 
 </LinearLayout>

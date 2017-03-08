@@ -45,9 +45,6 @@ public class EditCameraInfoDialog extends DialogFragment {
     TextView shutterSpeedIncrementsTextView;
     Button shutterRangeButton;
 
-//    NumberPicker minShutterPicker;
-//    NumberPicker maxShutterPicker;
-
     String newMinShutter;
     String newMaxShutter;
 
