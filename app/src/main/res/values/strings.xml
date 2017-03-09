@@ -153,6 +153,9 @@
     <string name="ChooseAction">Choose action</string>
     <string name="Clear">Clear</string>
     <string name="Reacquire">Reacquire/Edit on map</string>
+    <string name="ChooseFrameCount">Choose frame count</string>
+    <string name="ChooseShutterSpeed">Choose shutter speed</string>
+    <string name="ChooseApertureValue">Choose aperture value</string>
 
     <!--EditRollNameDialog-->
     <string name="RenameRoll">Rename roll</string>

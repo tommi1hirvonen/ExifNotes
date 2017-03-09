@@ -136,85 +136,79 @@
                     android:gravity="center"/>
             </LinearLayout>
 
-            <!--FRAME, SHUTTER AND APERTURE PICKERS-->
+            <!--FRAME COUNT, SHUTTER AND APERTURE-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="3">
 
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/FrameCount"
+                    />
+
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/Shutter"
+                    />
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/Aperture"
+                    />
+            </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:weightSum="3">
+                android:layout_weight="3">
 
-                <!--FRAME-->
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
+                <Button
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="15sp"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/FrameCount"
-                        android:layout_gravity="center_horizontal"
-                        />
-                    <NumberPicker
-                        android:layout_width="wrap_content"
-                        android:layout_height="150dp"
-                        android:id="@+id/countPicker"
-                        android:layout_gravity="center_horizontal"
-                        android:gravity="center_horizontal" />
-                </LinearLayout>
+                    android:id="@+id/btn_frame_count"
+                    android:clickable="true"
+                    android:layout_marginTop="3dp"
+                    android:textAllCaps="false"
+                    android:gravity="center"/>
 
-                <!--SHUTTER-->
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
+                <Button
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="15sp"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/Shutter"
-                        android:layout_gravity="center_horizontal"
-                        />
-                    <NumberPicker
-                        android:layout_width="wrap_content"
-                        android:layout_height="150dp"
-                        android:id="@+id/shutterPicker"
-                        android:layout_gravity="center_horizontal"
-                        android:gravity="center_horizontal" />
-                </LinearLayout>
+                    android:id="@+id/btn_shutter"
+                    android:clickable="true"
+                    android:layout_marginTop="3dp"
+                    android:textAllCaps="false"
+                    android:gravity="center"/>
 
-                <!--APERTURE-->
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
+                <Button
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="15sp"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/Aperture"
-                        android:layout_gravity="center_horizontal"
-                        />
-                    <NumberPicker
-                        android:layout_width="wrap_content"
-                        android:layout_height="150dp"
-                        android:id="@+id/aperturePicker"
-                        android:layout_gravity="center_horizontal"
-                        android:gravity="center_horizontal" />
-                </LinearLayout>
-
-
+                    android:id="@+id/btn_aperture"
+                    android:clickable="true"
+                    android:layout_marginTop="3dp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    />
             </LinearLayout>
+
 
             <!--NOTES-->
 

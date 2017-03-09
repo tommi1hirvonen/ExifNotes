@@ -72,10 +72,12 @@ public class EditFrameInfoDialog extends DialogFragment {
     long newFilterId;
     int apertureIncrements;
     int shutterIncrements;
+    int newFrameCount;
+    String newShutter;
+    String newAperture;
 
-    NumberPicker countPicker;
-    NumberPicker shutterPicker;
-    NumberPicker aperturePicker;
+    Button apertureButton;
+
     NumberPicker focalLengthPicker;
     NumberPicker exposureCompPicker;
     NumberPicker noOfExposuresPicker;
@@ -111,34 +113,39 @@ public class EditFrameInfoDialog extends DialogFragment {
             apertureIncrements = database.getLens(frame.getLensId()).getApertureIncrements();
         }
 
-        LayoutInflater linf = getActivity().getLayoutInflater();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams") final View inflator = linf.inflate(
+        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
                 R.layout.frame_info_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            FrameLayout rootLayout = (FrameLayout) inflator.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflator.findViewById(
+            FrameLayout rootLayout = (FrameLayout) inflatedView.findViewById(R.id.root);
+            NestedScrollView nestedScrollView = (NestedScrollView) inflatedView.findViewById(
                     R.id.nested_scroll_view);
             Utilities.setScrollIndicators(rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
         }
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
-        alert.setView(inflator);
+        alert.setView(inflatedView);
 
 
 
 
+        //==========================================================================================
         //LENS BUTTON
-        lensTextView = (TextView) inflator.findViewById(R.id.btn_lens);
+        lensTextView = (TextView) inflatedView.findViewById(R.id.btn_lens);
         if (frame.getLensId() > 0) {
             Lens currentLens = database.getLens(frame.getLensId());
             lensTextView.setText(currentLens.getMake() + " " + currentLens.getModel());
         }
         else lensTextView.setText(getResources().getString(R.string.NoLens));
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         // LENS PICK DIALOG
         newLensId = frame.getLensId();
         lensTextView.setClickable(true);
@@ -168,6 +175,9 @@ public class EditFrameInfoDialog extends DialogFragment {
                             newLensId = mountableLenses.get(which - 1).getId();
                             initialiseFocalLengthPicker();
                             apertureIncrements = database.getLens(newLensId).getApertureIncrements();
+
+                            //Check the aperture value's validity against the new lens' properties.
+                            checkApertureValueValidity();
                         }
                         else if (which == 0) {
                             newLensId = -1;
@@ -176,7 +186,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                             focalLengthPicker.setValue(0);
                             apertureIncrements = 0;
                         }
-                        initialiseAperturePicker();
+
                         initialiseFilters();
                         dialog.dismiss();
                     }
@@ -191,9 +201,13 @@ public class EditFrameInfoDialog extends DialogFragment {
                 alert.show();
             }
         });
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         // LENS ADD DIALOG
-        final Button addLensButton = (Button) inflator.findViewById(R.id.btn_add_lens);
+        final Button addLensButton = (Button) inflatedView.findViewById(R.id.btn_add_lens);
         addLensButton.setClickable(true);
         addLensButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CommitTransaction")
@@ -208,10 +222,14 @@ public class EditFrameInfoDialog extends DialogFragment {
                 dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
             }
         });
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         // DATE PICK DIALOG
-        final TextView dateTextView = (TextView) inflator.findViewById(R.id.btn_date);
-        final TextView timeTextView = (TextView) inflator.findViewById(R.id.btn_time);
+        final TextView dateTextView = (TextView) inflatedView.findViewById(R.id.btn_date);
+        final TextView timeTextView = (TextView) inflatedView.findViewById(R.id.btn_time);
         if (frame.getDate() == null) frame.setDate(Utilities.getCurrentTime());
         List<String> dateValue = Utilities.splitDate(frame.getDate());
         int tempYear = Integer.parseInt(dateValue.get(0));
@@ -247,7 +265,11 @@ public class EditFrameInfoDialog extends DialogFragment {
 
             }
         });
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         // TIME PICK DIALOG
         List<String> timeValue = Utilities.splitTime(frame.getDate());
         int tempHours = Integer.parseInt(timeValue.get(0));
@@ -281,31 +303,147 @@ public class EditFrameInfoDialog extends DialogFragment {
 
             }
         });
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         //NOTES FIELD
-        final TextView noteTextView = (TextView) inflator.findViewById(R.id.txt_note);
+        final TextView noteTextView = (TextView) inflatedView.findViewById(R.id.txt_note);
         noteTextView.setText(frame.getNote());
+        //==========================================================================================
 
-        //SHUTTER SPEED PICKER
-        shutterPicker = (NumberPicker) inflator.findViewById(R.id.shutterPicker);
-        initialiseShutterPicker();
-        // With the following command we can avoid popping up the keyboard
-        shutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
-        //COUNT PICKER
-        countPicker = (NumberPicker) inflator.findViewById(R.id.countPicker);
-        countPicker.setMinValue(0);
-        countPicker.setMaxValue(100);
-        countPicker.setValue(frame.getCount());
-        countPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
-        //APERTURE PICKER
-        aperturePicker = (NumberPicker) inflator.findViewById(R.id.aperturePicker);
-        initialiseAperturePicker();
-        aperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        //==========================================================================================
+        //COUNT BUTTON
+        newFrameCount = frame.getCount();
+        final Button frameCountButton = (Button) inflatedView.findViewById(R.id.btn_frame_count);
+        frameCountButton.setText(String.valueOf(newFrameCount));
+        frameCountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                @SuppressLint("InflateParams")
+                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                final NumberPicker frameCountPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                frameCountPicker.setMinValue(0);
+                frameCountPicker.setMaxValue(100);
+                frameCountPicker.setValue(newFrameCount);
+                frameCountPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                builder.setView(dialogView);
+                builder.setTitle(getResources().getString(R.string.ChooseFrameCount));
+                builder.setPositiveButton(getResources().getString(R.string.OK),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                newFrameCount = frameCountPicker.getValue();
+                                frameCountButton.setText(String.valueOf(newFrameCount));
+                            }
+                        });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Do nothing
+                            }
+                        });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+        //==========================================================================================
 
+
+
+        //==========================================================================================
+        //SHUTTER SPEED BUTTON
+        newShutter = frame.getShutter();
+        final Button shutterButton = (Button) inflatedView.findViewById(R.id.btn_shutter);
+        updateShutterButton(shutterButton);
+        shutterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                @SuppressLint("InflateParams")
+                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                final NumberPicker shutterPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+
+                initialiseShutterPicker(shutterPicker);
+
+                shutterPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                builder.setView(dialogView);
+                builder.setTitle(getResources().getString(R.string.ChooseShutterSpeed));
+                builder.setPositiveButton(getResources().getString(R.string.OK),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                newShutter = displayedShutterValues[shutterPicker.getValue()];
+                                updateShutterButton(shutterButton);
+                            }
+                        });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Do nothing
+                            }
+                        });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+        //==========================================================================================
+
+
+
+        //==========================================================================================
+        //APERTURE BUTTON
+        newAperture = frame.getAperture();
+        apertureButton = (Button) inflatedView.findViewById(R.id.btn_aperture);
+        updateApertureButton();
+        apertureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                @SuppressLint("InflateParams")
+                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                final NumberPicker aperturePicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+
+                initialiseAperturePicker(aperturePicker);
+
+                aperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                builder.setView(dialogView);
+                builder.setTitle(getResources().getString(R.string.ChooseApertureValue));
+                builder.setPositiveButton(getResources().getString(R.string.OK),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                newAperture = displayedApertureValues[aperturePicker.getValue()];
+                                updateApertureButton();
+                            }
+                        });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Do nothing
+                            }
+                        });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+        //==========================================================================================
+
+
+
+        //==========================================================================================
         // LOCATION PICK DIALOG
-        locationTextView = (TextView) inflator.findViewById(R.id.btn_location);
+        locationTextView = (TextView) inflatedView.findViewById(R.id.btn_location);
         newLocation = frame.getLocation();
         locationTextView.setText(frame.getLocation());
         locationTextView.setClickable(true);
@@ -349,9 +487,13 @@ public class EditFrameInfoDialog extends DialogFragment {
                 alert.show();
             }
         });
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         //FOCAL LENGTH PICKER
-        focalLengthPicker = (NumberPicker) inflator.findViewById(R.id.focalLengthPicker);
+        focalLengthPicker = (NumberPicker) inflatedView.findViewById(R.id.focalLengthPicker);
         focalLengthPicker = Utilities.fixNumberPicker(focalLengthPicker);
         if (frame.getLensId() > 0) {
             focalLengthPicker.setMinValue(database.getLens(frame.getLensId()).getMinFocalLength());
@@ -359,9 +501,13 @@ public class EditFrameInfoDialog extends DialogFragment {
             focalLengthPicker.setValue(frame.getFocalLength());
         }
         focalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         //EXPOSURE COMP PICKER
-        exposureCompPicker = (NumberPicker) inflator.findViewById(R.id.exposureCompPicker);
+        exposureCompPicker = (NumberPicker) inflatedView.findViewById(R.id.exposureCompPicker);
         exposureCompPicker = Utilities.fixNumberPicker(exposureCompPicker);
         exposureCompPicker.setMinValue(0);
         exposureCompPicker.setMaxValue(Utilities.compValues.length-1);
@@ -376,9 +522,13 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
         }
         exposureCompPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         //NO OF EXPOSURES PICKER
-        noOfExposuresPicker = (NumberPicker) inflator.findViewById(R.id.noOfExposuresPicker);
+        noOfExposuresPicker = (NumberPicker) inflatedView.findViewById(R.id.noOfExposuresPicker);
         noOfExposuresPicker.setMinValue(1);
         noOfExposuresPicker.setMaxValue(10);
         noOfExposuresPicker.setValue(1);
@@ -386,9 +536,13 @@ public class EditFrameInfoDialog extends DialogFragment {
             noOfExposuresPicker.setValue(frame.getNoOfExposures());
         }
         noOfExposuresPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         //FILTER BUTTON
-        filterTextView = (TextView) inflator.findViewById(R.id.btn_filter);
+        filterTextView = (TextView) inflatedView.findViewById(R.id.btn_filter);
         if (frame.getFilterId() > 0) {
             Filter currentFilter = database.getFilter(frame.getFilterId());
             filterTextView.setText(currentFilter.getMake() + " " + currentFilter.getModel());
@@ -443,7 +597,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // FILTER ADD DIALOG
-        final Button addFilterButton = (Button) inflator.findViewById(R.id.btn_add_filter);
+        final Button addFilterButton = (Button) inflatedView.findViewById(R.id.btn_add_filter);
         addFilterButton.setClickable(true);
         addFilterButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CommitTransaction")
@@ -463,12 +617,16 @@ public class EditFrameInfoDialog extends DialogFragment {
                 dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
             }
         });
+        //==========================================================================================
 
 
 
 
 
 
+
+
+        //==========================================================================================
         //FINALISE BUILDING THE DIALOG
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -491,14 +649,13 @@ public class EditFrameInfoDialog extends DialogFragment {
         dialog.show();
 
 
-        // We override the positive button onClick so that we can dismiss the dialog
-        // only if the note does not contain illegal characters
+        //User pressed OK, save.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                frame.setShutter(displayedShutterValues[shutterPicker.getValue()]);
-                frame.setAperture(displayedApertureValues[aperturePicker.getValue()]);
-                frame.setCount(countPicker.getValue());
+                frame.setShutter(newShutter);
+                frame.setAperture(newAperture);
+                frame.setCount(newFrameCount);
                 frame.setNote(noteTextView.getText().toString());
 
                 // PARSE THE DATE
@@ -524,6 +681,14 @@ public class EditFrameInfoDialog extends DialogFragment {
         return dialog;
     }
 
+
+
+
+
+
+
+
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
@@ -545,7 +710,7 @@ public class EditFrameInfoDialog extends DialogFragment {
             lensTextView.setText(lens.getMake() + " " + lens.getModel());
             newLensId = lens.getId();
             apertureIncrements = lens.getApertureIncrements();
-            initialiseAperturePicker();
+            checkApertureValueValidity();
             initialiseFocalLengthPicker();
             initialiseFilters();
         }
@@ -563,7 +728,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     }
 
     @SuppressWarnings("ManualArrayToCollectionCopy")
-    private void initialiseAperturePicker(){
+    private void initialiseAperturePicker(NumberPicker aperturePicker){
         //Get the array of displayed aperture values according to the set increments.
         switch (apertureIncrements) {
             case 0:
@@ -587,12 +752,16 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //If no lens is selected, end here
         if (newLensId <= 0) {
-            displayedApertureValues = new String[]{getResources().getString(R.string.NoValue)};
             aperturePicker.setDisplayedValues(null);
             aperturePicker.setMinValue(0);
             aperturePicker.setMaxValue(displayedApertureValues.length-1);
             aperturePicker.setDisplayedValues(displayedApertureValues);
-            aperturePicker.setValue(0);
+            aperturePicker.setValue(displayedApertureValues.length-1);
+            for (int i = 0; i < displayedApertureValues.length; ++i) {
+                if (newAperture.equals(displayedApertureValues[i])) {
+                    aperturePicker.setValue(i);
+                }
+            }
             return;
         }
 
@@ -616,10 +785,12 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
             //Add the <empty> option to the beginning of the temp list.
             apertureValuesList.add(getResources().getString(R.string.NoValue));
+
             //Add the values between and min and max to the temp list from the initial array.
-            for (int i = minIndex; i <= maxIndex; ++i) {
-                apertureValuesList.add(displayedApertureValues[i]);
-            }
+            apertureValuesList.addAll(
+                    Arrays.asList(displayedApertureValues).subList(minIndex, maxIndex + 1)
+            );
+
             //Copy the temp list over the initial array.
             displayedApertureValues = apertureValuesList.toArray(new String[0]);
         }
@@ -636,14 +807,14 @@ public class EditFrameInfoDialog extends DialogFragment {
         aperturePicker.setDisplayedValues(displayedApertureValues);
         aperturePicker.setValue(0);
         for (int i = 0; i < displayedApertureValues.length; ++i) {
-            if (frame.getAperture().equals(displayedApertureValues[i])) {
+            if (newAperture.equals(displayedApertureValues[i])) {
                 aperturePicker.setValue(i);
             }
         }
     }
 
     @SuppressWarnings("ManualArrayToCollectionCopy")
-    private void initialiseShutterPicker(){
+    private void initialiseShutterPicker(NumberPicker shutterPicker){
         // Set the increments according to settings
         switch (shutterIncrements) {
             case 0:
@@ -659,8 +830,11 @@ public class EditFrameInfoDialog extends DialogFragment {
                 displayedShutterValues = utilities.shutterValuesThird;
                 break;
         }
-        // By reversing the order we can reverse the order in the NumberPicker too
-        Collections.reverse(Arrays.asList(displayedShutterValues));
+        //Reverse the order if necessary
+        if (displayedShutterValues[0].equals(getResources().getString(R.string.NoValue))) {
+            // By reversing the order we can reverse the order in the NumberPicker too
+            Collections.reverse(Arrays.asList(displayedShutterValues));
+        }
         List<String> shutterValuesList = new ArrayList<>();
         int minIndex = 0;
         int maxIndex = displayedShutterValues.length-1;
@@ -679,10 +853,12 @@ public class EditFrameInfoDialog extends DialogFragment {
             }
             //Add the no value option to the beginning.
             shutterValuesList.add(0, getResources().getString(R.string.NoValue));
+
             //Add the values between and min and max to the temp list from the initial array.
-            for (int i = minIndex; i <= maxIndex; ++i) {
-                shutterValuesList.add(displayedShutterValues[i]);
-            }
+            shutterValuesList.addAll(
+                    Arrays.asList(displayedShutterValues).subList(minIndex, maxIndex + 1)
+            );
+
             //Also add the bulb mode option.
             shutterValuesList.add("B");
             displayedShutterValues = shutterValuesList.toArray(new String[0]);
@@ -693,7 +869,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         shutterPicker.setDisplayedValues(displayedShutterValues);
         shutterPicker.setValue(0);
         for (int i = 0; i < displayedShutterValues.length; ++i) {
-            if (frame.getShutter().equals(displayedShutterValues[i])) {
+            if (newShutter.equals(displayedShutterValues[i])) {
                 shutterPicker.setValue(i);
             }
         }
@@ -729,5 +905,83 @@ public class EditFrameInfoDialog extends DialogFragment {
             newFilterId = -1;
         }
     }
+
+    private void updateShutterButton(Button button){
+        button.setText(
+                newShutter == null || newShutter.contains("<") ?
+                        getResources().getString(R.string.ClickToSet) :
+                        newShutter
+        );
+    }
+
+    private void updateApertureButton(){
+        if (apertureButton != null)
+            apertureButton.setText(
+                    newAperture == null || newAperture.contains("<") ?
+                            getResources().getString(R.string.ClickToSet) :
+                            newAperture
+            );
+    }
+
+    private void checkApertureValueValidity(){
+        //Check the aperture value's validity against the new lens' properties.
+        switch (apertureIncrements) {
+            case 0:
+                displayedApertureValues = utilities.apertureValuesThird;
+                break;
+            case 1:
+                displayedApertureValues = utilities.apertureValuesHalf;
+                break;
+            case 2:
+                displayedApertureValues = utilities.apertureValuesFull;
+                break;
+            default:
+                displayedApertureValues = utilities.apertureValuesThird;
+                break;
+        }
+
+        boolean apertureFound = false;
+
+        Lens lens = database.getLens(newLensId);
+        List<String> apertureValuesList = new ArrayList<>(); //to store the temporary values
+        int minIndex = 0;
+        int maxIndex = displayedApertureValues.length-1; //we begin the maxIndex from the last element
+
+        //Set the min and max values only if they are set for the lens.
+        //Otherwise the displayedApertureValues array will be left alone
+        //(all aperture values available, since min and max were not defined).
+        if (lens.getMinAperture() != null && lens.getMaxAperture() != null) {
+            for (int i = 0; i < displayedApertureValues.length; ++i) {
+                if (lens.getMinAperture().equals(displayedApertureValues[i])) {
+                    minIndex = i;
+                }
+                if (lens.getMaxAperture().equals(displayedApertureValues[i])) {
+                    maxIndex = i;
+                }
+            }
+            //Add the <empty> option to the beginning of the temp list.
+            apertureValuesList.add(getResources().getString(R.string.NoValue));
+
+            //Add the values between and min and max to the temp list from the initial array.
+            apertureValuesList.addAll(
+                    Arrays.asList(displayedApertureValues).subList(minIndex, maxIndex + 1)
+            );
+
+            //Copy the temp list over the initial array.
+            displayedApertureValues = apertureValuesList.toArray(new String[0]);
+        }
+
+        for (String string : displayedApertureValues) {
+            if (string.equals(newAperture)) {
+                apertureFound = true;
+                break;
+            }
+        }
+        if (!apertureFound) {
+            newAperture = getResources().getString(R.string.NoValue);
+            updateApertureButton();
+        }
+    }
+
 }
 
