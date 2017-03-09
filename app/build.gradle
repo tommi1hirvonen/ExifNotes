@@ -5,7 +5,7 @@ android {
         config {
             keyAlias '***REMOVED***'
             keyPassword '***REMOVED***'
-            storeFile file('/Users/Tommi/Documents/Ohjelmointi/Harrasteprojektit/Avaimet/android.jks')
+            storeFile file('C:\\Users\\Tommi\\Ohjelmointi\\Harrasteprojektit\\Avaimet\\android.jks')
             storePassword '***REMOVED***'
         }
     }

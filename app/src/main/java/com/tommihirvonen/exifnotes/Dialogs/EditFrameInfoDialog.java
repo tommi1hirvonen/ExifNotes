@@ -787,9 +787,9 @@ public class EditFrameInfoDialog extends DialogFragment {
             apertureValuesList.add(getResources().getString(R.string.NoValue));
 
             //Add the values between and min and max to the temp list from the initial array.
-            apertureValuesList.addAll(
-                    Arrays.asList(displayedApertureValues).subList(minIndex, maxIndex + 1)
-            );
+            for (int i = minIndex; i <= maxIndex; ++i) {
+                apertureValuesList.add(displayedApertureValues[i]);
+            }
 
             //Copy the temp list over the initial array.
             displayedApertureValues = apertureValuesList.toArray(new String[0]);
@@ -855,9 +855,9 @@ public class EditFrameInfoDialog extends DialogFragment {
             shutterValuesList.add(0, getResources().getString(R.string.NoValue));
 
             //Add the values between and min and max to the temp list from the initial array.
-            shutterValuesList.addAll(
-                    Arrays.asList(displayedShutterValues).subList(minIndex, maxIndex + 1)
-            );
+            for (int i = minIndex; i <= maxIndex; ++i) {
+                shutterValuesList.add(displayedShutterValues[i]);
+            }
 
             //Also add the bulb mode option.
             shutterValuesList.add("B");
@@ -907,20 +907,11 @@ public class EditFrameInfoDialog extends DialogFragment {
     }
 
     private void updateShutterButton(Button button){
-        button.setText(
-                newShutter == null || newShutter.contains("<") ?
-                        getResources().getString(R.string.ClickToSet) :
-                        newShutter
-        );
+        if (button != null) button.setText(newShutter);
     }
 
     private void updateApertureButton(){
-        if (apertureButton != null)
-            apertureButton.setText(
-                    newAperture == null || newAperture.contains("<") ?
-                            getResources().getString(R.string.ClickToSet) :
-                            newAperture
-            );
+        if (apertureButton != null) apertureButton.setText(newAperture);
     }
 
     private void checkApertureValueValidity(){
@@ -963,9 +954,10 @@ public class EditFrameInfoDialog extends DialogFragment {
             apertureValuesList.add(getResources().getString(R.string.NoValue));
 
             //Add the values between and min and max to the temp list from the initial array.
-            apertureValuesList.addAll(
-                    Arrays.asList(displayedApertureValues).subList(minIndex, maxIndex + 1)
-            );
+            //noinspection ManualArrayToCollectionCopy
+            for (int i = minIndex; i <= maxIndex; ++i) {
+                apertureValuesList.add(displayedApertureValues[i]);
+            }
 
             //Copy the temp list over the initial array.
             displayedApertureValues = apertureValuesList.toArray(new String[0]);

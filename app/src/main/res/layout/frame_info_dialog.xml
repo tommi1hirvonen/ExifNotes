@@ -187,6 +187,9 @@
                     android:textAllCaps="false"
                     android:gravity="center"/>
 
+                <!--
+                Ellipsize so that the button does not move when the text "Click to set" is shown.
+                -->
                 <Button
                     android:layout_weight="1"
                     android:layout_width="0dp"
@@ -195,7 +198,8 @@
                     android:clickable="true"
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:ellipsize="end"/>
 
                 <Button
                     android:layout_weight="1"
@@ -206,6 +210,7 @@
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
                     android:gravity="center"
+                    android:ellipsize="end"
                     />
             </LinearLayout>
 
