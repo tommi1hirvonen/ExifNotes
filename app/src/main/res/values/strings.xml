@@ -156,6 +156,9 @@
     <string name="ChooseFrameCount">Choose frame count</string>
     <string name="ChooseShutterSpeed">Choose shutter speed</string>
     <string name="ChooseApertureValue">Choose aperture value</string>
+    <string name="ChooseFocalLength">Choose focal length</string>
+    <string name="ChooseExposureComp">Choose exposure comp</string>
+    <string name="ChooseNoOfExposures">Choose no of exposures</string>
 
     <!--EditRollNameDialog-->
     <string name="RenameRoll">Rename roll</string>
@@ -164,7 +167,7 @@
     <string name="ChooseISO">Choose ISO</string>
     <string name="ChoosePushOrPull">Choose push(+) or pull(-)</string>
 
-    <!--EditGearInfoFialog-->
+    <!--EditGearInfoDialog-->
     <string name="NoMakeOrModel">No make or model was set!</string>
     <string name="NoMake">No make was set!</string>
     <string name="NoModel">No model was set!</string>

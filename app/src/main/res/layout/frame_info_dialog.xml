@@ -140,7 +140,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="3">
+                android:layout_weight="3"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_weight="1"
@@ -185,11 +186,10 @@
                     android:clickable="true"
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    />
 
-                <!--
-                Ellipsize so that the button does not move when the text "Click to set" is shown.
-                -->
+
                 <Button
                     android:layout_weight="1"
                     android:layout_width="0dp"
@@ -199,7 +199,7 @@
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
                     android:gravity="center"
-                    android:ellipsize="end"/>
+                    />
 
                 <Button
                     android:layout_weight="1"
@@ -210,8 +210,86 @@
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
                     android:gravity="center"
-                    android:ellipsize="end"
                     />
+
+            </LinearLayout>
+
+            <!--FRAME COUNT, SHUTTER AND APERTURE-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/FocalLength"
+                    />
+
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/ExposureComp"
+                    />
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/NoOfExposures"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_weight="3">
+
+                <Button
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btn_focal_length"
+                    android:clickable="true"
+                    android:layout_marginTop="3dp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    />
+
+
+                <Button
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btn_exposure_comp"
+                    android:clickable="true"
+                    android:layout_marginTop="3dp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    />
+
+                <Button
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btn_no_of_exposures"
+                    android:clickable="true"
+                    android:layout_marginTop="3dp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    />
+
             </LinearLayout>
 
 
@@ -259,85 +337,7 @@
                 android:clickable="true"
                 android:gravity="center" />
 
-            <!--FOCAL LENGTH, EXP COMP AND NO OF EXP PICKERS-->
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="3">
-
-                <!--FOCAL LENGTH-->
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="15sp"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/FocalLength"
-                        android:layout_gravity="center_horizontal"
-                        />
-                    <NumberPicker
-                        android:layout_width="wrap_content"
-                        android:layout_height="150dp"
-                        android:id="@+id/focalLengthPicker"
-                        android:layout_gravity="center_horizontal"
-                        android:gravity="center_horizontal" />
-                </LinearLayout>
-
-                <!--EXPOSURE COMP-->
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="15sp"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/ExposureComp"
-                        android:layout_gravity="center_horizontal"
-                        />
-                    <NumberPicker
-                        android:layout_width="wrap_content"
-                        android:layout_height="150dp"
-                        android:id="@+id/exposureCompPicker"
-                        android:layout_gravity="center_horizontal"
-                        android:gravity="center_horizontal" />
-                </LinearLayout>
-
-                <!--NO OF EXPOSURES-->
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="15sp"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/NoOfExposures"
-                        android:layout_gravity="center_horizontal"
-                        />
-                    <NumberPicker
-                        android:layout_width="wrap_content"
-                        android:layout_height="150dp"
-                        android:id="@+id/noOfExposuresPicker"
-                        android:layout_gravity="center_horizontal"
-                        android:gravity="center_horizontal" />
-                </LinearLayout>
-
-
-            </LinearLayout>
 
             <!--FILTER-->
 

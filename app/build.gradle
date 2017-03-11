@@ -1,3 +1,4 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: 'com.android.application'
 
 android {
@@ -5,10 +6,17 @@ android {
         config {
             keyAlias '***REMOVED***'
             keyPassword '***REMOVED***'
-            storeFile file('C:\\Users\\Tommi\\Ohjelmointi\\Harrasteprojektit\\Avaimet\\android.jks')
+            if (Os.isFamily(Os.FAMILY_MAC)) {
+                storeFile file('/Users/Tommi/Documents/Ohjelmointi/Harrasteprojektit/Avaimet/android.jks')
+            }
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                storeFile file('C:\\Users\\Tommi\\Ohjelmointi\\Harrasteprojektit\\Avaimet\\android.jks')
+            }
+            storeFile file('/Users/Tommi/Documents/Ohjelmointi/Harrasteprojektit/Avaimet/android.jks')
             storePassword '***REMOVED***'
         }
     }
+
     compileSdkVersion 25
     buildToolsVersion '25.0.1'
     defaultConfig {
@@ -29,11 +37,12 @@ android {
             signingConfig signingConfigs.config
         }
     }
-    return void //Used to mute a warning about not all execution paths returning a value
+
+    return void // Used to mute a warning about not all execution paths returning a value
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:support-v4:25.0.1'
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.android.support:recyclerview-v7:25.0.1'

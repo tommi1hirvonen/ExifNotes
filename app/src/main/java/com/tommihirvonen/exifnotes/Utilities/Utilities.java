@@ -19,7 +19,6 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputFilter;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -481,7 +480,6 @@ public class Utilities {
                         return result;
                     }
                 });
-                Log.d("EXIFNOTES", "Sort by count");
                 break;
 
             //Sort by date
@@ -512,7 +510,6 @@ public class Utilities {
                         return result;
                     }
                 });
-                Log.d("EXIFNOTES", "Sort by date");
                 break;
 
             //Sort by f-stop
@@ -535,7 +532,6 @@ public class Utilities {
                         return result;
                     }
                 });
-                Log.d("EXIFNOTES", "Sort by f-stop");
                 break;
 
             //Sort by shutter speed
@@ -560,7 +556,6 @@ public class Utilities {
                         return result;
                     }
                 });
-                Log.d("EXIFNOTES", "Sort by shutter speed");
                 break;
 
             //Sort by lens
@@ -586,7 +581,6 @@ public class Utilities {
                         return s1.compareTo(s2);
                     }
                 });
-                Log.d("EXIFNOTES", "Sort by lens");
                 break;
         }
     }
@@ -841,6 +835,50 @@ public class Utilities {
 
             stringBuilder.append("\n");
         }
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Creates a location string in human readable format from a location string in decimal format.
+     *
+     * @param location location string in decimal format
+     * @return location string in human readable degrees format
+     */
+    public static String getReadableLocationFromString(String location) {
+
+        //If the location is empty, return null
+        if (location == null || location.length() == 0) return null;
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        String latString = location.substring(0, location.indexOf(" "));
+        String lngString = location.substring(location.indexOf(" ") + 1, location.length());
+
+        String latRef;
+        if (latString.substring(0, 1).equals("-")) {
+            latRef = "S";
+            latString = latString.substring(1, latString.length());
+        } else latRef = "N";
+
+        String lngRef;
+        if (lngString.substring(0, 1).equals("-")) {
+            lngRef = "W";
+            lngString = lngString.substring(1, lngString.length());
+        } else lngRef = "E";
+
+        latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
+        List<String> latStringList = Arrays.asList(latString.split(":"));
+
+        lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
+        List<String> lngStringList = Arrays.asList(lngString.split(":"));
+
+        String space = " ";
+
+        stringBuilder.append(latStringList.get(0)).append("°").append(space).append(latStringList.get(1)).append("\'").append(space).append(latStringList.get(2).replace(',', '.')).append("\"").append(space);
+        stringBuilder.append(latRef).append(space);
+        stringBuilder.append(lngStringList.get(0)).append("°").append(space).append(lngStringList.get(1)).append("\'").append(space).append(lngStringList.get(2).replace(',', '.')).append("\"").append(space);
+        stringBuilder.append(lngRef);
 
         return stringBuilder.toString();
     }
