@@ -123,19 +123,19 @@ public class LensesFragment extends Fragment implements
         // we have to check which fragment is visible to the user.
         if (getUserVisibleHint()) {
 
-            int which = info.position;
-            Lens lens = lensList.get(which);
+            final int position = info.position;
+            final Lens lens = lensList.get(position);
 
             switch (item.getItemId()) {
 
                 case R.id.menu_item_select_mountable_cameras:
 
-                    showSelectMountableCamerasDialog(which);
+                    showSelectMountableCamerasDialog(position);
                     return true;
 
                 case R.id.menu_item_select_mountable_filters:
 
-                    showSelectMountableFiltersDialog(which);
+                    showSelectMountableFiltersDialog(position);
                     return true;
 
                 case R.id.menu_item_delete:
@@ -148,17 +148,36 @@ public class LensesFragment extends Fragment implements
                         return true;
                     }
 
-                    database.deleteLens(lens);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(getResources().getString(R.string.ConfirmLensDelete)
+                            + " \'" + lens.getMake() + " " + lens.getModel() + "\'?"
+                    );
+                    builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do nothing
 
-                    // Remove the roll from the lensList. Do this last!!!
-                    lensList.remove(which);
+                        }
+                    });
+                    builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                    if (lensList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                    lensAdapter.notifyDataSetChanged();
+                            database.deleteLens(lens);
 
-                    // Update the CamerasFragment through the parent activity.
-                    GearActivity myActivity = (GearActivity)getActivity();
-                    myActivity.updateFragments();
+                            // Remove the lens from the lensList. Do this last!!!
+                            lensList.remove(position);
+
+                            if (lensList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                            lensAdapter.notifyDataSetChanged();
+
+                            // Update the CamerasFragment through the parent activity.
+                            GearActivity gearActivity = (GearActivity)getActivity();
+                            gearActivity.updateFragments();
+
+                        }
+                    });
+                    builder.create().show();
 
                     return true;
 
@@ -170,7 +189,7 @@ public class LensesFragment extends Fragment implements
                     arguments.putString("TITLE", getResources().getString( R.string.EditLens));
                     arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
                     arguments.putParcelable("LENS", lens);
-                    arguments.putInt("POSITION", which);
+                    arguments.putInt("POSITION", position);
                     dialog.setArguments(arguments);
                     dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
 

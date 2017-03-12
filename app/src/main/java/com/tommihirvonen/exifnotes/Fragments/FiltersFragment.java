@@ -143,14 +143,14 @@ public class FiltersFragment extends Fragment implements
         // we have to check which fragment is visible to the user.
         if (getUserVisibleHint()) {
 
-            int which = info.position;
-            Filter filter = filterList.get(which);
+            final int position = info.position;
+            final Filter filter = filterList.get(position);
 
             switch (item.getItemId()) {
 
                 case R.id.menu_item_select_mountable_lenses:
 
-                    showSelectMountableLensesDialog(which);
+                    showSelectMountableLensesDialog(position);
                     return true;
 
                 case R.id.menu_item_delete:
@@ -163,17 +163,36 @@ public class FiltersFragment extends Fragment implements
                         return true;
                     }
 
-                    database.deleteFilter(filter);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(getResources().getString(R.string.ConfirmFilterDelete)
+                            + " \'" + filter.getMake() + " " + filter.getModel() + "\'?"
+                    );
+                    builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do nothing
 
-                    // Remove the roll from the lensList. Do this last!!!
-                    filterList.remove(which);
+                        }
+                    });
+                    builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                    if (filterList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                    filterAdapter.notifyDataSetChanged();
+                            database.deleteFilter(filter);
 
-                    // Update the LensesFragment through the parent activity.
-                    GearActivity gearActivity = (GearActivity)getActivity();
-                    gearActivity.updateFragments();
+                            // Remove the filter from the filterList. Do this last!!!
+                            filterList.remove(position);
+
+                            if (filterList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                            filterAdapter.notifyDataSetChanged();
+
+                            // Update the LensesFragment through the parent activity.
+                            GearActivity gearActivity = (GearActivity)getActivity();
+                            gearActivity.updateFragments();
+
+                        }
+                    });
+                    builder.create().show();
 
                     return true;
 

@@ -138,6 +138,7 @@
     <string name="CameraNoColon">Camera</string>
     <string name="IsBeingUsed">is being used!</string>
     <string name="EditCamera">Edit camera</string>
+    <string name="ConfirmCameraDelete">Delete camera</string>
 
     <!--DirectoryChooserDialog-->
     <string name="CurrentDirectory">Current directory:</string>
@@ -205,6 +206,7 @@
     <string name="LensNoColon">Lens</string>
     <string name="EditLens">Edit lens</string>
     <string name="ChooseApertureRange">Choose aperture range</string>
+    <string name="ConfirmLensDelete">Delete lens</string>
 
     <!--FiltersFragment-->
     <string name="NewFilter">Add new filter</string>
@@ -212,6 +214,7 @@
     <string name="FilterNoColon">Filter</string>
     <string name="FilterSameName">Filter with same make and model already exists!</string>
     <string name="Filters">FILTERS</string>
+    <string name="ConfirmFilterDelete">Delete filter</string>
 
     <!--LensNameDialog-->
     <string name="NewLens">Add new lens</string>

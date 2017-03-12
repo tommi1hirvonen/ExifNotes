@@ -122,14 +122,14 @@ public class CamerasFragment extends Fragment implements
         // we have to check which fragment is visible to the user.
         if (getUserVisibleHint()) {
 
-            int which = info.position;
-            Camera camera = cameraList.get(which);
+            final int position = info.position;
+            final Camera camera = cameraList.get(position);
 
             switch (item.getItemId()) {
 
                 case R.id.menu_item_select_mountable_lenses:
 
-                    showSelectMountableLensesDialog(which);
+                    showSelectMountableLensesDialog(position);
                     return true;
 
                 case R.id.menu_item_delete:
@@ -142,17 +142,36 @@ public class CamerasFragment extends Fragment implements
                         return true;
                     }
 
-                    database.deleteCamera(camera);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(getResources().getString(R.string.ConfirmCameraDelete)
+                            + " \'" + camera.getMake() + " " + camera.getModel() + "\'?"
+                    );
+                    builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do nothing
 
-                    // Remove the roll from the lensList. Do this last!!!
-                    cameraList.remove(which);
+                        }
+                    });
+                    builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                    if (cameraList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                    cameraAdapter.notifyDataSetChanged();
+                            database.deleteCamera(camera);
 
-                    // Update the LensesFragment through the parent activity.
-                    GearActivity myActivity = (GearActivity)getActivity();
-                    myActivity.updateFragments();
+                            // Remove the camera from the cameraList. Do this last!!!
+                            cameraList.remove(position);
+
+                            if (cameraList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                            cameraAdapter.notifyDataSetChanged();
+
+                            // Update the LensesFragment through the parent activity.
+                            GearActivity gearActivity = (GearActivity)getActivity();
+                            gearActivity.updateFragments();
+
+                        }
+                    });
+                    builder.create().show();
 
                     return true;
 

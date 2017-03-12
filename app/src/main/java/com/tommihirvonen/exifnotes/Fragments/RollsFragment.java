@@ -449,10 +449,11 @@ public class RollsFragment extends Fragment implements
                 case R.id.menu_item_delete:
 
                     final int rollPosition = info.position;
+                    final Roll roll = rollList.get(rollPosition);
 
                     AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
                     alertBuilder.setTitle(getResources().getString(R.string.ConfirmRollDelete)
-                            + " " + rollList.get(rollPosition).getName() + "?");
+                            + " \'" + roll.getName() + "\'?");
                     alertBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -463,9 +464,9 @@ public class RollsFragment extends Fragment implements
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // Delete all the frames from the frames database
-                            database.deleteAllFramesFromRoll(rollList.get(rollPosition).getId());
+                            database.deleteAllFramesFromRoll(roll.getId());
 
-                            database.deleteRoll(rollList.get(rollPosition));
+                            database.deleteRoll(roll);
 
                             // Remove the roll from the rollList. Do this last!!!
                             rollList.remove(rollPosition);
