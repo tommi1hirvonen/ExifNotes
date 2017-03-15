@@ -12,7 +12,6 @@ android {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 storeFile file('C:\\Users\\Tommi\\Ohjelmointi\\Harrasteprojektit\\Avaimet\\android.jks')
             }
-            storeFile file('/Users/Tommi/Documents/Ohjelmointi/Harrasteprojektit/Avaimet/android.jks')
             storePassword '***REMOVED***'
         }
     }
