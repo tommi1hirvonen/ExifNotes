@@ -713,11 +713,13 @@ public class FramesFragment extends Fragment implements
             frame.setFilterId(previousFrame.getFilterId());
             frame.setFocalLength(previousFrame.getFocalLength());
             frame.setExposureComp(previousFrame.getExposureComp());
+
         } else {
             frame.setCount(1);
             frame.setShutter(getResources().getString(R.string.NoValue));
             frame.setAperture(getResources().getString(R.string.NoValue));
         }
+        frame.setNoOfExposures(1);
 
         EditFrameInfoDialog dialog = new EditFrameInfoDialog();
         dialog.setTargetFragment(this, FRAME_INFO_DIALOG);

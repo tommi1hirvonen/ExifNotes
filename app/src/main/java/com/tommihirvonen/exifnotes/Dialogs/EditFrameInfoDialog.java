@@ -57,7 +57,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     Camera camera;
     Frame frame;
     List<Lens> mountableLenses;
-    List<Filter> mountableFilters;
+//    List<Filter> mountableFilters;
     FilmDbHelper database;
 
     TextView locationTextView;
@@ -510,7 +510,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 exposureCompPicker.setMaxValue(Utilities.compValues.length-1);
                 exposureCompPicker.setDisplayedValues(Utilities.compValues);
                 exposureCompPicker.setValue(9);
-                if (frame.getExposureComp() != null) {
+                if (newExposureComp != null) {
                     for (int i = 0; i < Utilities.compValues.length; ++i) {
                         if (newExposureComp.equals(Utilities.compValues[i])) {
                             exposureCompPicker.setValue(i);
@@ -549,7 +549,9 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //==========================================================================================
         //NO OF EXPOSURES BUTTON
-        newNoOfExposures = frame.getNoOfExposures();
+
+        //Check that the number is bigger than zero.
+        newNoOfExposures = frame.getNoOfExposures() > 0 ? frame.getNoOfExposures() : 1;
         final Button noOfExposuresButton = (Button) inflatedView.findViewById(R.id.btn_no_of_exposures);
         noOfExposuresButton.setText(String.valueOf(newNoOfExposures));
         noOfExposuresButton.setOnClickListener(new View.OnClickListener() {
@@ -663,6 +665,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 int checkedItem = 0; //default option is 0, no filter
                 final List<String> listItems = new ArrayList<>();
                 listItems.add(getResources().getString(R.string.NoFilter));
+                final List<Filter> mountableFilters;
                 if (newLensId > 0) {
                     mountableFilters = database.getMountableFilters(database.getLens(newLensId));
                     for (int i = 0; i < mountableFilters.size(); ++i) {
@@ -670,6 +673,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                                 mountableFilters.get(i).getModel());
                         if (mountableFilters.get(i).getId() == newFilterId) checkedItem = i + 1;
                     }
+                } else {
+                    mountableFilters = new ArrayList<>();
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -829,7 +834,6 @@ public class EditFrameInfoDialog extends DialogFragment {
             long rowId = database.addFilter(filter);
             filter.setId(rowId);
             database.addMountableFilterLens(filter, database.getLens(newLensId));
-            mountableFilters.add(filter);
             filterTextView.setText(filter.getMake() + " " + filter.getModel());
             newFilterId = filter.getId();
         }
@@ -948,7 +952,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         int maxIndex = displayedShutterValues.length-1;
 
         //Set the min and max values only if they are set for the camera.
-        //Otherwise the displayedShutterValues array will be left alone
+        //Otherwise the displayedShutterValues array will be left alone (apart from bulb)
         //(all shutter values available, since min and max were not defined).
         if (camera.getMinShutter() != null && camera.getMaxShutter() != null) {
             for (int i = 0; i < displayedShutterValues.length; ++i) {
@@ -969,6 +973,15 @@ public class EditFrameInfoDialog extends DialogFragment {
 
             //Also add the bulb mode option.
             shutterValuesList.add("B");
+            displayedShutterValues = shutterValuesList.toArray(new String[0]);
+        } else {
+
+            for (String value : displayedShutterValues)
+                shutterValuesList.add(value);
+
+            //If no min and max were set for the shutter speed, then only add bulb.
+            shutterValuesList.add(shutterValuesList.size()-1, "B"); //add B between 30s and NoValue
+
             displayedShutterValues = shutterValuesList.toArray(new String[0]);
         }
 
@@ -999,11 +1012,10 @@ public class EditFrameInfoDialog extends DialogFragment {
     private void initialiseFilters(){
         //Update mountable filters
         if (newLensId <= 0) {
-            if (mountableFilters != null) mountableFilters.clear();
             filterTextView.setText(getResources().getString(R.string.NoFilter));
             newFilterId = -1;
         } else {
-            mountableFilters = database.getMountableFilters(database.getLens(newLensId));
+            List<Filter> mountableFilters = database.getMountableFilters(database.getLens(newLensId));
             //If the new list contains the current filter, do nothing (return)
             for (Filter filter : mountableFilters) {
                 if (filter.getId() == newFilterId) {
