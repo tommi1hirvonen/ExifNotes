@@ -14,7 +14,7 @@
         -Roll now has ISO, push/pull and format attributes.\n
         -Frame now has focal length, exposure comp, no. of exposures and filter attributes.
         -The user can now export and import the entire database as a .db file. This is useful when you want to transfer all your data to a new phone for example.\n
-        -Changes to ExifTool commands: file names can now have a prefix before the frame number and support for several file endings was added.\n
+        -Changes to ExifTool commands: file names can now have a prefix before the frame number and the user can now choose in the settings which file ending should be used.\n
     </string>
     <string name="VersionHistory">
         Version history\n
@@ -29,7 +29,7 @@
         -Roll now has ISO, push/pull and format attributes.\n
         -Frame now has focal length, exposure comp, no. of exposures and filter attributes.
         -The user can now export and import the entire database as a .db file. This is useful when you want to transfer all your data to a new phone for example.\n
-        -Changes to ExifTool commands: file names can now have a prefix before the frame number and support for several file endings was added.\n
+        -Changes to ExifTool commands: file names can now have a prefix before the frame number and the user can now choose in the settings which file ending should be used.\n
         \n
         v1.6.0 2016-10-13:\n
         -The app now requires write permissions to the phone\'s external storage (see third bullet point)\n
@@ -184,7 +184,7 @@
     <string name="Export">Export</string>
     <string name="ExportOrShare">Export/share files</string>
     <string name="ExportToDevice">Export files to storage</string>
-    <string name="ExportExif">Export exiftool cmds</string>
+    <string name="ExportExif">Export ExifTool cmds</string>
     <string name="ExportCSV">Export .csv</string>
     <string name="ErrorExporting">An error occurred while exporting the files.</string>
     <string name="ExportedFilesTo">Exported file(s) to:</string>
@@ -391,10 +391,12 @@
     <string name="ArtistNameSummary">Artist name information to be stored under the artist tag in the file\'s exif</string>
     <string name="CopyrightInformationTitle">Copyright information</string>
     <string name="CopyrightInformationSummary">Copyright information to be stored under the copyright tag in the file\'s exif</string>
-    <string name="ExiftoolPathTitle">Exiftool path</string>
-    <string name="ExiftoolPathSummary">"If you are using the exiftool stand-alone executable, you can define its path here ending with '/' or '\\' depending on your OS."</string>
+    <string name="ExiftoolPathTitle">ExifTool path</string>
+    <string name="ExiftoolPathSummary">"If you are using the ExifTool stand-alone executable, you can define its path here ending with '/' or '\\' depending on your OS."</string>
     <string name="PicturesPathTitle">Path to pictures</string>
     <string name="PicturesPathSummary">"If the picture files you want to edit are in a certain folder, you can define its path here ending with '/' or '\\' depending on your OS."</string>
+    <string name="FileEndingTitle">File ending</string>
+    <string name="FileEndingSummary">File ending of the files you wish to tag (e.g. .jpg or .tiff etc.)</string>
 
     <string name="DatabaseCap">DATABASE</string>
     <string name="ExportDatabaseTitle">Export database</string>

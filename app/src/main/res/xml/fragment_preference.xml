@@ -63,6 +63,14 @@
             android:defaultValue=""
             android:capitalize="none"/>
 
+        <EditTextPreference
+            android:key="FileEnding"
+            android:title="@string/FileEndingTitle"
+            android:summary="@string/FileEndingSummary"
+            android:defaultValue=".jpg"
+            android:capitalize="none"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory

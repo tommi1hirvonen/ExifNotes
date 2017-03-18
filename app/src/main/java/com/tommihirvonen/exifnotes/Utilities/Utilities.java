@@ -620,7 +620,10 @@ public class Utilities {
         String serialNumberTag = "-SerialNumber=";
         String lensSerialNumberTag = "-LensSerialNumber=";
 
-        String fileEnding = ".{jpg,JPG,jpeg,JPEG,tif,tiff,TIF,TIFF,png,PNG}";
+        String fileEnding = prefs.getString("FileEnding", ".jpg");
+        //Check that fileEnding begins with a dot.
+        if (fileEnding.charAt(0) != '.') fileEnding = "." + fileEnding;
+
         String quote = "\"";
         String space = " ";
         String lineSep = System.getProperty("line.separator");
@@ -698,11 +701,11 @@ public class Utilities {
             //Copyright
             if (copyrightInformation.length() > 0) stringBuilder.append(copyrightTag).append(quote).append(copyrightInformation).append(quote).append(space);
             //Path to pictures
-            if (picturesPath.contains(" ")) stringBuilder.append(quote);
+            if (picturesPath.contains(" ") || fileEnding.contains(" ")) stringBuilder.append(quote);
             if (picturesPath.length() > 0) stringBuilder.append(picturesPath);
             //File ending
             stringBuilder.append("*").append(frame.getCount()).append(fileEnding);
-            if (picturesPath.contains(" ")) stringBuilder.append(quote);
+            if (picturesPath.contains(" ") || fileEnding.contains(" ")) stringBuilder.append(quote);
             //Semicolon and new line
             stringBuilder.append(";").append(lineSep).append(lineSep);
 
