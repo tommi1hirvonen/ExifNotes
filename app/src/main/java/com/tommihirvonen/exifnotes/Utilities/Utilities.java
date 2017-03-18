@@ -629,7 +629,7 @@ public class Utilities {
 
         String quote = "\"";
         String space = " ";
-        String lineSep = System.getProperty("line.separator");
+        String lineSep = "\r\n";
 
         List<Frame> frameList = database.getAllFramesFromRoll(rollId);
         Roll roll = database.getRoll(rollId);
@@ -717,8 +717,8 @@ public class Utilities {
             //File ending
             stringBuilder.append("*").append(frame.getCount()).append(fileEnding);
             if (picturesPath.contains(" ") || fileEnding.contains(" ")) stringBuilder.append(quote);
-            //Semicolon and new line
-            stringBuilder.append(";").append(lineSep).append(lineSep);
+            //Double new line
+            stringBuilder.append(lineSep).append(lineSep);
 
         }
 
@@ -750,7 +750,7 @@ public class Utilities {
         stringBuilder.append("Format: ").append(context.getResources().getStringArray(R.array.FilmFormats)[roll.getFormat()]).append("\n");
         stringBuilder.append("Push/pull: ").append(roll.getPushPull()).append("\n");
         stringBuilder.append("Camera: ").append(camera.getMake()).append(" ").append(camera.getModel()).append("\n");
-        stringBuilder.append("Serial number: ").append(camera.getSerialNumber()).append("\n");
+        stringBuilder.append("Serial number: ").append(camera.getSerialNumber() != null ? camera.getSerialNumber() : "").append("\n");
         stringBuilder.append("Notes: ").append(roll.getNote()).append("\n");
         stringBuilder.append("Artist name: ").append(artistName).append("\n");
         stringBuilder.append("Copyright: ").append(copyrightInformation).append("\n");

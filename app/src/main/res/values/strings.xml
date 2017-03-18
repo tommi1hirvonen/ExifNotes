@@ -409,10 +409,10 @@
     <string name="ErrorCopyingFile">Error copying file</string>
     <string name="DatabaseCopiedTo">Database copied to: </string>
     <string name="ImportDatabaseVerification">
-        Are you sure you want to continue importing?
-        \n\n
-        This will replace the current database with the imported one.
-        \n\n
+        Are you sure you want to continue importing?\n
+        \n
+        This will replace the current database with the imported one.\n
+        \n
         IMPORTANT! The imported database file must be in exactly the same format as the exported file.
         If structural changes have been made to the database file or the file is otherwise corrupted, the import will fail!
         In this case the old database will be used.
