@@ -50,7 +50,7 @@ public class SimpleEula {
     public void show() {
         PackageInfo versionInfo = getPackageInfo();
 
-        // the eulaKey changes every time you increment the version number in the AndroidManifest.xml
+        // the eulaKey changes every time you increment the version number in the build.gradle script
         String eulaPrefix = "eula_";
         final String eulaKey = eulaPrefix + versionInfo.versionCode;
 
@@ -63,8 +63,8 @@ public class SimpleEula {
             String title = activity.getString(R.string.app_name) + " v" + versionInfo.versionName;
 
             //Includes the updates as well so users know what changed.
-            String message = activity.getString(R.string.Updates) + "\n\n" +
-                    activity.getString(R.string.Eula);
+            String message = activity.getString(R.string.Eula) + "\n\n" +
+                    activity.getString(R.string.Updates);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                     .setCancelable(false)
