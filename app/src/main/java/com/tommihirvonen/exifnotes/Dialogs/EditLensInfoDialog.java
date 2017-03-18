@@ -19,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +37,9 @@ import java.util.Collections;
 public class EditLensInfoDialog extends DialogFragment {
 
     public static final String TAG = "LensInfoDialogFragment";
+
+    private static final int MAX_FOCAL_LENGTH = 1500;
+
     Lens lens;
     Utilities utilities;
     int newApertureIncrements;
@@ -64,7 +68,8 @@ public class EditLensInfoDialog extends DialogFragment {
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(R.layout.lens_dialog, null);
+        @SuppressLint("InflateParams") final View inflatedView =
+                layoutInflater.inflate(R.layout.lens_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         String title = getArguments().getString("TITLE");
@@ -167,8 +172,10 @@ public class EditLensInfoDialog extends DialogFragment {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.double_numberpicker_dialog, null);
-                final NumberPicker minAperturePicker = (NumberPicker) dialogView.findViewById(R.id.number_picker_one);
-                final NumberPicker maxAperturePicker = (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
+                final NumberPicker maxAperturePicker =
+                        (NumberPicker) dialogView.findViewById(R.id.number_picker_one);
+                final NumberPicker minAperturePicker =
+                        (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
 
                 //To prevent text edit
                 minAperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
@@ -232,9 +239,21 @@ public class EditLensInfoDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.double_numberpicker_dialog, null);
-                final NumberPicker minFocalLengthPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker_one);
-                final NumberPicker maxFocalLengthPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
+                View dialogView = inflater.inflate(R.layout.double_numberpicker_dialog_buttons, null);
+                final NumberPicker minFocalLengthPicker =
+                        (NumberPicker) dialogView.findViewById(R.id.number_picker_one);
+                final NumberPicker maxFocalLengthPicker =
+                        (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
+
+                final int jumpAmount = 50;
+                final LinearLayout minFocalLengthFastRewind =
+                        (LinearLayout) dialogView.findViewById(R.id.picker_one_fast_rewind);
+                final LinearLayout minFocalLengthFastForward =
+                        (LinearLayout) dialogView.findViewById(R.id.picker_one_fast_forward);
+                final LinearLayout maxFocalLengthFastRewind =
+                        (LinearLayout) dialogView.findViewById(R.id.picker_two_fast_rewind);
+                final LinearLayout maxFocalLengthFastForward =
+                        (LinearLayout) dialogView.findViewById(R.id.picker_two_fast_forward);
 
                 //To prevent text edit
                 minFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
@@ -242,8 +261,33 @@ public class EditLensInfoDialog extends DialogFragment {
 
                 initialiseFocalLengthRangePickers(minFocalLengthPicker, maxFocalLengthPicker);
 
+                minFocalLengthFastRewind.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        minFocalLengthPicker.setValue(minFocalLengthPicker.getValue()-jumpAmount);
+                    }
+                });
+                minFocalLengthFastForward.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        minFocalLengthPicker.setValue(minFocalLengthPicker.getValue()+jumpAmount);
+                    }
+                });
+                maxFocalLengthFastRewind.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        maxFocalLengthPicker.setValue(maxFocalLengthPicker.getValue()-jumpAmount);
+                    }
+                });
+                maxFocalLengthFastForward.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        maxFocalLengthPicker.setValue(maxFocalLengthPicker.getValue()+jumpAmount);
+                    }
+                });
+
                 builder.setView(dialogView);
-                builder.setTitle(getResources().getString(R.string.ChooseApertureRange));
+                builder.setTitle(getResources().getString(R.string.ChooseFocalLengthRange));
                 builder.setPositiveButton(getResources().getString(R.string.OK), null);
                 builder.setNegativeButton(getResources().getString(R.string.Cancel),
                         new DialogInterface.OnClickListener() {
@@ -384,17 +428,17 @@ public class EditLensInfoDialog extends DialogFragment {
                                                    NumberPicker maxFocalLengthPicker) {
         minFocalLengthPicker.setMinValue(0);
         maxFocalLengthPicker.setMinValue(0);
-        minFocalLengthPicker.setMaxValue(1500);
-        maxFocalLengthPicker.setMaxValue(1500);
+        minFocalLengthPicker.setMaxValue(MAX_FOCAL_LENGTH);
+        maxFocalLengthPicker.setMaxValue(MAX_FOCAL_LENGTH);
         minFocalLengthPicker.setValue(50);
         maxFocalLengthPicker.setValue(50);
-        for (int i = 0; i < 1501; ++i) {
+        for (int i = 0; i <= MAX_FOCAL_LENGTH; ++i) {
             if (i == newMinFocalLength) {
                 minFocalLengthPicker.setValue(i);
                 break;
             }
         }
-        for (int i = 0; i < 1501; ++i) {
+        for (int i = 0; i <= MAX_FOCAL_LENGTH; ++i) {
             if (i == newMaxFocalLength) {
                 maxFocalLengthPicker.setValue(i);
                 break;
@@ -405,7 +449,7 @@ public class EditLensInfoDialog extends DialogFragment {
     private void updateApertureRangeButton(){
         apertureRangeButton.setText(newMinAperture == null || newMaxAperture == null ?
                 getResources().getString(R.string.ClickToSet) :
-                newMinAperture + " - " + newMaxAperture
+                newMaxAperture + " - " + newMinAperture
         );
     }
 

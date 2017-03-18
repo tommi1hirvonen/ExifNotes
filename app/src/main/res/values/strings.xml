@@ -207,6 +207,7 @@
     <string name="EditLens">Edit lens</string>
     <string name="ChooseApertureRange">Choose aperture range</string>
     <string name="ConfirmLensDelete">Delete lens</string>
+    <string name="ChooseFocalLengthRange">Choose focal length range</string>
 
     <!--FiltersFragment-->
     <string name="NewFilter">Add new filter</string>
