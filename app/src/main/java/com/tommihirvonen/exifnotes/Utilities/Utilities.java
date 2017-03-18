@@ -606,9 +606,12 @@ public class Utilities {
         String cameraModelTag = "-Model=";
         String lensMakeTag = "-LensMake=";
         String lensModelTag = "-LensModel=";
+        String lensTag = "-Lens=";
         String dateTag = "-DateTime=";
         String shutterTag = "-ShutterSpeedValue=";
+        String exposureTimeTag = "-ExposureTime=";
         String apertureTag = "-ApertureValue=";
+        String fNumberTag = "-FNumber=";
         String commentTag = "-UserComment=";
         String gpsLatTag = "-GPSLatitude=";
         String gpsLatRefTag = "-GPSLatitudeRef=";
@@ -645,20 +648,28 @@ public class Utilities {
             stringBuilder.append(cameraMakeTag).append(quote).append(database.getCamera(roll.getCameraId()).getMake()).append(quote).append(space);
             //CameraModelTag
             stringBuilder.append(cameraModelTag).append(quote).append(database.getCamera(roll.getCameraId()).getModel()).append(quote).append(space);
-            //LensMakeTag & LensModelTag
+            //LensMakeTag & LensModelTag & LensTag
             if (lens != null) {
                 stringBuilder.append(lensMakeTag).append(quote).append(lens.getMake()).append(quote).append(space);
                 stringBuilder.append(lensModelTag).append(quote).append(lens.getModel()).append(quote).append(space);
+                stringBuilder.append(lensTag).append(quote).append(lens.getMake()).append(space).append(lens.getModel()).append(quote).append(space);
             }
             //DateTime
             stringBuilder.append(dateTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
-            //ShutterSpeedValue
-            if (!frame.getShutter().contains("<")) stringBuilder.append(shutterTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
-            //ApertureValue
-            if (!frame.getAperture().contains("<"))
+            //ShutterSpeedValue & ExposureTime
+            if (!frame.getShutter().contains("<")) {
+                stringBuilder.append(shutterTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
+                stringBuilder.append(exposureTimeTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
+            }
+
+            //ApertureValue & FNumber
+            if (!frame.getAperture().contains("<")) {
                 stringBuilder.append(apertureTag).append(quote).append(frame.getAperture()).append(quote).append(space);
+                stringBuilder.append(fNumberTag).append(quote).append(frame.getAperture()).append(quote).append(space);
+            }
             //UserComment
-            if (frame.getNote() != null && frame.getNote().length() > 0) stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
+            if (frame.getNote() != null && frame.getNote().length() > 0)
+                stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
             //GPSLatitude & GPSLongitude & GPSLatitudeRef & GPSLongitudeRef
             if (frame.getLocation() != null && frame.getLocation().length() > 0) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
