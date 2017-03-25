@@ -106,6 +106,27 @@ public class FiltersFragment extends Fragment implements
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
+
+        //Set the title for the context menu
+        AdapterView.AdapterContextMenuInfo info = null;
+        try {
+            info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        } catch (ClassCastException ignore) {
+            //Do nothing
+        }
+        if (info != null) {
+            final int position = info.position;
+            Filter filter = null;
+            try {
+                filter = filterList.get(position);
+            } catch(NullPointerException | IndexOutOfBoundsException ignore) {
+                //Do nothing
+            }
+            if (filter != null) {
+                menu.setHeaderTitle(filter.getMake() + " " + filter.getModel());
+            }
+        }
+
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.menu_context_delete_edit_select_lenses, menu);
     }

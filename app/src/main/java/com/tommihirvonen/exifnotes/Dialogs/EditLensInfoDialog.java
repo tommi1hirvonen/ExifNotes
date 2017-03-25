@@ -449,7 +449,7 @@ public class EditLensInfoDialog extends DialogFragment {
     private void updateApertureRangeButton(){
         apertureRangeButton.setText(newMinAperture == null || newMaxAperture == null ?
                 getResources().getString(R.string.ClickToSet) :
-                newMaxAperture + " - " + newMinAperture
+                "f/" + newMaxAperture + " - " + "f/" + newMinAperture
         );
     }
 
