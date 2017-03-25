@@ -26,7 +26,7 @@
     <string name="VersionHistory">
         Version history\n
         \n
-        v1.7.0 2017-03-18:\n
+        v1.7.0 2017-03-25:\n
         -Bug fixes\n
         -Special characters are now allowed when entering text anywhere in the app.\n
         -Filters can now be added to the database and frame\'s information.\n

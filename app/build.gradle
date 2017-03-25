@@ -22,8 +22,8 @@ android {
         applicationId 'com.tommihirvonen.exifnotes'
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 9
-        versionName "1.6.0"
+        versionCode 10
+        versionName "1.7.0"
     }
 
     buildTypes {
@@ -46,10 +46,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.android.support:recyclerview-v7:25.0.1'
     compile 'com.android.support:design:25.0.1'
-    //noinspection GradleDependency
-    compile 'com.google.android.gms:play-services-maps:9.6.0'
-    //noinspection GradleDependency
-    compile 'com.google.android.gms:play-services-location:9.6.0'
+    compile 'com.google.android.gms:play-services-maps:10.0.1'
+    compile 'com.google.android.gms:play-services-location:10.0.1'
     compile 'com.android.support:support-v13:25.0.1'
     compile 'com.android.support:percent:25.0.1'
 }
