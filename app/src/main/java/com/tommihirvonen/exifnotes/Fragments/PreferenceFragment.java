@@ -1,5 +1,6 @@
 package com.tommihirvonen.exifnotes.Fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -24,7 +25,6 @@ import java.io.IOException;
 
 public class PreferenceFragment extends android.preference.PreferenceFragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
-
 
     // Notice that all we need to do is invoke the addPreferencesFromResource(..) method,
     // where we simply provide the reference to the preferences.xml file
@@ -123,9 +123,12 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                                                 Toast.LENGTH_SHORT).show();
                                         return;
                                     }
-                                    if (importSuccess) Toast.makeText(getActivity(),
-                                            getResources().getString(R.string.DatabaseImported),
-                                            Toast.LENGTH_LONG).show();
+                                    if (importSuccess) {
+                                        getActivity().setResult(Activity.RESULT_OK);
+                                        Toast.makeText(getActivity(),
+                                                getResources().getString(R.string.DatabaseImported),
+                                                Toast.LENGTH_LONG).show();
+                                    }
                                 }
                             }
                         });

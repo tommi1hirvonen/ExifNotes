@@ -425,6 +425,6 @@
     <string name="Continue">Continue</string>
     <string name="No">No</string>
     <string name="ErrorImportingDatabaseFrom">Error importing database from: </string>
-    <string name="DatabaseImported">Database imported. Restart app to see changes.</string>
+    <string name="DatabaseImported">Database imported successfully</string>
 
 </resources>

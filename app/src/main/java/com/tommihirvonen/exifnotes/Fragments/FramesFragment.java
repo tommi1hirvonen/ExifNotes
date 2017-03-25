@@ -44,6 +44,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.tommihirvonen.exifnotes.Activities.MainActivity;
 import com.tommihirvonen.exifnotes.Adapters.FrameAdapter;
 import com.tommihirvonen.exifnotes.Datastructures.Frame;
 import com.tommihirvonen.exifnotes.Dialogs.DirectoryChooserDialog;
@@ -398,7 +399,9 @@ public class FramesFragment extends Fragment implements
                         PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName());
                 preferences_intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
 
-                startActivity(preferences_intent);
+                //Start the preference activity from MainActivity.
+                //The result will be handled in MainActivity.
+                getActivity().startActivityForResult(preferences_intent, MainActivity.DATABASE_IMPORT_REQUEST);
 
                 break;
 

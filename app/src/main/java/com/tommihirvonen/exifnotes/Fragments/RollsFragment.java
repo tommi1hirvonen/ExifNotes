@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.tommihirvonen.exifnotes.Activities.MainActivity;
 import com.tommihirvonen.exifnotes.Adapters.RollAdapter;
 import com.tommihirvonen.exifnotes.Activities.AllFramesMapsActivity;
 import com.tommihirvonen.exifnotes.Datastructures.Camera;
@@ -267,7 +268,9 @@ public class RollsFragment extends Fragment implements
                         PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName());
                 preferences_intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
 
-                startActivity(preferences_intent);
+                //Start the preference activity from MainActivity.
+                //The result will be handled in MainActivity.
+                getActivity().startActivityForResult(preferences_intent, MainActivity.DATABASE_IMPORT_REQUEST);
 
                 break;
 
@@ -545,6 +548,19 @@ public class RollsFragment extends Fragment implements
                 }
                 break;
 
+        }
+    }
+
+    public void updateFragment(){
+        rollList = database.getAllRolls();
+        sortRollList(rollList);
+        rollAdapter = new RollAdapter(getActivity(), android.R.layout.simple_list_item_1, rollList);
+        mainListView.setAdapter(rollAdapter);
+        rollAdapter.notifyDataSetChanged();
+        if (rollList.size() > 0) {
+            mainTextView.setVisibility(View.GONE);
+        } else {
+            mainTextView.setVisibility(View.VISIBLE);
         }
     }
 }

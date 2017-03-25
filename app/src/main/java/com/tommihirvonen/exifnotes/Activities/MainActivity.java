@@ -1,7 +1,9 @@
 package com.tommihirvonen.exifnotes.Activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private final static int MY_MULTIPLE_PERMISSIONS_REQUEST = 1;
     boolean locationEnabled = false;
+    public static final int DATABASE_IMPORT_REQUEST = 8;
 
     /**
      * Create the layout and activate location services.
@@ -277,6 +280,31 @@ public class MainActivity extends AppCompatActivity implements
 
                 break;
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+
+            case DATABASE_IMPORT_REQUEST:
+
+                if (resultCode == Activity.RESULT_OK) {
+
+                    Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+                    if (fragment instanceof FramesFragment) {
+                        getFragmentManager().popBackStack();
+                    }
+                    fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+                    if (fragment instanceof RollsFragment) {
+                        RollsFragment rollsFragment = (RollsFragment) fragment;
+                        rollsFragment.updateFragment();
+                    }
+                }
+
+                return;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
 
