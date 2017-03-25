@@ -997,13 +997,23 @@ public class EditFrameInfoDialog extends DialogFragment {
     }
 
     private void initialiseFocalLengthPicker(NumberPicker focalLengthPicker){
-        Lens lens = database.getLens(newLensId);
-        focalLengthPicker.setMinValue(lens.getMinFocalLength());
-        focalLengthPicker.setMaxValue(lens.getMaxFocalLength());
-        if (newFocalLength > lens.getMaxFocalLength()) {
-            focalLengthPicker.setValue(lens.getMaxFocalLength());
-        } else if (newFocalLength < lens.getMinFocalLength()) {
-            focalLengthPicker.setValue(lens.getMinFocalLength());
+        Lens lens = null;
+        if (newLensId > 0) lens = database.getLens(newLensId);
+        int minValue;
+        int maxValue;
+        if (lens != null) {
+            minValue = lens.getMinFocalLength();
+            maxValue = lens.getMaxFocalLength();
+        } else {
+            minValue = 0;
+            maxValue = 1500;
+        }
+        focalLengthPicker.setMinValue(minValue);
+        focalLengthPicker.setMaxValue(maxValue);
+        if (newFocalLength > maxValue) {
+            focalLengthPicker.setValue(maxValue);
+        } else if (newFocalLength < minValue) {
+            focalLengthPicker.setValue(minValue);
         } else {
             focalLengthPicker.setValue(newFocalLength);
         }
