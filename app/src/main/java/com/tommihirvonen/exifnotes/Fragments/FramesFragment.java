@@ -805,7 +805,10 @@ public class FramesFragment extends Fragment implements
      * When the fragment is started connect to Google Play services to get accurate location.
      */
     public void onStart() {
-        if (locationEnabled) googleApiClient.connect();
+        //Added check to make sure googleApiClient is not null.
+        //Apparently some users were encountering a bug where during onResume
+        //googleApiClient was null.
+        if (locationEnabled && googleApiClient != null) googleApiClient.connect();
         super.onStart();
     }
 
@@ -813,7 +816,10 @@ public class FramesFragment extends Fragment implements
      * When the fragment is stopped disconnect from the Google Play service.s
      */
     public void onStop() {
-        if (locationEnabled) googleApiClient.disconnect();
+        //Added check to make sure googleApiClient is not null.
+        //Apparently some users were encountering a bug where during onResume
+        //googleApiClient was null.
+        if (locationEnabled && googleApiClient != null) googleApiClient.disconnect();
         super.onStop();
     }
 
@@ -830,7 +836,10 @@ public class FramesFragment extends Fragment implements
      * This function is called when the fragment is paused.
      */
     protected void stopLocationUpdates() {
-        if (googleApiClient.isConnected())
+        //Added check to make sure googleApiClient is not null.
+        //Apparently some users were encountering a bug where during onResume
+        //googleApiClient was null.
+        if (googleApiClient != null && googleApiClient.isConnected())
             LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
 
@@ -844,7 +853,10 @@ public class FramesFragment extends Fragment implements
                 getActivity().getBaseContext());
         //Check if GPSUpdate preference has been changed meanwhile
         requestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
-        if (locationEnabled && googleApiClient.isConnected() && requestingLocationUpdates) {
+        //Added check to make sure googleApiClient is not null.
+        //Apparently some users were encountering a bug where during onResume
+        //googleApiClient was null.
+        if (locationEnabled && googleApiClient != null && googleApiClient.isConnected() && requestingLocationUpdates) {
             startLocationUpdates();
         } else {
             stopLocationUpdates();
@@ -866,7 +878,13 @@ public class FramesFragment extends Fragment implements
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getActivity(),
                         Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+
+            //Added check to make sure googleApiClient is not null.
+            //Apparently some users were encountering a bug where during onResume
+            //googleApiClient was null.
+            if (googleApiClient != null) {
+                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+            }
         }
     }
 
@@ -880,7 +898,13 @@ public class FramesFragment extends Fragment implements
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+
+            //Added check to make sure googleApiClient is not null.
+            //Apparently some users were encountering a bug where during onResume
+            //googleApiClient was null.
+            if (googleApiClient != null) {
+                lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            }
             if (requestingLocationUpdates) {
                 startLocationUpdates();
             }
@@ -893,7 +917,10 @@ public class FramesFragment extends Fragment implements
      */
     @Override
     public void onConnectionSuspended(int i) {
-        if ( locationEnabled ) googleApiClient.connect();
+        //Added check to make sure googleApiClient is not null.
+        //Apparently some users were encountering a bug where during onResume
+        //googleApiClient was null.
+        if (locationEnabled && googleApiClient != null) googleApiClient.connect();
     }
 
     /**
@@ -932,7 +959,13 @@ public class FramesFragment extends Fragment implements
                 result.startResolutionForResult(getActivity(), REQUEST_RESOLVE_ERROR);
             } catch (IntentSender.SendIntentException e) {
                 // There was an error with the resolution intent. Try again.
-                googleApiClient.connect();
+
+                //Added check to make sure googleApiClient is not null.
+                //Apparently some users were encountering a bug where during onResume
+                //googleApiClient was null.
+                if (googleApiClient != null) {
+                    googleApiClient.connect();
+                }
             }
         } else {
             // Show dialog using GoogleApiAvailability.getErrorDialog()

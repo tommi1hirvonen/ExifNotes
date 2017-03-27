@@ -7,24 +7,20 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.7.0\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.7.1\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
+        -No app relaunch needed after database import\n
         -Bug fixes\n
-        -Special characters are now allowed when entering text anywhere in the app.\n
-        -Filters can now be added to the database and frame\'s information.\n
-        -Shutter speed and aperture increment are now camera and lens specific respectively instead of global settings.\n
-        -Lenses now have an aperture range, focal length range and aperture increment setting.\n
-        -Cameras now have a shutter speed range and a shutter speed increment setting.\n
-        -Rolls now have ISO, push/pull and format attributes.\n
-        -Frames now have focal length, exposure comp, no. of exposures and filter attributes.
-        -The user can now export and import the entire database as a .db file. This is useful when you want to transfer all your data to a new phone for example.\n
-        -Changes to ExifTool commands: file names can now have a prefix before the frame number and the user can now choose in the settings which file ending should be used.\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.7.1 2017-03-27:\n
+        -No app relaunch needed after database import\n
+        -Bug fixes\n
         \n
         v1.7.0 2017-03-25:\n
         -Bug fixes\n
