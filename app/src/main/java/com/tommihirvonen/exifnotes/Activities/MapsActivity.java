@@ -25,16 +25,39 @@ import java.util.List;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    /**
+     * Reference to the singleton database
+     */
     FilmDbHelper database;
+
+    /**
+     * id of the current roll whose frames are to be shown
+     */
     long rollId;
+
+    /**
+     * List of the roll's frames
+     */
     List<Frame> frameList = new ArrayList<>();
+
+    /**
+     * GoogleMap object to show the map and to hold all the markers for all frames
+     */
     private GoogleMap googleMap;
+
+    /**
+     * Member to indicate whether this activity was continued or not.
+     * Some animations will only be activated if this value is false.
+     */
     boolean continueActivity = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // In onSaveInstanceState a dummy boolean was put into outState.
+        // savedInstanceState is not null if the activity was continued.
         if (savedInstanceState != null) continueActivity = true;
 
         setContentView(R.layout.activity_maps);
@@ -128,6 +151,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        // Insert dummy boolean so that outState is not null.
         outState.putBoolean("CONTINUE", true);
     }
 }

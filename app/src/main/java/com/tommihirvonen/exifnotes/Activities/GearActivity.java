@@ -21,12 +21,30 @@ import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 public class GearActivity extends AppCompatActivity {
 
-
+    /**
+     * Android TabLayout member
+     */
     TabLayout tabLayout;
+
+    /**
+     * ViewPager is responsible for changing the layout when the user swipes or clicks on a tab.
+     */
     ViewPager viewPager;
 
+    /**
+     * PagerAdapter adapts fragments to show in the ViewPager
+     */
     PagerAdapter pagerAdapter;
+
+    /**
+     * Tag for the index of the current view to store in SharedPreferences
+     */
     final static String GEAR_ACTIVITY_SAVED_VIEW = "GEAR_ACTIVITY_SAVED_VIEW";
+
+    /**
+     * Tag for the index of the current view to store while the activity is paused
+     */
+    public static String POSITION = "POSITION";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +65,13 @@ public class GearActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white));
         tabLayout.setBackgroundColor(Utilities.getPrimaryUiColor(getBaseContext()));
+
+        //Get the index for the view which was last shown.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         viewPager.setCurrentItem(prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, 0));
     }
 
+    @Override
     public void onStop(){
         super.onStop();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -67,8 +88,6 @@ public class GearActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-    public static String POSITION = "POSITION";
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

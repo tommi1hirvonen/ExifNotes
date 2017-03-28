@@ -34,10 +34,30 @@ public class LocationPickActivity extends AppCompatActivity implements
         View.OnClickListener,
         android.support.v7.widget.SearchView.OnQueryTextListener {
 
+    /**
+     * GoogleMap object to show the map and marker
+     */
     private GoogleMap googleMap;
+
+    /**
+     * Marker object to hold the marker added/moved by the user.
+     */
     Marker marker;
+
+    /**
+     * Holds the current location.
+     */
     LatLng latLngLocation;
+
+    /**
+     * Stores the location which is received when the activity is started or resumed.
+     */
     String location = "";
+
+    /**
+     * Member to indicate whether this acitivty was continued or not.
+     * Some animations will only be activated if this value is false.
+     */
     boolean continueActivity = false;
 
     @Override

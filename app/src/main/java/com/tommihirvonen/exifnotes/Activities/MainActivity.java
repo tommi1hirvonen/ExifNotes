@@ -38,8 +38,20 @@ public class MainActivity extends AppCompatActivity implements
         RollsFragment.OnRollSelectedListener,
         FramesFragment.OnHomeAsUpPressedListener {
 
+    /**
+     * Tag for permission request
+     */
     private final static int MY_MULTIPLE_PERMISSIONS_REQUEST = 1;
+
+    /**
+     * Value to store whether location services should be enabled or not.
+     * Determined by the location permissions granted to the app by the user.
+     */
     boolean locationEnabled = false;
+
+    /**
+     * Tag for database import request. Used when the PreferenceActivity is launched.
+     */
     public static final int DATABASE_IMPORT_REQUEST = 8;
 
     /**
@@ -282,6 +294,14 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * The PreferenceActivity is started for result and the result is captured here in MainActivity.
+     * The result is OK if the user has successfully imported a new database.
+     *
+     * @param requestCode passed to the activity when it is launched
+     * @param resultCode OK if the user has successfully imported a new database
+     * @param data not used
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -304,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements
                 return;
         }
 
+        // Call super in case the result was not handled here
         super.onActivityResult(requestCode, resultCode, data);
     }
 }

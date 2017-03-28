@@ -29,15 +29,34 @@ import java.util.List;
 
 public class AllFramesMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    /**
+     * Reference to the singleton database
+     */
     FilmDbHelper database;
+
+    /**
+     * List to hold all the rolls from the database
+     */
     List<Roll> rollList = new ArrayList<>();
+
+    /**
+     * GoogleMap object to show the map and to hold all the markers for all frames
+     */
     private GoogleMap googleMap;
+
+    /**
+     * Member to indicate whether this activity was continued or not.
+     * Some animations will only be activated if this value is false.
+     */
     boolean continueActivity = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // In onSaveInstanceState a dummy boolean was put into outState.
+        // savedInstanceState is not null if the activity was continued.
         if (savedInstanceState != null) continueActivity = true;
 
         setContentView(R.layout.activity_maps);
@@ -70,8 +89,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -132,6 +150,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
             }
             final LatLngBounds bounds = builder.build();
 
+            //If the activity was continued then the animation is not needed.
             if (!continueActivity) this.googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
@@ -148,6 +167,8 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        // Insert dummy boolean so that outState is not null.
         outState.putBoolean("CONTINUE", true);
     }
 }

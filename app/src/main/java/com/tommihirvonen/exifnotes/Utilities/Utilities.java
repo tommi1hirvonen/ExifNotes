@@ -460,7 +460,6 @@ public class Utilities {
 
     /**
      * This function is called when the user has selected a sorting criteria.
-     * Java is pass-by-value, so return the sorted the List.
      */
     public static void sortFrameList(Activity activity, final FilmDbHelper database, List<Frame> listToSort) {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);

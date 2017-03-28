@@ -27,6 +27,9 @@ import com.tommihirvonen.exifnotes.Utilities.Utilities;
 public class PreferenceActivity extends android.preference.PreferenceActivity implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
+    /**
+     * The ActionBar layout is added manually
+     */
     Toolbar actionbar;
 
     @Override
