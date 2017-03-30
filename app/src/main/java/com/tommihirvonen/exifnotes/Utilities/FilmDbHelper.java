@@ -1165,7 +1165,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
         //Check for possible autoincrement
         if (autoIncrementInput) {
-            String incrementQuery = "SELECT * FROM sqlite_sequence WHERE name = '" + tableNameInput + "';";
+            // We can check that the table is autoincrement from the master tables.
+            // Column 'sql' is the query with which the table was created.
+            // If a table is autoincrement, then it can only have one primary key.
+            // If the primary key matches, then also the autoincrement column is correct.
+            // The primary key will be checked later in this method.
+            String incrementQuery = "SELECT * FROM sqlite_master WHERE type = 'table' AND name = '" + tableNameInput +"' AND sql LIKE '%AUTOINCREMENT%'";
             Cursor incrementCursor = db.rawQuery(incrementQuery, null);
             if (!incrementCursor.moveToFirst()) {
                 //No rows were returned. The table has no autoincrement. Integrity check fails.
@@ -1187,6 +1192,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 int primaryKey = cursor.getInt(cursor.getColumnIndex("pk"));
 
                 cursor.close();
+
                 //Check that the attributes are correct and return the result
                 return columnType.startsWith(columnTypeInput) && //type can be int or integer
                         notNull == notNullInput &&

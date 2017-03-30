@@ -7,16 +7,18 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.7.1\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.7.2\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -No app relaunch needed after database import\n
-        -Bug fixes\n
+        -Fixed a bug which rejected valid database imports\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.7.2 2017-03-30:\n
+        -Fixed a bug which rejected valid database imports\n
         \n
         v1.7.1 2017-03-27:\n
         -No app relaunch needed after database import\n
