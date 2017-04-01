@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-// Copyright 2015
+// Copyright 2017
 // Tommi Hirvonen
 
 /**
@@ -347,7 +347,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 new String[]{Long.toString(roll_id)}, null, null, KEY_COUNT);
         Frame frame;
         // Go over each row, build list
-        while ( cursor.moveToNext() ) {
+        while (cursor.moveToNext()) {
             frame = getFrameFromCursor(cursor);
             frames.add(frame);
         }
@@ -411,7 +411,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Lens lens = new Lens();
         Cursor cursor = db.query(TABLE_LENSES, null, KEY_LENS_ID + "=?",
                 new String[]{Long.toString(lens_id)}, null, null, null);
-        if ( cursor != null ) {
+        if (cursor != null) {
             cursor.moveToFirst();
             lens = getLensFromCursor(cursor, lens);
             cursor.close();
@@ -428,7 +428,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_LENSES, null, null, null, null, null, KEY_LENS_MAKE);
         Lens lens;
-        while ( cursor.moveToNext() ) {
+        while (cursor.moveToNext()) {
             lens = getLensFromCursor(cursor);
             lenses.add(lens);
         }
@@ -455,7 +455,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_LENS_ID}, KEY_LENS_ID + "=?",
                 new String[]{Long.toString(lens.getId())}, null, null, null);
-        if ( cursor.moveToFirst() ) {
+        if (cursor.moveToFirst()) {
             cursor.close();
             return true;
         }
@@ -498,7 +498,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Camera camera = new Camera();
         Cursor cursor = db.query(TABLE_CAMERAS, null, KEY_CAMERA_ID + "=?",
                 new String[]{Long.toString(camera_id)}, null, null, null);
-        if ( cursor != null ) {
+        if (cursor != null) {
             cursor.moveToFirst();
             camera = getCameraFromCursor(cursor, camera);
             cursor.close();
@@ -515,7 +515,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_CAMERAS, null, null, null, null, null, KEY_CAMERA_MAKE);
         Camera camera;
-        while ( cursor.moveToNext() ) {
+        while (cursor.moveToNext()) {
             camera = getCameraFromCursor(cursor);
             cameras.add(camera);
         }
@@ -544,7 +544,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_CAMERA_ID}, KEY_CAMERA_ID + "=?",
                 new String[]{Long.toString(camera.getId())}, null, null, null);
-        if ( cursor.moveToFirst() ) {
+        if (cursor.moveToFirst()) {
             cursor.close();
             return true;
         }
@@ -609,7 +609,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Lens lens;
-        while ( cursor.moveToNext() ) {
+        while (cursor.moveToNext()) {
             lens = getLensFromCursor(cursor);
             lenses.add(lens);
         }
@@ -632,7 +632,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Camera camera;
-        while ( cursor.moveToNext() ) {
+        while (cursor.moveToNext()) {
             camera = getCameraFromCursor(cursor);
             cameras.add(camera);
         }
@@ -661,7 +661,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_ROLLS, null, null, null, null, null, KEY_ROLL_DATE + " DESC");
         Roll roll;
-        while ( cursor.moveToNext() ) {
+        while (cursor.moveToNext()) {
             roll = getRollFromCursor(cursor);
             rolls.add(roll);
         }
@@ -679,7 +679,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Roll roll = new Roll();
         Cursor cursor = db.query(TABLE_ROLLS, null, KEY_ROLL_ID + "=?",
                 new String[]{Long.toString(id)}, null, null, null);
-        if ( cursor != null ) {
+        if (cursor != null) {
             cursor.moveToFirst();
             roll = getRollFromCursor(cursor, roll);
             cursor.close();
@@ -717,7 +717,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_FRAMES, new String[]{"COUNT(" + KEY_FRAME_ID + ")"}, KEY_ROLL_ID + "=?",
                 new String[]{Long.toString(roll.getId())}, null, null, null);
         int returnValue = 0;
-        if ( cursor != null ) {
+        if (cursor != null) {
             cursor.moveToFirst();
             returnValue = cursor.getInt(0);
             cursor.close();
@@ -748,7 +748,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Filter filter = new Filter();
         Cursor cursor = db.query(TABLE_FILTERS, null, KEY_FILTER_ID + "=?",
                 new String[]{Long.toString(filter_id)}, null, null, null);
-        if ( cursor != null ) {
+        if (cursor != null) {
             cursor.moveToFirst();
             filter = getFilterFromCursor(cursor, filter);
             cursor.close();
@@ -765,7 +765,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_FILTERS, null, null, null, null, null, KEY_FILTER_MAKE);
         Filter filter;
-        while ( cursor.moveToNext() ) {
+        while (cursor.moveToNext()) {
             filter = getFilterFromCursor(cursor);
             filters.add(filter);
         }
@@ -791,7 +791,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_FILTER_ID}, KEY_FILTER_ID + "=?",
                 new String[]{Long.toString(filter.getId())}, null, null, null);
-        if ( cursor.moveToFirst() ) {
+        if (cursor.moveToFirst()) {
             cursor.close();
             return true;
         }
@@ -856,7 +856,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Lens lens;
-        while ( cursor.moveToNext() ) {
+        while (cursor.moveToNext()) {
             lens = getLensFromCursor(cursor);
             lenses.add(lens);
         }
@@ -879,7 +879,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Filter filter;
-        while ( cursor.moveToNext() ) {
+        while (cursor.moveToNext()) {
             filter = getFilterFromCursor(cursor);
             filters.add(filter);
         }
@@ -893,10 +893,24 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     //*********************** METHODS TO GET OBJECTS FROM CURSOR **********************************
 
 
+    /**
+     * Returns a Frame object generated from a Cursor object.
+     *
+     * @param cursor Cursor object containing the attributes for a Frame object
+     * @return Frame object generated from cursor
+     */
     private Frame getFrameFromCursor (Cursor cursor) {
         Frame frame = new Frame();
         return getFrameFromCursor(cursor, frame);
     }
+
+    /**
+     * Sets the attributes of a Frame object using a Cursor object.
+     *
+     * @param cursor Cursor object which should be used to get the attributes
+     * @param frame the Frame whose attributes should be set
+     * @return reference to the Frame object given as the parameter
+     */
     private Frame getFrameFromCursor (Cursor cursor, Frame frame) {
         frame.setId(cursor.getLong(cursor.getColumnIndex(KEY_FRAME_ID)));
         frame.setRollId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
@@ -918,10 +932,24 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return frame;
     }
 
+    /**
+     * Returns a Roll object generated from a Cursor object.
+     *
+     * @param cursor Cursor object containing the attributes for a Roll object
+     * @return Roll object generated from cursor
+     */
     private Roll getRollFromCursor (Cursor cursor) {
         Roll roll = new Roll();
         return getRollFromCursor(cursor, roll);
     }
+
+    /**
+     * Sets the attributes of a Roll object using a Cursor object.
+     *
+     * @param cursor Cursor object which should be used to get the attributes
+     * @param roll the Roll whose attributes should be set
+     * @return reference to the Roll object given as the parameter
+     */
     private Roll getRollFromCursor (Cursor cursor, Roll roll) {
         roll.setId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
         roll.setName(cursor.getString(cursor.getColumnIndex(KEY_ROLLNAME)));
@@ -934,10 +962,24 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return roll;
     }
 
+    /**
+     * Returns a Lens object generated from a Cursor object.
+     *
+     * @param cursor Cursor object containing the attributes for a Lens object
+     * @return Lens object generated from cursor
+     */
     private Lens getLensFromCursor (Cursor cursor) {
         Lens lens = new Lens();
         return getLensFromCursor(cursor, lens);
     }
+
+    /**
+     * Sets the attributes of a Lens object using a Cursor object.
+     *
+     * @param cursor Cursor object which should be used to get the attributes
+     * @param lens the Lens whose attributes should be set
+     * @return reference to the Lens object given as the parameter
+     */
     private Lens getLensFromCursor (Cursor cursor, Lens lens) {
         lens.setId(cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID)));
         lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
@@ -951,10 +993,24 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return lens;
     }
 
+    /**
+     * Returns a Camera object generated from a Cursor object.
+     *
+     * @param cursor Cursor object containing the attributes for a Camera object
+     * @return Camera object generated from cursor
+     */
     private Camera getCameraFromCursor (Cursor cursor) {
         Camera camera = new Camera();
         return getCameraFromCursor(cursor, camera);
     }
+
+    /**
+     * Sets the attributes of a Camera object using a Cursor object.
+     *
+     * @param cursor Cursor object which should be used to get the attributes
+     * @param camera the Camera whose attributes should be set
+     * @return reference to the Camera object given as the parameter
+     */
     private Camera getCameraFromCursor (Cursor cursor, Camera camera) {
         camera.setId(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
         camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
@@ -966,10 +1022,24 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return camera;
     }
 
+    /**
+     * Returns a Filter object generated from a Cursor object.
+     *
+     * @param cursor Cursor object containing the attributes for a Filter object
+     * @return Filter object generated from cursor
+     */
     private Filter getFilterFromCursor (Cursor cursor) {
         Filter filter = new Filter();
         return getFilterFromCursor(cursor, filter);
     }
+
+    /**
+     * Sets the attributes of a Filter object using a Cursor object.
+     *
+     * @param cursor Cursor object which should be used to get the attributes
+     * @param filter the Filter whose attributes should be set
+     * @return reference to the Filter object given as the parameter
+     */
     private Filter getFilterFromCursor (Cursor cursor, Filter filter) {
         filter.setId(cursor.getLong(cursor.getColumnIndex(KEY_FILTER_ID)));
         filter.setMake(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MAKE)));
@@ -981,6 +1051,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     //*********************** METHODS TO BUILD CONTENT VALUES **********************************
 
 
+    /**
+     * Builds ContentValues container from a Frame object.
+     *
+     * @param frame Frame object of which the ContentValues is created.
+     * @return ContentValues containing the attributes of the Frame object.
+     */
     private ContentValues buildFrameContentValues(Frame frame){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_ROLL_ID, frame.getRollId());
@@ -1002,6 +1078,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return contentValues;
     }
 
+    /**
+     * Builds ContentValues container from a Lens object.
+     *
+     * @param lens Lens object of which the ContentValues is created.
+     * @return ContentValues containing the attributes of the lens object.
+     */
     private ContentValues buildLensContentValues(Lens lens){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_LENS_MAKE, lens.getMake());
@@ -1015,6 +1097,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return contentValues;
     }
 
+    /**
+     * Builds ContentValues container from a Camera object.
+     *
+     * @param camera Camera object of which the ContentValues is created.
+     * @return ContentValues containing the attributes of the Camera object.
+     */
     private ContentValues buildCameraContentValues(Camera camera){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_CAMERA_MAKE, camera.getMake());
@@ -1026,6 +1114,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return contentValues;
     }
 
+    /**
+     * Builds ContentValues container from a Roll object.
+     *
+     * @param roll Roll object of which the ContentValues is created.
+     * @return ContentValues containing the attributes of the Roll object.
+     */
     private ContentValues buildRollContentValues(Roll roll){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_ROLLNAME, roll.getName());
@@ -1038,6 +1132,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return contentValues;
     }
 
+    /**
+     * Builds ContentValues container from a Filter object.
+     *
+     * @param filter Filter object of which the ContentValues is created.
+     * @return ContentValues containing the attributes of the Filter object.
+     */
     private ContentValues buildFilterContentValues(Filter filter){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_FILTER_MAKE, filter.getMake());
@@ -1047,11 +1147,29 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     //*********************** METHODS TO EXPORT AND IMPORT DATABASE *******************************
 
+    /**
+     * Returns a File object referencing the .db database file used to store this database.
+     *
+     * @param context the application's context
+     * @return File referencing the database file used by this SQLite database
+     */
     public static File getDatabaseFile(Context context){
         String databasePath = context.getDatabasePath(DATABASE_NAME).getAbsolutePath();
         return new File(databasePath);
     }
 
+    /**
+     * Imports a .db database file to be used as the database for this app.
+     * If the new database file cannot be copied, then throw IOException.
+     * If it cannot be opened as an SQLite database, return false and notify.
+     * If the file is corrupted, then it is discarded and the old database will be used.
+     * Return false and notify.
+     *
+     * @param context the application's context
+     * @param importDatabasePath the path to the file which should be imported
+     * @return true if the database was imported successfully
+     * @throws IOException is thrown if the new database file cannot be opened
+     */
     public boolean importDatabase(Context context, String importDatabasePath) throws IOException {
         File newDb = new File(importDatabasePath);
         File oldDbBackup = new File(context.getDatabasePath(DATABASE_NAME).getAbsolutePath() + "_backup");
@@ -1092,6 +1210,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Check the integrity of the current database.
+     * The database is valid if it can be used with this app.
+     *
+     * @return true if the database is a valid database to be used with this app
+     */
     private boolean runIntegrityCheck() {
 
         final String INTEGER = "int";
@@ -1156,6 +1280,18 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * Checks the properties of a table column. If all the parameters match to the
+     * database's properties, then the method returns true.
+     *
+     * @param tableNameInput the name of the table
+     * @param columnNameInput the name of the column in the table
+     * @param columnTypeInput the data type of the column
+     * @param notNullInput 1 if the column should be 'not null', 0 if null
+     * @param primaryKeyInput 1 if the column should be a primary key, 0 if not
+     * @param autoIncrementInput true if the table should be autoincrement
+     * @return true if the parameter properties match the database
+     */
     private boolean checkColumnProperties(String tableNameInput, String columnNameInput, String columnTypeInput,
                                           int notNullInput, int primaryKeyInput, boolean autoIncrementInput) {
 
