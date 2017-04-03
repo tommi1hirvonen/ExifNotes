@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes.Datastructures;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 import android.os.Parcel;
 import android.os.Parcelable;
 

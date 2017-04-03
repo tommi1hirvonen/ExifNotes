@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes.Activities;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -27,6 +24,9 @@ import com.tommihirvonen.exifnotes.Utilities.Utilities;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * AllFramesMapsActivity displays all the frames in the user's database on a map.
+ */
 public class AllFramesMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     /**
@@ -50,7 +50,11 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      */
     boolean continueActivity = false;
 
-
+    /**
+     * Sets up the activity's layout and view and reads all the rolls from the database.
+     *
+     * @param savedInstanceState if not null, then the activity is continued
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +78,12 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         mapFragment.getMapAsync(this);
     }
 
+    /**
+     * Handles the home as up press event.
+     *
+     * @param item {@inheritDoc}
+     * @return call to super
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -93,6 +103,10 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
+     *
+     * In this case, draw markers for all the frames in the user's database.
+     *
+     * @param googleMap {@inheritDoc}
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -164,6 +178,11 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
+    /**
+     * Puts a dummy boolean in outState so that it is not null.
+     *
+     * @param outState used to store the dummy boolean
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

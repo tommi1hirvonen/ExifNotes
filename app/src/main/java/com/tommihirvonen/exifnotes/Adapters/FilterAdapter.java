@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes.Adapters;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -18,6 +15,9 @@ import com.tommihirvonen.exifnotes.Utilities.FilmDbHelper;
 
 import java.util.List;
 
+/**
+ * FilterAdapter links an ArrayList of Filters and a ListView together.
+ */
 public class FilterAdapter extends ArrayAdapter<Filter> {
 
     private FilmDbHelper database = FilmDbHelper.getInstance(getContext());
@@ -27,7 +27,7 @@ public class FilterAdapter extends ArrayAdapter<Filter> {
     }
 
     /**
-     * This function inflates a view in the ListView.
+     * This function inflates a view in the ListView to display a Filter's information.
      *
      * @param position the position of the item in the list.
      * @param convertView the view to be inflated

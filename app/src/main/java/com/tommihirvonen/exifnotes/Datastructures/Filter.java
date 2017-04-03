@@ -1,11 +1,11 @@
 package com.tommihirvonen.exifnotes.Datastructures;
 
-// Copyright 2016
-// Tommi Hirvonen
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * Filter class holds the information of a photographic filter.
+ */
 public class Filter implements Parcelable {
 
     public long id;

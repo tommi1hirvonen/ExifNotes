@@ -19,25 +19,30 @@ import com.tommihirvonen.exifnotes.R;
 
 import java.util.List;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 /**
  * FrameAdapter acts as an ArrayAdapter to link an ArrayList and a ListView of frames together.
  */
 public class FrameAdapter extends ArrayAdapter<Frame> {
 
-    // This FrameAdapter acts as an ArrayAdapter to link an array and a list view together
-
+    /**
+     * Reference to the singleton database
+     */
     private FilmDbHelper database;
 
+    /**
+     * Call super constructor and get reference to the database.
+     *
+     * @param context {@inheritDoc}
+     * @param textViewResourceId {@inheritDoc}
+     * @param frames {@inheritDoc}
+     */
     public FrameAdapter(Context context,int textViewResourceId, List<Frame> frames) {
         super(context, textViewResourceId, frames);
         database = FilmDbHelper.getInstance(context);
     }
 
     /**
-     * This function inflates a view in the ListView.
+     * This function inflates a view in the ListView to display a Frame's information.
      *
      * @param position the position of the item in the list.
      * @param convertView the view to be inflated

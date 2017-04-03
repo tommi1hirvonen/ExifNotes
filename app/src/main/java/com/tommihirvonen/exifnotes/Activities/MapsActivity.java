@@ -23,6 +23,9 @@ import com.tommihirvonen.exifnotes.Utilities.Utilities;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * MapsActivity displays all the frames from a roll on a map.
+ */
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     /**
@@ -51,7 +54,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     boolean continueActivity = false;
 
-
+    /**
+     * Inflate the activity, set the UI and get the frames for the selected roll.
+     *
+     * @param savedInstanceState if not null, then the activity was continued
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +87,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
     }
 
+    /**
+     * Handle the home as up press event
+     *
+     * @param item {@inheritDoc}
+     * @return call to super
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -98,11 +111,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
+     *
+     * In this case, draw markers for all the frames on the specified roll.
+     *
+     * @param googleMap {@inheritDoc}
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -148,6 +164,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     * Store a dummy boolean to outState to indicate that the activity will be resumed.
+     * @param outState used to store the dummy boolean
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

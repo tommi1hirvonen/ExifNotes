@@ -16,24 +16,29 @@ import com.tommihirvonen.exifnotes.R;
 
 import java.util.List;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 /**
- * LensAdapter acts as an ArrayAdapter to link an ArrayList and a ListView of lenses together.
+ * LensAdapter links an ArrayList of Lenses and a ListView together.
  */
 public class LensAdapter extends ArrayAdapter<Lens> {
 
-    // This LensAdapter acts as an ArrayAdapter to link an array and a list view together
-
+    /**
+     * Reference to the singleton database
+     */
     private FilmDbHelper database = FilmDbHelper.getInstance(getContext());
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param context
+     * @param textViewResourceId
+     * @param lenses
+     */
     public LensAdapter(Context context, int textViewResourceId, List<Lens> lenses) {
         super(context, textViewResourceId, lenses);
     }
 
     /**
-     * This function inflates a view in the ListView.
+     * This function inflates a view in the ListView to display a Lens' information.
      *
      * @param position the position of the item in the list.
      * @param convertView the view to be inflated

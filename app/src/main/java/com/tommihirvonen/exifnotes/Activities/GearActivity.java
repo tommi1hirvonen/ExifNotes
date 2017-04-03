@@ -16,9 +16,9 @@ import com.tommihirvonen.exifnotes.Fragments.LensesFragment;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
-// Copyright 2015
-// Tommi Hirvonen
-
+/**
+ * GearActivity contains fragments for adding, editing and removing cameras, lenses and filters.
+ */
 public class GearActivity extends AppCompatActivity {
 
     /**
@@ -46,6 +46,11 @@ public class GearActivity extends AppCompatActivity {
      */
     public static String POSITION = "POSITION";
 
+    /**
+     * Inflates the activity, sets the UI, ViewPager and TabLayout.
+     *
+     * @param savedInstanceState {@inheritDoc}
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +76,10 @@ public class GearActivity extends AppCompatActivity {
         viewPager.setCurrentItem(prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, 0));
     }
 
+    /**
+     * Saves the index of the current fragment so that when returning to this activity,
+     * it will resume from the same fragment.
+     */
     @Override
     public void onStop(){
         super.onStop();
@@ -78,6 +87,12 @@ public class GearActivity extends AppCompatActivity {
         prefs.edit().putInt(GEAR_ACTIVITY_SAVED_VIEW, viewPager.getCurrentItem()).apply();
     }
 
+    /**
+     * Handle home as up press event.
+     *
+     * @param item {@inheritDoc}
+     * @return call to super
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -89,18 +104,32 @@ public class GearActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Puts the current ViewPager's index to outState.
+     *
+     * @param outState used to store the current index of ViewPager
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(POSITION, tabLayout.getSelectedTabPosition());
     }
 
+    /**
+     * Gets the displayed fragment's index from savedInstanceState
+     *
+     * @param savedInstanceState used to store the current index of ViewPager
+     */
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         viewPager.setCurrentItem(savedInstanceState.getInt(POSITION));
     }
 
+    /**
+     * When new mountable combinations are added to the database, other fragments' views
+     * have to be updated too to display the changes. This method updates the necessary fragment(s).
+     */
     public void updateFragments(){
         int activeFragment = viewPager.getCurrentItem();
 

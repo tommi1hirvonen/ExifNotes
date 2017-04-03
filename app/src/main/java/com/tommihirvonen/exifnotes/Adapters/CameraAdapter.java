@@ -15,24 +15,29 @@ import com.tommihirvonen.exifnotes.R;
 
 import java.util.List;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 /**
- * CameraAdapter acts as an ArrayAdapter to link an ArrayList and a ListView of cameras together.
+ * CameraAdapter links an ArrayList of Cameras and a ListView together.
  */
 public class CameraAdapter extends ArrayAdapter<Camera> {
 
-    // This CameraAdapter acts as an ArrayAdapter to link an array and a list view together
-
+    /**
+     * Reference to the singleton database
+     */
     private FilmDbHelper database = FilmDbHelper.getInstance(getContext());
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param context
+     * @param textViewResourceId
+     * @param cameras
+     */
     public CameraAdapter(Context context, int textViewResourceId, List<Camera> cameras) {
         super(context, textViewResourceId, cameras);
     }
 
     /**
-     * This function inflates a view in the ListView.
+     * This function inflates a view in the ListView to display a Camera's information.
      *
      * @param position the position of the item in the list.
      * @param convertView the view to be inflated

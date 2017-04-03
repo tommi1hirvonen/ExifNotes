@@ -14,25 +14,30 @@ import com.tommihirvonen.exifnotes.R;
 
 import java.util.List;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 /**
- * RollAdapter acts as an ArrayAdapter to link an ArrayList and a ListView of rolls together.
+ * LensAdapter links an ArrayList of Rolls and a ListView together.
  */
 public class RollAdapter extends ArrayAdapter<Roll> {
 
-    // This RollAdapter acts as an ArrayAdapter to link an array and a list view together
-
+    /**
+     * Reference to the singleton database
+     */
     private FilmDbHelper database;
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param context
+     * @param textViewResourceId
+     * @param rolls
+     */
     public RollAdapter(Context context,int textViewResourceId, List<Roll> rolls) {
         super(context, textViewResourceId, rolls);
         database = FilmDbHelper.getInstance(context);
     }
 
     /**
-     * This function inflates a view in the ListView.
+     * This function inflates a view in the ListView to display the Roll's information.
      *
      * @param position the position of the item in the list.
      * @param convertView the view to be inflated

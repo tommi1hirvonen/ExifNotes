@@ -26,9 +26,6 @@ import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
 import java.io.File;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 /**
  * MainActivity is the first activity to be called when the app is launched.
  * It contains the RollsFragment and FramesFragment fragments.
@@ -137,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements
      * Called when the user selects a menu item.
      *
      * @param item The menu item that was selected.
-     * @return super so that other handlers can handle the selection
+     * @return super so that other handlers (fragments) can handle the selection
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

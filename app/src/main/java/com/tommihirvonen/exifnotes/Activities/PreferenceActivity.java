@@ -20,10 +20,10 @@ import com.tommihirvonen.exifnotes.Fragments.PreferenceFragment;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
-
-// Copyright 2015
-// Tommi Hirvonen
-
+/**
+ * PreferenceActivity contains the PreferenceFragment for editing the app's settings
+ * and preferences.
+ */
 public class PreferenceActivity extends android.preference.PreferenceActivity implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -32,6 +32,11 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
      */
     Toolbar actionbar;
 
+    /**
+     * Set the UI, add listeners.
+     *
+     * @param savedInstanceState {@inheritDoc}
+     */
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -54,7 +59,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
         // And even this shit! Since API 23 (M) this is needed to render the back button white.
         actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_ab_back_material));
-        if (  actionbar.getNavigationIcon() != null ) {
+        if (actionbar.getNavigationIcon() != null) {
             actionbar.getNavigationIcon().mutate().setColorFilter(
                     ContextCompat.getColor(getBaseContext(), R.color.white), PorterDuff.Mode.SRC_IN);
         }
@@ -68,6 +73,14 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         getFragmentManager().beginTransaction().add(R.id.rel_layout, new PreferenceFragment()).commit();
     }
 
+    /**
+     * If the app is run on a pre-L device, then manually inject AppCompat preference element.
+     *
+     * @param name {@inheritDoc}
+     * @param context {@inheritDoc}
+     * @param attrs {@inheritDoc}
+     * @return null
+     */
     @Override
     public View onCreateView(String name, Context context, AttributeSet attrs) {
         // Allow super to try and create a view first
@@ -96,12 +109,22 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         return null;
     }
 
-
+    /**
+     * {@inheritDoc}
+     * @param fragmentName
+     * @return
+     */
     @Override
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName);
     }
 
+    /**
+     * Update the UI color when SharedPreferences are changed.
+     *
+     * @param sharedPreferences {@inheritDoc}
+     * @param key {@inheritDoc}
+     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
