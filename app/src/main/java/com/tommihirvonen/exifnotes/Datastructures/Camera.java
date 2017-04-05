@@ -8,21 +8,65 @@ import android.os.Parcelable;
  */
 public class Camera implements Parcelable {
 
+    /**
+     * database id
+     */
     private long id;
-    private String make;
-    private String model;
-    private String serialNumber;
-    private String minShutter;
-    private String maxShutter;
-    private int shutterIncrements = 0;
-    // 0 = third stop (default)
-    // 1 = half stop
-    // 2 = full stop
 
+    /**
+     * make/manufacturer
+     */
+    private String make;
+
+    /**
+     * model
+     */
+    private String model;
+
+    /**
+     * camera's serial number (can contain letters)
+     */
+    private String serialNumber;
+
+    /**
+     * camera's minimum shutter speed (shortest possible duration)
+     */
+    private String minShutter;
+
+    /**
+     * camera's maximum shutter speed (longest possible duration)
+     */
+    private String maxShutter;
+
+    /**
+     *  integer defining whether the shutter speed values can be changed in
+     *  third, half or full stop increments
+     *
+     * 0 = third stop (default)
+     * 1 = half stop
+     * 2 = full stop
+     */
+    private int shutterIncrements = 0;
+
+
+    /**
+     * empty constructor
+     */
     public Camera(){
 
     }
 
+    /**
+     * constructor to initialize all members
+     *
+     * @param id database id
+     * @param make make/manufacturer
+     * @param model mode
+     * @param serialNumber camera's serial number
+     * @param minShutter camera's minimum/shortest shutter speed
+     * @param maxShutter camera's maximum/longest shutter speed
+     * @param shutterIncrements shutter speed value change increments
+     */
     public Camera(long id, String make, String model, String serialNumber, String minShutter,
                   String maxShutter, int shutterIncrements){
         this.id = id;
@@ -36,30 +80,63 @@ public class Camera implements Parcelable {
         }
     }
 
+    /**
+     *
+     * @param input database id
+     */
     public void setId(long input){
         this.id = input;
     }
 
+    /**
+     *
+     * @param input make/manufacturer
+     */
     public void setMake(String input){
         this.make = input;
     }
 
+    /**
+     *
+     * @param input model
+     */
     public void setModel(String input){
         this.model = input;
     }
 
+    /**
+     *
+     * @param input serial number (can contain letters)
+     */
     public void setSerialNumber(String input){
         this.serialNumber = input;
     }
 
+    /**
+     *
+     * @param input minimum shutter speed value (shortest possible duration) in format 1/X or Y"
+     *              where X and Y are numbers
+     */
     public void setMinShutter(String input){
         this.minShutter = input;
     }
 
+    /**
+     *
+     * @param input maximum shutter speed value (longest possible duration) in format 1/X or Y"
+     *              where X and Y are numbers
+     */
     public void setMaxShutter(String input){
         this.maxShutter = input;
     }
 
+    /**
+     *
+     * @param input shutter speed value change increments
+     *              0 = third stop (default)
+     *              1 = half stop
+     *              2 = full stop
+     */
     public void setShutterIncrements(int input){
         if (input <= 2 && input >= 0) {
             this.shutterIncrements = input;
@@ -67,36 +144,74 @@ public class Camera implements Parcelable {
     }
 
 
+    /**
+     *
+     * @return database id
+     */
     public long getId(){
         return this.id;
     }
 
+    /**
+     *
+     * @return make/manufacturer
+     */
     public String getMake(){
         return this.make;
     }
 
+    /**
+     *
+     * @return model
+     */
     public String getModel(){
         return this.model;
     }
 
+    /**
+     *
+     * @return camera's serial number
+     */
     public String getSerialNumber(){
         return this.serialNumber;
     }
 
+    /**
+     *
+     * @return minimum shutter speed value (shortest possible duration) in format 1/X or Y"
+     * where X and Y are numbers
+     */
     public String getMinShutter(){
         return this.minShutter;
     }
 
+    /**
+     *
+     * @return maximum shutter speed value (longest possible duration) in format 1/X or Y"
+     * where X and Y are numbers
+     */
     public String getMaxShutter(){
         return this.maxShutter;
     }
 
+    /**
+     *
+     * @return shutter speed value change increments
+     *              0 = third stop (default)
+     *              1 = half stop
+     *              2 = full stop
+     */
     public int getShutterIncrements(){
         return this.shutterIncrements;
     }
 
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
+    /**
+     * Constructs object from Parcel
+     *
+     * @param pc parcel object containing Camera's information
+     */
     public Camera(Parcel pc){
         this.id = pc.readLong();
         this.make = pc.readString();
@@ -107,11 +222,22 @@ public class Camera implements Parcelable {
         this.shutterIncrements = pc.readInt();
     }
 
+    /**
+     * Not used
+     *
+     * @return not used
+     */
     @Override
     public int describeContents() {
         return 0;
     }
 
+    /**
+     * Writes this object's members to a Parcel given as argument
+     *
+     * @param parcel Parcel which should be written with this object's members
+     * @param i not used
+     */
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeLong(id);
@@ -123,7 +249,9 @@ public class Camera implements Parcelable {
         parcel.writeInt(shutterIncrements);
     }
 
-    /** Static field used to regenerate object, individually or as arrays */
+    /**
+     * Static field used to regenerate object, individually or as arrays
+     */
     public static final Parcelable.Creator<Camera> CREATOR = new Parcelable.Creator<Camera>() {
         public Camera createFromParcel(Parcel pc) {
             return new Camera(pc);
@@ -133,6 +261,12 @@ public class Camera implements Parcelable {
         }
     };
 
+    /**
+     * Custom equals to compare two Cameras
+     *
+     * @param obj Camera object
+     * @return true if obj is Camera and all its members equal to this object's members
+     */
     @Override
     public boolean equals(Object obj) {
         Camera camera;
