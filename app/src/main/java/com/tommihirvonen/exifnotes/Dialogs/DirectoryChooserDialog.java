@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes.Dialogs;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,16 +32,38 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Dialog to select a directory in external storage
+ */
 public class DirectoryChooserDialog extends DialogFragment {
 
+    /**
+     * Reference to the implementing class's listener
+     */
     OnChosenDirectoryListener callback;
-    private TextView currentDirectoryTextView;
-    private String currentDirectory = "";
-    private List<String> subdirectories = null;
-    private ArrayAdapter<String> listAdapter = null;
 
     /**
-     * The interface to be implemented in the calling class
+     * Used to display the current working directory's path
+     */
+    private TextView currentDirectoryTextView;
+
+    /**
+     *  Path of the current working directory
+     */
+    private String currentDirectory = "";
+
+    /**
+     * contains all the subdirectories in the current working directory
+     */
+    private List<String> subdirectories = null;
+
+    /**
+     * Used to adapt List of subdirectories to the dialog's ListView
+     */
+    private ArrayAdapter<String> subdirectoryAdapter = null;
+
+    /**
+     * The interface to be implemented in the calling/implementing class
      */
     public interface OnChosenDirectoryListener{
         void onChosenDirectory(String directory);
@@ -71,6 +90,7 @@ public class DirectoryChooserDialog extends DialogFragment {
 
     /**
      * Called when the (dialog)fragment is first attached to its context (the calling activity).
+     *
      * @param activity the calling activity
      */
     @SuppressWarnings("deprecation")
@@ -81,6 +101,10 @@ public class DirectoryChooserDialog extends DialogFragment {
 
     /**
      * Called when the dialog is to be created.
+     * Get the current directory and its subdirectories.
+     * Inflate the dialog view and initialize the UI (Buttons, ListView etc.).
+     * Add onClick listeners.
+     *
      * @param savedInstanceState possible saved state in case the fragment was resumed
      * @return the inflated dialog
      */
@@ -149,9 +173,9 @@ public class DirectoryChooserDialog extends DialogFragment {
         });
 
         //Set up the ListAdapter, ListView and listener
-        listAdapter = createListAdapter(subdirectories);
+        subdirectoryAdapter = createListAdapter(subdirectories);
         ListView listView = (ListView) inflatedView.findViewById(R.id.subdirectories_listview);
-        listView.setAdapter(listAdapter);
+        listView.setAdapter(subdirectoryAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -189,7 +213,7 @@ public class DirectoryChooserDialog extends DialogFragment {
         subdirectories.clear();
         subdirectories.addAll(getDirectories(currentDirectory));
         currentDirectoryTextView.setText(currentDirectory);
-        listAdapter.notifyDataSetChanged();
+        subdirectoryAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -239,6 +263,7 @@ public class DirectoryChooserDialog extends DialogFragment {
 
     /**
      * Gets all the directories in the searched directory
+     *
      * @param directoryPath the directory whose subdirectories are to be listed
      * @return a List containing all the subdirectories
      */
@@ -272,6 +297,7 @@ public class DirectoryChooserDialog extends DialogFragment {
 
     /**
      * Creates a new directory
+     *
      * @param newDirectory path of the new folder
      * @return returns true if creating a new directory was successful, false otherwise
      */

@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes.Dialogs;
 
-//Copyright 2016
-//Tommi Hirvonen
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -33,25 +30,73 @@ import com.tommihirvonen.exifnotes.Utilities.Utilities;
 import java.util.Arrays;
 import java.util.Collections;
 
+/**
+ * Dialog to edit Camera's information
+ */
 public class EditCameraInfoDialog extends DialogFragment {
 
+    /**
+     * Public constant used to tag the fragment when created
+     */
     public static final String TAG = "CameraInfoDialogFragment";
 
+    /**
+     * Holds the information of the edited Camera
+     */
     Camera camera;
+
+    /**
+     * Reference to the utilities class
+     */
     Utilities utilities;
+
+    /**
+     * Stores the currently selected shutter speed value increment setting
+     */
     int newShutterIncrements;
+
+    /**
+     * Stores the currently displayed shutter speed values.
+     * Changes depending on the currently selected shutter increments
+     */
     String[] displayedShutterValues;
 
+    /**
+     * Reference to the Button/TextView displaying the current shutter speed increment setting
+     */
     TextView shutterSpeedIncrementsTextView;
+
+    /**
+     * Reference to the Button to edit the shutter speed range
+     */
     Button shutterRangeButton;
 
+    /**
+     * Currently selected minimum shutter speed (shortest duration)
+     */
     String newMinShutter;
+
+    /**
+     * Currently selected maximum shutter speed (longest duration)
+     */
     String newMaxShutter;
 
+    /**
+     * Empty constructor
+     */
     public EditCameraInfoDialog(){
 
     }
 
+    /**
+     * Called when the DialogFragment is ready to create the dialog.
+     * Inflate the fragment. Get the edited camera.
+     * Initialize the UI ojects and display the camera's information.
+     * Add listeners to Buttons to open new dialogs to change the camera's settings.
+     *
+     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
+     * @return inflated dialog ready to be shown
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
@@ -274,6 +319,13 @@ public class EditCameraInfoDialog extends DialogFragment {
         return dialog;
     }
 
+    /**
+     * Called when the shutter speed range dialog is opened.
+     * Sets the values for the NumberPickers.
+     *
+     * @param minShutterPicker NumberPicker associated with the minimum shutter speed
+     * @param maxShutterPicker NumberPicker associated with the maximum shutter speed
+     */
     private void initialiseShutterRangePickers(NumberPicker minShutterPicker,
                                                NumberPicker maxShutterPicker) {
         switch (newShutterIncrements) {
@@ -315,6 +367,9 @@ public class EditCameraInfoDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Update the shutter speed range Button to display the currently selected shutter speed range.
+     */
     private void updateShutterRangeButton(){
         shutterRangeButton.setText(newMinShutter == null || newMaxShutter == null ?
                 getResources().getString(R.string.ClickToSet) :

@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes.Dialogs;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -22,15 +19,35 @@ import com.tommihirvonen.exifnotes.Datastructures.Filter;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.Utilities.Utilities;
 
+/**
+ * Dialog to edit a Filter's information
+ */
 public class EditFilterInfoDialog extends DialogFragment {
 
+    /**
+     * Public constant used to tag this fragment when it is created
+     */
     public static final String TAG = "FilterInfoDialogFragment";
+
+    /**
+     * The filter to be edited
+     */
     Filter filter;
 
+    /**
+     * Empty constructor
+     */
     public EditFilterInfoDialog(){
 
     }
 
+    /**
+     * Called when the DialogFragment is ready to create the Dialog.
+     * Inflate the dialog. Set the EditText fields and buttons.
+     *
+     * @param SavedInstanceState
+     * @return inflated dialog ready to be shown
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
