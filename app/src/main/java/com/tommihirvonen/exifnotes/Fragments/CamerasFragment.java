@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes.Fragments;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
@@ -37,32 +34,78 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Fragment to display all cameras from the database along with details
+ */
 public class CamerasFragment extends Fragment implements
         View.OnClickListener,
         AdapterView.OnItemClickListener {
 
+    /**
+     * Constant passed to EditCameraInfoDialog for result
+     */
     public static final int ADD_CAMERA = 1;
+
+    /**
+     * Constant passed to EditCameraInfoDialog for result
+     */
     public static final int EDIT_CAMERA = 2;
+
+    /**
+     * TextView to show that no cameras have been added to the database
+     */
     TextView mainTextView;
+
+    /**
+     * ListView to show all the cameras in the database along with details
+     */
     ListView mainListView;
+
+    /**
+     * Adapter used to adapt cameraList to mainListView
+     */
     CameraAdapter cameraAdapter;
+
+    /**
+     * Contains all cameras from the database
+     */
     List<Camera> cameraList;
+
+    /**
+     * Reference to the singleton database
+     */
     FilmDbHelper database;
 
+    /**
+     * Called when the fragment is created.
+     * Tell the fragment that it has an options menu so that we can handle
+     * OptionsItemSelected events.
+     *
+     * @param savedInstanceState {@inheritDoc}
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
 
+    /**
+     * Inflate the fragment. Get all cameras from the database. Set the UI objects
+     * and display all cameras in the ListView.
+     *
+     * @param inflater {@inheritDoc}
+     * @param container {@inheritDoc}
+     * @param savedInstanceState {@inheritDoc}
+     * @return the inflated view ready to be shown
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LayoutInflater linf = getActivity().getLayoutInflater();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         database = FilmDbHelper.getInstance(getActivity());
         cameraList = database.getAllCameras();
 
-        final View view = linf.inflate(R.layout.cameras_fragment, container, false);
+        final View view = layoutInflater.inflate(R.layout.cameras_fragment, container, false);
 
         FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab_cameras);
         floatingActionButton.setOnClickListener(this);
@@ -102,6 +145,13 @@ public class CamerasFragment extends Fragment implements
         return view;
     }
 
+    /**
+     * Inflate the context menu to show actions when pressing and holding on an item.
+     *
+     * @param menu the menu to be inflated
+     * @param v the context menu view, not used
+     * @param menuInfo {@inheritDoc}
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
@@ -131,10 +181,25 @@ public class CamerasFragment extends Fragment implements
         inflater.inflate(R.menu.menu_context_delete_edit_select_lenses, menu);
     }
 
+    /**
+     * When an item is clicked perform long click instead to bring up the context menu.
+     *
+     * @param parent {@inheritDoc}
+     * @param view {@inheritDoc}
+     * @param position {@inheritDoc}
+     * @param id {@inheritDoc}
+     */
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         view.performLongClick();
     }
 
+    /**
+     * Called when the user long presses on a camera AND selects a context menu item.
+     *
+     * @param item the context menu item that was selected
+     * @return true if CamerasFragment is in front, false if not
+     */
     @SuppressLint("CommitTransaction")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -214,6 +279,9 @@ public class CamerasFragment extends Fragment implements
         return false;
     }
 
+    /**
+     * Show EditCameraInfoDialog to add a new camera to the database
+     */
     @SuppressLint("CommitTransaction")
     public void showCameraNameDialog() {
         EditCameraInfoDialog dialog = new EditCameraInfoDialog();
@@ -225,6 +293,12 @@ public class CamerasFragment extends Fragment implements
         dialog.show(getFragmentManager().beginTransaction(), EditCameraInfoDialog.TAG);
     }
 
+    /**
+     * Called when the FloatingActionButton is pressed.
+     *
+     * @param v view which was clicked
+     */
+    @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.fab_cameras:
@@ -233,6 +307,14 @@ public class CamerasFragment extends Fragment implements
         }
     }
 
+    /**
+     * Called when the user is done editing or adding a camera and closes the dialog.
+     * Handle camera addition and edit differently.
+     *
+     * @param requestCode the request code that was set for the intent
+     * @param resultCode the result code to tell whether the user picked ok or cancel
+     * @param data the extra data attached to the passed Intent
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
@@ -295,6 +377,11 @@ public class CamerasFragment extends Fragment implements
         }
     }
 
+    /**
+     * Show dialog where the user can select which lenses can be mounted to the picked camera.
+     *
+     * @param position indicates the position of the picked camera in cameraList
+     */
     void showSelectMountableLensesDialog(int position){
         final Camera camera = cameraList.get(position);
         final List<Lens> mountableLenses = database.getMountableLenses(camera);
@@ -397,6 +484,9 @@ public class CamerasFragment extends Fragment implements
         alert.show();
     }
 
+    /**
+     * Public method to update the contents of this fragment's ListView
+     */
     public void updateFragment(){
         if (cameraAdapter != null) cameraAdapter.notifyDataSetChanged();
     }

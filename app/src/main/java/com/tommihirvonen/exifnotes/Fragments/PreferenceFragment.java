@@ -20,20 +20,27 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-// Copyright 2015
-// Tommi Hirvonen
-
+/**
+ * PreferenceFragment is shown in PreferenceActivity.
+ * It is responsible for displaying all the preference options.
+ */
 public class PreferenceFragment extends android.preference.PreferenceFragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    // Notice that all we need to do is invoke the addPreferencesFromResource(..) method,
-    // where we simply provide the reference to the preferences.xml file
-    // and Android takes care of the rest for rendering the activity
-    // and also saving the values for you.
+    /**
+     * Get the preferences from resources. Set the UI and add listeners
+     * for database export and import options.
+     *
+     * @param savedInstanceState {@inheritDoc}
+     */
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Notice that all we need to do is invoke the addPreferencesFromResource(..) method,
+        // where we simply provide the reference to the preferences.xml file
+        // and Android takes care of the rest for rendering the activity
+        // and also saving the values for you.
         addPreferencesFromResource(R.xml.fragment_preference);
 
         // Set summaries for the list preferences
@@ -149,12 +156,18 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         });
     }
 
+    /**
+     * Register OnSharedPreferenceChangeListener
+     */
     @Override
     public void onResume() {
         super.onResume();
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
+    /**
+     * Unregister OnSharedPreferenceChangeListener
+     */
     @Override
     public void onPause() {
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
@@ -163,6 +176,12 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
 
     // TODO: Check that the exiftool and photos path end with a slash.
 
+    /**
+     * When the UIColor preference is changed, update the summary.
+     *
+     * @param sharedPreferences {@inheritDoc}
+     * @param key {@inheritDoc}
+     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         // Set summaries for the list preferences

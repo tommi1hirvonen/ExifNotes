@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements
      * Value to store whether location services should be enabled or not.
      * Determined by the location permissions granted to the app by the user.
      */
-    boolean locationEnabled = false;
+    boolean locationPermissionsGranted = false;
 
     /**
      * Tag for database import request. Used when the PreferenceActivity is launched.
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements
                                 Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_MULTIPLE_PERMISSIONS_REQUEST);
         } else {
-            locationEnabled = true;
+            locationPermissionsGranted = true;
         }
 
 
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements
 
     /**
      * This function is called when the user presses a roll in the RollsFragment.
-     * Create a new FramesFragment, pass the roll id and locationEnabled to it and bring it to the
+     * Create a new FramesFragment, pass the roll id and locationPermissionsGranted to it and bring it to the
      * front of the stack.
      * Also bring the shadow under the action bar to front.
      *
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements
         FramesFragment newFragment = new FramesFragment();
         Bundle args = new Bundle();
         args.putLong("ROLL_ID", rollId);
-        args.putBoolean("LOCATION_ENABLED", locationEnabled);
+        args.putBoolean("LOCATION_ENABLED", locationPermissionsGranted);
         newFragment.setArguments(args);
         getFragmentManager().beginTransaction()
                 .setCustomAnimations(
@@ -278,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements
                 //Check location permissions
                 if (grantResults.length > 0 && grantResults[1] == PackageManager.PERMISSION_GRANTED
                         && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                    locationEnabled = true;
+                    locationPermissionsGranted = true;
                 }
 
                 //Check write permissions

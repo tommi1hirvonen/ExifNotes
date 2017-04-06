@@ -69,7 +69,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         setContentView(R.layout.activity_maps);
         Intent intent = getIntent();
-        rollId = intent.getLongExtra(FramesFragment.ROLLINFO_EXTRA_MESSAGE, -1);
+        rollId = intent.getLongExtra(FramesFragment.ROLL_ID_EXTRA_MESSAGE, -1);
 
         // If the rollId is -1, then something went wrong.
         if (rollId == -1) finish();

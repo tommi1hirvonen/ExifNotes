@@ -46,28 +46,62 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 /**
- * RollFragment is the fragment that is displayed first in MainActivity. It contains
+ * RollsFragment is the fragment that is displayed first in MainActivity. It contains
  * a list of rolls the user has saved in the database.
  */
 public class RollsFragment extends Fragment implements
         View.OnClickListener,
         AdapterView.OnItemClickListener {
 
+    /**
+     * Public constant used to tag the fragment when created
+     */
     public static final String ROLLS_FRAGMENT_TAG = "ROLLS_FRAGMENT";
+
+    /**
+     * Constant passed to EditRollNameDialog for result
+     */
     public static final int ROLL_NAME_DIALOG = 1;
+
+    /**
+     * Constant passed to EditRollNameDialog for result
+     */
     public static final int EDIT_ROLL_NAME_DIALOG = 2;
 
+    /**
+     * Reference to the parent activity's OnRollSelectedListener
+     */
     OnRollSelectedListener callback;
 
+    /**
+     * Reference to the FloatingActionButton
+     */
     FloatingActionButton floatingActionButton;
+
+    /**
+     * TextView to show that no rolls have been added to the database
+     */
     TextView mainTextView;
+
+    /**
+     * ListView to show all the rolls in the database along with details
+     */
     ListView mainListView;
+
+    /**
+     * Adapter used to adapt rollList to mainListView
+     */
     RollAdapter rollAdapter;
+
+    /**
+     * Contains all rolls from the database
+     */
     List<Roll> rollList = new ArrayList<>();
+
+    /**
+     * Reference to the singleton database
+     */
     FilmDbHelper database;
 
     /**
@@ -79,6 +113,7 @@ public class RollsFragment extends Fragment implements
 
     /**
      * This on attach is called before API 23
+     *
      * @param a Activity to which the onRollSelectedListener is attached.
      */
     @SuppressWarnings("deprecation")
@@ -90,6 +125,7 @@ public class RollsFragment extends Fragment implements
 
     /**
      * This on attach is called after API 23
+     *
      * @param c Context to which the onRollSelectedListener is attached.
      */
     @Override
@@ -97,8 +133,6 @@ public class RollsFragment extends Fragment implements
         super.onAttach(c);
         callback = (OnRollSelectedListener) c;
     }
-
-
 
     /**
      * Called when the fragment is created.
@@ -115,17 +149,18 @@ public class RollsFragment extends Fragment implements
     }
 
     /**
-     * Inflate the fragment.
+     * Inflate the fragment. Get all rolls from the database. Set the UI objects
+     * and display all the rolls in the ListView.
      *
-     * @param inflater not used
-     * @param container not used
-     * @param savedInstanceState not used
+     * @param inflater {@inheritDoc}
+     * @param container {@inheritDoc}
+     * @param savedInstanceState possible saved state in case the fragment was resumed
      * @return The inflated view
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        LayoutInflater linf = getActivity().getLayoutInflater();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
             //noinspection ConstantConditions
@@ -143,7 +178,7 @@ public class RollsFragment extends Fragment implements
         //Order the roll list according to preferences
         sortRollList(rollList);
 
-        final View view = linf.inflate(R.layout.rolls_fragment, container, false);
+        final View view = layoutInflater.inflate(R.layout.rolls_fragment, container, false);
 
         floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(this);
@@ -208,7 +243,7 @@ public class RollsFragment extends Fragment implements
      *
      * @param menu the menu to be inflated
      * @param v the context menu view, not used
-     * @param menuInfo not used
+     * @param menuInfo {@inheritDoc}
      */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
@@ -220,6 +255,7 @@ public class RollsFragment extends Fragment implements
 
     /**
      * Handle events when the user selects an action from the options menu.
+     *
      * @param item selected menu item.
      * @return true because the item selection was consumed/handled.
      */
@@ -304,7 +340,9 @@ public class RollsFragment extends Fragment implements
     }
 
     /**
-     * This function is called when the user has selected a sorting criteria.
+     * Called when the user has selected a sorting criteria.
+     *
+     * @param listToSort reference to the List that should be sorted
      */
     public void sortRollList(List<Roll> listToSort) {
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
@@ -367,10 +405,10 @@ public class RollsFragment extends Fragment implements
     }
 
     /**
-     * This function is called when FloatingActionButton is pressed.
+     * Called when FloatingActionButton is pressed.
      * Show the user the RollNameDialog to add a new roll.
      *
-     * @param v The view which was clicked.
+     * @param v view which was clicked.
      */
     @Override
     public void onClick(View v) {
@@ -382,8 +420,8 @@ public class RollsFragment extends Fragment implements
     }
 
     /**
-     * This function is called when a roll is pressed.
-     * Forward the press to the callback interface to MainActivity.
+     * Called when a roll is pressed.
+     * Forward the press to the callback interface in MainActivity.
      *
      * @param parent the parent AdapterView, not used
      * @param view the view of the clicked item, not used
@@ -433,6 +471,7 @@ public class RollsFragment extends Fragment implements
 
     /**
      * Called when the user long presses on a roll AND selects a context menu item.
+     *
      * @param item the context menu item that was selected
      * @return true if the RollsFragment is in front, false if it is not
      */
@@ -487,10 +526,10 @@ public class RollsFragment extends Fragment implements
     }
 
     /**
-     * This function is called when the user is done editing or adding a roll and
-     * closes the dialog.
+     * Called when the user is done editing or adding a roll and
+     * closes the dialog. Handle roll addition and edit differently.
      *
-     * @param requestCode the request code that was set for the intent.
+     * @param requestCode the request code that was set for the intent
      * @param resultCode the result code to tell whether the user picked ok or cancel
      * @param data the extra data attached to the passed Intent
      */
@@ -551,6 +590,9 @@ public class RollsFragment extends Fragment implements
         }
     }
 
+    /**
+     * Public method to update the contents of this fragment's ListView.
+     */
     public void updateFragment(){
         rollList = database.getAllRolls();
         sortRollList(rollList);

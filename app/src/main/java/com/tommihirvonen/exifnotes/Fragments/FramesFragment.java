@@ -60,12 +60,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 /**
  * FramesFragment is the fragment which is called when the user presses on a roll
- * on the ListView in RollsFragment.
+ * on the ListView in RollsFragment. It displays all the frames from that roll.
  */
 public class FramesFragment extends Fragment implements
         View.OnClickListener,
@@ -74,34 +71,118 @@ public class FramesFragment extends Fragment implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-    public final static String ROLLINFO_EXTRA_MESSAGE = "com.tommihirvonen.filmphotonotes.MESSAGE";
+    /**
+     * Public constant to tag a message in intent to MapsActivity
+     */
+    public final static String ROLL_ID_EXTRA_MESSAGE = "ROLL_ID";
+
+    /**
+     * Public constant to tag this fragment when it is created.
+     */
     public static final String FRAMES_FRAGMENT_TAG = "FRAMES_FRAGMENT";
+
+    /**
+     * Constant passed to EditFrameInfoDialog for result
+     */
     public static final int FRAME_INFO_DIALOG = 1;
+
+    /**
+     * Constant passed to EditFrameInfoDialog for result
+     */
     public static final int EDIT_FRAME_INFO_DIALOG = 2;
+
+    /**
+     * Constant passed to ErrorDialogFragment
+     */
     public static final int ERROR_DIALOG = 3;
 
+    /**
+     * Reference to the singleton database
+     */
     FilmDbHelper database;
+
+    /**
+     * TextView to show that no frames have been added to this roll
+     */
     TextView mainTextView;
+
+    /**
+     * ListView to show all the frames on this roll with details
+     */
     ListView mainListView;
+
+    /**
+     * Contains all the frames for this roll
+     */
     List<Frame> frameList = new ArrayList<>();
+
+    /**
+     * Adapter to adapt frameList to mainListView
+     */
     FrameAdapter frameAdapter;
+
+    /**
+     * Reference to the utilities class
+     */
     Utilities utilities;
 
+    /**
+     * Reference to the ShareActionProvider. Provides services to share
+     * the text file containing ExifTool commands for this roll and the CSV file
+     * containing details for all frames on this roll.
+     */
     ShareActionProvider shareActionProvider;
 
+    /**
+     * Database id of this roll
+     */
     long rollId;
+
+    /**
+     * Database id of the used camera
+     */
     long cameraId;
+
+    /**
+     * Running frame counter for this roll
+     */
     int counter = 0;
 
+    /**
+     * Reference to the FloatingActionButton
+     */
     FloatingActionButton floatingActionButton;
 
+
     // Google client to interact with Google API
-    boolean locationEnabled;
+    /**
+     * Boolean to specify whether the user has granted the app location permissions
+     */
+    boolean locationPermissionsGranted;
+
+    /**
+     * Reference to the GoogleApiClient providing location services
+     */
     private GoogleApiClient googleApiClient;
+
+    /**
+     * Member to hold the last received location
+     */
     Location lastLocation;
+
+    /**
+     * Member to specify what kind of location requests the app needs (time interval, accuracy)
+     */
     LocationRequest locationRequest;
+
+    /**
+     * True if the user has enabled location updates in the app's settings, false if not
+     */
     boolean requestingLocationUpdates;
 
+    /**
+     * Reference to the parent activity's OnHomeAsUpPressedListener
+     */
     OnHomeAsUpPressedListener callback;
 
     /**
@@ -113,6 +194,7 @@ public class FramesFragment extends Fragment implements
 
     /**
      * This on attach is called before API 23
+     *
      * @param a Activity to which the OnHomeAsUpPressedListener is attached.
      */
     @SuppressWarnings("deprecation")
@@ -124,6 +206,7 @@ public class FramesFragment extends Fragment implements
 
     /**
      * This on attach is called after API 23
+     *
      * @param c Context to which the OnHomeAsUpPressedListener is attached.
      */
     @Override
@@ -132,11 +215,10 @@ public class FramesFragment extends Fragment implements
         callback = (OnHomeAsUpPressedListener) c;
     }
 
-
-
     /**
      * Called when the fragment is created.
-     * Get the frames from the roll and enable location updating.
+     * Get the frames from the roll and enable location updating. Tell the fragment
+     * that it has an options menu so that we can handle OptionsItemSelected events.
      *
      * @param savedInstanceState saved state of the Fragment
      */
@@ -148,7 +230,7 @@ public class FramesFragment extends Fragment implements
         utilities = new Utilities(getActivity());
 
         rollId = getArguments().getLong("ROLL_ID");
-        locationEnabled = getArguments().getBoolean("LOCATION_ENABLED");
+        locationPermissionsGranted = getArguments().getBoolean("LOCATION_ENABLED");
 
         database = FilmDbHelper.getInstance(getActivity());
         frameList = database.getAllFramesFromRoll(rollId);
@@ -158,7 +240,7 @@ public class FramesFragment extends Fragment implements
         Utilities.sortFrameList(getActivity(), database, frameList);
 
         // Activate GPS locating if the user has granted permission.
-        if (locationEnabled) {
+        if (locationPermissionsGranted) {
 
             // Create an instance of GoogleAPIClient for latlng_location services.
             if (googleApiClient == null) {
@@ -176,14 +258,14 @@ public class FramesFragment extends Fragment implements
             locationRequest.setFastestInterval(1000);
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
-        // This can be done anyway. It only has effect if locationEnabled is true.
+        // This can be done anyway. It only has effect if locationPermissionsGranted is true.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
         requestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
     }
 
     /**
-     * Inflate the fragment.
+     * Inflate the fragment. Set the UI objects and display all the frames in the ListView.
      *
      * @param inflater not used
      * @param container not used
@@ -193,9 +275,9 @@ public class FramesFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        LayoutInflater linf = getActivity().getLayoutInflater();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        final View view = linf.inflate(R.layout.frames_fragment, container, false);
+        final View view = layoutInflater.inflate(R.layout.frames_fragment, container, false);
 
         if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
             //noinspection ConstantConditions
@@ -289,6 +371,7 @@ public class FramesFragment extends Fragment implements
 
     /**
      * Called when the user long presses on a frame AND selects a context menu item.
+     *
      * @param item the context menu item that was selected
      * @return true if the FramesFragment is in front, false if it is not
      */
@@ -344,6 +427,7 @@ public class FramesFragment extends Fragment implements
 
     /**
      * Handle events when the user selects an action from the options menu.
+     *
      * @param item selected menu item.
      * @return true because the item selection was consumed/handled.
      */
@@ -432,7 +516,7 @@ public class FramesFragment extends Fragment implements
             case R.id.menu_item_show_on_map:
 
                 Intent intent2 = new Intent(getActivity(), MapsActivity.class);
-                intent2.putExtra(ROLLINFO_EXTRA_MESSAGE, rollId);
+                intent2.putExtra(ROLL_ID_EXTRA_MESSAGE, rollId);
                 startActivity(intent2);
                 break;
 
@@ -472,7 +556,8 @@ public class FramesFragment extends Fragment implements
 
 
     /**
-     * This function is used to export csv and/or exiftool commands to the devices own storage.
+     * Used to export csv and/or exiftool commands to the device's own storage.
+     *
      * @param dir the directory to which the files are to be exported
      * @return false if something went wrong, true otherwise
      */
@@ -513,7 +598,7 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * This function creates an Intent to share exiftool commands and a csv
+     * Creates an Intent to share exiftool commands and a csv
      * for the frames of the roll in question.
      *
      * @return The intent to be shared.
@@ -620,7 +705,7 @@ public class FramesFragment extends Fragment implements
 
 
     /**
-     * This function is called when FloatingActionButton is pressed.
+     * Called when FloatingActionButton is pressed.
      * Show the user the FrameInfoDialog to add a new frame.
      *
      * @param v The view which was clicked.
@@ -635,8 +720,7 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * This function is called when a frame is pressed.
-     * Show the EditFrameInfoDialog.
+     * Called when a frame is pressed. Show the EditFrameInfoDialog.
      *
      * @param parent the parent AdapterView, not used
      * @param view the view of the clicked item, not used
@@ -663,7 +747,7 @@ public class FramesFragment extends Fragment implements
 
     /**
      * Called when the user presses the FloatingActionButton.
-     * Shows a dialog fragment to add a new frame.
+     * Show a dialog fragment to add a new frame.
      */
     private void showFrameInfoDialog() {
 
@@ -686,9 +770,9 @@ public class FramesFragment extends Fragment implements
         frame.setCount(0);
         frame.setRollId(rollId);
 
-        //Get the location only if the app has location permission (locationEnabled) and
+        //Get the location only if the app has location permission (locationPermissionsGranted) and
         //the user has enabled GPS updates in the app's settings.
-        if (locationEnabled &&
+        if (locationPermissionsGranted &&
                 PreferenceManager.getDefaultSharedPreferences(
                         getActivity().
                         getBaseContext()).getBoolean("GPSUpdate", true))
@@ -735,8 +819,7 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * This function is called when the user is done editing or adding a frame and
-     * closes the dialog.
+     * Called when the user is done editing or adding a frame and closes the dialog.
      *
      * @param requestCode the request code that was set for the intent.
      * @param resultCode the result code to tell whether the user picked ok or cancel
@@ -798,6 +881,19 @@ public class FramesFragment extends Fragment implements
                 }
                 break;
 
+            case REQUEST_RESOLVE_ERROR:
+
+                resolvingError = false;
+                if (resultCode == Activity.RESULT_OK) {
+                    // Make sure the app is not already connected or attempting to connect
+                    if (googleApiClient != null && !googleApiClient.isConnecting() &&
+                            !googleApiClient.isConnected()) {
+                        googleApiClient.connect();
+                    }
+                }
+
+                break;
+
         }
     }
 
@@ -808,18 +904,18 @@ public class FramesFragment extends Fragment implements
         //Added check to make sure googleApiClient is not null.
         //Apparently some users were encountering a bug where during onResume
         //googleApiClient was null.
-        if (locationEnabled && googleApiClient != null) googleApiClient.connect();
+        if (locationPermissionsGranted && googleApiClient != null) googleApiClient.connect();
         super.onStart();
     }
 
     /**
-     * When the fragment is stopped disconnect from the Google Play service.s
+     * When the fragment is stopped disconnect from the Google Play services.
      */
     public void onStop() {
         //Added check to make sure googleApiClient is not null.
         //Apparently some users were encountering a bug where during onResume
         //googleApiClient was null.
-        if (locationEnabled && googleApiClient != null) googleApiClient.disconnect();
+        if (locationPermissionsGranted && googleApiClient != null) googleApiClient.disconnect();
         super.onStop();
     }
 
@@ -829,11 +925,11 @@ public class FramesFragment extends Fragment implements
     @Override
     public void onPause() {
         super.onPause();
-        if (locationEnabled) stopLocationUpdates();
+        if (locationPermissionsGranted) stopLocationUpdates();
     }
 
     /**
-     * This function is called when the fragment is paused.
+     * Called when the fragment is paused. Stop location updates.
      */
     protected void stopLocationUpdates() {
         //Added check to make sure googleApiClient is not null.
@@ -856,7 +952,7 @@ public class FramesFragment extends Fragment implements
         //Added check to make sure googleApiClient is not null.
         //Apparently some users were encountering a bug where during onResume
         //googleApiClient was null.
-        if (locationEnabled && googleApiClient != null && googleApiClient.isConnected() && requestingLocationUpdates) {
+        if (locationPermissionsGranted && googleApiClient != null && googleApiClient.isConnected() && requestingLocationUpdates) {
             startLocationUpdates();
         } else {
             stopLocationUpdates();
@@ -871,7 +967,7 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * This function is called when the fragment is resumed.
+     * Called when the fragment is resumed. Start location updates.
      */
     protected void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(getActivity(),
@@ -889,7 +985,8 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * Called when the Google API is connected
+     * Called when the Google API is connected.
+     *
      * @param bundle not used
      */
     @Override
@@ -913,6 +1010,7 @@ public class FramesFragment extends Fragment implements
 
     /**
      * Called when the connection to the Google API is suspended
+     *
      * @param i not used
      */
     @Override
@@ -920,11 +1018,12 @@ public class FramesFragment extends Fragment implements
         //Added check to make sure googleApiClient is not null.
         //Apparently some users were encountering a bug where during onResume
         //googleApiClient was null.
-        if (locationEnabled && googleApiClient != null) googleApiClient.connect();
+        if (locationPermissionsGranted && googleApiClient != null) googleApiClient.connect();
     }
 
     /**
      * Called when the location is changed.
+     *
      * @param location the new location
      */
     @Override
@@ -932,23 +1031,24 @@ public class FramesFragment extends Fragment implements
         lastLocation = location;
     }
 
-
-
-
-
-
-
-
-
-    // Request code to use when launching the resolution activity
+    /**
+     * Request code to use when launching the resolution activity
+     */
     private static final int REQUEST_RESOLVE_ERROR = 1001;
-    // Unique tag for the error dialog fragment
+
+    /**
+     * Unique tag for the error dialog fragment
+     */
     private static final String DIALOG_ERROR = "dialog_error";
-    // Bool to track whether the app is already resolving an error
+
+    /**
+     * Boolean to track whether the app is already resolving an error
+     */
     private boolean resolvingError = false;
 
     /**
-     * Called if the connection to the Google API has failed.
+     * Called if the connection to the Google API has failed. Try to resolve the error.
+     *
      * @param result describes if the connection was successful
      */
     @Override
@@ -974,9 +1074,9 @@ public class FramesFragment extends Fragment implements
         }
     }
 
-    // The rest of this code is all about building the error dialog
-
-    /* Creates a dialog for an error message */
+    /**
+     * Creates a dialog for an error message
+     */
     private void showErrorDialog(int errorCode) {
         // Create a fragment for the error dialog
         ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
@@ -988,20 +1088,37 @@ public class FramesFragment extends Fragment implements
         dialogFragment.show(getFragmentManager(), "errordialog");
     }
 
-    /* Called from ErrorDialogFragment when the dialog is dismissed. */
+    /**
+     * Called from ErrorDialogFragment when the dialog is dismissed.
+     */
     public void onDialogDismissed() {
         resolvingError = false;
     }
 
-    /* A fragment to display an error dialog */
+    /**
+     * A fragment to display an error dialog
+     */
     public static class ErrorDialogFragment extends com.google.android.gms.common.ErrorDialogFragment {
+
+        /**
+         * Empty constructor
+         */
         public ErrorDialogFragment() { }
 
+        /**
+         * {@inheritDoc}
+         * @param outState
+         */
         @Override
         public void onSaveInstanceState(final Bundle outState){
             setTargetFragment(null, -1);
         }
 
+        /**
+         * {@inheritDoc}
+         * @param savedInstanceState
+         * @return
+         */
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -1016,10 +1133,15 @@ public class FramesFragment extends Fragment implements
                     this.getActivity(), errorCode, REQUEST_RESOLVE_ERROR);
         }
 
+        /**
+         * Pass the onDismiss message to the FramesFragment
+         *
+         * @param dialog {@inheritDoc}
+         */
         @Override
         public void onDismiss(DialogInterface dialog) {
             FramesFragment framesfragment =
-                    (FramesFragment)getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG);
+                    (FramesFragment) getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG);
             framesfragment.onDialogDismissed();
         }
     }
