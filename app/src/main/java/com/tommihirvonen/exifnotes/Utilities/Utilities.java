@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes.Utilities;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -53,21 +50,56 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * This class contains utility functions.
+ * Class containing utility functions
  */
 public class Utilities {
 
-
+    /**
+     * All possible aperture values
+     */
     private final String[] allApertureValues;
+
+    /**
+     * Aperture values in one third stop increments
+     */
     public final String[] apertureValuesThird;
+
+    /**
+     * Aperture values in half stop increments
+     */
     public final String[] apertureValuesHalf;
+
+    /**
+     * Aperture values in full stop increments
+     */
     public final String[] apertureValuesFull;
 
+
+    /**
+     * All possible shutter speed values
+     */
     private final String[] allShutterValues;
+
+    /**
+     * Shutter speed values in one third stop increments
+     */
     public final String[] shutterValuesThird;
+
+    /**
+     * Shutter speed values in one half stop increments
+     */
     public final String[] shutterValuesHalf;
+
+    /**
+     * Shutter speed values in full stop increments
+     */
     public final String[] shutterValuesFull;
 
+    /**
+     * Constructor to initialize aperture and shutter speed value arrays.
+     *
+     * @param context application's context used to get resource strings
+     */
     public Utilities(Context context){
         allApertureValues = new String[]{context.getResources().getString(R.string.NoValue),
                 "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
@@ -123,7 +155,7 @@ public class Utilities {
                 "+1/3", "+2/3", "+1", "+1 1/3", "+1 2/3", "+2", "+2 1/3", "+2 2/3", "+3"};
 
     /**
-     * This function shows a general dialog containing a title and a message.
+     * Shows a general dialog containing a title and a message.
      *
      * @param activity the calling activity
      * @param title the title of the dialog
@@ -258,6 +290,7 @@ public class Utilities {
 
     /**
      * This function writes a text file.
+     *
      * @param file the file to be written to
      * @param text the text to be written in that file
      * @return false if something went wrong, true otherwise
@@ -460,6 +493,11 @@ public class Utilities {
 
     /**
      * This function is called when the user has selected a sorting criteria.
+     * Sort the frame list depending on the sorting criteria defined in SharedPreferences.
+     *
+     * @param activity reference to parent activity used to get SharedPreferences
+     * @param database reference to the application's database
+     * @param listToSort reference to the frame list that is to be sorted
      */
     public static void sortFrameList(Activity activity, final FilmDbHelper database, List<Frame> listToSort) {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
@@ -586,8 +624,12 @@ public class Utilities {
     }
 
     /**
-     * This function creates a string containing the ExifTool commands about the roll
+     * This function creates a string containing the ExifTool commands for the frames
+     * of the specified roll.
      *
+     * @param context application's context
+     * @param database reference to the application's database
+     * @param rollId database id of the roll of which the commands should be created
      * @return String containing the ExifTool commands
      */
     public static String createExifToolCmdsString(Context context, FilmDbHelper database, long rollId) {
@@ -728,6 +770,9 @@ public class Utilities {
     /**
      * This function creates a string which contains csv information about the roll.
      *
+     * @param context application's context
+     * @param database reference to the application's database
+     * @param rollId database id of the roll from which the csv information should be created
      * @return String containing the csv information
      */
     public static String createCsvString(Context context, FilmDbHelper database, long rollId) {
@@ -912,6 +957,7 @@ public class Utilities {
 
     /**
      * Gets the current date and time.
+     *
      * @return Date and time as a string in format YYYY-M-D H:MM
      */
     public static String getCurrentTime() {

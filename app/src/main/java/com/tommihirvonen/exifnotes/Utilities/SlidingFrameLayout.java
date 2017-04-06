@@ -5,9 +5,6 @@ import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 /**
  * A custom frame layout to be used in frames_fragment.xml and slide_left.xml and slide_right.xml.
  */
