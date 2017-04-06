@@ -43,38 +43,38 @@ public class EditCameraInfoDialog extends DialogFragment {
     /**
      * Holds the information of the edited Camera
      */
-    Camera camera;
+    private Camera camera;
 
     /**
      * Reference to the utilities class
      */
-    Utilities utilities;
+    private Utilities utilities;
 
     /**
      * Stores the currently selected shutter speed value increment setting
      */
-    int newShutterIncrements;
+    private int newShutterIncrements;
 
     /**
      * Stores the currently displayed shutter speed values.
      * Changes depending on the currently selected shutter increments
      */
-    String[] displayedShutterValues;
+    private String[] displayedShutterValues;
 
     /**
      * Reference to the Button to edit the shutter speed range
      */
-    Button shutterRangeButton;
+    private Button shutterRangeButton;
 
     /**
      * Currently selected minimum shutter speed (shortest duration)
      */
-    String newMinShutter;
+    private String newMinShutter;
 
     /**
      * Currently selected maximum shutter speed (longest duration)
      */
-    String newMaxShutter;
+    private String newMaxShutter;
 
     /**
      * Empty constructor

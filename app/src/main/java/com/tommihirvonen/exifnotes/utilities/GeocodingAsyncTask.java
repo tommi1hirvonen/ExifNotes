@@ -43,16 +43,6 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
     }
 
     /**
-     * Executed first before doInBackground.
-     *
-     * onPreExecute is not utilized in this class.
-     */
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-    }
-
-    /**
      * Executed on a background thread after onPreExecute.
      *
      * Get the JSON array from the Google Maps geocode api.

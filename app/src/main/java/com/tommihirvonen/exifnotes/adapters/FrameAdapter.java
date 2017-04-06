@@ -27,17 +27,15 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
     /**
      * Reference to the singleton database
      */
-    private FilmDbHelper database;
+    private final FilmDbHelper database;
 
     /**
      * Call super constructor and get reference to the database.
-     *
-     * @param context {@inheritDoc}
-     * @param textViewResourceId {@inheritDoc}
+     *  @param context {@inheritDoc}
      * @param frames {@inheritDoc}
      */
-    public FrameAdapter(Context context,int textViewResourceId, List<Frame> frames) {
-        super(context, textViewResourceId, frames);
+    public FrameAdapter(Context context, List<Frame> frames) {
+        super(context, android.R.layout.simple_list_item_1, frames);
         database = FilmDbHelper.getInstance(context);
     }
 

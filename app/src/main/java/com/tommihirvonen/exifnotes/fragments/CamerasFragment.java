@@ -49,32 +49,32 @@ public class CamerasFragment extends Fragment implements
     /**
      * Constant passed to EditCameraInfoDialog for result
      */
-    public static final int EDIT_CAMERA = 2;
+    private static final int EDIT_CAMERA = 2;
 
     /**
      * TextView to show that no cameras have been added to the database
      */
-    TextView mainTextView;
+    private TextView mainTextView;
 
     /**
      * ListView to show all the cameras in the database along with details
      */
-    ListView mainListView;
+    private ListView mainListView;
 
     /**
      * Adapter used to adapt cameraList to mainListView
      */
-    CameraAdapter cameraAdapter;
+    private CameraAdapter cameraAdapter;
 
     /**
      * Contains all cameras from the database
      */
-    List<Camera> cameraList;
+    private List<Camera> cameraList;
 
     /**
      * Reference to the singleton database
      */
-    FilmDbHelper database;
+    private FilmDbHelper database;
 
     /**
      * Called when the fragment is created.
@@ -121,8 +121,7 @@ public class CamerasFragment extends Fragment implements
         mainListView = (ListView) view.findViewById(R.id.main_cameraslistview);
 
         // Create an ArrayAdapter for the ListView
-        cameraAdapter = new CameraAdapter(
-                getActivity(), android.R.layout.simple_list_item_1, cameraList);
+        cameraAdapter = new CameraAdapter(getActivity(), cameraList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(cameraAdapter);
@@ -283,7 +282,7 @@ public class CamerasFragment extends Fragment implements
      * Show EditCameraInfoDialog to add a new camera to the database
      */
     @SuppressLint("CommitTransaction")
-    public void showCameraNameDialog() {
+    private void showCameraNameDialog() {
         EditCameraInfoDialog dialog = new EditCameraInfoDialog();
         dialog.setTargetFragment(this, ADD_CAMERA);
         Bundle arguments = new Bundle();
@@ -382,7 +381,7 @@ public class CamerasFragment extends Fragment implements
      *
      * @param position indicates the position of the picked camera in cameraList
      */
-    void showSelectMountableLensesDialog(int position){
+    private void showSelectMountableLensesDialog(int position){
         final Camera camera = cameraList.get(position);
         final List<Lens> mountableLenses = database.getMountableLenses(camera);
         final List<Lens> allLenses = database.getAllLenses();

@@ -20,10 +20,10 @@ import java.util.List;
  */
 public class FilterAdapter extends ArrayAdapter<Filter> {
 
-    private FilmDbHelper database = FilmDbHelper.getInstance(getContext());
+    private final FilmDbHelper database = FilmDbHelper.getInstance(getContext());
 
-    public FilterAdapter(Context context, int resource, List<Filter> filters) {
-        super(context, resource, filters);
+    public FilterAdapter(Context context, List<Filter> filters) {
+        super(context, android.R.layout.simple_list_item_1, filters);
     }
 
     /**

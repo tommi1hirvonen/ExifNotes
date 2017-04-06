@@ -1,7 +1,6 @@
 package com.tommihirvonen.exifnotes.dialogs;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -40,7 +39,7 @@ public class DirectoryChooserDialog extends DialogFragment {
     /**
      * Reference to the implementing class's listener
      */
-    OnChosenDirectoryListener callback;
+    private OnChosenDirectoryListener callback;
 
     /**
      * Used to display the current working directory's path
@@ -87,17 +86,6 @@ public class DirectoryChooserDialog extends DialogFragment {
         DirectoryChooserDialog dialog = new DirectoryChooserDialog();
         dialog.callback = listener;
         return dialog;
-    }
-
-    /**
-     * Called when the (dialog)fragment is first attached to its context (the calling activity).
-     *
-     * @param activity the calling activity
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    public void onAttach(Activity activity){
-        super.onAttach(activity);
     }
 
     /**

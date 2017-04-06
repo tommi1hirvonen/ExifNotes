@@ -24,17 +24,15 @@ public class LensAdapter extends ArrayAdapter<Lens> {
     /**
      * Reference to the singleton database
      */
-    private FilmDbHelper database = FilmDbHelper.getInstance(getContext());
+    private final FilmDbHelper database = FilmDbHelper.getInstance(getContext());
 
     /**
      * {@inheritDoc}
-     *
-     * @param context
-     * @param textViewResourceId
+     *  @param context
      * @param lenses
      */
-    public LensAdapter(Context context, int textViewResourceId, List<Lens> lenses) {
-        super(context, textViewResourceId, lenses);
+    public LensAdapter(Context context, List<Lens> lenses) {
+        super(context, android.R.layout.simple_list_item_1, lenses);
     }
 
     /**

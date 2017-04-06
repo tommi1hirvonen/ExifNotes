@@ -32,7 +32,7 @@ public class EditFilterInfoDialog extends DialogFragment {
     /**
      * The filter to be edited
      */
-    Filter filter;
+    private Filter filter;
 
     /**
      * Empty constructor

@@ -22,17 +22,15 @@ public class RollAdapter extends ArrayAdapter<Roll> {
     /**
      * Reference to the singleton database
      */
-    private FilmDbHelper database;
+    private final FilmDbHelper database;
 
     /**
      * {@inheritDoc}
-     *
-     * @param context
-     * @param textViewResourceId
+     *  @param context
      * @param rolls
      */
-    public RollAdapter(Context context,int textViewResourceId, List<Roll> rolls) {
-        super(context, textViewResourceId, rolls);
+    public RollAdapter(Context context, List<Roll> rolls) {
+        super(context, android.R.layout.simple_list_item_1, rolls);
         database = FilmDbHelper.getInstance(context);
     }
 

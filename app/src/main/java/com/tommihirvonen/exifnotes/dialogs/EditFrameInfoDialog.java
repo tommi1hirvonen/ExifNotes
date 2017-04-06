@@ -54,144 +54,144 @@ public class EditFrameInfoDialog extends DialogFragment {
     /**
      * Constant passed to LocationPickActivity for result
      */
-    final static int PLACE_PICKER_REQUEST = 1;
+    private final static int PLACE_PICKER_REQUEST = 1;
 
     /**
      * Constant passed to EditLensInfoDialog for result
      */
-    final static int ADD_LENS = 2;
+    private final static int ADD_LENS = 2;
 
     /**
      * Constant passed to EditFilterInfoDialog for result
      */
-    final static int ADD_FILTER = 3;
+    private final static int ADD_FILTER = 3;
 
     /**
      * Database id of the camera used to take this frame
      */
-    long cameraId;
+    private long cameraId;
 
     /**
      * Reference to the camera used to take this frame
      */
-    Camera camera;
+    private Camera camera;
 
     /**
      * Holds the information of the edited frame
      */
-    Frame frame;
+    private Frame frame;
 
     /**
      * Holds all the lenses that can be mounted to the used camera
      */
-    List<Lens> mountableLenses;
+    private List<Lens> mountableLenses;
 
     /**
      * Reference to the singleton database
      */
-    FilmDbHelper database;
+    private FilmDbHelper database;
 
     /**
      * Button used to display the currently selected location
      */
-    TextView locationTextView;
+    private TextView locationTextView;
 
     /**
      * Button used to display the currently selected lens
      */
-    TextView lensTextView;
+    private TextView lensTextView;
 
     /**
      * Button used to display the currently selected filter
      */
-    TextView filterTextView;
+    private TextView filterTextView;
 
     /**
      * Database id of the currently selected lens
      */
-    long newLensId;
+    private long newLensId;
 
     /**
      * Currently selected datetime in format 'YYYY-M-D H:MM'
      */
-    String newDate;
+    private String newDate;
 
     /**
      * Currently selected latitude longitude location in format '12,3456... 12,3456...'
      */
-    String newLocation;
+    private String newLocation;
 
     /**
      * Database id of the currently selected filter
      */
-    long newFilterId;
+    private long newFilterId;
 
     /**
      * Currently selected lens's aperture increment setting
      */
-    int apertureIncrements;
+    private int apertureIncrements;
 
     /**
      * The shutter speed increment setting of the camera used
      */
-    int shutterIncrements;
+    private int shutterIncrements;
 
     /**
      * Currently selected frame count number
      */
-    int newFrameCount;
+    private int newFrameCount;
 
     /**
      * Currently selected shutter speed value in format 1/X, Y" or B, where X and Y are numbers
      */
-    String newShutter;
+    private String newShutter;
 
     /**
      * Currently selected aperture value, number only
      */
-    String newAperture;
+    private String newAperture;
 
     /**
      * Currently selected focal length
      */
-    int newFocalLength;
+    private int newFocalLength;
 
     /**
      * Currently selected exposure compensation in format
      * 0, +/-X or +/-Y/Z where X, Y and Z are numbers
      */
-    String newExposureComp;
+    private String newExposureComp;
 
     /**
      * Currently selected number of exposures (multiple exposure)
      */
-    int newNoOfExposures;
+    private int newNoOfExposures;
 
     /**
      * Button used to display the current aperture value
      */
-    Button apertureButton;
+    private Button apertureButton;
 
     /**
      * Button used to display the current focal length value
      */
-    Button focalLengthButton;
+    private Button focalLengthButton;
 
     /**
      * Reference to the utilities class
      */
-    Utilities utilities;
+    private Utilities utilities;
 
     /**
      * Stores the currently displayed shutter speed values.
      */
-    String[] displayedShutterValues;
+    private String[] displayedShutterValues;
 
     /**
      * Stores the currently displayed aperture values.
      * Changes depending on the currently selected lens.
      */
-    String[] displayedApertureValues;
+    private String[] displayedApertureValues;
 
     /**
      * Empty constructor

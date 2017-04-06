@@ -23,17 +23,15 @@ public class CameraAdapter extends ArrayAdapter<Camera> {
     /**
      * Reference to the singleton database
      */
-    private FilmDbHelper database = FilmDbHelper.getInstance(getContext());
+    private final FilmDbHelper database = FilmDbHelper.getInstance(getContext());
 
     /**
      * {@inheritDoc}
-     *
-     * @param context
-     * @param textViewResourceId
+     *  @param context
      * @param cameras
      */
-    public CameraAdapter(Context context, int textViewResourceId, List<Camera> cameras) {
-        super(context, textViewResourceId, cameras);
+    public CameraAdapter(Context context, List<Camera> cameras) {
+        super(context, android.R.layout.simple_list_item_1, cameras);
     }
 
     /**

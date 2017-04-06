@@ -57,30 +57,6 @@ public class Camera implements Parcelable {
     }
 
     /**
-     * constructor to initialize all members
-     *
-     * @param id database id
-     * @param make make/manufacturer
-     * @param model mode
-     * @param serialNumber camera's serial number
-     * @param minShutter camera's minimum/shortest shutter speed
-     * @param maxShutter camera's maximum/longest shutter speed
-     * @param shutterIncrements shutter speed value change increments
-     */
-    public Camera(long id, String make, String model, String serialNumber, String minShutter,
-                  String maxShutter, int shutterIncrements){
-        this.id = id;
-        this.make = make;
-        this.model = model;
-        this.serialNumber = serialNumber;
-        this.minShutter = minShutter;
-        this.maxShutter = maxShutter;
-        if (shutterIncrements <= 2 && shutterIncrements >= 0) {
-            this.shutterIncrements = shutterIncrements;
-        }
-    }
-
-    /**
      *
      * @param input database id
      */
@@ -212,7 +188,7 @@ public class Camera implements Parcelable {
      *
      * @param pc parcel object containing Camera's information
      */
-    public Camera(Parcel pc){
+    private Camera(Parcel pc){
         this.id = pc.readLong();
         this.make = pc.readString();
         this.model = pc.readString();

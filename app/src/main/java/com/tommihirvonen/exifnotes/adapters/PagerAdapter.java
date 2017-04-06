@@ -24,7 +24,7 @@ public class PagerAdapter extends FragmentPagerAdapter {
     /**
      * Reference to the parent activity
      */
-    private Activity activity;
+    private final Activity activity;
 
     /**
      * Private members to hold references to the displayed Fragments.

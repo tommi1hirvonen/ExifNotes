@@ -62,47 +62,47 @@ public class RollsFragment extends Fragment implements
     /**
      * Constant passed to EditRollNameDialog for result
      */
-    public static final int ROLL_NAME_DIALOG = 1;
+    private static final int ROLL_NAME_DIALOG = 1;
 
     /**
      * Constant passed to EditRollNameDialog for result
      */
-    public static final int EDIT_ROLL_NAME_DIALOG = 2;
+    private static final int EDIT_ROLL_NAME_DIALOG = 2;
 
     /**
      * Reference to the parent activity's OnRollSelectedListener
      */
-    OnRollSelectedListener callback;
+    private OnRollSelectedListener callback;
 
     /**
      * Reference to the FloatingActionButton
      */
-    FloatingActionButton floatingActionButton;
+    private FloatingActionButton floatingActionButton;
 
     /**
      * TextView to show that no rolls have been added to the database
      */
-    TextView mainTextView;
+    private TextView mainTextView;
 
     /**
      * ListView to show all the rolls in the database along with details
      */
-    ListView mainListView;
+    private ListView mainListView;
 
     /**
      * Adapter used to adapt rollList to mainListView
      */
-    RollAdapter rollAdapter;
+    private RollAdapter rollAdapter;
 
     /**
      * Contains all rolls from the database
      */
-    List<Roll> rollList = new ArrayList<>();
+    private List<Roll> rollList = new ArrayList<>();
 
     /**
      * Reference to the singleton database
      */
-    FilmDbHelper database;
+    private FilmDbHelper database;
 
     /**
      * This interface is implemented in MainActivity.
@@ -189,7 +189,7 @@ public class RollsFragment extends Fragment implements
         mainListView = (ListView) view.findViewById(R.id.main_listview);
 
         // Create an ArrayAdapter for the ListView
-        rollAdapter = new RollAdapter(getActivity(), android.R.layout.simple_list_item_1, rollList);
+        rollAdapter = new RollAdapter(getActivity(), rollList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(rollAdapter);
@@ -344,7 +344,7 @@ public class RollsFragment extends Fragment implements
      *
      * @param listToSort reference to the List that should be sorted
      */
-    public void sortRollList(List<Roll> listToSort) {
+    private void sortRollList(List<Roll> listToSort) {
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         int sortId = sharedPref.getInt("RollSortOrder", 0);
         switch (sortId){
@@ -596,7 +596,7 @@ public class RollsFragment extends Fragment implements
     public void updateFragment(){
         rollList = database.getAllRolls();
         sortRollList(rollList);
-        rollAdapter = new RollAdapter(getActivity(), android.R.layout.simple_list_item_1, rollList);
+        rollAdapter = new RollAdapter(getActivity(), rollList);
         mainListView.setAdapter(rollAdapter);
         rollAdapter.notifyDataSetChanged();
         if (rollList.size() > 0) {

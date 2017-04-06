@@ -66,34 +66,6 @@ public class Lens implements Parcelable {
 
     }
 
-    /**
-     * constructor to initialize all members
-     *
-     * @param id database id
-     * @param make make/manufacturer
-     * @param model model
-     * @param serialNumber lens's serial number
-     * @param minAperture minimum aperture value (highest f-number)
-     * @param maxAperture maximum aperture value (lowest f-number)
-     * @param minFocalLength minimum focal length
-     * @param maxFocalLength maximum focal length
-     * @param apertureIncrements aperture value change increment
-     */
-    public Lens(long id, String make, String model, String serialNumber, String minAperture,
-                String maxAperture, int minFocalLength, int maxFocalLength, int apertureIncrements){
-        this.id = id;
-        this.make = make;
-        this.model = model;
-        this.serialNumber = serialNumber;
-        this.minAperture = minAperture;
-        this.maxAperture = maxAperture;
-        this.minFocalLength = minFocalLength;
-        this.maxFocalLength = maxFocalLength;
-        if (apertureIncrements <= 2 && apertureIncrements >= 0){
-            this.apertureIncrements = apertureIncrements;
-        }
-    }
-
     // GETTERS AND SETTERS
 
     /**
@@ -256,7 +228,7 @@ public class Lens implements Parcelable {
      *
      * @param pc parcel object containing Camera's information
      */
-    public Lens(Parcel pc){
+    private Lens(Parcel pc){
         this.id = pc.readLong();
         this.make = pc.readString();
         this.model = pc.readString();

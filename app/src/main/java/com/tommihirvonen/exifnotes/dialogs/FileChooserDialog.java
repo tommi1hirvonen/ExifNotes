@@ -1,7 +1,6 @@
 package com.tommihirvonen.exifnotes.dialogs;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -39,7 +38,7 @@ public class FileChooserDialog extends DialogFragment {
     /**
      * Reference to the implementing class's listener
      */
-    FileChooserDialog.OnChosenFileListener callback;
+    private FileChooserDialog.OnChosenFileListener callback;
 
     /**
      * Used to display the current working directory's path
@@ -80,8 +79,8 @@ public class FileChooserDialog extends DialogFragment {
      * Private class to holds both directories and files
      */
     private class FileOrDirectory {
-        String path;
-        boolean directory; //true if dir, false if file
+        final String path;
+        final boolean directory; //true if dir, false if file
         FileOrDirectory(String path, boolean directory){
             this.path = path;
             this.directory = directory;
@@ -99,16 +98,6 @@ public class FileChooserDialog extends DialogFragment {
         FileChooserDialog dialog = new FileChooserDialog();
         dialog.callback = listener;
         return dialog;
-    }
-
-    /**
-     * Called when the (dialog)fragment is first attached to its context (the calling activity).
-     * @param activity the calling activity
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    public void onAttach(Activity activity){
-        super.onAttach(activity);
     }
 
     /**

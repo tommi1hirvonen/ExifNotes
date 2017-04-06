@@ -44,37 +44,37 @@ public class LensesFragment extends Fragment implements
     /**
      * Constant passed to EditLensInfoDialog for result
      */
-    public static final int ADD_LENS = 1;
+    private static final int ADD_LENS = 1;
 
     /**
      * Constant passed to EditLensInfoDialog for result
      */
-    public static final int EDIT_LENS = 2;
+    private static final int EDIT_LENS = 2;
 
     /**
      * TextView to show that no lenses have been added to the database
      */
-    TextView mainTextView;
+    private TextView mainTextView;
 
     /**
      * ListView to show all the lenses in the database along with details
      */
-    ListView mainListView;
+    private ListView mainListView;
 
     /**
      * Adapter used to adapt lensList to mainListView
      */
-    LensAdapter lensAdapter;
+    private LensAdapter lensAdapter;
 
     /**
      * Contains all lenses from the database
      */
-    List<Lens> lensList = new ArrayList<>();
+    private List<Lens> lensList = new ArrayList<>();
 
     /**
      * Reference to the singleton database
      */
-    FilmDbHelper database;
+    private FilmDbHelper database;
 
     /**
      * Called when the fragment is created.
@@ -121,7 +121,7 @@ public class LensesFragment extends Fragment implements
         mainListView = (ListView) view.findViewById(R.id.main_lenseslistview);
 
         // Create an ArrayAdapter for the ListView
-        lensAdapter = new LensAdapter(getActivity(), android.R.layout.simple_list_item_1, lensList);
+        lensAdapter = new LensAdapter(getActivity(), lensList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(lensAdapter);
@@ -386,7 +386,7 @@ public class LensesFragment extends Fragment implements
      *
      * @param position indicates the position of the picked lens in lensList
      */
-    void showSelectMountableCamerasDialog(int position){
+    private void showSelectMountableCamerasDialog(int position){
         final Lens lens = lensList.get(position);
         final List<Camera> mountableCameras = database.getMountableCameras(lens);
         final List<Camera> allCameras = database.getAllCameras();
@@ -493,7 +493,7 @@ public class LensesFragment extends Fragment implements
      *
      * @param position indicates the position of the picked lens in lensList
      */
-    void showSelectMountableFiltersDialog(int position){
+    private void showSelectMountableFiltersDialog(int position){
         final Lens lens = lensList.get(position);
         final List<Filter> mountableFilters = database.getMountableFilters(lens);
         final List<Filter> allFilters = database.getAllFilters();

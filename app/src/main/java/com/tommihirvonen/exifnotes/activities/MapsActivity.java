@@ -29,19 +29,9 @@ import java.util.List;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     /**
-     * Reference to the singleton database
-     */
-    FilmDbHelper database;
-
-    /**
-     * id of the current roll whose frames are to be shown
-     */
-    long rollId;
-
-    /**
      * List of the roll's frames
      */
-    List<Frame> frameList = new ArrayList<>();
+    private List<Frame> frameList = new ArrayList<>();
 
     /**
      * GoogleMap object to show the map and to hold all the markers for all frames
@@ -52,7 +42,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * Member to indicate whether this activity was continued or not.
      * Some animations will only be activated if this value is false.
      */
-    boolean continueActivity = false;
+    private boolean continueActivity = false;
 
     /**
      * Inflate the activity, set the UI and get the frames for the selected roll.
@@ -69,12 +59,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         setContentView(R.layout.activity_maps);
         Intent intent = getIntent();
-        rollId = intent.getLongExtra(FramesFragment.ROLL_ID_EXTRA_MESSAGE, -1);
+
+        long rollId = intent.getLongExtra(FramesFragment.ROLL_ID_EXTRA_MESSAGE, -1);
 
         // If the rollId is -1, then something went wrong.
         if (rollId == -1) finish();
 
-        database = FilmDbHelper.getInstance(this);
+        FilmDbHelper database = FilmDbHelper.getInstance(this);
         frameList = database.getAllFramesFromRoll(rollId);
 
         Utilities.setUiColor(this, true);

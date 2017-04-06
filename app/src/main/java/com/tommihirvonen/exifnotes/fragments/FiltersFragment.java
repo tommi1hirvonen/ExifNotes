@@ -44,37 +44,37 @@ public class FiltersFragment extends Fragment implements
     /**
      * Constant passed to EditFilterInfoDialog for result
      */
-    public static final int ADD_FILTER = 1;
+    private static final int ADD_FILTER = 1;
 
     /**
      * Constant passed to EditFilterInfoDialog for result
      */
-    public static final int EDIT_FILTER = 2;
+    private static final int EDIT_FILTER = 2;
 
     /**
      * TextView to show that no filters have been added to the database
      */
-    TextView mainTextView;
+    private TextView mainTextView;
 
     /**
      * ListView to show all the filters in the database along with details
      */
-    ListView mainListView;
+    private ListView mainListView;
 
     /**
      * Adapter used to adapt filterList to mainListView
      */
-    FilterAdapter filterAdapter;
+    private FilterAdapter filterAdapter;
 
     /**
      * Contains all filters from the database
      */
-    List<Filter> filterList;
+    private List<Filter> filterList;
 
     /**
      * Reference to the singleton database
      */
-    FilmDbHelper database;
+    private FilmDbHelper database;
 
     /**
      * Called when the fragment is created.
@@ -121,8 +121,7 @@ public class FiltersFragment extends Fragment implements
         mainListView = (ListView) view.findViewById(R.id.main_filterslistview);
 
         // Create an ArrayAdapter for the ListView
-        filterAdapter = new FilterAdapter(
-                getActivity(), android.R.layout.simple_list_item_1, filterList);
+        filterAdapter = new FilterAdapter(getActivity(), filterList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(filterAdapter);
@@ -212,7 +211,7 @@ public class FiltersFragment extends Fragment implements
      * Show EditFilterInfoDialog to add a new filter to the database
      */
     @SuppressLint("CommitTransaction")
-    public void showFilterNameDialog() {
+    private void showFilterNameDialog() {
         EditFilterInfoDialog dialog = new EditFilterInfoDialog();
         dialog.setTargetFragment(this, ADD_FILTER);
         Bundle arguments = new Bundle();
@@ -378,7 +377,7 @@ public class FiltersFragment extends Fragment implements
      *
      * @param position indicates the position of the picked filter in filterList
      */
-    void showSelectMountableLensesDialog(int position){
+    private void showSelectMountableLensesDialog(int position){
         final Filter filter = filterList.get(position);
         final List<Lens> mountableLenses = database.getMountableLenses(filter);
         final List<Lens> allLenses = database.getAllLenses();

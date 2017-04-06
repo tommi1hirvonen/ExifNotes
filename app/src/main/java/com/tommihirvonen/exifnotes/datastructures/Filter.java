@@ -11,36 +11,23 @@ public class Filter implements Parcelable {
     /**
      * database id
      */
-    public long id;
+    private long id;
 
     /**
      * make/manufacturer
      */
-    public String make;
+    private String make;
 
     /**
      * model
      */
-    public String model;
+    private String model;
 
     /**
      * empty constructor
      */
     public Filter(){
 
-    }
-
-    /**
-     * constructor to initialize all members
-     *
-     * @param id database id
-     * @param make make/manufacturer
-     * @param model model
-     */
-    public Filter(long id, String make, String model){
-        this.id = id;
-        this.make = make;
-        this.model = model;
     }
 
     /**
@@ -99,7 +86,7 @@ public class Filter implements Parcelable {
      *
      * @param pc parcel object containing Filter's information
      */
-    public Filter(Parcel pc){
+    private Filter(Parcel pc){
         this.id = pc.readLong();
         this.make = pc.readString();
         this.model = pc.readString();

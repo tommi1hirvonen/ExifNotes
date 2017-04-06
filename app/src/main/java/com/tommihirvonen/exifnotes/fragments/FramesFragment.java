@@ -84,81 +84,66 @@ public class FramesFragment extends Fragment implements
     /**
      * Constant passed to EditFrameInfoDialog for result
      */
-    public static final int FRAME_INFO_DIALOG = 1;
+    private static final int FRAME_INFO_DIALOG = 1;
 
     /**
      * Constant passed to EditFrameInfoDialog for result
      */
-    public static final int EDIT_FRAME_INFO_DIALOG = 2;
+    private static final int EDIT_FRAME_INFO_DIALOG = 2;
 
     /**
      * Constant passed to ErrorDialogFragment
      */
-    public static final int ERROR_DIALOG = 3;
+    private static final int ERROR_DIALOG = 3;
 
     /**
      * Reference to the singleton database
      */
-    FilmDbHelper database;
+    private FilmDbHelper database;
 
     /**
      * TextView to show that no frames have been added to this roll
      */
-    TextView mainTextView;
+    private TextView mainTextView;
 
     /**
      * ListView to show all the frames on this roll with details
      */
-    ListView mainListView;
+    private ListView mainListView;
 
     /**
      * Contains all the frames for this roll
      */
-    List<Frame> frameList = new ArrayList<>();
+    private List<Frame> frameList = new ArrayList<>();
 
     /**
      * Adapter to adapt frameList to mainListView
      */
-    FrameAdapter frameAdapter;
-
-    /**
-     * Reference to the utilities class
-     */
-    Utilities utilities;
+    private FrameAdapter frameAdapter;
 
     /**
      * Reference to the ShareActionProvider. Provides services to share
      * the text file containing ExifTool commands for this roll and the CSV file
      * containing details for all frames on this roll.
      */
-    ShareActionProvider shareActionProvider;
+    private ShareActionProvider shareActionProvider;
 
     /**
      * Database id of this roll
      */
-    long rollId;
-
-    /**
-     * Database id of the used camera
-     */
-    long cameraId;
-
-    /**
-     * Running frame counter for this roll
-     */
-    int counter = 0;
+    private long rollId;
 
     /**
      * Reference to the FloatingActionButton
      */
-    FloatingActionButton floatingActionButton;
+    private FloatingActionButton floatingActionButton;
 
 
     // Google client to interact with Google API
     /**
      * Boolean to specify whether the user has granted the app location permissions
      */
-    boolean locationPermissionsGranted;
+    private boolean locationPermissionsGranted;
 
     /**
      * Reference to the GoogleApiClient providing location services
@@ -168,22 +153,22 @@ public class FramesFragment extends Fragment implements
     /**
      * Member to hold the last received location
      */
-    Location lastLocation;
+    private Location lastLocation;
 
     /**
      * Member to specify what kind of location requests the app needs (time interval, accuracy)
      */
-    LocationRequest locationRequest;
+    private LocationRequest locationRequest;
 
     /**
      * True if the user has enabled location updates in the app's settings, false if not
      */
-    boolean requestingLocationUpdates;
+    private boolean requestingLocationUpdates;
 
     /**
      * Reference to the parent activity's OnHomeAsUpPressedListener
      */
-    OnHomeAsUpPressedListener callback;
+    private OnHomeAsUpPressedListener callback;
 
     /**
      * This interface is implemented in MainActivity.
@@ -227,14 +212,11 @@ public class FramesFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        utilities = new Utilities(getActivity());
-
         rollId = getArguments().getLong("ROLL_ID");
         locationPermissionsGranted = getArguments().getBoolean("LOCATION_ENABLED");
 
         database = FilmDbHelper.getInstance(getActivity());
         frameList = database.getAllFramesFromRoll(rollId);
-        cameraId = database.getRoll(rollId).getCameraId();
 
         //Sort the list according to preferences
         Utilities.sortFrameList(getActivity(), database, frameList);
@@ -301,8 +283,7 @@ public class FramesFragment extends Fragment implements
         // Access the ListView
         mainListView = (ListView) view.findViewById(R.id.frames_listview);
         // Create an ArrayAdapter for the ListView
-        frameAdapter = new FrameAdapter(
-                getActivity(), android.R.layout.simple_list_item_1, frameList);
+        frameAdapter = new FrameAdapter(getActivity(), frameList);
 
         // Set the ListView to use the ArrayAdapter
         mainListView.setAdapter(frameAdapter);
@@ -318,7 +299,6 @@ public class FramesFragment extends Fragment implements
         mainListView.setDividerHeight(1);
 
         if (frameList.size() >= 1) {
-            counter = frameList.get(frameList.size() - 1).getCount();
             mainTextView.setVisibility(View.GONE);
         }
 
@@ -413,9 +393,6 @@ public class FramesFragment extends Fragment implements
 
                     if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
                     frameAdapter.notifyDataSetChanged();
-                    if (frameList.size() >= 1)
-                        counter = frameList.get(frameList.size() - 1).getCount();
-                    else counter = 0;
 
                     shareActionProvider.setShareIntent(setShareIntentExportRoll());
 
@@ -532,13 +509,14 @@ public class FramesFragment extends Fragment implements
                         if (directory.length() > 0) {
                             //Export the files to the given path
                             //Inform the user if something went wrong
-                            if (!exportFilesTo(directory)){
-                                Toast.makeText(getActivity(),
-                                        getResources().getString(R.string.ErrorExporting),
-                                        Toast.LENGTH_LONG).show();
-                            } else {
+                            if (exportFilesTo(directory)){
                                 Toast.makeText(getActivity(),
                                         getResources().getString(R.string.ExportedFilesTo) + " " + directory,
+                                        Toast.LENGTH_LONG).show();
+                            } else {
+
+                                Toast.makeText(getActivity(),
+                                        getResources().getString(R.string.ErrorExporting),
                                         Toast.LENGTH_LONG).show();
                             }
                         }
@@ -583,18 +561,22 @@ public class FramesFragment extends Fragment implements
         File fileCsv = new File(dir, fileNameCsv);
         File fileExifToolCmds = new File(dir, fileNameExifToolCmds);
 
+        boolean csvExportSuccess = false;
+        boolean exifToolCmdsExportSuccess = false;
+
         if (filesToExport.equals("BOTH") || filesToExport.equals("CSV")) {
             //Write the csv file
-            if (!Utilities.writeTextFile(fileCsv, csvString)) return false;
+            if (Utilities.writeTextFile(fileCsv, csvString))
+                csvExportSuccess = true;
         }
 
         if (filesToExport.equals("BOTH") || filesToExport.equals("EXIFTOOL")) {
             //Write the ExifTool commands file
-            if (!Utilities.writeTextFile(fileExifToolCmds, exifToolCmds)) return false;
+            if (Utilities.writeTextFile(fileExifToolCmds, exifToolCmds))
+                exifToolCmdsExportSuccess = true;
         }
 
-        //Export was successful
-        return true;
+        return csvExportSuccess && exifToolCmdsExportSuccess;
     }
 
     /**
@@ -931,7 +913,7 @@ public class FramesFragment extends Fragment implements
     /**
      * Called when the fragment is paused. Stop location updates.
      */
-    protected void stopLocationUpdates() {
+    private void stopLocationUpdates() {
         //Added check to make sure googleApiClient is not null.
         //Apparently some users were encountering a bug where during onResume
         //googleApiClient was null.
@@ -969,7 +951,7 @@ public class FramesFragment extends Fragment implements
     /**
      * Called when the fragment is resumed. Start location updates.
      */
-    protected void startLocationUpdates() {
+    private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getActivity(),
@@ -1091,7 +1073,7 @@ public class FramesFragment extends Fragment implements
     /**
      * Called from ErrorDialogFragment when the dialog is dismissed.
      */
-    public void onDialogDismissed() {
+    private void onDialogDismissed() {
         resolvingError = false;
     }
 

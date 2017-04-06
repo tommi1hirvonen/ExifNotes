@@ -14,7 +14,6 @@ import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -44,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements
      * Value to store whether location services should be enabled or not.
      * Determined by the location permissions granted to the app by the user.
      */
-    boolean locationPermissionsGranted = false;
+    private boolean locationPermissionsGranted = false;
 
     /**
      * Tag for database import request. Used when the PreferenceActivity is launched.
@@ -128,17 +127,6 @@ public class MainActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         return super.onCreateOptionsMenu(menu);
-    }
-
-    /**
-     * Called when the user selects a menu item.
-     *
-     * @param item The menu item that was selected.
-     * @return super so that other handlers (fragments) can handle the selection
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -231,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements
      * This function is called if GPS is not enabled.
      * Prompt the user to jump to settings to enable GPS.
      */
-    public void showSettingsAlert(){
+    private void showSettingsAlert(){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 
         // Setting Dialog Title

@@ -32,12 +32,12 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     /**
      * Reference to the singleton database
      */
-    FilmDbHelper database;
+    private FilmDbHelper database;
 
     /**
      * List to hold all the rolls from the database
      */
-    List<Roll> rollList = new ArrayList<>();
+    private List<Roll> rollList = new ArrayList<>();
 
     /**
      * GoogleMap object to show the map and to hold all the markers for all frames
@@ -48,7 +48,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      * Member to indicate whether this activity was continued or not.
      * Some animations will only be activated if this value is false.
      */
-    boolean continueActivity = false;
+    private boolean continueActivity = false;
 
     /**
      * Sets up the activity's layout and view and reads all the rolls from the database.

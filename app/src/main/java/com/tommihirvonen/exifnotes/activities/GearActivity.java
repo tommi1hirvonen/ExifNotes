@@ -24,27 +24,27 @@ public class GearActivity extends AppCompatActivity {
     /**
      * Android TabLayout member
      */
-    TabLayout tabLayout;
+    private TabLayout tabLayout;
 
     /**
      * ViewPager is responsible for changing the layout when the user swipes or clicks on a tab.
      */
-    ViewPager viewPager;
+    private ViewPager viewPager;
 
     /**
      * PagerAdapter adapts fragments to show in the ViewPager
      */
-    PagerAdapter pagerAdapter;
+    private PagerAdapter pagerAdapter;
 
     /**
      * Tag for the index of the current view to store in SharedPreferences
      */
-    final static String GEAR_ACTIVITY_SAVED_VIEW = "GEAR_ACTIVITY_SAVED_VIEW";
+    private final static String GEAR_ACTIVITY_SAVED_VIEW = "GEAR_ACTIVITY_SAVED_VIEW";
 
     /**
      * Tag for the index of the current view to store while the activity is paused
      */
-    public static String POSITION = "POSITION";
+    private static final String POSITION = "POSITION";
 
     /**
      * Inflates the activity, sets the UI, ViewPager and TabLayout.

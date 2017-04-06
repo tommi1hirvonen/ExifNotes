@@ -50,53 +50,53 @@ public class EditLensInfoDialog extends DialogFragment {
     /**
      * Holds the information of the edited Lens
      */
-    Lens lens;
+    private Lens lens;
 
     /**
      * Reference to the utilities class
      */
-    Utilities utilities;
+    private Utilities utilities;
 
     /**
      * Stores the currently selected aperture value increment setting
      */
-    int newApertureIncrements;
+    private int newApertureIncrements;
 
     /**
      * Currently selected minimum aperture (highest f-number)
      */
-    String newMinAperture;
+    private String newMinAperture;
 
     /**
      * Currently selected maximum aperture (lowest f-number)
      */
-    String newMaxAperture;
+    private String newMaxAperture;
 
     /**
      * Reference to the Button to edit the aperture value range
      */
-    Button apertureRangeButton;
+    private Button apertureRangeButton;
 
     /**
      * Stores the currently displayed aperture values.
      * Changes depending on the currently selected aperture value increments.
      */
-    String[] displayedApertureValues;
+    private String[] displayedApertureValues;
 
     /**
      * Currently selected minimum focal length
      */
-    int newMinFocalLength;
+    private int newMinFocalLength;
 
     /**
      * Currently selected maximum focal length
      */
-    int newMaxFocalLength;
+    private int newMaxFocalLength;
 
     /**
      * Reference to the Button to edit the focal length range
      */
-    Button focalLengthRangeButton;
+    private Button focalLengthRangeButton;
 
     /**
      * Empty constructor

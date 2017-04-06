@@ -22,7 +22,7 @@ public class SimpleEula {
     /**
      * Reference to the calling activity used to get SharedPreferences and attach the dialog
      */
-    private Activity activity;
+    private final Activity activity;
 
     /**
      * Constructor to get the calling activity

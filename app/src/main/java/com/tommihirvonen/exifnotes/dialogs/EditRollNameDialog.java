@@ -50,22 +50,22 @@ public class EditRollNameDialog extends DialogFragment {
     /**
      * Holds the information of the edited Roll
      */
-    Roll roll;
+    private Roll roll;
 
     /**
      * Reference to the singleton database
      */
-    FilmDbHelper database;
+    private FilmDbHelper database;
 
     /**
      * Holds all the cameras in the database
      */
-    List<Camera> cameraList;
+    private List<Camera> cameraList;
 
     /**
      * The Button showing the currently selected camera
      */
-    TextView cameraTextView;
+    private TextView cameraTextView;
 
 
     //These variables are used so that the object itself is not updated
@@ -74,27 +74,27 @@ public class EditRollNameDialog extends DialogFragment {
     /**
      * Database id of the currently selected camera
      */
-    long newCameraId;
+    private long newCameraId;
 
     /**
      * Currently selected datetime in format 'YYYY-M-D H:MM'
      */
-    String newDate;
+    private String newDate;
 
     /**
      * Currently selected film format, corresponding values defined in res/values/array.xml
      */
-    int newFormat;
+    private int newFormat;
 
     /**
      * Currently selected ISO
      */
-    int newIso;
+    private int newIso;
 
     /**
      * Currently selected push or pull value in format 0, +/-X or +/-Y/Z where X, Y and Z are numbers
      */
-    String newPushPull;
+    private String newPushPull;
 
     /**
      * Empty constructor

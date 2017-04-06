@@ -42,23 +42,23 @@ public class LocationPickActivity extends AppCompatActivity implements
     /**
      * Marker object to hold the marker added/moved by the user.
      */
-    Marker marker;
+    private Marker marker;
 
     /**
      * Holds the current location.
      */
-    LatLng latLngLocation;
+    private LatLng latLngLocation;
 
     /**
      * Stores the location which is received when the activity is started or resumed.
      */
-    String location = "";
+    private String location = "";
 
     /**
      * Member to indicate whether this acitivty was continued or not.
      * Some animations will only be activated if this value is false.
      */
-    boolean continueActivity = false;
+    private boolean continueActivity = false;
 
     /**
      * Inflate the activity, set the UI and get the initial location.

@@ -30,7 +30,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
     /**
      * The ActionBar layout is added manually
      */
-    Toolbar actionbar;
+    private Toolbar actionbar;
 
     /**
      * Set the UI, add listeners.
