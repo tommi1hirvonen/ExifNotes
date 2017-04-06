@@ -22,13 +22,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
-// Copyright 2017
-// Tommi Hirvonen
-
 /**
  * FilmDbHelper is the SQL database class that holds all the information
- * the user stores in the app. It contains all the rolls, frames, cameras and lenses.
+ * the user stores in the app. This class provides all necessary CRUD operations as well as
+ * export and import functionality.
  */
 public class FilmDbHelper extends SQLiteOpenHelper {
 
@@ -273,14 +270,19 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * When the database version is changed to a newer one, this function is called.
+     * When the database version is changed to a newer one, this method is called.
+     *
+     * Run all the required upgrade scripts consecutively.
+     * New if blocks should be added whenever the database version is raised and new
+     * columns and/or tables are added.
+     *
      * @param db the database to be updated
      * @param oldVersion the old version number of the database
      * @param newVersion the new version number of the database
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if ( oldVersion <=13 ) {
+        if (oldVersion <= 13) {
             //TABLE_FRAMES
             db.execSQL(ALTER_TABLE_FRAMES_1);
             db.execSQL(ALTER_TABLE_FRAMES_2);
