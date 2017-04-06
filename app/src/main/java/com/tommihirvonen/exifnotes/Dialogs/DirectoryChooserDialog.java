@@ -48,12 +48,12 @@ public class DirectoryChooserDialog extends DialogFragment {
     private TextView currentDirectoryTextView;
 
     /**
-     *  Path of the current working directory
+     * Path of the current working directory
      */
     private String currentDirectory = "";
 
     /**
-     * contains all the subdirectories in the current working directory
+     * Contains all the subdirectories in the current working directory
      */
     private List<String> subdirectories = null;
 
@@ -77,7 +77,8 @@ public class DirectoryChooserDialog extends DialogFragment {
     }
 
     /**
-     * Custom constructor for the DirectoryChooserDialog class.
+     * Custom constructor for the DirectoryChooserDialog class. Attach the listener
+     * to this class's member.
      *
      * @param listener OnChosenDirectoryListener from the activity
      * @return a new DirectoryChooserDialog
@@ -256,7 +257,7 @@ public class DirectoryChooserDialog extends DialogFragment {
     /**
      * Class to hold the view objects in the ArrayAdapter and improve performance
      */
-    static class ViewHolder{
+    private static class ViewHolder{
         TextView directoryTextView;
         ImageView folderImageView;
     }
@@ -276,8 +277,8 @@ public class DirectoryChooserDialog extends DialogFragment {
             }
 
             for (File file : directoryFile.listFiles()) {
-                if ( file.isDirectory() ) {
-                    directories.add( file.getName() );
+                if (file.isDirectory()) {
+                    directories.add(file.getName());
                 }
             }
         }

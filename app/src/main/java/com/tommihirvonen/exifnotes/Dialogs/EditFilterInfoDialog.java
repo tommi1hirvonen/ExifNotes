@@ -45,15 +45,15 @@ public class EditFilterInfoDialog extends DialogFragment {
      * Called when the DialogFragment is ready to create the Dialog.
      * Inflate the dialog. Set the EditText fields and buttons.
      *
-     * @param SavedInstanceState
+     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
      * @return inflated dialog ready to be shown
      */
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
-        LayoutInflater linf = getActivity().getLayoutInflater();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams") final View inflator = linf.inflate(R.layout.filter_dialog, null);
+        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(R.layout.filter_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         String title = getArguments().getString("TITLE");
@@ -63,11 +63,11 @@ public class EditFilterInfoDialog extends DialogFragment {
 
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
 
-        alert.setView(inflator);
+        alert.setView(inflatedView);
 
-        final EditText makeEditText = (EditText) inflator.findViewById(R.id.txt_make);
+        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.txt_make);
         makeEditText.setText(filter.getMake());
-        final EditText modelEditText = (EditText) inflator.findViewById(R.id.txt_model);
+        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.txt_model);
         modelEditText.setText(filter.getModel());
 
 

@@ -12,9 +12,6 @@ import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.R;
 
-// Copyright 2015
-// Tommi Hirvonen
-
 /**
  * SimpleEula is shown when the user first opens the application on their phone.
  * If the user agrees to the license agreement, access to the app is granted.
@@ -22,14 +19,23 @@ import com.tommihirvonen.exifnotes.R;
  */
 public class SimpleEula {
 
+    /**
+     * Reference to the calling activity used to get SharedPreferences and attach the dialog
+     */
     private Activity activity;
 
-    public SimpleEula(Activity context) {
-        activity = context;
+    /**
+     * Constructor to get the calling activity
+     *
+     * @param activity parent activity
+     */
+    public SimpleEula(Activity activity) {
+        this.activity = activity;
     }
 
     /**
-     * Gets the information of the app's package. Is used to display the version code.
+     * Gets the information of the app's package. Used to display the version code.
+     *
      * @return  PackageInfo regarding the current version of the app.
      */
     private PackageInfo getPackageInfo() {

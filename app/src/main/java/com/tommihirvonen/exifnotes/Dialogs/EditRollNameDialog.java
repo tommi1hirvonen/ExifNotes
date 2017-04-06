@@ -37,39 +37,87 @@ import com.tommihirvonen.exifnotes.Utilities.Utilities;
 import java.util.ArrayList;
 import java.util.List;
 
-// Copyright 2015
-// Tommi Hirvonen
-
+/**
+ * Dialog to edit Roll's information
+ */
 public class EditRollNameDialog extends DialogFragment {
 
+    /**
+     * Public constant used to tag the fragment when created
+     */
     public static final String TAG = "EditNameDialogFragment";
 
+    /**
+     * Holds the information of the edited Roll
+     */
     Roll roll;
-    String title;
-    String positiveButton;
+
+    /**
+     * Reference to the singleton database
+     */
     FilmDbHelper database;
+
+    /**
+     * Holds all the cameras in the database
+     */
     List<Camera> cameraList;
+
+    /**
+     * The Button showing the currently selected camera
+     */
     TextView cameraTextView;
-    TextView formatTextView;
+
 
     //These variables are used so that the object itself is not updated
     //unless the user presses ok.
+
+    /**
+     * Database id of the currently selected camera
+     */
     long newCameraId;
+
+    /**
+     * Currently selected datetime in format 'YYYY-M-D H:MM'
+     */
     String newDate;
+
+    /**
+     * Currently selected film format, corresponding values defined in res/values/array.xml
+     */
     int newFormat;
+
+    /**
+     * Currently selected ISO
+     */
     int newIso;
+
+    /**
+     * Currently selected push or pull value in format 0, +/-X or +/-Y/Z where X, Y and Z are numbers
+     */
     String newPushPull;
 
+    /**
+     * Empty constructor
+     */
     public EditRollNameDialog () {
 
     }
 
+    /**
+     * Called when the DialogFragment is ready to create the dialog.
+     * Inflate the fragment. Get the edited roll and list of cameras.
+     * Initialize the UI objects and display the roll's information.
+     * Add listeners to buttons to open new dialogs to change the roll's information.
+     *
+     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
+     * @return inflated dialog ready to be shown
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
-        title = getArguments().getString("TITLE");
-        positiveButton = getArguments().getString("POSITIVE_BUTTON");
+        String title = getArguments().getString("TITLE");
+        String positiveButton = getArguments().getString("POSITIVE_BUTTON");
         roll = getArguments().getParcelable("ROLL");
         if (roll == null) roll = new Roll();
 
@@ -330,7 +378,7 @@ public class EditRollNameDialog extends DialogFragment {
         });
 
         //FORMAT PICK DIALOG
-        formatTextView = (TextView) inflatedView.findViewById(R.id.btn_format);
+        final TextView formatTextView = (TextView) inflatedView.findViewById(R.id.btn_format);
         formatTextView.setClickable(true);
         if (roll.getFormat() == 0) roll.setFormat(0);
         formatTextView.setText(getResources().getStringArray(R.array.FilmFormats)[roll.getFormat()]);
@@ -428,6 +476,16 @@ public class EditRollNameDialog extends DialogFragment {
         return dialog;
     }
 
+    /**
+     * Executed when an activity or fragment, which is started for result, sends an onActivityResult
+     * signal to this fragment.
+     *
+     * Handle EditCameraInfoDialog's result.
+     *
+     * @param requestCode the request code that was set for the intent
+     * @param resultCode the result code to tell whether the user picked ok or cancel
+     * @param data the extra data attached to the passed intent
+     */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
 

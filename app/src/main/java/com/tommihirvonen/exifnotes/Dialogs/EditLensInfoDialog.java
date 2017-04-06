@@ -31,35 +31,89 @@ import com.tommihirvonen.exifnotes.Utilities.Utilities;
 import java.util.Arrays;
 import java.util.Collections;
 
-//Copyright 2016
-//Tommi Hirvonen
-
+/**
+ * Dialog to edit Lens's information
+ */
 public class EditLensInfoDialog extends DialogFragment {
 
+    /**
+     * Public constant used to tag the fragment when created
+     */
     public static final String TAG = "LensInfoDialogFragment";
 
+    /**
+     * Constant used to indicate the maximum possible focal length.
+     * Could theoretically be anything above zero.
+     */
     private static final int MAX_FOCAL_LENGTH = 1500;
 
+    /**
+     * Holds the information of the edited Lens
+     */
     Lens lens;
+
+    /**
+     * Reference to the utilities class
+     */
     Utilities utilities;
+
+    /**
+     * Stores the currently selected aperture value increment setting
+     */
     int newApertureIncrements;
 
+    /**
+     * Currently selected minimum aperture (highest f-number)
+     */
     String newMinAperture;
+
+    /**
+     * Currently selected maximum aperture (lowest f-number)
+     */
     String newMaxAperture;
+
+    /**
+     * Reference to the Button to edit the aperture value range
+     */
     Button apertureRangeButton;
 
+    /**
+     * Stores the currently displayed aperture values.
+     * Changes depending on the currently selected aperture value increments.
+     */
     String[] displayedApertureValues;
 
-    TextView apertureIncrementsTextView;
-
+    /**
+     * Currently selected minimum focal length
+     */
     int newMinFocalLength;
+
+    /**
+     * Currently selected maximum focal length
+     */
     int newMaxFocalLength;
+
+    /**
+     * Reference to the Button to edit the focal length range
+     */
     Button focalLengthRangeButton;
 
+    /**
+     * Empty constructor
+     */
     public EditLensInfoDialog(){
 
     }
 
+    /**
+     * Called when the DialogFragment is ready to create the dialog.
+     * Inflate the fragment. Get the edited lens.
+     * Initialize the UI objects and display lens's information.
+     * Add listeners to buttons to open new dialogs to change the lens's setting.
+     *
+     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
+     * @return inflated dialog ready to be shown
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
@@ -98,7 +152,7 @@ public class EditLensInfoDialog extends DialogFragment {
 
         //APERTURE INCREMENTS BUTTON
         newApertureIncrements = lens.getApertureIncrements();
-        apertureIncrementsTextView = (TextView) inflatedView.findViewById(R.id.btn_apertureIncrements);
+        final TextView apertureIncrementsTextView = (TextView) inflatedView.findViewById(R.id.btn_apertureIncrements);
         apertureIncrementsTextView.setClickable(true);
         apertureIncrementsTextView.setText(
                 getResources().getStringArray(R.array.StopIncrements)[lens.getApertureIncrements()]);
@@ -383,6 +437,13 @@ public class EditLensInfoDialog extends DialogFragment {
         return dialog;
     }
 
+    /**
+     * Called when the aperture range dialog is opened.
+     * Sets the values for the NumberPickers.
+     *
+     * @param minAperturePicker NumberPicker associated with the minimum aperture value
+     * @param maxAperturePicker NumberPicker associated with the maximum aperture value
+     */
     private void initialiseApertureRangePickers(NumberPicker minAperturePicker,
                                                 NumberPicker maxAperturePicker){
         switch (newApertureIncrements) {
@@ -424,6 +485,13 @@ public class EditLensInfoDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Called when the focal length range dialog is opened.
+     * Sets the values for the NumberPickers.
+     *
+     * @param minFocalLengthPicker NumberPicker associated with the minimum focal length
+     * @param maxFocalLengthPicker NumberPicker associated with the maximum focal length
+     */
     private void initialiseFocalLengthRangePickers(NumberPicker minFocalLengthPicker,
                                                    NumberPicker maxFocalLengthPicker) {
         minFocalLengthPicker.setMinValue(0);
@@ -446,6 +514,9 @@ public class EditLensInfoDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Update the aperture range button's text
+     */
     private void updateApertureRangeButton(){
         apertureRangeButton.setText(newMinAperture == null || newMaxAperture == null ?
                 getResources().getString(R.string.ClickToSet) :
@@ -453,6 +524,9 @@ public class EditLensInfoDialog extends DialogFragment {
         );
     }
 
+    /**
+     * Update the focal length range button's text
+     */
     private void updateFocalLengthRangeButton(){
         focalLengthRangeButton.setText(newMinFocalLength == 0 || newMaxFocalLength == 0 ?
                 getResources().getString(R.string.ClickToSet) :

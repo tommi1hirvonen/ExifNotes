@@ -41,64 +41,182 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-// Copyright 2015
-// Tommi Hirvonen
-
+/**
+ * Dialog to edit Frame's information
+ */
 public class EditFrameInfoDialog extends DialogFragment {
 
+    /**
+     * Public constant used to tag the fragment when created
+     */
     public static final String TAG = "EditFrameInfoDialogFragment";
+
+    /**
+     * Constant passed to LocationPickActivity for result
+     */
     final static int PLACE_PICKER_REQUEST = 1;
+
+    /**
+     * Constant passed to EditLensInfoDialog for result
+     */
     final static int ADD_LENS = 2;
+
+    /**
+     * Constant passed to EditFilterInfoDialog for result
+     */
     final static int ADD_FILTER = 3;
 
-    String title;
-    String positiveButton;
+    /**
+     * Database id of the camera used to take this frame
+     */
     long cameraId;
+
+    /**
+     * Reference to the camera used to take this frame
+     */
     Camera camera;
+
+    /**
+     * Holds the information of the edited frame
+     */
     Frame frame;
+
+    /**
+     * Holds all the lenses that can be mounted to the used camera
+     */
     List<Lens> mountableLenses;
-//    List<Filter> mountableFilters;
+
+    /**
+     * Reference to the singleton database
+     */
     FilmDbHelper database;
 
+    /**
+     * Button used to display the currently selected location
+     */
     TextView locationTextView;
+
+    /**
+     * Button used to display the currently selected lens
+     */
     TextView lensTextView;
+
+    /**
+     * Button used to display the currently selected filter
+     */
     TextView filterTextView;
 
-    //These variables are used so that the object itself is not updated
-    //unless the user presses ok.
+    /**
+     * Database id of the currently selected lens
+     */
     long newLensId;
+
+    /**
+     * Currently selected datetime in format 'YYYY-M-D H:MM'
+     */
     String newDate;
+
+    /**
+     * Currently selected latitude longitude location in format '12,3456... 12,3456...'
+     */
     String newLocation;
+
+    /**
+     * Database id of the currently selected filter
+     */
     long newFilterId;
+
+    /**
+     * Currently selected lens's aperture increment setting
+     */
     int apertureIncrements;
+
+    /**
+     * The shutter speed increment setting of the camera used
+     */
     int shutterIncrements;
+
+    /**
+     * Currently selected frame count number
+     */
     int newFrameCount;
+
+    /**
+     * Currently selected shutter speed value in format 1/X, Y" or B, where X and Y are numbers
+     */
     String newShutter;
+
+    /**
+     * Currently selected aperture value, number only
+     */
     String newAperture;
+
+    /**
+     * Currently selected focal length
+     */
     int newFocalLength;
+
+    /**
+     * Currently selected exposure compensation in format
+     * 0, +/-X or +/-Y/Z where X, Y and Z are numbers
+     */
     String newExposureComp;
+
+    /**
+     * Currently selected number of exposures (multiple exposure)
+     */
     int newNoOfExposures;
 
+    /**
+     * Button used to display the current aperture value
+     */
     Button apertureButton;
+
+    /**
+     * Button used to display the current focal length value
+     */
     Button focalLengthButton;
 
+    /**
+     * Reference to the utilities class
+     */
     Utilities utilities;
 
+    /**
+     * Stores the currently displayed shutter speed values.
+     */
     String[] displayedShutterValues;
+
+    /**
+     * Stores the currently displayed aperture values.
+     * Changes depending on the currently selected lens.
+     */
     String[] displayedApertureValues;
 
+    /**
+     * Empty constructor
+     */
     public EditFrameInfoDialog() {
         // Empty constructor required for DialogFragment
     }
 
+    /**
+     * Called when the DialogFragment is ready to create the dialog.
+     * Inflate the fragment. Get the edited frame and used camera.
+     * Initialize UI objects and display the frame's information.
+     * Add listeners to buttons to open new dialogs to change the frame's information.
+     *
+     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
+     * @return inflated dialog ready to be shown
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
         utilities = new Utilities(getActivity());
 
-        title = getArguments().getString("TITLE");
-        positiveButton = getArguments().getString("POSITIVE_BUTTON");
+        String title = getArguments().getString("TITLE");
+        final String positiveButton = getArguments().getString("POSITIVE_BUTTON");
         frame = getArguments().getParcelable("FRAME");
         if (frame == null) frame = new Frame();
 
@@ -790,13 +908,16 @@ public class EditFrameInfoDialog extends DialogFragment {
     }
 
 
-
-
-
-
-
-
-
+    /**
+     * Executed when an activity or fragment, which is started for result, sends an onActivityResult
+     * signal to this fragment.
+     *
+     * Handle LocationPickActivity, EditLensInfoDialog or EditFilterInfoDialog's result.
+     *
+     * @param requestCode the request code that was set for the intent
+     * @param resultCode the result code to tell whether the user picked ok or cancel
+     * @param data the extra data attached to the passed intent
+     */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
@@ -839,6 +960,12 @@ public class EditFrameInfoDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Called when the aperture value dialog is opened.
+     * Sets the values for the NumberPicker.
+     *
+     * @param aperturePicker NumberPicker associated with the aperture value
+     */
     @SuppressWarnings("ManualArrayToCollectionCopy")
     private void initialiseAperturePicker(NumberPicker aperturePicker){
         //Get the array of displayed aperture values according to the set increments.
@@ -925,6 +1052,12 @@ public class EditFrameInfoDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Called when the shutter speed value dialog is opened.
+     * Set the values for the NumberPicker
+     *
+     * @param shutterPicker NumberPicker associated with the shutter speed value
+     */
     @SuppressWarnings("ManualArrayToCollectionCopy")
     private void initialiseShutterPicker(NumberPicker shutterPicker){
         // Set the increments according to settings
@@ -996,6 +1129,11 @@ public class EditFrameInfoDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Called when the focal length dialog is opened. Set the values for the NumberPicker.
+     *
+     * @param focalLengthPicker NumberPicker associated with the focal length
+     */
     private void initialiseFocalLengthPicker(NumberPicker focalLengthPicker){
         Lens lens = null;
         if (newLensId > 0) lens = database.getLens(newLensId);
@@ -1019,6 +1157,11 @@ public class EditFrameInfoDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Update the filter button's text and currently selected filter.
+     * If the currently selected lens does not mount with
+     * the currently selected filter, then reset the filter.
+     */
     private void initialiseFilters(){
         //Update mountable filters
         if (newLensId <= 0) {
@@ -1038,10 +1181,18 @@ public class EditFrameInfoDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Updates the shutter speed value button's text.
+     *
+     * @param button the button whose text should be updated
+     */
     private void updateShutterButton(Button button){
         if (button != null) button.setText(newShutter);
     }
 
+    /**
+     * Updates the aperture value button's text.
+     */
     private void updateApertureButton(){
         if (apertureButton != null) {
             if (newAperture.contains("<") || newAperture.contains(">")) {
@@ -1053,6 +1204,9 @@ public class EditFrameInfoDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Updates the location button's text.
+     */
     private void updateLocationButton(){
         locationTextView.setText(
                 newLocation == null || newLocation.length() == 0 ?
@@ -1061,6 +1215,10 @@ public class EditFrameInfoDialog extends DialogFragment {
         );
     }
 
+    /**
+     * When the currently selected lens is changed, check the validity of the currently
+     * selected aperture value. I.e. it has to be within the new lens's aperture range.
+     */
     private void checkApertureValueValidity(){
         //Check the aperture value's validity against the new lens' properties.
         switch (apertureIncrements) {

@@ -31,19 +31,38 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-// Copyright 2017
-// Tommi Hirvonen
-
+/**
+ * Dialog to select a file in external storage
+ */
 public class FileChooserDialog extends DialogFragment {
 
+    /**
+     * Reference to the implementing class's listener
+     */
     FileChooserDialog.OnChosenFileListener callback;
+
+    /**
+     * Used to display the current working directory's path
+     */
     private TextView currentDirectoryTextView;
+
+    /**
+     * Path of the current working directory
+     */
     private String currentDirectory = "";
+
+    /**
+     * Contains all the files and subdirectories in the current working directory
+     */
     private List<FileOrDirectory> fileOrDirectoryList = null;
+
+    /**
+     * Used to adapt List of files and subdirectories to the dialog's ListView
+     */
     private ArrayAdapter<FileOrDirectory> listAdapter = null;
 
     /**
-     * The interface to be implemented in the calling class
+     * The interface to be implemented in the calling/implementing class
      */
     public interface OnChosenFileListener{
         void onChosenFile(String filePath);
@@ -56,7 +75,10 @@ public class FileChooserDialog extends DialogFragment {
 
     }
 
-    //Private class to hold both directories and files.
+
+    /**
+     * Private class to holds both directories and files
+     */
     private class FileOrDirectory {
         String path;
         boolean directory; //true if dir, false if file
@@ -67,7 +89,8 @@ public class FileChooserDialog extends DialogFragment {
     }
 
     /**
-     * Custom constructor for the FileChooserDialog class.
+     * Custom constructor for the FileChooserDialog class. Attach the listener
+     * to this class's member.
      *
      * @param listener OnChosenFileListener from the activity
      * @return a new FileChooserDialog
@@ -90,6 +113,10 @@ public class FileChooserDialog extends DialogFragment {
 
     /**
      * Called when the dialog is to be created.
+     * Get the current directory, its subdirectories and files.
+     * Inflate the dialog view and initialize the UI (Buttons, ListView etc.).
+     * Add onClick listeners.
+     *
      * @param savedInstanceState possible saved state in case the fragment was resumed
      * @return the inflated dialog
      */
@@ -220,25 +247,25 @@ public class FileChooserDialog extends DialogFragment {
     /**
      * Class to hold the view objects in the ArrayAdapter and improve performance
      */
-    static class ViewHolder{
+    private static class ViewHolder{
         TextView directoryTextView;
         ImageView folderImageView;
     }
 
     /**
-     * Gets all the directories in the searched directory
-     * @param dir the directory whose subdirectories are to be listed
-     * @return a List containing all the subdirectories
+     * Gets all the directories and files in the searched directory
+     * @param directoryPath the directory whose subdirectories and files are to be listed
+     * @return a List containing all the subdirectories and files
      */
-    private List<FileOrDirectory> getFileDirs(String dir) {
+    private List<FileOrDirectory> getFileDirs(String directoryPath) {
         List<FileOrDirectory> fileOrDirectories = new ArrayList<>();
         try {
-            File dirFile = new File(dir);
-            if (!dirFile.exists() || !dirFile.isDirectory()) {
+            File directoryFile = new File(directoryPath);
+            if (!directoryFile.exists() || !directoryFile.isDirectory()) {
                 return fileOrDirectories;
             }
 
-            for (File file : dirFile.listFiles()) {
+            for (File file : directoryFile.listFiles()) {
                 if (file.isDirectory()) {
                     fileOrDirectories.add(new FileOrDirectory(file.getName(), true));
                 } else {
@@ -247,7 +274,7 @@ public class FileChooserDialog extends DialogFragment {
             }
         }
         catch (Exception e) {
-            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + dir,
+            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + directoryPath,
                     Toast.LENGTH_LONG).show();
         }
 

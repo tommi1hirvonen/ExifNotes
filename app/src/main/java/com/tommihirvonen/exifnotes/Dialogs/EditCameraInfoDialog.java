@@ -62,11 +62,6 @@ public class EditCameraInfoDialog extends DialogFragment {
     String[] displayedShutterValues;
 
     /**
-     * Reference to the Button/TextView displaying the current shutter speed increment setting
-     */
-    TextView shutterSpeedIncrementsTextView;
-
-    /**
      * Reference to the Button to edit the shutter speed range
      */
     Button shutterRangeButton;
@@ -91,7 +86,7 @@ public class EditCameraInfoDialog extends DialogFragment {
     /**
      * Called when the DialogFragment is ready to create the dialog.
      * Inflate the fragment. Get the edited camera.
-     * Initialize the UI ojects and display the camera's information.
+     * Initialize the UI objects and display the camera's information.
      * Add listeners to Buttons to open new dialogs to change the camera's settings.
      *
      * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
@@ -139,7 +134,7 @@ public class EditCameraInfoDialog extends DialogFragment {
 
         //SHUTTER SPEED INCREMENTS BUTTON
         newShutterIncrements = camera.getShutterIncrements();
-        shutterSpeedIncrementsTextView = (TextView) inflatedView.findViewById(R.id.btn_shutterSpeedIncrements);
+        final TextView shutterSpeedIncrementsTextView = (TextView) inflatedView.findViewById(R.id.btn_shutterSpeedIncrements);
         shutterSpeedIncrementsTextView.setClickable(true);
         shutterSpeedIncrementsTextView.setText(
                 getResources().getStringArray(R.array.StopIncrements)[camera.getShutterIncrements()]);
