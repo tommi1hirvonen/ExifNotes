@@ -1,4 +1,4 @@
-<com.tommihirvonen.exifnotes.Utilities.SlidingFrameLayout
+<com.tommihirvonen.exifnotes.utilities.SlidingFrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -37,4 +37,4 @@
         app:backgroundTint="@color/secondary_color"
         android:src="@drawable/ic_add_a_frame_white_48dp" />
 
-</com.tommihirvonen.exifnotes.Utilities.SlidingFrameLayout>
+</com.tommihirvonen.exifnotes.utilities.SlidingFrameLayout>

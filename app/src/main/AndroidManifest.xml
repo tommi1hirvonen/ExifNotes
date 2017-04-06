@@ -32,7 +32,7 @@
         <uses-library android:name="com.google.android.maps" />
 
         <activity
-            android:name=".Activities.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"
@@ -43,49 +43,49 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activities.GearActivity"
+            android:name=".activities.GearActivity"
             android:label="GearActivity"
-            android:parentActivityName=".Activities.MainActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Activities.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".Activities.PreferenceActivity"
+            android:name=".activities.PreferenceActivity"
             android:label="PreferenceActivity"
-            android:parentActivityName=".Activities.MainActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Activities.MainActivity"/>
+                android:value=".activities.MainActivity"/>
         </activity>
         <activity
-            android:name=".Activities.AllFramesMapsActivity"
+            android:name=".activities.AllFramesMapsActivity"
             android:label="AllFramesMapsActivity"
-            android:parentActivityName=".Activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Activities.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".Activities.MapsActivity"
+            android:name=".activities.MapsActivity"
             android:label="MapsActivity"
-            android:parentActivityName=".Activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Activities.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".Activities.LocationPickActivity"
+            android:name=".activities.LocationPickActivity"
             android:label="LocationPickActivity"
-            android:parentActivityName=".Activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Activities.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
 
         <!--Provider used to give file access to the created files-->

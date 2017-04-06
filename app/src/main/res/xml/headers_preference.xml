@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <header
-        android:fragment="com.tommihirvonen.exifnotes.Fragments.PreferenceFragment"
+        android:fragment="com.tommihirvonen.exifnotes.fragments.PreferenceFragment"
         android:title="Goto: Preference fragment"
         android:summary="An example of some preferences." />
 
