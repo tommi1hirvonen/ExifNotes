@@ -89,7 +89,8 @@
                 android:layout_marginTop="5dp"
                 android:hint="@string/Empty"
                 android:inputType="textCapCharacters"
-                android:maxLength="100"/>
+                android:maxLength="100"
+                tools:ignore="TextFields" />
 
 
             <!--APERTURE INCREMENTS-->

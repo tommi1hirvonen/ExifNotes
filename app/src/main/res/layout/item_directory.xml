@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:ignore="UseCompoundDrawables">
 
     <ImageView
         android:layout_width="28dp"
@@ -11,7 +13,8 @@
         android:id="@+id/iv_folder"
         android:src="@drawable/ic_folder_black_48dp"
         android:layout_marginLeft="10dp"
-        android:layout_gravity="center_vertical|center_horizontal"/>
+        android:layout_gravity="center_vertical|center_horizontal"
+        tools:ignore="ContentDescription,RtlHardcoded" />
 
     <TextView
         android:layout_width="match_parent"
@@ -21,6 +24,7 @@
         android:textSize="16sp"
         android:padding="18dp"
         android:textColor="@color/dark_grey"
-        android:gravity="left|center_vertical"/>
+        android:gravity="left|center_vertical"
+        tools:ignore="RtlHardcoded" />
 
 </LinearLayout>

@@ -76,7 +76,8 @@
                     android:textSize="20sp"
                     android:layout_marginTop="5dp"
                     android:clickable="true"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    tools:ignore="ButtonStyle" />
 
                 <Button
                     android:layout_width="0dp"
@@ -88,7 +89,8 @@
                     android:layout_marginTop="5dp"
                     android:clickable="true"
                     android:gravity="center"
-                    android:text="+"/>
+                    android:text="@string/PlusSign"
+                    tools:ignore="ButtonStyle" />
             </LinearLayout>
 
             <LinearLayout
@@ -104,7 +106,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/Date"
-                    />
+                    tools:ignore="NestedWeights,RtlHardcoded" />
 
                 <TextView
                     android:layout_weight="1"
@@ -114,7 +116,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/Time"
-                    />
+                    tools:ignore="RtlHardcoded" />
             </LinearLayout>
 
 
@@ -131,7 +133,8 @@
                     android:id="@+id/btn_date"
                     android:clickable="true"
                     android:layout_marginTop="5dp"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    tools:ignore="ButtonStyle,NestedWeights" />
                 <Button
                     android:layout_weight="1"
                     android:layout_width="0dp"
@@ -139,7 +142,8 @@
                     android:id="@+id/btn_time"
                     android:clickable="true"
                     android:layout_marginTop="5dp"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    tools:ignore="ButtonStyle" />
             </LinearLayout>
 
             <!--ISO, PUSH OR PULL AND FORMAT-->
@@ -156,7 +160,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/ISO"
-                    />
+                    tools:ignore="NestedWeights,RtlHardcoded" />
 
                 <TextView
                     android:layout_weight="1"
@@ -166,7 +170,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/PushPull"
-                    />
+                    tools:ignore="RtlHardcoded" />
                 <TextView
                     android:layout_weight="1"
                     android:layout_width="0dp"
@@ -175,7 +179,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/Format"
-                    />
+                    tools:ignore="RtlHardcoded" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -190,7 +194,8 @@
                     android:id="@+id/btn_iso"
                     android:clickable="true"
                     android:layout_marginTop="3dp"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    tools:ignore="ButtonStyle,NestedWeights" />
                 <Button
                     android:layout_weight="1"
                     android:layout_width="0dp"
@@ -198,7 +203,8 @@
                     android:id="@+id/btn_push_pull"
                     android:clickable="true"
                     android:layout_marginTop="3dp"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    tools:ignore="ButtonStyle" />
                 <Button
                     android:layout_weight="1"
                     android:layout_width="0dp"
@@ -207,7 +213,8 @@
                     android:clickable="true"
                     android:layout_marginTop="3dp"
                     android:gravity="center"
-                    android:textAllCaps="false"/>
+                    android:textAllCaps="false"
+                    tools:ignore="ButtonStyle" />
             </LinearLayout>
 
 

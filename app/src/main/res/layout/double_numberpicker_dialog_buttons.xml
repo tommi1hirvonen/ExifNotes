@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
@@ -32,11 +33,11 @@
                 android:layout_gravity="center"
                 android:alpha="0.5"
                 android:duplicateParentState="true"
-                />
+                tools:ignore="ContentDescription" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="-50"
+                android:text="@string/Minus50"
                 android:layout_gravity="center"
                 />
         </LinearLayout>
@@ -62,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="+50"/>
+                android:text="@string/Plus50"/>
 
             <ImageView
 
@@ -72,7 +73,7 @@
                 android:layout_gravity="center_horizontal"
                 android:alpha="0.5"
                 android:duplicateParentState="true"
-                />
+                tools:ignore="ContentDescription" />
 
         </LinearLayout>
 
@@ -85,7 +86,8 @@
         android:layout_marginRight="10dp"
         android:background="@drawable/ic_remove_black_48dp"
         android:layout_gravity="center"
-        android:alpha="0.5"/>
+        android:alpha="0.5"
+        tools:ignore="ContentDescription" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -111,11 +113,11 @@
                 android:layout_gravity="center_horizontal"
                 android:alpha="0.5"
                 android:duplicateParentState="true"
-                />
+                tools:ignore="ContentDescription" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="-50"
+                android:text="@string/Minus50"
                 android:layout_gravity="center"
                 />
         </LinearLayout>
@@ -140,7 +142,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="+50"/>
+                android:text="@string/Plus50"/>
             <ImageView
 
                 android:layout_width="30dp"
@@ -149,7 +151,7 @@
                 android:layout_gravity="center_horizontal"
                 android:alpha="0.5"
                 android:duplicateParentState="true"
-                />
+                tools:ignore="ContentDescription" />
         </LinearLayout>
 
     </LinearLayout>

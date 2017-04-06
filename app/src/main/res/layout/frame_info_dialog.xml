@@ -49,7 +49,7 @@
                     android:textSize="20sp"
                     android:layout_marginLeft="3dp"
                     android:text="@string/Lens"
-                    />
+                    tools:ignore="RtlHardcoded" />
 
             </LinearLayout>
 
@@ -68,7 +68,8 @@
                     android:textSize="20sp"
                     android:layout_marginTop="5dp"
                     android:clickable="true"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    tools:ignore="ButtonStyle" />
 
                 <Button
                     android:layout_width="0dp"
@@ -80,7 +81,8 @@
                     android:layout_marginTop="5dp"
                     android:clickable="true"
                     android:gravity="center"
-                    android:text="+"/>
+                    android:text="@string/PlusSign"
+                    tools:ignore="ButtonStyle" />
 
             </LinearLayout>
 
@@ -99,7 +101,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="10dp"
                     android:text="@string/Date"
-                    />
+                    tools:ignore="NestedWeights,RtlHardcoded" />
 
                 <TextView
                     android:layout_weight="1"
@@ -109,7 +111,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="10dp"
                     android:text="@string/Time"
-                    />
+                    tools:ignore="RtlHardcoded" />
             </LinearLayout>
 
             <!--DATE AND TIME BUTTONS-->
@@ -126,14 +128,16 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/btn_date"
                     android:clickable="true"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    tools:ignore="ButtonStyle,NestedWeights" />
                 <Button
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/btn_time"
                     android:clickable="true"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    tools:ignore="ButtonStyle" />
             </LinearLayout>
 
             <!--FRAME COUNT, SHUTTER AND APERTURE-->
@@ -151,7 +155,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/FrameCount"
-                    />
+                    tools:ignore="NestedWeights,RtlHardcoded" />
 
                 <TextView
                     android:layout_weight="1"
@@ -161,7 +165,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/Shutter"
-                    />
+                    tools:ignore="RtlHardcoded" />
                 <TextView
                     android:layout_weight="1"
                     android:layout_width="0dp"
@@ -170,7 +174,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/Aperture"
-                    />
+                    tools:ignore="RtlHardcoded" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -187,7 +191,7 @@
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
                     android:gravity="center"
-                    />
+                    tools:ignore="ButtonStyle,NestedWeights" />
 
 
                 <Button
@@ -199,7 +203,7 @@
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
                     android:gravity="center"
-                    />
+                    tools:ignore="ButtonStyle" />
 
                 <Button
                     android:layout_weight="1"
@@ -210,7 +214,7 @@
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
                     android:gravity="center"
-                    />
+                    tools:ignore="ButtonStyle" />
 
             </LinearLayout>
 
@@ -229,7 +233,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/FocalLength"
-                    />
+                    tools:ignore="NestedWeights,RtlHardcoded" />
 
                 <TextView
                     android:layout_weight="1"
@@ -239,7 +243,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/ExposureComp"
-                    />
+                    tools:ignore="RtlHardcoded" />
                 <TextView
                     android:layout_weight="1"
                     android:layout_width="0dp"
@@ -248,7 +252,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="15dp"
                     android:text="@string/NoOfExposures"
-                    />
+                    tools:ignore="RtlHardcoded" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -265,7 +269,7 @@
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
                     android:gravity="center"
-                    />
+                    tools:ignore="ButtonStyle,NestedWeights" />
 
 
                 <Button
@@ -277,7 +281,7 @@
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
                     android:gravity="center"
-                    />
+                    tools:ignore="ButtonStyle" />
 
                 <Button
                     android:layout_weight="1"
@@ -288,7 +292,7 @@
                     android:layout_marginTop="3dp"
                     android:textAllCaps="false"
                     android:gravity="center"
-                    />
+                    tools:ignore="ButtonStyle" />
 
             </LinearLayout>
 
@@ -352,7 +356,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginTop="10dp"
                     android:text="@string/Filter"
-                    />
+                    tools:ignore="RtlHardcoded" />
 
             </LinearLayout>
 
@@ -373,7 +377,8 @@
                     android:textSize="20sp"
                     android:layout_marginTop="5dp"
                     android:clickable="true"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    tools:ignore="ButtonStyle" />
 
                 <Button
                     android:layout_width="0dp"
@@ -385,7 +390,8 @@
                     android:layout_marginTop="5dp"
                     android:clickable="true"
                     android:gravity="center"
-                    android:text="+"/>
+                    android:text="@string/PlusSign"
+                    tools:ignore="ButtonStyle" />
 
             </LinearLayout>
 

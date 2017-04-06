@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/primary_color"
-        android:layout_below="@+id/toolbar"
         style="@style/MyCustomTabLayout"
         app:tabMode="fixed"
         app:tabGravity="fill"

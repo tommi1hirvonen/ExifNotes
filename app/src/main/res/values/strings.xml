@@ -162,6 +162,7 @@
     <string name="ChooseFocalLength">Choose focal length</string>
     <string name="ChooseExposureComp">Choose exposure comp</string>
     <string name="ChooseNoOfExposures">Choose no of exposures</string>
+    <string name="PlusSign">+</string>
 
     <!--EditRollNameDialog-->
     <string name="RenameRoll">Rename roll</string>
@@ -228,6 +229,7 @@
     <string name="TapOnMap">Tap on map to move marker</string>
     <string name="NoResults">No results!</string>
     <string name="NoLocation">No location was set!</string>
+    <string name="Search">Search</string>
 
     <!--MainActivity-->
     <string name="MainActivityTitle">Film rolls</string>
@@ -281,6 +283,9 @@
     <string name="IntegrityCheckFailed">Database integrity check failed. The old database will be used.</string>
 
 
+    <!--double_numberpicker_dialog_buttons.xml-->
+    <string name="Plus50">+50</string>
+    <string name="Minus50">-50</string>
 
     <!--lenses_fragment.xml-->
     <string name="NoLenses">No added lenses</string>
