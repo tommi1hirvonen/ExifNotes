@@ -1073,7 +1073,7 @@ public class FramesFragment extends Fragment implements
     /**
      * Called from ErrorDialogFragment when the dialog is dismissed.
      */
-    public void onDialogDismissed() {
+    private void onDialogDismissed() {
         resolvingError = false;
     }
 

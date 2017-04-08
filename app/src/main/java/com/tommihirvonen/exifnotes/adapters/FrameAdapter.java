@@ -2,7 +2,9 @@ package com.tommihirvonen.exifnotes.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -29,6 +31,8 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
      */
     private final FilmDbHelper database;
 
+    private final int backgroundFrameColor;
+
     /**
      * Call super constructor and get reference to the database.
      *  @param context {@inheritDoc}
@@ -37,6 +41,11 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
     public FrameAdapter(Context context, List<Frame> frames) {
         super(context, android.R.layout.simple_list_item_1, frames);
         database = FilmDbHelper.getInstance(context);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String theme = prefs.getString("AppTheme", "LIGHT");
+        backgroundFrameColor = theme.equals("LIGHT") ?
+                ContextCompat.getColor(context, R.color.background_frame_light_grey) :
+                ContextCompat.getColor(context, R.color.background_frame_dark_grey);
     }
 
     /**
@@ -69,6 +78,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
             holder.shutterTextView = (TextView) convertView.findViewById(R.id.tvShutter);
             holder.apertureTextView = (TextView) convertView.findViewById(R.id.tvAperture);
             holder.noteTextView = (TextView) convertView.findViewById(R.id.tv_frame_note);
+            holder.frameImageView = (ImageView) convertView.findViewById(R.id.background_frame);
             holder.clockImageView = (ImageView) convertView.findViewById(R.id.drawable_clock);
             holder.apertureImageView = (ImageView) convertView.findViewById(R.id.drawable_aperture);
             convertView.setTag(holder);
@@ -77,10 +87,16 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         }
 
         // With these commands we can color the black png images grey. Very nice! I like!
+
+        holder.frameImageView.getDrawable().mutate().setColorFilter(
+                backgroundFrameColor, PorterDuff.Mode.SRC_IN
+        );
         holder.clockImageView.getDrawable().mutate().setColorFilter(
-                ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
+                ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN
+        );
         holder.apertureImageView.getDrawable().mutate().setColorFilter(
-                ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
+                ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN
+        );
 
         // Populate the data into the template view using the data object
         if (frame != null) {
@@ -113,6 +129,7 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
         TextView shutterTextView;
         TextView apertureTextView;
         TextView noteTextView;
+        ImageView frameImageView;
         ImageView clockImageView;
         ImageView apertureImageView;
     }

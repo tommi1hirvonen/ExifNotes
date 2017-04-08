@@ -26,12 +26,11 @@
             android:id="@+id/picker_one_fast_rewind"
             android:background="?android:attr/selectableItemBackground">
             <ImageView
-
+                android:id="@+id/picker_one_fast_rewind_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:background="@drawable/ic_fast_rewind_black_48dp"
+                android:src="@drawable/ic_fast_rewind_black_48dp"
                 android:layout_gravity="center"
-                android:alpha="0.5"
                 android:duplicateParentState="true"
                 tools:ignore="ContentDescription" />
             <TextView
@@ -66,12 +65,11 @@
                 android:text="@string/Plus50"/>
 
             <ImageView
-
+                android:id="@+id/picker_one_fast_forward_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:background="@drawable/ic_fast_forward_black_48dp"
+                android:src="@drawable/ic_fast_forward_black_48dp"
                 android:layout_gravity="center_horizontal"
-                android:alpha="0.5"
                 android:duplicateParentState="true"
                 tools:ignore="ContentDescription" />
 
@@ -80,13 +78,13 @@
     </LinearLayout>
 
     <ImageView
+        android:id="@+id/dash"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:background="@drawable/ic_remove_black_48dp"
+        android:src="@drawable/ic_remove_black_48dp"
         android:layout_gravity="center"
-        android:alpha="0.5"
         tools:ignore="ContentDescription" />
 
     <LinearLayout
@@ -106,12 +104,11 @@
             android:id="@+id/picker_two_fast_rewind"
             android:background="?android:attr/selectableItemBackground">
             <ImageView
-
+                android:id="@+id/picker_two_fast_rewind_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:background="@drawable/ic_fast_rewind_black_48dp"
+                android:src="@drawable/ic_fast_rewind_black_48dp"
                 android:layout_gravity="center_horizontal"
-                android:alpha="0.5"
                 android:duplicateParentState="true"
                 tools:ignore="ContentDescription" />
             <TextView
@@ -144,12 +141,11 @@
                 android:layout_gravity="center"
                 android:text="@string/Plus50"/>
             <ImageView
-
+                android:id="@+id/picker_two_fast_forward_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:background="@drawable/ic_fast_forward_black_48dp"
+                android:src="@drawable/ic_fast_forward_black_48dp"
                 android:layout_gravity="center_horizontal"
-                android:alpha="0.5"
                 android:duplicateParentState="true"
                 tools:ignore="ContentDescription" />
         </LinearLayout>

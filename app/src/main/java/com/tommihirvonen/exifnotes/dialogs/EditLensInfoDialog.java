@@ -7,9 +7,13 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
@@ -19,6 +23,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -28,8 +33,10 @@ import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Dialog to edit Lens's information
@@ -117,6 +124,10 @@ public class EditLensInfoDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
+
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                getActivity().getApplicationContext()
+        );
 
         utilities = new Utilities(getActivity());
 
@@ -231,6 +242,12 @@ public class EditLensInfoDialog extends DialogFragment {
                 final NumberPicker minAperturePicker =
                         (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
 
+                int color = prefs.getString("AppTheme", "LIGHT").equals("DARK") ?
+                        ContextCompat.getColor(getActivity(), R.color.light_grey) :
+                        ContextCompat.getColor(getActivity(), R.color.grey);
+                ImageView dash = (ImageView) dialogView.findViewById(R.id.dash);
+                dash.getDrawable().mutate().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+
                 //To prevent text edit
                 minAperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
                 maxAperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
@@ -309,6 +326,18 @@ public class EditLensInfoDialog extends DialogFragment {
                 final LinearLayout maxFocalLengthFastForward =
                         (LinearLayout) dialogView.findViewById(R.id.picker_two_fast_forward);
 
+                int color = prefs.getString("AppTheme", "LIGHT").equals("DARK") ?
+                        ContextCompat.getColor(getActivity(), R.color.light_grey) :
+                        ContextCompat.getColor(getActivity(), R.color.grey);
+                List<ImageView> imageViewList = new ArrayList<>();
+                imageViewList.add((ImageView) dialogView.findViewById(R.id.picker_one_fast_rewind_image));
+                imageViewList.add((ImageView) dialogView.findViewById(R.id.picker_one_fast_forward_image));
+                imageViewList.add((ImageView) dialogView.findViewById(R.id.picker_two_fast_rewind_image));
+                imageViewList.add((ImageView) dialogView.findViewById(R.id.picker_two_fast_forward_image));
+                imageViewList.add((ImageView) dialogView.findViewById(R.id.dash));
+                for (ImageView iv : imageViewList)
+                    iv.getDrawable().mutate().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+
                 //To prevent text edit
                 minFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
                 maxFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
@@ -352,6 +381,7 @@ public class EditLensInfoDialog extends DialogFragment {
                         });
                 final AlertDialog dialog = builder.create();
                 dialog.show();
+
                 //Override the positiveButton to check the range before accepting.
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
