@@ -377,6 +377,7 @@
     <string name="ThirdStop">&#8531; stop</string>
     <string name="HalfStop">&#189; stop</string>
     <string name="FullStop">1 stop</string>
+    <string name="AppThemeTitle">App theme</string>
     <string name="UIColorTitle">User interface color </string>
     <string name="UIColorToast">Color change may require app relaunch to fully take effect</string>
     <string name="Orange">Orange</string>
@@ -387,6 +388,8 @@
     <string name="Grey">Grey</string>
     <string name="Purple">Purple</string>
     <string name="Cyan">Cyan</string>
+    <string name="Light">Light</string>
+    <string name="Dark">Dark</string>
 
     <string name="FilesToExportTitle">Files to export</string>
     <string name="FilesToExportSummary">Choose which files are exported when exporting/sharing a roll\'s data.</string>

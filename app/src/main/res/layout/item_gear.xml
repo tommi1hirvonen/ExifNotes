@@ -10,7 +10,6 @@
         android:layout_height="32dp"
         android:id="@+id/tv_gear_name"
         android:text="@string/Text"
-        android:textColor="@color/dark_grey"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:gravity="bottom"

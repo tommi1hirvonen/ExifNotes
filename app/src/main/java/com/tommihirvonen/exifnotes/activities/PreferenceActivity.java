@@ -2,6 +2,8 @@ package com.tommihirvonen.exifnotes.activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,7 +16,9 @@ import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import com.tommihirvonen.exifnotes.fragments.PreferenceFragment;
 import com.tommihirvonen.exifnotes.R;
@@ -28,9 +32,46 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     /**
+     * Public constant custom result code used to indicate that a database was imported
+     */
+    public static final int RESULT_DATABASE_IMPORTED = 0x10;
+
+    /**
+     * Public constant custom result code used to indicate that the app's theme was changed
+     */
+    public static final int RESULT_THEME_CHANGED = 0x20;
+
+    /**
+     * Member to store the current result code to be passed to the activity which started
+     * this activity for result.
+     */
+    private int resultCode = 0x0;
+
+    /**
      * The ActionBar layout is added manually
      */
     private Toolbar actionbar;
+
+    /**
+     * Set this activity's result code
+     *
+     * @param resultCode result code, e.g. RESULT_DATABASE_IMPORTED | RESULT_THEME_CHANGED
+     *                   to indicate that both a database was imported and the app's theme
+     *                   was changed
+     */
+    public void setResultCode(int resultCode) {
+        this.resultCode = resultCode;
+        setResult(resultCode);
+    }
+
+    /**
+     * Get this activity's current result code
+     *
+     * @return current result code
+     */
+    public int getResultCode() {
+        return resultCode;
+    }
 
     /**
      * Set the UI, add listeners.
@@ -39,12 +80,25 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
      */
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+            setTheme(R.style.Theme_AppCompat);
+        }
+
         super.onPostCreate(savedInstanceState);
+
+        // If the activity was recreated, get the saved result code
+        if (savedInstanceState != null) {
+            Log.d("ExifNotes", "Went here");
+            setResultCode(savedInstanceState.getInt("RESULT_CODE"));
+        }
 
         final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
         final int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
         prefs.registerOnSharedPreferenceChangeListener(this);
 
         Utilities.setStatusBarColor(this, secondaryColor);
@@ -53,6 +107,12 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         // This is a legacy implementation. All this is needed in order to make
         // the action bar title and icon appear in white. WTF!?
         setContentView(R.layout.activity_settings_legacy);
+
+        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+            RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.rel_layout);
+            relativeLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.background_dark_grey));
+        }
+
         actionbar = (Toolbar) findViewById(R.id.actionbar);
         actionbar.setTitle(R.string.Preferences);
         actionbar.setBackgroundColor(primaryColor);
@@ -107,6 +167,12 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         }
 
         return null;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // Save the result code so that it can be set for this activity's result when recreated
+        outState.putInt("RESULT_CODE", resultCode);
     }
 
     /**

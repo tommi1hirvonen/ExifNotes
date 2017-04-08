@@ -1,6 +1,5 @@
 package com.tommihirvonen.exifnotes.fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -9,6 +8,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.widget.Toast;
 
+import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
 import com.tommihirvonen.exifnotes.dialogs.DirectoryChooserDialog;
 import com.tommihirvonen.exifnotes.dialogs.FileChooserDialog;
 import com.tommihirvonen.exifnotes.R;
@@ -44,6 +44,9 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         addPreferencesFromResource(R.xml.fragment_preference);
 
         // Set summaries for the list preferences
+        Preference appTheme = findPreference("AppTheme");
+        appTheme.setSummary(((ListPreference) appTheme).getEntry());
+
         Preference UIColor = findPreference("UIColor");
         UIColor.setSummary(((ListPreference) UIColor).getEntry());
 
@@ -131,10 +134,20 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                                         return;
                                     }
                                     if (importSuccess) {
-                                        getActivity().setResult(Activity.RESULT_OK);
+
+                                        // Set the parent activity's result code
+                                        PreferenceActivity preferenceActivity =
+                                                (PreferenceActivity) getActivity();
+                                        int resultCode = preferenceActivity.getResultCode();
+
+                                        // Preserve the previously put result code(s)
+                                        resultCode = resultCode | PreferenceActivity.RESULT_DATABASE_IMPORTED;
+                                        preferenceActivity.setResultCode(resultCode);
+
                                         Toast.makeText(getActivity(),
                                                 getResources().getString(R.string.DatabaseImported),
                                                 Toast.LENGTH_LONG).show();
+
                                     }
                                 }
                             }
@@ -178,6 +191,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
 
     /**
      * When the UIColor preference is changed, update the summary.
+     * Also set the parent activity's result code, if the app's theme was changed.
      *
      * @param sharedPreferences {@inheritDoc}
      * @param key {@inheritDoc}
@@ -185,9 +199,18 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         // Set summaries for the list preferences
-//        Preference artistName = findPreference("ArtistName");
-//        artistName.setSummary(((EditTextPreference) artistName).getText());
+        Preference appTheme = findPreference("AppTheme");
+        appTheme.setSummary(((ListPreference) appTheme).getEntry());
         Preference UIColor = findPreference("UIColor");
         UIColor.setSummary(((ListPreference) UIColor).getEntry());
+
+        if (key.equals("AppTheme")) {
+            getActivity().recreate();
+            PreferenceActivity preferenceActivity = (PreferenceActivity) getActivity();
+            int resultCode = preferenceActivity.getResultCode();
+            // Preserve previously put result code(s)
+            resultCode = resultCode | PreferenceActivity.RESULT_THEME_CHANGED;
+            preferenceActivity.setResultCode(resultCode);
+        }
     }
 }

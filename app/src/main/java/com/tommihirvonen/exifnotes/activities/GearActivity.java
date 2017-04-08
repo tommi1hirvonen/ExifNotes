@@ -53,6 +53,12 @@ public class GearActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+            setTheme(R.style.Theme_AppCompat);
+        }
+
         super.onCreate(savedInstanceState);
 
         Utilities.setUiColor(this, true);
@@ -72,7 +78,6 @@ public class GearActivity extends AppCompatActivity {
         tabLayout.setBackgroundColor(Utilities.getPrimaryUiColor(getBaseContext()));
 
         //Get the index for the view which was last shown.
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         viewPager.setCurrentItem(prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, 0));
     }
 

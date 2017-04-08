@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -205,13 +204,13 @@ public class RollsFragment extends Fragment implements
         registerForContextMenu(mainListView);
 
         // Color the item dividers of the ListView
-        int[] dividerColors = {0, R.color.grey, 0};
-        mainListView.setDivider(
-                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
-        mainListView.setDividerHeight(2);
+//        int[] dividerColors = {0, R.color.grey, 0};
+//        mainListView.setDivider(
+//                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+//        mainListView.setDividerHeight(2);
 
         //Jump to last item
-        //if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
+//        if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
@@ -228,14 +227,8 @@ public class RollsFragment extends Fragment implements
     public void onResume(){
         super.onResume();
         rollAdapter.notifyDataSetChanged();
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
-                getActivity().getBaseContext());
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
-        List<String> colors = Arrays.asList(UIColor.split(","));
-        //String primaryColor = colors.get(0);
-        String secondaryColor = colors.get(1);
-        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(secondaryColor)));
+        int secondaryColor = Utilities.getSecondaryUiColor(getActivity().getApplicationContext());
+        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
     }
 
     /**
@@ -306,7 +299,7 @@ public class RollsFragment extends Fragment implements
 
                 //Start the preference activity from MainActivity.
                 //The result will be handled in MainActivity.
-                getActivity().startActivityForResult(preferences_intent, MainActivity.DATABASE_IMPORT_REQUEST);
+                getActivity().startActivityForResult(preferences_intent, MainActivity.PREFERENCE_ACTIVITY_REQUEST);
 
                 break;
 

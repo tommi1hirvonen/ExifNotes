@@ -13,6 +13,16 @@
         <item>full</item>
     </string-array>
 
+    <string-array name="AppThemeOptions">
+        <item>@string/Light</item>
+        <item>@string/Dark</item>
+    </string-array>
+
+    <string-array name="AppThemeData">
+        <item>LIGHT</item>
+        <item>DARK</item>
+    </string-array>
+
     <string-array name="UIColorOptions">
         <item>@string/Blue</item>
         <item>@string/Cyan</item>

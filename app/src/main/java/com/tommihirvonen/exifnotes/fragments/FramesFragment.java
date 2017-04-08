@@ -13,7 +13,6 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
@@ -293,10 +292,10 @@ public class FramesFragment extends Fragment implements
         registerForContextMenu(mainListView);
 
         // Color the item dividers of the ListView
-        int[] dividerColors = {0, R.color.grey, 0};
-        mainListView.setDivider(
-                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
-        mainListView.setDividerHeight(1);
+//        int[] dividerColors = {0, R.color.grey, 0};
+//        mainListView.setDivider(
+//                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+//        mainListView.setDividerHeight(1);
 
         if (frameList.size() >= 1) {
             mainTextView.setVisibility(View.GONE);
@@ -462,7 +461,7 @@ public class FramesFragment extends Fragment implements
 
                 //Start the preference activity from MainActivity.
                 //The result will be handled in MainActivity.
-                getActivity().startActivityForResult(preferences_intent, MainActivity.DATABASE_IMPORT_REQUEST);
+                getActivity().startActivityForResult(preferences_intent, MainActivity.PREFERENCE_ACTIVITY_REQUEST);
 
                 break;
 
@@ -1074,7 +1073,7 @@ public class FramesFragment extends Fragment implements
     /**
      * Called from ErrorDialogFragment when the dialog is dismissed.
      */
-    private void onDialogDismissed() {
+    public void onDialogDismissed() {
         resolvingError = false;
     }
 
@@ -1123,10 +1122,13 @@ public class FramesFragment extends Fragment implements
          */
         @Override
         public void onDismiss(DialogInterface dialog) {
+            if (getActivity() == null || getActivity().getFragmentManager() == null) return;
             FramesFragment framesfragment =
                     (FramesFragment) getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG);
-            framesfragment.onDialogDismissed();
+            if (framesfragment != null) framesfragment.onDialogDismissed();
+            super.onDismiss(dialog);
         }
+
     }
 
 }

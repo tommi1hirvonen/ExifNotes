@@ -13,6 +13,14 @@
             />
 
         <ListPreference
+            android:key="AppTheme"
+            android:title="@string/AppThemeTitle"
+            android:entries="@array/AppThemeOptions"
+            android:entryValues="@array/AppThemeData"
+            android:defaultValue="LIGHT"
+            />
+
+        <ListPreference
             android:key="UIColor"
             android:title="@string/UIColorTitle"
             android:entries="@array/UIColorOptions"

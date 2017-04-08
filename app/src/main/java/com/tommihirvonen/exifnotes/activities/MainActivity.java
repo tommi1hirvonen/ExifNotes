@@ -6,8 +6,10 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * Tag for database import request. Used when the PreferenceActivity is launched.
      */
-    public static final int DATABASE_IMPORT_REQUEST = 8;
+    public static final int PREFERENCE_ACTIVITY_REQUEST = 8;
 
     /**
      * Create the layout and activate location services.
@@ -58,6 +60,12 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+            setTheme(R.style.Theme_AppCompat);
+        }
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -291,9 +299,10 @@ public class MainActivity extends AppCompatActivity implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
 
-            case DATABASE_IMPORT_REQUEST:
+            case PREFERENCE_ACTIVITY_REQUEST:
 
-                if (resultCode == Activity.RESULT_OK) {
+                if ((resultCode & PreferenceActivity.RESULT_DATABASE_IMPORTED) ==
+                        PreferenceActivity.RESULT_DATABASE_IMPORTED) {
 
                     Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
                     if (fragment instanceof FramesFragment) {
@@ -304,6 +313,11 @@ public class MainActivity extends AppCompatActivity implements
                         RollsFragment rollsFragment = (RollsFragment) fragment;
                         rollsFragment.updateFragment();
                     }
+                }
+
+                if ((resultCode & PreferenceActivity.RESULT_THEME_CHANGED) ==
+                        PreferenceActivity.RESULT_THEME_CHANGED) {
+                    recreate();
                 }
 
                 return;

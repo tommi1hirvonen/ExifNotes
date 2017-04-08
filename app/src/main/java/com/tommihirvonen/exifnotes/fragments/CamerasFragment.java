@@ -132,10 +132,10 @@ public class CamerasFragment extends Fragment implements
         registerForContextMenu(mainListView);
 
         // Color the item dividers of the ListView
-        int[] dividerColors = {0, R.color.grey, 0};
-        mainListView.setDivider(
-                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
-        mainListView.setDividerHeight(2);
+//        int[] dividerColors = {0, R.color.grey, 0};
+//        mainListView.setDivider(
+//                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
+//        mainListView.setDividerHeight(2);
 
         if (cameraList.size() >= 1) mainTextView.setVisibility(View.GONE);
 
