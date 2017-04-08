@@ -776,12 +776,13 @@ public class FramesFragment extends Fragment implements
                 if (frameIterator.getCount() >= frame.getCount())
                     frame.setCount(frameIterator.getCount() + 1);
             }
+
+            // Here we can list the properties we want to bring from the previous frame
             frame.setLensId(previousFrame.getLensId());
             frame.setShutter(previousFrame.getShutter());
             frame.setAperture(previousFrame.getAperture());
             frame.setFilterId(previousFrame.getFilterId());
             frame.setFocalLength(previousFrame.getFocalLength());
-            frame.setExposureComp(previousFrame.getExposureComp());
 
         } else {
             frame.setCount(1);

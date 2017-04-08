@@ -289,7 +289,9 @@ public class EditFrameInfoDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
                         lensTextView.setText(listItems.get(which));
-                        if (which > 0) {
+
+                        // Check if the lens was changed
+                        if (which > 0 && newLensId != mountableLenses.get(which - 1).getId()) {
                             newLensId = mountableLenses.get(which - 1).getId();
                             Lens lens = database.getLens(newLensId);
                             if (newFocalLength > lens.getMaxFocalLength()) {
@@ -302,15 +304,19 @@ public class EditFrameInfoDialog extends DialogFragment {
 
                             //Check the aperture value's validity against the new lens' properties.
                             checkApertureValueValidity();
+
+                            // The lens was changed, reset filters
+                            resetFilters();
                         }
+                        // No lens option was selected
                         else if (which == 0) {
                             newLensId = -1;
                             newFocalLength = 0;
                             focalLengthButton.setText(String.valueOf(newFocalLength));
                             apertureIncrements = 0;
+                            resetFilters();
                         }
 
-                        initialiseFilters();
                         dialog.dismiss();
                     }
                 });
@@ -946,7 +952,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 newFocalLength = lens.getMinFocalLength();
             }
             focalLengthButton.setText(String.valueOf(newFocalLength));
-            initialiseFilters();
+            resetFilters();
         }
 
         if (requestCode == ADD_FILTER && resultCode == Activity.RESULT_OK) {
@@ -1158,27 +1164,11 @@ public class EditFrameInfoDialog extends DialogFragment {
     }
 
     /**
-     * Update the filter button's text and currently selected filter.
-     * If the currently selected lens does not mount with
-     * the currently selected filter, then reset the filter.
+     * Reset filters and update the filter button's text.
      */
-    private void initialiseFilters(){
-        //Update mountable filters
-        if (newLensId <= 0) {
-            filterTextView.setText(getResources().getString(R.string.NoFilter));
-            newFilterId = -1;
-        } else {
-            List<Filter> mountableFilters = database.getMountableFilters(database.getLens(newLensId));
-            //If the new list contains the current filter, do nothing (return)
-            for (Filter filter : mountableFilters) {
-                if (filter.getId() == newFilterId) {
-                    return;
-                }
-            }
-            //Else reset the filter
-            filterTextView.setText(getResources().getString(R.string.NoFilter));
-            newFilterId = -1;
-        }
+    private void resetFilters(){
+        newFilterId = -1;
+        filterTextView.setText(getResources().getString(R.string.NoFilter));
     }
 
     /**
