@@ -1,6 +1,8 @@
 package com.tommihirvonen.exifnotes.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -13,6 +15,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
@@ -111,6 +114,13 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
+
+        // If the app's theme is dark, stylize the map with the custom night mode
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+            this.googleMap.setMapStyle(new MapStyleOptions(getResources()
+                    .getString(R.string.style_json)));
+        }
 
         LatLng position;
         List<Marker> markerList = new ArrayList<>();
