@@ -122,7 +122,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             // Parse the latLngLocation string
             String location = frame.getLocation();
-            if (location.length() > 0 && !location.equals("null")) {
+            if (location != null && location.length() > 0 && !location.equals("null")) {
                 String latString = location.substring(0, location.indexOf(" "));
                 String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
                 double lat = Double.parseDouble(latString.replace(",", "."));
