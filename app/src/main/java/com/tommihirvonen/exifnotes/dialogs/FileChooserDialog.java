@@ -5,9 +5,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -112,6 +114,8 @@ public class FileChooserDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
         currentDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
 
         fileOrDirectoryList = getFileDirs(currentDirectory);
@@ -127,6 +131,21 @@ public class FileChooserDialog extends DialogFragment {
 
         int primaryColor = Utilities.getPrimaryUiColor(getActivity());
         linearLayout.setBackgroundColor(primaryColor);
+
+        // Color scrollIndicatorDown according to the app's theme
+        View scrollIndicatorDown = inflatedView.findViewById(R.id.scrollIndicatorDown);
+        String theme = preferences.getString("AppTheme", "LIGHT");
+        int color = theme.equals("DARK") ?
+                ContextCompat.getColor(getActivity(), R.color.white) :
+                ContextCompat.getColor(getActivity(), R.color.black);
+        scrollIndicatorDown.setBackgroundColor(color);
+        // If the theme is dark and UI color is grey, show scrollIndicatorUp.
+        // The Dialog title background and ListView background colors are identical, so
+        // separate them with the scroll indicator.
+        if (theme.equals("DARK") && preferences.getString("UIColor", "").equals("#424242,#212121")) {
+            View scrollIndicatorUp = inflatedView.findViewById(R.id.scrollIndicatorUp);
+            scrollIndicatorUp.setVisibility(View.VISIBLE);
+        }
 
         currentDirectoryTextView = (TextView) inflatedView.findViewById(R.id.current_directory_textview);
         currentDirectoryTextView.setText(currentDirectory);

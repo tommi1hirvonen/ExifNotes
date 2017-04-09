@@ -139,7 +139,7 @@ public class EditRollNameDialog extends DialogFragment {
             FrameLayout rootLayout = (FrameLayout) inflatedView.findViewById(R.id.root);
             NestedScrollView nestedScrollView = (NestedScrollView) inflatedView.findViewById(
                     R.id.nested_scroll_view);
-            Utilities.setScrollIndicators(rootLayout, nestedScrollView,
+            Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
         }
 

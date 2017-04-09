@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
@@ -381,16 +382,26 @@ public class Utilities {
      * Plus it works across all the targeted Android versions.
      *
      * @param root the root view containing the NestedScrollView element
+     * @param context the application's / activity's context to get SharedPreferences
      * @param content the NestedScrollView element
      * @param indicators ScrollIndicators in bitwise or format,
      *                   for example ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM
      */
-    public static void setScrollIndicators(ViewGroup root, final NestedScrollView content,
-                                            final int indicators) {
+    public static void setScrollIndicators(Context context, ViewGroup root,
+                                           final NestedScrollView content, final int indicators) {
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String theme = preferences.getString("AppTheme", "LIGHT");
+        int color = theme.equals("DARK") ?
+                ContextCompat.getColor(context, R.color.white) :
+                ContextCompat.getColor(context, R.color.black);
 
         // Set up scroll indicators (if present).
         View indicatorUp = root.findViewById(R.id.scrollIndicatorUp);
         View indicatorDown = root.findViewById(R.id.scrollIndicatorDown);
+
+        if (indicatorUp != null) indicatorUp.setBackgroundColor(color);
+        if (indicatorDown != null) indicatorDown.setBackgroundColor(color);
 
         // First, remove the indicator views if we're not set to use them
         if (indicatorUp != null && (indicators & ViewCompat.SCROLL_INDICATOR_TOP) == 0) {

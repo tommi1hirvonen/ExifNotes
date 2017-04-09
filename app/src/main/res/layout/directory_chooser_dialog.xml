@@ -76,6 +76,15 @@
 
     </LinearLayout>
 
+    <!--scroll indicator up to be shown if the app theme is dark and ui color is grey-->
+    <View
+        android:id="@+id/scrollIndicatorUp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:background="@color/white"
+        android:alpha="0.15"
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/subdirectories_listview"
