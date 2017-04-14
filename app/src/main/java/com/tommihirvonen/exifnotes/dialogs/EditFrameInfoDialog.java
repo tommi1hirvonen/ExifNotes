@@ -8,10 +8,13 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
@@ -19,13 +22,12 @@ import android.view.View;
 
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
@@ -168,14 +170,14 @@ public class EditFrameInfoDialog extends DialogFragment {
     private int newNoOfExposures;
 
     /**
-     * Button used to display the current aperture value
+     * TextView used to display the current aperture value
      */
-    private Button apertureButton;
+    private TextView apertureTextView;
 
     /**
      * Button used to display the current focal length value
      */
-    private Button focalLengthButton;
+    private TextView focalLengthTextView;
 
     /**
      * Reference to the utilities class
@@ -234,7 +236,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
-                R.layout.frame_info_dialog, null);
+                R.layout.frame_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
@@ -250,15 +252,40 @@ public class EditFrameInfoDialog extends DialogFragment {
 
 
 
+        //==========================================================================================
+        //DIVIDERS
+
+        // Color the dividers white if the app's theme is dark
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String theme = preferences.getString("AppTheme", "LIGHT");
+        if (theme.equals("DARK")) {
+            List<View> dividerList = new ArrayList<>();
+            dividerList.add(inflatedView.findViewById(R.id.divider_view1));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view2));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view3));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view4));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view5));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view6));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view7));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view8));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view9));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view10));
+            for (View v : dividerList) {
+                v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
+            }
+        }
+        //==========================================================================================
+
+
 
         //==========================================================================================
-        //LENS BUTTON
-        lensTextView = (TextView) inflatedView.findViewById(R.id.btn_lens);
+        //LENS TEXT
+        lensTextView = (TextView) inflatedView.findViewById(R.id.lens_text);
         if (frame.getLensId() > 0) {
             Lens currentLens = database.getLens(frame.getLensId());
             lensTextView.setText(currentLens.getMake() + " " + currentLens.getModel());
         }
-        else lensTextView.setText(getResources().getString(R.string.NoLens));
+        else lensTextView.setText("");
         //==========================================================================================
 
 
@@ -266,8 +293,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         //==========================================================================================
         // LENS PICK DIALOG
         newLensId = frame.getLensId();
-        lensTextView.setClickable(true);
-        lensTextView.setOnClickListener(new View.OnClickListener() {
+        final LinearLayout lensLayout = (LinearLayout) inflatedView.findViewById(R.id.lens_layout);
+        lensLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int checkedItem = 0; // default option is 'no lens' (first one the list)
@@ -287,11 +314,12 @@ public class EditFrameInfoDialog extends DialogFragment {
                 builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         // listItems also contains the No lens option
-                        lensTextView.setText(listItems.get(which));
 
                         // Check if the lens was changed
                         if (which > 0 && newLensId != mountableLenses.get(which - 1).getId()) {
+                            lensTextView.setText(listItems.get(which));
                             newLensId = mountableLenses.get(which - 1).getId();
                             Lens lens = database.getLens(newLensId);
                             if (newFocalLength > lens.getMaxFocalLength()) {
@@ -299,7 +327,9 @@ public class EditFrameInfoDialog extends DialogFragment {
                             } else if (newFocalLength < lens.getMinFocalLength()) {
                                 newFocalLength = lens.getMinFocalLength();
                             }
-                            focalLengthButton.setText(String.valueOf(newFocalLength));
+                            focalLengthTextView.setText(
+                                    newFocalLength == 0 ? "" : String.valueOf(newFocalLength)
+                            );
                             apertureIncrements = database.getLens(newLensId).getApertureIncrements();
 
                             //Check the aperture value's validity against the new lens' properties.
@@ -310,9 +340,10 @@ public class EditFrameInfoDialog extends DialogFragment {
                         }
                         // No lens option was selected
                         else if (which == 0) {
+                            lensTextView.setText("");
                             newLensId = -1;
                             newFocalLength = 0;
-                            focalLengthButton.setText(String.valueOf(newFocalLength));
+                            updateFocalLengthTextView();
                             apertureIncrements = 0;
                             resetFilters();
                         }
@@ -336,29 +367,29 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //==========================================================================================
         // LENS ADD DIALOG
-        final Button addLensButton = (Button) inflatedView.findViewById(R.id.btn_add_lens);
-        addLensButton.setClickable(true);
-        addLensButton.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("CommitTransaction")
-            @Override
-            public void onClick(View v) {
-                EditLensInfoDialog dialog = new EditLensInfoDialog();
-                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_LENS);
-                Bundle arguments = new Bundle();
-                arguments.putString("TITLE", getResources().getString(R.string.NewLens));
-                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
-                dialog.setArguments(arguments);
-                dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
-            }
-        });
+//        final Button addLensButton = (Button) inflatedView.findViewById(R.id.btn_add_lens);
+//        addLensButton.setClickable(true);
+//        addLensButton.setOnClickListener(new View.OnClickListener() {
+//            @SuppressLint("CommitTransaction")
+//            @Override
+//            public void onClick(View v) {
+//                EditLensInfoDialog dialog = new EditLensInfoDialog();
+//                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_LENS);
+//                Bundle arguments = new Bundle();
+//                arguments.putString("TITLE", getResources().getString(R.string.NewLens));
+//                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+//                dialog.setArguments(arguments);
+//                dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
+//            }
+//        });
         //==========================================================================================
 
 
 
         //==========================================================================================
         // DATE PICK DIALOG
-        final TextView dateTextView = (TextView) inflatedView.findViewById(R.id.btn_date);
-        final TextView timeTextView = (TextView) inflatedView.findViewById(R.id.btn_time);
+        final TextView dateTextView = (TextView) inflatedView.findViewById(R.id.date_text);
+        final TextView timeTextView = (TextView) inflatedView.findViewById(R.id.time_text);
         if (frame.getDate() == null) frame.setDate(Utilities.getCurrentTime());
         List<String> dateValue = Utilities.splitDate(frame.getDate());
         int tempYear = Integer.parseInt(dateValue.get(0));
@@ -366,11 +397,10 @@ public class EditFrameInfoDialog extends DialogFragment {
         int tempDay = Integer.parseInt(dateValue.get(2));
         dateTextView.setText(tempYear + "-" + tempMonth + "-" + tempDay);
 
-        dateTextView.setClickable(true);
-
         newDate = frame.getDate();
 
-        dateTextView.setOnClickListener(new View.OnClickListener() {
+        final LinearLayout dateLayout = (LinearLayout) inflatedView.findViewById(R.id.date_layout);
+        dateLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // DATE PICKER DIALOG IMPLEMENTATION HERE
@@ -406,9 +436,8 @@ public class EditFrameInfoDialog extends DialogFragment {
         if (tempMinutes < 10) timeTextView.setText(tempHours + ":0" + tempMinutes);
         else timeTextView.setText(tempHours + ":" + tempMinutes);
 
-        timeTextView.setClickable(true);
-
-        timeTextView.setOnClickListener(new View.OnClickListener() {
+        final LinearLayout timeLayout = (LinearLayout) inflatedView.findViewById(R.id.time_layout);
+        timeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TIME PICKER DIALOG IMPLEMENTATION HERE
@@ -438,8 +467,8 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //==========================================================================================
         //NOTES FIELD
-        final TextView noteTextView = (TextView) inflatedView.findViewById(R.id.txt_note);
-        noteTextView.setText(frame.getNote());
+//        final TextView noteTextView = (TextView) inflatedView.findViewById(R.id.txt_note);
+//        noteTextView.setText(frame.getNote());
         //==========================================================================================
 
 
@@ -447,9 +476,10 @@ public class EditFrameInfoDialog extends DialogFragment {
         //==========================================================================================
         //COUNT BUTTON
         newFrameCount = frame.getCount();
-        final Button frameCountButton = (Button) inflatedView.findViewById(R.id.btn_frame_count);
-        frameCountButton.setText(String.valueOf(newFrameCount));
-        frameCountButton.setOnClickListener(new View.OnClickListener() {
+        final TextView frameCountTextView = (TextView) inflatedView.findViewById(R.id.frame_count_text);
+        frameCountTextView.setText(String.valueOf(newFrameCount));
+        final LinearLayout frameCountLayout = (LinearLayout) inflatedView.findViewById(R.id.frame_count_layout);
+        frameCountLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -468,7 +498,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 newFrameCount = frameCountPicker.getValue();
-                                frameCountButton.setText(String.valueOf(newFrameCount));
+                                frameCountTextView.setText(String.valueOf(newFrameCount));
                             }
                         });
                 builder.setNegativeButton(getResources().getString(R.string.Cancel),
@@ -489,9 +519,10 @@ public class EditFrameInfoDialog extends DialogFragment {
         //==========================================================================================
         //SHUTTER SPEED BUTTON
         newShutter = frame.getShutter();
-        final Button shutterButton = (Button) inflatedView.findViewById(R.id.btn_shutter);
-        updateShutterButton(shutterButton);
-        shutterButton.setOnClickListener(new View.OnClickListener() {
+        final TextView shutterTextView = (TextView) inflatedView.findViewById(R.id.shutter_text);
+        updateShutterTextView(shutterTextView);
+        final LinearLayout shutterLayout = (LinearLayout) inflatedView.findViewById(R.id.shutter_layout);
+        shutterLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -510,7 +541,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 newShutter = displayedShutterValues[shutterPicker.getValue()];
-                                updateShutterButton(shutterButton);
+                                updateShutterTextView(shutterTextView);
                             }
                         });
                 builder.setNegativeButton(getResources().getString(R.string.Cancel),
@@ -531,9 +562,10 @@ public class EditFrameInfoDialog extends DialogFragment {
         //==========================================================================================
         //APERTURE BUTTON
         newAperture = frame.getAperture();
-        apertureButton = (Button) inflatedView.findViewById(R.id.btn_aperture);
-        updateApertureButton();
-        apertureButton.setOnClickListener(new View.OnClickListener() {
+        apertureTextView = (TextView) inflatedView.findViewById(R.id.aperture_text);
+        updateApertureTextView();
+        final LinearLayout apertureLayout = (LinearLayout) inflatedView.findViewById(R.id.aperture_layout);
+        apertureLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -552,7 +584,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 newAperture = displayedApertureValues[aperturePicker.getValue()];
-                                updateApertureButton();
+                                updateApertureTextView();
                             }
                         });
                 builder.setNegativeButton(getResources().getString(R.string.Cancel),
@@ -573,9 +605,10 @@ public class EditFrameInfoDialog extends DialogFragment {
         //==========================================================================================
         //FOCAL LENGTH BUTTON
         newFocalLength = frame.getFocalLength();
-        focalLengthButton = (Button) inflatedView.findViewById(R.id.btn_focal_length);
-        focalLengthButton.setText(String.valueOf(newFocalLength));
-        focalLengthButton.setOnClickListener(new View.OnClickListener() {
+        focalLengthTextView = (TextView) inflatedView.findViewById(R.id.focal_length_text);
+        updateFocalLengthTextView();
+        final LinearLayout focalLengthLayout = (LinearLayout) inflatedView.findViewById(R.id.focal_length_layout);
+        focalLengthLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -595,7 +628,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 newFocalLength = focalLengthPicker.getValue();
-                                focalLengthButton.setText(String.valueOf(newFocalLength));
+                                updateFocalLengthTextView();
                             }
                         });
                 builder.setNegativeButton(getResources().getString(R.string.Cancel),
@@ -615,11 +648,12 @@ public class EditFrameInfoDialog extends DialogFragment {
         //==========================================================================================
         //EXPOSURE COMP BUTTON
         newExposureComp = frame.getExposureComp();
-        final Button exposureCompButton = (Button) inflatedView.findViewById(R.id.btn_exposure_comp);
-        exposureCompButton.setText(
-                newExposureComp == null || newExposureComp.equals("0") ? "±0" : newExposureComp
+        final TextView exposureCompTextView = (TextView) inflatedView.findViewById(R.id.exposure_comp_text);
+        exposureCompTextView.setText(
+                newExposureComp == null || newExposureComp.equals("0") ? "" : newExposureComp
         );
-        exposureCompButton.setOnClickListener(new View.OnClickListener() {
+        final LinearLayout exposureCompLayout = (LinearLayout) inflatedView.findViewById(R.id.exposure_comp_layout);
+        exposureCompLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -652,8 +686,8 @@ public class EditFrameInfoDialog extends DialogFragment {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 newExposureComp = Utilities.compValues[exposureCompPicker.getValue()];
-                                exposureCompButton.setText(
-                                        newExposureComp == null || newExposureComp.equals("0") ? "±0" : newExposureComp
+                                exposureCompTextView.setText(
+                                        newExposureComp == null || newExposureComp.equals("0") ? "" : newExposureComp
                                 );
                             }
                         });
@@ -676,9 +710,10 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //Check that the number is bigger than zero.
         newNoOfExposures = frame.getNoOfExposures() > 0 ? frame.getNoOfExposures() : 1;
-        final Button noOfExposuresButton = (Button) inflatedView.findViewById(R.id.btn_no_of_exposures);
-        noOfExposuresButton.setText(String.valueOf(newNoOfExposures));
-        noOfExposuresButton.setOnClickListener(new View.OnClickListener() {
+        final TextView noOfExposuresTextView = (TextView) inflatedView.findViewById(R.id.no_of_exposures_text);
+        noOfExposuresTextView.setText(String.valueOf(newNoOfExposures));
+        final LinearLayout noOfExposuresLayout = (LinearLayout) inflatedView.findViewById(R.id.no_of_exposures_layout);
+        noOfExposuresLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -703,7 +738,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 newNoOfExposures = noOfExposuresPicker.getValue();
-                                noOfExposuresButton.setText(String.valueOf(newNoOfExposures));
+                                noOfExposuresTextView.setText(String.valueOf(newNoOfExposures));
                             }
                         });
                 builder.setNegativeButton(getResources().getString(R.string.Cancel),
@@ -722,11 +757,11 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //==========================================================================================
         // LOCATION PICK DIALOG
-        locationTextView = (TextView) inflatedView.findViewById(R.id.btn_location);
+        locationTextView = (TextView) inflatedView.findViewById(R.id.location_text);
         newLocation = frame.getLocation();
-        updateLocationButton();
-        locationTextView.setClickable(true);
-        locationTextView.setOnClickListener(new View.OnClickListener() {
+        updateLocationTextView();
+        final LinearLayout locationLayout = (LinearLayout) inflatedView.findViewById(R.id.location_layout);
+        locationLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // LOCATION PICKER DIALOG IMPLEMENTATION HERE
@@ -744,7 +779,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                             // Clear
                             case 0:
                                 newLocation = "";
-                                updateLocationButton();
+                                updateLocationTextView();
                                 break;
 
                             // Reacquire/Edit on map. LocationPickActivity!
@@ -771,19 +806,19 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //==========================================================================================
         //FILTER BUTTON
-        filterTextView = (TextView) inflatedView.findViewById(R.id.btn_filter);
+        filterTextView = (TextView) inflatedView.findViewById(R.id.filter_text);
         if (frame.getFilterId() > 0) {
             Filter currentFilter = database.getFilter(frame.getFilterId());
             filterTextView.setText(currentFilter.getMake() + " " + currentFilter.getModel());
         }
         else {
-            filterTextView.setText(getResources().getString(R.string.NoFilter));
+            filterTextView.setText("");
         }
 
         // FILTER PICK DIALOG
         newFilterId = frame.getFilterId();
-        filterTextView.setClickable(true);
-        filterTextView.setOnClickListener(new View.OnClickListener() {
+        final LinearLayout filterLayout = (LinearLayout) inflatedView.findViewById(R.id.filter_layout);
+        filterLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int checkedItem = 0; //default option is 0, no filter
@@ -829,26 +864,26 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // FILTER ADD DIALOG
-        final Button addFilterButton = (Button) inflatedView.findViewById(R.id.btn_add_filter);
-        addFilterButton.setClickable(true);
-        addFilterButton.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("CommitTransaction")
-            @Override
-            public void onClick(View v) {
-                if (newLensId <= 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters),
-                            Toast.LENGTH_LONG).show();
-                    return;
-                }
-                EditFilterInfoDialog dialog = new EditFilterInfoDialog();
-                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_FILTER);
-                Bundle arguments = new Bundle();
-                arguments.putString("TITLE", getResources().getString(R.string.NewFilter));
-                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
-                dialog.setArguments(arguments);
-                dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
-            }
-        });
+//        final Button addFilterButton = (Button) inflatedView.findViewById(R.id.btn_add_filter);
+//        addFilterButton.setClickable(true);
+//        addFilterButton.setOnClickListener(new View.OnClickListener() {
+//            @SuppressLint("CommitTransaction")
+//            @Override
+//            public void onClick(View v) {
+//                if (newLensId <= 0) {
+//                    Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters),
+//                            Toast.LENGTH_LONG).show();
+//                    return;
+//                }
+//                EditFilterInfoDialog dialog = new EditFilterInfoDialog();
+//                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_FILTER);
+//                Bundle arguments = new Bundle();
+//                arguments.putString("TITLE", getResources().getString(R.string.NewFilter));
+//                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+//                dialog.setArguments(arguments);
+//                dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
+//            }
+//        });
         //==========================================================================================
 
 
@@ -888,7 +923,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 frame.setShutter(newShutter);
                 frame.setAperture(newAperture);
                 frame.setCount(newFrameCount);
-                frame.setNote(noteTextView.getText().toString());
+//                frame.setNote(noteTextView.getText().toString());
 
                 // PARSE THE DATE
                 frame.setDate(newDate);
@@ -930,7 +965,7 @@ public class EditFrameInfoDialog extends DialogFragment {
             if (data.hasExtra("LATITUDE") && data.hasExtra("LONGITUDE")) {
                 newLocation = "" + data.getStringExtra("LATITUDE") + " " +
                         data.getStringExtra("LONGITUDE");
-                updateLocationButton();
+                updateLocationTextView();
             }
         }
 
@@ -951,7 +986,7 @@ public class EditFrameInfoDialog extends DialogFragment {
             } else if (newFocalLength < lens.getMinFocalLength()) {
                 newFocalLength = lens.getMinFocalLength();
             }
-            focalLengthButton.setText(String.valueOf(newFocalLength));
+            updateFocalLengthTextView();
             resetFilters();
         }
 
@@ -1168,28 +1203,34 @@ public class EditFrameInfoDialog extends DialogFragment {
      */
     private void resetFilters(){
         newFilterId = -1;
-        filterTextView.setText(getResources().getString(R.string.NoFilter));
+        filterTextView.setText("");
     }
 
     /**
-     * Updates the shutter speed value button's text.
+     * Updates the shutter speed value TextView's text.
      *
-     * @param button the button whose text should be updated
+     * @param textView the TextView whose text should be updated
      */
-    private void updateShutterButton(Button button){
-        if (button != null) button.setText(newShutter);
+    private void updateShutterTextView(TextView textView){
+        if (textView != null) {
+            if (newShutter.contains("<") || newShutter.contains(">")) {
+                textView.setText("");
+            } else {
+                textView.setText(newShutter);
+            }
+        }
     }
 
     /**
      * Updates the aperture value button's text.
      */
-    private void updateApertureButton(){
-        if (apertureButton != null) {
+    private void updateApertureTextView(){
+        if (apertureTextView != null) {
             if (newAperture.contains("<") || newAperture.contains(">")) {
-                apertureButton.setText(newAperture);
+                apertureTextView.setText("");
             } else {
                 String newText = "f/" + newAperture;
-                apertureButton.setText(newText);
+                apertureTextView.setText(newText);
             }
         }
     }
@@ -1197,11 +1238,20 @@ public class EditFrameInfoDialog extends DialogFragment {
     /**
      * Updates the location button's text.
      */
-    private void updateLocationButton(){
+    private void updateLocationTextView(){
         locationTextView.setText(
                 newLocation == null || newLocation.length() == 0 ?
                         getResources().getString(R.string.ClickToSet) :
                         Utilities.getReadableLocationFromString(newLocation)
+        );
+    }
+
+    /**
+     * Updates the focal length TextView
+     */
+    private void updateFocalLengthTextView(){
+        focalLengthTextView.setText(
+                newFocalLength == 0 ? "" : String.valueOf(newFocalLength)
         );
     }
 
@@ -1266,7 +1316,7 @@ public class EditFrameInfoDialog extends DialogFragment {
         }
         if (!apertureFound) {
             newAperture = getResources().getString(R.string.NoValue);
-            updateApertureButton();
+            updateApertureTextView();
         }
     }
 

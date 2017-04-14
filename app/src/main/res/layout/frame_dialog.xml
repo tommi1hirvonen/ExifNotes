@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/root"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    >
+
+    <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
+     doesn't get focus when the Dialog is first shown. -->
+
+    <View
+        android:id="@+id/scrollIndicatorUp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center_horizontal|top"
+        android:background="@color/black"
+        android:alpha="0.15"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:id="@+id/nested_scroll_view"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+
+
+
+
+
+
+
+
+            <!--FRAME COUNT-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/frame_count_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/FrameCount"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/frame_count_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+
+            <!--DATE-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/date_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view1"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Date"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/date_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+            <!--TIME-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/time_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view2"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Time"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/time_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+
+            <!--LENS-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/lens_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view3"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Lens"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/lens_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+            <!--FILTER-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/filter_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view4"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Filter"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/filter_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+
+            <!--FOCAL LENGTH-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/focal_length_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view5"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/FocalLengthSingleLine"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/focal_length_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+
+            <!--APERTURE-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/aperture_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view6"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Aperture"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/aperture_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+            <!--SHUTTER SPEED-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/shutter_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view7"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Shutter"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/shutter_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+
+
+
+
+            <!--EXPOSURE COMP-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/exposure_comp_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view8"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/ExposureCompSingleLine"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/exposure_comp_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+            <!--LOCATION-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/location_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view9"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Location"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/location_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+            <!--NO OF EXPOSURES-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/no_of_exposures_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view10"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/NoOfExposuresSingleLine"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/no_of_exposures_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+
+
+
+
+
+
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <View
+        android:id="@+id/scrollIndicatorDown"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:background="@color/black"
+        android:alpha="0.15"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+
+</FrameLayout>
