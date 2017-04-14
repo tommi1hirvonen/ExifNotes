@@ -6,7 +6,6 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -130,12 +129,6 @@ public class LensesFragment extends Fragment implements
         mainListView.setOnItemClickListener(this);
 
         registerForContextMenu(mainListView);
-
-        // Color the item dividers of the ListView
-//        int[] dividerColors = {0, R.color.grey, 0};
-//        mainListView.setDivider(
-//                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
-//        mainListView.setDividerHeight(2);
 
         if (lensList.size() >= 1) mainTextView.setVisibility(View.GONE);
 

@@ -9,9 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
@@ -39,7 +37,6 @@ import com.tommihirvonen.exifnotes.utilities.Utilities;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -198,19 +195,7 @@ public class RollsFragment extends Fragment implements
         // Set this activity to react to list items being pressed
         mainListView.setOnItemClickListener(this);
 
-        // Set this activity to react to list items being pressed and held
-        //mainListView.setOnItemLongClickListener(this);
-
         registerForContextMenu(mainListView);
-
-        // Color the item dividers of the ListView
-//        int[] dividerColors = {0, R.color.grey, 0};
-//        mainListView.setDivider(
-//                new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, dividerColors));
-//        mainListView.setDividerHeight(2);
-
-        //Jump to last item
-//        if ( mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity());

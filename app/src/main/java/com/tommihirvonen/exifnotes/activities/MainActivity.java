@@ -1,7 +1,6 @@
 package com.tommihirvonen.exifnotes.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;

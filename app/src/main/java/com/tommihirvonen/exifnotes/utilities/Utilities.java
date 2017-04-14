@@ -661,11 +661,13 @@ public class Utilities {
         String lensModelTag = "-LensModel=";
         String lensTag = "-Lens=";
         String dateTag = "-DateTime=";
+        String dateTimeOriginalTag = "-DateTimeOriginal=";
         String shutterTag = "-ShutterSpeedValue=";
         String exposureTimeTag = "-ExposureTime=";
         String apertureTag = "-ApertureValue=";
         String fNumberTag = "-FNumber=";
         String commentTag = "-UserComment=";
+        String imageDescriptionTag = "-ImageDescription=";
         String gpsLatTag = "-GPSLatitude=";
         String gpsLatRefTag = "-GPSLatitudeRef=";
         String gpsLngTag = "-GPSLongitude=";
@@ -709,6 +711,8 @@ public class Utilities {
             }
             //DateTime
             stringBuilder.append(dateTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
+            //DateTimeOriginal
+            stringBuilder.append(dateTimeOriginalTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
             //ShutterSpeedValue & ExposureTime
             if (!frame.getShutter().contains("<")) {
                 stringBuilder.append(shutterTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
@@ -721,8 +725,10 @@ public class Utilities {
                 stringBuilder.append(fNumberTag).append(quote).append(frame.getAperture()).append(quote).append(space);
             }
             //UserComment
-            if (frame.getNote() != null && frame.getNote().length() > 0)
+            if (frame.getNote() != null && frame.getNote().length() > 0) {
                 stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
+                stringBuilder.append(imageDescriptionTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
+            }
             //GPSLatitude & GPSLongitude & GPSLatitudeRef & GPSLongitudeRef
             if (frame.getLocation() != null && frame.getLocation().length() > 0) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));

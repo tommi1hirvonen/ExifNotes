@@ -7,15 +7,26 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.7.2\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.7.3\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -Fixed a bug which rejected valid database imports\n
+        -Bug fixes\n
+        -Added a dark theme option\n
+        -Added new tags:\n
+        \t\t\t-ImageDescription\n
+        \t\t\t-DateTimeOriginal\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.7.3 2017-04-14:\n
+        -Bug fixes\n
+        -Added a dark theme option\n
+        -Added new tags:\n
+        \t\t\t-ImageDescription\n
+        \t\t\t-DateTimeOriginal\n
         \n
         v1.7.2 2017-03-30:\n
         -Fixed a bug which rejected valid database imports\n
@@ -104,11 +115,13 @@
         -LensModel\n
         -Lens\n
         -DateTime\n
+        -DateTimeOriginal\n
         -ShutterSpeedValue\n
         -ExposureTime\n
         -ApertureValue\n
         -FNumber\n
         -UserComment\n
+        -ImageDescription\n
         -GPSLatitude\n
         -GPSLatitudeRef\n
         -GPSLongitude\n
