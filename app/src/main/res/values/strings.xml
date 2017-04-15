@@ -324,7 +324,7 @@
     <string name="PushPull">Push(+)/pull(-):</string>
     <string name="Format">Format:</string>
 
-    <!--frame_info_dialog.xml-->
+    <!--frame_dialog.xml-->
     <string name="Lens">Lens</string>
     <string name="Date">Date</string>
     <string name="Time">Time</string>
@@ -340,6 +340,8 @@
     <string name="FocalLengthSingleLine">Focal length (mm)</string>
     <string name="ExposureComp">Exposure\ncomp</string>
     <string name="ExposureCompSingleLine">Exposure compensation</string>
+    <string name="DescriptionOrNote">Description/note</string>
+    <string name="EditDescriptionOrNote">Edit description/note</string>
     <string name="Filter">Filter</string>
     <string name="NoFilter">No filter</string>
     <string name="UsedFilter">Choose used filter</string>

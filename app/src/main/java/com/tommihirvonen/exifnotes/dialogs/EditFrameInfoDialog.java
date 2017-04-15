@@ -9,6 +9,7 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -17,17 +18,22 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
@@ -170,6 +176,11 @@ public class EditFrameInfoDialog extends DialogFragment {
     private int newNoOfExposures;
 
     /**
+     * Currently set description or note
+     */
+    private String newNote;
+
+    /**
      * TextView used to display the current aperture value
      */
     private TextView apertureTextView;
@@ -270,9 +281,20 @@ public class EditFrameInfoDialog extends DialogFragment {
             dividerList.add(inflatedView.findViewById(R.id.divider_view8));
             dividerList.add(inflatedView.findViewById(R.id.divider_view9));
             dividerList.add(inflatedView.findViewById(R.id.divider_view10));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view11));
             for (View v : dividerList) {
                 v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
             }
+            ((ImageView) inflatedView.findViewById(R.id.add_lens)).getDrawable().mutate()
+                    .setColorFilter(
+                            ContextCompat.getColor(getActivity(), R.color.white),
+                            PorterDuff.Mode.SRC_IN
+            );
+            ((ImageView) inflatedView.findViewById(R.id.add_filter)).getDrawable().mutate()
+                    .setColorFilter(
+                            ContextCompat.getColor(getActivity(), R.color.white),
+                            PorterDuff.Mode.SRC_IN
+                    );
         }
         //==========================================================================================
 
@@ -367,21 +389,21 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //==========================================================================================
         // LENS ADD DIALOG
-//        final Button addLensButton = (Button) inflatedView.findViewById(R.id.btn_add_lens);
-//        addLensButton.setClickable(true);
-//        addLensButton.setOnClickListener(new View.OnClickListener() {
-//            @SuppressLint("CommitTransaction")
-//            @Override
-//            public void onClick(View v) {
-//                EditLensInfoDialog dialog = new EditLensInfoDialog();
-//                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_LENS);
-//                Bundle arguments = new Bundle();
-//                arguments.putString("TITLE", getResources().getString(R.string.NewLens));
-//                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
-//                dialog.setArguments(arguments);
-//                dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
-//            }
-//        });
+        final ImageView addLensImageView = (ImageView) inflatedView.findViewById(R.id.add_lens);
+        addLensImageView.setClickable(true);
+        addLensImageView.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CommitTransaction")
+            @Override
+            public void onClick(View v) {
+                EditLensInfoDialog dialog = new EditLensInfoDialog();
+                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_LENS);
+                Bundle arguments = new Bundle();
+                arguments.putString("TITLE", getResources().getString(R.string.NewLens));
+                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+                dialog.setArguments(arguments);
+                dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
+            }
+        });
         //==========================================================================================
 
 
@@ -467,8 +489,41 @@ public class EditFrameInfoDialog extends DialogFragment {
 
         //==========================================================================================
         //NOTES FIELD
-//        final TextView noteTextView = (TextView) inflatedView.findViewById(R.id.txt_note);
-//        noteTextView.setText(frame.getNote());
+        newNote = frame.getNote();
+        final TextView noteTextView = (TextView) inflatedView.findViewById(R.id.note_text);
+        noteTextView.setText(
+                newNote == null ? "" : newNote
+        );
+        final LinearLayout noteLayout = (LinearLayout) inflatedView.findViewById(R.id.note_layout);
+        noteLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getResources().getString(R.string.EditDescriptionOrNote));
+                final EditText noteEditText = new EditText(getActivity());
+                builder.setView(noteEditText);
+                noteEditText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                noteEditText.setSingleLine(false);
+                noteEditText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+                noteEditText.setText(newNote);
+                builder.setPositiveButton(getResources().getString(R.string.OK),
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        newNote = noteEditText.getText().toString();
+                        noteTextView.setText(newNote);
+                    }
+                });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Do nothing
+                    }
+                });
+                builder.create().show();
+            }
+        });
         //==========================================================================================
 
 
@@ -864,26 +919,26 @@ public class EditFrameInfoDialog extends DialogFragment {
         });
 
         // FILTER ADD DIALOG
-//        final Button addFilterButton = (Button) inflatedView.findViewById(R.id.btn_add_filter);
-//        addFilterButton.setClickable(true);
-//        addFilterButton.setOnClickListener(new View.OnClickListener() {
-//            @SuppressLint("CommitTransaction")
-//            @Override
-//            public void onClick(View v) {
-//                if (newLensId <= 0) {
-//                    Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters),
-//                            Toast.LENGTH_LONG).show();
-//                    return;
-//                }
-//                EditFilterInfoDialog dialog = new EditFilterInfoDialog();
-//                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_FILTER);
-//                Bundle arguments = new Bundle();
-//                arguments.putString("TITLE", getResources().getString(R.string.NewFilter));
-//                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
-//                dialog.setArguments(arguments);
-//                dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
-//            }
-//        });
+        final ImageView addFilterImageView = (ImageView) inflatedView.findViewById(R.id.add_filter);
+        addFilterImageView.setClickable(true);
+        addFilterImageView.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("CommitTransaction")
+            @Override
+            public void onClick(View v) {
+                if (newLensId <= 0) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters),
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
+                EditFilterInfoDialog dialog = new EditFilterInfoDialog();
+                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_FILTER);
+                Bundle arguments = new Bundle();
+                arguments.putString("TITLE", getResources().getString(R.string.NewFilter));
+                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+                dialog.setArguments(arguments);
+                dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
+            }
+        });
         //==========================================================================================
 
 
@@ -923,7 +978,7 @@ public class EditFrameInfoDialog extends DialogFragment {
                 frame.setShutter(newShutter);
                 frame.setAperture(newAperture);
                 frame.setCount(newFrameCount);
-//                frame.setNote(noteTextView.getText().toString());
+                frame.setNote(newNote);
 
                 // PARSE THE DATE
                 frame.setDate(newDate);
