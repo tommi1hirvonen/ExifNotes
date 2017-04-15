@@ -289,8 +289,13 @@ public class EditFrameInfoDialog extends DialogFragment {
                     .setColorFilter(
                             ContextCompat.getColor(getActivity(), R.color.white),
                             PorterDuff.Mode.SRC_IN
-            );
+                    );
             ((ImageView) inflatedView.findViewById(R.id.add_filter)).getDrawable().mutate()
+                    .setColorFilter(
+                            ContextCompat.getColor(getActivity(), R.color.white),
+                            PorterDuff.Mode.SRC_IN
+                    );
+            ((ImageView) inflatedView.findViewById(R.id.clear_location)).getDrawable().mutate()
                     .setColorFilter(
                             ContextCompat.getColor(getActivity(), R.color.white),
                             PorterDuff.Mode.SRC_IN
@@ -815,45 +820,21 @@ public class EditFrameInfoDialog extends DialogFragment {
         locationTextView = (TextView) inflatedView.findViewById(R.id.location_text);
         newLocation = frame.getLocation();
         updateLocationTextView();
+        final ImageView clearLocation = (ImageView) inflatedView.findViewById(R.id.clear_location);
+        clearLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                newLocation = "";
+                updateLocationTextView();
+            }
+        });
         final LinearLayout locationLayout = (LinearLayout) inflatedView.findViewById(R.id.location_layout);
         locationLayout.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                // LOCATION PICKER DIALOG IMPLEMENTATION HERE
-                final List<String> listItems = new ArrayList<>();
-                listItems.add(getResources().getString(R.string.Clear));
-                listItems.add(getResources().getString(R.string.Reacquire));
-                final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(getResources().getString(R.string.ChooseAction));
-                builder.setItems(items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // listItems also contains the No lens option
-                        switch (which) {
-                            // Clear
-                            case 0:
-                                newLocation = "";
-                                updateLocationTextView();
-                                break;
-
-                            // Reacquire/Edit on map. LocationPickActivity!
-                            case 1:
-                                Intent intent = new Intent(getActivity(), LocationPickActivity.class);
-                                intent.putExtra("LOCATION", newLocation);
-                                startActivityForResult(intent, PLACE_PICKER_REQUEST);
-                                break;
-                        }
-                    }
-                });
-                builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing
-                    }
-                });
-                AlertDialog alert = builder.create();
-                alert.show();
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), LocationPickActivity.class);
+                intent.putExtra("LOCATION", newLocation);
+                startActivityForResult(intent, PLACE_PICKER_REQUEST);
             }
         });
         //==========================================================================================
@@ -1296,8 +1277,9 @@ public class EditFrameInfoDialog extends DialogFragment {
     private void updateLocationTextView(){
         locationTextView.setText(
                 newLocation == null || newLocation.length() == 0 ?
-                        getResources().getString(R.string.ClickToSet) :
+                        "" :
                         Utilities.getReadableLocationFromString(newLocation)
+                                .replace("N ","N\n").replace("S ", "S\n")
         );
     }
 
