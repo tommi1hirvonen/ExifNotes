@@ -20,10 +20,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,8 +32,10 @@ import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Dialog to edit Camera's information
@@ -67,9 +69,9 @@ public class EditCameraDialog extends DialogFragment {
     private String[] displayedShutterValues;
 
     /**
-     * Reference to the Button to edit the shutter speed range
+     * Reference to the TextView to display the shutter speed range
      */
-    private Button shutterRangeButton;
+    private TextView shutterRangeTextView;
 
     /**
      * Currently selected minimum shutter speed (shortest duration)
@@ -133,21 +135,40 @@ public class EditCameraDialog extends DialogFragment {
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflatedView);
 
+        //==========================================================================================
+        //DIVIDERS
+
+        // Color the dividers white if the app's theme is dark
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String theme = preferences.getString("AppTheme", "LIGHT");
+        if (theme.equals("DARK")) {
+            List<View> dividerList = new ArrayList<>();
+            dividerList.add(inflatedView.findViewById(R.id.divider_view1));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view2));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view3));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view4));
+            for (View v : dividerList) {
+                v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
+            }
+        }
+        //==========================================================================================
+
         //EDIT TEXT FIELDS
-        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.txt_make);
+        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.make_editText);
         makeEditText.setText(camera.getMake());
-        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.txt_model);
+        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.model_editText);
         modelEditText.setText(camera.getModel());
-        final EditText serialNumberEditText = (EditText) inflatedView.findViewById(R.id.txt_serial_number);
+        final EditText serialNumberEditText = (EditText) inflatedView.findViewById(R.id.serialNumber_editText);
         serialNumberEditText.setText(camera.getSerialNumber());
 
         //SHUTTER SPEED INCREMENTS BUTTON
         newShutterIncrements = camera.getShutterIncrements();
-        final TextView shutterSpeedIncrementsTextView = (TextView) inflatedView.findViewById(R.id.btn_shutterSpeedIncrements);
-        shutterSpeedIncrementsTextView.setClickable(true);
+        final TextView shutterSpeedIncrementsTextView = (TextView) inflatedView.findViewById(R.id.increment_text);
         shutterSpeedIncrementsTextView.setText(
                 getResources().getStringArray(R.array.StopIncrements)[camera.getShutterIncrements()]);
-        shutterSpeedIncrementsTextView.setOnClickListener(new View.OnClickListener() {
+
+        final LinearLayout shutterSpeedIncrementLayout = (LinearLayout) inflatedView.findViewById(R.id.increment_layout);
+        shutterSpeedIncrementLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int checkedItem = newShutterIncrements;
@@ -187,7 +208,7 @@ public class EditCameraDialog extends DialogFragment {
                         if (!minFound || !maxFound) {
                             newMinShutter = null;
                             newMaxShutter = null;
-                            updateShutterRangeButton();
+                            updateShutterRangeTextView();
                         }
 
                         dialogInterface.dismiss();
@@ -204,9 +225,10 @@ public class EditCameraDialog extends DialogFragment {
         });
 
         //SHUTTER RANGE BUTTON
-        shutterRangeButton = (Button) inflatedView.findViewById(R.id.btn_shutterRange);
-        updateShutterRangeButton();
-        shutterRangeButton.setOnClickListener(new View.OnClickListener() {
+        shutterRangeTextView = (TextView) inflatedView.findViewById(R.id.shutter_range_text);
+        updateShutterRangeTextView();
+        final LinearLayout shutterRangeLayout = (LinearLayout) inflatedView.findViewById(R.id.shutter_range_layout);
+        shutterRangeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -264,7 +286,7 @@ public class EditCameraDialog extends DialogFragment {
                                 newMinShutter = displayedShutterValues[maxShutterPicker.getValue()];
                                 newMaxShutter = displayedShutterValues[minShutterPicker.getValue()];
                             }
-                            updateShutterRangeButton();
+                            updateShutterRangeTextView();
                         }
                         dialog.dismiss();
                     }
@@ -380,8 +402,8 @@ public class EditCameraDialog extends DialogFragment {
     /**
      * Update the shutter speed range Button to display the currently selected shutter speed range.
      */
-    private void updateShutterRangeButton(){
-        shutterRangeButton.setText(newMinShutter == null || newMaxShutter == null ?
+    private void updateShutterRangeTextView(){
+        shutterRangeTextView.setText(newMinShutter == null || newMaxShutter == null ?
                 getResources().getString(R.string.ClickToSet) :
                 newMinShutter + " - " + newMaxShutter
         );

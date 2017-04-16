@@ -312,16 +312,16 @@
     <string name="SelectLensToAddFilters">Select a lens to add filters.</string>
 
     <!--gear_dialog-->
-    <string name="Make">Make:</string>
-    <string name="Model">Model:</string>
-    <string name="SerialNumber">Serial number:</string>
-    <string name="ShutterRange">Shutter range:</string>
-    <string name="ApertureRange">Aperture range:</string>
-    <string name="FocalLengthRange">Focal length range (mm):</string>
-    <string name="ShutterSpeedIncrements">Shutter speed increments:</string>
+    <string name="Make">Make</string>
+    <string name="Model">Model</string>
+    <string name="SerialNumber">Serial number</string>
+    <string name="ShutterRange">Shutter speed range</string>
+    <string name="ApertureRange">Aperture range</string>
+    <string name="FocalLengthRange">Focal length range (mm)</string>
+    <string name="ShutterSpeedIncrements">Shutter speed increments</string>
     <string name="ChooseIncrements">Choose increments</string>
     <string name="Sheet">Sheet</string>
-    <string name="ApertureIncrements">Aperture increments:</string>
+    <string name="ApertureIncrements">Aperture increments</string>
 
 
     <!--item_frame.xml-->
