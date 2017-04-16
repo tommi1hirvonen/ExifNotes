@@ -133,8 +133,6 @@
         -LensSerialNumber
     </string>
 
-    <string name="frame_help">Help for frame fragment</string>
-
 
 
     <!--AllFramesMapsActivity-->
@@ -145,10 +143,6 @@
 
     <!--CamerasFragment-->
     <string name="Cameras">CAMERAS</string>
-    <string name="PickCamerasToDelete">Choose cameras to delete</string>
-    <string name="CameraSameName">Camera with same make and model already exists!</string>
-    <string name="CameraMakeIllegalCharacter">Camera make contains illegal character(s):</string>
-    <string name="CameraModelIllegalCharacter">Camera model contains illegal character(s):</string>
     <string name="SelectMountableLenses">Select mountable lenses</string>
     <string name="CameraNoColon">Camera</string>
     <string name="IsBeingUsed">is being used!</string>
@@ -157,29 +151,21 @@
 
     <!--DirectoryChooserDialog-->
     <string name="CurrentDirectory">Current directory:</string>
-    <string name="NewFolder">New folder</string>
     <string name="NewFolderName">New folder name</string>
     <string name="ExportHere">Export here</string>
     <string name="CouldNotReadDirectories">Could not read directories in directory:</string>
 
-    <!--EditFrameInfoDialog-->
+    <!--EditFrameDialog-->
     <string name="UsedLens">Choose used lens</string>
     <string name="OK">OK</string>
-    <string name="FrameCountNotChanged">Frame count was not changed!\nNew frame count was not a number</string>
-    <string name="ChooseAction">Choose action</string>
-    <string name="Clear">Clear</string>
-    <string name="Reacquire">Reacquire/Edit on map</string>
     <string name="ChooseFrameCount">Choose frame count</string>
     <string name="ChooseShutterSpeed">Choose shutter speed</string>
     <string name="ChooseApertureValue">Choose aperture value</string>
     <string name="ChooseFocalLength">Choose focal length</string>
     <string name="ChooseExposureComp">Choose exposure comp</string>
     <string name="ChooseNoOfExposures">Choose no of exposures</string>
-    <string name="PlusSign">+</string>
 
     <!--EditRollDialog-->
-    <string name="RenameRoll">Rename roll</string>
-    <string name="Rename">Rename</string>
     <string name="EditRoll">Edit roll info</string>
     <string name="ChooseISO">Choose ISO</string>
     <string name="ChoosePushOrPull">Choose push(+) or pull(-)</string>
@@ -188,20 +174,14 @@
     <string name="NoMakeOrModel">No make or model was set!</string>
     <string name="NoMake">No make was set!</string>
     <string name="NoModel">No model was set!</string>
-    <string name="MakeIllegalCharacter">Make contains illegal character(s):</string>
-    <string name="ModelIllegalCharacter">Model contains illegal character(s):</string>
     <string name="NoMinOrMaxShutter">One end of the shutter range was empty!</string>
     <string name="NoMinOrMaxAperture">One end of the aperture range was empty!</string>
     <string name="ChooseShutterRange">Choose shutter range</string>
     <string name="ClickToSet">Click to set</string>
 
     <!--FramesFragment-->
-    <string name="NoteIllegalCharacter">Note contains illegal character(s):</string>
-    <string name="Export">Export</string>
     <string name="ExportOrShare">Export/share files</string>
     <string name="ExportToDevice">Export files to storage</string>
-    <string name="ExportExif">Export ExifTool cmds</string>
-    <string name="ExportCSV">Export .csv</string>
     <string name="ErrorExporting">An error occurred while exporting the files.</string>
     <string name="ExportedFilesTo">Exported file(s) to:</string>
 
@@ -213,10 +193,6 @@
 
     <!--LensesFragment-->
     <string name="Lenses">LENSES</string>
-    <string name="PickLensesToDelete">Choose lenses to delete</string>
-    <string name="LensSameName">Lens with same make and model already exists!</string>
-    <string name="LensMakeIllegalCharacter">Lens make contains illegal character(s):</string>
-    <string name="LensModelIllegalCharacter">Lens model contains illegal character(s):</string>
     <string name="SelectMountableCameras">Select mountable cameras</string>
     <string name="SelectMountableFilters">Select mountable filters</string>
     <string name="LensNoColon">Lens</string>
@@ -229,7 +205,6 @@
     <string name="NewFilter">Add new filter</string>
     <string name="EditFilter">Edit filter</string>
     <string name="FilterNoColon">Filter</string>
-    <string name="FilterSameName">Filter with same make and model already exists!</string>
     <string name="Filters">FILTERS</string>
     <string name="ConfirmFilterDelete">Delete filter</string>
 
@@ -246,13 +221,10 @@
 
     <!--MainActivity-->
     <string name="MainActivityTitle">Film rolls</string>
-    <string name="PickRollsToDelete">Choose rolls to delete</string>
     <string name="Delete">Delete</string>
     <string name="Cancel">Cancel</string>
     <string name="Close">Close</string>
     <string name="Help">Help</string>
-    <string name="RollSameName">Roll with same name already exists!</string>
-    <string name="RollIllegalCharacter">Roll name contains illegal character(s):</string>
 
     <string name="Preferences">Settings</string>
     <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
@@ -270,13 +242,10 @@
     <string name="NoPhotos">No photos</string>
 
     <!--RollsFragment-->
-    <string name="Frames">Frames</string>
-    <string name="PickFramesToDelete">Choose frames to delete</string>
     <string name="ConfirmRollDelete">Delete roll</string>
 
     <string name="EditFrame">Edit frame #</string>
     <string name="NewFrame">Add new frame</string>
-    <string name="Share">Share</string>
     <string name="ShowOnMap">Show on map</string>
     <string name="Edit">Edit</string>
     <string name="DateNoColon">Date</string>
@@ -284,7 +253,6 @@
     <!--RollNameDialog-->
     <string name="NewRoll">Add new roll</string>
     <string name="UsedCamera">Choose used camera</string>
-    <string name="ClickToSelect">Click to select</string>
     <string name="NoName">No name was set!</string>
     <string name="NoCamera">No camera was set!</string>
     <string name="NoNameOrCamera">No name or camera was set!</string>
@@ -317,7 +285,6 @@
 
     <!--roll_dialog.xml-->
     <string name="Name">Name</string>
-    <string name="Note">Notes:</string>
     <string name="Empty">Empty</string>
     <string name="Camera">Camera</string>
     <string name="ISO">ISO</string>
@@ -334,11 +301,8 @@
     <string name="NoLens">No lens</string>
     <string name="NoValue">&#60;empty&#62;</string>
     <string name="Location">Location</string>
-    <string name="NoOfExposures">No. of\nexposures</string>
     <string name="NoOfExposuresSingleLine">No. of exposures</string>
-    <string name="FocalLength">Focal\nlength (mm)</string>
     <string name="FocalLengthSingleLine">Focal length (mm)</string>
-    <string name="ExposureComp">Exposure\ncomp</string>
     <string name="ExposureCompSingleLine">Exposure compensation</string>
     <string name="DescriptionOrNote">Description/note</string>
     <string name="EditDescriptionOrNote">Edit description/note</string>
@@ -351,17 +315,9 @@
     <string name="Make">Make:</string>
     <string name="Model">Model:</string>
     <string name="SerialNumber">Serial number:</string>
-    <string name="MinAperture">Min aperture:</string>
-    <string name="MaxAperture">Max aperture:</string>
-    <string name="MinShutter">Min shutter:</string>
-    <string name="MaxShutter">Max shutter:</string>
     <string name="ShutterRange">Shutter range:</string>
     <string name="ApertureRange">Aperture range:</string>
     <string name="FocalLengthRange">Focal length range (mm):</string>
-    <string name="MeteringMode">Metering mode:</string>
-    <string name="Flash">Flash:</string>
-    <string name="FlashPower">Flash power:</string>
-    <string name="FlashComp">Flash comp:</string>
     <string name="ShutterSpeedIncrements">Shutter speed increments:</string>
     <string name="ChooseIncrements">Choose increments</string>
     <string name="Sheet">Sheet</string>
@@ -382,22 +338,14 @@
     <string name="FStop">F-stop</string>
 
     <!--fragment_preference.xml-->
-    <string name="Settings_Cap">SETTINGS</string>
     <string name="General_Cap">GENERAL</string>
-    <string name="Language_Cap">LANGUAGE</string>
-    <string name="Language">Language</string>
     <string name="GPSUpdateTitle">Enable location updating</string>
     <string name="GPSUpdateSummary">Keep updating the current location using GPS.</string>
-    <string name="AlwaysShowLensSelectionTitle">Always show lens selection</string>
-    <string name="AlwaysShowLensSelectionSummary">If unchecked, the previously used lens will be selected by default when adding a new frame.</string>
-    <string name="ShutterIncrementsTitle">Shutter speed increments</string>
-    <string name="ApertureIncrementsTitle">Aperture value increments</string>
     <string name="ThirdStop">&#8531; stop</string>
     <string name="HalfStop">&#189; stop</string>
     <string name="FullStop">1 stop</string>
     <string name="AppThemeTitle">App theme</string>
     <string name="UIColorTitle">User interface color </string>
-    <string name="UIColorToast">Color change may require app relaunch to fully take effect</string>
     <string name="Orange">Orange</string>
     <string name="Red">Red</string>
     <string name="Pink">Pink</string>

@@ -243,13 +243,13 @@ public class EditRollDialog extends DialogFragment {
             @SuppressLint("CommitTransaction")
             @Override
             public void onClick(View v) {
-                EditCameraInfoDialog dialog = new EditCameraInfoDialog();
+                EditCameraDialog dialog = new EditCameraDialog();
                 dialog.setTargetFragment(EditRollDialog.this, CamerasFragment.ADD_CAMERA);
                 Bundle arguments = new Bundle();
                 arguments.putString("TITLE", getResources().getString( R.string.NewCamera));
                 arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
                 dialog.setArguments(arguments);
-                dialog.show(getFragmentManager().beginTransaction(), EditCameraInfoDialog.TAG);
+                dialog.show(getFragmentManager().beginTransaction(), EditCameraDialog.TAG);
             }
         });
         //==========================================================================================
@@ -590,7 +590,7 @@ public class EditRollDialog extends DialogFragment {
      * Executed when an activity or fragment, which is started for result, sends an onActivityResult
      * signal to this fragment.
      *
-     * Handle EditCameraInfoDialog's result.
+     * Handle EditCameraDialog's result.
      *
      * @param requestCode the request code that was set for the intent
      * @param resultCode the result code to tell whether the user picked ok or cancel

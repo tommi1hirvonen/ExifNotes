@@ -23,7 +23,7 @@ import android.widget.Toast;
 import com.tommihirvonen.exifnotes.adapters.CameraAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
-import com.tommihirvonen.exifnotes.dialogs.EditCameraInfoDialog;
+import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.R;
@@ -41,12 +41,12 @@ public class CamerasFragment extends Fragment implements
         AdapterView.OnItemClickListener {
 
     /**
-     * Constant passed to EditCameraInfoDialog for result
+     * Constant passed to EditCameraDialog for result
      */
     public static final int ADD_CAMERA = 1;
 
     /**
-     * Constant passed to EditCameraInfoDialog for result
+     * Constant passed to EditCameraDialog for result
      */
     private static final int EDIT_CAMERA = 2;
 
@@ -255,7 +255,7 @@ public class CamerasFragment extends Fragment implements
 
                 case R.id.menu_item_edit:
 
-                    EditCameraInfoDialog dialog = new EditCameraInfoDialog();
+                    EditCameraDialog dialog = new EditCameraDialog();
                     dialog.setTargetFragment(this, EDIT_CAMERA);
                     Bundle arguments = new Bundle();
                     arguments.putString("TITLE", getResources().getString( R.string.EditCamera));
@@ -263,7 +263,7 @@ public class CamerasFragment extends Fragment implements
                     arguments.putParcelable("CAMERA", camera);
 
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), EditCameraInfoDialog.TAG);
+                    dialog.show(getFragmentManager().beginTransaction(), EditCameraDialog.TAG);
 
                     return true;
             }
@@ -272,17 +272,17 @@ public class CamerasFragment extends Fragment implements
     }
 
     /**
-     * Show EditCameraInfoDialog to add a new camera to the database
+     * Show EditCameraDialog to add a new camera to the database
      */
     @SuppressLint("CommitTransaction")
     private void showCameraNameDialog() {
-        EditCameraInfoDialog dialog = new EditCameraInfoDialog();
+        EditCameraDialog dialog = new EditCameraDialog();
         dialog.setTargetFragment(this, ADD_CAMERA);
         Bundle arguments = new Bundle();
         arguments.putString("TITLE", getResources().getString( R.string.NewCamera));
         arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditCameraInfoDialog.TAG);
+        dialog.show(getFragmentManager().beginTransaction(), EditCameraDialog.TAG);
     }
 
     /**

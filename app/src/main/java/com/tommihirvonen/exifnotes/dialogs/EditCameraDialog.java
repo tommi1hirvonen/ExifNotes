@@ -38,12 +38,12 @@ import java.util.Collections;
 /**
  * Dialog to edit Camera's information
  */
-public class EditCameraInfoDialog extends DialogFragment {
+public class EditCameraDialog extends DialogFragment {
 
     /**
      * Public constant used to tag the fragment when created
      */
-    public static final String TAG = "CameraInfoDialogFragment";
+    public static final String TAG = "EditCameraDialog";
 
     /**
      * Holds the information of the edited Camera
@@ -84,7 +84,7 @@ public class EditCameraInfoDialog extends DialogFragment {
     /**
      * Empty constructor
      */
-    public EditCameraInfoDialog(){
+    public EditCameraDialog(){
 
     }
 

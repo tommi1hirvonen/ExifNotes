@@ -47,7 +47,7 @@ import com.tommihirvonen.exifnotes.activities.MainActivity;
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.dialogs.DirectoryChooserDialog;
-import com.tommihirvonen.exifnotes.dialogs.EditFrameInfoDialog;
+import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.activities.MapsActivity;
@@ -81,14 +81,14 @@ public class FramesFragment extends Fragment implements
     public static final String FRAMES_FRAGMENT_TAG = "FRAMES_FRAGMENT";
 
     /**
-     * Constant passed to EditFrameInfoDialog for result
+     * Constant passed to EditFrameDialog for result
      */
-    private static final int FRAME_INFO_DIALOG = 1;
+    private static final int FRAME_DIALOG = 1;
 
     /**
-     * Constant passed to EditFrameInfoDialog for result
+     * Constant passed to EditFrameDialog for result
      */
-    private static final int EDIT_FRAME_INFO_DIALOG = 2;
+    private static final int EDIT_FRAME_DIALOG = 2;
 
     /**
      * Constant passed to ErrorDialogFragment
@@ -369,10 +369,10 @@ public class FramesFragment extends Fragment implements
                     arguments.putString("POSITIVE_BUTTON", positiveButton);
                     arguments.putParcelable("FRAME", frame);
 
-                    EditFrameInfoDialog dialog = new EditFrameInfoDialog();
-                    dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
+                    EditFrameDialog dialog = new EditFrameDialog();
+                    dialog.setTargetFragment(this, EDIT_FRAME_DIALOG);
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), EditFrameInfoDialog.TAG);
+                    dialog.show(getFragmentManager().beginTransaction(), EditFrameDialog.TAG);
 
                     return true;
 
@@ -695,7 +695,7 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * Called when a frame is pressed. Show the EditFrameInfoDialog.
+     * Called when a frame is pressed. Show the EditFrameDialog.
      *
      * @param parent the parent AdapterView, not used
      * @param view the view of the clicked item, not used
@@ -714,10 +714,10 @@ public class FramesFragment extends Fragment implements
         arguments.putString("POSITIVE_BUTTON", positiveButton);
         arguments.putParcelable("FRAME", frame);
 
-        EditFrameInfoDialog dialog = new EditFrameInfoDialog();
-        dialog.setTargetFragment(this, EDIT_FRAME_INFO_DIALOG);
+        EditFrameDialog dialog = new EditFrameDialog();
+        dialog.setTargetFragment(this, EDIT_FRAME_DIALOG);
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditFrameInfoDialog.TAG);
+        dialog.show(getFragmentManager().beginTransaction(), EditFrameDialog.TAG);
     }
 
     /**
@@ -784,14 +784,14 @@ public class FramesFragment extends Fragment implements
         }
         frame.setNoOfExposures(1);
 
-        EditFrameInfoDialog dialog = new EditFrameInfoDialog();
-        dialog.setTargetFragment(this, FRAME_INFO_DIALOG);
+        EditFrameDialog dialog = new EditFrameDialog();
+        dialog.setTargetFragment(this, FRAME_DIALOG);
         Bundle arguments = new Bundle();
         arguments.putString("TITLE", title);
         arguments.putString("POSITIVE_BUTTON", positiveButton);
         arguments.putParcelable("FRAME", frame);
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager(), EditFrameInfoDialog.TAG);
+        dialog.show(getFragmentManager(), EditFrameDialog.TAG);
     }
 
     /**
@@ -805,7 +805,7 @@ public class FramesFragment extends Fragment implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
 
-            case FRAME_INFO_DIALOG:
+            case FRAME_DIALOG:
 
                 if (resultCode == Activity.RESULT_OK) {
 
@@ -835,7 +835,7 @@ public class FramesFragment extends Fragment implements
                 }
                 break;
 
-            case EDIT_FRAME_INFO_DIALOG:
+            case EDIT_FRAME_DIALOG:
 
                 if (resultCode == Activity.RESULT_OK) {
 

@@ -41,12 +41,12 @@ import java.util.List;
 /**
  * Dialog to edit Lens's information
  */
-public class EditLensInfoDialog extends DialogFragment {
+public class EditLensDialog extends DialogFragment {
 
     /**
      * Public constant used to tag the fragment when created
      */
-    public static final String TAG = "LensInfoDialogFragment";
+    public static final String TAG = "EditLensDialog";
 
     /**
      * Constant used to indicate the maximum possible focal length.
@@ -108,7 +108,7 @@ public class EditLensInfoDialog extends DialogFragment {
     /**
      * Empty constructor
      */
-    public EditLensInfoDialog(){
+    public EditLensDialog(){
 
     }
 

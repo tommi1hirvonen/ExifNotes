@@ -24,7 +24,7 @@ import com.tommihirvonen.exifnotes.adapters.LensAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
-import com.tommihirvonen.exifnotes.dialogs.EditLensInfoDialog;
+import com.tommihirvonen.exifnotes.dialogs.EditLensDialog;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.R;
@@ -41,12 +41,12 @@ public class LensesFragment extends Fragment implements
         View.OnClickListener, AdapterView.OnItemClickListener {
 
     /**
-     * Constant passed to EditLensInfoDialog for result
+     * Constant passed to EditLensDialog for result
      */
     private static final int ADD_LENS = 1;
 
     /**
-     * Constant passed to EditLensInfoDialog for result
+     * Constant passed to EditLensDialog for result
      */
     private static final int EDIT_LENS = 2;
 
@@ -260,7 +260,7 @@ public class LensesFragment extends Fragment implements
 
                 case R.id.menu_item_edit:
 
-                    EditLensInfoDialog dialog = new EditLensInfoDialog();
+                    EditLensDialog dialog = new EditLensDialog();
                     dialog.setTargetFragment(this, EDIT_LENS);
                     Bundle arguments = new Bundle();
                     arguments.putString("TITLE", getResources().getString( R.string.EditLens));
@@ -268,7 +268,7 @@ public class LensesFragment extends Fragment implements
                     arguments.putParcelable("LENS", lens);
                     arguments.putInt("POSITION", position);
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
+                    dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
 
                     return true;
             }
@@ -277,17 +277,17 @@ public class LensesFragment extends Fragment implements
     }
 
     /**
-     * Show EditLensInfoDialog to add a new lens to the database
+     * Show EditLensDialog to add a new lens to the database
      */
     @SuppressLint("CommitTransaction")
     private void showLensNameDialog() {
-        EditLensInfoDialog dialog = new EditLensInfoDialog();
+        EditLensDialog dialog = new EditLensDialog();
         dialog.setTargetFragment(this, ADD_LENS);
         Bundle arguments = new Bundle();
         arguments.putString("TITLE", getResources().getString( R.string.NewLens));
         arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
+        dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
     }
 
     /**

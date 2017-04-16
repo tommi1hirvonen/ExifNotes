@@ -22,12 +22,12 @@ import com.tommihirvonen.exifnotes.utilities.Utilities;
 /**
  * Dialog to edit a Filter's information
  */
-public class EditFilterInfoDialog extends DialogFragment {
+public class EditFilterDialog extends DialogFragment {
 
     /**
      * Public constant used to tag this fragment when it is created
      */
-    public static final String TAG = "FilterInfoDialogFragment";
+    public static final String TAG = "EditFilterDialog";
 
     /**
      * The filter to be edited
@@ -37,7 +37,7 @@ public class EditFilterInfoDialog extends DialogFragment {
     /**
      * Empty constructor
      */
-    public EditFilterInfoDialog(){
+    public EditFilterDialog(){
 
     }
 

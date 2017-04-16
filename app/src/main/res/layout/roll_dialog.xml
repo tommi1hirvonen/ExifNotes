@@ -44,7 +44,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:clickable="true"
-                android:id="@+id/name_layout"
                 android:background="?android:attr/selectableItemBackground"
                 >
 

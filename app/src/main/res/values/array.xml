@@ -6,12 +6,6 @@
         <item>@string/HalfStop</item>
         <item>@string/FullStop</item>
     </string-array>
-    
-    <string-array name="StopIncrementsData">
-        <item>third</item>
-        <item>half</item>
-        <item>full</item>
-    </string-array>
 
     <string-array name="AppThemeOptions">
         <item>@string/Light</item>

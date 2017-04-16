@@ -24,7 +24,7 @@ import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.adapters.FilterAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
-import com.tommihirvonen.exifnotes.dialogs.EditFilterInfoDialog;
+import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
@@ -41,12 +41,12 @@ public class FiltersFragment extends Fragment implements
         View.OnClickListener {
 
     /**
-     * Constant passed to EditFilterInfoDialog for result
+     * Constant passed to EditFilterDialog for result
      */
     private static final int ADD_FILTER = 1;
 
     /**
-     * Constant passed to EditFilterInfoDialog for result
+     * Constant passed to EditFilterDialog for result
      */
     private static final int EDIT_FILTER = 2;
 
@@ -201,17 +201,17 @@ public class FiltersFragment extends Fragment implements
     }
 
     /**
-     * Show EditFilterInfoDialog to add a new filter to the database
+     * Show EditFilterDialog to add a new filter to the database
      */
     @SuppressLint("CommitTransaction")
     private void showFilterNameDialog() {
-        EditFilterInfoDialog dialog = new EditFilterInfoDialog();
+        EditFilterDialog dialog = new EditFilterDialog();
         dialog.setTargetFragment(this, ADD_FILTER);
         Bundle arguments = new Bundle();
         arguments.putString("TITLE", getResources().getString( R.string.NewFilter));
         arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
+        dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
     }
 
     /**
@@ -283,14 +283,14 @@ public class FiltersFragment extends Fragment implements
 
                 case R.id.menu_item_edit:
 
-                    EditFilterInfoDialog dialog = new EditFilterInfoDialog();
+                    EditFilterDialog dialog = new EditFilterDialog();
                     dialog.setTargetFragment(this, EDIT_FILTER);
                     Bundle arguments = new Bundle();
                     arguments.putString("TITLE", getResources().getString( R.string.EditFilter));
                     arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
                     arguments.putParcelable("FILTER", filter);
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
+                    dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
 
                     return true;
             }

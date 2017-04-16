@@ -52,7 +52,7 @@ import java.util.List;
 /**
  * Dialog to edit Frame's information
  */
-public class EditFrameInfoDialog extends DialogFragment {
+public class EditFrameDialog extends DialogFragment {
 
     /**
      * Public constant used to tag the fragment when created
@@ -65,12 +65,12 @@ public class EditFrameInfoDialog extends DialogFragment {
     private final static int PLACE_PICKER_REQUEST = 1;
 
     /**
-     * Constant passed to EditLensInfoDialog for result
+     * Constant passed to EditLensDialog for result
      */
     private final static int ADD_LENS = 2;
 
     /**
-     * Constant passed to EditFilterInfoDialog for result
+     * Constant passed to EditFilterDialog for result
      */
     private final static int ADD_FILTER = 3;
 
@@ -209,7 +209,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     /**
      * Empty constructor
      */
-    public EditFrameInfoDialog() {
+    public EditFrameDialog() {
         // Empty constructor required for DialogFragment
     }
 
@@ -400,13 +400,13 @@ public class EditFrameInfoDialog extends DialogFragment {
             @SuppressLint("CommitTransaction")
             @Override
             public void onClick(View v) {
-                EditLensInfoDialog dialog = new EditLensInfoDialog();
-                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_LENS);
+                EditLensDialog dialog = new EditLensDialog();
+                dialog.setTargetFragment(EditFrameDialog.this, ADD_LENS);
                 Bundle arguments = new Bundle();
                 arguments.putString("TITLE", getResources().getString(R.string.NewLens));
                 arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
                 dialog.setArguments(arguments);
-                dialog.show(getFragmentManager().beginTransaction(), EditLensInfoDialog.TAG);
+                dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
             }
         });
         //==========================================================================================
@@ -911,13 +911,13 @@ public class EditFrameInfoDialog extends DialogFragment {
                             Toast.LENGTH_LONG).show();
                     return;
                 }
-                EditFilterInfoDialog dialog = new EditFilterInfoDialog();
-                dialog.setTargetFragment(EditFrameInfoDialog.this, ADD_FILTER);
+                EditFilterDialog dialog = new EditFilterDialog();
+                dialog.setTargetFragment(EditFrameDialog.this, ADD_FILTER);
                 Bundle arguments = new Bundle();
                 arguments.putString("TITLE", getResources().getString(R.string.NewFilter));
                 arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
                 dialog.setArguments(arguments);
-                dialog.show(getFragmentManager().beginTransaction(), EditFilterInfoDialog.TAG);
+                dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
             }
         });
         //==========================================================================================
@@ -989,7 +989,7 @@ public class EditFrameInfoDialog extends DialogFragment {
      * Executed when an activity or fragment, which is started for result, sends an onActivityResult
      * signal to this fragment.
      *
-     * Handle LocationPickActivity, EditLensInfoDialog or EditFilterInfoDialog's result.
+     * Handle LocationPickActivity, EditLensDialog or EditFilterDialog's result.
      *
      * @param requestCode the request code that was set for the intent
      * @param resultCode the result code to tell whether the user picked ok or cancel

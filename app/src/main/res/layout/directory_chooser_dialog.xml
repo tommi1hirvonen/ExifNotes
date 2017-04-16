@@ -23,7 +23,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/title_textview"
                 android:text="@string/CurrentDirectory"
                 android:textColor="@color/white"
                 android:textSize="20sp"
