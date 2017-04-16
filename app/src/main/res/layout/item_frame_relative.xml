@@ -22,7 +22,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:layout_alignParentLeft="true"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textSize="28sp"
         android:text="@string/Text"
         android:id="@+id/tvCount"

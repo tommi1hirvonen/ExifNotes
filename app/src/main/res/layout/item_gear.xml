@@ -14,6 +14,7 @@
         android:paddingRight="20dp"
         android:gravity="bottom"
         android:layout_marginBottom="2dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textSize="20sp"
         android:scrollHorizontally="true"
         android:ellipsize="end"
