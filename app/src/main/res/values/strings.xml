@@ -177,7 +177,7 @@
     <string name="ChooseNoOfExposures">Choose no of exposures</string>
     <string name="PlusSign">+</string>
 
-    <!--EditRollNameDialog-->
+    <!--EditRollDialog-->
     <string name="RenameRoll">Rename roll</string>
     <string name="Rename">Rename</string>
     <string name="EditRoll">Edit roll info</string>
@@ -315,14 +315,14 @@
     <!--filters_fragment.xml-->
     <string name="NoFilters">No added filters</string>
 
-    <!--roll_info_dialoglog.xml-->
-    <string name="Name">Name:</string>
+    <!--roll_dialog.xml-->
+    <string name="Name">Name</string>
     <string name="Note">Notes:</string>
     <string name="Empty">Empty</string>
-    <string name="Camera">Camera:</string>
-    <string name="ISO">ISO:</string>
-    <string name="PushPull">Push(+)/pull(-):</string>
-    <string name="Format">Format:</string>
+    <string name="Camera">Camera</string>
+    <string name="ISO">ISO</string>
+    <string name="PushPull">Push(+)/pull(-)</string>
+    <string name="Format">Format</string>
 
     <!--frame_dialog.xml-->
     <string name="Lens">Lens</string>

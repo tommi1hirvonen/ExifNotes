@@ -27,7 +27,7 @@ import com.tommihirvonen.exifnotes.adapters.RollAdapter;
 import com.tommihirvonen.exifnotes.activities.AllFramesMapsActivity;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
-import com.tommihirvonen.exifnotes.dialogs.EditRollNameDialog;
+import com.tommihirvonen.exifnotes.dialogs.EditRollDialog;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
@@ -56,14 +56,14 @@ public class RollsFragment extends Fragment implements
     public static final String ROLLS_FRAGMENT_TAG = "ROLLS_FRAGMENT";
 
     /**
-     * Constant passed to EditRollNameDialog for result
+     * Constant passed to EditRollDialog for result
      */
-    private static final int ROLL_NAME_DIALOG = 1;
+    private static final int ROLL_DIALOG = 1;
 
     /**
-     * Constant passed to EditRollNameDialog for result
+     * Constant passed to EditRollDialog for result
      */
-    private static final int EDIT_ROLL_NAME_DIALOG = 2;
+    private static final int EDIT_ROLL_DIALOG = 2;
 
     /**
      * Reference to the parent activity's OnRollSelectedListener
@@ -392,7 +392,7 @@ public class RollsFragment extends Fragment implements
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.fab:
-                showRollNameDialog();
+                showRollDialog();
                 break;
         }
     }
@@ -421,15 +421,15 @@ public class RollsFragment extends Fragment implements
      * @param position the position of the roll in rollList
      */
     @SuppressLint("CommitTransaction")
-    private void showEditRollNameDialog(int position){
-        EditRollNameDialog dialog = new EditRollNameDialog();
+    private void showEditRollDialog(int position){
+        EditRollDialog dialog = new EditRollDialog();
         Bundle arguments = new Bundle();
         arguments.putParcelable("ROLL", rollList.get(position));
         arguments.putString("TITLE", getActivity().getResources().getString(R.string.EditRoll));
         arguments.putString("POSITIVE_BUTTON", getActivity().getResources().getString(R.string.OK));
         dialog.setArguments(arguments);
-        dialog.setTargetFragment(this, EDIT_ROLL_NAME_DIALOG);
-        dialog.show(getFragmentManager().beginTransaction(), EditRollNameDialog.TAG);
+        dialog.setTargetFragment(this, EDIT_ROLL_DIALOG);
+        dialog.show(getFragmentManager().beginTransaction(), EditRollDialog.TAG);
     }
 
     /**
@@ -437,14 +437,14 @@ public class RollsFragment extends Fragment implements
      * Shows a DialogFragment to add a new roll.
      */
     @SuppressLint("CommitTransaction")
-    private void showRollNameDialog() {
-        EditRollNameDialog dialog = new EditRollNameDialog();
+    private void showRollDialog() {
+        EditRollDialog dialog = new EditRollDialog();
         Bundle arguments = new Bundle();
         arguments.putString("TITLE", getActivity().getResources().getString(R.string.NewRoll));
         arguments.putString("POSITIVE_BUTTON", getActivity().getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.setTargetFragment(this, ROLL_NAME_DIALOG);
-        dialog.show(getFragmentManager().beginTransaction(), EditRollNameDialog.TAG);
+        dialog.setTargetFragment(this, ROLL_DIALOG);
+        dialog.show(getFragmentManager().beginTransaction(), EditRollDialog.TAG);
     }
 
     /**
@@ -462,7 +462,7 @@ public class RollsFragment extends Fragment implements
             switch (item.getItemId()) {
                 case R.id.menu_item_edit:
 
-                    showEditRollNameDialog(info.position);
+                    showEditRollDialog(info.position);
 
                     return true;
 
@@ -515,7 +515,7 @@ public class RollsFragment extends Fragment implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
 
-            case ROLL_NAME_DIALOG:
+            case ROLL_DIALOG:
 
                 if (resultCode == Activity.RESULT_OK) {
 
@@ -543,7 +543,7 @@ public class RollsFragment extends Fragment implements
                 }
                 break;
 
-            case EDIT_ROLL_NAME_DIALOG:
+            case EDIT_ROLL_DIALOG:
 
                 if (resultCode == Activity.RESULT_OK) {
 

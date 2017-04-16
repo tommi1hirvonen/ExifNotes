@@ -57,7 +57,7 @@ public class EditFrameInfoDialog extends DialogFragment {
     /**
      * Public constant used to tag the fragment when created
      */
-    public static final String TAG = "EditFrameInfoDialogFragment";
+    public static final String TAG = "EditFrameDialog";
 
     /**
      * Constant passed to LocationPickActivity for result

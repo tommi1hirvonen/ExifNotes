@@ -9,19 +9,26 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.view.inputmethod.EditorInfo;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -40,12 +47,12 @@ import java.util.List;
 /**
  * Dialog to edit Roll's information
  */
-public class EditRollNameDialog extends DialogFragment {
+public class EditRollDialog extends DialogFragment {
 
     /**
      * Public constant used to tag the fragment when created
      */
-    public static final String TAG = "EditNameDialogFragment";
+    public static final String TAG = "EditRollDialog";
 
     /**
      * Holds the information of the edited Roll
@@ -92,6 +99,11 @@ public class EditRollNameDialog extends DialogFragment {
     private int newIso;
 
     /**
+     * Currently set note
+     */
+    private String newNote;
+
+    /**
      * Currently selected push or pull value in format 0, +/-X or +/-Y/Z where X, Y and Z are numbers
      */
     private String newPushPull;
@@ -99,7 +111,7 @@ public class EditRollNameDialog extends DialogFragment {
     /**
      * Empty constructor
      */
-    public EditRollNameDialog () {
+    public EditRollDialog() {
 
     }
 
@@ -131,7 +143,7 @@ public class EditRollNameDialog extends DialogFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
-                R.layout.roll_info_dialog, null);
+                R.layout.roll_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
@@ -146,21 +158,49 @@ public class EditRollNameDialog extends DialogFragment {
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflatedView);
 
-        final EditText nameEditText = (EditText) inflatedView.findViewById((R.id.txt_name));
-        final EditText noteEditText = (EditText) inflatedView.findViewById(R.id.txt_note);
+        //==========================================================================================
+        //DIVIDERS
 
-        cameraTextView = (TextView) inflatedView.findViewById(R.id.btn_camera);
-        final TextView dateTextView = (TextView) inflatedView.findViewById(R.id.btn_date);
-        final TextView timeTextView = (TextView) inflatedView.findViewById(R.id.btn_time);
-        final Button addCameraButton = (Button) inflatedView.findViewById(R.id.btn_add_camera);
+        // Color the dividers white if the app's theme is dark
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String theme = preferences.getString("AppTheme", "LIGHT");
+        if (theme.equals("DARK")) {
+            List<View> dividerList = new ArrayList<>();
+            dividerList.add(inflatedView.findViewById(R.id.divider_view1));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view2));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view3));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view4));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view5));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view6));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view7));
+            for (View v : dividerList) {
+                v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
+            }
+            ((ImageView) inflatedView.findViewById(R.id.add_camera)).getDrawable().mutate()
+                    .setColorFilter(
+                            ContextCompat.getColor(getActivity(), R.color.white),
+                            PorterDuff.Mode.SRC_IN
+                    );
+        }
+        //==========================================================================================
 
+        // NAME EDIT TEXT
+        final EditText nameEditText = (EditText) inflatedView.findViewById((R.id.name_editText));
+        nameEditText.setText(roll.getName());
+        // Place the cursor at the end of the input field
+        nameEditText.setSelection(nameEditText.getText().length());
+
+
+        //==========================================================================================
         // CAMERA PICK DIALOG
-        cameraTextView.setClickable(true);
+        cameraTextView = (TextView) inflatedView.findViewById(R.id.camera_text);
         if (roll.getCameraId() > 0) cameraTextView.setText(
                 database.getCamera(roll.getCameraId())
                         .getMake() + " " + database.getCamera(roll.getCameraId()).getModel());
-        else cameraTextView.setText(R.string.ClickToSelect);
-        cameraTextView.setOnClickListener(new View.OnClickListener() {
+        else cameraTextView.setText("");
+
+        final LinearLayout cameraLayout = (LinearLayout) inflatedView.findViewById(R.id.camera_layout);
+        cameraLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final List<String> listItems = new ArrayList<>();
@@ -191,15 +231,20 @@ public class EditRollNameDialog extends DialogFragment {
                 alert.show();
             }
         });
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         // CAMERA ADD DIALOG
-        addCameraButton.setClickable(true);
-        addCameraButton.setOnClickListener(new View.OnClickListener() {
+        final ImageView addCameraImageView = (ImageView) inflatedView.findViewById(R.id.add_camera);
+        addCameraImageView.setClickable(true);
+        addCameraImageView.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CommitTransaction")
             @Override
             public void onClick(View v) {
                 EditCameraInfoDialog dialog = new EditCameraInfoDialog();
-                dialog.setTargetFragment(EditRollNameDialog.this, CamerasFragment.ADD_CAMERA);
+                dialog.setTargetFragment(EditRollDialog.this, CamerasFragment.ADD_CAMERA);
                 Bundle arguments = new Bundle();
                 arguments.putString("TITLE", getResources().getString( R.string.NewCamera));
                 arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
@@ -207,8 +252,16 @@ public class EditRollNameDialog extends DialogFragment {
                 dialog.show(getFragmentManager().beginTransaction(), EditCameraInfoDialog.TAG);
             }
         });
+        //==========================================================================================
 
+
+        //==========================================================================================
         // DATE PICK DIALOG
+        final TextView dateTextView = (TextView) inflatedView.findViewById(R.id.date_text);
+
+        // Declare timeTextView here, so that we can use it inside the date listener
+        final TextView timeTextView = (TextView) inflatedView.findViewById(R.id.time_text);
+
         if (roll.getDate() == null) roll.setDate(Utilities.getCurrentTime());
         List<String> dateValue = Utilities.splitDate(roll.getDate());
         int tempYear = Integer.parseInt(dateValue.get(0));
@@ -216,11 +269,10 @@ public class EditRollNameDialog extends DialogFragment {
         int tempDay = Integer.parseInt(dateValue.get(2));
         dateTextView.setText(tempYear + "-" + tempMonth + "-" + tempDay);
 
-        dateTextView.setClickable(true);
-
         newDate = roll.getDate();
 
-        dateTextView.setOnClickListener(new View.OnClickListener() {
+        final LinearLayout dateLayout = (LinearLayout) inflatedView.findViewById(R.id.date_layout);
+        dateLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // DATE PICKER DIALOG IMPLEMENTATION HERE
@@ -244,17 +296,21 @@ public class EditRollNameDialog extends DialogFragment {
 
             }
         });
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         // TIME PICK DIALOG
+
         List<String> timeValue = Utilities.splitTime(roll.getDate());
         int tempHours = Integer.parseInt(timeValue.get(0));
         int tempMinutes = Integer.parseInt(timeValue.get(1));
         if (tempMinutes < 10) timeTextView.setText(tempHours + ":0" + tempMinutes);
         else timeTextView.setText(tempHours + ":" + tempMinutes);
 
-        timeTextView.setClickable(true);
-
-        timeTextView.setOnClickListener(new View.OnClickListener() {
+        final LinearLayout timeLayout = (LinearLayout) inflatedView.findViewById(R.id.time_layout);
+        timeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TIME PICKER DIALOG IMPLEMENTATION HERE
@@ -278,11 +334,19 @@ public class EditRollNameDialog extends DialogFragment {
 
             }
         });
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         //ISO PICKER
-        final Button isoButton = (Button) inflatedView.findViewById(R.id.btn_iso);
-        isoButton.setText(String.valueOf(newIso));
-        isoButton.setOnClickListener(new View.OnClickListener() {
+        final TextView isoTextView = (TextView) inflatedView.findViewById(R.id.iso_text);
+        isoTextView.setText(
+                 newIso == 0 ? "" : String.valueOf(newIso)
+        );
+
+        final LinearLayout isoLayout = (LinearLayout) inflatedView.findViewById(R.id.iso_layout);
+        isoLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -309,7 +373,7 @@ public class EditRollNameDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         newIso = Integer.parseInt(Utilities.isoValues[isoPicker.getValue()]);
-                        isoButton.setText(String.valueOf(newIso));
+                        isoTextView.setText(newIso == 0 ? "" : String.valueOf(newIso));
                     }
                 });
                 builder.setNegativeButton(getResources().getString(R.string.Cancel),
@@ -323,14 +387,20 @@ public class EditRollNameDialog extends DialogFragment {
                 dialog.show();
             }
         });
+        //==========================================================================================
 
 
+
+
+        //==========================================================================================
         //PUSH PULL PICKER
-        final Button pushPullButton = (Button) inflatedView.findViewById(R.id.btn_push_pull);
-        pushPullButton.setText(
-                newPushPull == null || newPushPull.equals("0") ? "±0" : newPushPull
+        final TextView pushPullTextView = (TextView) inflatedView.findViewById(R.id.push_pull_text);
+        pushPullTextView.setText(
+                newPushPull == null || newPushPull.equals("0") ? "" : newPushPull
         );
-        pushPullButton.setOnClickListener(new View.OnClickListener() {
+
+        final LinearLayout pushPullLayout = (LinearLayout) inflatedView.findViewById(R.id.push_pull_layout);
+        pushPullLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -360,8 +430,8 @@ public class EditRollNameDialog extends DialogFragment {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             newPushPull = Utilities.compValues[pushPullPicker.getValue()];
-                            pushPullButton.setText(
-                                    newPushPull.equals("0") ? "±0" : newPushPull
+                            pushPullTextView.setText(
+                                    newPushPull.equals("0") ? "" : newPushPull
                             );
                         }
                 });
@@ -376,14 +446,19 @@ public class EditRollNameDialog extends DialogFragment {
                 dialog.show();
             }
         });
+        //==========================================================================================
 
+
+
+        //==========================================================================================
         //FORMAT PICK DIALOG
-        final TextView formatTextView = (TextView) inflatedView.findViewById(R.id.btn_format);
-        formatTextView.setClickable(true);
+        final TextView formatTextView = (TextView) inflatedView.findViewById(R.id.format_text);
         if (roll.getFormat() == 0) roll.setFormat(0);
         formatTextView.setText(getResources().getStringArray(R.array.FilmFormats)[roll.getFormat()]);
         newFormat = roll.getFormat();
-        formatTextView.setOnClickListener(new View.OnClickListener() {
+
+        final LinearLayout formatLayout = (LinearLayout) inflatedView.findViewById(R.id.format_layout);
+        formatLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int checkedItem = newFormat;
@@ -408,16 +483,51 @@ public class EditRollNameDialog extends DialogFragment {
                 builder.create().show();
             }
         });
+        //==========================================================================================
+
+
+        //==========================================================================================
+        // NOTE DIALOG
+        newNote = roll.getNote();
+        final TextView noteTextView = (TextView) inflatedView.findViewById(R.id.note_text);
+        noteTextView.setText(
+                newNote == null ? "" : newNote
+        );
+        final LinearLayout noteLayout = (LinearLayout) inflatedView.findViewById(R.id.note_layout);
+        noteLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getResources().getString(R.string.EditDescriptionOrNote));
+                final EditText noteEditText = new EditText(getActivity());
+                builder.setView(noteEditText);
+                noteEditText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                noteEditText.setSingleLine(false);
+                noteEditText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+                noteEditText.setText(newNote);
+                builder.setPositiveButton(getResources().getString(R.string.OK),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                newNote = noteEditText.getText().toString();
+                                noteTextView.setText(newNote);
+                            }
+                        });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Do nothing
+                            }
+                        });
+                builder.create().show();
+            }
+        });
+        //==========================================================================================
 
 
 
         //FINALISE SETTING UP THE DIALOG
-
-        // Show old name on the input field by default
-        nameEditText.setText(roll.getName());
-        noteEditText.setText(roll.getNote());
-        // Place the cursor at the end of the input field
-        nameEditText.setSelection(nameEditText.getText().length());
 
         alert.setPositiveButton(positiveButton, null);
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -456,7 +566,7 @@ public class EditRollNameDialog extends DialogFragment {
                             Toast.LENGTH_SHORT).show();
                 } else {
                     roll.setName(name);
-                    roll.setNote(noteEditText.getText().toString());
+                    roll.setNote(newNote);
                     roll.setCameraId(newCameraId);
                     roll.setDate(newDate);
                     roll.setIso(newIso);
