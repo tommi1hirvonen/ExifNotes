@@ -1,45 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:id="@+id/root"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginLeft="3dp"
-        android:layout_marginRight="3dp"
-        android:layout_marginTop="15dp"
-        android:text="@string/Make"
+    <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
+     doesn't get focus when the Dialog is first shown. -->
+
+    <View
+        android:id="@+id/scrollIndicatorUp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center_horizontal|top"
+        android:background="@color/black"
+        android:alpha="0.15"
+        android:visibility="gone"
+        tools:visibility="visible"
         />
 
-    <EditText
-        android:id="@+id/txt_make"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:hint="@string/Empty"
-        android:inputType="textCapSentences"
-        android:maxLength="100"/>
+        android:fillViewport="true"
+        android:id="@+id/nested_scroll_view"
+        >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginLeft="3dp"
-        android:layout_marginRight="3dp"
-        android:layout_marginTop="15dp"
-        android:text="@string/Model"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+
+
+
+
+            <!--MAKE-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Make"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:id="@+id/make_editText"
+                    android:inputType="textCapSentences"
+                    />
+
+            </LinearLayout>
+
+
+            <!--MODEL-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view1"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Model"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:id="@+id/model_editText"
+                    android:inputType="textCapSentences"
+                    />
+
+            </LinearLayout>
+
+
+
+
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <View
+        android:id="@+id/scrollIndicatorDown"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:background="@color/black"
+        android:alpha="0.15"
+        android:visibility="gone"
+        tools:visibility="visible"
         />
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/txt_model"
-        android:layout_marginTop="5dp"
-        android:hint="@string/Empty"
-        android:inputType="textCapSentences"
-        android:maxLength="100"/>
-
-</LinearLayout>
+</FrameLayout>

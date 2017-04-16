@@ -7,8 +7,11 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -18,6 +21,9 @@ import android.widget.Toast;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Dialog to edit a Filter's information
@@ -65,9 +71,26 @@ public class EditFilterDialog extends DialogFragment {
 
         alert.setView(inflatedView);
 
-        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.txt_make);
+
+        //==========================================================================================
+        //DIVIDERS
+
+        // Color the dividers white if the app's theme is dark
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String theme = preferences.getString("AppTheme", "LIGHT");
+        if (theme.equals("DARK")) {
+            List<View> dividerList = new ArrayList<>();
+            dividerList.add(inflatedView.findViewById(R.id.divider_view1));
+            for (View v : dividerList) {
+                v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
+            }
+        }
+        //==========================================================================================
+
+
+        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.make_editText);
         makeEditText.setText(filter.getMake());
-        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.txt_model);
+        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.model_editText);
         modelEditText.setText(filter.getModel());
 
 

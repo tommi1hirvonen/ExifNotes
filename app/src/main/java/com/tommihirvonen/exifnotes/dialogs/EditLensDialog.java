@@ -20,7 +20,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -80,9 +79,9 @@ public class EditLensDialog extends DialogFragment {
     private String newMaxAperture;
 
     /**
-     * Reference to the Button to edit the aperture value range
+     * Reference to the TextView to display the aperture value range
      */
-    private Button apertureRangeButton;
+    private TextView apertureRangeTextView;
 
     /**
      * Stores the currently displayed aperture values.
@@ -101,9 +100,9 @@ public class EditLensDialog extends DialogFragment {
     private int newMaxFocalLength;
 
     /**
-     * Reference to the Button to edit the focal length range
+     * Reference to the TextView to display the focal length range
      */
-    private Button focalLengthRangeButton;
+    private TextView focalLengthRangeTextView;
 
     /**
      * Empty constructor
@@ -154,20 +153,42 @@ public class EditLensDialog extends DialogFragment {
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflatedView);
 
-        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.txt_make);
+        //==========================================================================================
+        //DIVIDERS
+
+        // Color the dividers white if the app's theme is dark
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String theme = preferences.getString("AppTheme", "LIGHT");
+        if (theme.equals("DARK")) {
+            List<View> dividerList = new ArrayList<>();
+            dividerList.add(inflatedView.findViewById(R.id.divider_view1));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view2));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view3));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view4));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view5));
+            for (View v : dividerList) {
+                v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
+            }
+        }
+        //==========================================================================================
+
+        // EDIT TEXT FIELDS
+        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.make_editText);
         makeEditText.setText(lens.getMake());
-        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.txt_model);
+        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.model_editText);
         modelEditText.setText(lens.getModel());
-        final EditText serialNumberEditText = (EditText) inflatedView.findViewById(R.id.txt_serial_number);
+        final EditText serialNumberEditText = (EditText) inflatedView.findViewById(R.id.serialNumber_editText);
         serialNumberEditText.setText(lens.getSerialNumber());
+
 
         //APERTURE INCREMENTS BUTTON
         newApertureIncrements = lens.getApertureIncrements();
-        final TextView apertureIncrementsTextView = (TextView) inflatedView.findViewById(R.id.btn_apertureIncrements);
-        apertureIncrementsTextView.setClickable(true);
+        final TextView apertureIncrementsTextView = (TextView) inflatedView.findViewById(R.id.increment_text);
         apertureIncrementsTextView.setText(
                 getResources().getStringArray(R.array.StopIncrements)[lens.getApertureIncrements()]);
-        apertureIncrementsTextView.setOnClickListener(new View.OnClickListener() {
+
+        final LinearLayout apertureIncrementLayout = (LinearLayout) inflatedView.findViewById(R.id.increment_layout);
+        apertureIncrementLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int checkedItem = newApertureIncrements;
@@ -208,7 +229,7 @@ public class EditLensDialog extends DialogFragment {
                         if (!minFound || !maxFound) {
                             newMinAperture = null;
                             newMaxAperture = null;
-                            updateApertureRangeButton();
+                            updateApertureRangeTextView();
                         }
 
                         dialogInterface.dismiss();
@@ -228,9 +249,11 @@ public class EditLensDialog extends DialogFragment {
         //APERTURE RANGE BUTTON
         newMinAperture = lens.getMinAperture();
         newMaxAperture = lens.getMaxAperture();
-        apertureRangeButton = (Button) inflatedView.findViewById(R.id.btn_apertureRange);
-        updateApertureRangeButton();
-        apertureRangeButton.setOnClickListener(new View.OnClickListener() {
+        apertureRangeTextView = (TextView) inflatedView.findViewById(R.id.aperture_range_text);
+        updateApertureRangeTextView();
+
+        final LinearLayout apertureRangeLayout = (LinearLayout) inflatedView.findViewById(R.id.aperture_range_layout);
+        apertureRangeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -290,7 +313,7 @@ public class EditLensDialog extends DialogFragment {
                                 newMinAperture = displayedApertureValues[maxAperturePicker.getValue()];
                                 newMaxAperture = displayedApertureValues[minAperturePicker.getValue()];
                             }
-                            updateApertureRangeButton();
+                            updateApertureRangeTextView();
                         }
                         dialog.dismiss();
                     }
@@ -302,9 +325,11 @@ public class EditLensDialog extends DialogFragment {
         //FOCAL LENGTH RANGE BUTTON
         newMinFocalLength = lens.getMinFocalLength();
         newMaxFocalLength = lens.getMaxFocalLength();
-        focalLengthRangeButton = (Button) inflatedView.findViewById(R.id.btn_focalLengthRange);
-        updateFocalLengthRangeButton();
-        focalLengthRangeButton.setOnClickListener(new View.OnClickListener() {
+        focalLengthRangeTextView = (TextView) inflatedView.findViewById(R.id.focal_length_range_text);
+        updateFocalLengthRangeTextView();
+
+        final LinearLayout focalLengthRangeLayout = (LinearLayout) inflatedView.findViewById(R.id.focal_length_range_layout);
+        focalLengthRangeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -398,7 +423,7 @@ public class EditLensDialog extends DialogFragment {
                             newMaxFocalLength = minFocalLengthPicker.getValue();
                             newMinFocalLength = maxFocalLengthPicker.getValue();
                         }
-                        updateFocalLengthRangeButton();
+                        updateFocalLengthRangeTextView();
                         dialog.dismiss();
                     }
                 });
@@ -547,8 +572,8 @@ public class EditLensDialog extends DialogFragment {
     /**
      * Update the aperture range button's text
      */
-    private void updateApertureRangeButton(){
-        apertureRangeButton.setText(newMinAperture == null || newMaxAperture == null ?
+    private void updateApertureRangeTextView(){
+        apertureRangeTextView.setText(newMinAperture == null || newMaxAperture == null ?
                 getResources().getString(R.string.ClickToSet) :
                 "f/" + newMaxAperture + " - " + "f/" + newMinAperture
         );
@@ -557,11 +582,16 @@ public class EditLensDialog extends DialogFragment {
     /**
      * Update the focal length range button's text
      */
-    private void updateFocalLengthRangeButton(){
-        focalLengthRangeButton.setText(newMinFocalLength == 0 || newMaxFocalLength == 0 ?
-                getResources().getString(R.string.ClickToSet) :
-                newMinFocalLength + " - " + newMaxFocalLength
-        );
+    private void updateFocalLengthRangeTextView(){
+        String text;
+        if (newMinFocalLength == 0 || newMaxFocalLength == 0) {
+            text = getResources().getString(R.string.ClickToSet);
+        } else if (newMinFocalLength == newMaxFocalLength) {
+            text = "" + newMinFocalLength;
+        } else {
+            text = newMinFocalLength + " - " + newMaxFocalLength;
+        }
+        focalLengthRangeTextView.setText(text);
     }
 
 }
