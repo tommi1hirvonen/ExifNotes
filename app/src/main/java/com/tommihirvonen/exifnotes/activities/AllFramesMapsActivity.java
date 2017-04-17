@@ -1,10 +1,14 @@
 package com.tommihirvonen.exifnotes.activities;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -18,7 +22,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
+import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
@@ -45,7 +51,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     /**
      * GoogleMap object to show the map and to hold all the markers for all frames
      */
-    private GoogleMap googleMap;
+    private GoogleMap googleMap_;
 
     /**
      * Member to indicate whether this activity was continued or not.
@@ -113,12 +119,12 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.googleMap = googleMap;
+        googleMap_ = googleMap;
 
         // If the app's theme is dark, stylize the map with the custom night mode
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
-            this.googleMap.setMapStyle(new MapStyleOptions(getResources()
+            googleMap_.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.style_json)));
         }
 
@@ -156,11 +162,13 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                     position = new LatLng(lat, lng);
                     String title = "" + roll.getName();
                     String snippet = "#" + frame.getCount();
-                    markerList.add(this.googleMap.addMarker(new MarkerOptions()
+                    Marker marker = googleMap_.addMarker(new MarkerOptions()
                             .icon(markerStyles.get(i))
                             .position(position)
                             .title(title)
-                            .snippet(snippet)));
+                            .snippet(snippet));
+                    marker.setTag(frame);
+                    markerList.add(marker);
                 }
             }
             ++i;
@@ -175,13 +183,73 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
             final LatLngBounds bounds = builder.build();
 
             //If the activity was continued then the animation is not needed.
-            if (!continueActivity) this.googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            if (!continueActivity) googleMap_.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
                     int padding = 100;
-                    AllFramesMapsActivity.this.googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+                    googleMap_.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
                 }
             });
+
+            googleMap_.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker marker) {
+                    return null;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+
+                    if (marker.getTag() instanceof Frame) {
+
+                        Frame frame = (Frame) marker.getTag();
+                        Roll roll = database.getRoll(frame.getRollId());
+                        Camera camera = database.getCamera(roll.getCameraId());
+                        Lens lens = null;
+                        if (frame.getLensId() > 0) lens = database.getLens(frame.getLensId());
+
+                        @SuppressLint("InflateParams")
+                        View view = getLayoutInflater().inflate(R.layout.info_window_all_frames, null);
+
+                        TextView rollTextView = (TextView) view.findViewById(R.id.roll_name);
+                        TextView cameraTextView = (TextView) view.findViewById(R.id.camera);
+                        TextView frameCountTextView = (TextView) view.findViewById(R.id.frame_count);
+                        TextView dateTimeTextView = (TextView) view.findViewById(R.id.date_time);
+                        TextView lensTextView = (TextView) view.findViewById(R.id.lens);
+                        TextView noteTextView = (TextView) view.findViewById(R.id.note);
+
+                        rollTextView.setText(roll.getName());
+                        cameraTextView.setText(camera.getMake() + " " + camera.getModel());
+
+                        String frameCountText = "#" + frame.getCount();
+                        frameCountTextView.setText(frameCountText);
+
+                        dateTimeTextView.setText(frame.getDate());
+
+                        if (lens != null) {
+                            lensTextView.setText(lens.getMake() + " " + lens.getModel());
+                        }
+                        else {
+                            lensTextView.setText(getResources().getString(R.string.NoLens));
+                        }
+
+                        noteTextView.setText(frame.getNote());
+
+                        return view;
+
+                    } else {
+                        return null;
+                    }
+
+                }
+            });
+
+            final Activity activity = this;
+
+            googleMap_.setOnInfoWindowClickListener(
+                    MapsActivity.mapsActivityInfoWindowClickListener(activity, database)
+            );
+
         }
         else {
             Toast.makeText(this, getResources().getString(R.string.NoFramesToShow), Toast.LENGTH_LONG).show();

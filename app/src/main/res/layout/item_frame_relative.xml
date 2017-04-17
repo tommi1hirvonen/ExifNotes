@@ -23,6 +23,7 @@
         android:gravity="center"
         android:layout_alignParentLeft="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:alpha="0.7"
         android:textSize="28sp"
         android:text="@string/Text"
         android:id="@+id/tvCount"

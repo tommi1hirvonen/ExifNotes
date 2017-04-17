@@ -327,6 +327,9 @@
     <!--item_frame.xml-->
     <string name="Text">Text</string>
 
+    <!--info_window-->
+    <string name="ClickToEdit">(CLICK TO EDIT)</string>
+
     <!--name_dialog-->
     <string name="NameNoColon">Name</string>
 

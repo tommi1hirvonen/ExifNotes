@@ -15,6 +15,7 @@
         android:gravity="bottom"
         android:layout_marginBottom="2dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:alpha="0.9"
         android:textSize="20sp"
         android:scrollHorizontally="true"
         android:ellipsize="end"
@@ -31,7 +32,6 @@
         android:paddingBottom="10dp"
         android:gravity="center_vertical"
         android:textSize="13sp"
-        android:textStyle="italic"
         />
 
 

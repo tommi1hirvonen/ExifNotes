@@ -270,21 +270,21 @@ public class RollsFragment extends Fragment implements
                 break;
 
             case R.id.menu_item_lenses:
-                Intent intent = new Intent(getActivity(), GearActivity.class);
-                startActivity(intent);
+                Intent gearActivityIntent = new Intent(getActivity(), GearActivity.class);
+                startActivity(gearActivityIntent);
 
                 break;
             case R.id.menu_item_preferences:
 
-                Intent preferences_intent = new Intent(getActivity(), PreferenceActivity.class);
+                Intent preferenceActivityIntent = new Intent(getActivity(), PreferenceActivity.class);
                 // With these extras we can skip the headers in the preferences.
-                preferences_intent.putExtra(
+                preferenceActivityIntent.putExtra(
                         PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName());
-                preferences_intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
+                preferenceActivityIntent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
 
                 //Start the preference activity from MainActivity.
                 //The result will be handled in MainActivity.
-                getActivity().startActivityForResult(preferences_intent, MainActivity.PREFERENCE_ACTIVITY_REQUEST);
+                getActivity().startActivityForResult(preferenceActivityIntent, MainActivity.PREFERENCE_ACTIVITY_REQUEST);
 
                 break;
 
@@ -308,8 +308,8 @@ public class RollsFragment extends Fragment implements
             case R.id.menu_item_show_on_map:
 
                 // Show all frames from all rolls on a map
-                Intent intent2 = new Intent(getActivity(), AllFramesMapsActivity.class);
-                startActivity(intent2);
+                Intent allFramesMapsActivityIntent = new Intent(getActivity(), AllFramesMapsActivity.class);
+                startActivity(allFramesMapsActivityIntent);
 
                 break;
         }

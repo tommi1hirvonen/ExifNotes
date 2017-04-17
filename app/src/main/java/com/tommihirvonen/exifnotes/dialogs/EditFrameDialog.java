@@ -87,7 +87,7 @@ public class EditFrameDialog extends DialogFragment {
     /**
      * Holds the information of the edited frame
      */
-    private Frame frame;
+    Frame frame;
 
     /**
      * Holds all the lenses that can be mounted to the used camera
@@ -117,22 +117,22 @@ public class EditFrameDialog extends DialogFragment {
     /**
      * Database id of the currently selected lens
      */
-    private long newLensId;
+    long newLensId;
 
     /**
      * Currently selected datetime in format 'YYYY-M-D H:MM'
      */
-    private String newDate;
+    String newDate;
 
     /**
      * Currently selected latitude longitude location in format '12,3456... 12,3456...'
      */
-    private String newLocation;
+    String newLocation;
 
     /**
      * Database id of the currently selected filter
      */
-    private long newFilterId;
+    long newFilterId;
 
     /**
      * Currently selected lens's aperture increment setting
@@ -147,38 +147,38 @@ public class EditFrameDialog extends DialogFragment {
     /**
      * Currently selected frame count number
      */
-    private int newFrameCount;
+    int newFrameCount;
 
     /**
      * Currently selected shutter speed value in format 1/X, Y" or B, where X and Y are numbers
      */
-    private String newShutter;
+    String newShutter;
 
     /**
      * Currently selected aperture value, number only
      */
-    private String newAperture;
+    String newAperture;
 
     /**
      * Currently selected focal length
      */
-    private int newFocalLength;
+    int newFocalLength;
 
     /**
      * Currently selected exposure compensation in format
      * 0, +/-X or +/-Y/Z where X, Y and Z are numbers
      */
-    private String newExposureComp;
+    String newExposureComp;
 
     /**
      * Currently selected number of exposures (multiple exposure)
      */
-    private int newNoOfExposures;
+    int newNoOfExposures;
 
     /**
      * Currently set description or note
      */
-    private String newNote;
+    String newNote;
 
     /**
      * TextView used to display the current aperture value
@@ -956,20 +956,7 @@ public class EditFrameDialog extends DialogFragment {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                frame.setShutter(newShutter);
-                frame.setAperture(newAperture);
-                frame.setCount(newFrameCount);
-                frame.setNote(newNote);
-
-                // PARSE THE DATE
-                frame.setDate(newDate);
-
-                frame.setLensId(newLensId);
-                frame.setLocation(newLocation);
-                frame.setFilterId(newFilterId);
-                frame.setExposureComp(newExposureComp);
-                frame.setNoOfExposures(newNoOfExposures);
-                frame.setFocalLength(newFocalLength);
+                finalizeFrame();
 
                 // Return the new entered name to the calling activity
                 Intent intent = new Intent();
@@ -982,6 +969,27 @@ public class EditFrameDialog extends DialogFragment {
         });
 
         return dialog;
+    }
+
+    /**
+     * Package-private method to finalize the member that is passed to the target fragment
+     * Also used in the child class EditFrameDialogInterface
+     */
+    void finalizeFrame(){
+        frame.setShutter(newShutter);
+        frame.setAperture(newAperture);
+        frame.setCount(newFrameCount);
+        frame.setNote(newNote);
+
+        // PARSE THE DATE
+        frame.setDate(newDate);
+
+        frame.setLensId(newLensId);
+        frame.setLocation(newLocation);
+        frame.setFilterId(newFilterId);
+        frame.setExposureComp(newExposureComp);
+        frame.setNoOfExposures(newNoOfExposures);
+        frame.setFocalLength(newFocalLength);
     }
 
 

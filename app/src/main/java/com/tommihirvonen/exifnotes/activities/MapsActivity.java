@@ -1,11 +1,15 @@
 package com.tommihirvonen.exifnotes.activities;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -18,6 +22,9 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
+import com.tommihirvonen.exifnotes.datastructures.Lens;
+import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
+import com.tommihirvonen.exifnotes.dialogs.EditFrameDialogInterface;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.R;
@@ -32,6 +39,11 @@ import java.util.List;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     /**
+     * Reference to the singleton database
+     */
+    private FilmDbHelper database;
+
+    /**
      * List of the roll's frames
      */
     private List<Frame> frameList = new ArrayList<>();
@@ -39,7 +51,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     /**
      * GoogleMap object to show the map and to hold all the markers for all frames
      */
-    private GoogleMap googleMap;
+    private GoogleMap googleMap_;
 
     /**
      * Member to indicate whether this activity was continued or not.
@@ -55,6 +67,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        database = FilmDbHelper.getInstance(this);
 
         // In onSaveInstanceState a dummy boolean was put into outState.
         // savedInstanceState is not null if the activity was continued.
@@ -116,12 +130,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.googleMap = googleMap;
+        googleMap_ = googleMap;
 
         // If the app's theme is dark, stylize the map with the custom night mode
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
-            this.googleMap.setMapStyle(new MapStyleOptions(getResources()
+            googleMap_.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.style_json)));
         }
 
@@ -140,8 +154,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 position = new LatLng(lat, lng);
                 String title = "#" + frame.getCount();
                 String snippet = frame.getDate();
-                markerArrayList.add(this.googleMap.addMarker(
-                        new MarkerOptions().position(position).title(title).snippet(snippet)));
+
+                Marker marker = googleMap_.addMarker(
+                        new MarkerOptions().position(position).title(title).snippet(snippet)
+                );
+                marker.setTag(frame);
+                markerArrayList.add(marker);
             }
         }
 
@@ -152,17 +170,118 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             final LatLngBounds bounds = builder.build();
 
-            if (!continueActivity) this.googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            if (!continueActivity) googleMap_.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
                     int padding = 100;
-                    MapsActivity.this.googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+                    googleMap_.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
                 }
             });
+
+            final GoogleMap.InfoWindowAdapter adapter = new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker marker) {
+                    return null;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+                    if (marker.getTag() instanceof Frame) {
+
+                        final Frame frame = (Frame) marker.getTag();
+                        @SuppressLint("InflateParams")
+                        View view = getLayoutInflater().inflate(R.layout.info_window, null);
+
+                        TextView frameCountTextView = (TextView) view.findViewById(R.id.frame_count);
+                        TextView dateTimeTextView = (TextView) view.findViewById(R.id.date_time);
+                        TextView lensTextView = (TextView) view.findViewById(R.id.lens);
+                        TextView noteTextView = (TextView) view.findViewById(R.id.note);
+
+                        String frameCountText = "#" + frame.getCount();
+                        frameCountTextView.setText(frameCountText);
+                        dateTimeTextView.setText(frame.getDate());
+
+                        if (frame.getLensId() > 0) {
+                            Lens lens = database.getLens(frame.getLensId());
+                            lensTextView.setText(lens.getMake() + " " + lens.getModel());
+                        }
+                        else {
+                            lensTextView.setText(getResources().getString(R.string.NoLens));
+                        }
+                        noteTextView.setText(frame.getNote());
+
+                        return view;
+
+                    } else {
+                        return null;
+                    }
+                }
+            };
+
+            googleMap_.setInfoWindowAdapter(adapter);
+
+            final AppCompatActivity activity = this;
+
+            googleMap_.setOnInfoWindowClickListener(
+                    mapsActivityInfoWindowClickListener(activity, database)
+            );
+
         }
         else {
             Toast.makeText(this, getResources().getString(R.string.NoFramesToShow), Toast.LENGTH_LONG).show();
         }
+    }
+
+    /**
+     * Public static method to create a custom InfoWindowClick listener interface.
+     * Also used in AllFramesMapsActivity
+     *
+     * @param activity calling activity
+     * @param database singleton reference to the app's database
+     * @return new OnInfoWindowClickListener object
+     */
+    public static GoogleMap.OnInfoWindowClickListener mapsActivityInfoWindowClickListener(
+            final Activity activity, final FilmDbHelper database) {
+
+        return new GoogleMap.OnInfoWindowClickListener() {
+            @SuppressLint("CommitTransaction")
+            @Override
+            public void onInfoWindowClick(final Marker marker) {
+                if (marker.getTag() instanceof Frame) {
+
+                    Frame frame = (Frame) marker.getTag();
+
+                    if (frame != null) {
+
+                        Bundle arguments = new Bundle();
+                        String title = "" + activity.getResources().getString(R.string.EditFrame) + frame.getCount();
+                        String positiveButton = activity.getResources().getString(R.string.OK);
+                        arguments.putString("TITLE", title);
+                        arguments.putString("POSITIVE_BUTTON", positiveButton);
+                        arguments.putParcelable("FRAME", frame);
+
+                        EditFrameDialogInterface dialog = new EditFrameDialogInterface();
+                        dialog.setArguments(arguments);
+                        dialog.setOnPositiveButtonClickedListener(
+                                new EditFrameDialogInterface.OnPositiveButtonClickedListener() {
+                                    @Override
+                                    public void onPositiveButtonClicked(int requestCode, int resultCode, Intent data) {
+                                        Frame editedFrame = data.getParcelableExtra("FRAME");
+                                        if (editedFrame != null) {
+                                            database.updateFrame(editedFrame);
+                                            marker.setTag(editedFrame);
+                                            marker.hideInfoWindow();
+                                            marker.showInfoWindow();
+                                            activity.setResult(Activity.RESULT_OK);
+                                        }
+                                    }
+                                });
+                        dialog.show(activity.getFragmentManager().beginTransaction(), EditFrameDialog.TAG);
+
+                    }
+                }
+            }
+        };
     }
 
     /**

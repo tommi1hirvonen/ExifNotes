@@ -17,6 +17,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -96,6 +97,11 @@ public class FramesFragment extends Fragment implements
     private static final int ERROR_DIALOG = 3;
 
     /**
+     * Constant passed to MapsActivity
+     */
+    private static final int SHOW_ON_MAP = 4;
+
+    /**
      * Reference to the singleton database
      */
     private FilmDbHelper database;
@@ -168,6 +174,11 @@ public class FramesFragment extends Fragment implements
      * Reference to the parent activity's OnHomeAsUpPressedListener
      */
     private OnHomeAsUpPressedListener callback;
+
+    /**
+     * Holds the scroll state of the listview when it is recreated
+     */
+    private Parcelable mainListViewScrollState;
 
     /**
      * This interface is implemented in MainActivity.
@@ -441,21 +452,21 @@ public class FramesFragment extends Fragment implements
                 break;
 
             case R.id.menu_item_lenses:
-                Intent intent = new Intent(getActivity(), GearActivity.class);
-                startActivity(intent);
+                Intent gearActivityIntent = new Intent(getActivity(), GearActivity.class);
+                startActivity(gearActivityIntent);
 
                 break;
             case R.id.menu_item_preferences:
 
-                Intent preferences_intent = new Intent(getActivity(), PreferenceActivity.class);
+                Intent preferenceActivityIntent = new Intent(getActivity(), PreferenceActivity.class);
                 // With these extras we can skip the headers in the preferences.
-                preferences_intent.putExtra(
+                preferenceActivityIntent.putExtra(
                         PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName());
-                preferences_intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
+                preferenceActivityIntent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
 
                 //Start the preference activity from MainActivity.
                 //The result will be handled in MainActivity.
-                getActivity().startActivityForResult(preferences_intent, MainActivity.PREFERENCE_ACTIVITY_REQUEST);
+                getActivity().startActivityForResult(preferenceActivityIntent, MainActivity.PREFERENCE_ACTIVITY_REQUEST);
 
                 break;
 
@@ -485,9 +496,11 @@ public class FramesFragment extends Fragment implements
 
             case R.id.menu_item_show_on_map:
 
-                Intent intent2 = new Intent(getActivity(), MapsActivity.class);
-                intent2.putExtra(ROLL_ID_EXTRA_MESSAGE, rollId);
-                startActivity(intent2);
+                // Save the current scroll position
+                mainListViewScrollState = mainListView.onSaveInstanceState();
+                Intent mapsActivityIntent = new Intent(getActivity(), MapsActivity.class);
+                mapsActivityIntent.putExtra(ROLL_ID_EXTRA_MESSAGE, rollId);
+                startActivityForResult(mapsActivityIntent, SHOW_ON_MAP);
                 break;
 
             //Export to device
@@ -866,6 +879,22 @@ public class FramesFragment extends Fragment implements
                             !googleApiClient.isConnected()) {
                         googleApiClient.connect();
                     }
+                }
+
+                break;
+
+            case SHOW_ON_MAP:
+
+                if (resultCode == Activity.RESULT_OK) {
+
+                    frameList = database.getAllFramesFromRoll(rollId);
+                    Utilities.sortFrameList(getActivity(), database, frameList);
+                    frameAdapter = new FrameAdapter(getActivity(), frameList);
+                    mainListView.setAdapter(frameAdapter);
+                    frameAdapter.notifyDataSetChanged();
+                    // Set the saved scroll position
+                    mainListView.onRestoreInstanceState(mainListViewScrollState);
+
                 }
 
                 break;
