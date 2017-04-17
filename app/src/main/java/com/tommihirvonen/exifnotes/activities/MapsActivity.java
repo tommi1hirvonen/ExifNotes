@@ -25,7 +25,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
-import com.tommihirvonen.exifnotes.dialogs.EditFrameDialogInterface;
+import com.tommihirvonen.exifnotes.dialogs.EditFrameDialogCallback;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.R;
@@ -264,10 +264,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         arguments.putString("POSITIVE_BUTTON", positiveButton);
                         arguments.putParcelable("FRAME", frame);
 
-                        EditFrameDialogInterface dialog = new EditFrameDialogInterface();
+                        EditFrameDialogCallback dialog = new EditFrameDialogCallback();
                         dialog.setArguments(arguments);
                         dialog.setOnPositiveButtonClickedListener(
-                                new EditFrameDialogInterface.OnPositiveButtonClickedListener() {
+                                new EditFrameDialogCallback.OnPositiveButtonClickedListener() {
                                     @Override
                                     public void onPositiveButtonClicked(int requestCode, int resultCode, Intent data) {
                                         Frame editedFrame = data.getParcelableExtra("FRAME");

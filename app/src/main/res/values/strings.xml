@@ -7,19 +7,22 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.7.3\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.8.0\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -Bug fixes\n
-        -Added a dark theme option\n
-        -Added new tags:\n
-        \t\t\t-ImageDescription\n
-        \t\t\t-DateTimeOriginal\n
+        -UI updates\n
+        -Frames can be edited from the map\n
+        -Map displays more information about frames\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.8.0 2017-04-17:\n
+        -UI updates\n
+        -Frames can be edited from the map\n
+        -Map displays more information about frames\n
         \n
         v1.7.3 2017-04-14:\n
         -Bug fixes\n
@@ -43,7 +46,7 @@
         -Lenses now have an aperture range, focal length range and aperture increment setting.\n
         -Cameras now have a shutter speed range and a shutter speed increment setting.\n
         -Rolls now have ISO, push/pull and format attributes.\n
-        -Frames now have focal length, exposure comp, no. of exposures and filter attributes.
+        -Frames now have focal length, exposure comp, no. of exposures and filter attributes.\n
         -The user can now export and import the entire database as a .db file. This is useful when you want to transfer all your data to a new phone for example.\n
         -Changes to ExifTool commands: file names can now have a prefix before the frame number and the user can now choose in the settings which file ending should be used.\n
         \n
@@ -328,7 +331,7 @@
     <string name="Text">Text</string>
 
     <!--info_window-->
-    <string name="ClickToEdit">CLICK TO EDIT</string>
+    <string name="ClickToEdit">Click to edit</string>
 
     <!--name_dialog-->
     <string name="NameNoColon">Name</string>

@@ -8,22 +8,46 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 
-public class EditFrameDialogInterface extends EditFrameDialog {
+/**
+ * Class extended from EditFrameDialog.
+ * Instead of target fragment, this class passes the result through an interface.
+ */
+public class EditFrameDialogCallback extends EditFrameDialog {
 
+    /**
+     * Interface implemented by the calling class
+     */
     public interface OnPositiveButtonClickedListener {
         void onPositiveButtonClicked(int requestCode, int resultCode, Intent data);
     }
 
+    /**
+     * Reference to the implementing class's interface
+     */
     private OnPositiveButtonClickedListener callback;
 
-    public EditFrameDialogInterface(){
+    /**
+     * Call parent class constructor
+     */
+    public EditFrameDialogCallback(){
         super();
     }
 
+    /**
+     * Method to set the reference to the calling class's interface
+     * @param listener calling class's listener interface
+     */
     public void setOnPositiveButtonClickedListener (OnPositiveButtonClickedListener listener) {
         callback = listener;
     }
 
+    /**
+     * Get the dialog from parent class, but edit its positive and negative button listeners.
+     * Pass the result to the calling class through its interface.
+     *
+     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
+     * @return dialog with edited positive and negative button click listeners
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {

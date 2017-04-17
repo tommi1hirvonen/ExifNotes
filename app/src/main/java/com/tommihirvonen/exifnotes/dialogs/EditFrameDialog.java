@@ -878,12 +878,12 @@ public class EditFrameDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // listItems also contains the No lens option
-                        filterTextView.setText(listItems.get(which));
                         if (which > 0) {
+                            filterTextView.setText(listItems.get(which));
                             newFilterId = mountableFilters.get(which - 1).getId();
                         }
                         else if (which == 0) {
-                            newFilterId = -1;
+                            resetFilters();
                         }
                         dialog.dismiss();
                     }
@@ -973,7 +973,7 @@ public class EditFrameDialog extends DialogFragment {
 
     /**
      * Package-private method to finalize the member that is passed to the target fragment
-     * Also used in the child class EditFrameDialogInterface
+     * Also used in the child class EditFrameDialogCallback
      */
     void finalizeFrame(){
         frame.setShutter(newShutter);
@@ -1285,7 +1285,7 @@ public class EditFrameDialog extends DialogFragment {
     private void updateLocationTextView(){
         locationTextView.setText(
                 newLocation == null || newLocation.length() == 0 ?
-                        "" :
+                        " \n " :
                         Utilities.getReadableLocationFromString(newLocation)
                                 .replace("N ","N\n").replace("S ", "S\n")
         );
