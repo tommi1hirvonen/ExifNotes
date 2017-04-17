@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
@@ -86,8 +87,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         frameList = database.getAllFramesFromRoll(rollId);
 
         Utilities.setUiColor(this, true);
-        if (getSupportActionBar() != null) getSupportActionBar().setTitle(
-                database.getRoll(rollId).getName());
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(database.getRoll(rollId).getName());
+            Camera camera = database.getCamera(database.getRoll(rollId).getCameraId());
+            getSupportActionBar().setSubtitle(camera.getMake() + " " + camera.getModel());
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

@@ -46,6 +46,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.tommihirvonen.exifnotes.activities.MainActivity;
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter;
+import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.dialogs.DirectoryChooserDialog;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
@@ -275,6 +276,10 @@ public class FramesFragment extends Fragment implements
             //noinspection ConstantConditions
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(
                     database.getRoll(rollId).getName());
+            Camera camera = database.getCamera(database.getRoll(rollId).getCameraId());
+            //noinspection ConstantConditions
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(
+                    camera.getMake() + " " + camera.getModel());
             //noinspection ConstantConditions
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }

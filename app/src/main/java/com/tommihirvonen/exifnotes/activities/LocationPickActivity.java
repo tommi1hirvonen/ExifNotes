@@ -80,8 +80,9 @@ public class LocationPickActivity extends AppCompatActivity implements
         floatingActionButton.setOnClickListener(this);
 
         Utilities.setUiColor(this, true);
-        if (getSupportActionBar() != null) getSupportActionBar().setTitle(
-                getResources().getString(R.string.PickLocation));
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(getResources().getString(R.string.PickLocation));
+        }
 
         int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
 
