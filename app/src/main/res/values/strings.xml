@@ -12,6 +12,7 @@
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
+        -Bug fixes\n
         -UI updates\n
         -Frames can be edited from the map\n
         -Map displays more information about frames\n
@@ -19,7 +20,8 @@
     <string name="VersionHistory">
         Version history\n
         \n
-        v1.8.0 2017-04-17:\n
+        v1.8.0 2017-04-18:\n
+        -Bug fixes\n
         -UI updates\n
         -Frames can be edited from the map\n
         -Map displays more information about frames\n
