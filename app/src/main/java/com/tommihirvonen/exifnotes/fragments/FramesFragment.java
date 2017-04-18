@@ -587,7 +587,17 @@ public class FramesFragment extends Fragment implements
                 exifToolCmdsExportSuccess = true;
         }
 
-        return csvExportSuccess && exifToolCmdsExportSuccess;
+        switch (filesToExport) {
+            case "BOTH":
+                return csvExportSuccess && exifToolCmdsExportSuccess;
+            case "CSV":
+                return csvExportSuccess;
+            case "EXIFTOOL":
+                return exifToolCmdsExportSuccess;
+            default:
+                return false;
+        }
+
     }
 
     /**

@@ -26,6 +26,7 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
+import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
@@ -724,7 +725,7 @@ public class Utilities {
                 stringBuilder.append(apertureTag).append(quote).append(frame.getAperture()).append(quote).append(space);
                 stringBuilder.append(fNumberTag).append(quote).append(frame.getAperture()).append(quote).append(space);
             }
-            //UserComment
+            //UserComment & ImageDescription
             if (frame.getNote() != null && frame.getNote().length() > 0) {
                 stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
                 stringBuilder.append(imageDescriptionTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
@@ -829,6 +830,7 @@ public class Utilities {
                 .append("Exposure compensation").append(separator)
                 .append("Notes").append(separator)
                 .append("No of exposures").append(separator)
+                .append("Filter").append(separator)
                 .append("Location").append("\n");
 
         for (Frame frame : frameList) {
@@ -877,6 +879,14 @@ public class Utilities {
 
             //Number of exposures
             stringBuilder.append(frame.getNoOfExposures());
+            stringBuilder.append(separator);
+            
+            //Filter
+            if (frame.getFilterId() > 0) {
+                Filter filter = database.getFilter(frame.getFilterId());
+                String filterText = filter.getMake() + " " + filter.getModel();
+                stringBuilder.append(filterText);
+            }
             stringBuilder.append(separator);
 
             //Location
