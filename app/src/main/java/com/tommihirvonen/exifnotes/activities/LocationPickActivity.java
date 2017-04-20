@@ -72,6 +72,11 @@ public class LocationPickActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+            setTheme(R.style.Theme_AppCompat);
+        }
+
         if (savedInstanceState != null) continueActivity = true;
 
         setContentView(R.layout.activity_location_pick);

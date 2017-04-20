@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +70,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+            setTheme(R.style.Theme_AppCompat);
+        }
 
         database = FilmDbHelper.getInstance(this);
 
@@ -137,7 +144,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap_ = googleMap;
 
         // If the app's theme is dark, stylize the map with the custom night mode
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
             googleMap_.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.style_json)));
@@ -195,6 +202,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         final Frame frame = (Frame) marker.getTag();
                         @SuppressLint("InflateParams")
                         View view = getLayoutInflater().inflate(R.layout.info_window, null);
+
+                        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+                            LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.background);
+                            linearLayout.setBackgroundColor(
+                                    ContextCompat.getColor(getApplicationContext(), R.color.background_dark_grey)
+                            );
+                        }
 
                         TextView frameCountTextView = (TextView) view.findViewById(R.id.frame_count);
                         TextView dateTimeTextView = (TextView) view.findViewById(R.id.date_time);

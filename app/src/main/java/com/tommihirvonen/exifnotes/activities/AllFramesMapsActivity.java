@@ -5,9 +5,11 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +70,11 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+            setTheme(R.style.Theme_AppCompat);
+        }
+
         // In onSaveInstanceState a dummy boolean was put into outState.
         // savedInstanceState is not null if the activity was continued.
         if (savedInstanceState != null) continueActivity = true;
@@ -122,7 +129,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         googleMap_ = googleMap;
 
         // If the app's theme is dark, stylize the map with the custom night mode
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
             googleMap_.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.style_json)));
@@ -210,6 +217,13 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
 
                         @SuppressLint("InflateParams")
                         View view = getLayoutInflater().inflate(R.layout.info_window_all_frames, null);
+
+                        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+                            LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.background);
+                            linearLayout.setBackgroundColor(
+                                    ContextCompat.getColor(getApplicationContext(), R.color.background_dark_grey)
+                            );
+                        }
 
                         TextView rollTextView = (TextView) view.findViewById(R.id.roll_name);
                         TextView cameraTextView = (TextView) view.findViewById(R.id.camera);

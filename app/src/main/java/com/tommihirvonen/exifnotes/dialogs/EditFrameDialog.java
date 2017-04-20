@@ -18,13 +18,11 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -176,11 +174,6 @@ public class EditFrameDialog extends DialogFragment {
     int newNoOfExposures;
 
     /**
-     * Currently set description or note
-     */
-    String newNote;
-
-    /**
      * TextView used to display the current aperture value
      */
     private TextView apertureTextView;
@@ -189,6 +182,11 @@ public class EditFrameDialog extends DialogFragment {
      * Button used to display the current focal length value
      */
     private TextView focalLengthTextView;
+
+    /**
+     * Reference to the EditText used to edit notes
+     */
+    private EditText noteEditText;
 
     /**
      * Reference to the utilities class
@@ -400,6 +398,7 @@ public class EditFrameDialog extends DialogFragment {
             @SuppressLint("CommitTransaction")
             @Override
             public void onClick(View v) {
+                noteEditText.clearFocus();
                 EditLensDialog dialog = new EditLensDialog();
                 dialog.setTargetFragment(EditFrameDialog.this, ADD_LENS);
                 Bundle arguments = new Bundle();
@@ -494,41 +493,10 @@ public class EditFrameDialog extends DialogFragment {
 
         //==========================================================================================
         //NOTES FIELD
-        newNote = frame.getNote();
-        final TextView noteTextView = (TextView) inflatedView.findViewById(R.id.note_text);
-        noteTextView.setText(
-                newNote == null ? "" : newNote
-        );
-        final LinearLayout noteLayout = (LinearLayout) inflatedView.findViewById(R.id.note_layout);
-        noteLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(getResources().getString(R.string.EditDescriptionOrNote));
-                final EditText noteEditText = new EditText(getActivity());
-                builder.setView(noteEditText);
-                noteEditText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                noteEditText.setSingleLine(false);
-                noteEditText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
-                noteEditText.setText(newNote);
-                builder.setPositiveButton(getResources().getString(R.string.OK),
-                        new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        newNote = noteEditText.getText().toString();
-                        noteTextView.setText(newNote);
-                    }
-                });
-                builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                        new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Do nothing
-                    }
-                });
-                builder.create().show();
-            }
-        });
+        noteEditText = (EditText) inflatedView.findViewById(R.id.note_editText);
+        noteEditText.setSingleLine(false);
+        noteEditText.setText(frame.getNote());
+        noteEditText.setSelection(noteEditText.getText().length());
         //==========================================================================================
 
 
@@ -911,6 +879,7 @@ public class EditFrameDialog extends DialogFragment {
                             Toast.LENGTH_LONG).show();
                     return;
                 }
+                noteEditText.clearFocus();
                 EditFilterDialog dialog = new EditFilterDialog();
                 dialog.setTargetFragment(EditFrameDialog.this, ADD_FILTER);
                 Bundle arguments = new Bundle();
@@ -979,7 +948,7 @@ public class EditFrameDialog extends DialogFragment {
         frame.setShutter(newShutter);
         frame.setAperture(newAperture);
         frame.setCount(newFrameCount);
-        frame.setNote(newNote);
+        frame.setNote(noteEditText.getText().toString());
 
         // PARSE THE DATE
         frame.setDate(newDate);

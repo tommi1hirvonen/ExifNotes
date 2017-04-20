@@ -7,18 +7,18 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.8.0\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.8.1\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
         -Bug fixes\n
-        -UI updates\n
-        -Frames can be edited from the map\n
-        -Map displays more information about frames\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.8.1 2017-04-20:\n
+        -Bug fixes\n
         \n
         v1.8.0 2017-04-18:\n
         -Bug fixes\n

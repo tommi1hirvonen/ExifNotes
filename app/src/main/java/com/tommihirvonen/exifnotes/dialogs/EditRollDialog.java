@@ -18,12 +18,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -97,11 +95,6 @@ public class EditRollDialog extends DialogFragment {
      * Currently selected ISO
      */
     private int newIso;
-
-    /**
-     * Currently set note
-     */
-    private String newNote;
 
     /**
      * Currently selected push or pull value in format 0, +/-X or +/-Y/Z where X, Y and Z are numbers
@@ -192,6 +185,16 @@ public class EditRollDialog extends DialogFragment {
 
 
         //==========================================================================================
+        // NOTE EDIT TEXT
+        final EditText noteEditText = (EditText) inflatedView.findViewById(R.id.note_editText);
+        noteEditText.setSingleLine(false);
+        noteEditText.setText(roll.getNote());
+        noteEditText.setSelection(noteEditText.getText().length());
+        //==========================================================================================
+
+
+
+        //==========================================================================================
         // CAMERA PICK DIALOG
         cameraTextView = (TextView) inflatedView.findViewById(R.id.camera_text);
         if (roll.getCameraId() > 0) cameraTextView.setText(
@@ -243,6 +246,8 @@ public class EditRollDialog extends DialogFragment {
             @SuppressLint("CommitTransaction")
             @Override
             public void onClick(View v) {
+                noteEditText.clearFocus();
+                nameEditText.clearFocus();
                 EditCameraDialog dialog = new EditCameraDialog();
                 dialog.setTargetFragment(EditRollDialog.this, CamerasFragment.ADD_CAMERA);
                 Bundle arguments = new Bundle();
@@ -486,46 +491,6 @@ public class EditRollDialog extends DialogFragment {
         //==========================================================================================
 
 
-        //==========================================================================================
-        // NOTE DIALOG
-        newNote = roll.getNote();
-        final TextView noteTextView = (TextView) inflatedView.findViewById(R.id.note_text);
-        noteTextView.setText(
-                newNote == null ? "" : newNote
-        );
-        final LinearLayout noteLayout = (LinearLayout) inflatedView.findViewById(R.id.note_layout);
-        noteLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(getResources().getString(R.string.EditDescriptionOrNote));
-                final EditText noteEditText = new EditText(getActivity());
-                builder.setView(noteEditText);
-                noteEditText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                noteEditText.setSingleLine(false);
-                noteEditText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
-                noteEditText.setText(newNote);
-                builder.setPositiveButton(getResources().getString(R.string.OK),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                newNote = noteEditText.getText().toString();
-                                noteTextView.setText(newNote);
-                            }
-                        });
-                builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // Do nothing
-                            }
-                        });
-                builder.create().show();
-            }
-        });
-        //==========================================================================================
-
-
 
         //FINALISE SETTING UP THE DIALOG
 
@@ -566,7 +531,7 @@ public class EditRollDialog extends DialogFragment {
                             Toast.LENGTH_SHORT).show();
                 } else {
                     roll.setName(name);
-                    roll.setNote(newNote);
+                    roll.setNote(noteEditText.getText().toString());
                     roll.setCameraId(newCameraId);
                     roll.setDate(newDate);
                     roll.setIso(newIso);

@@ -105,7 +105,7 @@ public class EditFilterDialog extends DialogFragment {
         });
         final AlertDialog dialog = alert.create();
         if (dialog.getWindow() != null) dialog.getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.show();
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.
