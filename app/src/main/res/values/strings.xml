@@ -346,6 +346,15 @@
     <string name="ShutterSpeed">Shutter speed</string>
     <string name="FStop">F-stop</string>
 
+    <!--menu_map_types.xml-->
+    <string name="Normal">Normal</string>
+    <string name="Hybrid">Hybrid</string>
+    <string name="Satellite">Satellite</string>
+    <string name="Terrain">Terrain</string>
+
+    <!--menu_maps_activity.xml-->
+    <string name="MapType">Map type</string>
+
     <!--fragment_preference.xml-->
     <string name="General_Cap">GENERAL</string>
     <string name="GPSUpdateTitle">Enable location updating</string>

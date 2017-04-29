@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,8 +33,6 @@ import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
-import org.w3c.dom.Text;
-
 /**
  * LocationPickActivity allows the user to select a location for a frame on a map.
  */
@@ -41,12 +40,13 @@ public class LocationPickActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         GoogleMap.OnMapClickListener,
         View.OnClickListener,
-        android.support.v7.widget.SearchView.OnQueryTextListener {
+        android.support.v7.widget.SearchView.OnQueryTextListener,
+        PopupMenu.OnMenuItemClickListener {
 
     /**
      * GoogleMap object to show the map and marker
      */
-    private GoogleMap googleMap;
+    private GoogleMap googleMap_;
 
     /**
      * Marker object to hold the marker added/moved by the user.
@@ -102,8 +102,8 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_location_pick);
 
-        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(this);
+        FloatingActionButton confirmFab = (FloatingActionButton) findViewById(R.id.fab);
+        confirmFab.setOnClickListener(this);
 
         Utilities.setUiColor(this, true);
         if (getSupportActionBar() != null) {
@@ -113,7 +113,7 @@ public class LocationPickActivity extends AppCompatActivity implements
         int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
+        confirmFab.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         // In case the app's theme is dark, color the bottom bar dark grey
         if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
@@ -209,6 +209,14 @@ public class LocationPickActivity extends AppCompatActivity implements
             case android.R.id.home:
                 onBackPressed();
                 return true;
+
+            case R.id.menu_item_map_type:
+                View menuItemView = findViewById(R.id.menu_item_map_type);
+                PopupMenu popupMenu = new PopupMenu(this, menuItemView);
+                popupMenu.inflate(R.menu.menu_map_types);
+                popupMenu.setOnMenuItemClickListener(this);
+                popupMenu.show();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -228,21 +236,23 @@ public class LocationPickActivity extends AppCompatActivity implements
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.googleMap = googleMap;
-        this.googleMap.setOnMapClickListener(this);
+        googleMap_ = googleMap;
+        googleMap_.setOnMapClickListener(this);
 
         // If the app's theme is dark, stylize the map with the custom night mode
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
-            this.googleMap.setMapStyle(new MapStyleOptions(getResources()
+            googleMap_.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.style_json)));
         }
+
+        googleMap_.setMapType(prefs.getInt("MAP_TYPE", GoogleMap.MAP_TYPE_NORMAL));
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                         PackageManager.PERMISSION_GRANTED) {
-            this.googleMap.setMyLocationEnabled(true);
+            googleMap_.setMyLocationEnabled(true);
         }
 
         // If the latLngLocation is not empty
@@ -253,17 +263,13 @@ public class LocationPickActivity extends AppCompatActivity implements
                 double lat = Double.parseDouble(latString.replace(",", "."));
                 double lng = Double.parseDouble(lngString.replace(",", "."));
                 final LatLng position = new LatLng(lat, lng);
-                marker = this.googleMap.addMarker(new MarkerOptions().position(position));
+                marker = googleMap_.addMarker(new MarkerOptions().position(position));
 
-                if (!continueActivity)
-                    this.googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                        @Override
-                        public void onMapLoaded() {
-                            LocationPickActivity.this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
-                            // Show hint toast
-                            Toast.makeText(getBaseContext(), getResources().getString(R.string.TapOnMap), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                if (!continueActivity) {
+                    LocationPickActivity.this.googleMap_.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                    Toast.makeText(getBaseContext(), getResources().getString(R.string.TapOnMap), Toast.LENGTH_SHORT).show();
+                }
+
             }
         }
     }
@@ -298,7 +304,7 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         // In case the location was cleared before clicking Edit on map
         if (marker == null) {
-            marker = googleMap.addMarker(new MarkerOptions().position(latLng));
+            marker = googleMap_.addMarker(new MarkerOptions().position(latLng));
         }
         marker.setPosition(latLng);
         latLngLocation = latLng;
@@ -328,7 +334,7 @@ public class LocationPickActivity extends AppCompatActivity implements
                     final LatLng position = new LatLng(lat, lng);
                     marker.setPosition(position);
                     latLngLocation = position;
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                    googleMap_.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
                     formattedAddressTextView.setText(formatted_address);
                     formattedAddress = formatted_address;
 
@@ -378,7 +384,44 @@ public class LocationPickActivity extends AppCompatActivity implements
                     setResult(RESULT_OK, intent);
                     finish();
                 }
+
         }
+    }
+
+    /**
+     * Handle the map type PopupMenu item click events
+     *
+     * @param item MenuItem which was clicked
+     * @return true if the item id matches to one of the map type menu items
+     */
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        switch (item.getItemId()) {
+            case R.id.menu_item_normal:
+                googleMap_.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_NORMAL);
+                editor.apply();
+                return true;
+            case R.id.menu_item_hybrid:
+                googleMap_.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_HYBRID);
+                editor.apply();
+                return true;
+            case R.id.menu_item_satellite:
+                googleMap_.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_SATELLITE);
+                editor.apply();
+                return true;
+            case R.id.menu_item_terrain:
+                googleMap_.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_TERRAIN);
+                editor.apply();
+                return true;
+        }
+        editor.apply();
+        return false;
     }
 
     /**
@@ -396,4 +439,5 @@ public class LocationPickActivity extends AppCompatActivity implements
             outState.putString("LOCATION", latitude + " " + longitude);
         }
     }
+
 }

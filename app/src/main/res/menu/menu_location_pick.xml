@@ -8,4 +8,12 @@
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView"
         tools:ignore="PrivateResource" />
+
+    <item
+        android:title="@string/MapType"
+        android:id="@+id/menu_item_map_type"
+        android:icon="@drawable/ic_map_white_48dp"
+        app:showAsAction="always">
+    </item>
+
 </menu>

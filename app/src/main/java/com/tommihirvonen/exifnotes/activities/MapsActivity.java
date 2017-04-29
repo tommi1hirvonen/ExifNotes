@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -37,7 +39,7 @@ import java.util.List;
 /**
  * MapsActivity displays all the frames from a roll on a map.
  */
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, PopupMenu.OnMenuItemClickListener {
 
     /**
      * Reference to the singleton database
@@ -105,6 +107,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     /**
+     * Inflate the menu
+     *
+     * @param menu the menu to be inflated
+     * @return super class to execute code for the menu to work properly.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_maps_activity, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
      * Handle the home as up press event
      *
      * @param item {@inheritDoc}
@@ -120,8 +135,52 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case android.R.id.home:
                 onBackPressed();
                 return true;
+
+            case R.id.menu_item_map_type:
+                View menuItemView = findViewById(R.id.menu_item_map_type);
+                PopupMenu popupMenu = new PopupMenu(this, menuItemView);
+                popupMenu.inflate(R.menu.menu_map_types);
+                popupMenu.setOnMenuItemClickListener(this);
+                popupMenu.show();
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Handle the map type PopupMenu item click events
+     *
+     * @param item MenuItem which was clicked
+     * @return true if the item id matches to one of the map type menu items
+     */
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        switch (item.getItemId()) {
+            case R.id.menu_item_normal:
+                googleMap_.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_NORMAL);
+                editor.apply();
+                return true;
+            case R.id.menu_item_hybrid:
+                googleMap_.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_HYBRID);
+                editor.apply();
+                return true;
+            case R.id.menu_item_satellite:
+                googleMap_.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_SATELLITE);
+                editor.apply();
+                return true;
+            case R.id.menu_item_terrain:
+                googleMap_.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_TERRAIN);
+                editor.apply();
+                return true;
+        }
+        editor.apply();
+        return false;
     }
 
 
@@ -147,6 +206,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             googleMap_.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.style_json)));
         }
+
+        googleMap_.setMapType(prefs.getInt("MAP_TYPE", GoogleMap.MAP_TYPE_NORMAL));
 
         LatLng position;
         List<Marker> markerArrayList = new ArrayList<>();
@@ -179,13 +240,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             final LatLngBounds bounds = builder.build();
 
-            if (!continueActivity) googleMap_.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                @Override
-                public void onMapLoaded() {
-                    int padding = 100;
-                    googleMap_.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
-                }
-            });
+            if (!continueActivity) {
+                int padding = 100;
+                googleMap_.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+            }
 
             final GoogleMap.InfoWindowAdapter adapter = new GoogleMap.InfoWindowAdapter() {
                 @Override
@@ -304,4 +362,5 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Insert dummy boolean so that outState is not null.
         outState.putBoolean("CONTINUE", true);
     }
+
 }
