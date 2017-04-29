@@ -5,11 +5,9 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -217,13 +215,6 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
 
                         @SuppressLint("InflateParams")
                         View view = getLayoutInflater().inflate(R.layout.info_window_all_frames, null);
-
-                        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
-                            LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.background);
-                            linearLayout.setBackgroundColor(
-                                    ContextCompat.getColor(getApplicationContext(), R.color.background_dark_grey)
-                            );
-                        }
 
                         TextView rollTextView = (TextView) view.findViewById(R.id.roll_name);
                         TextView cameraTextView = (TextView) view.findViewById(R.id.camera);

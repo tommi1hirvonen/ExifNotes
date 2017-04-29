@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/frame_count"
         android:text="@string/ClickToSet"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textSize="16sp"
+        android:textColor="@color/black"
         />
 
     <TextView
@@ -19,7 +20,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/date_time"
         android:text="@string/ClickToSet"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/grey"
         />
 
     <TextView
@@ -27,7 +28,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/lens"
         android:text="@string/ClickToSet"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/grey"
         />
 
     <TextView
@@ -35,7 +36,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/note"
         android:text="@string/ClickToSet"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/grey"
         android:textStyle="italic"
         />
 
@@ -46,6 +47,7 @@
         android:layout_marginTop="8dp"
         android:clickable="true"
         android:text="@string/ClickToEdit"
+        android:textColor="@color/grey"
         />
 
 </LinearLayout>

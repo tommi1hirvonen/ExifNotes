@@ -6,11 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -202,13 +200,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         final Frame frame = (Frame) marker.getTag();
                         @SuppressLint("InflateParams")
                         View view = getLayoutInflater().inflate(R.layout.info_window, null);
-
-                        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
-                            LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.background);
-                            linearLayout.setBackgroundColor(
-                                    ContextCompat.getColor(getApplicationContext(), R.color.background_dark_grey)
-                            );
-                        }
 
                         TextView frameCountTextView = (TextView) view.findViewById(R.id.frame_count);
                         TextView dateTimeTextView = (TextView) view.findViewById(R.id.date_time);
