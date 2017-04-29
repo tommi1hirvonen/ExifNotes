@@ -221,6 +221,7 @@
     <string name="PickLocation">Choose location</string>
     <string name="TapOnMap">Tap on map to move marker</string>
     <string name="NoResults">No results!</string>
+    <string name="AddressNotFound">Address not found</string>
     <string name="NoLocation">No location was set!</string>
     <string name="Search">Search</string>
 

@@ -800,6 +800,7 @@ public class Utilities {
         Camera camera = database.getCamera(roll.getCameraId());
 
         final String separator = ",";
+        final String separatorReplacement = ";";
         StringBuilder stringBuilder = new StringBuilder();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -831,7 +832,8 @@ public class Utilities {
                 .append("Notes").append(separator)
                 .append("No of exposures").append(separator)
                 .append("Filter").append(separator)
-                .append("Location").append("\n");
+                .append("Location").append(separator)
+                .append("Address").append("\n");
 
         for (Frame frame : frameList) {
 
@@ -917,6 +919,14 @@ public class Utilities {
                 stringBuilder.append(lngStringList.get(0)).append("°").append(space).append(lngStringList.get(1)).append("\'").append(space).append(lngStringList.get(2).replace(',', '.')).append("\"").append(space);
 
                 stringBuilder.append(lngRef);
+            }
+            stringBuilder.append(separator);
+
+            //Address
+            if (frame.getFormattedAddress() != null && frame.getFormattedAddress().length() > 0) {
+                String formattedAddress = frame.getFormattedAddress();
+                // Replace commas with semicolons, because comma is reserved for separator
+                stringBuilder.append(formattedAddress.replace(separator, separatorReplacement));
             }
 
             stringBuilder.append("\n");

@@ -54,6 +54,11 @@ public class Frame implements Parcelable {
     private String location;
 
     /**
+     * Formatted address according to location
+     */
+    private String formattedAddress;
+
+    /**
      * lens's focal length
      */
     private int focalLength;
@@ -99,42 +104,6 @@ public class Frame implements Parcelable {
     public Frame(){
         // Empty constructor
     }
-
-//    public Frame(long roll,
-//                 int count,
-//                 String date,
-//                 long lensId,
-//                 String shutter,
-//                 String aperture,
-//                 String note,
-//                 String location,
-//                 int focalLength,
-//                 String exposureComp,
-//                 int noOfExposures,
-//                 int flashUsed,
-//                 String flashPower,
-//                 String flashComp,
-//                 long filterId,
-//                 String meteringMode
-//    ) {
-//        this.rollId = roll;
-//        this.count = count;
-//        this.date = date;
-//        this.lensId = lensId;
-//        this.shutter = shutter;
-//        this.aperture = aperture;
-//        this.note = note;
-//        this.location = location;
-//        this.focalLength = focalLength;
-//        this.exposureComp = exposureComp;
-//        this.noOfExposures = noOfExposures;
-//        this.flashUsed = flashUsed;
-//        this.flashPower = flashPower;
-//        this.flashComp = flashComp;
-//        this.filterId = filterId;
-//        this.meteringMode = meteringMode;
-//    }
-
 
     // Methods to set members
 
@@ -208,6 +177,14 @@ public class Frame implements Parcelable {
      */
     public void setLocation(String input) {
         this.location = input;
+    }
+
+    /**
+     *
+     * @param input formatted address
+     */
+    public void setFormattedAddress(String input) {
+        this.formattedAddress = input;
     }
 
     /**
@@ -350,6 +327,14 @@ public class Frame implements Parcelable {
 
     /**
      *
+     * @return formatted address
+     */
+    public String getFormattedAddress(){
+        return this.formattedAddress;
+    }
+
+    /**
+     *
      * @return lens's focal length
      */
     public int getFocalLength(){
@@ -429,6 +414,7 @@ public class Frame implements Parcelable {
         this.aperture = pc.readString();
         this.note = pc.readString();
         this.location = pc.readString();
+        this.formattedAddress = pc.readString();
         this.focalLength = pc.readInt();
         this.exposureComp = pc.readString();
         this.noOfExposures = pc.readInt();
@@ -466,6 +452,7 @@ public class Frame implements Parcelable {
         parcel.writeString(aperture);
         parcel.writeString(note);
         parcel.writeString(location);
+        parcel.writeString(formattedAddress);
         parcel.writeInt(focalLength);
         parcel.writeString(exposureComp);
         parcel.writeInt(noOfExposures);
