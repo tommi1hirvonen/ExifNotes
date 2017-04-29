@@ -128,6 +128,11 @@ public class EditFrameDialog extends DialogFragment {
     String newLocation;
 
     /**
+     * Currently set formatted address for location
+     */
+    String newFormattedAddress;
+
+    /**
      * Database id of the currently selected filter
      */
     long newFilterId;
@@ -787,12 +792,14 @@ public class EditFrameDialog extends DialogFragment {
         // LOCATION PICK DIALOG
         locationTextView = (TextView) inflatedView.findViewById(R.id.location_text);
         newLocation = frame.getLocation();
+        newFormattedAddress = frame.getFormattedAddress();
         updateLocationTextView();
         final ImageView clearLocation = (ImageView) inflatedView.findViewById(R.id.clear_location);
         clearLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                newLocation = "";
+                newLocation = null;
+                newFormattedAddress = null;
                 updateLocationTextView();
             }
         });
@@ -802,6 +809,7 @@ public class EditFrameDialog extends DialogFragment {
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), LocationPickActivity.class);
                 intent.putExtra("LOCATION", newLocation);
+                intent.putExtra("FORMATTED_ADDRESS", newFormattedAddress);
                 startActivityForResult(intent, PLACE_PICKER_REQUEST);
             }
         });
@@ -955,6 +963,7 @@ public class EditFrameDialog extends DialogFragment {
 
         frame.setLensId(newLensId);
         frame.setLocation(newLocation);
+        frame.setFormattedAddress(newFormattedAddress);
         frame.setFilterId(newFilterId);
         frame.setExposureComp(newExposureComp);
         frame.setNoOfExposures(newNoOfExposures);
@@ -975,11 +984,19 @@ public class EditFrameDialog extends DialogFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
+
+            // Set the location
             if (data.hasExtra("LATITUDE") && data.hasExtra("LONGITUDE")) {
                 newLocation = "" + data.getStringExtra("LATITUDE") + " " +
                         data.getStringExtra("LONGITUDE");
-                updateLocationTextView();
             }
+
+            // Set the formatted address
+            if (data.hasExtra("FORMATTED_ADDRESS")) {
+                newFormattedAddress = data.getStringExtra("FORMATTED_ADDRESS");
+            }
+
+            updateLocationTextView();
         }
 
         if (requestCode == ADD_LENS && resultCode == Activity.RESULT_OK) {
@@ -1252,12 +1269,16 @@ public class EditFrameDialog extends DialogFragment {
      * Updates the location button's text.
      */
     private void updateLocationTextView(){
-        locationTextView.setText(
-                newLocation == null || newLocation.length() == 0 ?
-                        " \n " :
-                        Utilities.getReadableLocationFromString(newLocation)
-                                .replace("N ","N\n").replace("S ", "S\n")
-        );
+        if (newFormattedAddress != null && newFormattedAddress.length() > 0) {
+            locationTextView.setText(newFormattedAddress);
+        } else if (newLocation != null && newLocation.length() > 0) {
+            locationTextView.setText(
+                    Utilities.getReadableLocationFromString(newLocation)
+                            .replace("N ","N\n").replace("S ", "S\n")
+            );
+        } else {
+            locationTextView.setText(" \n ");
+        }
     }
 
     /**

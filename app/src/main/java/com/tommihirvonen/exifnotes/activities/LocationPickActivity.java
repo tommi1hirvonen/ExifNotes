@@ -9,11 +9,15 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -27,6 +31,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
+
+import org.w3c.dom.Text;
 
 /**
  * LocationPickActivity allows the user to select a location for a frame on a map.
@@ -46,6 +52,21 @@ public class LocationPickActivity extends AppCompatActivity implements
      * Marker object to hold the marker added/moved by the user.
      */
     private Marker marker;
+
+    /**
+     * ProgressBar object displayed when the formatted address is queried
+     */
+    private ProgressBar progressBar;
+
+    /**
+     * TextView which displays the current formatted address
+     */
+    private TextView formattedAddressTextView;
+
+    /**
+     * String to hold the current formatted address
+     */
+    private String formattedAddress;
 
     /**
      * Holds the current location.
@@ -94,6 +115,16 @@ public class LocationPickActivity extends AppCompatActivity implements
         // Also change the floating action button color. Use the darker secondaryColor for this.
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
+        // In case the app's theme is dark, color the bottom bar dark grey
+        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+            FrameLayout bottomBarLayout = (FrameLayout) findViewById(R.id.bottom_bar);
+            bottomBarLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey));
+        }
+
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
+        formattedAddressTextView = (TextView) findViewById(R.id.formatted_address);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -103,18 +134,44 @@ public class LocationPickActivity extends AppCompatActivity implements
         // Get the location from there.
         if (savedInstanceState != null) {
             location = savedInstanceState.getString("LOCATION");
+            formattedAddress = savedInstanceState.getString("FORMATTED_ADDRESS");
         } else {
             // Else get the location from Intent.
             Intent intent = getIntent();
             location = intent.getStringExtra("LOCATION");
+            formattedAddress = intent.getStringExtra("FORMATTED_ADDRESS");
         }
         if (location != null) {
             if (location.length() > 0 && !location.equals("null")) {
+
+                // Parse the location
                 String latString = location.substring(0, location.indexOf(" "));
                 String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
                 double lat = Double.parseDouble(latString.replace(",", "."));
                 double lng = Double.parseDouble(lngString.replace(",", "."));
                 latLngLocation = new LatLng(lat, lng);
+
+                // If the formatted address is set, display it
+                if (formattedAddress != null && formattedAddress.length() > 0) {
+                    formattedAddressTextView.setText(formattedAddress);
+                }
+                // The formatted address was not set, try to query it
+                else {
+                    progressBar.setVisibility(View.VISIBLE);
+                    new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
+                        @Override
+                        public void processFinish(String output, String formatted_address) {
+                            progressBar.setVisibility(View.INVISIBLE);
+                            if (formatted_address.length() != 0 ) {
+                                formattedAddressTextView.setText(formatted_address);
+                                formattedAddress = formatted_address;
+                            } else {
+                                formattedAddressTextView.setText(R.string.AddressNotFound);
+                                formattedAddress = null;
+                            }
+                        }
+                    }).execute(location);
+                }
             }
         }
     }
@@ -218,6 +275,27 @@ public class LocationPickActivity extends AppCompatActivity implements
      */
     @Override
     public void onMapClick(LatLng latLng) {
+
+        // Get the formatted address
+        formattedAddressTextView.setText("");
+        progressBar.setVisibility(View.VISIBLE);
+        String latitude = "" + latLng.latitude;
+        String longitude = "" + latLng.longitude;
+        String query = latitude + " " + longitude;
+        new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
+            @Override
+            public void processFinish(String output, String formatted_address) {
+                progressBar.setVisibility(View.INVISIBLE);
+                if (formatted_address.length() != 0 ) {
+                    formattedAddressTextView.setText(formatted_address);
+                    formattedAddress = formatted_address;
+                } else {
+                    formattedAddressTextView.setText(R.string.AddressNotFound);
+                    formattedAddress = null;
+                }
+            }
+        }).execute(query);
+
         // In case the location was cleared before clicking Edit on map
         if (marker == null) {
             marker = googleMap.addMarker(new MarkerOptions().position(latLng));
@@ -235,10 +313,12 @@ public class LocationPickActivity extends AppCompatActivity implements
      */
     @Override
     public boolean onQueryTextSubmit(String query) {
-
+        formattedAddressTextView.setText("");
+        progressBar.setVisibility(View.VISIBLE);
         new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
             @Override
             public void processFinish(String output, String formatted_address) {
+                progressBar.setVisibility(View.INVISIBLE);
                 if (output.length() != 0 ) {
 
                     String latString = output.substring(0, output.indexOf(" "));
@@ -249,10 +329,12 @@ public class LocationPickActivity extends AppCompatActivity implements
                     marker.setPosition(position);
                     latLngLocation = position;
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
-                    Toast.makeText(getBaseContext(), formatted_address, Toast.LENGTH_LONG).show();
+                    formattedAddressTextView.setText(formatted_address);
+                    formattedAddress = formatted_address;
 
                 } else {
-                    Toast.makeText(getBaseContext(), R.string.NoResults, Toast.LENGTH_SHORT).show();
+                    formattedAddressTextView.setText(R.string.AddressNotFound);
+                    formattedAddress = null;
                 }
             }
         }).execute(query);
@@ -292,6 +374,7 @@ public class LocationPickActivity extends AppCompatActivity implements
                     Intent intent = new Intent();
                     intent.putExtra("LATITUDE", latitude);
                     intent.putExtra("LONGITUDE", longitude);
+                    intent.putExtra("FORMATTED_ADDRESS", formattedAddress);
                     setResult(RESULT_OK, intent);
                     finish();
                 }
