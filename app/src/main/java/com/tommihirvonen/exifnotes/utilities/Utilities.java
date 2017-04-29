@@ -727,8 +727,8 @@ public class Utilities {
             }
             //UserComment & ImageDescription
             if (frame.getNote() != null && frame.getNote().length() > 0) {
-                stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
-                stringBuilder.append(imageDescriptionTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "")).append(quote).append(space);
+                stringBuilder.append(commentTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFC).replace("\"", "'")).append(quote).append(space);
+                stringBuilder.append(imageDescriptionTag).append(quote).append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFC).replace("\"", "'")).append(quote).append(space);
             }
             //GPSLatitude & GPSLongitude & GPSLatitudeRef & GPSLongitudeRef
             if (frame.getLocation() != null && frame.getLocation().length() > 0) {
