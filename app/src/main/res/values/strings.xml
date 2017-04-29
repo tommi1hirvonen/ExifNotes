@@ -7,15 +7,22 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.8.1\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.9.0\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -Bug fixes\n
+        -Frame can now have a formatted address. If no address is found, coordinates are displayed instead.\n
+        -Support for diacritics in ExifTool commands\n
+        -Map type (normal, satellite etc.) can be changed whenever map is shown\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.9.0 2017-04-30:\n
+        -Frame can now have a formatted address. If no address is found, coordinates are displayed instead.\n
+        -Support for diacritics in ExifTool commands\n
+        -Map type (normal, satellite etc.) can be changed whenever map is shown\n
         \n
         v1.8.1 2017-04-20:\n
         -Bug fixes\n
