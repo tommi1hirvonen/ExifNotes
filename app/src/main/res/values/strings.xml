@@ -7,15 +7,18 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.9.1\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.9.2\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -Bug fix: formatted address is now added to a new frame automatically\n
+        -Bug fix: \'Show on map\' caused app to crash on some phones\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.9.2 2017-05-01:\n
+        -Bug fix: \'Show on map\' caused app to crash on some phones\n
         \n
         v1.9.1 2017-04-30:\n
         -Bug fix: formatted address is now added to a frame automatically\n

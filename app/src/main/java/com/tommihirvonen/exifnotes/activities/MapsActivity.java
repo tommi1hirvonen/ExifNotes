@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -241,8 +242,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             final LatLngBounds bounds = builder.build();
 
             if (!continueActivity) {
-                int padding = 100;
-                googleMap_.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+                int width = getResources().getDisplayMetrics().widthPixels;
+                int height = getResources().getDisplayMetrics().heightPixels;
+                int padding = (int) (width * 0.12); // offset from edges of the map 12% of screen
+
+                // We use this command where the map's dimensions are specified.
+                // This is because on some devices, the map's layout may not have yet occurred
+                // (map size is 0).
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+                googleMap_.moveCamera(cameraUpdate);
             }
 
             final GoogleMap.InfoWindowAdapter adapter = new GoogleMap.InfoWindowAdapter() {

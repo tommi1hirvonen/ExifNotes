@@ -22,8 +22,8 @@ android {
         applicationId 'com.tommihirvonen.exifnotes'
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 17
-        versionName "1.9.1"
+        versionCode 18
+        versionName "1.9.2"
     }
 
     buildTypes {
