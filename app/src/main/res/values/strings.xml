@@ -19,6 +19,7 @@
         \n
         v1.9.1 2017-04-30:\n
         -Bug fix: formatted address is now added to a frame automatically\n
+        \n
         v1.9.0 2017-04-30:\n
         -Frame can now have a formatted address. If no address is found, coordinates are displayed instead.\n
         -Support for diacritics in ExifTool commands\n
