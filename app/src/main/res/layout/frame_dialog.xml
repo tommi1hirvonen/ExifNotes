@@ -528,6 +528,16 @@
 
                 </LinearLayout>
 
+                <ProgressBar
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:id="@+id/location_progress_bar"
+                    android:layout_centerVertical="true"
+                    android:layout_toLeftOf="@+id/clear_location"
+                    android:layout_marginRight="15dp"
+                    android:visibility="invisible"
+                    />
+
                 <ImageView
                     android:layout_width="35dp"
                     android:layout_height="35dp"

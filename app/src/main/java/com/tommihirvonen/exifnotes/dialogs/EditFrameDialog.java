@@ -29,6 +29,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -40,6 +41,7 @@ import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.ArrayList;
@@ -794,6 +796,28 @@ public class EditFrameDialog extends DialogFragment {
         newLocation = frame.getLocation();
         newFormattedAddress = frame.getFormattedAddress();
         updateLocationTextView();
+
+        final ProgressBar locationProgressBar = (ProgressBar) inflatedView.findViewById(R.id.location_progress_bar);
+
+        // If the formatted address is empty, try to find it
+        if (newLocation != null && newLocation.length() > 0 &&
+                (newFormattedAddress == null || newFormattedAddress .length() == 0)) {
+            // Make the ProgressBar visible to indicate that a query is being executed
+            locationProgressBar.setVisibility(View.VISIBLE);
+            new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
+                @Override
+                public void processFinish(String output, String formatted_address) {
+                    locationProgressBar.setVisibility(View.INVISIBLE);
+                    if (formatted_address.length() > 0 ) {
+                        newFormattedAddress = formatted_address;
+                    } else {
+                        newFormattedAddress = null;
+                    }
+                    updateLocationTextView();
+                }
+            }).execute(newLocation);
+        }
+
         final ImageView clearLocation = (ImageView) inflatedView.findViewById(R.id.clear_location);
         clearLocation.setOnClickListener(new View.OnClickListener() {
             @Override
