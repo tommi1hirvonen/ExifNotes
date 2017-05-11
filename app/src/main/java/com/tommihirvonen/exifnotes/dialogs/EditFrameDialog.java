@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -48,6 +49,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static java.lang.Math.round;
 
 /**
  * Dialog to edit Frame's information
@@ -649,12 +652,65 @@ public class EditFrameDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
-                final NumberPicker focalLengthPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                View dialogView = inflater.inflate(R.layout.seek_bar_dialog, null);
+                final SeekBar focalLengthSeekBar = (SeekBar) dialogView.findViewById(R.id.seek_bar);
+                final TextView focalLengthTextView = (TextView) dialogView.findViewById(R.id.value_text_view);
 
-                focalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                // Get the min and max focal lengths
+                Lens lens = null;
+                if (newLensId > 0) lens = database.getLens(newLensId);
+                final int minValue;
+                final int maxValue;
+                if (lens != null) {
+                    minValue = lens.getMinFocalLength();
+                    maxValue = lens.getMaxFocalLength();
+                } else {
+                    minValue = 0;
+                    maxValue = 1500;
+                }
 
-                initialiseFocalLengthPicker(focalLengthPicker);
+                // Set the SeekBar progress percent
+                if (newFocalLength > maxValue) {
+                    focalLengthSeekBar.setProgress(100);
+                    focalLengthTextView.setText(String.valueOf(maxValue));
+                } else if (newFocalLength < minValue) {
+                    focalLengthSeekBar.setProgress(0);
+                    focalLengthTextView.setText(String.valueOf(minValue));
+                } else if (minValue == maxValue) {
+                    focalLengthSeekBar.setProgress(50);
+                    focalLengthTextView.setText(String.valueOf(minValue));
+                } else {
+                    // progress = (newFocalLength - minValue) / (maxValue - minValue) * 100
+                    double result1 = newFocalLength - minValue;
+                    double result2 = maxValue - minValue;
+                    // No variables of type int can be used if parts of the calculation
+                    // result in fractions.
+                    double progressDouble = result1 / result2 * 100;
+                    int progress = (int) round(progressDouble);
+                    focalLengthSeekBar.setProgress(progress);
+                    focalLengthTextView.setText(String.valueOf(newFocalLength));
+                }
+
+                // When the user scrolls the SeekBar, change the TextView to indicate
+                // the current focal length converted from the progress (int i)
+                focalLengthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                        int focalLength = minValue + (maxValue - minValue) * i / 100;
+                        focalLengthTextView.setText(String.valueOf(focalLength));
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                        // Do nothing
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        // Do nothing
+                    }
+                });
+
 
                 builder.setView(dialogView);
                 builder.setTitle(getResources().getString(R.string.ChooseFocalLength));
@@ -662,7 +718,7 @@ public class EditFrameDialog extends DialogFragment {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                newFocalLength = focalLengthPicker.getValue();
+                                newFocalLength = Integer.parseInt(focalLengthTextView.getText().toString());
                                 updateFocalLengthTextView();
                             }
                         });
@@ -1221,34 +1277,6 @@ public class EditFrameDialog extends DialogFragment {
             if (newShutter.equals(displayedShutterValues[i])) {
                 shutterPicker.setValue(i);
             }
-        }
-    }
-
-    /**
-     * Called when the focal length dialog is opened. Set the values for the NumberPicker.
-     *
-     * @param focalLengthPicker NumberPicker associated with the focal length
-     */
-    private void initialiseFocalLengthPicker(NumberPicker focalLengthPicker){
-        Lens lens = null;
-        if (newLensId > 0) lens = database.getLens(newLensId);
-        int minValue;
-        int maxValue;
-        if (lens != null) {
-            minValue = lens.getMinFocalLength();
-            maxValue = lens.getMaxFocalLength();
-        } else {
-            minValue = 0;
-            maxValue = 1500;
-        }
-        focalLengthPicker.setMinValue(minValue);
-        focalLengthPicker.setMaxValue(maxValue);
-        if (newFocalLength > maxValue) {
-            focalLengthPicker.setValue(maxValue);
-        } else if (newFocalLength < minValue) {
-            focalLengthPicker.setValue(minValue);
-        } else {
-            focalLengthPicker.setValue(newFocalLength);
         }
     }
 
