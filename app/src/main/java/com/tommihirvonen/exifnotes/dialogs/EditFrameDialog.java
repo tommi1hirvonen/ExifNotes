@@ -666,7 +666,7 @@ public class EditFrameDialog extends DialogFragment {
                     maxValue = lens.getMaxFocalLength();
                 } else {
                     minValue = 0;
-                    maxValue = 1500;
+                    maxValue = 500;
                 }
 
                 // Set the SeekBar progress percent
@@ -680,14 +680,7 @@ public class EditFrameDialog extends DialogFragment {
                     focalLengthSeekBar.setProgress(50);
                     focalLengthTextView.setText(String.valueOf(minValue));
                 } else {
-                    // progress = (newFocalLength - minValue) / (maxValue - minValue) * 100
-                    double result1 = newFocalLength - minValue;
-                    double result2 = maxValue - minValue;
-                    // No variables of type int can be used if parts of the calculation
-                    // result in fractions.
-                    double progressDouble = result1 / result2 * 100;
-                    int progress = (int) round(progressDouble);
-                    focalLengthSeekBar.setProgress(progress);
+                    focalLengthSeekBar.setProgress(calculateProgress(newFocalLength, minValue, maxValue));
                     focalLengthTextView.setText(String.valueOf(newFocalLength));
                 }
 
@@ -708,6 +701,31 @@ public class EditFrameDialog extends DialogFragment {
                     @Override
                     public void onStopTrackingTouch(SeekBar seekBar) {
                         // Do nothing
+                    }
+                });
+
+                final TextView increaseFocalLength = (TextView) dialogView.findViewById(R.id.increase_focal_length);
+                final TextView decreaseFocalLength = (TextView) dialogView.findViewById(R.id.decrease_focal_length);
+                increaseFocalLength.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        int focalLength = Integer.parseInt(focalLengthTextView.getText().toString());
+                        if (focalLength < maxValue) {
+                            ++focalLength;
+                            focalLengthSeekBar.setProgress(calculateProgress(focalLength, minValue, maxValue));
+                            focalLengthTextView.setText(String.valueOf(focalLength));
+                        }
+                    }
+                });
+                decreaseFocalLength.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        int focalLength = Integer.parseInt(focalLengthTextView.getText().toString());
+                        if (focalLength > minValue) {
+                            --focalLength;
+                            focalLengthSeekBar.setProgress(calculateProgress(focalLength, minValue, maxValue));
+                            focalLengthTextView.setText(String.valueOf(focalLength));
+                        }
                     }
                 });
 
@@ -1026,6 +1044,28 @@ public class EditFrameDialog extends DialogFragment {
         });
 
         return dialog;
+    }
+
+    /**
+     * Calculates progress as integer ranging from 0 to 100
+     * from current focal length, minimum focal length and maximum focal length.
+     * Return 0 if current focal length equals minimum focal length, 100 if current
+     * focal length equals maximum focal length, 50 if current focal length is midway
+     * in the focal length range and so on...
+     *
+     * @param focalLength current focal length value
+     * @param minValue minimum focal length value
+     * @param maxValue maximum focal length value
+     * @return integer from 0 to 100 describing progress
+     */
+    private int calculateProgress (int focalLength, int minValue, int maxValue) {
+        // progress = (newFocalLength - minValue) / (maxValue - minValue) * 100
+        double result1 = focalLength - minValue;
+        double result2 = maxValue - minValue;
+        // No variables of type int can be used if parts of the calculation
+        // result in fractions.
+        double progressDouble = result1 / result2 * 100;
+        return (int) round(progressDouble);
     }
 
     /**
