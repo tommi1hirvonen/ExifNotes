@@ -14,7 +14,6 @@ import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
@@ -89,7 +88,6 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
 
         // If the activity was recreated, get the saved result code
         if (savedInstanceState != null) {
-            Log.d("ExifNotes", "Went here");
             setResultCode(savedInstanceState.getInt("RESULT_CODE"));
         }
 

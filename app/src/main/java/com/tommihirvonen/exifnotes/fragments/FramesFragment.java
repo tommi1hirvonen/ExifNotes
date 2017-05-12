@@ -286,7 +286,6 @@ public class FramesFragment extends Fragment implements
 
         floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(this);
-        //floatingActionButton.setOnLongClickListener(this);
 
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
 
@@ -294,6 +293,14 @@ public class FramesFragment extends Fragment implements
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         mainTextView = (TextView) view.findViewById(R.id.no_added_frames);
+
+        // Tell the host activity that this fragment has menu items it wants to add.
+        // To compensate for a bug in pre Nougat (maybe Marshmallow) devices:
+        // If the activity was recreated in MainActivity's onActivityResult because of a theme change,
+        // invalidate the options menu. Using only setHasOptionsMenu(true) is not enough, because
+        // it won't apparently guarantee that onCreateOptionsMenu will be called in this fragment
+        // if the parent activity was recreated.
+        getActivity().invalidateOptionsMenu();
 
         // Access the ListView
         mainListView = (ListView) view.findViewById(R.id.frames_listview);
