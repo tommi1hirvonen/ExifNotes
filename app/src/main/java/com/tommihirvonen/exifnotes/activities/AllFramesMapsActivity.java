@@ -29,6 +29,8 @@ import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
+import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
@@ -71,8 +73,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             setTheme(R.style.Theme_AppCompat);
         }
 
@@ -146,22 +147,22 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         switch (item.getItemId()) {
             case R.id.menu_item_normal:
                 googleMap_.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_NORMAL);
+                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL);
                 editor.apply();
                 return true;
             case R.id.menu_item_hybrid:
                 googleMap_.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_HYBRID);
+                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID);
                 editor.apply();
                 return true;
             case R.id.menu_item_satellite:
                 googleMap_.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_SATELLITE);
+                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_SATELLITE);
                 editor.apply();
                 return true;
             case R.id.menu_item_terrain:
                 googleMap_.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_TERRAIN);
+                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_TERRAIN);
                 editor.apply();
                 return true;
         }
@@ -187,12 +188,12 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
 
         // If the app's theme is dark, stylize the map with the custom night mode
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             googleMap_.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.style_json)));
         }
 
-        googleMap_.setMapType(prefs.getInt("MAP_TYPE", GoogleMap.MAP_TYPE_NORMAL));
+        googleMap_.setMapType(prefs.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL));
 
         LatLng position;
         List<Marker> markerList = new ArrayList<>();
@@ -335,6 +336,6 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         super.onSaveInstanceState(outState);
 
         // Insert dummy boolean so that outState is not null.
-        outState.putBoolean("CONTINUE", true);
+        outState.putBoolean(ExtraKeys.CONTINUE, true);
     }
 }

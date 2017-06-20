@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 
 import com.tommihirvonen.exifnotes.fragments.PreferenceFragment;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 /**
@@ -80,7 +81,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             setTheme(R.style.Theme_AppCompat);
         }
 
@@ -88,7 +89,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
 
         // If the activity was recreated, get the saved result code
         if (savedInstanceState != null) {
-            setResultCode(savedInstanceState.getInt("RESULT_CODE"));
+            setResultCode(savedInstanceState.getInt(ExtraKeys.RESULT_CODE));
         }
 
         final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
@@ -104,7 +105,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         // the action bar title and icon appear in white. WTF!?
         setContentView(R.layout.activity_settings_legacy);
 
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.rel_layout);
             relativeLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.background_dark_grey));
         }
@@ -168,7 +169,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
     @Override
     public void onSaveInstanceState(Bundle outState) {
         // Save the result code so that it can be set for this activity's result when recreated
-        outState.putInt("RESULT_CODE", resultCode);
+        outState.putInt(ExtraKeys.RESULT_CODE, resultCode);
     }
 
     /**

@@ -29,6 +29,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
+import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
@@ -93,8 +95,7 @@ public class LocationPickActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             setTheme(R.style.Theme_AppCompat);
         }
 
@@ -116,7 +117,7 @@ public class LocationPickActivity extends AppCompatActivity implements
         confirmFab.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         // In case the app's theme is dark, color the bottom bar dark grey
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             FrameLayout bottomBarLayout = (FrameLayout) findViewById(R.id.bottom_bar);
             bottomBarLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey));
         }
@@ -133,13 +134,13 @@ public class LocationPickActivity extends AppCompatActivity implements
         // If the activity is continued, then savedInstanceState is not null.
         // Get the location from there.
         if (savedInstanceState != null) {
-            location = savedInstanceState.getString("LOCATION");
-            formattedAddress = savedInstanceState.getString("FORMATTED_ADDRESS");
+            location = savedInstanceState.getString(ExtraKeys.LOCATION);
+            formattedAddress = savedInstanceState.getString(ExtraKeys.FORMATTED_ADDRESS);
         } else {
             // Else get the location from Intent.
             Intent intent = getIntent();
-            location = intent.getStringExtra("LOCATION");
-            formattedAddress = intent.getStringExtra("FORMATTED_ADDRESS");
+            location = intent.getStringExtra(ExtraKeys.LOCATION);
+            formattedAddress = intent.getStringExtra(ExtraKeys.FORMATTED_ADDRESS);
         }
         if (location != null) {
             if (location.length() > 0 && !location.equals("null")) {
@@ -241,12 +242,12 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         // If the app's theme is dark, stylize the map with the custom night mode
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             googleMap_.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.style_json)));
         }
 
-        googleMap_.setMapType(prefs.getInt("MAP_TYPE", GoogleMap.MAP_TYPE_NORMAL));
+        googleMap_.setMapType(prefs.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL));
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
@@ -378,9 +379,9 @@ public class LocationPickActivity extends AppCompatActivity implements
                     String latitude = "" + latLngLocation.latitude;
                     String longitude = "" + latLngLocation.longitude;
                     Intent intent = new Intent();
-                    intent.putExtra("LATITUDE", latitude);
-                    intent.putExtra("LONGITUDE", longitude);
-                    intent.putExtra("FORMATTED_ADDRESS", formattedAddress);
+                    intent.putExtra(ExtraKeys.LATITUDE, latitude);
+                    intent.putExtra(ExtraKeys.LONGITUDE, longitude);
+                    intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, formattedAddress);
                     setResult(RESULT_OK, intent);
                     finish();
                 }
@@ -401,22 +402,22 @@ public class LocationPickActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             case R.id.menu_item_normal:
                 googleMap_.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_NORMAL);
+                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL);
                 editor.apply();
                 return true;
             case R.id.menu_item_hybrid:
                 googleMap_.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_HYBRID);
+                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID);
                 editor.apply();
                 return true;
             case R.id.menu_item_satellite:
                 googleMap_.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_SATELLITE);
+                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_SATELLITE);
                 editor.apply();
                 return true;
             case R.id.menu_item_terrain:
                 googleMap_.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                editor.putInt("MAP_TYPE", GoogleMap.MAP_TYPE_TERRAIN);
+                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_TERRAIN);
                 editor.apply();
                 return true;
         }
@@ -435,8 +436,8 @@ public class LocationPickActivity extends AppCompatActivity implements
         if (latLngLocation != null) {
             String latitude = "" + latLngLocation.latitude;
             String longitude = "" + latLngLocation.longitude;
-            outState.putBoolean("CONTINUE", true);
-            outState.putString("LOCATION", latitude + " " + longitude);
+            outState.putBoolean(ExtraKeys.CONTINUE, true);
+            outState.putString(ExtraKeys.LOCATION, latitude + " " + longitude);
         }
     }
 

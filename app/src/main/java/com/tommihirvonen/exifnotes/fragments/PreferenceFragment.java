@@ -13,6 +13,7 @@ import com.tommihirvonen.exifnotes.dialogs.DirectoryChooserDialog;
 import com.tommihirvonen.exifnotes.dialogs.FileChooserDialog;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
+import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.FileInputStream;
@@ -44,13 +45,13 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         addPreferencesFromResource(R.xml.fragment_preference);
 
         // Set summaries for the list preferences
-        Preference appTheme = findPreference("AppTheme");
+        Preference appTheme = findPreference(PreferenceConstants.KEY_APP_THEME);
         appTheme.setSummary(((ListPreference) appTheme).getEntry());
 
-        Preference UIColor = findPreference("UIColor");
+        Preference UIColor = findPreference(PreferenceConstants.KEY_UI_COLOR);
         UIColor.setSummary(((ListPreference) UIColor).getEntry());
 
-        Preference exportDatabase = findPreference("ExportDatabase");
+        Preference exportDatabase = findPreference(PreferenceConstants.KEY_EXPORT_DATABASE);
         exportDatabase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -105,7 +106,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
             }
         });
 
-        Preference importDatabase = findPreference("ImportDatabase");
+        Preference importDatabase = findPreference(PreferenceConstants.KEY_IMPORT_DATABASE);
         importDatabase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -199,12 +200,12 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         // Set summaries for the list preferences
-        Preference appTheme = findPreference("AppTheme");
+        Preference appTheme = findPreference(PreferenceConstants.KEY_APP_THEME);
         appTheme.setSummary(((ListPreference) appTheme).getEntry());
-        Preference UIColor = findPreference("UIColor");
+        Preference UIColor = findPreference(PreferenceConstants.KEY_UI_COLOR);
         UIColor.setSummary(((ListPreference) UIColor).getEntry());
 
-        if (key.equals("AppTheme")) {
+        if (key.equals(PreferenceConstants.KEY_APP_THEME)) {
             getActivity().recreate();
             PreferenceActivity preferenceActivity = (PreferenceActivity) getActivity();
             int resultCode = preferenceActivity.getResultCode();

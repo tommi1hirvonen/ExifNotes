@@ -29,9 +29,11 @@ import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialogCallback;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.ArrayList;
@@ -72,8 +74,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             setTheme(R.style.Theme_AppCompat);
         }
 
@@ -202,13 +203,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap_ = googleMap;
 
         // If the app's theme is dark, stylize the map with the custom night mode
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             googleMap_.setMapStyle(new MapStyleOptions(getResources()
                     .getString(R.string.style_json)));
         }
 
-        googleMap_.setMapType(prefs.getInt("MAP_TYPE", GoogleMap.MAP_TYPE_NORMAL));
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        googleMap_.setMapType(prefs.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL));
 
         LatLng position;
         List<Marker> markerArrayList = new ArrayList<>();
@@ -331,9 +332,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Bundle arguments = new Bundle();
                         String title = "" + activity.getResources().getString(R.string.EditFrame) + frame.getCount();
                         String positiveButton = activity.getResources().getString(R.string.OK);
-                        arguments.putString("TITLE", title);
-                        arguments.putString("POSITIVE_BUTTON", positiveButton);
-                        arguments.putParcelable("FRAME", frame);
+                        arguments.putString(ExtraKeys.TITLE, title);
+                        arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton);
+                        arguments.putParcelable(ExtraKeys.FRAME, frame);
 
                         EditFrameDialogCallback dialog = new EditFrameDialogCallback();
                         dialog.setArguments(arguments);
@@ -341,7 +342,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 new EditFrameDialogCallback.OnPositiveButtonClickedListener() {
                                     @Override
                                     public void onPositiveButtonClicked(int requestCode, int resultCode, Intent data) {
-                                        Frame editedFrame = data.getParcelableExtra("FRAME");
+                                        Frame editedFrame = data.getParcelableExtra(ExtraKeys.FRAME);
                                         if (editedFrame != null) {
                                             database.updateFrame(editedFrame);
                                             marker.setTag(editedFrame);
@@ -368,7 +369,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onSaveInstanceState(outState);
 
         // Insert dummy boolean so that outState is not null.
-        outState.putBoolean("CONTINUE", true);
+        outState.putBoolean(ExtraKeys.CONTINUE, true);
     }
 
 }

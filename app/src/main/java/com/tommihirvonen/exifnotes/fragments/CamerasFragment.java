@@ -24,6 +24,7 @@ import com.tommihirvonen.exifnotes.adapters.CameraAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.R;
@@ -258,9 +259,9 @@ public class CamerasFragment extends Fragment implements
                     EditCameraDialog dialog = new EditCameraDialog();
                     dialog.setTargetFragment(this, EDIT_CAMERA);
                     Bundle arguments = new Bundle();
-                    arguments.putString("TITLE", getResources().getString( R.string.EditCamera));
-                    arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
-                    arguments.putParcelable("CAMERA", camera);
+                    arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.EditCamera));
+                    arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.OK));
+                    arguments.putParcelable(ExtraKeys.CAMERA, camera);
 
                     dialog.setArguments(arguments);
                     dialog.show(getFragmentManager().beginTransaction(), EditCameraDialog.TAG);
@@ -279,8 +280,8 @@ public class CamerasFragment extends Fragment implements
         EditCameraDialog dialog = new EditCameraDialog();
         dialog.setTargetFragment(this, ADD_CAMERA);
         Bundle arguments = new Bundle();
-        arguments.putString("TITLE", getResources().getString( R.string.NewCamera));
-        arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+        arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewCamera));
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
         dialog.show(getFragmentManager().beginTransaction(), EditCameraDialog.TAG);
     }
@@ -316,7 +317,7 @@ public class CamerasFragment extends Fragment implements
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    Camera camera = data.getParcelableExtra("CAMERA");
+                    Camera camera = data.getParcelableExtra(ExtraKeys.CAMERA);
 
                     if (camera.getMake().length() > 0 && camera.getModel().length() > 0) {
 
@@ -342,7 +343,7 @@ public class CamerasFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Camera camera = data.getParcelableExtra("CAMERA");
+                    Camera camera = data.getParcelableExtra(ExtraKeys.CAMERA);
 
                     if (camera.getMake().length() > 0 &&
                             camera.getModel().length() > 0 &&

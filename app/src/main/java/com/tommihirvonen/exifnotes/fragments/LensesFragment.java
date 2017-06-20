@@ -25,6 +25,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.dialogs.EditLensDialog;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.R;
@@ -99,12 +100,12 @@ public class LensesFragment extends Fragment implements
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LayoutInflater linf = getActivity().getLayoutInflater();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         database = FilmDbHelper.getInstance(getActivity());
         lensList = database.getAllLenses();
 
-        final View view = linf.inflate(R.layout.lenses_fragment, container, false);
+        final View view = layoutInflater.inflate(R.layout.lenses_fragment, container, false);
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_lenses);
         fab.setOnClickListener(this);
@@ -263,10 +264,10 @@ public class LensesFragment extends Fragment implements
                     EditLensDialog dialog = new EditLensDialog();
                     dialog.setTargetFragment(this, EDIT_LENS);
                     Bundle arguments = new Bundle();
-                    arguments.putString("TITLE", getResources().getString( R.string.EditLens));
-                    arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
-                    arguments.putParcelable("LENS", lens);
-                    arguments.putInt("POSITION", position);
+                    arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.EditLens));
+                    arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.OK));
+                    arguments.putParcelable(ExtraKeys.LENS, lens);
+                    arguments.putInt(ExtraKeys.POSITION, position);
                     dialog.setArguments(arguments);
                     dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
 
@@ -284,8 +285,8 @@ public class LensesFragment extends Fragment implements
         EditLensDialog dialog = new EditLensDialog();
         dialog.setTargetFragment(this, ADD_LENS);
         Bundle arguments = new Bundle();
-        arguments.putString("TITLE", getResources().getString( R.string.NewLens));
-        arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+        arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewLens));
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
         dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
     }
@@ -307,7 +308,7 @@ public class LensesFragment extends Fragment implements
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    Lens lens = data.getParcelableExtra("LENS");
+                    Lens lens = data.getParcelableExtra(ExtraKeys.LENS);
 
                     if (lens.getMake().length() > 0 && lens.getModel().length() > 0) {
 
@@ -334,7 +335,7 @@ public class LensesFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Lens lens = data.getParcelableExtra("LENS");
+                    Lens lens = data.getParcelableExtra(ExtraKeys.LENS);
 
                     if (lens.getMake().length() > 0 &&
                             lens.getModel().length() > 0 &&

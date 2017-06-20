@@ -14,6 +14,7 @@ import com.tommihirvonen.exifnotes.fragments.CamerasFragment;
 import com.tommihirvonen.exifnotes.fragments.FiltersFragment;
 import com.tommihirvonen.exifnotes.fragments.LensesFragment;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 /**
@@ -55,7 +56,7 @@ public class GearActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             setTheme(R.style.Theme_AppCompat);
         }
 

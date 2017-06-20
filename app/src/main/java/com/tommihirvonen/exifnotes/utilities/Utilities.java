@@ -259,6 +259,12 @@ public class Utilities {
         return Arrays.asList(UIColor.split(","));
     }
 
+    public static boolean isAppThemeDark(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getString(PreferenceConstants.KEY_APP_THEME, PreferenceConstants.VALUE_APP_THEME_LIGHT)
+                        .equals(PreferenceConstants.VALUE_APP_THEME_DARK);
+    }
+
     /**
      * This function is used to fix a bug which Google hasn't been able to fix in five years.
      * https://code.google.com/p/android/issues/detail?id=35482
@@ -391,9 +397,7 @@ public class Utilities {
     public static void setScrollIndicators(Context context, ViewGroup root,
                                            final NestedScrollView content, final int indicators) {
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String theme = preferences.getString("AppTheme", "LIGHT");
-        int color = theme.equals("DARK") ?
+        int color = isAppThemeDark(context) ?
                 ContextCompat.getColor(context, R.color.white) :
                 ContextCompat.getColor(context, R.color.black);
 

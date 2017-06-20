@@ -7,9 +7,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -20,6 +18,7 @@ import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.ArrayList;
@@ -62,9 +61,9 @@ public class EditFilterDialog extends DialogFragment {
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(R.layout.filter_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        String title = getArguments().getString("TITLE");
-        String positiveButton = getArguments().getString("POSITIVE_BUTTON");
-        filter = getArguments().getParcelable("FILTER");
+        String title = getArguments().getString(ExtraKeys.TITLE);
+        String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
+        filter = getArguments().getParcelable(ExtraKeys.FILTER);
         if (filter == null) filter = new Filter();
 
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
@@ -76,9 +75,7 @@ public class EditFilterDialog extends DialogFragment {
         //DIVIDERS
 
         // Color the dividers white if the app's theme is dark
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String theme = preferences.getString("AppTheme", "LIGHT");
-        if (theme.equals("DARK")) {
+        if (Utilities.isAppThemeDark(getActivity())) {
             List<View> dividerList = new ArrayList<>();
             dividerList.add(inflatedView.findViewById(R.id.divider_view1));
             for (View v : dividerList) {

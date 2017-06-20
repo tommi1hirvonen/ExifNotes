@@ -18,6 +18,8 @@ import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
+import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.List;
 
@@ -41,11 +43,9 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
     public FrameAdapter(Context context, List<Frame> frames) {
         super(context, android.R.layout.simple_list_item_1, frames);
         database = FilmDbHelper.getInstance(context);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String theme = prefs.getString("AppTheme", "LIGHT");
-        backgroundFrameColor = theme.equals("LIGHT") ?
-                ContextCompat.getColor(context, R.color.background_frame_light_grey) :
-                ContextCompat.getColor(context, R.color.background_frame_dark_grey);
+        backgroundFrameColor = Utilities.isAppThemeDark(context) ?
+                ContextCompat.getColor(context, R.color.background_frame_dark_grey) :
+                ContextCompat.getColor(context, R.color.background_frame_light_grey);
     }
 
     /**

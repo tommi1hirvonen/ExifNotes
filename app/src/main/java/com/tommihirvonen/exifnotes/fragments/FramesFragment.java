@@ -50,11 +50,13 @@ import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.dialogs.DirectoryChooserDialog;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.activities.MapsActivity;
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
@@ -223,8 +225,8 @@ public class FramesFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        rollId = getArguments().getLong("ROLL_ID");
-        locationPermissionsGranted = getArguments().getBoolean("LOCATION_ENABLED");
+        rollId = getArguments().getLong(ExtraKeys.ROLL_ID);
+        locationPermissionsGranted = getArguments().getBoolean(ExtraKeys.LOCATION_ENABLED);
 
         database = FilmDbHelper.getInstance(getActivity());
         frameList = database.getAllFramesFromRoll(rollId);
@@ -254,7 +256,7 @@ public class FramesFragment extends Fragment implements
         // This can be done anyway. It only has effect if locationPermissionsGranted is true.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
-        requestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
+        requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true);
     }
 
     /**
@@ -388,9 +390,9 @@ public class FramesFragment extends Fragment implements
                     String title = "" + getActivity().getString(R.string.EditFrame) + frame.getCount();
                     String positiveButton = getActivity().getResources().getString(R.string.OK);
                     Bundle arguments = new Bundle();
-                    arguments.putString("TITLE", title);
-                    arguments.putString("POSITIVE_BUTTON", positiveButton);
-                    arguments.putParcelable("FRAME", frame);
+                    arguments.putString(ExtraKeys.TITLE, title);
+                    arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton);
+                    arguments.putParcelable(ExtraKeys.FRAME, frame);
 
                     EditFrameDialog dialog = new EditFrameDialog();
                     dialog.setTargetFragment(this, EDIT_FRAME_DIALOG);
@@ -436,7 +438,7 @@ public class FramesFragment extends Fragment implements
                 //If the same sort order setting is to be used elsewhere in the app, then
                 //getDefaultSharedPreferences() should be used.
                 final SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                int checkedItem = sharedPref.getInt("FrameSortOrder", 0);
+                int checkedItem = sharedPref.getInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, 0);
                 AlertDialog.Builder sortDialog = new AlertDialog.Builder(getActivity());
                 sortDialog.setTitle(R.string.SortBy);
                 sortDialog.setSingleChoiceItems(
@@ -445,7 +447,7 @@ public class FramesFragment extends Fragment implements
                     public void onClick(DialogInterface dialog, int which) {
 
                         SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putInt("FrameSortOrder", which);
+                        editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, which);
                         editor.apply();
                         dialog.dismiss();
                         Utilities.sortFrameList(getActivity(), database, frameList);
@@ -565,7 +567,8 @@ public class FramesFragment extends Fragment implements
         //Get the user setting about which files to export. By default, share both files.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
-        String filesToExport = prefs.getString("FilesToExport", "BOTH");
+        String filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT,
+                PreferenceConstants.VALUE_BOTH);
 
         //Create the file names for the two files to be put in that intent
         String fileNameCsv = rollName + "_csv" + ".txt";
@@ -582,24 +585,26 @@ public class FramesFragment extends Fragment implements
         boolean csvExportSuccess = false;
         boolean exifToolCmdsExportSuccess = false;
 
-        if (filesToExport.equals("BOTH") || filesToExport.equals("CSV")) {
+        if (filesToExport.equals(PreferenceConstants.VALUE_BOTH) ||
+                filesToExport.equals(PreferenceConstants.VALUE_CSV)) {
             //Write the csv file
             if (Utilities.writeTextFile(fileCsv, csvString))
                 csvExportSuccess = true;
         }
 
-        if (filesToExport.equals("BOTH") || filesToExport.equals("EXIFTOOL")) {
+        if (filesToExport.equals(PreferenceConstants.VALUE_BOTH) ||
+                filesToExport.equals(PreferenceConstants.VALUE_EXIFTOOL)) {
             //Write the ExifTool commands file
             if (Utilities.writeTextFile(fileExifToolCmds, exifToolCmds))
                 exifToolCmdsExportSuccess = true;
         }
 
         switch (filesToExport) {
-            case "BOTH":
+            case PreferenceConstants.VALUE_BOTH:
                 return csvExportSuccess && exifToolCmdsExportSuccess;
-            case "CSV":
+            case PreferenceConstants.VALUE_CSV:
                 return csvExportSuccess;
-            case "EXIFTOOL":
+            case PreferenceConstants.VALUE_EXIFTOOL:
                 return exifToolCmdsExportSuccess;
             default:
                 return false;
@@ -621,7 +626,8 @@ public class FramesFragment extends Fragment implements
         //Get the user setting about which files to export. By default, share only ExifTool.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
-        String filesToExport = prefs.getString("FilesToExport", "BOTH");
+        String filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT,
+                PreferenceConstants.VALUE_BOTH);
 
         //Create the Intent to be shared, no initialization yet
         Intent shareIntent;
@@ -652,7 +658,7 @@ public class FramesFragment extends Fragment implements
         Utilities.writeTextFile(fileExifToolCmds, exifToolCmds);
 
         //If the user has chosen to export both files
-        if (filesToExport.equals("BOTH")) {
+        if (filesToExport.equals(PreferenceConstants.VALUE_BOTH)) {
             //Create the intent to be shared
             shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
             shareIntent.setType("text/plain");
@@ -685,7 +691,7 @@ public class FramesFragment extends Fragment implements
             shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             //The user has chosen to export only the csv
-            if (filesToExport.equals("CSV")) {
+            if (filesToExport.equals(PreferenceConstants.VALUE_CSV)) {
                 Uri uri;
                 //Android Nougat requires that the file is given via FileProvider
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -697,7 +703,7 @@ public class FramesFragment extends Fragment implements
                 shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
             }
             //The user has chosen to export only the ExifTool commands
-            else if (filesToExport.equals("EXIFTOOL")) {
+            else if (filesToExport.equals(PreferenceConstants.VALUE_EXIFTOOL)) {
                 Uri uri;
                 //Android Nougat requires that the file is given via FileProvider
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -745,9 +751,9 @@ public class FramesFragment extends Fragment implements
         Bundle arguments = new Bundle();
         String title = "" + getActivity().getString(R.string.EditFrame) + frame.getCount();
         String positiveButton = getActivity().getResources().getString(R.string.OK);
-        arguments.putString("TITLE", title);
-        arguments.putString("POSITIVE_BUTTON", positiveButton);
-        arguments.putParcelable("FRAME", frame);
+        arguments.putString(ExtraKeys.TITLE, title);
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton);
+        arguments.putParcelable(ExtraKeys.FRAME, frame);
 
         EditFrameDialog dialog = new EditFrameDialog();
         dialog.setTargetFragment(this, EDIT_FRAME_DIALOG);
@@ -785,7 +791,7 @@ public class FramesFragment extends Fragment implements
         if (locationPermissionsGranted &&
                 PreferenceManager.getDefaultSharedPreferences(
                         getActivity().
-                        getBaseContext()).getBoolean("GPSUpdate", true))
+                        getBaseContext()).getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true))
             frame.setLocation(Utilities.locationStringFromLocation(lastLocation));
         //else frame.setLocation("");
 
@@ -822,9 +828,9 @@ public class FramesFragment extends Fragment implements
         EditFrameDialog dialog = new EditFrameDialog();
         dialog.setTargetFragment(this, FRAME_DIALOG);
         Bundle arguments = new Bundle();
-        arguments.putString("TITLE", title);
-        arguments.putString("POSITIVE_BUTTON", positiveButton);
-        arguments.putParcelable("FRAME", frame);
+        arguments.putString(ExtraKeys.TITLE, title);
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton);
+        arguments.putParcelable(ExtraKeys.FRAME, frame);
         dialog.setArguments(arguments);
         dialog.show(getFragmentManager(), EditFrameDialog.TAG);
     }
@@ -844,7 +850,7 @@ public class FramesFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Frame frame = data.getParcelableExtra("FRAME");
+                    Frame frame = data.getParcelableExtra(ExtraKeys.FRAME);
 
                     if (frame != null) {
 
@@ -874,7 +880,7 @@ public class FramesFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Frame frame = data.getParcelableExtra("FRAME");
+                    Frame frame = data.getParcelableExtra(ExtraKeys.FRAME);
 
                     if (frame != null && frame.getId() > 0) {
 
@@ -975,7 +981,7 @@ public class FramesFragment extends Fragment implements
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
         //Check if GPSUpdate preference has been changed meanwhile
-        requestingLocationUpdates = prefs.getBoolean("GPSUpdate", true);
+        requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true);
         //Added check to make sure googleApiClient is not null.
         //Apparently some users were encountering a bug where during onResume
         //googleApiClient was null.

@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
@@ -134,15 +135,15 @@ public class FileChooserDialog extends DialogFragment {
 
         // Color scrollIndicatorDown according to the app's theme
         View scrollIndicatorDown = inflatedView.findViewById(R.id.scrollIndicatorDown);
-        String theme = preferences.getString("AppTheme", "LIGHT");
-        int color = theme.equals("DARK") ?
+        int color = Utilities.isAppThemeDark(getActivity()) ?
                 ContextCompat.getColor(getActivity(), R.color.white) :
                 ContextCompat.getColor(getActivity(), R.color.black);
         scrollIndicatorDown.setBackgroundColor(color);
         // If the theme is dark and UI color is grey, show scrollIndicatorUp.
         // The Dialog title background and ListView background colors are identical, so
         // separate them with the scroll indicator.
-        if (theme.equals("DARK") && preferences.getString("UIColor", "").equals("#424242,#212121")) {
+        if (Utilities.isAppThemeDark(getActivity()) &&
+                preferences.getString(PreferenceConstants.KEY_UI_COLOR, "").equals("#424242,#212121")) {
             View scrollIndicatorUp = inflatedView.findViewById(R.id.scrollIndicatorUp);
             scrollIndicatorUp.setVisibility(View.VISIBLE);
         }

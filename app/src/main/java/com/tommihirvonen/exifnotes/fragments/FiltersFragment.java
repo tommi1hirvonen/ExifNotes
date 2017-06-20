@@ -26,6 +26,7 @@ import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
@@ -208,8 +209,8 @@ public class FiltersFragment extends Fragment implements
         EditFilterDialog dialog = new EditFilterDialog();
         dialog.setTargetFragment(this, ADD_FILTER);
         Bundle arguments = new Bundle();
-        arguments.putString("TITLE", getResources().getString( R.string.NewFilter));
-        arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+        arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewFilter));
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
         dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
     }
@@ -286,9 +287,9 @@ public class FiltersFragment extends Fragment implements
                     EditFilterDialog dialog = new EditFilterDialog();
                     dialog.setTargetFragment(this, EDIT_FILTER);
                     Bundle arguments = new Bundle();
-                    arguments.putString("TITLE", getResources().getString( R.string.EditFilter));
-                    arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.OK));
-                    arguments.putParcelable("FILTER", filter);
+                    arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.EditFilter));
+                    arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.OK));
+                    arguments.putParcelable(ExtraKeys.FILTER, filter);
                     dialog.setArguments(arguments);
                     dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
 
@@ -315,7 +316,7 @@ public class FiltersFragment extends Fragment implements
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    Filter filter = data.getParcelableExtra("FILTER");
+                    Filter filter = data.getParcelableExtra(ExtraKeys.FILTER);
 
                     if (filter.getMake().length() > 0 && filter.getModel().length() > 0) {
 
@@ -341,7 +342,7 @@ public class FiltersFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Filter filter = data.getParcelableExtra("FILTER");
+                    Filter filter = data.getParcelableExtra(ExtraKeys.FILTER);
 
                     if (filter.getMake().length() > 0 &&
                             filter.getModel().length() > 0 &&

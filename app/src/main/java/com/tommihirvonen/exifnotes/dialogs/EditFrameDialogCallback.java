@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
+
 /**
  * Class extended from EditFrameDialog.
  * Instead of target fragment, this class passes the result through an interface.
@@ -61,7 +63,7 @@ public class EditFrameDialogCallback extends EditFrameDialog {
 
                 // Return the new entered name to the calling activity
                 Intent intent = new Intent();
-                intent.putExtra("FRAME", frame);
+                intent.putExtra(ExtraKeys.FRAME, frame);
                 dialog.dismiss();
                 callback.onPositiveButtonClicked(getTargetRequestCode(), Activity.RESULT_OK, intent);
 

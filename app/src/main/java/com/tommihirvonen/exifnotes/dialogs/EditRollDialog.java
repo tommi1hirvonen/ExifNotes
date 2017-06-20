@@ -9,11 +9,9 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -35,6 +33,7 @@ import android.widget.Toast;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.fragments.CamerasFragment;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
@@ -121,9 +120,9 @@ public class EditRollDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
-        String title = getArguments().getString("TITLE");
-        String positiveButton = getArguments().getString("POSITIVE_BUTTON");
-        roll = getArguments().getParcelable("ROLL");
+        String title = getArguments().getString(ExtraKeys.TITLE);
+        String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
+        roll = getArguments().getParcelable(ExtraKeys.ROLL);
         if (roll == null) roll = new Roll();
 
         newCameraId = roll.getCameraId();
@@ -155,9 +154,7 @@ public class EditRollDialog extends DialogFragment {
         //DIVIDERS
 
         // Color the dividers white if the app's theme is dark
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String theme = preferences.getString("AppTheme", "LIGHT");
-        if (theme.equals("DARK")) {
+        if (Utilities.isAppThemeDark(getActivity())) {
             List<View> dividerList = new ArrayList<>();
             dividerList.add(inflatedView.findViewById(R.id.divider_view1));
             dividerList.add(inflatedView.findViewById(R.id.divider_view2));
@@ -251,8 +248,8 @@ public class EditRollDialog extends DialogFragment {
                 EditCameraDialog dialog = new EditCameraDialog();
                 dialog.setTargetFragment(EditRollDialog.this, CamerasFragment.ADD_CAMERA);
                 Bundle arguments = new Bundle();
-                arguments.putString("TITLE", getResources().getString( R.string.NewCamera));
-                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+                arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewCamera));
+                arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
                 dialog.setArguments(arguments);
                 dialog.show(getFragmentManager().beginTransaction(), EditCameraDialog.TAG);
             }
@@ -539,7 +536,7 @@ public class EditRollDialog extends DialogFragment {
                     roll.setFormat(newFormat);
 
                     Intent intent = new Intent();
-                    intent.putExtra("ROLL", roll);
+                    intent.putExtra(ExtraKeys.ROLL, roll);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(
                             getTargetRequestCode(), Activity.RESULT_OK, intent);
@@ -569,7 +566,7 @@ public class EditRollDialog extends DialogFragment {
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    Camera camera = data.getParcelableExtra("CAMERA");
+                    Camera camera = data.getParcelableExtra(ExtraKeys.CAMERA);
 
                     if (camera.getMake().length() > 0 && camera.getModel().length() > 0) {
 

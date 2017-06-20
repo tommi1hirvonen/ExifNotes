@@ -7,11 +7,9 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -30,6 +28,7 @@ import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.ArrayList;
@@ -124,10 +123,6 @@ public class EditLensDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
-                getActivity().getApplicationContext()
-        );
-
         utilities = new Utilities(getActivity());
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
@@ -136,9 +131,9 @@ public class EditLensDialog extends DialogFragment {
                 layoutInflater.inflate(R.layout.lens_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        String title = getArguments().getString("TITLE");
-        String positiveButton = getArguments().getString("POSITIVE_BUTTON");
-        lens = getArguments().getParcelable("LENS");
+        String title = getArguments().getString(ExtraKeys.TITLE);
+        String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
+        lens = getArguments().getParcelable(ExtraKeys.LENS);
         if (lens == null) lens = new Lens();
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
@@ -157,9 +152,7 @@ public class EditLensDialog extends DialogFragment {
         //DIVIDERS
 
         // Color the dividers white if the app's theme is dark
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String theme = preferences.getString("AppTheme", "LIGHT");
-        if (theme.equals("DARK")) {
+        if (Utilities.isAppThemeDark(getActivity())) {
             List<View> dividerList = new ArrayList<>();
             dividerList.add(inflatedView.findViewById(R.id.divider_view1));
             dividerList.add(inflatedView.findViewById(R.id.divider_view2));
@@ -265,7 +258,7 @@ public class EditLensDialog extends DialogFragment {
                 final NumberPicker minAperturePicker =
                         (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
 
-                int color = prefs.getString("AppTheme", "LIGHT").equals("DARK") ?
+                int color = Utilities.isAppThemeDark(getActivity()) ?
                         ContextCompat.getColor(getActivity(), R.color.light_grey) :
                         ContextCompat.getColor(getActivity(), R.color.grey);
                 ImageView dash = (ImageView) dialogView.findViewById(R.id.dash);
@@ -351,7 +344,7 @@ public class EditLensDialog extends DialogFragment {
                 final LinearLayout maxFocalLengthFastForward =
                         (LinearLayout) dialogView.findViewById(R.id.picker_two_fast_forward);
 
-                int color = prefs.getString("AppTheme", "LIGHT").equals("DARK") ?
+                int color = Utilities.isAppThemeDark(getActivity()) ?
                         ContextCompat.getColor(getActivity(), R.color.light_grey) :
                         ContextCompat.getColor(getActivity(), R.color.grey);
                 List<ImageView> imageViewList = new ArrayList<>();
@@ -481,7 +474,7 @@ public class EditLensDialog extends DialogFragment {
 
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
-                    intent.putExtra("LENS", lens);
+                    intent.putExtra(ExtraKeys.LENS, lens);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(
                             getTargetRequestCode(), Activity.RESULT_OK, intent

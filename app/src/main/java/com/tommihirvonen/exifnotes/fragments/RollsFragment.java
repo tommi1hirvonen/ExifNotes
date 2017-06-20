@@ -28,10 +28,12 @@ import com.tommihirvonen.exifnotes.activities.AllFramesMapsActivity;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.dialogs.EditRollDialog;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.text.ParseException;
@@ -243,7 +245,7 @@ public class RollsFragment extends Fragment implements
 
             case R.id.menu_item_sort:
                 final SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                int checkedItem = sharedPref.getInt("RollSortOrder", 0);
+                int checkedItem = sharedPref.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, 0);
                 AlertDialog.Builder sortDialog = new AlertDialog.Builder(getActivity());
                 sortDialog.setTitle(R.string.SortBy);
                 sortDialog.setSingleChoiceItems(R.array.RollSortOptions, checkedItem,
@@ -252,7 +254,7 @@ public class RollsFragment extends Fragment implements
                     public void onClick(DialogInterface dialog, int which) {
 
                         SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putInt("RollSortOrder", which);
+                        editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, which);
                         editor.apply();
                         dialog.dismiss();
                         sortRollList(rollList);
@@ -324,7 +326,7 @@ public class RollsFragment extends Fragment implements
      */
     private void sortRollList(List<Roll> listToSort) {
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        int sortId = sharedPref.getInt("RollSortOrder", 0);
+        int sortId = sharedPref.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, 0);
         switch (sortId){
             //Sort by date
             case 0:
@@ -424,9 +426,9 @@ public class RollsFragment extends Fragment implements
     private void showEditRollDialog(int position){
         EditRollDialog dialog = new EditRollDialog();
         Bundle arguments = new Bundle();
-        arguments.putParcelable("ROLL", rollList.get(position));
-        arguments.putString("TITLE", getActivity().getResources().getString(R.string.EditRoll));
-        arguments.putString("POSITIVE_BUTTON", getActivity().getResources().getString(R.string.OK));
+        arguments.putParcelable(ExtraKeys.ROLL, rollList.get(position));
+        arguments.putString(ExtraKeys.TITLE, getActivity().getResources().getString(R.string.EditRoll));
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, getActivity().getResources().getString(R.string.OK));
         dialog.setArguments(arguments);
         dialog.setTargetFragment(this, EDIT_ROLL_DIALOG);
         dialog.show(getFragmentManager().beginTransaction(), EditRollDialog.TAG);
@@ -440,8 +442,8 @@ public class RollsFragment extends Fragment implements
     private void showRollDialog() {
         EditRollDialog dialog = new EditRollDialog();
         Bundle arguments = new Bundle();
-        arguments.putString("TITLE", getActivity().getResources().getString(R.string.NewRoll));
-        arguments.putString("POSITIVE_BUTTON", getActivity().getResources().getString(R.string.Add));
+        arguments.putString(ExtraKeys.TITLE, getActivity().getResources().getString(R.string.NewRoll));
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, getActivity().getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
         dialog.setTargetFragment(this, ROLL_DIALOG);
         dialog.show(getFragmentManager().beginTransaction(), EditRollDialog.TAG);
@@ -519,7 +521,7 @@ public class RollsFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Roll roll = data.getParcelableExtra("ROLL");
+                    Roll roll = data.getParcelableExtra(ExtraKeys.ROLL);
 
                     if (roll.getName().length() > 0 && roll.getCameraId() > 0) {
 
@@ -547,7 +549,7 @@ public class RollsFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Roll roll = data.getParcelableExtra("ROLL");
+                    Roll roll = data.getParcelableExtra(ExtraKeys.ROLL);
 
                     if (roll.getName().length() > 0 &&
                             roll.getCameraId() > 0 &&

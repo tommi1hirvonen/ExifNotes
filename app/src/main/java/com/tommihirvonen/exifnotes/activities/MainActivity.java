@@ -5,10 +5,8 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -22,6 +20,7 @@ import com.tommihirvonen.exifnotes.dialogs.SimpleEula;
 import com.tommihirvonen.exifnotes.fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.fragments.RollsFragment;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
@@ -60,8 +59,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        if (prefs.getString("AppTheme", "LIGHT").equals("DARK")) {
+        if (Utilities.isAppThemeDark(getBaseContext())) {
             setTheme(R.style.Theme_AppCompat);
         }
 
@@ -197,8 +195,8 @@ public class MainActivity extends AppCompatActivity implements
     public void onRollSelected(long rollId){
         FramesFragment newFragment = new FramesFragment();
         Bundle args = new Bundle();
-        args.putLong("ROLL_ID", rollId);
-        args.putBoolean("LOCATION_ENABLED", locationPermissionsGranted);
+        args.putLong(ExtraKeys.ROLL_ID, rollId);
+        args.putBoolean(ExtraKeys.LOCATION_ENABLED, locationPermissionsGranted);
         newFragment.setArguments(args);
         getFragmentManager().beginTransaction()
                 .setCustomAnimations(

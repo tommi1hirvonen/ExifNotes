@@ -7,11 +7,9 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -30,6 +28,7 @@ import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.ArrayList;
@@ -103,10 +102,6 @@ public class EditCameraDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
-                getActivity().getApplicationContext()
-        );
-
         utilities = new Utilities(getActivity());
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
@@ -115,9 +110,9 @@ public class EditCameraDialog extends DialogFragment {
                 R.layout.camera_dialog, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        String title = getArguments().getString("TITLE");
-        String positiveButton = getArguments().getString("POSITIVE_BUTTON");
-        camera = getArguments().getParcelable("CAMERA");
+        String title = getArguments().getString(ExtraKeys.TITLE);
+        String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
+        camera = getArguments().getParcelable(ExtraKeys.CAMERA);
         if (camera == null) camera = new Camera();
 
         newMinShutter = camera.getMinShutter();
@@ -139,9 +134,7 @@ public class EditCameraDialog extends DialogFragment {
         //DIVIDERS
 
         // Color the dividers white if the app's theme is dark
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String theme = preferences.getString("AppTheme", "LIGHT");
-        if (theme.equals("DARK")) {
+        if (Utilities.isAppThemeDark(getActivity().getApplicationContext())) {
             List<View> dividerList = new ArrayList<>();
             dividerList.add(inflatedView.findViewById(R.id.divider_view1));
             dividerList.add(inflatedView.findViewById(R.id.divider_view2));
@@ -238,7 +231,7 @@ public class EditCameraDialog extends DialogFragment {
                 final NumberPicker minShutterPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker_one);
                 final NumberPicker maxShutterPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
 
-                int color = prefs.getString("AppTheme", "LIGHT").equals("DARK") ?
+                int color = Utilities.isAppThemeDark(getActivity().getApplicationContext()) ?
                         ContextCompat.getColor(getActivity(), R.color.light_grey) :
                         ContextCompat.getColor(getActivity(), R.color.grey);
                 ImageView dash = (ImageView) dialogView.findViewById(R.id.dash);
@@ -340,7 +333,7 @@ public class EditCameraDialog extends DialogFragment {
 
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();
-                    intent.putExtra("CAMERA", camera);
+                    intent.putExtra(ExtraKeys.CAMERA, camera);
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(
                             getTargetRequestCode(), Activity.RESULT_OK, intent);

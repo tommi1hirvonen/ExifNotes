@@ -8,10 +8,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -39,6 +37,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity;
 import com.tommihirvonen.exifnotes.R;
@@ -236,9 +235,9 @@ public class EditFrameDialog extends DialogFragment {
 
         utilities = new Utilities(getActivity());
 
-        String title = getArguments().getString("TITLE");
-        final String positiveButton = getArguments().getString("POSITIVE_BUTTON");
-        frame = getArguments().getParcelable("FRAME");
+        String title = getArguments().getString(ExtraKeys.TITLE);
+        final String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
+        frame = getArguments().getParcelable(ExtraKeys.FRAME);
         if (frame == null) frame = new Frame();
 
         database = FilmDbHelper.getInstance(getActivity());
@@ -275,9 +274,7 @@ public class EditFrameDialog extends DialogFragment {
         //DIVIDERS
 
         // Color the dividers white if the app's theme is dark
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String theme = preferences.getString("AppTheme", "LIGHT");
-        if (theme.equals("DARK")) {
+        if (Utilities.isAppThemeDark(getActivity())) {
             List<View> dividerList = new ArrayList<>();
             dividerList.add(inflatedView.findViewById(R.id.divider_view1));
             dividerList.add(inflatedView.findViewById(R.id.divider_view2));
@@ -412,8 +409,8 @@ public class EditFrameDialog extends DialogFragment {
                 EditLensDialog dialog = new EditLensDialog();
                 dialog.setTargetFragment(EditFrameDialog.this, ADD_LENS);
                 Bundle arguments = new Bundle();
-                arguments.putString("TITLE", getResources().getString(R.string.NewLens));
-                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+                arguments.putString(ExtraKeys.TITLE, getResources().getString(R.string.NewLens));
+                arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
                 dialog.setArguments(arguments);
                 dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
             }
@@ -906,8 +903,8 @@ public class EditFrameDialog extends DialogFragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), LocationPickActivity.class);
-                intent.putExtra("LOCATION", newLocation);
-                intent.putExtra("FORMATTED_ADDRESS", newFormattedAddress);
+                intent.putExtra(ExtraKeys.LOCATION, newLocation);
+                intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, newFormattedAddress);
                 startActivityForResult(intent, PLACE_PICKER_REQUEST);
             }
         });
@@ -989,8 +986,8 @@ public class EditFrameDialog extends DialogFragment {
                 EditFilterDialog dialog = new EditFilterDialog();
                 dialog.setTargetFragment(EditFrameDialog.this, ADD_FILTER);
                 Bundle arguments = new Bundle();
-                arguments.putString("TITLE", getResources().getString(R.string.NewFilter));
-                arguments.putString("POSITIVE_BUTTON", getResources().getString(R.string.Add));
+                arguments.putString(ExtraKeys.TITLE, getResources().getString(R.string.NewFilter));
+                arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
                 dialog.setArguments(arguments);
                 dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
             }
@@ -1035,7 +1032,7 @@ public class EditFrameDialog extends DialogFragment {
 
                 // Return the new entered name to the calling activity
                 Intent intent = new Intent();
-                intent.putExtra("FRAME", frame);
+                intent.putExtra(ExtraKeys.FRAME, frame);
                 dialog.dismiss();
                 getTargetFragment().onActivityResult(
                         getTargetRequestCode(), Activity.RESULT_OK, intent);
@@ -1106,14 +1103,14 @@ public class EditFrameDialog extends DialogFragment {
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
 
             // Set the location
-            if (data.hasExtra("LATITUDE") && data.hasExtra("LONGITUDE")) {
-                newLocation = "" + data.getStringExtra("LATITUDE") + " " +
-                        data.getStringExtra("LONGITUDE");
+            if (data.hasExtra(ExtraKeys.LATITUDE) && data.hasExtra(ExtraKeys.LONGITUDE)) {
+                newLocation = "" + data.getStringExtra(ExtraKeys.LATITUDE) + " " +
+                        data.getStringExtra(ExtraKeys.LONGITUDE);
             }
 
             // Set the formatted address
-            if (data.hasExtra("FORMATTED_ADDRESS")) {
-                newFormattedAddress = data.getStringExtra("FORMATTED_ADDRESS");
+            if (data.hasExtra(ExtraKeys.FORMATTED_ADDRESS)) {
+                newFormattedAddress = data.getStringExtra(ExtraKeys.FORMATTED_ADDRESS);
             }
 
             updateLocationTextView();
@@ -1121,7 +1118,7 @@ public class EditFrameDialog extends DialogFragment {
 
         if (requestCode == ADD_LENS && resultCode == Activity.RESULT_OK) {
             // After Ok code.
-            Lens lens = data.getParcelableExtra("LENS");
+            Lens lens = data.getParcelableExtra(ExtraKeys.LENS);
 
             long rowId = database.addLens(lens);
             lens.setId(rowId);
@@ -1142,7 +1139,7 @@ public class EditFrameDialog extends DialogFragment {
 
         if (requestCode == ADD_FILTER && resultCode == Activity.RESULT_OK) {
             // After Ok code.
-            Filter filter = data.getParcelableExtra("FILTER");
+            Filter filter = data.getParcelableExtra(ExtraKeys.FILTER);
             long rowId = database.addFilter(filter);
             filter.setId(rowId);
             database.addMountableFilterLens(filter, database.getLens(newLensId));
