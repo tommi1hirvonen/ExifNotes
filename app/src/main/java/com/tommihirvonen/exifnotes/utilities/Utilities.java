@@ -214,7 +214,7 @@ public class Utilities {
     /**
      * Function to set the status bar color
      *
-     * @param activity the base acitivty
+     * @param activity the base activity
      * @param color the color to be set to the status bar
      */
     public static void setStatusBarColor(Activity activity, int color) {
@@ -248,7 +248,7 @@ public class Utilities {
     }
 
     /**
-     * Funtion to get a List containing the ui color codes in String format.
+     * Function to get a List containing the ui color codes in String format.
      *
      * @param context the base context of the application
      * @return List containing the ui color codes in String format
@@ -259,6 +259,12 @@ public class Utilities {
         return Arrays.asList(UIColor.split(","));
     }
 
+    /**
+     * Function to test whether the app's current theme is set to light or dark.
+     *
+     * @param context application's context
+     * @return true if the app's theme is set to dark, false otherwise
+     */
     public static boolean isAppThemeDark(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getString(PreferenceConstants.KEY_APP_THEME, PreferenceConstants.VALUE_APP_THEME_LIGHT)
