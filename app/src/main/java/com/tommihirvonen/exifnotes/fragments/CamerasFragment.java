@@ -107,7 +107,7 @@ public class CamerasFragment extends Fragment implements
 
         final View view = layoutInflater.inflate(R.layout.cameras_fragment, container, false);
 
-        FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab_cameras);
+        FloatingActionButton floatingActionButton = view.findViewById(R.id.fab_cameras);
         floatingActionButton.setOnClickListener(this);
 
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
@@ -115,10 +115,10 @@ public class CamerasFragment extends Fragment implements
         // Also change the floating action button color. Use the darker secondaryColor for this.
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
-        mainTextView = (TextView) view.findViewById(R.id.no_added_cameras);
+        mainTextView = view.findViewById(R.id.no_added_cameras);
 
         // Access the ListView
-        mainListView = (ListView) view.findViewById(R.id.main_cameraslistview);
+        mainListView = view.findViewById(R.id.main_cameraslistview);
 
         // Create an ArrayAdapter for the ListView
         cameraAdapter = new CameraAdapter(getActivity(), cameraList);

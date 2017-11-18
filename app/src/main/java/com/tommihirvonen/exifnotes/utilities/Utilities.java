@@ -177,7 +177,7 @@ public class Utilities {
         AlertDialog generalDialog = generalDialogBuilder.create();
         generalDialog.show();
         //The dialog needs to be shown first. Otherwise textView will be null.
-        TextView textView = (TextView) generalDialog.findViewById(android.R.id.message);
+        TextView textView = generalDialog.findViewById(android.R.id.message);
         textView.setTextSize(14);
     }
 

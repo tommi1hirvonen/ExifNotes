@@ -59,11 +59,11 @@ public class RollAdapter extends ArrayAdapter<Roll> {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_roll, parent, false);
             }
             // Lookup view for data population
-            TextView nameTextView = (TextView) convertView.findViewById(R.id.tv_roll_name);
-            TextView dateTextView = (TextView) convertView.findViewById(R.id.tv_roll_date);
-            TextView noteTextView = (TextView) convertView.findViewById(R.id.tv_roll_note);
-            TextView photosTextView = (TextView) convertView.findViewById(R.id.tv_photos);
-            TextView cameraTextView = (TextView) convertView.findViewById(R.id.tv_camera);
+            TextView nameTextView = convertView.findViewById(R.id.tv_roll_name);
+            TextView dateTextView = convertView.findViewById(R.id.tv_roll_date);
+            TextView noteTextView = convertView.findViewById(R.id.tv_roll_note);
+            TextView photosTextView = convertView.findViewById(R.id.tv_photos);
+            TextView cameraTextView = convertView.findViewById(R.id.tv_camera);
 
             // Populate the data into the template view using the data object
             nameTextView.setText(rollName);

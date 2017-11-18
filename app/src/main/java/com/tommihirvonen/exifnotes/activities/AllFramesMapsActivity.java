@@ -281,12 +281,12 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                         @SuppressLint("InflateParams")
                         View view = getLayoutInflater().inflate(R.layout.info_window_all_frames, null);
 
-                        TextView rollTextView = (TextView) view.findViewById(R.id.roll_name);
-                        TextView cameraTextView = (TextView) view.findViewById(R.id.camera);
-                        TextView frameCountTextView = (TextView) view.findViewById(R.id.frame_count);
-                        TextView dateTimeTextView = (TextView) view.findViewById(R.id.date_time);
-                        TextView lensTextView = (TextView) view.findViewById(R.id.lens);
-                        TextView noteTextView = (TextView) view.findViewById(R.id.note);
+                        TextView rollTextView = view.findViewById(R.id.roll_name);
+                        TextView cameraTextView = view.findViewById(R.id.camera);
+                        TextView frameCountTextView = view.findViewById(R.id.frame_count);
+                        TextView dateTimeTextView = view.findViewById(R.id.date_time);
+                        TextView lensTextView = view.findViewById(R.id.lens);
+                        TextView noteTextView = view.findViewById(R.id.note);
 
                         rollTextView.setText(roll.getName());
                         cameraTextView.setText(camera.getMake() + " " + camera.getModel());

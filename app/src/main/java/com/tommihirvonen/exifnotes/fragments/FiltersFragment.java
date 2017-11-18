@@ -107,7 +107,7 @@ public class FiltersFragment extends Fragment implements
 
         final View view = layoutInflater.inflate(R.layout.filters_fragment, container, false);
 
-        FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab_filters);
+        FloatingActionButton floatingActionButton = view.findViewById(R.id.fab_filters);
         floatingActionButton.setOnClickListener(this);
 
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
@@ -115,10 +115,10 @@ public class FiltersFragment extends Fragment implements
         // Also change the floating action button color. Use the darker secondaryColor for this.
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
-        mainTextView = (TextView) view.findViewById(R.id.no_added_filters);
+        mainTextView = view.findViewById(R.id.no_added_filters);
 
         // Access the ListView
-        mainListView = (ListView) view.findViewById(R.id.main_filterslistview);
+        mainListView = view.findViewById(R.id.main_filterslistview);
 
         // Create an ArrayAdapter for the ListView
         filterAdapter = new FilterAdapter(getActivity(), filterList);

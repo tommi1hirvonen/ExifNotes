@@ -106,11 +106,11 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         setContentView(R.layout.activity_settings_legacy);
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
-            RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.rel_layout);
+            RelativeLayout relativeLayout = findViewById(R.id.rel_layout);
             relativeLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.background_dark_grey));
         }
 
-        actionbar = (Toolbar) findViewById(R.id.actionbar);
+        actionbar = findViewById(R.id.actionbar);
         actionbar.setTitle(R.string.Preferences);
         actionbar.setBackgroundColor(primaryColor);
         actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
@@ -193,7 +193,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
         final int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
         Utilities.setStatusBarColor(this, secondaryColor);
-        actionbar = (Toolbar) findViewById(R.id.actionbar);
+        actionbar = findViewById(R.id.actionbar);
         actionbar.setBackgroundColor(primaryColor);
     }
 }

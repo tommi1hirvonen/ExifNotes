@@ -140,8 +140,8 @@ public class EditRollDialog extends DialogFragment {
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            FrameLayout rootLayout = (FrameLayout) inflatedView.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflatedView.findViewById(
+            FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
+            NestedScrollView nestedScrollView = inflatedView.findViewById(
                     R.id.nested_scroll_view);
             Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
@@ -175,7 +175,7 @@ public class EditRollDialog extends DialogFragment {
         //==========================================================================================
 
         // NAME EDIT TEXT
-        final EditText nameEditText = (EditText) inflatedView.findViewById((R.id.name_editText));
+        final EditText nameEditText = inflatedView.findViewById((R.id.name_editText));
         nameEditText.setText(roll.getName());
         // Place the cursor at the end of the input field
         nameEditText.setSelection(nameEditText.getText().length());
@@ -183,7 +183,7 @@ public class EditRollDialog extends DialogFragment {
 
         //==========================================================================================
         // NOTE EDIT TEXT
-        final EditText noteEditText = (EditText) inflatedView.findViewById(R.id.note_editText);
+        final EditText noteEditText = inflatedView.findViewById(R.id.note_editText);
         noteEditText.setSingleLine(false);
         noteEditText.setText(roll.getNote());
         noteEditText.setSelection(noteEditText.getText().length());
@@ -193,13 +193,13 @@ public class EditRollDialog extends DialogFragment {
 
         //==========================================================================================
         // CAMERA PICK DIALOG
-        cameraTextView = (TextView) inflatedView.findViewById(R.id.camera_text);
+        cameraTextView = inflatedView.findViewById(R.id.camera_text);
         if (roll.getCameraId() > 0) cameraTextView.setText(
                 database.getCamera(roll.getCameraId())
                         .getMake() + " " + database.getCamera(roll.getCameraId()).getModel());
         else cameraTextView.setText("");
 
-        final LinearLayout cameraLayout = (LinearLayout) inflatedView.findViewById(R.id.camera_layout);
+        final LinearLayout cameraLayout = inflatedView.findViewById(R.id.camera_layout);
         cameraLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -237,7 +237,7 @@ public class EditRollDialog extends DialogFragment {
 
         //==========================================================================================
         // CAMERA ADD DIALOG
-        final ImageView addCameraImageView = (ImageView) inflatedView.findViewById(R.id.add_camera);
+        final ImageView addCameraImageView = inflatedView.findViewById(R.id.add_camera);
         addCameraImageView.setClickable(true);
         addCameraImageView.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CommitTransaction")
@@ -259,10 +259,10 @@ public class EditRollDialog extends DialogFragment {
 
         //==========================================================================================
         // DATE PICK DIALOG
-        final TextView dateTextView = (TextView) inflatedView.findViewById(R.id.date_text);
+        final TextView dateTextView = inflatedView.findViewById(R.id.date_text);
 
         // Declare timeTextView here, so that we can use it inside the date listener
-        final TextView timeTextView = (TextView) inflatedView.findViewById(R.id.time_text);
+        final TextView timeTextView = inflatedView.findViewById(R.id.time_text);
 
         if (roll.getDate() == null) roll.setDate(Utilities.getCurrentTime());
         List<String> dateValue = Utilities.splitDate(roll.getDate());
@@ -273,7 +273,7 @@ public class EditRollDialog extends DialogFragment {
 
         newDate = roll.getDate();
 
-        final LinearLayout dateLayout = (LinearLayout) inflatedView.findViewById(R.id.date_layout);
+        final LinearLayout dateLayout = inflatedView.findViewById(R.id.date_layout);
         dateLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -311,7 +311,7 @@ public class EditRollDialog extends DialogFragment {
         if (tempMinutes < 10) timeTextView.setText(tempHours + ":0" + tempMinutes);
         else timeTextView.setText(tempHours + ":" + tempMinutes);
 
-        final LinearLayout timeLayout = (LinearLayout) inflatedView.findViewById(R.id.time_layout);
+        final LinearLayout timeLayout = inflatedView.findViewById(R.id.time_layout);
         timeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -342,12 +342,12 @@ public class EditRollDialog extends DialogFragment {
 
         //==========================================================================================
         //ISO PICKER
-        final TextView isoTextView = (TextView) inflatedView.findViewById(R.id.iso_text);
+        final TextView isoTextView = inflatedView.findViewById(R.id.iso_text);
         isoTextView.setText(
                  newIso == 0 ? "" : String.valueOf(newIso)
         );
 
-        final LinearLayout isoLayout = (LinearLayout) inflatedView.findViewById(R.id.iso_layout);
+        final LinearLayout isoLayout = inflatedView.findViewById(R.id.iso_layout);
         isoLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -355,7 +355,7 @@ public class EditRollDialog extends DialogFragment {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
-                final NumberPicker isoPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                final NumberPicker isoPicker = dialogView.findViewById(R.id.number_picker);
                 isoPicker.setMinValue(0);
                 isoPicker.setMaxValue(Utilities.isoValues.length-1);
                 isoPicker.setDisplayedValues(Utilities.isoValues);
@@ -396,12 +396,12 @@ public class EditRollDialog extends DialogFragment {
 
         //==========================================================================================
         //PUSH PULL PICKER
-        final TextView pushPullTextView = (TextView) inflatedView.findViewById(R.id.push_pull_text);
+        final TextView pushPullTextView = inflatedView.findViewById(R.id.push_pull_text);
         pushPullTextView.setText(
                 newPushPull == null || newPushPull.equals("0") ? "" : newPushPull
         );
 
-        final LinearLayout pushPullLayout = (LinearLayout) inflatedView.findViewById(R.id.push_pull_layout);
+        final LinearLayout pushPullLayout = inflatedView.findViewById(R.id.push_pull_layout);
         pushPullLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -454,12 +454,12 @@ public class EditRollDialog extends DialogFragment {
 
         //==========================================================================================
         //FORMAT PICK DIALOG
-        final TextView formatTextView = (TextView) inflatedView.findViewById(R.id.format_text);
+        final TextView formatTextView = inflatedView.findViewById(R.id.format_text);
         if (roll.getFormat() == 0) roll.setFormat(0);
         formatTextView.setText(getResources().getStringArray(R.array.FilmFormats)[roll.getFormat()]);
         newFormat = roll.getFormat();
 
-        final LinearLayout formatLayout = (LinearLayout) inflatedView.findViewById(R.id.format_layout);
+        final LinearLayout formatLayout = inflatedView.findViewById(R.id.format_layout);
         formatLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

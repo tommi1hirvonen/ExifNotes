@@ -10,9 +10,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -103,7 +103,7 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_location_pick);
 
-        FloatingActionButton confirmFab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton confirmFab = findViewById(R.id.fab);
         confirmFab.setOnClickListener(this);
 
         Utilities.setUiColor(this, true);
@@ -118,13 +118,13 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         // In case the app's theme is dark, color the bottom bar dark grey
         if (Utilities.isAppThemeDark(getBaseContext())) {
-            FrameLayout bottomBarLayout = (FrameLayout) findViewById(R.id.bottom_bar);
+            FrameLayout bottomBarLayout = findViewById(R.id.bottom_bar);
             bottomBarLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey));
         }
 
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        progressBar = findViewById(R.id.progress_bar);
 
-        formattedAddressTextView = (TextView) findViewById(R.id.formatted_address);
+        formattedAddressTextView = findViewById(R.id.formatted_address);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -187,9 +187,7 @@ public class LocationPickActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_location_pick, menu);
         // Retrieve the SearchView and plug it into SearchManager
-        android.support.v7.widget.SearchView searchView =
-                (android.support.v7.widget.SearchView) MenuItemCompat.getActionView(
-                        menu.findItem(R.id.action_search));
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setOnQueryTextListener(this);
         return super.onCreateOptionsMenu(menu);
     }

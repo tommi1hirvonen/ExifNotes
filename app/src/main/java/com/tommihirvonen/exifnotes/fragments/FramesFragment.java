@@ -24,6 +24,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.view.ContextMenu;
@@ -274,19 +275,18 @@ public class FramesFragment extends Fragment implements
 
         final View view = layoutInflater.inflate(R.layout.frames_fragment, container, false);
 
-        if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+        final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
             //noinspection ConstantConditions
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(
-                    database.getRoll(rollId).getName());
+            actionBar.setTitle(database.getRoll(rollId).getName());
             Camera camera = database.getCamera(database.getRoll(rollId).getCameraId());
             //noinspection ConstantConditions
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(
-                    camera.getMake() + " " + camera.getModel());
+            actionBar.setSubtitle(camera.getMake() + " " + camera.getModel());
             //noinspection ConstantConditions
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
+        floatingActionButton = view.findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(this);
 
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
@@ -294,7 +294,7 @@ public class FramesFragment extends Fragment implements
         // Also change the floating action button color. Use the darker secondaryColor for this.
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
-        mainTextView = (TextView) view.findViewById(R.id.no_added_frames);
+        mainTextView = view.findViewById(R.id.no_added_frames);
 
         // Tell the host activity that this fragment has menu items it wants to add.
         // To compensate for a bug in pre Nougat (maybe Marshmallow) devices:
@@ -305,7 +305,7 @@ public class FramesFragment extends Fragment implements
         getActivity().invalidateOptionsMenu();
 
         // Access the ListView
-        mainListView = (ListView) view.findViewById(R.id.frames_listview);
+        mainListView = view.findViewById(R.id.frames_listview);
         // Create an ArrayAdapter for the ListView
         frameAdapter = new FrameAdapter(getActivity(), frameList);
 

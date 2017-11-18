@@ -259,8 +259,8 @@ public class EditFrameDialog extends DialogFragment {
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            FrameLayout rootLayout = (FrameLayout) inflatedView.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflatedView.findViewById(
+            FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
+            NestedScrollView nestedScrollView = inflatedView.findViewById(
                     R.id.nested_scroll_view);
             Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
@@ -312,7 +312,7 @@ public class EditFrameDialog extends DialogFragment {
 
         //==========================================================================================
         //LENS TEXT
-        lensTextView = (TextView) inflatedView.findViewById(R.id.lens_text);
+        lensTextView = inflatedView.findViewById(R.id.lens_text);
         if (frame.getLensId() > 0) {
             Lens currentLens = database.getLens(frame.getLensId());
             lensTextView.setText(currentLens.getMake() + " " + currentLens.getModel());
@@ -325,7 +325,7 @@ public class EditFrameDialog extends DialogFragment {
         //==========================================================================================
         // LENS PICK DIALOG
         newLensId = frame.getLensId();
-        final LinearLayout lensLayout = (LinearLayout) inflatedView.findViewById(R.id.lens_layout);
+        final LinearLayout lensLayout = inflatedView.findViewById(R.id.lens_layout);
         lensLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -399,7 +399,7 @@ public class EditFrameDialog extends DialogFragment {
 
         //==========================================================================================
         // LENS ADD DIALOG
-        final ImageView addLensImageView = (ImageView) inflatedView.findViewById(R.id.add_lens);
+        final ImageView addLensImageView = inflatedView.findViewById(R.id.add_lens);
         addLensImageView.setClickable(true);
         addLensImageView.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CommitTransaction")
@@ -421,8 +421,8 @@ public class EditFrameDialog extends DialogFragment {
 
         //==========================================================================================
         // DATE PICK DIALOG
-        final TextView dateTextView = (TextView) inflatedView.findViewById(R.id.date_text);
-        final TextView timeTextView = (TextView) inflatedView.findViewById(R.id.time_text);
+        final TextView dateTextView = inflatedView.findViewById(R.id.date_text);
+        final TextView timeTextView = inflatedView.findViewById(R.id.time_text);
         if (frame.getDate() == null) frame.setDate(Utilities.getCurrentTime());
         List<String> dateValue = Utilities.splitDate(frame.getDate());
         int tempYear = Integer.parseInt(dateValue.get(0));
@@ -432,7 +432,7 @@ public class EditFrameDialog extends DialogFragment {
 
         newDate = frame.getDate();
 
-        final LinearLayout dateLayout = (LinearLayout) inflatedView.findViewById(R.id.date_layout);
+        final LinearLayout dateLayout = inflatedView.findViewById(R.id.date_layout);
         dateLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -469,7 +469,7 @@ public class EditFrameDialog extends DialogFragment {
         if (tempMinutes < 10) timeTextView.setText(tempHours + ":0" + tempMinutes);
         else timeTextView.setText(tempHours + ":" + tempMinutes);
 
-        final LinearLayout timeLayout = (LinearLayout) inflatedView.findViewById(R.id.time_layout);
+        final LinearLayout timeLayout = inflatedView.findViewById(R.id.time_layout);
         timeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -500,7 +500,7 @@ public class EditFrameDialog extends DialogFragment {
 
         //==========================================================================================
         //NOTES FIELD
-        noteEditText = (EditText) inflatedView.findViewById(R.id.note_editText);
+        noteEditText = inflatedView.findViewById(R.id.note_editText);
         noteEditText.setSingleLine(false);
         noteEditText.setText(frame.getNote());
         noteEditText.setSelection(noteEditText.getText().length());
@@ -511,9 +511,9 @@ public class EditFrameDialog extends DialogFragment {
         //==========================================================================================
         //COUNT BUTTON
         newFrameCount = frame.getCount();
-        final TextView frameCountTextView = (TextView) inflatedView.findViewById(R.id.frame_count_text);
+        final TextView frameCountTextView = inflatedView.findViewById(R.id.frame_count_text);
         frameCountTextView.setText(String.valueOf(newFrameCount));
-        final LinearLayout frameCountLayout = (LinearLayout) inflatedView.findViewById(R.id.frame_count_layout);
+        final LinearLayout frameCountLayout = inflatedView.findViewById(R.id.frame_count_layout);
         frameCountLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -521,7 +521,7 @@ public class EditFrameDialog extends DialogFragment {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
-                final NumberPicker frameCountPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                final NumberPicker frameCountPicker = dialogView.findViewById(R.id.number_picker);
                 frameCountPicker.setMinValue(0);
                 frameCountPicker.setMaxValue(100);
                 frameCountPicker.setValue(newFrameCount);
@@ -554,9 +554,9 @@ public class EditFrameDialog extends DialogFragment {
         //==========================================================================================
         //SHUTTER SPEED BUTTON
         newShutter = frame.getShutter();
-        final TextView shutterTextView = (TextView) inflatedView.findViewById(R.id.shutter_text);
+        final TextView shutterTextView = inflatedView.findViewById(R.id.shutter_text);
         updateShutterTextView(shutterTextView);
-        final LinearLayout shutterLayout = (LinearLayout) inflatedView.findViewById(R.id.shutter_layout);
+        final LinearLayout shutterLayout = inflatedView.findViewById(R.id.shutter_layout);
         shutterLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -564,7 +564,7 @@ public class EditFrameDialog extends DialogFragment {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
-                final NumberPicker shutterPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                final NumberPicker shutterPicker = dialogView.findViewById(R.id.number_picker);
 
                 initialiseShutterPicker(shutterPicker);
 
@@ -597,9 +597,9 @@ public class EditFrameDialog extends DialogFragment {
         //==========================================================================================
         //APERTURE BUTTON
         newAperture = frame.getAperture();
-        apertureTextView = (TextView) inflatedView.findViewById(R.id.aperture_text);
+        apertureTextView = inflatedView.findViewById(R.id.aperture_text);
         updateApertureTextView();
-        final LinearLayout apertureLayout = (LinearLayout) inflatedView.findViewById(R.id.aperture_layout);
+        final LinearLayout apertureLayout = inflatedView.findViewById(R.id.aperture_layout);
         apertureLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -607,7 +607,7 @@ public class EditFrameDialog extends DialogFragment {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
-                final NumberPicker aperturePicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                final NumberPicker aperturePicker = dialogView.findViewById(R.id.number_picker);
 
                 initialiseAperturePicker(aperturePicker);
 
@@ -640,9 +640,9 @@ public class EditFrameDialog extends DialogFragment {
         //==========================================================================================
         //FOCAL LENGTH BUTTON
         newFocalLength = frame.getFocalLength();
-        focalLengthTextView = (TextView) inflatedView.findViewById(R.id.focal_length_text);
+        focalLengthTextView = inflatedView.findViewById(R.id.focal_length_text);
         updateFocalLengthTextView();
-        final LinearLayout focalLengthLayout = (LinearLayout) inflatedView.findViewById(R.id.focal_length_layout);
+        final LinearLayout focalLengthLayout = inflatedView.findViewById(R.id.focal_length_layout);
         focalLengthLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -650,8 +650,8 @@ public class EditFrameDialog extends DialogFragment {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.seek_bar_dialog, null);
-                final SeekBar focalLengthSeekBar = (SeekBar) dialogView.findViewById(R.id.seek_bar);
-                final TextView focalLengthTextView = (TextView) dialogView.findViewById(R.id.value_text_view);
+                final SeekBar focalLengthSeekBar = dialogView.findViewById(R.id.seek_bar);
+                final TextView focalLengthTextView = dialogView.findViewById(R.id.value_text_view);
 
                 // Get the min and max focal lengths
                 Lens lens = null;
@@ -701,8 +701,8 @@ public class EditFrameDialog extends DialogFragment {
                     }
                 });
 
-                final TextView increaseFocalLength = (TextView) dialogView.findViewById(R.id.increase_focal_length);
-                final TextView decreaseFocalLength = (TextView) dialogView.findViewById(R.id.decrease_focal_length);
+                final TextView increaseFocalLength = dialogView.findViewById(R.id.increase_focal_length);
+                final TextView decreaseFocalLength = dialogView.findViewById(R.id.decrease_focal_length);
                 increaseFocalLength.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -754,11 +754,11 @@ public class EditFrameDialog extends DialogFragment {
         //==========================================================================================
         //EXPOSURE COMP BUTTON
         newExposureComp = frame.getExposureComp();
-        final TextView exposureCompTextView = (TextView) inflatedView.findViewById(R.id.exposure_comp_text);
+        final TextView exposureCompTextView = inflatedView.findViewById(R.id.exposure_comp_text);
         exposureCompTextView.setText(
                 newExposureComp == null || newExposureComp.equals("0") ? "" : newExposureComp
         );
-        final LinearLayout exposureCompLayout = (LinearLayout) inflatedView.findViewById(R.id.exposure_comp_layout);
+        final LinearLayout exposureCompLayout = inflatedView.findViewById(R.id.exposure_comp_layout);
         exposureCompLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -816,9 +816,9 @@ public class EditFrameDialog extends DialogFragment {
 
         //Check that the number is bigger than zero.
         newNoOfExposures = frame.getNoOfExposures() > 0 ? frame.getNoOfExposures() : 1;
-        final TextView noOfExposuresTextView = (TextView) inflatedView.findViewById(R.id.no_of_exposures_text);
+        final TextView noOfExposuresTextView = inflatedView.findViewById(R.id.no_of_exposures_text);
         noOfExposuresTextView.setText(String.valueOf(newNoOfExposures));
-        final LinearLayout noOfExposuresLayout = (LinearLayout) inflatedView.findViewById(R.id.no_of_exposures_layout);
+        final LinearLayout noOfExposuresLayout = inflatedView.findViewById(R.id.no_of_exposures_layout);
         noOfExposuresLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -826,7 +826,7 @@ public class EditFrameDialog extends DialogFragment {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
-                final NumberPicker noOfExposuresPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker);
+                final NumberPicker noOfExposuresPicker = dialogView.findViewById(R.id.number_picker);
 
                 noOfExposuresPicker.setMinValue(1);
                 noOfExposuresPicker.setMaxValue(10);
@@ -863,12 +863,12 @@ public class EditFrameDialog extends DialogFragment {
 
         //==========================================================================================
         // LOCATION PICK DIALOG
-        locationTextView = (TextView) inflatedView.findViewById(R.id.location_text);
+        locationTextView = inflatedView.findViewById(R.id.location_text);
         newLocation = frame.getLocation();
         newFormattedAddress = frame.getFormattedAddress();
         updateLocationTextView();
 
-        final ProgressBar locationProgressBar = (ProgressBar) inflatedView.findViewById(R.id.location_progress_bar);
+        final ProgressBar locationProgressBar = inflatedView.findViewById(R.id.location_progress_bar);
 
         // If the formatted address is empty, try to find it
         if (newLocation != null && newLocation.length() > 0 &&
@@ -889,7 +889,7 @@ public class EditFrameDialog extends DialogFragment {
             }).execute(newLocation);
         }
 
-        final ImageView clearLocation = (ImageView) inflatedView.findViewById(R.id.clear_location);
+        final ImageView clearLocation = inflatedView.findViewById(R.id.clear_location);
         clearLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -898,7 +898,7 @@ public class EditFrameDialog extends DialogFragment {
                 updateLocationTextView();
             }
         });
-        final LinearLayout locationLayout = (LinearLayout) inflatedView.findViewById(R.id.location_layout);
+        final LinearLayout locationLayout = inflatedView.findViewById(R.id.location_layout);
         locationLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -913,7 +913,7 @@ public class EditFrameDialog extends DialogFragment {
 
         //==========================================================================================
         //FILTER BUTTON
-        filterTextView = (TextView) inflatedView.findViewById(R.id.filter_text);
+        filterTextView = inflatedView.findViewById(R.id.filter_text);
         if (frame.getFilterId() > 0) {
             Filter currentFilter = database.getFilter(frame.getFilterId());
             filterTextView.setText(currentFilter.getMake() + " " + currentFilter.getModel());
@@ -924,7 +924,7 @@ public class EditFrameDialog extends DialogFragment {
 
         // FILTER PICK DIALOG
         newFilterId = frame.getFilterId();
-        final LinearLayout filterLayout = (LinearLayout) inflatedView.findViewById(R.id.filter_layout);
+        final LinearLayout filterLayout = inflatedView.findViewById(R.id.filter_layout);
         filterLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -971,7 +971,7 @@ public class EditFrameDialog extends DialogFragment {
         });
 
         // FILTER ADD DIALOG
-        final ImageView addFilterImageView = (ImageView) inflatedView.findViewById(R.id.add_filter);
+        final ImageView addFilterImageView = inflatedView.findViewById(R.id.add_filter);
         addFilterImageView.setClickable(true);
         addFilterImageView.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("CommitTransaction")

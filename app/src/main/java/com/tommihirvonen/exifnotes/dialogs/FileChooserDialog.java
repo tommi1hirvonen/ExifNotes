@@ -127,7 +127,7 @@ public class FileChooserDialog extends DialogFragment {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         dialogBuilder.setView(inflatedView);
 
-        LinearLayout linearLayout = (LinearLayout) inflatedView.findViewById(
+        LinearLayout linearLayout = inflatedView.findViewById(
                 R.id.dir_chooser_dialog_top_element);
 
         int primaryColor = Utilities.getPrimaryUiColor(getActivity());
@@ -148,10 +148,10 @@ public class FileChooserDialog extends DialogFragment {
             scrollIndicatorUp.setVisibility(View.VISIBLE);
         }
 
-        currentDirectoryTextView = (TextView) inflatedView.findViewById(R.id.current_directory_textview);
+        currentDirectoryTextView = inflatedView.findViewById(R.id.current_directory_textview);
         currentDirectoryTextView.setText(currentDirectory);
 
-        ImageView backButton = (ImageView) inflatedView.findViewById(R.id.subdirectory_back_button);
+        ImageView backButton = inflatedView.findViewById(R.id.subdirectory_back_button);
         backButton.setClickable(true);
 
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -166,7 +166,7 @@ public class FileChooserDialog extends DialogFragment {
 
         //Set up the ListAdapter, ListView and listener
         listAdapter = createListAdapter(fileOrDirectoryList);
-        ListView listView = (ListView) inflatedView.findViewById(R.id.subdirectories_listview);
+        ListView listView = inflatedView.findViewById(R.id.subdirectories_listview);
         listView.setAdapter(listAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -231,8 +231,8 @@ public class FileChooserDialog extends DialogFragment {
                     convertView = LayoutInflater.from(getContext()).inflate(
                             R.layout.item_directory, parent, false);
                     holder = new FileChooserDialog.ViewHolder();
-                    holder.directoryTextView = (TextView) convertView.findViewById(R.id.tv_directory_name);
-                    holder.folderImageView = (ImageView) convertView.findViewById(R.id.iv_folder);
+                    holder.directoryTextView = convertView.findViewById(R.id.tv_directory_name);
+                    holder.folderImageView = convertView.findViewById(R.id.iv_folder);
                     convertView.setTag(holder);
                 } else {
                     holder = (FileChooserDialog.ViewHolder) convertView.getTag();

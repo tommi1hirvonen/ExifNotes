@@ -138,8 +138,8 @@ public class EditLensDialog extends DialogFragment {
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            FrameLayout rootLayout = (FrameLayout) inflatedView.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflatedView.findViewById(
+            FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
+            NestedScrollView nestedScrollView = inflatedView.findViewById(
                     R.id.nested_scroll_view);
             Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
@@ -166,21 +166,21 @@ public class EditLensDialog extends DialogFragment {
         //==========================================================================================
 
         // EDIT TEXT FIELDS
-        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.make_editText);
+        final EditText makeEditText = inflatedView.findViewById(R.id.make_editText);
         makeEditText.setText(lens.getMake());
-        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.model_editText);
+        final EditText modelEditText = inflatedView.findViewById(R.id.model_editText);
         modelEditText.setText(lens.getModel());
-        final EditText serialNumberEditText = (EditText) inflatedView.findViewById(R.id.serialNumber_editText);
+        final EditText serialNumberEditText = inflatedView.findViewById(R.id.serialNumber_editText);
         serialNumberEditText.setText(lens.getSerialNumber());
 
 
         //APERTURE INCREMENTS BUTTON
         newApertureIncrements = lens.getApertureIncrements();
-        final TextView apertureIncrementsTextView = (TextView) inflatedView.findViewById(R.id.increment_text);
+        final TextView apertureIncrementsTextView = inflatedView.findViewById(R.id.increment_text);
         apertureIncrementsTextView.setText(
                 getResources().getStringArray(R.array.StopIncrements)[lens.getApertureIncrements()]);
 
-        final LinearLayout apertureIncrementLayout = (LinearLayout) inflatedView.findViewById(R.id.increment_layout);
+        final LinearLayout apertureIncrementLayout = inflatedView.findViewById(R.id.increment_layout);
         apertureIncrementLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -242,10 +242,10 @@ public class EditLensDialog extends DialogFragment {
         //APERTURE RANGE BUTTON
         newMinAperture = lens.getMinAperture();
         newMaxAperture = lens.getMaxAperture();
-        apertureRangeTextView = (TextView) inflatedView.findViewById(R.id.aperture_range_text);
+        apertureRangeTextView = inflatedView.findViewById(R.id.aperture_range_text);
         updateApertureRangeTextView();
 
-        final LinearLayout apertureRangeLayout = (LinearLayout) inflatedView.findViewById(R.id.aperture_range_layout);
+        final LinearLayout apertureRangeLayout = inflatedView.findViewById(R.id.aperture_range_layout);
         apertureRangeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -254,14 +254,14 @@ public class EditLensDialog extends DialogFragment {
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.double_numberpicker_dialog, null);
                 final NumberPicker maxAperturePicker =
-                        (NumberPicker) dialogView.findViewById(R.id.number_picker_one);
+                        dialogView.findViewById(R.id.number_picker_one);
                 final NumberPicker minAperturePicker =
-                        (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
+                        dialogView.findViewById(R.id.number_picker_two);
 
                 int color = Utilities.isAppThemeDark(getActivity()) ?
                         ContextCompat.getColor(getActivity(), R.color.light_grey) :
                         ContextCompat.getColor(getActivity(), R.color.grey);
-                ImageView dash = (ImageView) dialogView.findViewById(R.id.dash);
+                ImageView dash = dialogView.findViewById(R.id.dash);
                 dash.getDrawable().mutate().setColorFilter(color, PorterDuff.Mode.SRC_IN);
 
                 //To prevent text edit
@@ -318,10 +318,10 @@ public class EditLensDialog extends DialogFragment {
         //FOCAL LENGTH RANGE BUTTON
         newMinFocalLength = lens.getMinFocalLength();
         newMaxFocalLength = lens.getMaxFocalLength();
-        focalLengthRangeTextView = (TextView) inflatedView.findViewById(R.id.focal_length_range_text);
+        focalLengthRangeTextView = inflatedView.findViewById(R.id.focal_length_range_text);
         updateFocalLengthRangeTextView();
 
-        final LinearLayout focalLengthRangeLayout = (LinearLayout) inflatedView.findViewById(R.id.focal_length_range_layout);
+        final LinearLayout focalLengthRangeLayout = inflatedView.findViewById(R.id.focal_length_range_layout);
         focalLengthRangeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -330,19 +330,19 @@ public class EditLensDialog extends DialogFragment {
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.double_numberpicker_dialog_buttons, null);
                 final NumberPicker minFocalLengthPicker =
-                        (NumberPicker) dialogView.findViewById(R.id.number_picker_one);
+                        dialogView.findViewById(R.id.number_picker_one);
                 final NumberPicker maxFocalLengthPicker =
-                        (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
+                        dialogView.findViewById(R.id.number_picker_two);
 
                 final int jumpAmount = 50;
                 final LinearLayout minFocalLengthFastRewind =
-                        (LinearLayout) dialogView.findViewById(R.id.picker_one_fast_rewind);
+                        dialogView.findViewById(R.id.picker_one_fast_rewind);
                 final LinearLayout minFocalLengthFastForward =
-                        (LinearLayout) dialogView.findViewById(R.id.picker_one_fast_forward);
+                        dialogView.findViewById(R.id.picker_one_fast_forward);
                 final LinearLayout maxFocalLengthFastRewind =
-                        (LinearLayout) dialogView.findViewById(R.id.picker_two_fast_rewind);
+                        dialogView.findViewById(R.id.picker_two_fast_rewind);
                 final LinearLayout maxFocalLengthFastForward =
-                        (LinearLayout) dialogView.findViewById(R.id.picker_two_fast_forward);
+                        dialogView.findViewById(R.id.picker_two_fast_forward);
 
                 int color = Utilities.isAppThemeDark(getActivity()) ?
                         ContextCompat.getColor(getActivity(), R.color.light_grey) :

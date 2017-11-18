@@ -85,9 +85,9 @@ public class EditFilterDialog extends DialogFragment {
         //==========================================================================================
 
 
-        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.make_editText);
+        final EditText makeEditText = inflatedView.findViewById(R.id.make_editText);
         makeEditText.setText(filter.getMake());
-        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.model_editText);
+        final EditText modelEditText = inflatedView.findViewById(R.id.model_editText);
         modelEditText.setText(filter.getModel());
 
 

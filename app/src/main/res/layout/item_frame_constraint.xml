@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="72dp">
+
+
+    <ImageView
+        android:id="@+id/background_frame"
+        android:layout_width="0dp"
+        android:layout_height="76dp"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/background_frame_small"
+        app:layout_constraintEnd_toStartOf="@+id/guideline1"
+        app:layout_constraintStart_toStartOf="@+id/guideline0"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <TextView
+        android:id="@+id/tvCount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:alpha="0.7"
+        android:gravity="center"
+        android:text="@string/Text"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textSize="28sp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"
+        app:layout_constraintEnd_toEndOf="@+id/background_frame"
+        app:layout_constraintStart_toStartOf="@+id/guideline0"
+        app:layout_constraintTop_toTopOf="@+id/background_frame"
+        app:layout_widthPercent="22%"
+        tools:ignore="RtlHardcoded" />
+
+    <TextView
+        android:id="@+id/tvFrameText"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="3dp"
+        android:text="@string/Text"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/guideline1"
+        app:layout_widthPercent="55%"
+        tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+    <TextView
+        android:id="@+id/tvFrameText2"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:paddingLeft="3dp"
+        android:scrollHorizontally="true"
+        android:text="@string/Text"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/tvFrameText"
+        app:layout_widthPercent="55%"
+        tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+    <TextView
+        android:id="@+id/tv_frame_note"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:paddingLeft="3dp"
+        android:scrollHorizontally="true"
+        android:text="@string/Text"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="13sp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/tvFrameText2"
+        app:layout_widthPercent="88%"
+        tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+    <ImageView
+        android:id="@+id/drawable_clock"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:paddingBottom="3dp"
+        android:paddingTop="3dp"
+        android:src="@drawable/ic_timer_black_48dp"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_widthPercent="5%"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <TextView
+        android:id="@+id/tvShutter"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="3dp"
+        android:text="@string/Text"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/drawable_clock"
+        tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+    <ImageView
+        android:id="@+id/drawable_aperture"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:adjustViewBounds="true"
+        android:paddingBottom="3dp"
+        android:paddingTop="3dp"
+        android:src="@drawable/ic_camera_black_48dp"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toBottomOf="@+id/drawable_clock"
+        app:layout_widthPercent="5%"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <TextView
+        android:id="@+id/tvAperture"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="3dp"
+        android:text="@string/Text"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/drawable_aperture"
+        app:layout_constraintTop_toBottomOf="@+id/tvShutter"
+        tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.0" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.22" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="72dp" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.77" />
+
+</android.support.constraint.ConstraintLayout>

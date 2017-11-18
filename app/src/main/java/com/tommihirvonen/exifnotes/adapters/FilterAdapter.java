@@ -46,8 +46,8 @@ public class FilterAdapter extends ArrayAdapter<Filter> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_gear, parent, false);
         }
         // Lookup view for data population
-        TextView nameTextView = (TextView) convertView.findViewById(R.id.tv_gear_name);
-        TextView mountablesTextView = (TextView) convertView.findViewById(R.id.tv_mountables);
+        TextView nameTextView = convertView.findViewById(R.id.tv_gear_name);
+        TextView mountablesTextView = convertView.findViewById(R.id.tv_mountables);
 
         // Populate the data into the template view using the data object
         if (filter != null) nameTextView.setText(filter.getMake() + " " + filter.getModel());

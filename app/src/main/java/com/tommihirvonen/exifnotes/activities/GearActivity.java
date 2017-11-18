@@ -14,7 +14,6 @@ import com.tommihirvonen.exifnotes.fragments.CamerasFragment;
 import com.tommihirvonen.exifnotes.fragments.FiltersFragment;
 import com.tommihirvonen.exifnotes.fragments.LensesFragment;
 import com.tommihirvonen.exifnotes.R;
-import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 /**
@@ -68,12 +67,12 @@ public class GearActivity extends AppCompatActivity {
         setContentView(R.layout.activity_gear);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = findViewById(R.id.viewpager);
         pagerAdapter = new PagerAdapter(getFragmentManager(), this);
         viewPager.setAdapter(pagerAdapter);
 
         // Give the TabLayout the ViewPager
-        tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout = findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white));
         tabLayout.setBackgroundColor(Utilities.getPrimaryUiColor(getBaseContext()));

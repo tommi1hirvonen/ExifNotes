@@ -120,8 +120,8 @@ public class EditCameraDialog extends DialogFragment {
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            FrameLayout rootLayout = (FrameLayout) inflatedView.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = (NestedScrollView) inflatedView.findViewById(
+            FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
+            NestedScrollView nestedScrollView = inflatedView.findViewById(
                     R.id.nested_scroll_view);
             Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
@@ -147,20 +147,20 @@ public class EditCameraDialog extends DialogFragment {
         //==========================================================================================
 
         //EDIT TEXT FIELDS
-        final EditText makeEditText = (EditText) inflatedView.findViewById(R.id.make_editText);
+        final EditText makeEditText = inflatedView.findViewById(R.id.make_editText);
         makeEditText.setText(camera.getMake());
-        final EditText modelEditText = (EditText) inflatedView.findViewById(R.id.model_editText);
+        final EditText modelEditText = inflatedView.findViewById(R.id.model_editText);
         modelEditText.setText(camera.getModel());
-        final EditText serialNumberEditText = (EditText) inflatedView.findViewById(R.id.serialNumber_editText);
+        final EditText serialNumberEditText = inflatedView.findViewById(R.id.serialNumber_editText);
         serialNumberEditText.setText(camera.getSerialNumber());
 
         //SHUTTER SPEED INCREMENTS BUTTON
         newShutterIncrements = camera.getShutterIncrements();
-        final TextView shutterSpeedIncrementsTextView = (TextView) inflatedView.findViewById(R.id.increment_text);
+        final TextView shutterSpeedIncrementsTextView = inflatedView.findViewById(R.id.increment_text);
         shutterSpeedIncrementsTextView.setText(
                 getResources().getStringArray(R.array.StopIncrements)[camera.getShutterIncrements()]);
 
-        final LinearLayout shutterSpeedIncrementLayout = (LinearLayout) inflatedView.findViewById(R.id.increment_layout);
+        final LinearLayout shutterSpeedIncrementLayout = inflatedView.findViewById(R.id.increment_layout);
         shutterSpeedIncrementLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -218,9 +218,9 @@ public class EditCameraDialog extends DialogFragment {
         });
 
         //SHUTTER RANGE BUTTON
-        shutterRangeTextView = (TextView) inflatedView.findViewById(R.id.shutter_range_text);
+        shutterRangeTextView = inflatedView.findViewById(R.id.shutter_range_text);
         updateShutterRangeTextView();
-        final LinearLayout shutterRangeLayout = (LinearLayout) inflatedView.findViewById(R.id.shutter_range_layout);
+        final LinearLayout shutterRangeLayout = inflatedView.findViewById(R.id.shutter_range_layout);
         shutterRangeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -228,13 +228,13 @@ public class EditCameraDialog extends DialogFragment {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.double_numberpicker_dialog, null);
-                final NumberPicker minShutterPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker_one);
-                final NumberPicker maxShutterPicker = (NumberPicker) dialogView.findViewById(R.id.number_picker_two);
+                final NumberPicker minShutterPicker = dialogView.findViewById(R.id.number_picker_one);
+                final NumberPicker maxShutterPicker = dialogView.findViewById(R.id.number_picker_two);
 
                 int color = Utilities.isAppThemeDark(getActivity().getApplicationContext()) ?
                         ContextCompat.getColor(getActivity(), R.color.light_grey) :
                         ContextCompat.getColor(getActivity(), R.color.grey);
-                ImageView dash = (ImageView) dialogView.findViewById(R.id.dash);
+                ImageView dash = dialogView.findViewById(R.id.dash);
                 dash.getDrawable().mutate().setColorFilter(color, PorterDuff.Mode.SRC_IN);
 
                 //To prevent text edit

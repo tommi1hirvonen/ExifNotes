@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -160,14 +161,14 @@ public class RollsFragment extends Fragment implements
                              Bundle savedInstanceState) {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        if (((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
             //noinspection ConstantConditions
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("  " +
-                    getResources().getString(R.string.MainActivityTitle));
+            actionBar.setTitle("  " + getResources().getString(R.string.MainActivityTitle));
             //noinspection ConstantConditions
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+            actionBar.setSubtitle("");
             //noinspection ConstantConditions
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            actionBar.setDisplayHomeAsUpEnabled(false);
         }
 
         database = FilmDbHelper.getInstance(getActivity());
@@ -178,13 +179,13 @@ public class RollsFragment extends Fragment implements
 
         final View view = layoutInflater.inflate(R.layout.rolls_fragment, container, false);
 
-        floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
+        floatingActionButton = view.findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(this);
 
-        mainTextView = (TextView) view.findViewById(R.id.no_added_rolls);
+        mainTextView = view.findViewById(R.id.no_added_rolls);
 
         // Access the ListView
-        mainListView = (ListView) view.findViewById(R.id.main_listview);
+        mainListView = view.findViewById(R.id.main_listview);
 
         // Create an ArrayAdapter for the ListView
         rollAdapter = new RollAdapter(getActivity(), rollList);

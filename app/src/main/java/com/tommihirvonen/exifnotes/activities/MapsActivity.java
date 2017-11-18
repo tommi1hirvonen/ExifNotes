@@ -268,10 +268,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         @SuppressLint("InflateParams")
                         View view = getLayoutInflater().inflate(R.layout.info_window, null);
 
-                        TextView frameCountTextView = (TextView) view.findViewById(R.id.frame_count);
-                        TextView dateTimeTextView = (TextView) view.findViewById(R.id.date_time);
-                        TextView lensTextView = (TextView) view.findViewById(R.id.lens);
-                        TextView noteTextView = (TextView) view.findViewById(R.id.note);
+                        TextView frameCountTextView = view.findViewById(R.id.frame_count);
+                        TextView dateTimeTextView = view.findViewById(R.id.date_time);
+                        TextView lensTextView = view.findViewById(R.id.lens);
+                        TextView noteTextView = view.findViewById(R.id.note);
 
                         String frameCountText = "#" + frame.getCount();
                         frameCountTextView.setText(frameCountText);

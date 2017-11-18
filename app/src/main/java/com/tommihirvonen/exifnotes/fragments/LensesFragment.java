@@ -107,7 +107,7 @@ public class LensesFragment extends Fragment implements
 
         final View view = layoutInflater.inflate(R.layout.lenses_fragment, container, false);
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_lenses);
+        FloatingActionButton fab = view.findViewById(R.id.fab_lenses);
         fab.setOnClickListener(this);
 
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
@@ -115,10 +115,10 @@ public class LensesFragment extends Fragment implements
         // Also change the floating action button color. Use the darker secondaryColor for this.
         fab.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
-        mainTextView = (TextView) view.findViewById(R.id.no_added_lenses);
+        mainTextView = view.findViewById(R.id.no_added_lenses);
 
         // Access the ListView
-        mainListView = (ListView) view.findViewById(R.id.main_lenseslistview);
+        mainListView = view.findViewById(R.id.main_lenseslistview);
 
         // Create an ArrayAdapter for the ListView
         lensAdapter = new LensAdapter(getActivity(), lensList);

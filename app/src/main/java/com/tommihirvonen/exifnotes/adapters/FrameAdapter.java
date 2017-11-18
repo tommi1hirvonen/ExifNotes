@@ -2,9 +2,7 @@ package com.tommihirvonen.exifnotes.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -18,7 +16,6 @@ import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
-import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.List;
@@ -70,17 +67,17 @@ public class FrameAdapter extends ArrayAdapter<Frame> {
 
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_frame_relative, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_frame_constraint, parent, false);
             holder = new ViewHolder();
-            holder.countTextView = (TextView) convertView.findViewById(R.id.tvCount);
-            holder.frameTextView = (TextView) convertView.findViewById(R.id.tvFrameText);
-            holder.frameTextView2 = (TextView) convertView.findViewById(R.id.tvFrameText2);
-            holder.shutterTextView = (TextView) convertView.findViewById(R.id.tvShutter);
-            holder.apertureTextView = (TextView) convertView.findViewById(R.id.tvAperture);
-            holder.noteTextView = (TextView) convertView.findViewById(R.id.tv_frame_note);
-            holder.frameImageView = (ImageView) convertView.findViewById(R.id.background_frame);
-            holder.clockImageView = (ImageView) convertView.findViewById(R.id.drawable_clock);
-            holder.apertureImageView = (ImageView) convertView.findViewById(R.id.drawable_aperture);
+            holder.countTextView = convertView.findViewById(R.id.tvCount);
+            holder.frameTextView = convertView.findViewById(R.id.tvFrameText);
+            holder.frameTextView2 = convertView.findViewById(R.id.tvFrameText2);
+            holder.shutterTextView = convertView.findViewById(R.id.tvShutter);
+            holder.apertureTextView = convertView.findViewById(R.id.tvAperture);
+            holder.noteTextView = convertView.findViewById(R.id.tv_frame_note);
+            holder.frameImageView = convertView.findViewById(R.id.background_frame);
+            holder.clockImageView = convertView.findViewById(R.id.drawable_clock);
+            holder.apertureImageView = convertView.findViewById(R.id.drawable_aperture);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();

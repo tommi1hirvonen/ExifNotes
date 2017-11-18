@@ -99,7 +99,7 @@ public class SimpleEula {
             AlertDialog dialog = builder.create();
             dialog.show();
             //The dialog needs to be shown first. Otherwise textView will be null.
-            TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+            TextView textView = dialog.findViewById(android.R.id.message);
             textView.setTextSize(14);
         }
     }
