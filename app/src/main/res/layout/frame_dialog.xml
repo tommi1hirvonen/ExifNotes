@@ -166,6 +166,97 @@
                     android:text="@string/ClickToSet"
                     />
 
+
+
+            </LinearLayout>
+
+
+
+
+            <!--APERTURE-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/aperture_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view6"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Aperture"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/aperture_text"
+                    android:text="@string/ClickToSet"
+                    />
+
+            </LinearLayout>
+
+
+
+            <!--SHUTTER SPEED-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:id="@+id/shutter_layout"
+                android:background="?android:attr/selectableItemBackground"
+                >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view7"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/Shutter"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="7dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="15sp"
+                    android:id="@+id/shutter_text"
+                    android:text="@string/ClickToSet"
+                    />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -175,6 +266,7 @@
                     />
 
             </LinearLayout>
+
 
 
 
@@ -345,91 +437,7 @@
 
 
 
-            <!--APERTURE-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:id="@+id/aperture_layout"
-                android:background="?android:attr/selectableItemBackground"
-                >
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:id="@+id/divider_view6"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/Aperture"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    android:textSize="17sp"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="7dp"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="15sp"
-                    android:id="@+id/aperture_text"
-                    android:text="@string/ClickToSet"
-                    />
-
-            </LinearLayout>
-
-
-
-            <!--SHUTTER SPEED-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:id="@+id/shutter_layout"
-                android:background="?android:attr/selectableItemBackground"
-                >
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:id="@+id/divider_view7"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/Shutter"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    android:textSize="17sp"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="7dp"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="15sp"
-                    android:id="@+id/shutter_text"
-                    android:text="@string/ClickToSet"
-                    />
-
-            </LinearLayout>
 
 
 

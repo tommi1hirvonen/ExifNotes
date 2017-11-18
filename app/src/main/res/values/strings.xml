@@ -7,7 +7,7 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.9.3\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.9.4\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
@@ -16,6 +16,12 @@
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.9.4 2017-11-18:\n
+        -Ensured compatibility with Android O.\n
+        -In ExifTool commands, the frame count is now preceded by *_ to ensure, that only correct frames are being updated by ExifTool. Make sure you use underscore as the delimiter before the frame count in your filenames.\n
+        -Moved the aperture and shutter speed properties higher up in the frame edit dialog because these properties are changed frequently.\n
+        -Added option to ignore minor errors and warnings when writing EXIF information with ExifTool.\n
         \n
         v1.9.3 2017-05-15:\n
         -Focal length is now selected using a seek bar instead of a scroll wheel\n
@@ -118,7 +124,7 @@
         \n\n
         4. By default the image file ending used when creating the ExifTool commands is .jpg. You can change this to any possible file ending in the \'File ending\' setting.
         \n\n
-        5. Name the scanned files in such a way, that the name ends with some kind of delimiter and the frame\'s number. The number in the file name should correspond to the frame count in the app. The file\'s ending should be the one you specified in the previous step. These examples are all valid file names: 2016-02-03_1.jpg (frame #1), Example-10.tiff (frame #10), FileName_15.PNG (frame #15)
+        5. Name the scanned files in such a way, that the name ends with an underscore and the frame\'s number. The number in the file name should correspond to the frame count in the app. The file\'s ending should be the one you specified in the previous step. These examples are all valid file names: 2016-02-03_1.jpg (frame #1), Example_10.tiff (frame #10), FileName_15.PNG (frame #15)
         \n\n
         6. Export the roll\’s data by clicking the ellipsis when viewing the frames of a roll and then click \’Export/share files\’ to share them via another app (Dropbox or Gmail for example) or alternatively click \'Export files to storage\' to export the files using an inbuilt folder browser. This exports one or two text files (depending on which files the user has chosen to export in the app\'s settings), one containing the rolls data in csv format and the other containing the ExifTool commands.
         \n\n
@@ -406,6 +412,8 @@
     <string name="PicturesPathSummary">"If the picture files you want to edit are in a certain folder, you can define its path here ending with '/' or '\\' depending on your OS."</string>
     <string name="FileEndingTitle">File ending</string>
     <string name="FileEndingSummary">File ending of the files you wish to tag (e.g. .jpg or .tiff etc.)</string>
+    <string name="IgnoreWarningsTitle">Ignore minor errors and warnings</string>
+    <string name="IgnoreWarningsSummary">Adds -m option to the ExifTool commands to ignore minor errors and warnings when writing EXIF information.</string>
 
     <string name="DatabaseCap">DATABASE</string>
     <string name="ExportDatabaseTitle">Export database</string>

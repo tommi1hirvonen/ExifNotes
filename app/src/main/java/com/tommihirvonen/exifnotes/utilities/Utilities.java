@@ -524,7 +524,7 @@ public class Utilities {
     public static void sortFrameList(Activity activity, final FilmDbHelper database, List<Frame> listToSort) {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         final Utilities utilities = new Utilities(activity);
-        int sortId = sharedPref.getInt("FrameSortOrder", 0);
+        int sortId = sharedPref.getInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, 0);
         switch (sortId){
             //Sort by count
             case 0:
@@ -662,7 +662,9 @@ public class Utilities {
         String copyrightInformation = prefs.getString("CopyrightInformation", "");
         String exiftoolPath = prefs.getString("ExiftoolPath", "");
         String picturesPath = prefs.getString("PicturesPath", "");
+        final boolean ignoreWarnings = prefs.getBoolean("IgnoreWarnings", false);
 
+        String ignoreWarningsOption = "-m";
         String exiftoolCmd = "exiftool";
         String artistTag = "-Artist=";
         String copyrightTag = "-Copyright=";
@@ -710,6 +712,8 @@ public class Utilities {
             if (exiftoolPath.length() > 0) stringBuilder.append(exiftoolPath);
             //ExifTool command
             stringBuilder.append(exiftoolCmd).append(space);
+            //Ignore warnings
+            if (ignoreWarnings) stringBuilder.append(ignoreWarningsOption).append(space);
             //CameraMakeTag
             stringBuilder.append(cameraMakeTag).append(quote).append(database.getCamera(roll.getCameraId()).getMake()).append(quote).append(space);
             //CameraModelTag
@@ -785,7 +789,7 @@ public class Utilities {
             if (picturesPath.contains(" ") || fileEnding.contains(" ")) stringBuilder.append(quote);
             if (picturesPath.length() > 0) stringBuilder.append(picturesPath);
             //File ending
-            stringBuilder.append("*").append(frame.getCount()).append(fileEnding);
+            stringBuilder.append("*_").append(frame.getCount()).append(fileEnding);
             if (picturesPath.contains(" ") || fileEnding.contains(" ")) stringBuilder.append(quote);
             //Double new line
             stringBuilder.append(lineSep).append(lineSep);
