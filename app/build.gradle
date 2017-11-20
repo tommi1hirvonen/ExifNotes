@@ -22,8 +22,9 @@ android {
         applicationId 'com.tommihirvonen.exifnotes'
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 19
-        versionName "1.9.3"
+        versionCode 20
+        versionName "1.9.4"
+        vectorDrawables.useSupportLibrary = true // Enabling this allows us to use resources when PNGs are generated during build-time
     }
 
     buildTypes {
