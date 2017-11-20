@@ -12,16 +12,19 @@
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -Focal length is now selected using a seek bar instead of a scroll wheel\n
+        -In ExifTool commands, the frame count is now preceded by *_ to ensure, that only correct frames are being updated by ExifTool. Make sure you use underscore as the delimiter before the frame count in your filenames.\n
+        -Ensured compatibility with Android O.\n
+        -Moved the aperture and shutter speed properties higher up in the frame edit dialog because these properties are changed frequently.\n
+        -Added option to app\'s settings to ignore minor errors and warnings when writing EXIF information with ExifTool.\n
     </string>
     <string name="VersionHistory">
         Version history\n
         \n
         v1.9.4 2017-11-18:\n
-        -Ensured compatibility with Android O.\n
         -In ExifTool commands, the frame count is now preceded by *_ to ensure, that only correct frames are being updated by ExifTool. Make sure you use underscore as the delimiter before the frame count in your filenames.\n
+        -Ensured compatibility with Android O.\n
         -Moved the aperture and shutter speed properties higher up in the frame edit dialog because these properties are changed frequently.\n
-        -Added option to ignore minor errors and warnings when writing EXIF information with ExifTool.\n
+        -Added option to app\'s settings to ignore minor errors and warnings when writing EXIF information with ExifTool.\n
         \n
         v1.9.3 2017-05-15:\n
         -Focal length is now selected using a seek bar instead of a scroll wheel\n
