@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -157,54 +158,100 @@ public class RollsFragment extends Fragment implements
      * @return The inflated view
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Set the ActionBar title text.
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             //noinspection ConstantConditions
             actionBar.setTitle("  " + getResources().getString(R.string.MainActivityTitle));
             //noinspection ConstantConditions
-            actionBar.setSubtitle("");
-            //noinspection ConstantConditions
             actionBar.setDisplayHomeAsUpEnabled(false);
         }
-
+        // Assign the database.
         database = FilmDbHelper.getInstance(getActivity());
-        rollList = database.getAllRolls();
-
-        //Order the roll list according to preferences
-        sortRollList(rollList);
-
+        // Inflate the layout view.
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         final View view = layoutInflater.inflate(R.layout.rolls_fragment, container, false);
-
+        // Assign the FloatingActionButton and set this activity to react to the fab being pressed.
         floatingActionButton = view.findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(this);
-
+        // Assign the main TextView.
         mainTextView = view.findViewById(R.id.no_added_rolls);
-
-        // Access the ListView
+        // Assign the main film roll ListView.
         mainListView = view.findViewById(R.id.main_listview);
-
-        // Create an ArrayAdapter for the ListView
-        rollAdapter = new RollAdapter(getActivity(), rollList);
-
-        // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(rollAdapter);
-
-        if (rollList.size() >= 1) mainTextView.setVisibility(View.GONE);
-
-        // Set this activity to react to list items being pressed
+        // Set this activity to react to list items being pressed.
         mainListView.setOnItemClickListener(this);
-
+        // Set this activity to react to the list items being long pressed (open context menu).
         registerForContextMenu(mainListView);
-
         // Also change the floating action button color. Use the darker secondaryColor for this.
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
-
+        // Use the updateFragment() method to load the film rolls from the database,
+        // create an ArrayAdapter to link the list of rolls to the ListView,
+        // update the ActionBar subtitle and main TextView and set the main TextView
+        // either visible or hidden.
+        updateFragment();
+        // Return the inflated view.
         return view;
+    }
+
+    /**
+     * Public method to update the contents of this fragment.
+     */
+    public void updateFragment(){
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        // Get from preferences which rolls to load from the database.
+        final int getRollsArchivalArg = sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
+        // Load the rolls from the database.
+        rollList = database.getRolls(getRollsArchivalArg);
+        //Order the roll list according to preferences.
+        sortRollList(rollList);
+        // Create an ArrayAdapter for the ListView.
+        rollAdapter = new RollAdapter(getActivity(), rollList);
+        // Set the ListView to use the ArrayAdapter.
+        mainListView.setAdapter(rollAdapter);
+        // Notify the adapter to update itself.
+        rollAdapter.notifyDataSetChanged();
+        // Declare variables for the ActionBar subtitle, which shows the film roll filter statu
+        // and the main TextView, which is displayed if no rolls are shown.
+        final String subtitleText;
+        final String mainTextViewText;
+        switch (getRollsArchivalArg) {
+            case FilmDbHelper.ROLLS_ACTIVE:
+                subtitleText = getResources().getString(R.string.ActiveFilmRolls);
+                mainTextViewText = getResources().getString(R.string.NoActiveRolls);
+                floatingActionButton.show();
+                break;
+            case FilmDbHelper.ROLLS_ARCHIVED:
+                subtitleText = getResources().getString(R.string.ArchivedFilmRolls);
+                mainTextViewText = getResources().getString(R.string.NoArchivedRolls);
+                floatingActionButton.hide();
+                break;
+            case FilmDbHelper.ROLLS_ALL:
+                subtitleText = getResources().getString(R.string.AllFilmRolls);
+                mainTextViewText = getResources().getString(R.string.NoActiveOrArchivedRolls);
+                floatingActionButton.show();
+                break;
+            default:
+                subtitleText = getResources().getString(R.string.ActiveFilmRolls);
+                mainTextViewText = getResources().getString(R.string.NoActiveRolls);
+                floatingActionButton.show();
+                break;
+        }
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        // Set the ActionBar subtitle.
+        if (actionBar != null) {
+            //noinspection ConstantConditions
+            actionBar.setSubtitle("   " + subtitleText);
+        }
+        // Set the main TextView text.
+        mainTextView.setText(mainTextViewText);
+        // Hide/show the main TextView.
+        if (rollList.size() > 0) {
+            mainTextView.setVisibility(View.GONE);
+        } else {
+            mainTextView.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -231,7 +278,14 @@ public class RollsFragment extends Fragment implements
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.menu_context_delete_edit, menu);
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        int position = info.position;
+        final Roll roll = rollList.get(position);
+        if (roll.getArchived()) {
+            inflater.inflate(R.menu.menu_context_delete_edit_activate, menu);
+        } else {
+            inflater.inflate(R.menu.menu_context_delete_edit_archive, menu);
+        }
     }
 
     /**
@@ -245,8 +299,9 @@ public class RollsFragment extends Fragment implements
         switch (item.getItemId()) {
 
             case R.id.menu_item_sort:
-                final SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                int checkedItem = sharedPref.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, 0);
+
+                final SharedPreferences sharedPrefSortDialog = getActivity().getPreferences(Context.MODE_PRIVATE);
+                int checkedItem = sharedPrefSortDialog.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, 0);
                 AlertDialog.Builder sortDialog = new AlertDialog.Builder(getActivity());
                 sortDialog.setTitle(R.string.SortBy);
                 sortDialog.setSingleChoiceItems(R.array.RollSortOptions, checkedItem,
@@ -254,7 +309,7 @@ public class RollsFragment extends Fragment implements
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        SharedPreferences.Editor editor = sharedPref.edit();
+                        SharedPreferences.Editor editor = sharedPrefSortDialog.edit();
                         editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, which);
                         editor.apply();
                         dialog.dismiss();
@@ -273,10 +328,11 @@ public class RollsFragment extends Fragment implements
                 break;
 
             case R.id.menu_item_lenses:
+
                 Intent gearActivityIntent = new Intent(getActivity(), GearActivity.class);
                 startActivity(gearActivityIntent);
-
                 break;
+
             case R.id.menu_item_preferences:
 
                 Intent preferenceActivityIntent = new Intent(getActivity(), PreferenceActivity.class);
@@ -288,7 +344,6 @@ public class RollsFragment extends Fragment implements
                 //Start the preference activity from MainActivity.
                 //The result will be handled in MainActivity.
                 getActivity().startActivityForResult(preferenceActivityIntent, MainActivity.PREFERENCE_ACTIVITY_REQUEST);
-
                 break;
 
             case R.id.menu_item_help:
@@ -296,7 +351,6 @@ public class RollsFragment extends Fragment implements
                 String helpTitle = getResources().getString(R.string.Help);
                 String helpMessage = getResources().getString(R.string.main_help);
                 Utilities.showGeneralDialog(getActivity(), helpTitle, helpMessage);
-
                 break;
 
             case R.id.menu_item_about:
@@ -305,7 +359,6 @@ public class RollsFragment extends Fragment implements
                 String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" +
                         getResources().getString(R.string.VersionHistory);
                 Utilities.showGeneralDialog(getActivity(), aboutTitle, aboutMessage);
-
                 break;
 
             case R.id.menu_item_show_on_map:
@@ -313,10 +366,39 @@ public class RollsFragment extends Fragment implements
                 // Show all frames from all rolls on a map
                 Intent allFramesMapsActivityIntent = new Intent(getActivity(), AllFramesMapsActivity.class);
                 startActivity(allFramesMapsActivityIntent);
+                break;
 
+            // Show archived rolls
+            case R.id.menu_item_filter:
+
+                // Use getDefaultSharedPreferences() to get application wide preferences
+                final SharedPreferences sharedPrefVisibleRollsDialog =
+                        PreferenceManager.getDefaultSharedPreferences(getActivity());
+                final int visibleRollsCheckedItem =
+                        sharedPrefVisibleRollsDialog.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
+                AlertDialog.Builder visibleRollsDialog = new AlertDialog.Builder(getActivity());
+                visibleRollsDialog.setTitle(R.string.ChooseVisibleRolls);
+                visibleRollsDialog.setSingleChoiceItems(R.array.VisibleRollsOptions, visibleRollsCheckedItem,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences.Editor editor = sharedPrefVisibleRollsDialog.edit();
+                                editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, which);
+                                editor.apply();
+                                dialog.dismiss();
+                                updateFragment();
+                            }
+                        });
+                visibleRollsDialog.setNegativeButton(getResources().getString(R.string.Cancel),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Do nothing
+                            }
+                        });
+                visibleRollsDialog.show();
                 break;
         }
-
         return true;
     }
 
@@ -501,6 +583,30 @@ public class RollsFragment extends Fragment implements
                     alertBuilder.create().show();
 
                     return true;
+
+                //INTENTIONAL FALLTHROUGH
+                case R.id.menu_item_archive:
+                case R.id.menu_item_activate:
+
+                    final Roll rollActivateOrArchive = rollList.get(info.position);
+                    //Reverse the archival status of the roll
+                    rollActivateOrArchive.setArchived(!rollActivateOrArchive.getArchived());
+                    database.updateRoll(rollActivateOrArchive);
+
+                    final SharedPreferences sharedPrefVisibleRollsDialog =
+                            PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    final int visibleRollsCheckedItem =
+                            sharedPrefVisibleRollsDialog.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
+
+                    // Remove the roll from the list only if not all rolls are displayed.
+                    if (visibleRollsCheckedItem != FilmDbHelper.ROLLS_ALL) {
+                        rollList.remove(info.position);
+                        if (rollList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                    }
+
+                    rollAdapter.notifyDataSetChanged();
+
+                    return true;
             }
         }
         return false;
@@ -567,23 +673,6 @@ public class RollsFragment extends Fragment implements
                     return;
                 }
                 break;
-
-        }
-    }
-
-    /**
-     * Public method to update the contents of this fragment's ListView.
-     */
-    public void updateFragment(){
-        rollList = database.getAllRolls();
-        sortRollList(rollList);
-        rollAdapter = new RollAdapter(getActivity(), rollList);
-        mainListView.setAdapter(rollAdapter);
-        rollAdapter.notifyDataSetChanged();
-        if (rollList.size() > 0) {
-            mainTextView.setVisibility(View.GONE);
-        } else {
-            mainTextView.setVisibility(View.VISIBLE);
         }
     }
 }

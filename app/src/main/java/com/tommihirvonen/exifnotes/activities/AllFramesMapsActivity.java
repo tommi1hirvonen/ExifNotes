@@ -83,8 +83,13 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
 
         setContentView(R.layout.activity_maps);
 
+        final SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        final int getRollsArchivalArg =
+                sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
+
         database = FilmDbHelper.getInstance(this);
-        rollList = database.getAllRolls();
+        rollList = database.getRolls(getRollsArchivalArg);
 
         Utilities.setUiColor(this, true);
         if (getSupportActionBar() != null) getSupportActionBar().setTitle(

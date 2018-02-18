@@ -23,6 +23,8 @@ public final class PreferenceConstants {
 
     public static final String KEY_ROLL_SORT_ORDER = "RollSortOrder";
 
+    public static final String KEY_VISIBLE_ROLLS = "VisibleRolls";
+
     public static final String KEY_FILES_TO_EXPORT = "FilesToExport";
 
     public static final String VALUE_BOTH = "BOTH";

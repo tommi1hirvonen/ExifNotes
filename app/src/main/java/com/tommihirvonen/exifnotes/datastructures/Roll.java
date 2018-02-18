@@ -51,30 +51,16 @@ public class Roll implements Parcelable {
     private int format;
 
     /**
+     * true if the roll is archived, false if not
+     */
+    private boolean archived = false;
+
+    /**
      * empty constructor
      */
     public Roll(){
 
     }
-
-//    public Roll(long id,
-//                String name,
-//                String date,
-//                String note,
-//                long cameraId,
-//                int iso,
-//                String pushPull,
-//                String format
-//    ){
-//        this.id = id;
-//        this.name = name;
-//        this.date = date;
-//        this.note = note;
-//        this.cameraId = cameraId;
-//        this.iso = iso;
-//        this.pushPull = pushPull;
-//        this.format = format;
-//    }
 
     /**
      *
@@ -144,6 +130,22 @@ public class Roll implements Parcelable {
 
     /**
      *
+     * @param input true if roll is archived, false if not
+     */
+    public void setArchived(boolean input) {
+        this.archived = input;
+    }
+
+    /**
+     *
+     * @param input greater than zero if true, zero or smaller if false
+     */
+    public void setArchived(int input) {
+        this.archived = (input > 0);
+    }
+
+    /**
+     *
      * @return database id
      */
     public long getId(){
@@ -207,6 +209,14 @@ public class Roll implements Parcelable {
         return this.format;
     }
 
+    /**
+     *
+     * @return true if roll is archived, false if not
+     */
+    public boolean getArchived() {
+        return this.archived;
+    }
+
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
     /**
@@ -223,6 +233,7 @@ public class Roll implements Parcelable {
         this.iso = pc.readInt();
         this.pushPull = pc.readString();
         this.format = pc.readInt();
+        this.archived = (pc.readInt() == 1);
     }
 
     /**
@@ -251,6 +262,7 @@ public class Roll implements Parcelable {
         parcel.writeInt(iso);
         parcel.writeString(pushPull);
         parcel.writeInt(format);
+        parcel.writeInt(archived ? 1 : 0);
     }
 
     /**

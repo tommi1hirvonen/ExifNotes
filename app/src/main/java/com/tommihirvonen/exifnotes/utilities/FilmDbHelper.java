@@ -42,6 +42,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     //=============================================================================================
     //Column names
+
+    //Frame
     private static final String KEY_FRAME_ID = "frame_id";
     private static final String KEY_COUNT = "count";
     private static final String KEY_DATE = "date";
@@ -61,6 +63,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     //Added in database version 15
     private static final String KEY_FORMATTED_ADDRESS = "formatted_address";
 
+    //Lens
     private static final String KEY_LENS_ID = "lens_id";
     private static final String KEY_LENS_MAKE = "lens_make";
     private static final String KEY_LENS_MODEL = "lens_model";
@@ -72,6 +75,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_LENS_SERIAL_NO = "lens_serial_no";
     private static final String KEY_LENS_APERTURE_INCREMENTS = "aperture_increments";
 
+    //Camera
     private static final String KEY_CAMERA_ID = "camera_id";
     private static final String KEY_CAMERA_MAKE = "camera_make";
     private static final String KEY_CAMERA_MODEL = "camera_model";
@@ -81,6 +85,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_CAMERA_SERIAL_NO = "camera_serial_no";
     private static final String KEY_CAMERA_SHUTTER_INCREMENTS = "shutter_increments";
 
+    //Roll
     private static final String KEY_ROLL_ID = "roll_id";
     private static final String KEY_ROLLNAME = "rollname";
     private static final String KEY_ROLL_DATE = "roll_date";
@@ -89,7 +94,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_ROLL_ISO = "roll_iso";
     private static final String KEY_ROLL_PUSH = "roll_push";
     private static final String KEY_ROLL_FORMAT = "roll_format";
+    //Added in database version 16
+    private static final String KEY_ROLL_ARCHIVED = "roll_archived";
 
+    //Filter
     //Added in database version 14
     private static final String KEY_FILTER_ID = "filter_id";
     private static final String KEY_FILTER_MAKE = "filter_make";
@@ -101,7 +109,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     //Updated version from 13 to 14 - 2016-12-03
     //Updated version from 14 to 15 - 2017-04-29
-    private static final int DATABASE_VERSION = 15;
+    //Updated version from 15 to 16 - 2018-02-17
+    private static final int DATABASE_VERSION = 16;
 
     //=============================================================================================
     //onCreate strings
@@ -154,7 +163,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_CAMERA_ID + " integer not null, "
             + KEY_ROLL_ISO + " integer, "
             + KEY_ROLL_PUSH + " text, "
-            + KEY_ROLL_FORMAT + " integer"
+            + KEY_ROLL_FORMAT + " integer,"
+            + KEY_ROLL_ARCHIVED + " integer not null default 0"
             + ");";
     private static final String CREATE_MOUNTABLES_TABLE = "create table " + TABLE_MOUNTABLES
             + "(" + KEY_CAMERA_ID + " integer not null, "
@@ -223,6 +233,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " ADD COLUMN " + KEY_ROLL_PUSH + " text;";
     private static final String ALTER_TABLE_ROLLS_3 = "ALTER TABLE " + TABLE_ROLLS
             + " ADD COLUMN " + KEY_ROLL_FORMAT + " integer;";
+    private static final String ALTER_TABLE_ROLLS_4 = "ALTER TABLE " + TABLE_ROLLS
+            + " ADD COLUMN " + KEY_ROLL_ARCHIVED + " integer not null default 0;";
 
     private static final String REPLACE_QUOTE_CHARS = "UPDATE " + TABLE_FRAMES
             + " SET " + KEY_SHUTTER + " = REPLACE(" + KEY_SHUTTER + ", \'q\', \'\"\')"
@@ -324,6 +336,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         }
         if (oldVersion <= 14) {
             db.execSQL(ALTER_TABLE_FRAMES_10);
+        }
+        if (oldVersion <= 15) {
+            db.execSQL(ALTER_TABLE_ROLLS_4);
         }
     }
 
@@ -663,14 +678,34 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_ROLLS, null, values);
     }
 
+    public static final int ROLLS_ACTIVE = 0;
+    public static final int ROLLS_ARCHIVED = 1;
+    public static final int ROLLS_ALL = 2;
+
     /**
      * Gets all the rolls in the database
      * @return a List of all the rolls in the database
      */
-    public List<Roll> getAllRolls(){
+    public List<Roll> getRolls(int archivalParam){
+        String selectionArg;
+        switch (archivalParam) {
+            case ROLLS_ACTIVE:
+                selectionArg = KEY_ROLL_ARCHIVED + "=0";
+                break;
+            case ROLLS_ARCHIVED:
+                selectionArg = KEY_ROLL_ARCHIVED + ">0";
+                break;
+            case ROLLS_ALL:
+                selectionArg = null;
+                break;
+            default:
+                selectionArg = KEY_ROLL_ARCHIVED + "=0";
+                break;
+        }
         List<Roll> rolls = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_ROLLS, null, null, null, null, null, KEY_ROLL_DATE + " DESC");
+        Cursor cursor = db.query(TABLE_ROLLS, null, selectionArg, null,
+                null, null, KEY_ROLL_DATE + " DESC");
         Roll roll;
         while (cursor.moveToNext()) {
             roll = getRollFromCursor(cursor);
@@ -774,7 +809,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public List<Filter> getAllFilters(){
         List<Filter> filters = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FILTERS, null, null, null, null, null, KEY_FILTER_MAKE);
+        Cursor cursor = db.query(TABLE_FILTERS, null, null, null,null, null, KEY_FILTER_MAKE);
         Filter filter;
         while (cursor.moveToNext()) {
             filter = getFilterFromCursor(cursor);
@@ -971,6 +1006,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         roll.setIso(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ISO)));
         roll.setPushPull(cursor.getString(cursor.getColumnIndex(KEY_ROLL_PUSH)));
         roll.setFormat(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_FORMAT)));
+        roll.setArchived(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ARCHIVED)));
         return roll;
     }
 
@@ -1142,6 +1178,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_ROLL_ISO, roll.getIso());
         contentValues.put(KEY_ROLL_PUSH, roll.getPushPull());
         contentValues.put(KEY_ROLL_FORMAT, roll.getFormat());
+        contentValues.put(KEY_ROLL_ARCHIVED, roll.getArchived());
         return contentValues;
     }
 
@@ -1227,6 +1264,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Check the integrity of the current database.
      * The database is valid if it can be used with this app.
      *
+     * The integrity of the database is checked AFTER a new database is imported.
+     * New columns added during onUpgrade() will be present, which is why
+     * checkColumnProperties() should be run for all new columns as well.
+     *
      * @return true if the database is a valid database to be used with this app
      */
     private boolean runIntegrityCheck() {
@@ -1270,6 +1311,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ISO, INTEGER, 0, 0, false) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_PUSH, TEXT, 0, 0, false) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_FORMAT, INTEGER, 0, 0, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ARCHIVED, INTEGER, 1, 0, false) &&
 
                 checkColumnProperties(TABLE_FRAMES, KEY_FRAME_ID, INTEGER, 0, 1, true) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_ROLL_ID, INTEGER, 1, 0, false) &&

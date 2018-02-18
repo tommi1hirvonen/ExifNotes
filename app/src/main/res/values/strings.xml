@@ -2,23 +2,23 @@
     <string name="app_name">Exif Notes</string>
 
     <!--When updating "eula" also update "about"-->
-    <string name="Eula">Copyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="Eula">Copyright 2018 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
     <string name="Agree">Agree</string>
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.9.4\nCopyright 2017 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.9.5\nCopyright 2018 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -In ExifTool commands, the frame count is now preceded by *_ to ensure, that only correct frames are being updated by ExifTool. Make sure you use underscore as the delimiter before the frame count in your filenames.\n
-        -Ensured compatibility with Android O.\n
-        -Moved the aperture and shutter speed properties higher up in the frame edit dialog because these properties are changed frequently.\n
-        -Added option to app\'s settings to ignore minor errors and warnings when writing EXIF information with ExifTool.\n
+        -Added ability to archive film rolls. Visible rolls can be filtered (only active/archived rolls or all rolls).\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.9.5 2018-02-18:\n
+        -Added ability to archive film rolls. Visible rolls can be filtered (only active/archived rolls or all rolls).\n
         \n
         v1.9.4 2017-11-18:\n
         -In ExifTool commands, the frame count is now preceded by *_ to ensure, that only correct frames are being updated by ExifTool. Make sure you use underscore as the delimiter before the frame count in your filenames.\n
@@ -250,6 +250,9 @@
 
     <!--MainActivity-->
     <string name="MainActivityTitle">Film rolls</string>
+    <string name="ActiveFilmRolls">Active</string>
+    <string name="ArchivedFilmRolls">Archived</string>
+    <string name="AllFilmRolls">All</string>
     <string name="Delete">Delete</string>
     <string name="Cancel">Cancel</string>
     <string name="Close">Close</string>
@@ -272,6 +275,11 @@
 
     <!--RollsFragment-->
     <string name="ConfirmRollDelete">Delete roll</string>
+    <string name="VisibleRolls">Visible rolls</string>
+    <string name="ChooseVisibleRolls">Choose visible rolls</string>
+    <string name="ShowArchivedRolls">Archived</string>
+    <string name="ShowActiveRolls">Active</string>
+    <string name="ShowAllRolls">All</string>
 
     <string name="EditFrame">Edit frame #</string>
     <string name="NewFrame">Add new frame</string>
@@ -300,8 +308,11 @@
     <!--lenses_fragment.xml-->
     <string name="NoLenses">No added lenses</string>
 
-    <!--activity_main.xml-->
+    <!--rolls_fragment.xml-->
     <string name="NoRolls">No added rolls</string>
+    <string name="NoActiveRolls">No active rolls</string>
+    <string name="NoArchivedRolls">No archived rolls</string>
+    <string name="NoActiveOrArchivedRolls">No active/archived rolls</string>
 
     <!--activity_roll_info.xml-->
     <string name="NoFrames">No added frames</string>
@@ -361,6 +372,12 @@
 
     <!--name_dialog-->
     <string name="NameNoColon">Name</string>
+
+    <!--menu_context_delete_edit_archive.xml-->
+    <string name="Archive">Mark as archived</string>
+
+    <!--menu_context_delete_edit_activate.xml-->
+    <string name="Activate">Mark as active</string>
 
     <!--menu_main.xml-->
     <string name="About">About</string>

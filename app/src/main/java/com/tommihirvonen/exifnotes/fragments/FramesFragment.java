@@ -334,6 +334,9 @@ public class FramesFragment extends Fragment implements
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
+        MenuItem filterItem = menu.findItem(R.id.menu_item_filter);
+        filterItem.setVisible(false);
+
         //Add the menu item for export
         MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.ExportOrShare);
 

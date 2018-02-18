@@ -65,6 +65,12 @@
         <item>@string/CameraNoColon</item>
     </string-array>
 
+    <string-array name="VisibleRollsOptions">
+        <item>@string/ShowActiveRolls</item>
+        <item>@string/ShowArchivedRolls</item>
+        <item>@string/ShowAllRolls</item>
+    </string-array>
+
     <string-array name="FilmFormats">
         <item>35 mm</item>
         <item>120</item>

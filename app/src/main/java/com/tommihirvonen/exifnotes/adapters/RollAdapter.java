@@ -47,38 +47,76 @@ public class RollAdapter extends ArrayAdapter<Roll> {
     public  View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
         Roll roll = getItem(position);
+
+        ViewHolder holder;
+
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_roll, parent, false);
+            holder = new ViewHolder();
+            holder.nameTextView = convertView.findViewById(R.id.tv_roll_name);
+            holder.dateTextView = convertView.findViewById(R.id.tv_roll_date);
+            holder.noteTextView = convertView.findViewById(R.id.tv_roll_note);
+            holder.photosTextView = convertView.findViewById(R.id.tv_photos);
+            holder.cameraTextView = convertView.findViewById(R.id.tv_camera);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+
         // Get the data item for this position
         if (roll != null) {
-            String rollName = roll.getName();
-            String date = roll.getDate();
-            String note = roll.getNote();
+            final String rollName = roll.getName();
+            final String date = roll.getDate();
+            final String note = roll.getNote();
             long cameraId = roll.getCameraId();
             int numberOfFrames = database.getNumberOfFrames(getItem(position));
-            // Check if an existing view is being reused, otherwise inflate the view
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_roll, parent, false);
-            }
-            // Lookup view for data population
-            TextView nameTextView = convertView.findViewById(R.id.tv_roll_name);
-            TextView dateTextView = convertView.findViewById(R.id.tv_roll_date);
-            TextView noteTextView = convertView.findViewById(R.id.tv_roll_note);
-            TextView photosTextView = convertView.findViewById(R.id.tv_photos);
-            TextView cameraTextView = convertView.findViewById(R.id.tv_camera);
 
             // Populate the data into the template view using the data object
-            nameTextView.setText(rollName);
-            dateTextView.setText(date);
-            noteTextView.setText(note);
-            cameraTextView.setText(database.getCamera(cameraId).getMake() + " " +
+            holder.nameTextView.setText(rollName);
+            holder.dateTextView.setText(date);
+            holder.noteTextView.setText(note);
+            holder.cameraTextView.setText(database.getCamera(cameraId).getMake() + " " +
                     database.getCamera(cameraId).getModel());
             if (numberOfFrames == 1)
-                photosTextView.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photo));
+                holder.photosTextView.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photo));
             else if (numberOfFrames == 0)
-                photosTextView.setText(getContext().getString(R.string.NoPhotos));
+                holder.photosTextView.setText(getContext().getString(R.string.NoPhotos));
             else
-                photosTextView.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photos));
+                holder.photosTextView.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photos));
+
+            final float noFade = 1.0f;
+            final float lightFade = 0.9f;
+            final float moderateFade = 0.5f;
+            final float heavyFade = 0.4f;
+
+            // If the roll is archived, fade the text somewhat and apply a slightly grey background.
+            if (roll.getArchived()) {
+                holder.nameTextView.setAlpha(heavyFade);
+                holder.dateTextView.setAlpha(moderateFade);
+                holder.noteTextView.setAlpha(moderateFade);
+                holder.photosTextView.setAlpha(moderateFade);
+                holder.cameraTextView.setAlpha(moderateFade);
+                convertView.setBackgroundColor(0x15000000);
+            }
+            // If the roll is active, apply the default alphas (background alpha is 0.0).
+            else {
+                holder.nameTextView.setAlpha(lightFade);
+                holder.dateTextView.setAlpha(noFade);
+                holder.noteTextView.setAlpha(noFade);
+                holder.photosTextView.setAlpha(noFade);
+                holder.cameraTextView.setAlpha(noFade);
+                convertView.setBackgroundColor(0x00000000);
+            }
         }
         return convertView;
+    }
+
+    private static class ViewHolder {
+        TextView nameTextView;
+        TextView dateTextView;
+        TextView noteTextView;
+        TextView photosTextView;
+        TextView cameraTextView;
     }
 
 }

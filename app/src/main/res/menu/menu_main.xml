@@ -21,6 +21,13 @@
         omgandroid:showAsAction="ifRoom"
         />
     -->
+    <item
+        android:title="@string/VisibleRolls"
+        android:id="@+id/menu_item_filter"
+        android:icon="@drawable/ic_filter_list_white_48dp"
+        omgandroid:showAsAction="ifRoom">
+    </item>
+
 
     <item
         android:title="@string/SortBy"
