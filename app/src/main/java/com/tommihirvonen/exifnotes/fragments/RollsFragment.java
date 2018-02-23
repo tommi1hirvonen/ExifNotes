@@ -199,7 +199,7 @@ public class RollsFragment extends Fragment implements
      * Public method to update the contents of this fragment.
      */
     public void updateFragment(){
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         // Get from preferences which rolls to load from the database.
         final int getRollsArchivalArg = sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
         // Load the rolls from the database.
@@ -373,7 +373,7 @@ public class RollsFragment extends Fragment implements
 
                 // Use getDefaultSharedPreferences() to get application wide preferences
                 final SharedPreferences sharedPrefVisibleRollsDialog =
-                        PreferenceManager.getDefaultSharedPreferences(getActivity());
+                        PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
                 final int visibleRollsCheckedItem =
                         sharedPrefVisibleRollsDialog.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
                 AlertDialog.Builder visibleRollsDialog = new AlertDialog.Builder(getActivity());
@@ -594,7 +594,7 @@ public class RollsFragment extends Fragment implements
                     database.updateRoll(rollActivateOrArchive);
 
                     final SharedPreferences sharedPrefVisibleRollsDialog =
-                            PreferenceManager.getDefaultSharedPreferences(getActivity());
+                            PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
                     final int visibleRollsCheckedItem =
                             sharedPrefVisibleRollsDialog.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
 

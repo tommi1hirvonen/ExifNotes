@@ -84,7 +84,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         setContentView(R.layout.activity_maps);
 
         final SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
+                PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         final int getRollsArchivalArg =
                 sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
 
@@ -92,8 +92,26 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         rollList = database.getRolls(getRollsArchivalArg);
 
         Utilities.setUiColor(this, true);
-        if (getSupportActionBar() != null) getSupportActionBar().setTitle(
-                R.string.AllFrames);
+
+        // Set the ActionBar title and subtitle.
+        if (getSupportActionBar() != null) {
+            // Set the subtitle according to which film rolls are shown.
+            switch (getRollsArchivalArg) {
+                case FilmDbHelper.ROLLS_ACTIVE:
+                    getSupportActionBar().setSubtitle(R.string.ActiveRolls);
+                    break;
+                case FilmDbHelper.ROLLS_ARCHIVED:
+                    getSupportActionBar().setSubtitle(R.string.ArchivedRolls);
+                    break;
+                case FilmDbHelper.ROLLS_ALL:
+                    getSupportActionBar().setSubtitle(R.string.AllRolls);
+                    break;
+                default:
+                    getSupportActionBar().setSubtitle(R.string.ActiveRolls);
+                    break;
+            }
+            getSupportActionBar().setTitle(R.string.AllFrames);
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

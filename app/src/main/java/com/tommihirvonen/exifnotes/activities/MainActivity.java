@@ -5,8 +5,10 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -21,6 +23,7 @@ import com.tommihirvonen.exifnotes.fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.fragments.RollsFragment;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
+import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
@@ -93,12 +96,17 @@ public class MainActivity extends AppCompatActivity implements
             locationPermissionsGranted = true;
         }
 
-
+        // Get from DefaultSharedPreferences whether the user has enabled
+        // location updates in the app's settings.
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final boolean requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true);
 
         // getting GPS status
         boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if (!isGPSEnabled) showSettingsAlert();
 
+        // Show a dialog to go to settings only if GPS is not enabled in system settings
+        // but location updates are enabled in the app's settings.
+        if (!isGPSEnabled && requestingLocationUpdates) showSettingsAlert();
 
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
@@ -234,15 +242,27 @@ public class MainActivity extends AppCompatActivity implements
         alertDialog.setMessage(R.string.GPSNotEnabled);
 
         // On pressing Settings button
-        alertDialog.setPositiveButton(R.string.Settings, new DialogInterface.OnClickListener() {
+        alertDialog.setPositiveButton(R.string.GoToSettings, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog,int which) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(intent);
             }
         });
 
-        // on pressing cancel button
-        alertDialog.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+        // On pressing disable button
+        alertDialog.setNegativeButton(R.string.DisableInApp, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                final SharedPreferences.Editor prefsEditor = prefs.edit();
+                prefsEditor.putBoolean(PreferenceConstants.KEY_GPS_UPDATE, false);
+                prefsEditor.apply();
+                dialogInterface.dismiss();
+            }
+        });
+
+        // On pressing cancel button
+        alertDialog.setNeutralButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
