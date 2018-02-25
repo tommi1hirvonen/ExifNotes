@@ -17,7 +17,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -26,16 +25,15 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ShareActionProvider;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,7 +68,7 @@ import java.util.List;
  */
 public class FramesFragment extends Fragment implements
         View.OnClickListener,
-        AdapterView.OnItemClickListener,
+        FrameAdapter.OnItemClickListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
@@ -118,7 +116,7 @@ public class FramesFragment extends Fragment implements
     /**
      * ListView to show all the frames on this roll with details
      */
-    private ListView mainListView;
+    private RecyclerView mainRecyclerView;
 
     /**
      * Contains all the frames for this roll
@@ -126,7 +124,7 @@ public class FramesFragment extends Fragment implements
     private List<Frame> frameList = new ArrayList<>();
 
     /**
-     * Adapter to adapt frameList to mainListView
+     * Adapter to adapt frameList to mainRecyclerView
      */
     private FrameAdapter frameAdapter;
 
@@ -178,11 +176,6 @@ public class FramesFragment extends Fragment implements
      * Reference to the parent activity's OnHomeAsUpPressedListener
      */
     private OnHomeAsUpPressedListener callback;
-
-    /**
-     * Holds the scroll state of the listview when it is recreated
-     */
-    private Parcelable mainListViewScrollState;
 
     /**
      * This interface is implemented in MainActivity.
@@ -305,22 +298,20 @@ public class FramesFragment extends Fragment implements
         getActivity().invalidateOptionsMenu();
 
         // Access the ListView
-        mainListView = view.findViewById(R.id.frames_listview);
+        mainRecyclerView = view.findViewById(R.id.frames_recycler_view);
+
         // Create an ArrayAdapter for the ListView
-        frameAdapter = new FrameAdapter(getActivity(), frameList);
+        frameAdapter = new FrameAdapter(getActivity(), frameList, this);
+        mainRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(frameAdapter);
-
-        mainListView.setOnItemClickListener(this);
-
-        registerForContextMenu(mainListView);
+        mainRecyclerView.setAdapter(frameAdapter);
 
         if (frameList.size() >= 1) {
             mainTextView.setVisibility(View.GONE);
         }
 
-        if (mainListView.getCount() >= 1) mainListView.setSelection(mainListView.getCount() - 1);
+        if (frameAdapter.getItemCount() >= 1) mainRecyclerView.scrollToPosition(frameAdapter.getItemCount()-1);//frameAdapter.setSelection(mainRecyclerView.getCount() - 1);
 
         return view;
     }
@@ -356,21 +347,6 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * Inflate the context menu to show actions when pressing and holding on a roll.
-     *
-     * @param menu the menu to be inflated
-     * @param v the context menu view, not used
-     * @param menuInfo not used
-     */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.menu_context_delete_edit, menu);
-    }
-
-    /**
      * Called when the user long presses on a frame AND selects a context menu item.
      *
      * @param item the context menu item that was selected
@@ -379,14 +355,14 @@ public class FramesFragment extends Fragment implements
     @SuppressLint("CommitTransaction")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+//        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
         if (getUserVisibleHint()) {
             switch (item.getItemId()) {
                 case R.id.menu_item_edit:
 
-                    int position = info.position;
+                    int position = item.getOrder();//info.position;
 
                     // Edit frame info
                     Frame frame = frameList.get(position);
@@ -406,14 +382,14 @@ public class FramesFragment extends Fragment implements
 
                 case R.id.menu_item_delete:
 
-                    int which = info.position;
+                    int which = item.getOrder();//info.position;
 
                     Frame deletableFrame = frameList.get(which);
                     database.deleteFrame(deletableFrame);
                     frameList.remove(which);
 
                     if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                    frameAdapter.notifyDataSetChanged();
+                    frameAdapter.notifyItemRemoved(which);
 
                     shareActionProvider.setShareIntent(setShareIntentExportRoll());
 
@@ -454,7 +430,7 @@ public class FramesFragment extends Fragment implements
                         editor.apply();
                         dialog.dismiss();
                         Utilities.sortFrameList(getActivity(), database, frameList);
-                        frameAdapter.notifyDataSetChanged();
+                        frameAdapter.notifyItemRangeChanged(0, frameAdapter.getItemCount());
                     }
                 });
                 sortDialog.setNegativeButton(getResources().getString(R.string.Cancel),
@@ -514,7 +490,7 @@ public class FramesFragment extends Fragment implements
             case R.id.menu_item_show_on_map:
 
                 // Save the current scroll position
-                mainListViewScrollState = mainListView.onSaveInstanceState();
+                //mainListViewScrollState = mainRecyclerView.onSaveInstanceState();
                 Intent mapsActivityIntent = new Intent(getActivity(), MapsActivity.class);
                 mapsActivityIntent.putExtra(ROLL_ID_EXTRA_MESSAGE, rollId);
                 startActivityForResult(mapsActivityIntent, SHOW_ON_MAP);
@@ -652,8 +628,6 @@ public class FramesFragment extends Fragment implements
         File fileCsv = new File(externalStorageDir, fileNameCsv);
         File fileExifToolCmds = new File(externalStorageDir, fileNameExifToolCmds);
 
-        //FileOutputStream fOut = null;
-
         //Write the csv file
         Utilities.writeTextFile(fileCsv, csvString);
 
@@ -741,14 +715,10 @@ public class FramesFragment extends Fragment implements
     /**
      * Called when a frame is pressed. Show the EditFrameDialog.
      *
-     * @param parent the parent AdapterView, not used
-     * @param view the view of the clicked item, not used
-     * @param position position of the item in the ListView
-     * @param id id of the item clicked, not used
+     * @param position position of the item in the RecyclerView
      */
     @SuppressLint("CommitTransaction")
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onItemClicked(int position) {
         // Edit frame info
         Frame frame = frameList.get(position);
         Bundle arguments = new Bundle();
@@ -796,7 +766,6 @@ public class FramesFragment extends Fragment implements
                         getActivity().
                         getBaseContext()).getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true))
             frame.setLocation(Utilities.locationStringFromLocation(lastLocation));
-        //else frame.setLocation("");
 
         if (!frameList.isEmpty()) {
 
@@ -857,20 +826,17 @@ public class FramesFragment extends Fragment implements
 
                     if (frame != null) {
 
-                        // Save the file when the new frame has been added
                         long rowId = database.addFrame(frame);
                         frame.setId(rowId);
-
                         frameList.add(frame);
                         Utilities.sortFrameList(getActivity(), database, frameList);
-                        frameAdapter.notifyDataSetChanged();
+                        frameAdapter.notifyItemInserted(frameList.indexOf(frame));
                         mainTextView.setVisibility(View.GONE);
 
                         // When the new frame is added jump to view the added entry
                         int pos = frameList.indexOf(frame);
-                        if (pos < mainListView.getCount()) mainListView.setSelection(pos);
-                        // The text you'd like to share has changed,
-                        // and you need to update
+                        if (pos < frameAdapter.getItemCount()) mainRecyclerView.scrollToPosition(pos);
+                        // The text to share has changed and we need to update
                         shareActionProvider.setShareIntent(setShareIntentExportRoll());
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -888,11 +854,13 @@ public class FramesFragment extends Fragment implements
                     if (frame != null && frame.getId() > 0) {
 
                         database.updateFrame(frame);
+                        final int oldPosition = frameList.indexOf(frame);
                         Utilities.sortFrameList(getActivity(), database, frameList);
-                        frameAdapter.notifyDataSetChanged();
+                        final int newPosition = frameList.indexOf(frame);
+                        frameAdapter.notifyItemChanged(oldPosition);
+                        frameAdapter.notifyItemMoved(oldPosition, newPosition);
 
-                        // The text you'd like to share has changed,
-                        // and you need to update
+                        // The text to share has changed and we need to update
                         shareActionProvider.setShareIntent(setShareIntentExportRoll());
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -918,14 +886,12 @@ public class FramesFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
+                    // Update the frame list in case updates were made in MapsActivity.
                     frameList = database.getAllFramesFromRoll(rollId);
                     Utilities.sortFrameList(getActivity(), database, frameList);
-                    frameAdapter = new FrameAdapter(getActivity(), frameList);
-                    mainListView.setAdapter(frameAdapter);
+                    frameAdapter = new FrameAdapter(getActivity(), frameList, this);
+                    mainRecyclerView.setAdapter(frameAdapter);
                     frameAdapter.notifyDataSetChanged();
-                    // Set the saved scroll position
-                    mainListView.onRestoreInstanceState(mainListViewScrollState);
-
                 }
 
                 break;

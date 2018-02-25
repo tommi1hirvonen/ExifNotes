@@ -3,8 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="72dp">
-
+    android:layout_height="72dp"
+    android:id="@+id/item_frame_layout"
+    android:background="?android:attr/selectableItemBackground"
+    >
 
     <ImageView
         android:id="@+id/background_frame"
@@ -135,6 +137,13 @@
         app:layout_constraintStart_toEndOf="@+id/drawable_aperture"
         app:layout_constraintTop_toBottomOf="@+id/tvShutter"
         tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+    <View
+        android:layout_width="match_parent"
+        android:id="@+id/bottom_line"
+        android:layout_height="1dp"
+        android:background="@color/background_frame_light_grey"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"/>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline0"

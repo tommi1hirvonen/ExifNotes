@@ -15,9 +15,8 @@
         android:gravity="center"
         android:text="@string/NoFrames"/>
 
-    <!-- List whose dataset is defined in code with an adapter -->
-    <ListView
-        android:id="@+id/frames_listview"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/frames_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="80dp"
