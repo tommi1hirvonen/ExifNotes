@@ -14,14 +14,14 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.ContextMenu;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.activities.MainActivity;
@@ -52,7 +52,7 @@ import java.util.List;
  */
 public class RollsFragment extends Fragment implements
         View.OnClickListener,
-        AdapterView.OnItemClickListener {
+        RollAdapter.OnItemClickListener {
 
     /**
      * Public constant used to tag the fragment when created
@@ -87,10 +87,10 @@ public class RollsFragment extends Fragment implements
     /**
      * ListView to show all the rolls in the database along with details
      */
-    private ListView mainListView;
+    private RecyclerView mainRecyclerView;
 
     /**
-     * Adapter used to adapt rollList to mainListView
+     * Adapter used to adapt rollList to mainRecyclerView
      */
     private RollAdapter rollAdapter;
 
@@ -177,12 +177,11 @@ public class RollsFragment extends Fragment implements
         floatingActionButton.setOnClickListener(this);
         // Assign the main TextView.
         mainTextView = view.findViewById(R.id.no_added_rolls);
-        // Assign the main film roll ListView.
-        mainListView = view.findViewById(R.id.main_listview);
-        // Set this activity to react to list items being pressed.
-        mainListView.setOnItemClickListener(this);
-        // Set this activity to react to the list items being long pressed (open context menu).
-        registerForContextMenu(mainListView);
+        // Assign the main film roll RecyclerView.
+        mainRecyclerView = view.findViewById(R.id.rolls_recycler_view);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        mainRecyclerView.setLayoutManager(layoutManager);
+        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(), layoutManager.getOrientation()));
         // Also change the floating action button color. Use the darker secondaryColor for this.
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
@@ -190,7 +189,7 @@ public class RollsFragment extends Fragment implements
         // create an ArrayAdapter to link the list of rolls to the ListView,
         // update the ActionBar subtitle and main TextView and set the main TextView
         // either visible or hidden.
-        updateFragment();
+        updateFragment(true);
         // Return the inflated view.
         return view;
     }
@@ -198,21 +197,13 @@ public class RollsFragment extends Fragment implements
     /**
      * Public method to update the contents of this fragment.
      */
-    public void updateFragment(){
+    public void updateFragment(boolean recreateRollAdapter){
+
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         // Get from preferences which rolls to load from the database.
         final int getRollsArchivalArg = sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
-        // Load the rolls from the database.
-        rollList = database.getRolls(getRollsArchivalArg);
-        //Order the roll list according to preferences.
-        sortRollList(rollList);
-        // Create an ArrayAdapter for the ListView.
-        rollAdapter = new RollAdapter(getActivity(), rollList);
-        // Set the ListView to use the ArrayAdapter.
-        mainListView.setAdapter(rollAdapter);
-        // Notify the adapter to update itself.
-        rollAdapter.notifyDataSetChanged();
-        // Declare variables for the ActionBar subtitle, which shows the film roll filter statu
+
+        // Declare variables for the ActionBar subtitle, which shows the film roll filter status
         // and the main TextView, which is displayed if no rolls are shown.
         final String subtitleText;
         final String mainTextViewText;
@@ -238,20 +229,40 @@ public class RollsFragment extends Fragment implements
                 floatingActionButton.show();
                 break;
         }
+
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         // Set the ActionBar subtitle.
         if (actionBar != null) {
             //noinspection ConstantConditions
             actionBar.setSubtitle("   " + subtitleText);
         }
+
         // Set the main TextView text.
         mainTextView.setText(mainTextViewText);
-        // Hide/show the main TextView.
-        if (rollList.size() > 0) {
-            mainTextView.setVisibility(View.GONE);
+
+        // Load the rolls from the database.
+        rollList = database.getRolls(getRollsArchivalArg);
+        //Order the roll list according to preferences.
+        sortRollList(rollList);
+        if (recreateRollAdapter) {
+            // Create an ArrayAdapter for the ListView.
+            rollAdapter = new RollAdapter(getActivity(), rollList, this);
+            // Set the ListView to use the ArrayAdapter.
+            mainRecyclerView.setAdapter(rollAdapter);
+            // Notify the adapter to update itself.
+            rollAdapter.notifyItemRangeChanged(0, rollAdapter.getItemCount());
         } else {
-            mainTextView.setVisibility(View.VISIBLE);
+            // rollAdapter still references the old rollList. Update its reference.
+            final int oldItemCount = rollAdapter.getItemCount();
+            rollAdapter.setRollList(rollList);
+            final int newItemCount = rollAdapter.getItemCount();
+            // For itemCount use the one which is bigger. This makes sure,
+            // that if the old list was empty, the new items will be updated.
+            // Also if the new list is empty, old items will be removed.
+            rollAdapter.notifyItemRangeChanged(0, oldItemCount > newItemCount ? oldItemCount : newItemCount);
         }
+        if (rollList.size() > 0) mainTextViewAnimateInvisible();
+        else mainTextViewAnimateVisible();
     }
 
     /**
@@ -264,28 +275,6 @@ public class RollsFragment extends Fragment implements
         rollAdapter.notifyDataSetChanged();
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity().getApplicationContext());
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
-    }
-
-    /**
-     * Inflate the context menu to show actions when pressing and holding on a roll.
-     *
-     * @param menu the menu to be inflated
-     * @param v the context menu view, not used
-     * @param menuInfo {@inheritDoc}
-     */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getActivity().getMenuInflater();
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        int position = info.position;
-        final Roll roll = rollList.get(position);
-        if (roll.getArchived()) {
-            inflater.inflate(R.menu.menu_context_delete_edit_activate, menu);
-        } else {
-            inflater.inflate(R.menu.menu_context_delete_edit_archive, menu);
-        }
     }
 
     /**
@@ -314,7 +303,7 @@ public class RollsFragment extends Fragment implements
                         editor.apply();
                         dialog.dismiss();
                         sortRollList(rollList);
-                        rollAdapter.notifyDataSetChanged();
+                        rollAdapter.notifyItemRangeChanged(0, rollAdapter.getItemCount());
                     }
                 });
                 sortDialog.setNegativeButton(getResources().getString(R.string.Cancel),
@@ -386,7 +375,7 @@ public class RollsFragment extends Fragment implements
                                 editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, which);
                                 editor.apply();
                                 dialog.dismiss();
-                                updateFragment();
+                                updateFragment(false);
                             }
                         });
                 visibleRollsDialog.setNegativeButton(getResources().getString(R.string.Cancel),
@@ -486,14 +475,9 @@ public class RollsFragment extends Fragment implements
      * Called when a roll is pressed.
      * Forward the press to the callback interface in MainActivity.
      *
-     * @param parent the parent AdapterView, not used
-     * @param view the view of the clicked item, not used
-     * @param position position of the item in the ListView
-     * @param id id of the item clicked, not used
+     * @param position position of the item in RollAdapter
      */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // GET ROLL INFO
+    public void onItemClicked(int position) {
         long rollId = rollList.get(position).getId();
         callback.onRollSelected(rollId);
     }
@@ -540,20 +524,19 @@ public class RollsFragment extends Fragment implements
      */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
         if (getUserVisibleHint()) {
             switch (item.getItemId()) {
                 case R.id.menu_item_edit:
 
-                    showEditRollDialog(info.position);
+                    showEditRollDialog(item.getOrder());
 
                     return true;
 
                 case R.id.menu_item_delete:
 
-                    final int rollPosition = info.position;
+                    final int rollPosition = item.getOrder();
                     final Roll roll = rollList.get(rollPosition);
 
                     AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
@@ -576,8 +559,8 @@ public class RollsFragment extends Fragment implements
                             // Remove the roll from the rollList. Do this last!!!
                             rollList.remove(rollPosition);
 
-                            if (rollList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                            rollAdapter.notifyDataSetChanged();
+                            if (rollList.size() == 0) mainTextViewAnimateVisible();
+                            rollAdapter.notifyItemRemoved(rollPosition);
                         }
                     });
                     alertBuilder.create().show();
@@ -588,7 +571,8 @@ public class RollsFragment extends Fragment implements
                 case R.id.menu_item_archive:
                 case R.id.menu_item_activate:
 
-                    final Roll rollActivateOrArchive = rollList.get(info.position);
+                    final int position = item.getOrder();
+                    final Roll rollActivateOrArchive = rollList.get(position);
                     //Reverse the archival status of the roll
                     rollActivateOrArchive.setArchived(!rollActivateOrArchive.getArchived());
                     database.updateRoll(rollActivateOrArchive);
@@ -600,11 +584,12 @@ public class RollsFragment extends Fragment implements
 
                     // Remove the roll from the list only if not all rolls are displayed.
                     if (visibleRollsCheckedItem != FilmDbHelper.ROLLS_ALL) {
-                        rollList.remove(info.position);
-                        if (rollList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                        rollList.remove(position);
+                        rollAdapter.notifyItemRemoved(position);
+                        if (rollList.size() == 0) mainTextViewAnimateVisible();
+                    } else {
+                        rollAdapter.notifyItemChanged(position);
                     }
-
-                    rollAdapter.notifyDataSetChanged();
 
                     return true;
             }
@@ -635,16 +620,15 @@ public class RollsFragment extends Fragment implements
                         long rowId = database.addRoll(roll);
                         roll.setId(rowId);
 
-                        mainTextView.setVisibility(View.GONE);
+                        mainTextViewAnimateInvisible();
                         // Add new roll to the top of the list
                         rollList.add(0, roll);
                         sortRollList(rollList);
-                        rollAdapter.notifyDataSetChanged();
+                        rollAdapter.notifyItemInserted(rollList.indexOf(roll));
 
                         // When the new roll is added jump to view the added entry
                         int pos = rollList.indexOf(roll);
-                        //mainListView.setSelection(mainListView.getCount() - 1);
-                        if (pos < mainListView.getCount()) mainListView.setSelection(pos);
+                        if (pos < rollAdapter.getItemCount()) mainRecyclerView.scrollToPosition(pos);
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After cancel do nothing
@@ -665,8 +649,11 @@ public class RollsFragment extends Fragment implements
                         database.updateRoll(roll);
 
                         // Notify array adapter that the dataset has to be updated
+                        final int oldPosition = rollList.indexOf(roll);
                         sortRollList(rollList);
-                        rollAdapter.notifyDataSetChanged();
+                        final int newPosition = rollList.indexOf(roll);
+                        rollAdapter.notifyItemChanged(oldPosition);
+                        rollAdapter.notifyItemMoved(oldPosition, newPosition);
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After cancel do nothing
@@ -674,5 +661,19 @@ public class RollsFragment extends Fragment implements
                 }
                 break;
         }
+    }
+
+    /**
+     * Method to fade in the main TextView ("No rolls")
+     */
+    private void mainTextViewAnimateVisible() {
+        mainTextView.animate().alpha(1.0f).setDuration(150);
+    }
+
+    /**
+     * Method to fade out the main TextView ("No rolls")
+     */
+    private void mainTextViewAnimateInvisible() {
+        mainTextView.animate().alpha(0.0f).setDuration(0);
     }
 }

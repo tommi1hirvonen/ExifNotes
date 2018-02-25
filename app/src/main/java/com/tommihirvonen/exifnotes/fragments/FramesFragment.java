@@ -25,6 +25,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ShareActionProvider;
@@ -302,7 +303,9 @@ public class FramesFragment extends Fragment implements
 
         // Create an ArrayAdapter for the ListView
         frameAdapter = new FrameAdapter(getActivity(), frameList, this);
-        mainRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        mainRecyclerView.setLayoutManager(layoutManager);
+        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(), layoutManager.getOrientation()));
 
         // Set the ListView to use the ArrayAdapter
         mainRecyclerView.setAdapter(frameAdapter);
@@ -311,7 +314,7 @@ public class FramesFragment extends Fragment implements
             mainTextView.setVisibility(View.GONE);
         }
 
-        if (frameAdapter.getItemCount() >= 1) mainRecyclerView.scrollToPosition(frameAdapter.getItemCount()-1);//frameAdapter.setSelection(mainRecyclerView.getCount() - 1);
+        if (frameAdapter.getItemCount() >= 1) mainRecyclerView.scrollToPosition(frameAdapter.getItemCount()-1);
 
         return view;
     }
@@ -355,7 +358,6 @@ public class FramesFragment extends Fragment implements
     @SuppressLint("CommitTransaction")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-//        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
         if (getUserVisibleHint()) {

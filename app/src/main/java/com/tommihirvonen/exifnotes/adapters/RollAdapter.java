@@ -2,10 +2,13 @@ package com.tommihirvonen.exifnotes.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.datastructures.Roll;
@@ -17,59 +20,79 @@ import java.util.List;
 /**
  * LensAdapter links an ArrayList of Rolls and a ListView together.
  */
-public class RollAdapter extends ArrayAdapter<Roll> {
+public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
 
-    /**
-     * Reference to the singleton database
-     */
-    private final FilmDbHelper database;
-
-    /**
-     * {@inheritDoc}
-     *  @param context
-     * @param rolls
-     */
-    public RollAdapter(Context context, List<Roll> rolls) {
-        super(context, android.R.layout.simple_list_item_1, rolls);
-        database = FilmDbHelper.getInstance(context);
+    public interface OnItemClickListener {
+        void onItemClicked(int position);
     }
 
-    /**
-     * This function inflates a view in the ListView to display the Roll's information.
-     *
-     * @param position the position of the item in the list.
-     * @param convertView the view to be inflated
-     * @param parent the parent to which the view will eventually be attached.
-     * @return the inflated view to be showed in the ListView
-     */
-    @NonNull
-    @Override
-    public  View getView(int position, View convertView, @NonNull ViewGroup parent) {
+    private List<Roll> rollList;
 
-        Roll roll = getItem(position);
+    private final Context context;
 
-        ViewHolder holder;
+    private final OnItemClickListener clickListener;
 
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_roll, parent, false);
-            holder = new ViewHolder();
-            holder.nameTextView = convertView.findViewById(R.id.tv_roll_name);
-            holder.dateTextView = convertView.findViewById(R.id.tv_roll_date);
-            holder.noteTextView = convertView.findViewById(R.id.tv_roll_note);
-            holder.photosTextView = convertView.findViewById(R.id.tv_photos);
-            holder.cameraTextView = convertView.findViewById(R.id.tv_camera);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
+    private final FilmDbHelper database;
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+        LinearLayout linearLayout;
+        TextView nameTextView;
+        TextView dateTextView;
+        TextView noteTextView;
+        TextView photosTextView;
+        TextView cameraTextView;
+        ViewHolder(View itemView) {
+            super(itemView);
+            linearLayout = itemView.findViewById(R.id.item_roll_layout);
+            nameTextView = itemView.findViewById(R.id.tv_roll_name);
+            dateTextView = itemView.findViewById(R.id.tv_roll_date);
+            noteTextView = itemView.findViewById(R.id.tv_roll_note);
+            photosTextView = itemView.findViewById(R.id.tv_photos);
+            cameraTextView = itemView.findViewById(R.id.tv_camera);
+            linearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    clickListener.onItemClicked(getAdapterPosition());
+                }
+            });
+            linearLayout.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                @Override
+                public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+                    contextMenu.add(0, R.id.menu_item_edit, getAdapterPosition(), R.string.Edit);
+                    contextMenu.add(0, R.id.menu_item_delete, getAdapterPosition(), R.string.Delete);
+                    final boolean archived = rollList.get(getAdapterPosition()).getArchived();
+                    if (archived) {
+                        contextMenu.add(0, R.id.menu_item_activate, getAdapterPosition(), R.string.Activate);
+                    } else {
+                        contextMenu.add(0, R.id.menu_item_archive, getAdapterPosition(), R.string.Archive);
+                    }
+                }
+            });
         }
+    }
 
-        // Get the data item for this position
+    public RollAdapter(Context context, List<Roll> rolls, OnItemClickListener clickListener) {
+        this.context = context;
+        this.rollList = rolls;
+        this.clickListener = clickListener;
+        this.database = FilmDbHelper.getInstance(context);
+    }
+
+    @Override
+    public RollAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int ViewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_roll, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Roll roll = rollList.get(position);
         if (roll != null) {
             final String rollName = roll.getName();
             final String date = roll.getDate();
             final String note = roll.getNote();
             long cameraId = roll.getCameraId();
-            int numberOfFrames = database.getNumberOfFrames(getItem(position));
+            int numberOfFrames = database.getNumberOfFrames(roll);
 
             // Populate the data into the template view using the data object
             holder.nameTextView.setText(rollName);
@@ -78,11 +101,11 @@ public class RollAdapter extends ArrayAdapter<Roll> {
             holder.cameraTextView.setText(database.getCamera(cameraId).getMake() + " " +
                     database.getCamera(cameraId).getModel());
             if (numberOfFrames == 1)
-                holder.photosTextView.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photo));
+                holder.photosTextView.setText("" + numberOfFrames + " " + context.getString(R.string.Photo));
             else if (numberOfFrames == 0)
-                holder.photosTextView.setText(getContext().getString(R.string.NoPhotos));
+                holder.photosTextView.setText(context.getString(R.string.NoPhotos));
             else
-                holder.photosTextView.setText("" + numberOfFrames + " " + getContext().getString(R.string.Photos));
+                holder.photosTextView.setText("" + numberOfFrames + " " + context.getString(R.string.Photos));
 
             final float noFade = 1.0f;
             final float lightFade = 0.9f;
@@ -96,7 +119,7 @@ public class RollAdapter extends ArrayAdapter<Roll> {
                 holder.noteTextView.setAlpha(moderateFade);
                 holder.photosTextView.setAlpha(moderateFade);
                 holder.cameraTextView.setAlpha(moderateFade);
-                convertView.setBackgroundColor(0x15000000);
+                holder.linearLayout.setBackgroundColor(0x15000000);
             }
             // If the roll is active, apply the default alphas (background alpha is 0.0).
             else {
@@ -105,18 +128,18 @@ public class RollAdapter extends ArrayAdapter<Roll> {
                 holder.noteTextView.setAlpha(noFade);
                 holder.photosTextView.setAlpha(noFade);
                 holder.cameraTextView.setAlpha(noFade);
-                convertView.setBackgroundColor(0x00000000);
+                holder.linearLayout.setBackgroundColor(0x00000000);
             }
         }
-        return convertView;
     }
 
-    private static class ViewHolder {
-        TextView nameTextView;
-        TextView dateTextView;
-        TextView noteTextView;
-        TextView photosTextView;
-        TextView cameraTextView;
+    public void setRollList(List<Roll> newRollList) {
+        this.rollList = newRollList;
+    }
+
+    @Override
+    public int getItemCount() {
+        return rollList.size();
     }
 
 }

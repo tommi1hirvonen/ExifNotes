@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements
                     fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
                     if (fragment instanceof RollsFragment) {
                         RollsFragment rollsFragment = (RollsFragment) fragment;
-                        rollsFragment.updateFragment();
+                        rollsFragment.updateFragment(true);
                     }
                 }
 

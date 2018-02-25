@@ -138,13 +138,6 @@
         app:layout_constraintTop_toBottomOf="@+id/tvShutter"
         tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-    <View
-        android:layout_width="match_parent"
-        android:id="@+id/bottom_line"
-        android:layout_height="1dp"
-        android:background="@color/background_frame_light_grey"
-        app:layout_constraintBottom_toTopOf="@+id/guideline2"/>
-
     <android.support.constraint.Guideline
         android:id="@+id/guideline0"
         android:layout_width="wrap_content"

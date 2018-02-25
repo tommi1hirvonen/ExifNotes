@@ -74,7 +74,6 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
         ImageView frameImageView;
         ImageView clockImageView;
         ImageView apertureImageView;
-        View bottomLine;
         ViewHolder(View itemView) {
             super(itemView);
             constraintLayout = itemView.findViewById(R.id.item_frame_layout);
@@ -87,7 +86,6 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             frameImageView = itemView.findViewById(R.id.background_frame);
             clockImageView = itemView.findViewById(R.id.drawable_clock);
             apertureImageView = itemView.findViewById(R.id.drawable_aperture);
-            bottomLine = itemView.findViewById(R.id.bottom_line);
             constraintLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -105,7 +103,6 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             frameImageView.getDrawable().mutate().setColorFilter(
                     backgroundFrameColor, PorterDuff.Mode.SRC_IN
             );
-            bottomLine.setBackgroundColor(backgroundFrameColor);
             clockImageView.getDrawable().mutate().setColorFilter(
                     ContextCompat.getColor(context, R.color.grey), PorterDuff.Mode.SRC_IN
             );

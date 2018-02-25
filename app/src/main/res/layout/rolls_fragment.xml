@@ -33,10 +33,10 @@
         app:backgroundTint="@color/secondary_color"
         android:src="@drawable/ic_add_a_camera_roll_white_48dp" />
 
-    <ListView
-        android:id="@+id/main_listview"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rolls_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:paddingBottom="80dp"
         android:clipToPadding="false"
         />
