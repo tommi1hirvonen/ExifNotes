@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * The camera class holds the information of a camera.
  */
-public class Camera implements Parcelable {
+public class Camera implements Gear, Parcelable {
 
     /**
      * database id
@@ -146,6 +146,14 @@ public class Camera implements Parcelable {
 
     /**
      *
+     * @return make + model
+     */
+    public String getName() {
+        return this.make + " " + this.model;
+    }
+
+    /**
+     *
      * @return camera's serial number
      */
     public String getSerialNumber(){
@@ -249,9 +257,10 @@ public class Camera implements Parcelable {
         if (obj instanceof Camera) camera = (Camera) obj;
         else return false;
         return camera.getId() == id && camera.getMake().equals(make) &&
-                camera.getModel().equals(model) && camera.getSerialNumber().equals(serialNumber) &&
-                camera.getMaxShutter().equals(maxShutter) && camera.getMinShutter().equals(minShutter) &&
-                camera.getShutterIncrements() == shutterIncrements;
+                camera.getModel().equals(model);
+                // && camera.getSerialNumber().equals(serialNumber) &&
+                // camera.getMaxShutter().equals(maxShutter) && camera.getMinShutter().equals(minShutter) &&
+                // camera.getShutterIncrements() == shutterIncrements;
     }
 
 }

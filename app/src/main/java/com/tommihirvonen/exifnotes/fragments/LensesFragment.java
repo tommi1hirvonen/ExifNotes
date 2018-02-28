@@ -9,18 +9,17 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
-import android.view.ContextMenu;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tommihirvonen.exifnotes.adapters.LensAdapter;
+import com.tommihirvonen.exifnotes.adapters.GearAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
@@ -38,8 +37,7 @@ import java.util.List;
 /**
  * Fragment to display all lenses from the database along with details
  */
-public class LensesFragment extends Fragment implements
-        View.OnClickListener, AdapterView.OnItemClickListener {
+public class LensesFragment extends Fragment implements View.OnClickListener {
 
     /**
      * Constant passed to EditLensDialog for result
@@ -59,12 +57,12 @@ public class LensesFragment extends Fragment implements
     /**
      * ListView to show all the lenses in the database along with details
      */
-    private ListView mainListView;
+    private RecyclerView mainRecyclerView;
 
     /**
-     * Adapter used to adapt lensList to mainListView
+     * Adapter used to adapt lensList to mainRecyclerView
      */
-    private LensAdapter lensAdapter;
+    private GearAdapter lensAdapter;
 
     /**
      * Contains all lenses from the database
@@ -118,73 +116,19 @@ public class LensesFragment extends Fragment implements
         mainTextView = view.findViewById(R.id.no_added_lenses);
 
         // Access the ListView
-        mainListView = view.findViewById(R.id.main_lenseslistview);
+        mainRecyclerView = view.findViewById(R.id.lenses_recycler_view);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        mainRecyclerView.setLayoutManager(layoutManager);
+        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(), layoutManager.getOrientation()));
 
-        // Create an ArrayAdapter for the ListView
-        lensAdapter = new LensAdapter(getActivity(), lensList);
-
-        // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(lensAdapter);
-
-        // Set this activity to react to list items being pressed
-        mainListView.setOnItemClickListener(this);
-
-        registerForContextMenu(mainListView);
+        lensAdapter = new GearAdapter(getActivity(), lensList);
+        mainRecyclerView.setAdapter(lensAdapter);
 
         if (lensList.size() >= 1) mainTextView.setVisibility(View.GONE);
 
         lensAdapter.notifyDataSetChanged();
 
         return view;
-    }
-
-    /**
-     * Inflate the context menu to show actions when pressing and holding on an item.
-     *
-     * @param menu the menu to be inflated
-     * @param v the context menu view, not used
-     * @param menuInfo {@inheritDoc}
-     */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-
-        //Set the title for the context menu
-        AdapterView.AdapterContextMenuInfo info = null;
-        try {
-            info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        } catch (ClassCastException ignore) {
-            //Do nothing
-        }
-        if (info != null) {
-            final int position = info.position;
-            Lens lens = null;
-            try {
-                lens = lensList.get(position);
-            } catch(NullPointerException | IndexOutOfBoundsException ignore) {
-                //Do nothing
-            }
-            if (lens != null) {
-                menu.setHeaderTitle(lens.getMake() + " " + lens.getModel());
-            }
-        }
-
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.menu_context_delete_edit_select_cameras, menu);
-    }
-
-    /**
-     * When an item is clicked perform long click instead to bring up the context menu.
-     *
-     * @param parent {@inheritDoc}
-     * @param view {@inheritDoc}
-     * @param position {@inheritDoc}
-     * @param id {@inheritDoc}
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        view.performLongClick();
     }
 
     /**
@@ -196,12 +140,13 @@ public class LensesFragment extends Fragment implements
     @SuppressLint("CommitTransaction")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
         if (getUserVisibleHint()) {
 
-            final int position = info.position;
+            // Use the getOrder() method to unconventionally get the clicked item's position.
+            // This is set to work correctly in the Adapter class.
+            final int position = item.getOrder();
             final Lens lens = lensList.get(position);
 
             switch (item.getItemId()) {
@@ -221,14 +166,14 @@ public class LensesFragment extends Fragment implements
                     // Check if the lens is being used with one of the frames.
                     if (database.isLensInUse(lens)) {
                         Toast.makeText(getActivity(), getResources().getString(R.string.LensNoColon) +
-                                " " + lens.getMake() + " " + lens.getModel() + " " +
+                                " " + lens.getName() + " " +
                                 getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
                         return true;
                     }
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle(getResources().getString(R.string.ConfirmLensDelete)
-                            + " \'" + lens.getMake() + " " + lens.getModel() + "\'?"
+                            + " \'" + lens.getName() + "\'?"
                     );
                     builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
                         @Override
@@ -247,7 +192,7 @@ public class LensesFragment extends Fragment implements
                             lensList.remove(position);
 
                             if (lensList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                            lensAdapter.notifyDataSetChanged();
+                            lensAdapter.notifyItemRemoved(position);
 
                             // Update the CamerasFragment through the parent activity.
                             GearActivity gearActivity = (GearActivity)getActivity();
@@ -317,10 +262,14 @@ public class LensesFragment extends Fragment implements
                         long rowId = database.addLens(lens);
                         lens.setId(rowId);
                         lensList.add(lens);
-                        lensAdapter.notifyDataSetChanged();
+
+                        // TODO: After adding a new piece of gear, sort the list by name. This way the new piece of gear is at the correct position from the get-go.
+
+                        final int listPos = lensList.indexOf(lens);
+                        lensAdapter.notifyItemInserted(listPos);
 
                         // When the lens is added jump to view the last entry
-                        mainListView.setSelection(mainListView.getCount() - 1);
+                        mainRecyclerView.scrollToPosition(listPos);
                     }
 
                 } else if (resultCode == Activity.RESULT_CANCELED){
@@ -342,7 +291,10 @@ public class LensesFragment extends Fragment implements
                             lens.getId() > 0) {
 
                         database.updateLens(lens);
-                        lensAdapter.notifyDataSetChanged();
+
+                        // TODO: After editing a piece of gear, get the old position, sort the gear list, get the new position and animate the sorting.
+
+                        lensAdapter.notifyItemChanged(lensList.indexOf(lens));
                         // Update the LensesFragment through the parent activity.
                         GearActivity gearActivity = (GearActivity)getActivity();
                         gearActivity.updateFragments();
@@ -380,7 +332,7 @@ public class LensesFragment extends Fragment implements
      *
      * @param position indicates the position of the picked lens in lensList
      */
-    private void showSelectMountableCamerasDialog(int position){
+    private void showSelectMountableCamerasDialog(final int position){
         final Lens lens = lensList.get(position);
         final List<Camera> mountableCameras = database.getMountableCameras(lens);
         final List<Camera> allCameras = database.getAllCameras();
@@ -392,7 +344,7 @@ public class LensesFragment extends Fragment implements
         List<String> listItems = new ArrayList<>();
         List<Long> allCamerasId = new ArrayList<>();
         for (int i = 0; i < allCameras.size(); ++i) {
-            listItems.add(allCameras.get(i).getMake() + " " + allCameras.get(i).getModel());
+            listItems.add(allCameras.get(i).getName());
             allCamerasId.add(allCameras.get(i).getId());
         }
 
@@ -465,7 +417,7 @@ public class LensesFragment extends Fragment implements
                             Camera camera = allCameras.get(which);
                             database.deleteMountable(camera, lens);
                         }
-                        lensAdapter.notifyDataSetChanged();
+                        lensAdapter.notifyItemChanged(position);
 
                         // Update the CamerasFragment through the parent activity.
                         GearActivity gearActivity = (GearActivity)getActivity();
@@ -487,7 +439,7 @@ public class LensesFragment extends Fragment implements
      *
      * @param position indicates the position of the picked lens in lensList
      */
-    private void showSelectMountableFiltersDialog(int position){
+    private void showSelectMountableFiltersDialog(final int position){
         final Lens lens = lensList.get(position);
         final List<Filter> mountableFilters = database.getMountableFilters(lens);
         final List<Filter> allFilters = database.getAllFilters();
@@ -499,7 +451,7 @@ public class LensesFragment extends Fragment implements
         List<String> listItems = new ArrayList<>();
         List<Long> allFiltersId = new ArrayList<>();
         for (int i = 0; i < allFilters.size(); ++i) {
-            listItems.add(allFilters.get(i).getMake() + " " + allFilters.get(i).getModel());
+            listItems.add(allFilters.get(i).getName());
             allFiltersId.add(allFilters.get(i).getId());
         }
 
@@ -574,7 +526,7 @@ public class LensesFragment extends Fragment implements
                             Filter filter = allFilters.get(which);
                             database.deleteMountableFilterLens(filter, lens);
                         }
-                        lensAdapter.notifyDataSetChanged();
+                        lensAdapter.notifyItemChanged(position);
 
                         // Update the FiltersFragment through the parent activity.
                         GearActivity gearActivity = (GearActivity)getActivity();

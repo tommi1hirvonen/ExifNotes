@@ -536,6 +536,8 @@ public class RollsFragment extends Fragment implements
 
                 case R.id.menu_item_delete:
 
+                    // Use the getOrder() method to unconventionally get the clicked item's position.
+                    // This is set to work correctly in the Adapter class.
                     final int rollPosition = item.getOrder();
                     final Roll roll = rollList.get(rollPosition);
 
@@ -571,6 +573,8 @@ public class RollsFragment extends Fragment implements
                 case R.id.menu_item_archive:
                 case R.id.menu_item_activate:
 
+                    // Use the getOrder() method to unconventionally get the clicked item's position.
+                    // This is set to work correctly in the Adapter class.
                     final int position = item.getOrder();
                     final Roll rollActivateOrArchive = rollList.get(position);
                     //Reverse the archival status of the roll

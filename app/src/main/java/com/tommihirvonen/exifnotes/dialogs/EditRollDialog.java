@@ -194,9 +194,7 @@ public class EditRollDialog extends DialogFragment {
         //==========================================================================================
         // CAMERA PICK DIALOG
         cameraTextView = inflatedView.findViewById(R.id.camera_text);
-        if (roll.getCameraId() > 0) cameraTextView.setText(
-                database.getCamera(roll.getCameraId())
-                        .getMake() + " " + database.getCamera(roll.getCameraId()).getModel());
+        if (roll.getCameraId() > 0) cameraTextView.setText(database.getCamera(roll.getCameraId()).getName());
         else cameraTextView.setText("");
 
         final LinearLayout cameraLayout = inflatedView.findViewById(R.id.camera_layout);
@@ -574,7 +572,7 @@ public class EditRollDialog extends DialogFragment {
                         camera.setId(rowId);
                         cameraList.add(camera);
 
-                        cameraTextView.setText(camera.getMake() + " " + camera.getModel());
+                        cameraTextView.setText(camera.getName());
                         newCameraId = camera.getId();
                     }
 

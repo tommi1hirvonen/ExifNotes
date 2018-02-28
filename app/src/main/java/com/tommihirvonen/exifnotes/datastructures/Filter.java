@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Filter class holds the information of a photographic filter.
  */
-public class Filter implements Parcelable {
+public class Filter implements Gear, Parcelable {
 
     /**
      * database id
@@ -77,6 +77,14 @@ public class Filter implements Parcelable {
      */
     public String getModel(){
         return this.model;
+    }
+
+    /**
+     *
+     * @return make + model
+     */
+    public String getName() {
+        return this.make + " " + this.model;
     }
 
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS

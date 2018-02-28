@@ -315,7 +315,7 @@ public class EditFrameDialog extends DialogFragment {
         lensTextView = inflatedView.findViewById(R.id.lens_text);
         if (frame.getLensId() > 0) {
             Lens currentLens = database.getLens(frame.getLensId());
-            lensTextView.setText(currentLens.getMake() + " " + currentLens.getModel());
+            lensTextView.setText(currentLens.getName());
         }
         else lensTextView.setText("");
         //==========================================================================================
@@ -916,7 +916,7 @@ public class EditFrameDialog extends DialogFragment {
         filterTextView = inflatedView.findViewById(R.id.filter_text);
         if (frame.getFilterId() > 0) {
             Filter currentFilter = database.getFilter(frame.getFilterId());
-            filterTextView.setText(currentFilter.getMake() + " " + currentFilter.getModel());
+            filterTextView.setText(currentFilter.getName());
         }
         else {
             filterTextView.setText("");
@@ -1124,7 +1124,7 @@ public class EditFrameDialog extends DialogFragment {
             lens.setId(rowId);
             database.addMountable(database.getCamera(cameraId), lens);
             mountableLenses.add(lens);
-            lensTextView.setText(lens.getMake() + " " + lens.getModel());
+            lensTextView.setText(lens.getName());
             newLensId = lens.getId();
             apertureIncrements = lens.getApertureIncrements();
             checkApertureValueValidity();
@@ -1143,7 +1143,7 @@ public class EditFrameDialog extends DialogFragment {
             long rowId = database.addFilter(filter);
             filter.setId(rowId);
             database.addMountableFilterLens(filter, database.getLens(newLensId));
-            filterTextView.setText(filter.getMake() + " " + filter.getModel());
+            filterTextView.setText(filter.getName());
             newFilterId = filter.getId();
         }
     }

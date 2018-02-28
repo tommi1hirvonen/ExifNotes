@@ -9,19 +9,18 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
-import android.view.ContextMenu;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.activities.GearActivity;
-import com.tommihirvonen.exifnotes.adapters.FilterAdapter;
+import com.tommihirvonen.exifnotes.adapters.GearAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog;
@@ -37,9 +36,7 @@ import java.util.List;
 /**
  * Fragment to display all filters from the database along with details
  */
-public class FiltersFragment extends Fragment implements
-        AdapterView.OnItemClickListener,
-        View.OnClickListener {
+public class FiltersFragment extends Fragment implements View.OnClickListener {
 
     /**
      * Constant passed to EditFilterDialog for result
@@ -59,12 +56,12 @@ public class FiltersFragment extends Fragment implements
     /**
      * ListView to show all the filters in the database along with details
      */
-    private ListView mainListView;
+    private RecyclerView mainRecyclerView;
 
     /**
-     * Adapter used to adapt filterList to mainListView
+     * Adapter used to adapt filterList to mainRecyclerView
      */
-    private FilterAdapter filterAdapter;
+    private GearAdapter filterAdapter;
 
     /**
      * Contains all filters from the database
@@ -118,73 +115,22 @@ public class FiltersFragment extends Fragment implements
         mainTextView = view.findViewById(R.id.no_added_filters);
 
         // Access the ListView
-        mainListView = view.findViewById(R.id.main_filterslistview);
+        mainRecyclerView = view.findViewById(R.id.filters_recycler_view);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        mainRecyclerView.setLayoutManager(layoutManager);
+        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(), layoutManager.getOrientation()));
 
         // Create an ArrayAdapter for the ListView
-        filterAdapter = new FilterAdapter(getActivity(), filterList);
+        filterAdapter = new GearAdapter(getActivity(), filterList);
 
         // Set the ListView to use the ArrayAdapter
-        mainListView.setAdapter(filterAdapter);
-
-        // Set this activity to react to list items being pressed
-        mainListView.setOnItemClickListener(this);
-
-        registerForContextMenu(mainListView);
+        mainRecyclerView.setAdapter(filterAdapter);
 
         if (filterList.size() >= 1) mainTextView.setVisibility(View.GONE);
 
         filterAdapter.notifyDataSetChanged();
 
         return view;
-    }
-
-    /**
-     * Inflate the context menu to show actions when pressing and holding on an item.
-     *
-     * @param menu the menu to be inflated
-     * @param v the context menu view, not used
-     * @param menuInfo {@inheritDoc}
-     */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-
-        //Set the title for the context menu
-        AdapterView.AdapterContextMenuInfo info = null;
-        try {
-            info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        } catch (ClassCastException ignore) {
-            //Do nothing
-        }
-        if (info != null) {
-            final int position = info.position;
-            Filter filter = null;
-            try {
-                filter = filterList.get(position);
-            } catch(NullPointerException | IndexOutOfBoundsException ignore) {
-                //Do nothing
-            }
-            if (filter != null) {
-                menu.setHeaderTitle(filter.getMake() + " " + filter.getModel());
-            }
-        }
-
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.menu_context_delete_edit_select_lenses, menu);
-    }
-
-    /**
-     * When an item is clicked perform long click instead to bring up the context menu.
-     *
-     * @param parent {@inheritDoc}
-     * @param view {@inheritDoc}
-     * @param position {@inheritDoc}
-     * @param id {@inheritDoc}
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        view.performLongClick();
     }
 
     /**
@@ -224,12 +170,13 @@ public class FiltersFragment extends Fragment implements
     @SuppressLint("CommitTransaction")
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
         if (getUserVisibleHint()) {
 
-            final int position = info.position;
+            // Use the getOrder() method to unconventionally get the clicked item's position.
+            // This is set to work correctly in the Adapter class.
+            final int position = item.getOrder();
             final Filter filter = filterList.get(position);
 
             switch (item.getItemId()) {
@@ -244,14 +191,14 @@ public class FiltersFragment extends Fragment implements
                     // Check if the filter is being used with one of the rolls.
                     if (database.isFilterBeingUsed(filter)) {
                         Toast.makeText(getActivity(), getResources().getString(R.string.FilterNoColon) +
-                                " " + filter.getMake() + " " + filter.getModel() + " " +
+                                " " + filter.getName() + " " +
                                 getResources().getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show();
                         return true;
                     }
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle(getResources().getString(R.string.ConfirmFilterDelete)
-                            + " \'" + filter.getMake() + " " + filter.getModel() + "\'?"
+                            + " \'" + filter.getName() + "\'?"
                     );
                     builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
                         @Override
@@ -270,7 +217,7 @@ public class FiltersFragment extends Fragment implements
                             filterList.remove(position);
 
                             if (filterList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                            filterAdapter.notifyDataSetChanged();
+                            filterAdapter.notifyItemRemoved(position);
 
                             // Update the LensesFragment through the parent activity.
                             GearActivity gearActivity = (GearActivity)getActivity();
@@ -325,10 +272,14 @@ public class FiltersFragment extends Fragment implements
                         long rowId = database.addFilter(filter);
                         filter.setId(rowId);
                         filterList.add(filter);
-                        filterAdapter.notifyDataSetChanged();
+
+                        // TODO: After adding a new piece of gear, sort the list by name. This way the new piece of gear is at the correct position from the get-go.
+
+                        final int listPos = filterList.indexOf(filter);
+                        filterAdapter.notifyItemInserted(listPos);
 
                         // When the lens is added jump to view the last entry
-                        mainListView.setSelection(mainListView.getCount() - 1);
+                        mainRecyclerView.scrollToPosition(listPos);
                     }
 
                 } else if (resultCode == Activity.RESULT_CANCELED){
@@ -350,7 +301,9 @@ public class FiltersFragment extends Fragment implements
 
                         database.updateFilter(filter);
 
-                        filterAdapter.notifyDataSetChanged();
+                        // TODO: After editing a piece of gear, get the old position, sort the gear list, get the new position and animate the sorting.
+
+                        filterAdapter.notifyItemChanged(filterList.indexOf(filter));
 
                     } else {
                         Toast.makeText(getActivity(), "Something went wrong :(",
@@ -371,7 +324,7 @@ public class FiltersFragment extends Fragment implements
      *
      * @param position indicates the position of the picked filter in filterList
      */
-    private void showSelectMountableLensesDialog(int position){
+    private void showSelectMountableLensesDialog(final int position){
         final Filter filter = filterList.get(position);
         final List<Lens> mountableLenses = database.getMountableLenses(filter);
         final List<Lens> allLenses = database.getAllLenses();
@@ -383,7 +336,7 @@ public class FiltersFragment extends Fragment implements
         List<String> listItems = new ArrayList<>();
         List<Long> allLensesId = new ArrayList<>();
         for (int i = 0; i < allLenses.size(); ++i) {
-            listItems.add(allLenses.get(i).getMake() + " " + allLenses.get(i).getModel());
+            listItems.add(allLenses.get(i).getName());
             allLensesId.add(allLenses.get(i).getId());
         }
 
@@ -458,7 +411,7 @@ public class FiltersFragment extends Fragment implements
                             Lens lens = allLenses.get(which);
                             database.deleteMountableFilterLens(filter, lens);
                         }
-                        filterAdapter.notifyDataSetChanged();
+                        filterAdapter.notifyItemChanged(position);
 
                         // Update the LensesFragment through the parent activity.
                         GearActivity myActivity = (GearActivity)getActivity();

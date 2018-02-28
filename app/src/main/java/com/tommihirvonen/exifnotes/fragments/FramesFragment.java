@@ -364,7 +364,9 @@ public class FramesFragment extends Fragment implements
             switch (item.getItemId()) {
                 case R.id.menu_item_edit:
 
-                    int position = item.getOrder();//info.position;
+                    // Use the getOrder() method to unconventionally get the clicked item's position.
+                    // This is set to work correctly in the Adapter class.
+                    int position = item.getOrder();
 
                     // Edit frame info
                     Frame frame = frameList.get(position);
@@ -384,7 +386,9 @@ public class FramesFragment extends Fragment implements
 
                 case R.id.menu_item_delete:
 
-                    int which = item.getOrder();//info.position;
+                    // Use the getOrder() method to unconventionally get the clicked item's position.
+                    // This is set to work correctly in the Adapter class.
+                    int which = item.getOrder();
 
                     Frame deletableFrame = frameList.get(which);
                     database.deleteFrame(deletableFrame);

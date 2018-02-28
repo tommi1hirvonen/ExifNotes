@@ -18,22 +18,43 @@ import com.tommihirvonen.exifnotes.R;
 import java.util.List;
 
 /**
- * LensAdapter links an ArrayList of Rolls and a ListView together.
+ * RollAdapter acts as an adapter between a List of rolls and a RecyclerView.
  */
 public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
 
+    /**
+     * Interface for implementing classes.
+     * Used to send onItemClicked messages back to implementing Activities and/or Fragments.
+     */
     public interface OnItemClickListener {
         void onItemClicked(int position);
     }
 
+    /**
+     * Reference to the main list of Rolls received from implementing class.
+     */
     private List<Roll> rollList;
 
+    /**
+     * Reference to Activity's context. Used to get resources.
+     */
     private final Context context;
 
+    /**
+     * Reference to the implementing class's OnItemClickListener.
+     */
     private final OnItemClickListener clickListener;
 
+    /**
+     * Reference to the singleton database.
+     */
     private final FilmDbHelper database;
 
+    /**
+     * Package-private ViewHolder class which can be recycled
+     * for better performance and memory management.
+     * All common view elements for all items are initialized here.
+     */
     class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout linearLayout;
         TextView nameTextView;
@@ -58,6 +79,9 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             linearLayout.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                 @Override
                 public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+                    // Use the order parameter (3rd parameter) of the ContextMenu.add() method
+                    // to pass the position of the list item which was clicked.
+                    // This can be used in the implementing class to retrieve the items position.
                     contextMenu.add(0, R.id.menu_item_edit, getAdapterPosition(), R.string.Edit);
                     contextMenu.add(0, R.id.menu_item_delete, getAdapterPosition(), R.string.Delete);
                     final boolean archived = rollList.get(getAdapterPosition()).getArchived();
@@ -71,6 +95,13 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
         }
     }
 
+    /**
+     * Constructor for this adapter.
+     *
+     * @param context activity's context
+     * @param rolls list of rolls from the implementing class
+     * @param clickListener implementing class's OnItemClickListener
+     */
     public RollAdapter(Context context, List<Roll> rolls, OnItemClickListener clickListener) {
         this.context = context;
         this.rollList = rolls;
@@ -78,12 +109,27 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
         this.database = FilmDbHelper.getInstance(context);
     }
 
+    /**
+     * Invoked by LayoutManager to create new Views.
+     *
+     * @param parent view's parent ViewGroup
+     * @param viewType not used
+     * @return inflated view
+     */
     @Override
-    public RollAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int ViewType) {
+    public RollAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_roll, parent, false);
         return new ViewHolder(view);
     }
 
+    /**
+     * Invoked by LayoutManager to replace the contents of a View.
+     * Here we get the element from our dataset at the specified position
+     * and set the ViewHolder views to display said elements data.
+     *
+     * @param holder reference to the recyclable ViewHolder
+     * @param position position of the current item
+     */
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Roll roll = rollList.get(position);
@@ -98,8 +144,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             holder.nameTextView.setText(rollName);
             holder.dateTextView.setText(date);
             holder.noteTextView.setText(note);
-            holder.cameraTextView.setText(database.getCamera(cameraId).getMake() + " " +
-                    database.getCamera(cameraId).getModel());
+            holder.cameraTextView.setText(database.getCamera(cameraId).getName());
             if (numberOfFrames == 1)
                 holder.photosTextView.setText("" + numberOfFrames + " " + context.getString(R.string.Photo));
             else if (numberOfFrames == 0)
@@ -133,10 +178,20 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
         }
     }
 
+    /**
+     * Method to update the reference to the main list of rolls.
+     *
+     * @param newRollList reference to the new list of rolls
+     */
     public void setRollList(List<Roll> newRollList) {
         this.rollList = newRollList;
     }
 
+    /**
+     * Method to get the item count of the FrameAdapter.
+     *
+     * @return the size of the main frameList
+     */
     @Override
     public int getItemCount() {
         return rollList.size();

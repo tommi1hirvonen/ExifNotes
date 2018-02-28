@@ -18,11 +18,10 @@
         android:gravity="center"
         android:text="@string/NoLenses"/>
 
-    <!-- List whose dataset is defined in code with an adapter -->
-    <ListView
-        android:id="@+id/main_lenseslistview"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/lenses_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:paddingBottom="80dp"
         android:clipToPadding="false"
         />

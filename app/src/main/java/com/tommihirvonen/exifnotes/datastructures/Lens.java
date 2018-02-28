@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Lens class holds the information of one lens.
  */
-public class Lens implements Parcelable {
+public class Lens implements Gear, Parcelable {
 
     /**
      * database id
@@ -171,6 +171,14 @@ public class Lens implements Parcelable {
 
     /**
      *
+     * @return make + model
+     */
+    public String getName() {
+        return this.make + " " + this.model;
+    }
+
+    /**
+     *
      * @return serial number
      */
     public String getSerialNumber(){
@@ -293,9 +301,10 @@ public class Lens implements Parcelable {
         if (obj instanceof Lens) lens = (Lens) obj;
         else return false;
         return lens.getId() == id && lens.getMake().equals(make) &&
-                lens.getModel().equals(model) && lens.getSerialNumber().equals(serialNumber) &&
-                lens.getMaxAperture().equals(maxAperture) && lens.getMinAperture().equals(minAperture) &&
-                lens.getApertureIncrements() == apertureIncrements &&
-                lens.getMinFocalLength() == minFocalLength && lens.getMaxFocalLength() == maxFocalLength;
+                lens.getModel().equals(model);
+                // && lens.getSerialNumber().equals(serialNumber) &&
+                // lens.getMaxAperture().equals(maxAperture) && lens.getMinAperture().equals(minAperture) &&
+                // lens.getApertureIncrements() == apertureIncrements &&
+                // lens.getMinFocalLength() == minFocalLength && lens.getMaxFocalLength() == maxFocalLength;
     }
 }

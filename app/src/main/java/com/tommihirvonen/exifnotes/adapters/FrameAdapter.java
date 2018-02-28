@@ -95,6 +95,9 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             constraintLayout.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                 @Override
                 public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+                    // Use the order parameter (3rd parameter) of the ContextMenu.add() method
+                    // to pass the position of the list item which was clicked.
+                    // This can be used in the implementing class to retrieve the items position.
                     contextMenu.add(0, R.id.menu_item_edit, getAdapterPosition(), R.string.Edit);
                     contextMenu.add(0, R.id.menu_item_delete, getAdapterPosition(), R.string.Delete);
                 }
@@ -160,7 +163,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             holder.countTextView.setText("" + frame.getCount());
             if (frame.getLensId() > 0) {
                 Lens lens = database.getLens(frame.getLensId());
-                holder.frameTextView2.setText(lens.getMake() + " " + lens.getModel());
+                holder.frameTextView2.setText(lens.getName());
             } else {
                 holder.frameTextView2.setText(context.getResources().getString(R.string.NoLens));
             }
