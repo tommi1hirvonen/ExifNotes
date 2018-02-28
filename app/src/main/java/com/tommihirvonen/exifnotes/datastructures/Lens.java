@@ -6,22 +6,7 @@ import android.os.Parcelable;
 /**
  * Lens class holds the information of one lens.
  */
-public class Lens implements Gear, Parcelable {
-
-    /**
-     * database id
-     */
-    private long id;
-
-    /**
-     * make/manufacturer
-     */
-    private String make;
-
-    /**
-     * model
-     */
-    private String model;
+public class Lens extends Gear implements Parcelable {
 
     /**
      * lens's serial number, can contain letters
@@ -63,34 +48,10 @@ public class Lens implements Gear, Parcelable {
      * Empty constructor
      */
     public Lens(){
-
+        super();
     }
 
     // GETTERS AND SETTERS
-
-    /**
-     *
-     * @param input database id
-     */
-    public void setId(long input){
-        this.id = input;
-    }
-
-    /**
-     *
-     * @param input make/manufacturer
-     */
-    public void setMake(String input){
-        this.make = input;
-    }
-
-    /**
-     *
-     * @param input model
-     */
-    public void setModel(String input){
-        this.model = input;
-    }
 
     /**
      *
@@ -143,38 +104,6 @@ public class Lens implements Gear, Parcelable {
         if (input <= 2 && input >= 0){
             this.apertureIncrements = input;
         }
-    }
-
-    /**
-     *
-     * @return database id
-     */
-    public long getId(){
-        return this.id;
-    }
-
-    /**
-     *
-     * @return make/manufacturer
-     */
-    public String getMake(){
-        return this.make;
-    }
-
-    /**
-     *
-     * @return model
-     */
-    public String getModel(){
-        return this.model;
-    }
-
-    /**
-     *
-     * @return make + model
-     */
-    public String getName() {
-        return this.make + " " + this.model;
     }
 
     /**
@@ -237,25 +166,13 @@ public class Lens implements Gear, Parcelable {
      * @param pc parcel object containing Camera's information
      */
     private Lens(Parcel pc){
-        this.id = pc.readLong();
-        this.make = pc.readString();
-        this.model = pc.readString();
+        super(pc);
         this.serialNumber = pc.readString();
         this.minAperture = pc.readString();
         this.maxAperture = pc.readString();
         this.minFocalLength = pc.readInt();
         this.maxFocalLength = pc.readInt();
         this.apertureIncrements = pc.readInt();
-    }
-
-    /**
-     * Not used
-     *
-     * @return not used
-     */
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     /**
@@ -266,9 +183,7 @@ public class Lens implements Gear, Parcelable {
      */
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeLong(id);
-        parcel.writeString(make);
-        parcel.writeString(model);
+        super.writeToParcel(parcel, i);
         parcel.writeString(serialNumber);
         parcel.writeString(minAperture);
         parcel.writeString(maxAperture);
@@ -289,22 +204,4 @@ public class Lens implements Gear, Parcelable {
         }
     };
 
-    /**
-     * Custom equals to compare two Lenses
-     *
-     * @param obj Lens object
-     * @return true if obj is Lens and all its members equal to this object's members
-     */
-    @Override
-    public boolean equals(Object obj) {
-        Lens lens;
-        if (obj instanceof Lens) lens = (Lens) obj;
-        else return false;
-        return lens.getId() == id && lens.getMake().equals(make) &&
-                lens.getModel().equals(model);
-                // && lens.getSerialNumber().equals(serialNumber) &&
-                // lens.getMaxAperture().equals(maxAperture) && lens.getMinAperture().equals(minAperture) &&
-                // lens.getApertureIncrements() == apertureIncrements &&
-                // lens.getMinFocalLength() == minFocalLength && lens.getMaxFocalLength() == maxFocalLength;
-    }
 }

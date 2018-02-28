@@ -6,22 +6,7 @@ import android.os.Parcelable;
 /**
  * The camera class holds the information of a camera.
  */
-public class Camera implements Gear, Parcelable {
-
-    /**
-     * database id
-     */
-    private long id;
-
-    /**
-     * make/manufacturer
-     */
-    private String make;
-
-    /**
-     * model
-     */
-    private String model;
+public class Camera extends Gear {
 
     /**
      * camera's serial number (can contain letters)
@@ -48,36 +33,11 @@ public class Camera implements Gear, Parcelable {
      */
     private int shutterIncrements = 0;
 
-
     /**
      * empty constructor
      */
     public Camera(){
-
-    }
-
-    /**
-     *
-     * @param input database id
-     */
-    public void setId(long input){
-        this.id = input;
-    }
-
-    /**
-     *
-     * @param input make/manufacturer
-     */
-    public void setMake(String input){
-        this.make = input;
-    }
-
-    /**
-     *
-     * @param input model
-     */
-    public void setModel(String input){
-        this.model = input;
+        super();
     }
 
     /**
@@ -117,39 +77,6 @@ public class Camera implements Gear, Parcelable {
         if (input <= 2 && input >= 0) {
             this.shutterIncrements = input;
         }
-    }
-
-
-    /**
-     *
-     * @return database id
-     */
-    public long getId(){
-        return this.id;
-    }
-
-    /**
-     *
-     * @return make/manufacturer
-     */
-    public String getMake(){
-        return this.make;
-    }
-
-    /**
-     *
-     * @return model
-     */
-    public String getModel(){
-        return this.model;
-    }
-
-    /**
-     *
-     * @return make + model
-     */
-    public String getName() {
-        return this.make + " " + this.model;
     }
 
     /**
@@ -197,23 +124,11 @@ public class Camera implements Gear, Parcelable {
      * @param pc parcel object containing Camera's information
      */
     private Camera(Parcel pc){
-        this.id = pc.readLong();
-        this.make = pc.readString();
-        this.model = pc.readString();
+        super(pc);
         this.serialNumber = pc.readString();
         this.minShutter = pc.readString();
         this.maxShutter = pc.readString();
         this.shutterIncrements = pc.readInt();
-    }
-
-    /**
-     * Not used
-     *
-     * @return not used
-     */
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     /**
@@ -224,9 +139,7 @@ public class Camera implements Gear, Parcelable {
      */
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeLong(id);
-        parcel.writeString(make);
-        parcel.writeString(model);
+        super.writeToParcel(parcel, i);
         parcel.writeString(serialNumber);
         parcel.writeString(minShutter);
         parcel.writeString(maxShutter);
@@ -244,23 +157,5 @@ public class Camera implements Gear, Parcelable {
             return new Camera[size];
         }
     };
-
-    /**
-     * Custom equals to compare two Cameras
-     *
-     * @param obj Camera object
-     * @return true if obj is Camera and all its members equal to this object's members
-     */
-    @Override
-    public boolean equals(Object obj) {
-        Camera camera;
-        if (obj instanceof Camera) camera = (Camera) obj;
-        else return false;
-        return camera.getId() == id && camera.getMake().equals(make) &&
-                camera.getModel().equals(model);
-                // && camera.getSerialNumber().equals(serialNumber) &&
-                // camera.getMaxShutter().equals(maxShutter) && camera.getMinShutter().equals(minShutter) &&
-                // camera.getShutterIncrements() == shutterIncrements;
-    }
 
 }
