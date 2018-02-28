@@ -262,9 +262,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
                         long rowId = database.addLens(lens);
                         lens.setId(rowId);
                         lensList.add(lens);
-
-                        // TODO: After adding a new piece of gear, sort the list by name. This way the new piece of gear is at the correct position from the get-go.
-
+                        Utilities.sortGearList(lensList);
                         final int listPos = lensList.indexOf(lens);
                         lensAdapter.notifyItemInserted(listPos);
 
@@ -291,10 +289,13 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
                             lens.getId() > 0) {
 
                         database.updateLens(lens);
+                        final int oldPos = lensList.indexOf(lens);
+                        Utilities.sortGearList(lensList);
+                        final int newPos = lensList.indexOf(lens);
+                        lensAdapter.notifyItemChanged(oldPos);
+                        lensAdapter.notifyItemMoved(oldPos, newPos);
+                        mainRecyclerView.scrollToPosition(newPos);
 
-                        // TODO: After editing a piece of gear, get the old position, sort the gear list, get the new position and animate the sorting.
-
-                        lensAdapter.notifyItemChanged(lensList.indexOf(lens));
                         // Update the LensesFragment through the parent activity.
                         GearActivity gearActivity = (GearActivity)getActivity();
                         gearActivity.updateFragments();

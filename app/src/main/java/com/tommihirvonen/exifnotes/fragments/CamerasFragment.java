@@ -273,9 +273,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener {
                         long rowId = database.addCamera(camera);
                         camera.setId(rowId);
                         cameraList.add(camera);
-
-                        // TODO: After adding a new piece of gear, sort the list by name. This way the new piece of gear is at the correct position from the get-go.
-
+                        Utilities.sortGearList(cameraList);
                         final int listPos = cameraList.indexOf(camera);
                         cameraAdapter.notifyItemInserted(listPos);
 
@@ -301,10 +299,12 @@ public class CamerasFragment extends Fragment implements View.OnClickListener {
                             camera.getId() > 0) {
 
                         database.updateCamera(camera);
-
-                        // TODO: After editing a piece of gear, get the old position, sort the gear list, get the new position and animate the sorting.
-
-                        cameraAdapter.notifyItemChanged(cameraList.indexOf(camera));
+                        final int oldPos = cameraList.indexOf(camera);
+                        Utilities.sortGearList(cameraList);
+                        final int newPos = cameraList.indexOf(camera);
+                        cameraAdapter.notifyItemChanged(oldPos);
+                        cameraAdapter.notifyItemMoved(oldPos, newPos);
+                        mainRecyclerView.scrollToPosition(newPos);
 
                         // Update the LensesFragment through the parent activity.
                         GearActivity gearActivity = (GearActivity)getActivity();

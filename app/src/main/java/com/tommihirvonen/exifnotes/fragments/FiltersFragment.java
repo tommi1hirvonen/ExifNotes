@@ -272,9 +272,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
                         long rowId = database.addFilter(filter);
                         filter.setId(rowId);
                         filterList.add(filter);
-
-                        // TODO: After adding a new piece of gear, sort the list by name. This way the new piece of gear is at the correct position from the get-go.
-
+                        Utilities.sortGearList(filterList);
                         final int listPos = filterList.indexOf(filter);
                         filterAdapter.notifyItemInserted(listPos);
 
@@ -300,10 +298,16 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
                             filter.getId() > 0) {
 
                         database.updateFilter(filter);
+                        final int oldPos = filterList.indexOf(filter);
+                        Utilities.sortGearList(filterList);
+                        final int newPos = filterList.indexOf(filter);
+                        filterAdapter.notifyItemChanged(oldPos);
+                        filterAdapter.notifyItemMoved(oldPos, newPos);
+                        mainRecyclerView.scrollToPosition(newPos);
 
-                        // TODO: After editing a piece of gear, get the old position, sort the gear list, get the new position and animate the sorting.
-
-                        filterAdapter.notifyItemChanged(filterList.indexOf(filter));
+                        // Update the LensesFragment through the parent activity.
+                        GearActivity gearActivity = (GearActivity)getActivity();
+                        gearActivity.updateFragments();
 
                     } else {
                         Toast.makeText(getActivity(), "Something went wrong :(",

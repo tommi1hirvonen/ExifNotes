@@ -243,7 +243,7 @@ public class RollsFragment extends Fragment implements
         // Load the rolls from the database.
         rollList = database.getRolls(getRollsArchivalArg);
         //Order the roll list according to preferences.
-        sortRollList(rollList);
+        Utilities.sortRollList(getActivity(), database, rollList);
         if (recreateRollAdapter) {
             // Create an ArrayAdapter for the ListView.
             rollAdapter = new RollAdapter(getActivity(), rollList, this);
@@ -302,7 +302,7 @@ public class RollsFragment extends Fragment implements
                         editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, which);
                         editor.apply();
                         dialog.dismiss();
-                        sortRollList(rollList);
+                        Utilities.sortRollList(getActivity(), database, rollList);
                         rollAdapter.notifyItemRangeChanged(0, rollAdapter.getItemCount());
                     }
                 });
@@ -389,71 +389,6 @@ public class RollsFragment extends Fragment implements
                 break;
         }
         return true;
-    }
-
-    /**
-     * Called when the user has selected a sorting criteria.
-     *
-     * @param listToSort reference to the List that should be sorted
-     */
-    private void sortRollList(List<Roll> listToSort) {
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        int sortId = sharedPref.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, 0);
-        switch (sortId){
-            //Sort by date
-            case 0:
-                Collections.sort(listToSort, new Comparator<Roll>() {
-                    @Override
-                    public int compare(Roll o1, Roll o2) {
-                        String date1 = o1.getDate();
-                        String date2 = o2.getDate();
-                        @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
-                                new SimpleDateFormat("yyyy-M-d H:m");
-                        Date d1 = null;
-                        Date d2 = null;
-                        try {
-                            d1 = format.parse(date1);
-                            d2 = format.parse(date2);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                        int result;
-                        long diff = 0;
-                        //Handle possible NullPointerException
-                        if (d1 != null && d2 != null) diff = d1.getTime() - d2.getTime();
-                        if (diff < 0 ) result = 1;
-                        else result = -1;
-
-                        return result;
-                    }
-                });
-                break;
-
-            //Sort by name
-            case 1:
-                Collections.sort(listToSort, new Comparator<Roll>() {
-                    @Override
-                    public int compare(Roll o1, Roll o2) {
-                        return o1.getName().compareTo(o2.getName());
-                    }
-                });
-                break;
-
-            //Sort by camera
-            case 2:
-                Collections.sort(listToSort, new Comparator<Roll>() {
-                    @Override
-                    public int compare(Roll o1, Roll o2) {
-                        Camera camera1 = database.getCamera(o1.getCameraId());
-                        String s1 = camera1.getMake() + camera1.getModel();
-                        Camera camera2 = database.getCamera(o2.getCameraId());
-                        String s2 = camera2.getMake() + camera2.getModel();
-                        return s1.compareTo(s2);
-                    }
-                });
-                break;
-        }
     }
 
     /**
@@ -627,7 +562,7 @@ public class RollsFragment extends Fragment implements
                         mainTextViewAnimateInvisible();
                         // Add new roll to the top of the list
                         rollList.add(0, roll);
-                        sortRollList(rollList);
+                        Utilities.sortRollList(getActivity(), database, rollList);
                         rollAdapter.notifyItemInserted(rollList.indexOf(roll));
 
                         // When the new roll is added jump to view the added entry
@@ -654,7 +589,7 @@ public class RollsFragment extends Fragment implements
 
                         // Notify array adapter that the dataset has to be updated
                         final int oldPosition = rollList.indexOf(roll);
-                        sortRollList(rollList);
+                        Utilities.sortRollList(getActivity(), database, rollList);
                         final int newPosition = rollList.indexOf(roll);
                         rollAdapter.notifyItemChanged(oldPosition);
                         rollAdapter.notifyItemMoved(oldPosition, newPosition);

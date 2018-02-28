@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
+import com.tommihirvonen.exifnotes.datastructures.Gear;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.R;
@@ -643,6 +644,87 @@ public class Utilities {
                 });
                 break;
         }
+    }
+
+    /**
+     * Called when the user has selected a sorting criteria.
+     *
+     * @param activity reference to parent activity used to get SharedPreferences
+     * @param database reference to the application's database
+     * @param listToSort reference to the List that should be sorted
+     */
+    public static void sortRollList(Activity activity, final FilmDbHelper database, List<Roll> listToSort) {
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        int sortId = sharedPref.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, 0);
+        switch (sortId){
+            //Sort by date
+            case 0:
+                Collections.sort(listToSort, new Comparator<Roll>() {
+                    @Override
+                    public int compare(Roll o1, Roll o2) {
+                        String date1 = o1.getDate();
+                        String date2 = o2.getDate();
+                        @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
+                                new SimpleDateFormat("yyyy-M-d H:m");
+                        Date d1 = null;
+                        Date d2 = null;
+                        try {
+                            d1 = format.parse(date1);
+                            d2 = format.parse(date2);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        int result;
+                        long diff = 0;
+                        //Handle possible NullPointerException
+                        if (d1 != null && d2 != null) diff = d1.getTime() - d2.getTime();
+                        if (diff < 0 ) result = 1;
+                        else result = -1;
+
+                        return result;
+                    }
+                });
+                break;
+
+            //Sort by name
+            case 1:
+                Collections.sort(listToSort, new Comparator<Roll>() {
+                    @Override
+                    public int compare(Roll o1, Roll o2) {
+                        return o1.getName().compareTo(o2.getName());
+                    }
+                });
+                break;
+
+            //Sort by camera
+            case 2:
+                Collections.sort(listToSort, new Comparator<Roll>() {
+                    @Override
+                    public int compare(Roll o1, Roll o2) {
+                        Camera camera1 = database.getCamera(o1.getCameraId());
+                        String s1 = camera1.getMake() + camera1.getModel();
+                        Camera camera2 = database.getCamera(o2.getCameraId());
+                        String s2 = camera2.getMake() + camera2.getModel();
+                        return s1.compareTo(s2);
+                    }
+                });
+                break;
+        }
+    }
+
+    /**
+     * Utility function to sort a list of Gear by name.
+     *
+     * @param gearList reference to the List that should be sorted.
+     */
+    public static void sortGearList(List<? extends Gear> gearList) {
+        Collections.sort(gearList, new Comparator<Gear>() {
+            @Override
+            public int compare(Gear g1, Gear g2) {
+                return g1.getName().compareTo(g2.getName());
+            }
+        });
     }
 
     /**
