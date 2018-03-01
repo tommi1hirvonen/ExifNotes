@@ -301,11 +301,10 @@ public class LocationPickActivity extends AppCompatActivity implements
             }
         }).execute(query);
 
-        // In case the location was cleared before clicking Edit on map
-        if (marker == null) {
-            marker = googleMap_.addMarker(new MarkerOptions().position(latLng));
-        }
-        marker.setPosition(latLng);
+        // if the location was cleared before editing -> add marker to selected location
+        if (marker == null) marker = googleMap_.addMarker(new MarkerOptions().position(latLng));
+        // otherwise set the position
+        else marker.setPosition(latLng);
         latLngLocation = latLng;
     }
 
@@ -331,7 +330,11 @@ public class LocationPickActivity extends AppCompatActivity implements
                     double lat = Double.parseDouble(latString.replace(",", "."));
                     double lng = Double.parseDouble(lngString.replace(",", "."));
                     final LatLng position = new LatLng(lat, lng);
-                    marker.setPosition(position);
+                    // marker is null, if the search was made before the marker has been added
+                    // -> add marker to selected location
+                    if (marker == null) marker = googleMap_.addMarker(new MarkerOptions().position(position));
+                    // otherwise just set the location
+                    else marker.setPosition(position);
                     latLngLocation = position;
                     googleMap_.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
                     formattedAddressTextView.setText(formatted_address);
