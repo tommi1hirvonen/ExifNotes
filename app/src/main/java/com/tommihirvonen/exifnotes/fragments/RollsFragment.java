@@ -12,6 +12,7 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -23,15 +24,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.activities.MainActivity;
 import com.tommihirvonen.exifnotes.adapters.RollAdapter;
 import com.tommihirvonen.exifnotes.activities.AllFramesMapsActivity;
-import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.dialogs.EditRollDialog;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
@@ -42,12 +40,7 @@ import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -108,8 +101,14 @@ public class RollsFragment extends Fragment implements
      */
     private FilmDbHelper database;
 
-    private ActionModeCallback actionModeCallback;
+    /**
+     * Private callback class which is given as an argument when the SupportActionMode is started.
+     */
+    private ActionModeCallback actionModeCallback = new ActionModeCallback();
 
+    /**
+     * Reference to the (Support)ActionMode, which is launched when a list item is long pressed.
+     */
     private ActionMode actionMode;
 
     /**
@@ -198,9 +197,6 @@ public class RollsFragment extends Fragment implements
         // update the ActionBar subtitle and main TextView and set the main TextView
         // either visible or hidden.
         updateFragment(true);
-
-        actionModeCallback = new ActionModeCallback();
-
         // Return the inflated view.
         return view;
     }
@@ -286,6 +282,10 @@ public class RollsFragment extends Fragment implements
         rollAdapter.notifyDataSetChanged();
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity().getApplicationContext());
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
+        // If action mode is enabled, color the status bar dark grey.
+        if (rollAdapter.getSelectedItemCount() > 0 || actionMode != null) {
+            Utilities.setStatusBarColor(getActivity(), ContextCompat.getColor(getActivity(), R.color.dark_grey));
+        }
     }
 
     /**
@@ -419,7 +419,8 @@ public class RollsFragment extends Fragment implements
 
     /**
      * Called when a roll is pressed.
-     * Forward the press to the callback interface in MainActivity.
+     * If the action mode is enabled, add the pressed item to the selected items.
+     * Otherwise forward the press to the callback interface in MainActivity.
      *
      * @param position position of the item in RollAdapter
      */
@@ -433,11 +434,22 @@ public class RollsFragment extends Fragment implements
         }
     }
 
+    /**
+     * When an item is long pressed, always add the pressed item to selected items.
+     *
+     * @param position position of the item in RollAdapter
+     */
     @Override
     public void onItemLongClick(int position) {
         enableActionMode(position);
     }
 
+    /**
+     * Enable ActionMode is not yet enabled and add item to selected items.
+     * Hide edit menu item, if more than one items are selected.
+     *
+     * @param position position of the item in RollAdapter
+     */
     private void enableActionMode(int position) {
         if (actionMode == null) {
             actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
@@ -445,6 +457,10 @@ public class RollsFragment extends Fragment implements
         rollAdapter.toggleSelection(position);
         // Set the visibility of edit item depending on whether only one roll was selected.
         actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(rollAdapter.getSelectedItemCount() == 1);
+        // Set the action mode toolbar title to display the number of selected items.
+        actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()));
+        // If the user deselected the last of the selected items, exit action mode.
+        if (rollAdapter.getSelectedItemCount() == 0) actionMode.finish();
     }
 
     /**
@@ -480,94 +496,6 @@ public class RollsFragment extends Fragment implements
         dialog.setTargetFragment(this, ROLL_DIALOG);
         dialog.show(getFragmentManager().beginTransaction(), EditRollDialog.TAG);
     }
-
-
-    /*
-     * Called when the user long presses on a roll AND selects a context menu item.
-     *
-     * @param item the context menu item that was selected
-     * @return true if the RollsFragment is in front, false if it is not
-     */
-    /*
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        // Because of a bug with ViewPager and context menu actions,
-        // we have to check which fragment is visible to the user.
-        if (getUserVisibleHint()) {
-            switch (item.getItemId()) {
-                case R.id.menu_item_edit:
-
-                    showEditRollDialog(item.getOrder());
-
-                    return true;
-
-                case R.id.menu_item_delete:
-
-                    // Use the getOrder() method to unconventionally get the clicked item's position.
-                    // This is set to work correctly in the Adapter class.
-                    final int rollPosition = item.getOrder();
-                    final Roll roll = rollList.get(rollPosition);
-
-                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-                    alertBuilder.setTitle(getResources().getString(R.string.ConfirmRollDelete)
-                            + " \'" + roll.getName() + "\'?");
-                    alertBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Do nothing
-                        }
-                    });
-                    alertBuilder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Delete all the frames from the frames database
-                            database.deleteAllFramesFromRoll(roll.getId());
-
-                            database.deleteRoll(roll);
-
-                            // Remove the roll from the rollList. Do this last!!!
-                            rollList.remove(rollPosition);
-
-                            if (rollList.size() == 0) mainTextViewAnimateVisible();
-                            rollAdapter.notifyItemRemoved(rollPosition);
-                        }
-                    });
-                    alertBuilder.create().show();
-
-                    return true;
-
-                //INTENTIONAL FALLTHROUGH
-                case R.id.menu_item_archive:
-                case R.id.menu_item_activate:
-
-                    // Use the getOrder() method to unconventionally get the clicked item's position.
-                    // This is set to work correctly in the Adapter class.
-                    final int position = item.getOrder();
-                    final Roll rollActivateOrArchive = rollList.get(position);
-                    //Reverse the archival status of the roll
-                    rollActivateOrArchive.setArchived(!rollActivateOrArchive.getArchived());
-                    database.updateRoll(rollActivateOrArchive);
-
-                    final SharedPreferences sharedPrefVisibleRollsDialog =
-                            PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-                    final int visibleRollsCheckedItem =
-                            sharedPrefVisibleRollsDialog.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
-
-                    // Remove the roll from the list only if not all rolls are displayed.
-                    if (visibleRollsCheckedItem != FilmDbHelper.ROLLS_ALL) {
-                        rollList.remove(position);
-                        rollAdapter.notifyItemRemoved(position);
-                        if (rollList.size() == 0) mainTextViewAnimateVisible();
-                    } else {
-                        rollAdapter.notifyItemChanged(position);
-                    }
-
-                    return true;
-            }
-        }
-        return false;
-    }
-    */
 
     /**
      * Called when the user is done editing or adding a roll and
@@ -649,10 +577,29 @@ public class RollsFragment extends Fragment implements
         mainTextView.animate().alpha(0.0f).setDuration(0);
     }
 
+    /**
+     * Class which implements ActionMode.Callback.
+     * One instance of this class is given as an argument when ActionMode is started.
+     */
     private class ActionModeCallback implements ActionMode.Callback {
 
+        /**
+         * Called when the ActionMode is started.
+         * Inflate the menu and set the visibility of some menu items.
+         *
+         * @param actionMode {@inheritDoc}
+         * @param menu {@inheritDoc}
+         * @return {@inheritDoc}
+         */
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+
+            // Set the status bar color to be dark grey to complement the grey action mode toolbar.
+            Utilities.setStatusBarColor(getActivity(), ContextCompat.getColor(getActivity(), R.color.dark_grey));
+
+            // Hide the floating action button so no new rolls can be added while in action mode.
+            floatingActionButton.hide();
+
             actionMode.getMenuInflater().inflate(R.menu.menu_action_mode_rolls, menu);
 
             final SharedPreferences sharedPrefVisibleRollsDialog =
@@ -667,11 +614,25 @@ public class RollsFragment extends Fragment implements
             return true;
         }
 
+        /**
+         * Called to refresh the ActionMode menu whenever it is invalidated.
+         *
+         * @param actionMode {@inheritDoc}
+         * @param menu {@inheritDoc}
+         * @return {@inheritDoc}
+         */
         @Override
         public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
             return false;
         }
 
+        /**
+         * Called when the user presses on an action menu item.
+         *
+         * @param actionMode {@inheritDoc}
+         * @param menuItem {@inheritDoc}
+         * @return {@inheritDoc}
+         */
         @Override
         public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
             // Get the positions in the rollList of selected items
@@ -722,6 +683,9 @@ public class RollsFragment extends Fragment implements
                 case R.id.menu_item_select_all:
 
                     rollAdapter.toggleSelectionAll();
+                    actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()));
+                    // Set the edit item visibility to false because all rolls are selected.
+                    actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(false);
                     return true;
 
                 case R.id.menu_item_edit:
@@ -770,11 +734,20 @@ public class RollsFragment extends Fragment implements
             }
         }
 
+        /**
+         * Called when an action mode is about to be exited and destroyed.
+         *
+         * @param mode {@inheritDoc}
+         */
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             rollAdapter.clearSelections();
             actionMode = null;
             rollAdapter.notifyItemRangeChanged(0, rollAdapter.getItemCount());
+            // Return the status bar to its original color before action mode.
+            Utilities.setStatusBarColor(getActivity(), Utilities.getSecondaryUiColor(getActivity()));
+            // Make the floating action bar visible again since action mode is exited.
+            floatingActionButton.show();
         }
     }
 

@@ -91,22 +91,6 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
                     return true;
                 }
             });
-//            linearLayout.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-//                @Override
-//                public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-//                    // Use the order parameter (3rd parameter) of the ContextMenu.add() method
-//                    // to pass the position of the list item which was clicked.
-//                    // This can be used in the implementing class to retrieve the items position.
-//                    contextMenu.add(0, R.id.menu_item_edit, getAdapterPosition(), R.string.Edit);
-//                    contextMenu.add(0, R.id.menu_item_delete, getAdapterPosition(), R.string.Delete);
-//                    final boolean archived = rollList.get(getAdapterPosition()).getArchived();
-//                    if (archived) {
-//                        contextMenu.add(0, R.id.menu_item_activate, getAdapterPosition(), R.string.Activate);
-//                    } else {
-//                        contextMenu.add(0, R.id.menu_item_archive, getAdapterPosition(), R.string.Archive);
-//                    }
-//                }
-//            });
         }
     }
 
