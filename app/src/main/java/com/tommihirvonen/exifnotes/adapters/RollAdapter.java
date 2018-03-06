@@ -3,6 +3,7 @@ package com.tommihirvonen.exifnotes.adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseBooleanArray;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,8 +28,12 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      * Interface for implementing classes.
      * Used to send onItemClicked messages back to implementing Activities and/or Fragments.
      */
-    public interface OnItemClickListener {
-        void onItemClicked(int position);
+    public interface RollAdapterListener {
+
+        void onItemClick(int position);
+
+        void onItemLongClick(int position);
+
     }
 
     /**
@@ -43,12 +49,14 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
     /**
      * Reference to the implementing class's OnItemClickListener.
      */
-    private final OnItemClickListener clickListener;
+    private final RollAdapterListener listener;
 
     /**
      * Reference to the singleton database.
      */
     private final FilmDbHelper database;
+
+    private SparseBooleanArray selectedItems;
 
     /**
      * Package-private ViewHolder class which can be recycled
@@ -73,25 +81,32 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    clickListener.onItemClicked(getAdapterPosition());
+                    listener.onItemClick(getAdapterPosition());
                 }
             });
-            linearLayout.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+            linearLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
-                public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-                    // Use the order parameter (3rd parameter) of the ContextMenu.add() method
-                    // to pass the position of the list item which was clicked.
-                    // This can be used in the implementing class to retrieve the items position.
-                    contextMenu.add(0, R.id.menu_item_edit, getAdapterPosition(), R.string.Edit);
-                    contextMenu.add(0, R.id.menu_item_delete, getAdapterPosition(), R.string.Delete);
-                    final boolean archived = rollList.get(getAdapterPosition()).getArchived();
-                    if (archived) {
-                        contextMenu.add(0, R.id.menu_item_activate, getAdapterPosition(), R.string.Activate);
-                    } else {
-                        contextMenu.add(0, R.id.menu_item_archive, getAdapterPosition(), R.string.Archive);
-                    }
+                public boolean onLongClick(View view) {
+                    listener.onItemLongClick(getAdapterPosition());
+                    return true;
                 }
             });
+//            linearLayout.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+//                @Override
+//                public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+//                    // Use the order parameter (3rd parameter) of the ContextMenu.add() method
+//                    // to pass the position of the list item which was clicked.
+//                    // This can be used in the implementing class to retrieve the items position.
+//                    contextMenu.add(0, R.id.menu_item_edit, getAdapterPosition(), R.string.Edit);
+//                    contextMenu.add(0, R.id.menu_item_delete, getAdapterPosition(), R.string.Delete);
+//                    final boolean archived = rollList.get(getAdapterPosition()).getArchived();
+//                    if (archived) {
+//                        contextMenu.add(0, R.id.menu_item_activate, getAdapterPosition(), R.string.Activate);
+//                    } else {
+//                        contextMenu.add(0, R.id.menu_item_archive, getAdapterPosition(), R.string.Archive);
+//                    }
+//                }
+//            });
         }
     }
 
@@ -100,13 +115,14 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      *
      * @param context activity's context
      * @param rolls list of rolls from the implementing class
-     * @param clickListener implementing class's OnItemClickListener
+     * @param listener implementing class's OnItemClickListener
      */
-    public RollAdapter(Context context, List<Roll> rolls, OnItemClickListener clickListener) {
+    public RollAdapter(Context context, List<Roll> rolls, RollAdapterListener listener) {
         this.context = context;
         this.rollList = rolls;
-        this.clickListener = clickListener;
+        this.listener = listener;
         this.database = FilmDbHelper.getInstance(context);
+        selectedItems = new SparseBooleanArray();
     }
 
     /**
@@ -157,6 +173,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             final float moderateFade = 0.5f;
             final float heavyFade = 0.4f;
 
+
             // If the roll is archived, fade the text somewhat and apply a slightly grey background.
             if (roll.getArchived()) {
                 holder.nameTextView.setAlpha(heavyFade);
@@ -175,6 +192,12 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
                 holder.cameraTextView.setAlpha(noFade);
                 holder.linearLayout.setBackgroundColor(0x00000000);
             }
+
+            // Set the selection status by later overriding the background color
+            if (selectedItems.get(position, false)) {
+                holder.linearLayout.setBackgroundColor(0x3500838F);
+            }
+
         }
     }
 
@@ -195,6 +218,36 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return rollList.size();
+    }
+
+    public void toggleSelection(int position) {
+        if (selectedItems.get(position, false)) {
+            selectedItems.delete(position);
+        } else {
+            selectedItems.put(position, true);
+        }
+        notifyItemChanged(position);
+    }
+
+    public void toggleSelectionAll() {
+        selectedItems.clear();
+        for (int i = 0; i < getItemCount(); ++i) selectedItems.put(i, true);
+        notifyItemRangeChanged(0, getItemCount());
+    }
+
+    public void clearSelections() {
+        selectedItems.clear();
+        notifyItemRangeChanged(0, getItemCount());
+    }
+
+    public int getSelectedItemCount() {
+        return selectedItems.size();
+    }
+
+    public List<Integer> getSelectedItemPositions() {
+        final List<Integer> items = new ArrayList<>();
+        for (int i = 0; i < selectedItems.size(); ++i) items.add(selectedItems.keyAt(i));
+        return items;
     }
 
 }

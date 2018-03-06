@@ -3,6 +3,14 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowContentOverlay">@null</item>
+        <item name="actionModeBackground">@color/grey</item>
+        <item name="android:actionModeBackground">@color/grey</item>
+    </style>
+
+    <style name="AppTheme_Dark" parent="Theme.AppCompat">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="actionModeBackground">@color/dark_grey</item>
+        <item name="android:actionModeBackground">@color/dark_grey</item>
     </style>
 
     <style name="AppToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">

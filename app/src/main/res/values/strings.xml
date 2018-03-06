@@ -321,6 +321,10 @@
     <string name="NoActiveRolls">No active rolls</string>
     <string name="NoArchivedRolls">No archived rolls</string>
     <string name="NoActiveOrArchivedRolls">No active/archived rolls</string>
+    <string name="SelectAll">Select all</string>
+    <string name="ConfirmRollsDelete">Delete %1$d rolls?</string>
+    <string name="RollsArchived">Roll(s) marked as archived</string>
+    <string name="RollsActivated">Roll(s) marked as active</string>
 
     <!--activity_roll_info.xml-->
     <string name="NoFrames">No added frames</string>

@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
-            setTheme(R.style.Theme_AppCompat);
+            setTheme(R.style.AppTheme_Dark);
         }
 
         super.onCreate(savedInstanceState);

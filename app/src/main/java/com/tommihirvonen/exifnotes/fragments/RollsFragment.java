@@ -14,15 +14,19 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.activities.MainActivity;
 import com.tommihirvonen.exifnotes.adapters.RollAdapter;
@@ -52,7 +56,7 @@ import java.util.List;
  */
 public class RollsFragment extends Fragment implements
         View.OnClickListener,
-        RollAdapter.OnItemClickListener {
+        RollAdapter.RollAdapterListener {
 
     /**
      * Public constant used to tag the fragment when created
@@ -103,6 +107,10 @@ public class RollsFragment extends Fragment implements
      * Reference to the singleton database
      */
     private FilmDbHelper database;
+
+    private ActionModeCallback actionModeCallback;
+
+    private ActionMode actionMode;
 
     /**
      * This interface is implemented in MainActivity.
@@ -190,6 +198,9 @@ public class RollsFragment extends Fragment implements
         // update the ActionBar subtitle and main TextView and set the main TextView
         // either visible or hidden.
         updateFragment(true);
+
+        actionModeCallback = new ActionModeCallback();
+
         // Return the inflated view.
         return view;
     }
@@ -412,9 +423,28 @@ public class RollsFragment extends Fragment implements
      *
      * @param position position of the item in RollAdapter
      */
-    public void onItemClicked(int position) {
-        long rollId = rollList.get(position).getId();
-        callback.onRollSelected(rollId);
+    @Override
+    public void onItemClick(int position) {
+        if (rollAdapter.getSelectedItemCount() > 0 || actionMode != null) {
+            enableActionMode(position);
+        } else {
+            long rollId = rollList.get(position).getId();
+            callback.onRollSelected(rollId);
+        }
+    }
+
+    @Override
+    public void onItemLongClick(int position) {
+        enableActionMode(position);
+    }
+
+    private void enableActionMode(int position) {
+        if (actionMode == null) {
+            actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
+        }
+        rollAdapter.toggleSelection(position);
+        // Set the visibility of edit item depending on whether only one roll was selected.
+        actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(rollAdapter.getSelectedItemCount() == 1);
     }
 
     /**
@@ -451,12 +481,14 @@ public class RollsFragment extends Fragment implements
         dialog.show(getFragmentManager().beginTransaction(), EditRollDialog.TAG);
     }
 
-    /**
+
+    /*
      * Called when the user long presses on a roll AND selects a context menu item.
      *
      * @param item the context menu item that was selected
      * @return true if the RollsFragment is in front, false if it is not
      */
+    /*
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         // Because of a bug with ViewPager and context menu actions,
@@ -535,6 +567,7 @@ public class RollsFragment extends Fragment implements
         }
         return false;
     }
+    */
 
     /**
      * Called when the user is done editing or adding a roll and
@@ -615,4 +648,134 @@ public class RollsFragment extends Fragment implements
     private void mainTextViewAnimateInvisible() {
         mainTextView.animate().alpha(0.0f).setDuration(0);
     }
+
+    private class ActionModeCallback implements ActionMode.Callback {
+
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            actionMode.getMenuInflater().inflate(R.menu.menu_action_mode_rolls, menu);
+
+            final SharedPreferences sharedPrefVisibleRollsDialog =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+            final int visibleRollsCheckedItem =
+                    sharedPrefVisibleRollsDialog.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
+
+            // Hide some menu items depending on which filters have been applied to the roll list.
+            if (visibleRollsCheckedItem == FilmDbHelper.ROLLS_ACTIVE) menu.findItem(R.id.menu_item_activate).setVisible(false);
+            else if (visibleRollsCheckedItem == FilmDbHelper.ROLLS_ARCHIVED) menu.findItem(R.id.menu_item_archive).setVisible(false);
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
+            // Get the positions in the rollList of selected items
+            final List<Integer> selectedItemPositions = rollAdapter.getSelectedItemPositions();
+
+            final SharedPreferences sharedPrefVisibleRollsDialog =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+            final int visibleRollsCheckedItem =
+                    sharedPrefVisibleRollsDialog.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
+
+            switch (menuItem.getItemId()) {
+
+                case R.id.menu_item_delete:
+
+                    // Set the confirm dialog title depending on whether one or more rolls were selected
+                    final String title = selectedItemPositions.size() == 1 ?
+                            getResources().getString(R.string.ConfirmRollDelete) + " \'" + rollList.get(selectedItemPositions.get(0)).getName() + "\'?" :
+                            String.format(getResources().getString(R.string.ConfirmRollsDelete), selectedItemPositions.size());
+                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+                    alertBuilder.setTitle(title);
+                    alertBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do nothing
+                        }
+                    });
+                    alertBuilder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
+                                final int rollPosition = selectedItemPositions.get(i);
+                                final Roll roll = rollList.get(rollPosition);
+                                // Delete all the frames from the frames database
+                                database.deleteAllFramesFromRoll(roll.getId());
+                                database.deleteRoll(roll);
+                                // Remove the roll from the rollList. Do this last!!!
+                                rollList.remove(rollPosition);
+
+                                if (rollList.size() == 0) mainTextViewAnimateVisible();
+                                rollAdapter.notifyItemRemoved(rollPosition);
+                            }
+                            actionMode.finish();
+                        }
+                    });
+                    alertBuilder.create().show();
+                    return true;
+
+                case R.id.menu_item_select_all:
+
+                    rollAdapter.toggleSelectionAll();
+                    return true;
+
+                case R.id.menu_item_edit:
+
+                    // Get the first of the selected rolls (only one should be selected anyway)
+                    showEditRollDialog(selectedItemPositions.get(0));
+                    actionMode.finish();
+                    return true;
+
+                case R.id.menu_item_archive:
+
+                    for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
+                        final int position = selectedItemPositions.get(i);
+                        final Roll roll = rollList.get(position);
+                        roll.setArchived(true);
+                        database.updateRoll(roll);
+                        if (visibleRollsCheckedItem == FilmDbHelper.ROLLS_ACTIVE) {
+                            rollList.remove(position);
+                            rollAdapter.notifyItemRemoved(position);
+                        }
+                    }
+                    if (rollList.size() == 0) mainTextViewAnimateVisible();
+                    actionMode.finish();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.RollsArchived), Toast.LENGTH_SHORT).show();
+                    return true;
+
+                case R.id.menu_item_activate:
+
+                    for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
+                        final int position = selectedItemPositions.get(i);
+                        final Roll roll = rollList.get(position);
+                        roll.setArchived(false);
+                        database.updateRoll(roll);
+                        if (visibleRollsCheckedItem == FilmDbHelper.ROLLS_ARCHIVED) {
+                            rollList.remove(position);
+                            rollAdapter.notifyItemRemoved(position);
+                        }
+                    }
+                    if (rollList.size() == 0) mainTextViewAnimateVisible();
+                    actionMode.finish();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.RollsActivated), Toast.LENGTH_SHORT).show();
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            rollAdapter.clearSelections();
+            actionMode = null;
+            rollAdapter.notifyItemRangeChanged(0, rollAdapter.getItemCount());
+        }
+    }
+
 }
