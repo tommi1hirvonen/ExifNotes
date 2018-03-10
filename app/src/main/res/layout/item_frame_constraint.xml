@@ -5,8 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="72dp"
     android:id="@+id/item_frame_layout"
-    android:background="?android:attr/selectableItemBackground"
     >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?android:attr/selectableItemBackground"
+        >
+
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/background_frame"
@@ -137,6 +144,17 @@
         app:layout_constraintStart_toEndOf="@+id/drawable_aperture"
         app:layout_constraintTop_toBottomOf="@+id/tvShutter"
         tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_check_box_black_24dp"
+        android:id="@+id/checkbox"
+        android:visibility="visible"
+        app:layout_constraintRight_toRightOf="@+id/guideline1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:padding="8dp"
+        />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline0"

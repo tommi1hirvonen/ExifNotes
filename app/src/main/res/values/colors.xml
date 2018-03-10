@@ -12,5 +12,6 @@
     <color name="background_frame_dark_grey">#464646</color>
     <color name="background_frame_light_grey">#D8D8D8</color>
     <color name="near_white">#fafafa</color>
+    <color name="checkbox">#009788</color>
 
 </resources>

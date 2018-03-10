@@ -1,7 +1,11 @@
 package com.tommihirvonen.exifnotes.adapters;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -10,8 +14,16 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
@@ -70,6 +82,27 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
     private SparseBooleanArray selectedItems;
 
     /**
+     * Used to pass the selected item's position to onBindViewHolder(),
+     * so that animations are started only when the item is actually selected.
+     */
+    private int currentSelectedIndex = -1;
+
+    /**
+     * Helper boolean used to indicate when all item selections are being undone.
+     */
+    private boolean reverseAllAnimations = false;
+
+    /**
+     * Helper boolean used to indicate when all items are being selected.
+     */
+    private boolean animateAll = false;
+
+    /**
+     * Helper array to keep track of animation statuses.
+     */
+    private SparseBooleanArray animationItemsIndex;
+
+    /**
      * Package-private ViewHolder class which can be recycled
      * for better performance and memory management.
      * All common view elements for all items are initialized here.
@@ -85,6 +118,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
         ImageView frameImageView;
         ImageView clockImageView;
         ImageView apertureImageView;
+        ImageView checkBox;
         ViewHolder(View itemView) {
             super(itemView);
             constraintLayout = itemView.findViewById(R.id.item_frame_layout);
@@ -97,6 +131,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             frameImageView = itemView.findViewById(R.id.background_frame);
             clockImageView = itemView.findViewById(R.id.drawable_clock);
             apertureImageView = itemView.findViewById(R.id.drawable_aperture);
+            checkBox = itemView.findViewById(R.id.checkbox);
             constraintLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -120,6 +155,9 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             apertureImageView.getDrawable().mutate().setColorFilter(
                     ContextCompat.getColor(context, R.color.grey), PorterDuff.Mode.SRC_IN
             );
+            checkBox.getDrawable().mutate().setColorFilter(
+                    ContextCompat.getColor(context, R.color.checkbox), PorterDuff.Mode.SRC_IN
+            );
         }
 
     }
@@ -141,6 +179,11 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
                 ContextCompat.getColor(context, R.color.background_frame_dark_grey) :
                 ContextCompat.getColor(context, R.color.background_frame_light_grey);
         this.selectedItems = new SparseBooleanArray();
+        this.animationItemsIndex = new SparseBooleanArray();
+        // Used to make the RecyclerView perform better and to make our custom animations
+        // work more reliably. Now we can use notifyDataSetChanged(), which works well
+        // with our custom animations.
+        setHasStableIds(true);
     }
 
     /**
@@ -187,16 +230,52 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             if (!frame.getShutter().contains("<")) holder.shutterTextView.setText(frame.getShutter());
             else holder.shutterTextView.setText("");
         }
+//        if (selectedItems.get(position, false)) {
+//            holder.frameTextView.setTypeface(null, Typeface.BOLD);
+//            holder.countTextView.setTypeface(null, Typeface.BOLD);
+//            holder.frameTextView2.setTypeface(null, Typeface.BOLD);
+//            holder.noteTextView.setTypeface(null, Typeface.BOLD);
+//            holder.apertureTextView.setTypeface(null, Typeface.BOLD);
+//            holder.shutterTextView.setTypeface(null, Typeface.BOLD);
+//        } else {
+//            holder.frameTextView.setTypeface(null, Typeface.NORMAL);
+//            holder.countTextView.setTypeface(null, Typeface.NORMAL);
+//            holder.frameTextView2.setTypeface(null, Typeface.NORMAL);
+//            holder.noteTextView.setTypeface(null, Typeface.NORMAL);
+//            holder.apertureTextView.setTypeface(null, Typeface.NORMAL);
+//            holder.shutterTextView.setTypeface(null, Typeface.NORMAL);
+//        }
+        holder.itemView.setActivated(selectedItems.get(position, false));
+        applyCheckBoxAnimation(holder, position);
+    }
 
-        // If the frame is selected, set the background color to light grey.
+    /**
+     * Applies check box animations when an item is selected or deselected.
+     *
+     * @param holder reference to the item's holder
+     * @param position position of the item
+     */
+    private void applyCheckBoxAnimation(ViewHolder holder, int position) {
         if (selectedItems.get(position, false)) {
-            holder.constraintLayout.setBackgroundColor(0x20000000);
-        }
-        // Otherwise set it to transparent black.
-        // This needs to be done, because RecyclerView recyclers its item views.
-        // If it recycles a selected item, the background will be unintentionally grey.
-        else {
-            holder.constraintLayout.setBackgroundColor(0x00000000);
+            // First set the check box to be visible. This is the state it will be left in after
+            // the animation has finished.
+            holder.checkBox.setVisibility(View.VISIBLE);
+            // If the item is selected or all items are being selected and the item was not previously selected
+            if (currentSelectedIndex == position || animateAll && !animationItemsIndex.get(position, false)) {
+                Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_up);
+                holder.checkBox.startAnimation(animation);
+                resetCurrentSelectedIndex();
+            }
+        } else {
+            // First set the check box to be gone. This is the state it will be left in after
+            // the animation has finished.
+            holder.checkBox.setVisibility(View.GONE);
+            // If the item is deselected or all selections are undone and the item was previously selected
+            if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex.get(position, false)) {
+                Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_down);
+                holder.checkBox.startAnimation(animation);
+                resetCurrentSelectedIndex();
+            }
         }
     }
 
@@ -216,29 +295,64 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      * @param position position of the item
      */
     public void toggleSelection(int position) {
+        currentSelectedIndex = position;
         if (selectedItems.get(position, false)) {
             selectedItems.delete(position);
+            animationItemsIndex.delete(position);
         } else {
             selectedItems.put(position, true);
+            animationItemsIndex.put(position, true);
         }
-        notifyItemChanged(position);
+        notifyDataSetChanged();
     }
 
     /**
      * Selects all items
      */
     public void toggleSelectionAll() {
+        resetCurrentSelectedIndex();
         selectedItems.clear();
-        for (int i = 0; i < getItemCount(); ++i) selectedItems.put(i, true);
-        notifyItemRangeChanged(0, getItemCount());
+        animateAll = true;
+        for (int i = 0; i < getItemCount(); ++i) {
+            selectedItems.put(i, true);
+        }
+        notifyDataSetChanged();
     }
 
     /**
      * Clears all selections
      */
     public void clearSelections() {
+        reverseAllAnimations = true;
         selectedItems.clear();
-        notifyItemRangeChanged(0, getItemCount());
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Called in FramesFragment after all selections have been undone.
+     */
+    public void resetAnimationIndex() {
+        reverseAllAnimations = false;
+        animationItemsIndex.clear();
+    }
+
+    /**
+     * Called in FramesFragment after all items have been selected using toggleSelectionAll().
+     * Sets animateAll back to false and updates animationItemsIndex to be in line with selectedItems.
+     */
+    public void resetAnimateAll() {
+        animateAll = false;
+        for (int i = 0; i < getItemCount(); ++i) {
+            animationItemsIndex.put(i, true);
+        }
+    }
+
+    /**
+     * When the selection/deselection action has been consumed, the index of the (de)selected
+     * item is reset.
+     */
+    private void resetCurrentSelectedIndex() {
+        currentSelectedIndex = -1;
     }
 
     /**
@@ -257,6 +371,17 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
         final List<Integer> items = new ArrayList<>();
         for (int i = 0; i < selectedItems.size(); ++i) items.add(selectedItems.keyAt(i));
         return items;
+    }
+
+    /**
+     * Implemented because hasStableIds has been set to true.
+     *
+     * @param position position of the item
+     * @return stable id
+     */
+    @Override
+    public long getItemId(int position) {
+        return frameList.get(position).getId();
     }
 
 }

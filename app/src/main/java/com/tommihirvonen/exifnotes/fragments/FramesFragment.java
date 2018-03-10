@@ -27,10 +27,12 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -274,7 +276,7 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * Inflate the fragment. Set the UI objects and display all the frames in the ListView.
+     * Inflate the fragment. Set the UI objects and display all the frames in RecyclerView.
      *
      * @param inflater not used
      * @param container not used
@@ -320,13 +322,14 @@ public class FramesFragment extends Fragment implements
         // Access the ListView
         mainRecyclerView = view.findViewById(R.id.frames_recycler_view);
 
-        // Create an ArrayAdapter for the ListView
+        // Create an adapter for the RecyclerView
         frameAdapter = new FrameAdapter(getActivity(), frameList, this);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mainRecyclerView.setLayoutManager(layoutManager);
+        // Add dividers for list items.
         mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(), layoutManager.getOrientation()));
 
-        // Set the ListView to use the ArrayAdapter
+        // Set the RecyclerView to use frameAdapter
         mainRecyclerView.setAdapter(frameAdapter);
 
         if (frameList.size() >= 1) {
@@ -399,7 +402,7 @@ public class FramesFragment extends Fragment implements
                         editor.apply();
                         dialog.dismiss();
                         Utilities.sortFrameList(getActivity(), database, frameList);
-                        frameAdapter.notifyItemRangeChanged(0, frameAdapter.getItemCount());
+                        frameAdapter.notifyDataSetChanged();
                     }
                 });
                 sortDialog.setNegativeButton(getResources().getString(R.string.Cancel),
@@ -931,10 +934,10 @@ public class FramesFragment extends Fragment implements
             actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
         }
         frameAdapter.toggleSelection(position);
-        // Set the action mode toolbar title to display the number of selected items.
-        actionMode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()));
         // If the user deselected the last of the selected items, exit action mode.
         if (frameAdapter.getSelectedItemCount() == 0) actionMode.finish();
+        // Set the action mode toolbar title to display the number of selected items.
+        else actionMode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()));
     }
 
     /**
@@ -1045,6 +1048,12 @@ public class FramesFragment extends Fragment implements
                 case R.id.menu_item_select_all:
 
                     frameAdapter.toggleSelectionAll();
+                    mainRecyclerView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            frameAdapter.resetAnimateAll();
+                        }
+                    });
                     mode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()));
                     return true;
 
@@ -1062,7 +1071,12 @@ public class FramesFragment extends Fragment implements
         public void onDestroyActionMode(ActionMode mode) {
             frameAdapter.clearSelections();
             actionMode = null;
-            frameAdapter.notifyItemRangeChanged(0, frameAdapter.getItemCount());
+            mainRecyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    frameAdapter.resetAnimationIndex();
+                }
+            });
             // Return the status bar to its original color before action mode.
             Utilities.setStatusBarColor(getActivity(), Utilities.getSecondaryUiColor(getActivity()));
             // Make the floating action bar visible again since action mode is exited.
@@ -1113,7 +1127,7 @@ public class FramesFragment extends Fragment implements
                         }
                         if (actionMode != null) actionMode.finish();
                         Utilities.sortFrameList(getActivity(), database, frameList);
-                        frameAdapter.notifyItemRangeChanged(0, frameAdapter.getItemCount());
+                        frameAdapter.notifyDataSetChanged();
                     }
                 });
             }
