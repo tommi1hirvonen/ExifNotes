@@ -10,10 +10,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/selectableItemBackground"
-        >
-
+        android:background="?android:attr/selectableItemBackground">
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/grey_background"
+        android:visibility="visible"
+        android:background="#20808080"
+        />
 
     <ImageView
         android:id="@+id/background_frame"
@@ -148,12 +154,14 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_check_box_black_24dp"
+        android:src="@drawable/ic_check_box_green"
         android:id="@+id/checkbox"
         android:visibility="visible"
         app:layout_constraintRight_toRightOf="@+id/guideline1"
         app:layout_constraintBottom_toBottomOf="parent"
         android:padding="8dp"
+        android:scaleY="0.9"
+        android:scaleX="0.9"
         />
 
     <android.support.constraint.Guideline

@@ -821,6 +821,8 @@ public class FramesFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
+                    if (actionMode != null) actionMode.finish();
+
                     Frame frame = data.getParcelableExtra(ExtraKeys.FRAME);
 
                     if (frame != null && frame.getId() > 0) {
@@ -873,6 +875,10 @@ public class FramesFragment extends Fragment implements
                 // Consume the case when the user has edited
                 // the location of several frames in action mode.
                 if (resultCode == Activity.RESULT_OK) {
+
+                    // Exit action mode.
+                    if (actionMode != null) actionMode.finish();
+
                     final String location;
                     final String formattedAddress;
                     if (data.hasExtra(ExtraKeys.LATITUDE) && data.hasExtra(ExtraKeys.LONGITUDE)) {
@@ -889,8 +895,6 @@ public class FramesFragment extends Fragment implements
                         frame.setFormattedAddress(formattedAddress);
                         database.updateFrame(frame);
                     }
-                    // Exit action mode.
-                    if (actionMode != null) actionMode.finish();
                 }
 
                 break;
@@ -984,23 +988,41 @@ public class FramesFragment extends Fragment implements
          * @return {@inheritDoc}
          */
         @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
             // Get the positions in the frameList of selected items.
             final List<Integer> selectedItemPositions = frameAdapter.getSelectedItemPositions();
             switch (item.getItemId()) {
 
                 case R.id.menu_item_delete:
 
-                    for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
-                        final int framePosition = selectedItemPositions.get(i);
-                        final Frame frame = frameList.get(framePosition);
-                        database.deleteFrame(frame);
-                        frameList.remove(frame);
-                        frameAdapter.notifyItemRemoved(framePosition);
-                    }
-                    if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                    shareActionProvider.setShareIntent(setShareIntentExportRoll());
-                    mode.finish();
+                    AlertDialog.Builder deleteConfirmDialog = new AlertDialog.Builder(getActivity());
+                    // Separate confirm titles for one or multiple frames
+                    final String title = selectedItemPositions.size() == 1 ?
+                            String.format(getResources().getString(R.string.ConfirmFramesDeleteSingle), selectedItemPositions.size()) :
+                            String.format(getResources().getString(R.string.ConfirmFramesDelete), selectedItemPositions.size());
+                    deleteConfirmDialog.setTitle(title);
+                    deleteConfirmDialog.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // Do nothing
+                        }
+                    });
+                    deleteConfirmDialog.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            for (int j = selectedItemPositions.size() - 1; j >= 0; j--) {
+                                final int framePosition = selectedItemPositions.get(j);
+                                final Frame frame = frameList.get(framePosition);
+                                database.deleteFrame(frame);
+                                frameList.remove(frame);
+                                frameAdapter.notifyItemRemoved(framePosition);
+                            }
+                            if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                            shareActionProvider.setShareIntent(setShareIntentExportRoll());
+                            mode.finish();
+                        }
+                    });
+                    deleteConfirmDialog.create().show();
                     return true;
 
                 case R.id.menu_item_edit:
@@ -1009,7 +1031,6 @@ public class FramesFragment extends Fragment implements
                     if (frameAdapter.getSelectedItemCount() == 1) {
                         // Get the first of the selected rolls (only one should be selected anyway)
                         showFrameInfoEditDialog(selectedItemPositions.get(0));
-                        actionMode.finish();
                     }
                     // If multiple frames are selected, show batch edit features.
                     else {

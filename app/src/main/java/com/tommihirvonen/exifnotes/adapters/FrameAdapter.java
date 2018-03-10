@@ -1,29 +1,18 @@
 package com.tommihirvonen.exifnotes.adapters;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.ScaleAnimation;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
@@ -119,6 +108,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
         ImageView clockImageView;
         ImageView apertureImageView;
         ImageView checkBox;
+        View selectedBackground;
         ViewHolder(View itemView) {
             super(itemView);
             constraintLayout = itemView.findViewById(R.id.item_frame_layout);
@@ -132,6 +122,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             clockImageView = itemView.findViewById(R.id.drawable_clock);
             apertureImageView = itemView.findViewById(R.id.drawable_aperture);
             checkBox = itemView.findViewById(R.id.checkbox);
+            selectedBackground = itemView.findViewById(R.id.grey_background);
             constraintLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -154,9 +145,6 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             );
             apertureImageView.getDrawable().mutate().setColorFilter(
                     ContextCompat.getColor(context, R.color.grey), PorterDuff.Mode.SRC_IN
-            );
-            checkBox.getDrawable().mutate().setColorFilter(
-                    ContextCompat.getColor(context, R.color.checkbox), PorterDuff.Mode.SRC_IN
             );
         }
 
@@ -230,21 +218,6 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             if (!frame.getShutter().contains("<")) holder.shutterTextView.setText(frame.getShutter());
             else holder.shutterTextView.setText("");
         }
-//        if (selectedItems.get(position, false)) {
-//            holder.frameTextView.setTypeface(null, Typeface.BOLD);
-//            holder.countTextView.setTypeface(null, Typeface.BOLD);
-//            holder.frameTextView2.setTypeface(null, Typeface.BOLD);
-//            holder.noteTextView.setTypeface(null, Typeface.BOLD);
-//            holder.apertureTextView.setTypeface(null, Typeface.BOLD);
-//            holder.shutterTextView.setTypeface(null, Typeface.BOLD);
-//        } else {
-//            holder.frameTextView.setTypeface(null, Typeface.NORMAL);
-//            holder.countTextView.setTypeface(null, Typeface.NORMAL);
-//            holder.frameTextView2.setTypeface(null, Typeface.NORMAL);
-//            holder.noteTextView.setTypeface(null, Typeface.NORMAL);
-//            holder.apertureTextView.setTypeface(null, Typeface.NORMAL);
-//            holder.shutterTextView.setTypeface(null, Typeface.NORMAL);
-//        }
         holder.itemView.setActivated(selectedItems.get(position, false));
         applyCheckBoxAnimation(holder, position);
     }
@@ -260,20 +233,34 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
             holder.checkBox.setVisibility(View.VISIBLE);
+            // Also set a slightly grey background to be visible.
+            holder.selectedBackground.setVisibility(View.VISIBLE);
+
             // If the item is selected or all items are being selected and the item was not previously selected
             if (currentSelectedIndex == position || animateAll && !animationItemsIndex.get(position, false)) {
                 Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_up);
                 holder.checkBox.startAnimation(animation);
+
+                Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_in);
+                holder.selectedBackground.startAnimation(animation1);
+
                 resetCurrentSelectedIndex();
             }
         } else {
             // First set the check box to be gone. This is the state it will be left in after
             // the animation has finished.
             holder.checkBox.setVisibility(View.GONE);
+            // Hide the slightly grey background
+            holder.selectedBackground.setVisibility(View.GONE);
+
             // If the item is deselected or all selections are undone and the item was previously selected
             if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex.get(position, false)) {
                 Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_down);
                 holder.checkBox.startAnimation(animation);
+
+                Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+                holder.selectedBackground.startAnimation(animation1);
+
                 resetCurrentSelectedIndex();
             }
         }

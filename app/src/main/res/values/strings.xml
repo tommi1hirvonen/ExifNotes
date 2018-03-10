@@ -368,6 +368,8 @@
     <string name="EditFrameCounts">Edit frame counts</string>
     <string name="EditFrameCountsBy">Edit frame counts by…</string>
     <string name="EditLocation">Edit location</string>
+    <string name="ConfirmFramesDelete">Delete %1$d frames?</string>
+    <string name="ConfirmFramesDeleteSingle">Delete %1$d frame?</string>
 
     <!--gear_dialog-->
     <string name="Make">Make</string>
