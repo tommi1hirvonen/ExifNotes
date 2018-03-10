@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseBooleanArray;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,8 +31,12 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      * Interface for implementing classes.
      * Used to send onItemClicked messages back to implementing Activities and/or Fragments.
      */
-    public interface OnItemClickListener {
-        void onItemClicked(int position);
+    public interface FrameAdapterListener {
+
+        void onItemClick(int position);
+
+        void onItemLongClick(int position);
+
     }
 
     /**
@@ -56,7 +62,12 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
     /**
      * Reference to the implementing class's OnItemClickListener.
      */
-    private final OnItemClickListener clickListener;
+    private final FrameAdapterListener listener;
+
+    /**
+     * Used to hold the positions of selected items in the RecyclerView.
+     */
+    private SparseBooleanArray selectedItems;
 
     /**
      * Package-private ViewHolder class which can be recycled
@@ -89,17 +100,14 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             constraintLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    clickListener.onItemClicked(getAdapterPosition());
+                    listener.onItemClick(getAdapterPosition());
                 }
             });
-            constraintLayout.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+            constraintLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
-                public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-                    // Use the order parameter (3rd parameter) of the ContextMenu.add() method
-                    // to pass the position of the list item which was clicked.
-                    // This can be used in the implementing class to retrieve the items position.
-                    contextMenu.add(0, R.id.menu_item_edit, getAdapterPosition(), R.string.Edit);
-                    contextMenu.add(0, R.id.menu_item_delete, getAdapterPosition(), R.string.Delete);
+                public boolean onLongClick(View view) {
+                    listener.onItemLongClick(getAdapterPosition());
+                    return true;
                 }
             });
             // With these commands we can color the black png images grey. Very nice! I like!
@@ -121,17 +129,18 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      *
      * @param context implementing Activity's context
      * @param frames list of Frames from the implementing class
-     * @param clickListener implementing class's OnItemClickListener
+     * @param listener implementing class's OnItemClickListener
      */
     public FrameAdapter(Context context, List<Frame> frames,
-                        OnItemClickListener clickListener) {
-        this.clickListener = clickListener;
+                        FrameAdapterListener listener) {
+        this.listener = listener;
         this.frameList = frames;
         this.context = context;
         this.database = FilmDbHelper.getInstance(context);
         this.backgroundFrameColor = Utilities.isAppThemeDark(context) ?
                 ContextCompat.getColor(context, R.color.background_frame_dark_grey) :
                 ContextCompat.getColor(context, R.color.background_frame_light_grey);
+        this.selectedItems = new SparseBooleanArray();
     }
 
     /**
@@ -178,6 +187,17 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             if (!frame.getShutter().contains("<")) holder.shutterTextView.setText(frame.getShutter());
             else holder.shutterTextView.setText("");
         }
+
+        // If the frame is selected, set the background color to light grey.
+        if (selectedItems.get(position, false)) {
+            holder.constraintLayout.setBackgroundColor(0x20000000);
+        }
+        // Otherwise set it to transparent black.
+        // This needs to be done, because RecyclerView recyclers its item views.
+        // If it recycles a selected item, the background will be unintentionally grey.
+        else {
+            holder.constraintLayout.setBackgroundColor(0x00000000);
+        }
     }
 
     /**
@@ -188,6 +208,55 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
     @Override
     public int getItemCount() {
         return frameList.size();
+    }
+
+    /**
+     * Sets an items selection status.
+     *
+     * @param position position of the item
+     */
+    public void toggleSelection(int position) {
+        if (selectedItems.get(position, false)) {
+            selectedItems.delete(position);
+        } else {
+            selectedItems.put(position, true);
+        }
+        notifyItemChanged(position);
+    }
+
+    /**
+     * Selects all items
+     */
+    public void toggleSelectionAll() {
+        selectedItems.clear();
+        for (int i = 0; i < getItemCount(); ++i) selectedItems.put(i, true);
+        notifyItemRangeChanged(0, getItemCount());
+    }
+
+    /**
+     * Clears all selections
+     */
+    public void clearSelections() {
+        selectedItems.clear();
+        notifyItemRangeChanged(0, getItemCount());
+    }
+
+    /**
+     *
+     * @return the number of selected items
+     */
+    public int getSelectedItemCount() {
+        return selectedItems.size();
+    }
+
+    /**
+     *
+     * @return List containing the positions of selected items.
+     */
+    public List<Integer> getSelectedItemPositions() {
+        final List<Integer> items = new ArrayList<>();
+        for (int i = 0; i < selectedItems.size(); ++i) items.add(selectedItems.keyAt(i));
+        return items;
     }
 
 }

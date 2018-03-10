@@ -21,10 +21,12 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -69,7 +71,7 @@ import java.util.List;
  */
 public class FramesFragment extends Fragment implements
         View.OnClickListener,
-        FrameAdapter.OnItemClickListener,
+        FrameAdapter.FrameAdapterListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
@@ -184,6 +186,16 @@ public class FramesFragment extends Fragment implements
     public interface OnHomeAsUpPressedListener {
         void onHomeAsUpPressed();
     }
+
+    /**
+     * Private callback class which is given as an argument when the SupportActionMode is started.
+     */
+    private ActionModeCallback actionModeCallback = new ActionModeCallback();
+
+    /**
+     * Reference to the (Support)ActionMode, which is launched when a list item is long pressed.
+     */
+    private ActionMode actionMode;
 
     /**
      * This on attach is called before API 23
@@ -347,62 +359,6 @@ public class FramesFragment extends Fragment implements
         MenuItemCompat.setActionProvider(shareItem, shareActionProvider);
 
         super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    /**
-     * Called when the user long presses on a frame AND selects a context menu item.
-     *
-     * @param item the context menu item that was selected
-     * @return true if the FramesFragment is in front, false if it is not
-     */
-    @SuppressLint("CommitTransaction")
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        // Because of a bug with ViewPager and context menu actions,
-        // we have to check which fragment is visible to the user.
-        if (getUserVisibleHint()) {
-            switch (item.getItemId()) {
-                case R.id.menu_item_edit:
-
-                    // Use the getOrder() method to unconventionally get the clicked item's position.
-                    // This is set to work correctly in the Adapter class.
-                    int position = item.getOrder();
-
-                    // Edit frame info
-                    Frame frame = frameList.get(position);
-                    String title = "" + getActivity().getString(R.string.EditFrame) + frame.getCount();
-                    String positiveButton = getActivity().getResources().getString(R.string.OK);
-                    Bundle arguments = new Bundle();
-                    arguments.putString(ExtraKeys.TITLE, title);
-                    arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton);
-                    arguments.putParcelable(ExtraKeys.FRAME, frame);
-
-                    EditFrameDialog dialog = new EditFrameDialog();
-                    dialog.setTargetFragment(this, EDIT_FRAME_DIALOG);
-                    dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), EditFrameDialog.TAG);
-
-                    return true;
-
-                case R.id.menu_item_delete:
-
-                    // Use the getOrder() method to unconventionally get the clicked item's position.
-                    // This is set to work correctly in the Adapter class.
-                    int which = item.getOrder();
-
-                    Frame deletableFrame = frameList.get(which);
-                    database.deleteFrame(deletableFrame);
-                    frameList.remove(which);
-
-                    if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                    frameAdapter.notifyItemRemoved(which);
-
-                    shareActionProvider.setShareIntent(setShareIntentExportRoll());
-
-                    return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -719,12 +675,55 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * Called when a frame is pressed. Show the EditFrameDialog.
+     * Called when a frame is pressed.
+     * if action mode is enabled, add the pressed item to selected items.
+     * Otherwise show the EditFrameDialog.
      *
      * @param position position of the item in the RecyclerView
      */
     @SuppressLint("CommitTransaction")
-    public void onItemClicked(int position) {
+    @Override
+    public void onItemClick(int position) {
+        if (frameAdapter.getSelectedItemCount() > 0 || actionMode != null) {
+            enableActionMode(position);
+        } else {
+            showFrameInfoEditDialog(position);
+        }
+    }
+
+    /**
+     * When an item is long pressed, always add the pressed item to selected items.
+     *
+     * @param position position of the item in FrameAdapter
+     */
+    @Override
+    public void onItemLongClick(int position) {
+        enableActionMode(position);
+    }
+
+    /**
+     * Enable action mode if not yet enabled and add item to selected items.
+     *
+     * @param position position of the item in FrameAdapter
+     */
+    private void enableActionMode(int position) {
+        if (actionMode == null) {
+            actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
+        }
+        frameAdapter.toggleSelection(position);
+        // Set the action mode toolbar title to display the number of selected items.
+        actionMode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()));
+        // If the user deselected the last of the selected items, exit action mode.
+        if (frameAdapter.getSelectedItemCount() == 0) actionMode.finish();
+    }
+
+    /**
+     * Create new dialog to edit the selected Frame's information
+     *
+     * @param position position of the Frame in frameList
+     */
+    @SuppressLint("CommitTransaction")
+    private void showFrameInfoEditDialog(int position) {
         // Edit frame info
         Frame frame = frameList.get(position);
         Bundle arguments = new Bundle();
@@ -906,6 +905,100 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
+     * Class which implements ActionMode.Callback.
+     * One instance of this class is given as an argument when action mode is started.
+     */
+    private class ActionModeCallback implements ActionMode.Callback {
+
+        /**
+         * Called when the ActionMode is started.
+         * Inflate the menu and set the visibility of some menu items.
+         *
+         * @param mode {@inheritDoc}
+         * @param menu {@inheritDoc}
+         * @return {@inheritDoc}
+         */
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // Set the status bar color to be dark grey to complement the grey action mode toolbar.
+            Utilities.setStatusBarColor(getActivity(), ContextCompat.getColor(getActivity(), R.color.dark_grey));
+            // Hide the floating action button so no new rolls can be added while in action mode.
+            floatingActionButton.hide();
+            mode.getMenuInflater().inflate(R.menu.menu_action_mode_frames, menu);
+            return true;
+        }
+
+        /**
+         * Called to refresh the ActionMode menu whenever it is invalidated.
+         *
+         * @param mode {@inheritDoc}
+         * @param menu {@inheritDoc}
+         * @return {@inheritDoc}
+         */
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        /**
+         * Called when the user presses on an action menu item.
+         *
+         * @param mode {@inheritDoc}
+         * @param item {@inheritDoc}
+         * @return {@inheritDoc}
+         */
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            // Get the positions in the frameList of selected items.
+            final List<Integer> selectedItemPositions = frameAdapter.getSelectedItemPositions();
+            switch (item.getItemId()) {
+                case R.id.menu_item_delete:
+                    for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
+                        final int framePosition = selectedItemPositions.get(i);
+                        final Frame frame = frameList.get(framePosition);
+                        database.deleteFrame(frame);
+                        frameList.remove(frame);
+                        if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                        frameAdapter.notifyItemRemoved(framePosition);
+                        shareActionProvider.setShareIntent(setShareIntentExportRoll());
+                    }
+                    mode.finish();
+                    return true;
+                case R.id.menu_item_edit:
+
+                    // TODO: Implement batch edit features.
+
+                    // Get the first of the selected rolls (only one should be selected anyway)
+                    showFrameInfoEditDialog(selectedItemPositions.get(0));
+                    actionMode.finish();
+                    return true;
+                case R.id.menu_item_select_all:
+                    frameAdapter.toggleSelectionAll();
+                    mode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()));
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /**
+         * Called when an action mode is about to be exited and destroyed.
+         *
+         * @param mode {@inheritDoc}
+         */
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            frameAdapter.clearSelections();
+            actionMode = null;
+            frameAdapter.notifyItemRangeChanged(0, frameAdapter.getItemCount());
+            // Return the status bar to its original color before action mode.
+            Utilities.setStatusBarColor(getActivity(), Utilities.getSecondaryUiColor(getActivity()));
+            // Make the floating action bar visible again since action mode is exited.
+            floatingActionButton.show();
+        }
+    }
+
+    /**
      * When the fragment is started connect to Google Play services to get accurate location.
      */
     public void onStart() {
@@ -972,6 +1065,11 @@ public class FramesFragment extends Fragment implements
         //The user might have changed the export settings. Update the ShareActionProvider.
         if (shareActionProvider != null)
             shareActionProvider.setShareIntent(setShareIntentExportRoll());
+
+        // If action mode is enabled, color the status bar dark grey.
+        if (frameAdapter.getSelectedItemCount() > 0 || actionMode != null) {
+            Utilities.setStatusBarColor(getActivity(), ContextCompat.getColor(getActivity(), R.color.dark_grey));
+        }
     }
 
     /**

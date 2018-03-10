@@ -56,6 +56,9 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      */
     private final FilmDbHelper database;
 
+    /**
+     * Used to hold the positions of selected items in the RecyclerView.
+     */
     private SparseBooleanArray selectedItems;
 
     /**
@@ -204,6 +207,11 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
         return rollList.size();
     }
 
+    /**
+     * Sets an items selection status.
+     *
+     * @param position position of the item
+     */
     public void toggleSelection(int position) {
         if (selectedItems.get(position, false)) {
             selectedItems.delete(position);
@@ -213,21 +221,35 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
         notifyItemChanged(position);
     }
 
+    /**
+     * Selects all items
+     */
     public void toggleSelectionAll() {
         selectedItems.clear();
         for (int i = 0; i < getItemCount(); ++i) selectedItems.put(i, true);
         notifyItemRangeChanged(0, getItemCount());
     }
 
+    /**
+     * Clears all selections
+     */
     public void clearSelections() {
         selectedItems.clear();
         notifyItemRangeChanged(0, getItemCount());
     }
 
+    /**
+     *
+     * @return the number of selected items
+     */
     public int getSelectedItemCount() {
         return selectedItems.size();
     }
 
+    /**
+     *
+     * @return List containing the positions of selected items.
+     */
     public List<Integer> getSelectedItemPositions() {
         final List<Integer> items = new ArrayList<>();
         for (int i = 0; i < selectedItems.size(); ++i) items.add(selectedItems.keyAt(i));
