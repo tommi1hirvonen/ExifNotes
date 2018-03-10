@@ -71,6 +71,11 @@
         <item>@string/ShowAllRolls</item>
     </string-array>
 
+    <string-array name="FramesBatchEditOptions">
+        <item>@string/EditFrameCounts</item>
+        <item>@string/EditLocation</item>
+    </string-array>
+
     <string-array name="FilmFormats">
         <item>35 mm</item>
         <item>120</item>

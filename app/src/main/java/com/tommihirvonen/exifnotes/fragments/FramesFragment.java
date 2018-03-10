@@ -37,6 +37,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.tommihirvonen.exifnotes.activities.LocationPickActivity;
 import com.tommihirvonen.exifnotes.activities.MainActivity;
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
@@ -105,6 +107,11 @@ public class FramesFragment extends Fragment implements
      * Constant passed to MapsActivity
      */
     private static final int SHOW_ON_MAP = 4;
+
+    /**
+     * Constant passed to LocationPickActivity
+     */
+    private static final int LOCATION_PICK_REQUEST = 5;
 
     /**
      * Reference to the singleton database
@@ -675,49 +682,6 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * Called when a frame is pressed.
-     * if action mode is enabled, add the pressed item to selected items.
-     * Otherwise show the EditFrameDialog.
-     *
-     * @param position position of the item in the RecyclerView
-     */
-    @SuppressLint("CommitTransaction")
-    @Override
-    public void onItemClick(int position) {
-        if (frameAdapter.getSelectedItemCount() > 0 || actionMode != null) {
-            enableActionMode(position);
-        } else {
-            showFrameInfoEditDialog(position);
-        }
-    }
-
-    /**
-     * When an item is long pressed, always add the pressed item to selected items.
-     *
-     * @param position position of the item in FrameAdapter
-     */
-    @Override
-    public void onItemLongClick(int position) {
-        enableActionMode(position);
-    }
-
-    /**
-     * Enable action mode if not yet enabled and add item to selected items.
-     *
-     * @param position position of the item in FrameAdapter
-     */
-    private void enableActionMode(int position) {
-        if (actionMode == null) {
-            actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
-        }
-        frameAdapter.toggleSelection(position);
-        // Set the action mode toolbar title to display the number of selected items.
-        actionMode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()));
-        // If the user deselected the last of the selected items, exit action mode.
-        if (frameAdapter.getSelectedItemCount() == 0) actionMode.finish();
-    }
-
-    /**
      * Create new dialog to edit the selected Frame's information
      *
      * @param position position of the Frame in frameList
@@ -901,7 +865,76 @@ public class FramesFragment extends Fragment implements
 
                 break;
 
+            case LOCATION_PICK_REQUEST:
+
+                // Consume the case when the user has edited
+                // the location of several frames in action mode.
+                if (resultCode == Activity.RESULT_OK) {
+                    final String location;
+                    final String formattedAddress;
+                    if (data.hasExtra(ExtraKeys.LATITUDE) && data.hasExtra(ExtraKeys.LONGITUDE)) {
+                        location = "" + data.getStringExtra(ExtraKeys.LATITUDE) + " " +
+                                data.getStringExtra(ExtraKeys.LONGITUDE);
+                    } else location = null;
+                    if (data.hasExtra(ExtraKeys.FORMATTED_ADDRESS)) {
+                        formattedAddress = data.getStringExtra(ExtraKeys.FORMATTED_ADDRESS);
+                    } else formattedAddress = null;
+                    final List<Integer> framePositions = frameAdapter.getSelectedItemPositions();
+                    for (int i = framePositions.size() - 1; i >= 0; i--) {
+                        final Frame frame = frameList.get(framePositions.get(i));
+                        frame.setLocation(location);
+                        frame.setFormattedAddress(formattedAddress);
+                        database.updateFrame(frame);
+                    }
+                    // Exit action mode.
+                    if (actionMode != null) actionMode.finish();
+                }
+
+                break;
+
         }
+    }
+
+    /**
+     * Called when a frame is pressed.
+     * if action mode is enabled, add the pressed item to selected items.
+     * Otherwise show the EditFrameDialog.
+     *
+     * @param position position of the item in the RecyclerView
+     */
+    @Override
+    public void onItemClick(int position) {
+        if (frameAdapter.getSelectedItemCount() > 0 || actionMode != null) {
+            enableActionMode(position);
+        } else {
+            showFrameInfoEditDialog(position);
+        }
+    }
+
+    /**
+     * When an item is long pressed, always add the pressed item to selected items.
+     *
+     * @param position position of the item in FrameAdapter
+     */
+    @Override
+    public void onItemLongClick(int position) {
+        enableActionMode(position);
+    }
+
+    /**
+     * Enable action mode if not yet enabled and add item to selected items.
+     *
+     * @param position position of the item in FrameAdapter
+     */
+    private void enableActionMode(int position) {
+        if (actionMode == null) {
+            actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
+        }
+        frameAdapter.toggleSelection(position);
+        // Set the action mode toolbar title to display the number of selected items.
+        actionMode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()));
+        // If the user deselected the last of the selected items, exit action mode.
+        if (frameAdapter.getSelectedItemCount() == 0) actionMode.finish();
     }
 
     /**
@@ -952,30 +985,69 @@ public class FramesFragment extends Fragment implements
             // Get the positions in the frameList of selected items.
             final List<Integer> selectedItemPositions = frameAdapter.getSelectedItemPositions();
             switch (item.getItemId()) {
+
                 case R.id.menu_item_delete:
+
                     for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
                         final int framePosition = selectedItemPositions.get(i);
                         final Frame frame = frameList.get(framePosition);
                         database.deleteFrame(frame);
                         frameList.remove(frame);
-                        if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
                         frameAdapter.notifyItemRemoved(framePosition);
-                        shareActionProvider.setShareIntent(setShareIntentExportRoll());
                     }
+                    if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                    shareActionProvider.setShareIntent(setShareIntentExportRoll());
                     mode.finish();
                     return true;
+
                 case R.id.menu_item_edit:
 
-                    // TODO: Implement batch edit features.
+                    // If only one frame is selected, show frame edit dialog.
+                    if (frameAdapter.getSelectedItemCount() == 1) {
+                        // Get the first of the selected rolls (only one should be selected anyway)
+                        showFrameInfoEditDialog(selectedItemPositions.get(0));
+                        actionMode.finish();
+                    }
+                    // If multiple frames are selected, show batch edit features.
+                    else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle(String.format(getResources().getString(R.string.BatchEditFramesTitle), frameAdapter.getSelectedItemCount()));
+                        builder.setItems(R.array.FramesBatchEditOptions, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                switch (i) {
+                                    case 0:
+                                        // Edit frame counts
+                                        new FrameCountBatchEditDialogBuilder(getActivity()).create().show();
+                                        break;
+                                    case 1:
+                                        // Edit location
+                                        Intent intent = new Intent(getActivity(), LocationPickActivity.class);
+                                        startActivityForResult(intent, LOCATION_PICK_REQUEST);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        });
+                        builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Do nothing
+                                dialogInterface.dismiss();
+                            }
+                        });
+                        builder.create().show();
+                    }
 
-                    // Get the first of the selected rolls (only one should be selected anyway)
-                    showFrameInfoEditDialog(selectedItemPositions.get(0));
-                    actionMode.finish();
                     return true;
+
                 case R.id.menu_item_select_all:
+
                     frameAdapter.toggleSelectionAll();
                     mode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()));
                     return true;
+
                 default:
                     return false;
             }
@@ -995,6 +1067,57 @@ public class FramesFragment extends Fragment implements
             Utilities.setStatusBarColor(getActivity(), Utilities.getSecondaryUiColor(getActivity()));
             // Make the floating action bar visible again since action mode is exited.
             floatingActionButton.show();
+        }
+
+        /**
+         * Private class which creates a dialog builder for a custom dialog.
+         * Used to batch edit frame counts.
+         */
+        private class FrameCountBatchEditDialogBuilder extends AlertDialog.Builder {
+
+            FrameCountBatchEditDialogBuilder(Context context) {
+                super(context);
+                setTitle(R.string.EditFrameCountsBy);
+                @SuppressLint("InflateParams")
+                View view = getActivity().getLayoutInflater().inflate(R.layout.single_numberpicker_dialog, null);
+                final NumberPicker numberPicker = view.findViewById(R.id.number_picker);
+                numberPicker.setMaxValue(200);
+                numberPicker.setMinValue(0);
+                // Use the NumberPicker.setDisplayedValues() method to set custom
+                // values ranging from -100 to +100.
+                final List<String> displayedValues = new ArrayList<>();
+                for (int k = -100; k <= 100; ++k) {
+                    if (k > 0) displayedValues.add("+" + Integer.toString(k));
+                    else displayedValues.add(Integer.toString(k));
+                }
+                numberPicker.setDisplayedValues(displayedValues.toArray(new String[0]));
+                numberPicker.setValue(100);
+                // Block the NumberPicker from activating the cursor.
+                numberPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                setView(view);
+                setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Do nothing
+                    }
+                });
+                setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        final int change = Integer.valueOf(displayedValues.get(numberPicker.getValue()));
+                        final List<Integer> framePositions = frameAdapter.getSelectedItemPositions();
+                        for (int j = framePositions.size() - 1; j >= 0; j--) {
+                            final Frame frame = frameList.get(framePositions.get(j));
+                            frame.setCount(frame.getCount() + change);
+                            database.updateFrame(frame);
+                        }
+                        if (actionMode != null) actionMode.finish();
+                        Utilities.sortFrameList(getActivity(), database, frameList);
+                        frameAdapter.notifyItemRangeChanged(0, frameAdapter.getItemCount());
+                    }
+                });
+            }
+
         }
     }
 

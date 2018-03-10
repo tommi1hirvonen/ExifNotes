@@ -363,6 +363,12 @@
     <string name="UsedFilter">Choose used filter</string>
     <string name="SelectLensToAddFilters">Select a lens to add filters.</string>
 
+    <!--frame batch edit-->
+    <string name="BatchEditFramesTitle">Batch edit %1$d frames</string>
+    <string name="EditFrameCounts">Edit frame counts</string>
+    <string name="EditFrameCountsBy">Edit frame counts by…</string>
+    <string name="EditLocation">Edit location</string>
+
     <!--gear_dialog-->
     <string name="Make">Make</string>
     <string name="Model">Model</string>
