@@ -112,6 +112,12 @@ public class RollsFragment extends Fragment implements
     private ActionMode actionMode;
 
     /**
+     * Holds the roll filter status (archived, active or all rolls).
+     * This way we don't always have to query the value from SharedPreferences.
+     */
+    private int visibleRolls;
+
+    /**
      * This interface is implemented in MainActivity.
      */
     public interface OnRollSelectedListener{
@@ -208,13 +214,13 @@ public class RollsFragment extends Fragment implements
 
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         // Get from preferences which rolls to load from the database.
-        final int getRollsArchivalArg = sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
+        visibleRolls = sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
 
         // Declare variables for the ActionBar subtitle, which shows the film roll filter status
         // and the main TextView, which is displayed if no rolls are shown.
         final String subtitleText;
         final String mainTextViewText;
-        switch (getRollsArchivalArg) {
+        switch (visibleRolls) {
             case FilmDbHelper.ROLLS_ACTIVE:
                 subtitleText = getResources().getString(R.string.ActiveFilmRolls);
                 mainTextViewText = getResources().getString(R.string.NoActiveRolls);
@@ -248,7 +254,7 @@ public class RollsFragment extends Fragment implements
         mainTextView.setText(mainTextViewText);
 
         // Load the rolls from the database.
-        rollList = database.getRolls(getRollsArchivalArg);
+        rollList = database.getRolls(visibleRolls);
         //Order the roll list according to preferences.
         Utilities.sortRollList(getActivity(), database, rollList);
         if (recreateRollAdapter) {
@@ -455,12 +461,16 @@ public class RollsFragment extends Fragment implements
             actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
         }
         rollAdapter.toggleSelection(position);
-        // Set the visibility of edit item depending on whether only one roll was selected.
-        actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(rollAdapter.getSelectedItemCount() == 1);
-        // Set the action mode toolbar title to display the number of selected items.
-        actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()));
         // If the user deselected the last of the selected items, exit action mode.
-        if (rollAdapter.getSelectedItemCount() == 0) actionMode.finish();
+        if (rollAdapter.getSelectedItemCount() == 0) {
+            actionMode.finish();
+        } else {
+            // Set the visibility of edit item depending on whether only one roll was selected.
+            final boolean visible = rollAdapter.getSelectedItemCount() == 1;
+            actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(visible);
+            // Set the action mode toolbar title to display the number of selected items.
+            actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()));
+        }
     }
 
     /**
@@ -540,6 +550,8 @@ public class RollsFragment extends Fragment implements
 
                 if (resultCode == Activity.RESULT_OK) {
 
+                    if (actionMode != null) actionMode.finish();
+
                     Roll roll = data.getParcelableExtra(ExtraKeys.ROLL);
 
                     if (roll.getName().length() > 0 &&
@@ -602,14 +614,9 @@ public class RollsFragment extends Fragment implements
 
             actionMode.getMenuInflater().inflate(R.menu.menu_action_mode_rolls, menu);
 
-            final SharedPreferences sharedPrefVisibleRollsDialog =
-                    PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-            final int visibleRollsCheckedItem =
-                    sharedPrefVisibleRollsDialog.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
-
             // Hide some menu items depending on which filters have been applied to the roll list.
-            if (visibleRollsCheckedItem == FilmDbHelper.ROLLS_ACTIVE) menu.findItem(R.id.menu_item_activate).setVisible(false);
-            else if (visibleRollsCheckedItem == FilmDbHelper.ROLLS_ARCHIVED) menu.findItem(R.id.menu_item_archive).setVisible(false);
+            if (visibleRolls == FilmDbHelper.ROLLS_ACTIVE) menu.findItem(R.id.menu_item_activate).setVisible(false);
+            else if (visibleRolls == FilmDbHelper.ROLLS_ARCHIVED) menu.findItem(R.id.menu_item_archive).setVisible(false);
 
             return true;
         }
@@ -637,11 +644,6 @@ public class RollsFragment extends Fragment implements
         public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
             // Get the positions in the rollList of selected items
             final List<Integer> selectedItemPositions = rollAdapter.getSelectedItemPositions();
-
-            final SharedPreferences sharedPrefVisibleRollsDialog =
-                    PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-            final int visibleRollsCheckedItem =
-                    sharedPrefVisibleRollsDialog.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
 
             switch (menuItem.getItemId()) {
 
@@ -683,6 +685,12 @@ public class RollsFragment extends Fragment implements
                 case R.id.menu_item_select_all:
 
                     rollAdapter.toggleSelectionAll();
+                    mainRecyclerView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            rollAdapter.resetAnimateAll();
+                        }
+                    });
                     actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()));
                     // Set the edit item visibility to false because all rolls are selected.
                     actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(false);
@@ -691,8 +699,9 @@ public class RollsFragment extends Fragment implements
                 case R.id.menu_item_edit:
 
                     // Get the first of the selected rolls (only one should be selected anyway)
+                    // Finish action mode if the user clicked ok when editing the roll ->
+                    // this is done in onActivityResult().
                     showEditRollDialog(selectedItemPositions.get(0));
-                    actionMode.finish();
                     return true;
 
                 case R.id.menu_item_archive:
@@ -702,7 +711,7 @@ public class RollsFragment extends Fragment implements
                         final Roll roll = rollList.get(position);
                         roll.setArchived(true);
                         database.updateRoll(roll);
-                        if (visibleRollsCheckedItem == FilmDbHelper.ROLLS_ACTIVE) {
+                        if (visibleRolls == FilmDbHelper.ROLLS_ACTIVE) {
                             rollList.remove(position);
                             rollAdapter.notifyItemRemoved(position);
                         }
@@ -719,7 +728,7 @@ public class RollsFragment extends Fragment implements
                         final Roll roll = rollList.get(position);
                         roll.setArchived(false);
                         database.updateRoll(roll);
-                        if (visibleRollsCheckedItem == FilmDbHelper.ROLLS_ARCHIVED) {
+                        if (visibleRolls == FilmDbHelper.ROLLS_ARCHIVED) {
                             rollList.remove(position);
                             rollAdapter.notifyItemRemoved(position);
                         }
@@ -743,7 +752,12 @@ public class RollsFragment extends Fragment implements
         public void onDestroyActionMode(ActionMode mode) {
             rollAdapter.clearSelections();
             actionMode = null;
-            rollAdapter.notifyItemRangeChanged(0, rollAdapter.getItemCount());
+            mainRecyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    rollAdapter.resetAnimationIndex();
+                }
+            });
             // Return the status bar to its original color before action mode.
             Utilities.setStatusBarColor(getActivity(), Utilities.getSecondaryUiColor(getActivity()));
             // Make the floating action bar visible again since action mode is exited.

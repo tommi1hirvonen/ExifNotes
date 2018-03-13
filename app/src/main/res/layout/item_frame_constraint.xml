@@ -18,7 +18,7 @@
         android:layout_height="match_parent"
         android:id="@+id/grey_background"
         android:visibility="visible"
-        android:background="#20808080"
+        android:background="@color/background_selected"
         />
 
     <ImageView
@@ -38,8 +38,8 @@
         android:alpha="0.7"
         android:gravity="center"
         android:text="@string/Text"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:textSize="28sp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textSize="26sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
         app:layout_constraintEnd_toEndOf="@+id/background_frame"
         app:layout_constraintStart_toStartOf="@+id/guideline0"

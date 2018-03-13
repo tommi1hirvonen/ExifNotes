@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="primary_color">#ef6c00</color>
-    <color name="secondary_color">#e65100</color>
+    <color name="primary_color">#00838F</color>
+    <color name="secondary_color">#006064</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="grey">#757575</color>
@@ -13,5 +13,6 @@
     <color name="background_frame_light_grey">#D8D8D8</color>
     <color name="near_white">#fafafa</color>
     <color name="checkbox">#009788</color>
+    <color name="background_selected">#20808080</color>
 
 </resources>

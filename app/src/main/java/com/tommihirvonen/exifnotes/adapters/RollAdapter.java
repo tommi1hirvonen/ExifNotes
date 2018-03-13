@@ -1,15 +1,15 @@
 package com.tommihirvonen.exifnotes.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.datastructures.Roll;
@@ -62,32 +62,57 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
     private SparseBooleanArray selectedItems;
 
     /**
+     * Used to pass the selected item's position to onBindViewHolder(),
+     * so that animations are started only when the item is actually selected.
+     */
+    private int currentSelectedIndex = -1;
+
+    /**
+     * Helper boolean used to indicate when all item selections are being undone.
+     */
+    private boolean reverseAllAnimations = false;
+
+    /**
+     * Helper boolean used to indicate when all items are being selected.
+     */
+    private boolean animateAll = false;
+
+    /**
+     * Helper array to keep track of animation statuses.
+     */
+    private SparseBooleanArray animationItemsIndex;
+
+    /**
      * Package-private ViewHolder class which can be recycled
      * for better performance and memory management.
      * All common view elements for all items are initialized here.
      */
     class ViewHolder extends RecyclerView.ViewHolder {
-        LinearLayout linearLayout;
+        ConstraintLayout layout;
         TextView nameTextView;
         TextView dateTextView;
         TextView noteTextView;
         TextView photosTextView;
         TextView cameraTextView;
+        ImageView checkBox;
+        View selectedBackground;
         ViewHolder(View itemView) {
             super(itemView);
-            linearLayout = itemView.findViewById(R.id.item_roll_layout);
+            layout = itemView.findViewById(R.id.item_roll_layout);
             nameTextView = itemView.findViewById(R.id.tv_roll_name);
             dateTextView = itemView.findViewById(R.id.tv_roll_date);
             noteTextView = itemView.findViewById(R.id.tv_roll_note);
             photosTextView = itemView.findViewById(R.id.tv_photos);
             cameraTextView = itemView.findViewById(R.id.tv_camera);
-            linearLayout.setOnClickListener(new View.OnClickListener() {
+            checkBox = itemView.findViewById(R.id.checkbox);
+            selectedBackground = itemView.findViewById(R.id.grey_background);
+            layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     listener.onItemClick(getAdapterPosition());
                 }
             });
-            linearLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            layout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     listener.onItemLongClick(getAdapterPosition());
@@ -109,7 +134,12 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
         this.rollList = rolls;
         this.listener = listener;
         this.database = FilmDbHelper.getInstance(context);
-        selectedItems = new SparseBooleanArray();
+        this.selectedItems = new SparseBooleanArray();
+        this.animationItemsIndex = new SparseBooleanArray();
+        // Used to make the RecyclerView perform better and to make our custom animations
+        // work more reliably. Now we can use notifyDataSetChanged(), which works well
+        // with our custom animations.
+        setHasStableIds(true);
     }
 
     /**
@@ -121,7 +151,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      */
     @Override
     public RollAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_roll, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_roll_constraint, parent, false);
         return new ViewHolder(view);
     }
 
@@ -161,30 +191,63 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             final float heavyFade = 0.4f;
 
 
-            // If the roll is archived, fade the text somewhat and apply a slightly grey background.
+            // If the roll is archived, fade the text somewhat
             if (roll.getArchived()) {
                 holder.nameTextView.setAlpha(heavyFade);
                 holder.dateTextView.setAlpha(moderateFade);
                 holder.noteTextView.setAlpha(moderateFade);
                 holder.photosTextView.setAlpha(moderateFade);
                 holder.cameraTextView.setAlpha(moderateFade);
-                holder.linearLayout.setBackgroundColor(0x15000000);
             }
-            // If the roll is active, apply the default alphas (background alpha is 0.0).
+            // If the roll is active, apply the default alphas
             else {
                 holder.nameTextView.setAlpha(lightFade);
                 holder.dateTextView.setAlpha(noFade);
                 holder.noteTextView.setAlpha(noFade);
                 holder.photosTextView.setAlpha(noFade);
                 holder.cameraTextView.setAlpha(noFade);
-                holder.linearLayout.setBackgroundColor(0x00000000);
             }
 
-            // Set the selection status by later overriding the background color
-            if (selectedItems.get(position, false)) {
-                holder.linearLayout.setBackgroundColor(0x3500838F);
-            }
+            holder.itemView.setActivated(selectedItems.get(position, false));
+            applyCheckBoxAnimation(holder, position);
+        }
+    }
 
+    private void applyCheckBoxAnimation(ViewHolder holder, int position) {
+        if (selectedItems.get(position, false)) {
+            // First set the check box to be visible. This is the state it will be left in after
+            // the animation has finished.
+            holder.checkBox.setVisibility(View.VISIBLE);
+            // Also set a slightly grey background to be visible.
+            holder.selectedBackground.setVisibility(View.VISIBLE);
+
+            // If the item is selected or all items are being selected and the item was not previously selected
+            if (currentSelectedIndex == position || animateAll && !animationItemsIndex.get(position, false)) {
+                Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_up);
+                holder.checkBox.startAnimation(animation);
+
+                Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_in);
+                holder.selectedBackground.startAnimation(animation1);
+
+                resetCurrentSelectedIndex();
+            }
+        } else {
+            // First set the check box to be gone. This is the state it will be left in after
+            // the animation has finished.
+            holder.checkBox.setVisibility(View.GONE);
+            // Hide the slightly grey background
+            holder.selectedBackground.setVisibility(View.GONE);
+
+            // If the item is deselected or all selections are undone and the item was previously selected
+            if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex.get(position, false)) {
+                Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_down);
+                holder.checkBox.startAnimation(animation);
+
+                Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+                holder.selectedBackground.startAnimation(animation1);
+
+                resetCurrentSelectedIndex();
+            }
         }
     }
 
@@ -213,29 +276,62 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      * @param position position of the item
      */
     public void toggleSelection(int position) {
+        currentSelectedIndex = position;
         if (selectedItems.get(position, false)) {
             selectedItems.delete(position);
+            animationItemsIndex.delete(position);
         } else {
             selectedItems.put(position, true);
+            animationItemsIndex.put(position, true);
         }
-        notifyItemChanged(position);
+        notifyDataSetChanged();
     }
 
     /**
      * Selects all items
      */
     public void toggleSelectionAll() {
+        resetCurrentSelectedIndex();
         selectedItems.clear();
+        animateAll = true;
         for (int i = 0; i < getItemCount(); ++i) selectedItems.put(i, true);
-        notifyItemRangeChanged(0, getItemCount());
+        notifyDataSetChanged();
     }
 
     /**
      * Clears all selections
      */
     public void clearSelections() {
+        reverseAllAnimations = true;
         selectedItems.clear();
-        notifyItemRangeChanged(0, getItemCount());
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Called in RollsFragment after all selections have been undone.
+     */
+    public void resetAnimationIndex() {
+        reverseAllAnimations = false;
+        animationItemsIndex.clear();
+    }
+
+    /**
+     * Called in RollsFragment after all items have been selected using toggleSelectionAll().
+     * Sets animateAll back to false and updates animationItemsIndex to be in line with selectedItems.
+     */
+    public void resetAnimateAll() {
+        animateAll = false;
+        for (int i = 0; i < getItemCount(); ++i) {
+            animationItemsIndex.put(i, true);
+        }
+    }
+
+    /**
+     * When the selection/deselection action has been consumed, the index of the (de)selected
+     * item is reset.
+     */
+    private void resetCurrentSelectedIndex() {
+        currentSelectedIndex = -1;
     }
 
     /**
@@ -254,6 +350,17 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
         final List<Integer> items = new ArrayList<>();
         for (int i = 0; i < selectedItems.size(); ++i) items.add(selectedItems.keyAt(i));
         return items;
+    }
+
+    /**
+     * Implemented because hasStableIds has been set to true.
+     *
+     * @param position position of the item
+     * @return stable id
+     */
+    @Override
+    public long getItemId(int position) {
+        return rollList.get(position).getId();
     }
 
 }
