@@ -25,7 +25,7 @@
             android:title="@string/UIColorTitle"
             android:entries="@array/UIColorOptions"
             android:entryValues="@array/UIColorOptionsData"
-            android:defaultValue="#ef6c00,#e65100"
+            android:defaultValue="#00838F,#006064"
             />
 
         <ListPreference

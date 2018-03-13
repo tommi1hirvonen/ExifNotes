@@ -256,7 +256,7 @@ public class Utilities {
      */
     private static List<String> getUiColorList(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String UIColor = prefs.getString("UIColor", "#ef6c00,#e65100");
+        String UIColor = prefs.getString("UIColor", "#00838F,#006064");
         return Arrays.asList(UIColor.split(","));
     }
 
