@@ -96,6 +96,10 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
         this.gearList = gearList;
         this.context = context;
         this.database = FilmDbHelper.getInstance(context);
+        // Used to make the RecyclerView perform better and to make our custom animations
+        // work more reliably. Now we can use notifyDataSetChanged(), which works well
+        // with possible custom animations.
+        setHasStableIds(true);
     }
 
     /**
@@ -159,6 +163,17 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return gearList.size();
+    }
+
+    /**
+     * Implemented because hasStableIds has been set to true.
+     *
+     * @param position position of the item
+     * @return stable id
+     */
+    @Override
+    public long getItemId(int position) {
+        return gearList.get(position).getId();
     }
 
 }
