@@ -453,8 +453,16 @@ public class FramesFragment extends Fragment implements
             // Share
             case 98:
 
-                Intent shareIntent = getShareRollIntent();
-                startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.Share)));
+                // Method getShareRollIntent() may take a while to run since it
+                // generates the files that will be shared.
+                // -> Run the code on a new thread, which lets the UI thread to finish menu animations.
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent shareIntent = getShareRollIntent();
+                        startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.Share)));
+                    }
+                }).start();
 
                 break;
 
