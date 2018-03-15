@@ -23,16 +23,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ShareActionProvider;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -54,6 +50,7 @@ import com.tommihirvonen.exifnotes.activities.MainActivity;
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
+import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.dialogs.DirectoryChooserDialog;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
@@ -139,13 +136,6 @@ public class FramesFragment extends Fragment implements
      * Adapter to adapt frameList to mainRecyclerView
      */
     private FrameAdapter frameAdapter;
-
-    /**
-     * Reference to the ShareActionProvider. Provides services to share
-     * the text file containing ExifTool commands for this roll and the CSV file
-     * containing details for all frames on this roll.
-     */
-    private ShareActionProvider shareActionProvider;
 
     /**
      * Database id of this roll
@@ -292,9 +282,10 @@ public class FramesFragment extends Fragment implements
 
         final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
+            Roll roll = database.getRoll(rollId);
             //noinspection ConstantConditions
-            actionBar.setTitle(database.getRoll(rollId).getName());
-            Camera camera = database.getCamera(database.getRoll(rollId).getCameraId());
+            actionBar.setTitle(roll.getName());
+            Camera camera = database.getCamera(roll.getCameraId());
             //noinspection ConstantConditions
             actionBar.setSubtitle(camera.getMake() + " " + camera.getModel());
             //noinspection ConstantConditions
@@ -354,19 +345,10 @@ public class FramesFragment extends Fragment implements
         filterItem.setVisible(false);
 
         //Add the menu item for export
-        MenuItem shareItem = menu.add(Menu.NONE, 98, Menu.NONE, R.string.ExportOrShare);
+        menu.add(Menu.NONE, 98, Menu.NONE, R.string.ExportOrShare);
 
         //Add another menu item for exporting to device using inbuilt directory chooser
         menu.add(Menu.NONE, 99, Menu.NONE, R.string.ExportToDevice);
-
-        if (shareItem != null) {
-            //Link the Intent to be shared to the ShareActionProvider
-            shareActionProvider = new ShareActionProvider(getActivity());
-            shareActionProvider.setShareIntent(setShareIntentExportRoll());
-        }
-
-        //Link the ShareActionProvider to the menu item
-        MenuItemCompat.setActionProvider(shareItem, shareActionProvider);
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -466,6 +448,14 @@ public class FramesFragment extends Fragment implements
                 Intent mapsActivityIntent = new Intent(getActivity(), MapsActivity.class);
                 mapsActivityIntent.putExtra(ROLL_ID_EXTRA_MESSAGE, rollId);
                 startActivityForResult(mapsActivityIntent, SHOW_ON_MAP);
+                break;
+
+            // Share
+            case 98:
+
+                Intent shareIntent = getShareRollIntent();
+                startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.Share)));
+
                 break;
 
             //Export to device
@@ -569,7 +559,7 @@ public class FramesFragment extends Fragment implements
      *
      * @return The intent to be shared.
      */
-    private Intent setShareIntentExportRoll() {
+    private Intent getShareRollIntent() {
 
         //Replace illegal characters from the roll name to make it a valid file name.
         String rollName = Utilities.replaceIllegalChars(database.getRoll(rollId).getName());
@@ -614,8 +604,8 @@ public class FramesFragment extends Fragment implements
 
             //Create an array with the file names
             List<String> filesToSend = new ArrayList<>();
-            filesToSend.add(getActivity().getExternalFilesDir(null) + "/" + fileNameCsv);
-            filesToSend.add(getActivity().getExternalFilesDir(null) + "/" + fileNameExifToolCmds);
+            filesToSend.add(externalStorageDir + "/" + fileNameCsv);
+            filesToSend.add(externalStorageDir + "/" + fileNameExifToolCmds);
 
             //Create an ArrayList of files.
             //NOTE: putParcelableArrayListExtra requires an ArrayList as its argument
@@ -808,8 +798,7 @@ public class FramesFragment extends Fragment implements
                         // When the new frame is added jump to view the added entry
                         int pos = frameList.indexOf(frame);
                         if (pos < frameAdapter.getItemCount()) mainRecyclerView.scrollToPosition(pos);
-                        // The text to share has changed and we need to update
-                        shareActionProvider.setShareIntent(setShareIntentExportRoll());
+
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After cancel do nothing
@@ -834,8 +823,6 @@ public class FramesFragment extends Fragment implements
                         frameAdapter.notifyItemChanged(oldPosition);
                         frameAdapter.notifyItemMoved(oldPosition, newPosition);
 
-                        // The text to share has changed and we need to update
-                        shareActionProvider.setShareIntent(setShareIntentExportRoll());
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After cancel do nothing
@@ -1018,7 +1005,6 @@ public class FramesFragment extends Fragment implements
                                 frameAdapter.notifyItemRemoved(framePosition);
                             }
                             if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                            shareActionProvider.setShareIntent(setShareIntentExportRoll());
                             mode.finish();
                         }
                     });
@@ -1219,10 +1205,6 @@ public class FramesFragment extends Fragment implements
 
         int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
-
-        //The user might have changed the export settings. Update the ShareActionProvider.
-        if (shareActionProvider != null)
-            shareActionProvider.setShareIntent(setShareIntentExportRoll());
 
         // If action mode is enabled, color the status bar dark grey.
         if (frameAdapter.getSelectedItemCount() > 0 || actionMode != null) {

@@ -217,6 +217,7 @@
     <string name="ExportToDevice">Export files to storage</string>
     <string name="ErrorExporting">An error occurred while exporting the files.</string>
     <string name="ExportedFilesTo">Exported file(s) to:</string>
+    <string name="Share">Share</string>
 
     <!--GearActivity-->
     <string name="Gear">Gear</string>
