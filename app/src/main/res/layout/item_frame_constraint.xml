@@ -23,12 +23,13 @@
 
     <ImageView
         android:id="@+id/background_frame"
-        android:layout_width="0dp"
-        android:layout_height="76dp"
-        android:layout_alignParentLeft="true"
         android:src="@drawable/background_frame_small"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline1"
         app:layout_constraintStart_toStartOf="@+id/guideline0"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:ignore="ContentDescription,RtlHardcoded" />
 
     <TextView
@@ -52,7 +53,6 @@
         android:layout_width="0dp"
         android:layout_height="24dp"
         android:gravity="center_vertical"
-        android:paddingLeft="3dp"
         android:text="@string/Text"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="15sp"
@@ -68,7 +68,6 @@
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
-        android:paddingLeft="3dp"
         android:scrollHorizontally="true"
         android:text="@string/Text"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -86,7 +85,6 @@
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
-        android:paddingLeft="3dp"
         android:scrollHorizontally="true"
         android:text="@string/Text"
         android:textAppearance="?android:attr/textAppearanceMedium"
