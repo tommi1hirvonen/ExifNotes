@@ -102,6 +102,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
 
         database = FilmDbHelper.getInstance(getActivity());
         lensList = database.getAllLenses();
+        Utilities.sortGearList(lensList);
 
         final View view = layoutInflater.inflate(R.layout.lenses_fragment, container, false);
 

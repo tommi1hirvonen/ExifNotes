@@ -101,6 +101,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
 
         database = FilmDbHelper.getInstance(getActivity());
         filterList = database.getAllFilters();
+        Utilities.sortGearList(filterList);
 
         final View view = layoutInflater.inflate(R.layout.filters_fragment, container, false);
 

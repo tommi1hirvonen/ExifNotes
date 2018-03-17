@@ -7,16 +7,26 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.9.5\nCopyright 2018 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.10.0\nCopyright 2018 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -Added ability to archive film rolls by long pressing on rolls and marking them as archived (or active to return them to an active state). Visible rolls can be filtered in the film roll view by pressing on the filter icon (only active/archived rolls or all rolls).\n
-        -Dialog prompting to go to settings to enable GPS is only shown, if location updates are enabled in the app\'s settings.\n
+        -Select multiple frames or rolls by long pressing on a frame or roll.\n
+        -Batch edit frames by selecting multiple frames and then pressing the edit icon. Batch edit options so far are frame count and location.\n
+        -UI improvements\n
+        -Performance improvements\n
+        -Bug fixes\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.10.0 2018-03-17:\n
+        -Select multiple frames or rolls by long pressing on a frame or roll.\n
+        -Batch edit frames by selecting multiple frames and then pressing the edit icon. Batch edit options so far are frame count and location.\n
+        -UI improvements\n
+        -Performance improvements\n
+        -Bug fixes\n
         \n
         v1.9.5 2018-02-18:\n
         -Added ability to archive film rolls by long pressing on rolls and marking them as archived (or active to return them to an active state). Visible rolls can be filtered in the film roll view by pressing on the filter icon (only active/archived rolls or all rolls).\n

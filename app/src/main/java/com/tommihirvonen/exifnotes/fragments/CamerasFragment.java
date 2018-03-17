@@ -101,6 +101,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener {
 
         database = FilmDbHelper.getInstance(getActivity());
         cameraList = database.getAllCameras();
+        Utilities.sortGearList(cameraList);
 
         final View view = layoutInflater.inflate(R.layout.cameras_fragment, container, false);
 
