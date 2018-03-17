@@ -20,6 +20,15 @@
 
     <!-- List whose dataset is defined in code with an adapter -->
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rolls_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="80dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"
+        />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
@@ -32,14 +41,5 @@
         app:pressedTranslationZ="12dp"
         app:backgroundTint="@color/secondary_color"
         android:src="@drawable/ic_add_a_camera_roll_white_48dp" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rolls_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="80dp"
-        android:clipToPadding="false"
-        android:scrollbars="vertical"
-        />
 
 </FrameLayout>

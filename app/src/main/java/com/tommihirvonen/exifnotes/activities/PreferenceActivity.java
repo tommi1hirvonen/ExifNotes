@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatCheckedTextView;
 import android.support.v7.widget.AppCompatEditText;
@@ -115,7 +116,10 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         actionbar.setBackgroundColor(primaryColor);
         actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
         // And even this shit! Since API 23 (M) this is needed to render the back button white.
-        actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_ab_back_material));
+        // Do only for M and up, on older devices this will cause Resources$NotFoundException.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_ab_back_material));
+        }
         if (actionbar.getNavigationIcon() != null) {
             actionbar.getNavigationIcon().mutate().setColorFilter(
                     ContextCompat.getColor(getBaseContext(), R.color.white), PorterDuff.Mode.SRC_IN);
