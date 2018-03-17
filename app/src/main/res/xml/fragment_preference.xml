@@ -20,13 +20,10 @@
             android:defaultValue="LIGHT"
             />
 
-        <ListPreference
+        <com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference
             android:key="UIColor"
             android:title="@string/UIColorTitle"
-            android:entries="@array/UIColorOptions"
-            android:entryValues="@array/UIColorOptionsData"
-            android:defaultValue="#00838F,#006064"
-            />
+            android:defaultValue="#00838F,#006064"/>
 
         <ListPreference
             android:key="FilesToExport"

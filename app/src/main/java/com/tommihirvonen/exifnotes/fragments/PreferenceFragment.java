@@ -14,6 +14,7 @@ import com.tommihirvonen.exifnotes.dialogs.FileChooserDialog;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
+import com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.FileInputStream;
@@ -48,8 +49,8 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         Preference appTheme = findPreference(PreferenceConstants.KEY_APP_THEME);
         appTheme.setSummary(((ListPreference) appTheme).getEntry());
 
-        Preference UIColor = findPreference(PreferenceConstants.KEY_UI_COLOR);
-        UIColor.setSummary(((ListPreference) UIColor).getEntry());
+        UIColorDialogPreference UIColor = (UIColorDialogPreference) findPreference(PreferenceConstants.KEY_UI_COLOR);
+        UIColor.setSummary(UIColor.getSelectedColorName());
 
         Preference exportDatabase = findPreference(PreferenceConstants.KEY_EXPORT_DATABASE);
         exportDatabase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -202,8 +203,6 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         // Set summaries for the list preferences
         Preference appTheme = findPreference(PreferenceConstants.KEY_APP_THEME);
         appTheme.setSummary(((ListPreference) appTheme).getEntry());
-        Preference UIColor = findPreference(PreferenceConstants.KEY_UI_COLOR);
-        UIColor.setSummary(((ListPreference) UIColor).getEntry());
 
         if (key.equals(PreferenceConstants.KEY_APP_THEME)) {
             getActivity().recreate();
