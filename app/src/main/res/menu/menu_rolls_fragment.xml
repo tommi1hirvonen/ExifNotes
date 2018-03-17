@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:title="@string/VisibleRolls"
+        android:id="@+id/menu_item_filter"
+        android:icon="@drawable/ic_filter_list_white_48dp"
+        app:showAsAction="ifRoom">
+    </item>
+
+    <item
+        android:title="@string/SortBy"
+        android:id="@+id/menu_item_sort"
+        android:icon="@drawable/ic_sort_white_48dp"
+        app:showAsAction="ifRoom">
+    </item>
+
+    <item
+        android:id="@+id/menu_item_gear"
+        android:title="@string/Gear"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/menu_item_preferences"
+        android:title="@string/Preferences"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/menu_item_about"
+        android:title="@string/About"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/menu_item_help"
+        android:title="@string/Help"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/menu_item_show_on_map"
+        android:title="@string/ShowOnMap"
+        app:showAsAction="never"
+        />
+
+</menu>

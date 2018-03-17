@@ -333,24 +333,15 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
-     * Adds two share items to the options menu for exporting the roll data.
+     * Inflate the action bar many layout for FramesFragment.
      *
-     * @param menu the menu to which the items are added
-     * @param inflater not used
+     * @param menu the menu to be inflated
+     * @param inflater the MenuInflater from Activity
      */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
-        MenuItem filterItem = menu.findItem(R.id.menu_item_filter);
-        filterItem.setVisible(false);
-
-        //Add the menu item for export
-        menu.add(Menu.NONE, 98, Menu.NONE, R.string.ExportOrShare);
-
-        //Add another menu item for exporting to device using inbuilt directory chooser
-        menu.add(Menu.NONE, 99, Menu.NONE, R.string.ExportToDevice);
-
-        super.onCreateOptionsMenu(menu, inflater);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.menu_frames_fragment, menu);
     }
 
     /**
@@ -398,7 +389,7 @@ public class FramesFragment extends Fragment implements
 
                 break;
 
-            case R.id.menu_item_lenses:
+            case R.id.menu_item_gear:
                 Intent gearActivityIntent = new Intent(getActivity(), GearActivity.class);
                 startActivity(gearActivityIntent);
 
@@ -451,7 +442,7 @@ public class FramesFragment extends Fragment implements
                 break;
 
             // Share
-            case 98:
+            case R.id.menu_item_share:
 
                 // Method getShareRollIntent() may take a while to run since it
                 // generates the files that will be shared.
@@ -467,7 +458,7 @@ public class FramesFragment extends Fragment implements
                 break;
 
             //Export to device
-            case 99:
+            case R.id.menu_item_export:
 
                 DirectoryChooserDialog dirChooserDialog = DirectoryChooserDialog.newInstance(
                         new DirectoryChooserDialog.OnChosenDirectoryListener() {

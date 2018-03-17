@@ -253,6 +253,7 @@
     <string name="AddressNotFound">Address not found</string>
     <string name="NoLocation">No location was set!</string>
     <string name="Search">Search</string>
+    <string name="SearchWEllipsis">Search…</string>
 
     <!--MainActivity-->
     <string name="MainActivityTitle">Film rolls</string>
@@ -395,12 +396,12 @@
     <string name="NameNoColon">Name</string>
 
     <!--menu_context_delete_edit_archive.xml-->
-    <string name="Archive">Mark as archived</string>
+    <string name="Archive">Archive</string>
 
     <!--menu_context_delete_edit_activate.xml-->
-    <string name="Activate">Mark as active</string>
+    <string name="Unarchive">Unarchive</string>
 
-    <!--menu_main.xml-->
+
     <string name="About">About</string>
     <string name="SortBy">Sort by</string>
     <string name="FrameCountNoColon">Frame count</string>

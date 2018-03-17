@@ -129,20 +129,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Inflate the main menu.
-     *
-     * @param menu the menu to be inflated
-     * @return super class to execute code for the menu to work properly.
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    /**
      * When resuming we have to change the UI colours again.
      */
     @Override

@@ -21,6 +21,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -295,6 +296,18 @@ public class RollsFragment extends Fragment implements
     }
 
     /**
+     * Inflate the action bar many layout for RollsFragment.
+     *
+     * @param menu the menu to be inflated
+     * @param inflater the MenuInflater from Activity
+     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.menu_rolls_fragment, menu);
+    }
+
+    /**
      * Handle events when the user selects an action from the options menu.
      *
      * @param item selected menu item.
@@ -333,7 +346,7 @@ public class RollsFragment extends Fragment implements
                 sortDialog.show();
                 break;
 
-            case R.id.menu_item_lenses:
+            case R.id.menu_item_gear:
 
                 Intent gearActivityIntent = new Intent(getActivity(), GearActivity.class);
                 startActivity(gearActivityIntent);
@@ -612,11 +625,13 @@ public class RollsFragment extends Fragment implements
             // Hide the floating action button so no new rolls can be added while in action mode.
             floatingActionButton.hide();
 
-            actionMode.getMenuInflater().inflate(R.menu.menu_action_mode_rolls, menu);
-
-            // Hide some menu items depending on which filters have been applied to the roll list.
-            if (visibleRolls == FilmDbHelper.ROLLS_ACTIVE) menu.findItem(R.id.menu_item_activate).setVisible(false);
-            else if (visibleRolls == FilmDbHelper.ROLLS_ARCHIVED) menu.findItem(R.id.menu_item_archive).setVisible(false);
+            // Use different action mode menu layouts depending on which rolls are shown.
+            if (visibleRolls == FilmDbHelper.ROLLS_ACTIVE)
+                actionMode.getMenuInflater().inflate(R.menu.menu_action_mode_rolls_active, menu);
+            else if (visibleRolls == FilmDbHelper.ROLLS_ARCHIVED)
+                actionMode.getMenuInflater().inflate(R.menu.menu_action_mode_rolls_archived, menu);
+            else
+                actionMode.getMenuInflater().inflate(R.menu.menu_action_mode_rolls_all, menu);
 
             return true;
         }
@@ -721,7 +736,7 @@ public class RollsFragment extends Fragment implements
                     Toast.makeText(getActivity(), getResources().getString(R.string.RollsArchived), Toast.LENGTH_SHORT).show();
                     return true;
 
-                case R.id.menu_item_activate:
+                case R.id.menu_item_unarchive:
 
                     for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
                         final int position = selectedItemPositions.get(i);

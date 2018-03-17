@@ -188,6 +188,9 @@ public class LocationPickActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.menu_location_pick, menu);
         // Retrieve the SearchView and plug it into SearchManager
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        // The SearchView's query hint is localization dependant by default.
+        // Replace it with the English text.
+        searchView.setQueryHint(getString(R.string.SearchWEllipsis));
         searchView.setOnQueryTextListener(this);
         return super.onCreateOptionsMenu(menu);
     }
