@@ -12,11 +12,9 @@
             android:defaultValue="true"
             />
 
-        <ListPreference
+        <com.tommihirvonen.exifnotes.utilities.AppThemeDialogPreference
             android:key="AppTheme"
             android:title="@string/AppThemeTitle"
-            android:entries="@array/AppThemeOptions"
-            android:entryValues="@array/AppThemeData"
             android:defaultValue="LIGHT"
             />
 

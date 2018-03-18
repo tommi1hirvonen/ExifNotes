@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="10dp"
+    android:gravity="center_horizontal">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/app_theme_light"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/circle_white"
+        android:contentDescription="@string/Light"
+        android:background="?android:attr/selectableItemBackground"
+        android:layout_margin="10dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:scaleX="0.7"
+        android:scaleY="0.7"
+        android:id="@+id/checkbox_light"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_done_white_48dp"
+        android:contentDescription="@string/Blue"
+        android:layout_margin="10dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/app_theme_dark"
+        android:layout_toRightOf="@id/app_theme_light"
+        android:src="@drawable/circle_grey"
+        android:contentDescription="@string/Dark"
+        android:background="?android:attr/selectableItemBackground"
+        android:layout_margin="10dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:scaleX="0.7"
+        android:scaleY="0.7"
+        android:id="@+id/checkbox_dark"
+        android:layout_toRightOf="@id/app_theme_light"
+        android:src="@drawable/ic_done_white_48dp"
+        android:contentDescription="@string/Dark"
+        android:layout_margin="10dp" />
+
+</RelativeLayout>

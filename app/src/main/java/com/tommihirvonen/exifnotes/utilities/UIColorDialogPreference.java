@@ -68,7 +68,7 @@ public class UIColorDialogPreference extends DialogPreference {
      */
     public UIColorDialogPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setDialogLayoutResource(R.layout.ui_color_dialog_preference_layout);
+        setDialogLayoutResource(R.layout.dialog_preference_ui_color);
         // Get color option names
         uiColorOptions = Arrays.asList(getContext().getResources().getStringArray(R.array.UIColorOptions));
         // Get color option data (color codes)
