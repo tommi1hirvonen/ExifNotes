@@ -24,7 +24,7 @@
         android:scaleY="0.7"
         android:id="@+id/checkbox_light"
         android:layout_alignParentTop="true"
-        android:src="@drawable/ic_done_white_48dp"
+        android:src="@drawable/ic_done_black_48dp"
         android:contentDescription="@string/Blue"
         android:layout_margin="10dp" />
 

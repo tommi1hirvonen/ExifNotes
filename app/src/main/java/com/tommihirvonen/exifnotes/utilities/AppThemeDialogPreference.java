@@ -15,16 +15,6 @@ import com.tommihirvonen.exifnotes.R;
 public class AppThemeDialogPreference extends DialogPreference {
 
     /**
-     * String set as the preference value if the light app theme was set
-     */
-    private static final String LIGHT = "LIGHT";
-
-    /**
-     * String set as the preference value if the dark app theme was set
-     */
-    private static final String DARK = "DARK";
-
-    /**
      * References to the checkbox views.
      */
     private ImageView checkboxLight;
@@ -71,14 +61,14 @@ public class AppThemeDialogPreference extends DialogPreference {
     @Override
     protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
         if (restorePersistedValue) {
-            selectedTheme = getPersistedString(LIGHT); // Light theme by default
+            selectedTheme = getPersistedString(PreferenceConstants.VALUE_APP_THEME_LIGHT); // Light theme by default
         } else {
             selectedTheme = (String) defaultValue;
             persistString(selectedTheme);
         }
         // Safety check - if the selected theme doesn't equal any known themes, use the default theme.
-        if (!selectedTheme.equals(LIGHT) && !selectedTheme.equals(DARK)) {
-            selectedTheme = LIGHT;
+        if (!selectedTheme.equals(PreferenceConstants.VALUE_APP_THEME_LIGHT) && !selectedTheme.equals(PreferenceConstants.VALUE_APP_THEME_DARK)) {
+            selectedTheme = PreferenceConstants.VALUE_APP_THEME_LIGHT;
         }
         // Set the initial value so that if the user cancels the dialog,
         // this initial value can be recovered and the selected value can be reset.
@@ -146,10 +136,10 @@ public class AppThemeDialogPreference extends DialogPreference {
         checkboxLight.setVisibility(View.GONE);
         checkboxDark.setVisibility(View.GONE);
         switch (selectedTheme) {
-            case LIGHT:
+            case PreferenceConstants.VALUE_APP_THEME_LIGHT:
                 checkboxLight.setVisibility(View.VISIBLE);
                 break;
-            case DARK:
+            case PreferenceConstants.VALUE_APP_THEME_DARK:
                 checkboxDark.setVisibility(View.VISIBLE);
                 break;
             default:
@@ -166,10 +156,10 @@ public class AppThemeDialogPreference extends DialogPreference {
             final int id = view.getId();
             switch (id) {
                 case R.id.app_theme_light:
-                    selectedTheme = LIGHT;
+                    selectedTheme = PreferenceConstants.VALUE_APP_THEME_LIGHT;
                     break;
                 case R.id.app_theme_dark:
-                    selectedTheme = DARK;
+                    selectedTheme = PreferenceConstants.VALUE_APP_THEME_DARK;
                     break;
                 default:
                     break;
