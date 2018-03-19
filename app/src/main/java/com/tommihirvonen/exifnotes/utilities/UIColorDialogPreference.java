@@ -19,16 +19,6 @@ import java.util.List;
 public class UIColorDialogPreference extends DialogPreference {
 
     /**
-     * Name (first) and data (second) for the selected UI color
-     */
-    private Pair<String, String> selectedColor;
-
-    /**
-     * Name (first) and data (second)
-     */
-    private Pair<String, String> initialColor;
-
-    /**
      * Names for the UI color options
      */
     private List<String> uiColorOptions;
@@ -81,7 +71,7 @@ public class UIColorDialogPreference extends DialogPreference {
      * @return the name of the selected UI color
      */
     public String getSelectedColorName() {
-        return selectedColor.first;
+        return uiColorOptions.get(index);
     }
 
     /* Use onCreateDialogView() if you want to create the layout programmatically.
@@ -102,8 +92,7 @@ public class UIColorDialogPreference extends DialogPreference {
      */
     @Override
     protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        String selectedColorName, selectedColorData;
-
+        final String selectedColorData;
         // Get the persisted value if the value has been set (restorePersistedValue = true).
         if (restorePersistedValue) {
             selectedColorData= getPersistedString(uiColorOptionsData.get(1)); // Cyan data by default (index = 1)
@@ -115,24 +104,12 @@ public class UIColorDialogPreference extends DialogPreference {
         }
         // Get the index value from the list of UI color data options.
         index = uiColorOptionsData.indexOf(selectedColorData);
-
         // Safety check - if the index < 0 (selectedColorData was not found in uiColorOptionsData)
         // or the index is greater than the size of uiColorOptionsData, default to a value we
         // know exists and set selectedColorData accordingly.
         if (index < 0 || index >= uiColorOptionsData.size()) {
             index = 1; // index = 1 -> cyan data
-            selectedColorData = uiColorOptionsData.get(index);
         }
-
-        // Set the selected color's name from name list.
-        selectedColorName = uiColorOptions.get(index);
-
-        // Update this class's member
-        selectedColor = Pair.create(selectedColorName, selectedColorData);
-
-        // Set the initial values so that if the user cancels the dialog,
-        // these initial values can be recovered and the selected values can be reset.
-        initialColor = selectedColor;
         initialIndex = index;
     }
 
@@ -193,18 +170,18 @@ public class UIColorDialogPreference extends DialogPreference {
     protected void onDialogClosed(boolean positiveResult) {
         super.onDialogClosed(positiveResult);
         if (positiveResult) {
-            if (callChangeListener(selectedColor.second)) {
-                // The preference was changed -> update the initial values.
+            final String selectedColorData = uiColorOptionsData.get(index);
+            final String selectedColorName = uiColorOptions.get(index);
+            if (callChangeListener(selectedColorData)) {
+                // The preference was changed -> update the initial index.
                 // If the user opens the dialog again without leaving PreferenceFragment,
                 // this step will need to be done.
-                initialColor = selectedColor;
                 initialIndex = index;
-                persistString(selectedColor.second);
-                setSummary(selectedColor.first);
+                persistString(selectedColorData);
+                setSummary(selectedColorName);
             }
         } else {
-            // Reset the selected values with the initial values.
-            selectedColor = initialColor;
+            // Reset the index with the initial index.
             index = initialIndex;
         }
     }
@@ -287,9 +264,6 @@ public class UIColorDialogPreference extends DialogPreference {
                 default:
                     break;
             }
-            final String selectedColorName = uiColorOptions.get(index);
-            final String selectedColorData = uiColorOptionsData.get(index);
-            selectedColor = Pair.create(selectedColorName, selectedColorData);
             updateCheckboxVisibility();
         }
     }
