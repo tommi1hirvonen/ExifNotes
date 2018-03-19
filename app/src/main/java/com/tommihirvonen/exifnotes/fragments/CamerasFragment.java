@@ -103,7 +103,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener {
         cameraList = database.getAllCameras();
         Utilities.sortGearList(cameraList);
 
-        final View view = layoutInflater.inflate(R.layout.cameras_fragment, container, false);
+        final View view = layoutInflater.inflate(R.layout.fragment_cameras, container, false);
 
         FloatingActionButton floatingActionButton = view.findViewById(R.id.fab_cameras);
         floatingActionButton.setOnClickListener(this);

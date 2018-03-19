@@ -189,7 +189,7 @@ public class FramesFragment extends Fragment implements
     /**
      * Private callback class which is given as an argument when the SupportActionMode is started.
      */
-    private ActionModeCallback actionModeCallback = new ActionModeCallback();
+    private final ActionModeCallback actionModeCallback = new ActionModeCallback();
 
     /**
      * Reference to the (Support)ActionMode, which is launched when a list item is long pressed.
@@ -278,7 +278,7 @@ public class FramesFragment extends Fragment implements
                              Bundle savedInstanceState) {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        final View view = layoutInflater.inflate(R.layout.frames_fragment, container, false);
+        final View view = layoutInflater.inflate(R.layout.fragment_frames, container, false);
 
         final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
@@ -983,9 +983,7 @@ public class FramesFragment extends Fragment implements
 
                     AlertDialog.Builder deleteConfirmDialog = new AlertDialog.Builder(getActivity());
                     // Separate confirm titles for one or multiple frames
-                    final String title = selectedItemPositions.size() == 1 ?
-                            String.format(getResources().getString(R.string.ConfirmFramesDeleteSingle), selectedItemPositions.size()) :
-                            String.format(getResources().getString(R.string.ConfirmFramesDelete), selectedItemPositions.size());
+                    final String title = getResources().getQuantityString(R.plurals.ConfirmFramesDelete, selectedItemPositions.size(), selectedItemPositions.size());
                     deleteConfirmDialog.setTitle(title);
                     deleteConfirmDialog.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
                         @Override
@@ -1099,7 +1097,7 @@ public class FramesFragment extends Fragment implements
                 super(context);
                 setTitle(R.string.EditFrameCountsBy);
                 @SuppressLint("InflateParams")
-                View view = getActivity().getLayoutInflater().inflate(R.layout.single_numberpicker_dialog, null);
+                View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker numberPicker = view.findViewById(R.id.number_picker);
                 numberPicker.setMaxValue(200);
                 numberPicker.setMinValue(0);

@@ -43,7 +43,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
     /**
      * Reference to the main list of Frames received from implementing class.
      */
-    private List<Frame> frameList;
+    private final List<Frame> frameList;
 
     /**
      * Reference to Activity's context. Used to get resources.
@@ -68,7 +68,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
     /**
      * Used to hold the positions of selected items in the RecyclerView.
      */
-    private SparseBooleanArray selectedItems;
+    private final SparseBooleanArray selectedItems;
 
     /**
      * Used to pass the selected item's position to onBindViewHolder(),
@@ -89,7 +89,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
     /**
      * Helper array to keep track of animation statuses.
      */
-    private SparseBooleanArray animationItemsIndex;
+    private final SparseBooleanArray animationItemsIndex;
 
     /**
      * Package-private ViewHolder class which can be recycled
@@ -97,18 +97,18 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      * All common view elements for all items are initialized here.
      */
     class ViewHolder extends RecyclerView.ViewHolder {
-        ConstraintLayout constraintLayout;
-        TextView countTextView;
-        TextView frameTextView;
-        TextView frameTextView2;
-        TextView shutterTextView;
-        TextView apertureTextView;
-        TextView noteTextView;
-        ImageView frameImageView;
-        ImageView clockImageView;
-        ImageView apertureImageView;
-        ImageView checkBox;
-        View selectedBackground;
+        final ConstraintLayout constraintLayout;
+        final TextView countTextView;
+        final TextView frameTextView;
+        final TextView frameTextView2;
+        final TextView shutterTextView;
+        final TextView apertureTextView;
+        final TextView noteTextView;
+        final ImageView frameImageView;
+        final ImageView clockImageView;
+        final ImageView apertureImageView;
+        final ImageView checkBox;
+        final View selectedBackground;
         ViewHolder(View itemView) {
             super(itemView);
             constraintLayout = itemView.findViewById(R.id.item_frame_layout);

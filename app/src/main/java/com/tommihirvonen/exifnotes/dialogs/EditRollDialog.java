@@ -135,7 +135,7 @@ public class EditRollDialog extends DialogFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
-                R.layout.roll_dialog, null);
+                R.layout.dialog_roll, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
@@ -352,7 +352,7 @@ public class EditRollDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker isoPicker = dialogView.findViewById(R.id.number_picker);
                 isoPicker.setMinValue(0);
                 isoPicker.setMaxValue(Utilities.isoValues.length-1);
@@ -406,7 +406,7 @@ public class EditRollDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker pushPullPicker =
                         Utilities.fixNumberPicker((NumberPicker) dialogView.findViewById(R.id.number_picker));
                 pushPullPicker.setMinValue(0);

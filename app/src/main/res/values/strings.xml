@@ -282,7 +282,6 @@
     <string name="GPSSettings">GPS Settings</string>
     <string name="GPSNotEnabled">You have location updates enabled in the app\'s settings, but GPS is disabled in system settings.\n\nDo you want to go to system settings to enable GPS?</string>
     <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
-    <string name="Disable">Disable</string>
     <string name="DisableInApp">Disable in app</string>
 
     <!--MapsActivity-->
@@ -300,6 +299,9 @@
     <string name="ShowArchivedRolls">Archived</string>
     <string name="ShowActiveRolls">Active</string>
     <string name="ShowAllRolls">All</string>
+    <string name="ConfirmRollsDelete">Delete %1$d rolls?</string>
+    <string name="RollsArchived">Roll(s) archived</string>
+    <string name="RollsActivated">Roll(s) unarchived</string>
 
     <string name="EditFrame">Edit frame #</string>
     <string name="NewFrame">Add new frame</string>
@@ -321,33 +323,31 @@
     <string name="IntegrityCheckFailed">Database integrity check failed. The old database will be used.</string>
 
 
-    <!--double_numberpicker_dialog_buttons.xml-->
+    dialog_double_numberpicker_buttons.xml.xml-->
     <string name="Plus50">+50</string>
     <string name="Minus50">-50</string>
 
-    <!--lenses_fragment.xml-->
+    fragment_lenses.xml.xml-->
     <string name="NoLenses">No added lenses</string>
 
-    <!--rolls_fragment.xml-->
+    fragment_rolls.xml.xml-->
     <string name="NoRolls">No added rolls</string>
     <string name="NoActiveRolls">No active rolls</string>
     <string name="NoArchivedRolls">No archived rolls</string>
     <string name="NoActiveOrArchivedRolls">No active/archived rolls</string>
     <string name="SelectAll">Select all</string>
-    <string name="ConfirmRollsDelete">Delete %1$d rolls?</string>
-    <string name="RollsArchived">Roll(s) archived</string>
-    <string name="RollsActivated">Roll(s) unarchived</string>
+
 
     <!--activity_roll_info.xml-->
     <string name="NoFrames">No added frames</string>
 
-    <!--cameras_fragment.xml-->
+    fragment_cameras.xml.xml-->
     <string name="NoCameras">No added cameras</string>
 
-    <!--filters_fragment.xml-->
+    fragment_filters.xml.xml-->
     <string name="NoFilters">No added filters</string>
 
-    <!--roll_dialog.xml-->
+    dialog_roll.xml.xml-->
     <string name="Name">Name</string>
     <string name="Empty">Empty</string>
     <string name="Camera">Camera</string>
@@ -355,7 +355,7 @@
     <string name="PushPull">Push(+)/pull(-)</string>
     <string name="Format">Format</string>
 
-    <!--frame_dialog.xml-->
+    dialog_frame.xml.xml-->
     <string name="Lens">Lens</string>
     <string name="Date">Date</string>
     <string name="Time">Time</string>
@@ -376,12 +376,16 @@
     <string name="SelectLensToAddFilters">Select a lens to add filters.</string>
 
     <!--frame batch edit-->
+
+    <!--No need for plural, because a special dialog is created for one frame-->
     <string name="BatchEditFramesTitle">Batch edit %1$d frames</string>
     <string name="EditFrameCounts">Edit frame counts</string>
     <string name="EditFrameCountsBy">Edit frame counts by…</string>
     <string name="EditLocation">Edit location</string>
-    <string name="ConfirmFramesDelete">Delete %1$d frames?</string>
-    <string name="ConfirmFramesDeleteSingle">Delete %1$d frame?</string>
+    <plurals name="ConfirmFramesDelete">
+        <item quantity="one">Delete %d frame?</item>
+        <item quantity="other">Delete %d frames?</item>
+    </plurals>
 
     <!--gear_dialog-->
     <string name="Make">Make</string>

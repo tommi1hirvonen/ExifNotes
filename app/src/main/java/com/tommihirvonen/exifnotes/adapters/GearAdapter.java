@@ -1,9 +1,11 @@
 package com.tommihirvonen.exifnotes.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -27,7 +29,7 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
     /**
      * Reference to the main list of gear received from implementing class.
      */
-    private List<? extends Gear> gearList;
+    private final List<? extends Gear> gearList;
 
     /**
      * Reference to Activity's context. Used to get resources.
@@ -45,9 +47,9 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
      * All common view elements for all items are initialized here.
      */
     class ViewHolder extends RecyclerView.ViewHolder {
-        LinearLayout linearLayout;
-        TextView nameTextView;
-        TextView mountablesTextView;
+        final LinearLayout linearLayout;
+        final TextView nameTextView;
+        final TextView mountablesTextView;
         ViewHolder(View itemView) {
             super(itemView);
             linearLayout = itemView.findViewById(R.id.item_gear_layout);

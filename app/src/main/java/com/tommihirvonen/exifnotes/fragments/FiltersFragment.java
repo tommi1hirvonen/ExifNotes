@@ -103,7 +103,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
         filterList = database.getAllFilters();
         Utilities.sortGearList(filterList);
 
-        final View view = layoutInflater.inflate(R.layout.filters_fragment, container, false);
+        final View view = layoutInflater.inflate(R.layout.fragment_filters, container, false);
 
         FloatingActionButton floatingActionButton = view.findViewById(R.id.fab_filters);
         floatingActionButton.setOnClickListener(this);

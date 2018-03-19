@@ -142,12 +142,12 @@
                     android:layout_marginRight="10dp"
                     android:id="@+id/serialNumber_editText"
                     android:inputType="textCapSentences"
-                    />
+                    tools:ignore="TextFields" />
 
             </LinearLayout>
 
 
-            <!--APERTURE INCREMENTS-->
+            <!--SHUTTER SPEED INCREMENTS-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -155,7 +155,7 @@
                 android:clickable="true"
                 android:id="@+id/increment_layout"
                 android:background="?android:attr/selectableItemBackground"
-                >
+                tools:ignore="KeyboardInaccessibleWidget">
 
                 <View
                     android:layout_width="match_parent"
@@ -170,7 +170,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
-                    android:text="@string/ApertureIncrements"
+                    android:text="@string/ShutterSpeedIncrements"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
                     />
@@ -190,15 +190,15 @@
             </LinearLayout>
 
 
-            <!--APERTURE RANGE-->
+            <!--SHUTTER SPEED RANGE-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:clickable="true"
-                android:id="@+id/aperture_range_layout"
+                android:id="@+id/shutter_range_layout"
                 android:background="?android:attr/selectableItemBackground"
-                >
+                tools:ignore="KeyboardInaccessibleWidget">
 
                 <View
                     android:layout_width="match_parent"
@@ -213,7 +213,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
-                    android:text="@string/ApertureRange"
+                    android:text="@string/ShutterRange"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
                     />
@@ -226,50 +226,7 @@
                     android:paddingTop="5dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="15sp"
-                    android:id="@+id/aperture_range_text"
-                    android:text="@string/ClickToSet"
-                    />
-
-            </LinearLayout>
-
-
-            <!--FOCAL LENGTH RANGE-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:id="@+id/focal_length_range_layout"
-                android:background="?android:attr/selectableItemBackground"
-                >
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:id="@+id/divider_view5"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/FocalLengthRange"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    android:textSize="17sp"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="7dp"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="15sp"
-                    android:id="@+id/focal_length_range_text"
+                    android:id="@+id/shutter_range_text"
                     android:text="@string/ClickToSet"
                     />
 

@@ -58,7 +58,7 @@ public class EditFilterDialog extends DialogFragment {
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(R.layout.filter_dialog, null);
+        @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(R.layout.dialog_filter, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         String title = getArguments().getString(ExtraKeys.TITLE);

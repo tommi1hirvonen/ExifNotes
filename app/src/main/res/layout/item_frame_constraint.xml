@@ -160,7 +160,7 @@
         android:padding="8dp"
         android:scaleY="0.9"
         android:scaleX="0.9"
-        />
+        tools:ignore="ContentDescription" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline0"

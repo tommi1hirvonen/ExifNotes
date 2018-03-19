@@ -58,7 +58,7 @@
             android:padding="10dp"
             android:layout_marginTop="3dp"
             android:layout_weight="0.5"
-            tools:ignore="ContentDescription,RtlHardcoded" />
+            tools:ignore="ContentDescription,KeyboardInaccessibleWidget,RtlHardcoded" />
 
         <ImageView
             android:layout_width="48dp"

@@ -119,27 +119,27 @@ public class EditFrameDialog extends DialogFragment {
     /**
      * Database id of the currently selected lens
      */
-    long newLensId;
+    private long newLensId;
 
     /**
      * Currently selected datetime in format 'YYYY-M-D H:MM'
      */
-    String newDate;
+    private String newDate;
 
     /**
      * Currently selected latitude longitude location in format '12,3456... 12,3456...'
      */
-    String newLocation;
+    private String newLocation;
 
     /**
      * Currently set formatted address for location
      */
-    String newFormattedAddress;
+    private String newFormattedAddress;
 
     /**
      * Database id of the currently selected filter
      */
-    long newFilterId;
+    private long newFilterId;
 
     /**
      * Currently selected lens's aperture increment setting
@@ -154,33 +154,33 @@ public class EditFrameDialog extends DialogFragment {
     /**
      * Currently selected frame count number
      */
-    int newFrameCount;
+    private int newFrameCount;
 
     /**
      * Currently selected shutter speed value in format 1/X, Y" or B, where X and Y are numbers
      */
-    String newShutter;
+    private String newShutter;
 
     /**
      * Currently selected aperture value, number only
      */
-    String newAperture;
+    private String newAperture;
 
     /**
      * Currently selected focal length
      */
-    int newFocalLength;
+    private int newFocalLength;
 
     /**
      * Currently selected exposure compensation in format
      * 0, +/-X or +/-Y/Z where X, Y and Z are numbers
      */
-    String newExposureComp;
+    private String newExposureComp;
 
     /**
      * Currently selected number of exposures (multiple exposure)
      */
-    int newNoOfExposures;
+    private int newNoOfExposures;
 
     /**
      * TextView used to display the current aperture value
@@ -254,7 +254,7 @@ public class EditFrameDialog extends DialogFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
-                R.layout.frame_dialog, null);
+                R.layout.dialog_frame, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         // Set ScrollIndicators only if Material Design is used with the current Android version
@@ -520,7 +520,7 @@ public class EditFrameDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker frameCountPicker = dialogView.findViewById(R.id.number_picker);
                 frameCountPicker.setMinValue(0);
                 frameCountPicker.setMaxValue(100);
@@ -563,7 +563,7 @@ public class EditFrameDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker shutterPicker = dialogView.findViewById(R.id.number_picker);
 
                 initialiseShutterPicker(shutterPicker);
@@ -606,7 +606,7 @@ public class EditFrameDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker aperturePicker = dialogView.findViewById(R.id.number_picker);
 
                 initialiseAperturePicker(aperturePicker);
@@ -649,7 +649,7 @@ public class EditFrameDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.seek_bar_dialog, null);
+                View dialogView = inflater.inflate(R.layout.dialog_seek_bar, null);
                 final SeekBar focalLengthSeekBar = dialogView.findViewById(R.id.seek_bar);
                 final TextView focalLengthTextView = dialogView.findViewById(R.id.value_text_view);
 
@@ -765,7 +765,7 @@ public class EditFrameDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker exposureCompPicker = Utilities.fixNumberPicker(
                         (NumberPicker) dialogView.findViewById(R.id.number_picker)
                 );
@@ -825,7 +825,7 @@ public class EditFrameDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.single_numberpicker_dialog, null);
+                View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker noOfExposuresPicker = dialogView.findViewById(R.id.number_picker);
 
                 noOfExposuresPicker.setMinValue(1);

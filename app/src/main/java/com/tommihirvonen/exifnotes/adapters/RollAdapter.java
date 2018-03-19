@@ -59,7 +59,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
     /**
      * Used to hold the positions of selected items in the RecyclerView.
      */
-    private SparseBooleanArray selectedItems;
+    private final SparseBooleanArray selectedItems;
 
     /**
      * Used to pass the selected item's position to onBindViewHolder(),
@@ -80,7 +80,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
     /**
      * Helper array to keep track of animation statuses.
      */
-    private SparseBooleanArray animationItemsIndex;
+    private final SparseBooleanArray animationItemsIndex;
 
     /**
      * Package-private ViewHolder class which can be recycled
@@ -88,14 +88,14 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      * All common view elements for all items are initialized here.
      */
     class ViewHolder extends RecyclerView.ViewHolder {
-        ConstraintLayout layout;
-        TextView nameTextView;
-        TextView dateTextView;
-        TextView noteTextView;
-        TextView photosTextView;
-        TextView cameraTextView;
-        ImageView checkBox;
-        View selectedBackground;
+        final ConstraintLayout layout;
+        final TextView nameTextView;
+        final TextView dateTextView;
+        final TextView noteTextView;
+        final TextView photosTextView;
+        final TextView cameraTextView;
+        final ImageView checkBox;
+        final View selectedBackground;
         ViewHolder(View itemView) {
             super(itemView);
             layout = itemView.findViewById(R.id.item_roll_layout);

@@ -105,7 +105,7 @@ public class RollsFragment extends Fragment implements
     /**
      * Private callback class which is given as an argument when the SupportActionMode is started.
      */
-    private ActionModeCallback actionModeCallback = new ActionModeCallback();
+    private final ActionModeCallback actionModeCallback = new ActionModeCallback();
 
     /**
      * Reference to the (Support)ActionMode, which is launched when a list item is long pressed.
@@ -185,7 +185,7 @@ public class RollsFragment extends Fragment implements
         database = FilmDbHelper.getInstance(getActivity());
         // Inflate the layout view.
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        final View view = layoutInflater.inflate(R.layout.rolls_fragment, container, false);
+        final View view = layoutInflater.inflate(R.layout.fragment_rolls, container, false);
         // Assign the FloatingActionButton and set this activity to react to the fab being pressed.
         floatingActionButton = view.findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(this);

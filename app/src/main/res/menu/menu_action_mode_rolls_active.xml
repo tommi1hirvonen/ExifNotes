@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
@@ -7,27 +8,27 @@
         android:icon="@drawable/ic_edit_white_48dp"
         android:title="@string/Edit"
         app:showAsAction="always"
-        />
+        tools:ignore="AlwaysShowAction" />
 
     <item
         android:id="@+id/menu_item_select_all"
         android:icon="@drawable/ic_select_all_white_48dp"
         android:title="@string/SelectAll"
         app:showAsAction="always"
-        />
+        tools:ignore="AlwaysShowAction" />
 
     <item
         android:id="@+id/menu_item_archive"
         android:icon="@drawable/ic_archive_white_48dp"
         android:title="@string/Archive"
         app:showAsAction="always"
-        />
+        tools:ignore="AlwaysShowAction" />
 
     <item
         android:id="@+id/menu_item_delete"
         android:icon="@drawable/ic_delete_white_48dp"
         android:title="@string/Delete"
         app:showAsAction="always"
-        />
+        tools:ignore="AlwaysShowAction" />
 
 </menu>

@@ -104,7 +104,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         lensList = database.getAllLenses();
         Utilities.sortGearList(lensList);
 
-        final View view = layoutInflater.inflate(R.layout.lenses_fragment, container, false);
+        final View view = layoutInflater.inflate(R.layout.fragment_lenses, container, false);
 
         FloatingActionButton fab = view.findViewById(R.id.fab_lenses);
         fab.setOnClickListener(this);

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
-import android.util.Pair;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -21,12 +20,12 @@ public class UIColorDialogPreference extends DialogPreference {
     /**
      * Names for the UI color options
      */
-    private List<String> uiColorOptions;
+    private final List<String> uiColorOptions;
 
     /**
      * Hex color codes for the UI color options
      */
-    private List<String> uiColorOptionsData;
+    private final List<String> uiColorOptionsData;
 
     /**
      * Holds the index of the selected color option

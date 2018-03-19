@@ -111,7 +111,7 @@ public class DirectoryChooserDialog extends DialogFragment {
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
-                R.layout.directory_chooser_dialog, null);
+                R.layout.dialog_directory_chooser, null);
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         dialogBuilder.setView(inflatedView);
 

@@ -24,7 +24,7 @@
 
     <item
         android:id="@+id/menu_item_preferences"
-        android:title="@string/Preferences"
+        android:title="@string/Settings"
         app:showAsAction="never"
         />
 

@@ -128,7 +128,7 @@ public class EditLensDialog extends DialogFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams") final View inflatedView =
-                layoutInflater.inflate(R.layout.lens_dialog, null);
+                layoutInflater.inflate(R.layout.dialog_lens, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         String title = getArguments().getString(ExtraKeys.TITLE);
@@ -252,7 +252,7 @@ public class EditLensDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.double_numberpicker_dialog, null);
+                View dialogView = inflater.inflate(R.layout.dialog_double_numberpicker, null);
                 final NumberPicker maxAperturePicker =
                         dialogView.findViewById(R.id.number_picker_one);
                 final NumberPicker minAperturePicker =
@@ -328,7 +328,7 @@ public class EditLensDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.double_numberpicker_dialog_buttons, null);
+                View dialogView = inflater.inflate(R.layout.dialog_double_numberpicker_buttons, null);
                 final NumberPicker minFocalLengthPicker =
                         dialogView.findViewById(R.id.number_picker_one);
                 final NumberPicker maxFocalLengthPicker =

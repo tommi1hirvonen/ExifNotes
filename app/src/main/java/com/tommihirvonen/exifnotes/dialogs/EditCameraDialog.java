@@ -107,7 +107,7 @@ public class EditCameraDialog extends DialogFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
-                R.layout.camera_dialog, null);
+                R.layout.dialog_camera, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         String title = getArguments().getString(ExtraKeys.TITLE);
@@ -227,7 +227,7 @@ public class EditCameraDialog extends DialogFragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.double_numberpicker_dialog, null);
+                View dialogView = inflater.inflate(R.layout.dialog_double_numberpicker, null);
                 final NumberPicker minShutterPicker = dialogView.findViewById(R.id.number_picker_one);
                 final NumberPicker maxShutterPicker = dialogView.findViewById(R.id.number_picker_two);
 
