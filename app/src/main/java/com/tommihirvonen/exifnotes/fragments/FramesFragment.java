@@ -862,9 +862,6 @@ public class FramesFragment extends Fragment implements
                 // the location of several frames in action mode.
                 if (resultCode == Activity.RESULT_OK) {
 
-                    // Exit action mode.
-                    if (actionMode != null) actionMode.finish();
-
                     final String location;
                     final String formattedAddress;
                     if (data.hasExtra(ExtraKeys.LATITUDE) && data.hasExtra(ExtraKeys.LONGITUDE)) {
@@ -881,6 +878,9 @@ public class FramesFragment extends Fragment implements
                         frame.setFormattedAddress(formattedAddress);
                         database.updateFrame(frame);
                     }
+                    // Exit action mode after edit,
+                    // so that getSelectedItemPositions() isn't an empty list.
+                    if (actionMode != null) actionMode.finish();
                 }
 
                 break;
@@ -1122,7 +1122,10 @@ public class FramesFragment extends Fragment implements
                 setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        final int change = Integer.valueOf(displayedValues.get(numberPicker.getValue()));
+                        final int change = Integer.valueOf(
+                                // Replace the plus sign because on pre L devices this seems to cause a crash
+                                displayedValues.get(numberPicker.getValue()).replace("+", "")
+                        );
                         final List<Integer> framePositions = frameAdapter.getSelectedItemPositions();
                         for (int j = framePositions.size() - 1; j >= 0; j--) {
                             final Frame frame = frameList.get(framePositions.get(j));
