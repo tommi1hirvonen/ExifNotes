@@ -62,6 +62,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_METERING_MODE = "metering_mode";
     //Added in database version 15
     private static final String KEY_FORMATTED_ADDRESS = "formatted_address";
+    //Added in database version 17
+    private static final String KEY_PICTURE_FILENAME = "picture_filename";
 
     //Lens
     private static final String KEY_LENS_ID = "lens_id";
@@ -110,7 +112,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     //Updated version from 13 to 14 - 2016-12-03
     //Updated version from 14 to 15 - 2017-04-29
     //Updated version from 15 to 16 - 2018-02-17
-    private static final int DATABASE_VERSION = 16;
+    //Updated version from 16 to 17 - 2018-03-26
+    private static final int DATABASE_VERSION = 17;
 
     //=============================================================================================
     //onCreate strings
@@ -133,7 +136,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_FRAME_SIZE + " text, "
             + KEY_FILTER_ID + " integer, "
             + KEY_METERING_MODE + " integer, "
-            + KEY_FORMATTED_ADDRESS + " text"
+            + KEY_FORMATTED_ADDRESS + " text, "
+            + KEY_PICTURE_FILENAME + " text"
             + ");";
     private static final String CREATE_LENS_TABLE = "create table " + TABLE_LENSES
             + "(" + KEY_LENS_ID + " integer primary key autoincrement, "
@@ -204,6 +208,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " ADD COLUMN " + KEY_METERING_MODE + " integer;";
     private static final String ALTER_TABLE_FRAMES_10 = "ALTER TABLE " + TABLE_FRAMES
             + " ADD COLUMN " + KEY_FORMATTED_ADDRESS + " text;";
+    private static final String ALTER_TABLE_FRAMES_11 = "ALTER TABLE " + TABLE_FRAMES
+            + " ADD COLUMN " + KEY_PICTURE_FILENAME + " text;";
 
     private static final String ALTER_TABLE_LENSES_1 = "ALTER TABLE " + TABLE_LENSES
             + " ADD COLUMN " + KEY_LENS_MAX_APERTURE + " text;";
@@ -339,6 +345,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         }
         if (oldVersion <= 15) {
             db.execSQL(ALTER_TABLE_ROLLS_4);
+        }
+        if (oldVersion <= 16) {
+            db.execSQL(ALTER_TABLE_FRAMES_11);
         }
     }
 
@@ -976,6 +985,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setFilterId(cursor.getLong(cursor.getColumnIndex(KEY_FILTER_ID)));
         frame.setMeteringMode(cursor.getInt(cursor.getColumnIndex(KEY_METERING_MODE)));
         frame.setFormattedAddress(cursor.getString(cursor.getColumnIndex(KEY_FORMATTED_ADDRESS)));
+        frame.setPictureFilename(cursor.getString(cursor.getColumnIndex(KEY_PICTURE_FILENAME)));
         return frame;
     }
 
@@ -1124,6 +1134,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_FILTER_ID, frame.getFilterId());
         contentValues.put(KEY_METERING_MODE, frame.getMeteringMode());
         contentValues.put(KEY_FORMATTED_ADDRESS, frame.getFormattedAddress());
+        contentValues.put(KEY_PICTURE_FILENAME, frame.getPictureFilename());
         return contentValues;
     }
 
@@ -1331,7 +1342,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 checkColumnProperties(TABLE_FRAMES, KEY_FRAME_SIZE, TEXT, 0, 0, false) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_FILTER_ID, INTEGER, 0, 0, false) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_METERING_MODE, INTEGER, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FORMATTED_ADDRESS, TEXT, 0, 0, false)
+                checkColumnProperties(TABLE_FRAMES, KEY_FORMATTED_ADDRESS, TEXT, 0, 0, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_PICTURE_FILENAME, TEXT, 0, 0, false)
                 ;
 
     }

@@ -8,12 +8,19 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
@@ -44,10 +51,12 @@ import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static java.lang.Math.round;
 
@@ -75,6 +84,11 @@ public class EditFrameDialog extends DialogFragment {
      * Constant passed to EditFilterDialog for result
      */
     private final static int ADD_FILTER = 3;
+
+    /**
+     * Constant passed to takePictureIntent for result
+     */
+    private static final int CAPTURE_IMAGE_REQUEST = 4;
 
     /**
      * Database id of the camera used to take this frame
@@ -115,6 +129,16 @@ public class EditFrameDialog extends DialogFragment {
      * Button used to display the currently selected filter
      */
     private TextView filterTextView;
+
+    /**
+     * ImageView used to display complementary image taken with the phone's camera
+     */
+    private ImageView pictureImageView;
+
+    /**
+     * TextView used to display text related to the complementary picture
+     */
+    private TextView pictureTextView;
 
     /**
      * Database id of the currently selected lens
@@ -183,6 +207,18 @@ public class EditFrameDialog extends DialogFragment {
     private int newNoOfExposures;
 
     /**
+     * Currently selected filename of the complementary picture
+     */
+    private String newPictureFilename;
+
+    /**
+     * Used to temporarily store the possible new picture name. newPictureFilename is only set,
+     * if the user presses ok in the camera activity. If the user cancels the camera activity,
+     * then this member's value is ignored and newPictureFilename's value isn't changed.
+     */
+    private String tempPictureFilename;
+
+    /**
      * TextView used to display the current aperture value
      */
     private TextView apertureTextView;
@@ -212,6 +248,11 @@ public class EditFrameDialog extends DialogFragment {
      * Changes depending on the currently selected lens.
      */
     private String[] displayedApertureValues;
+
+    /**
+     * Location of the complementary pictures
+     */
+    private static final File PICTURE_STORAGE_DIRECTORY = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Exif Notes");
 
     /**
      * Empty constructor
@@ -256,7 +297,6 @@ public class EditFrameDialog extends DialogFragment {
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
                 R.layout.dialog_frame, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
@@ -287,6 +327,7 @@ public class EditFrameDialog extends DialogFragment {
             dividerList.add(inflatedView.findViewById(R.id.divider_view9));
             dividerList.add(inflatedView.findViewById(R.id.divider_view10));
             dividerList.add(inflatedView.findViewById(R.id.divider_view11));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view12));
             for (View v : dividerList) {
                 v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
             }
@@ -996,8 +1037,45 @@ public class EditFrameDialog extends DialogFragment {
 
 
 
+        //==========================================================================================
+        //COMPLEMENTARY PICTURE
 
+        // TODO: Implement separate dialog for interactions with complementary picture.
+        // TODO: This way the bitmap doesn't need to be loaded right after a frame was selected.
+        // TODO: The bitmap is only loaded on demand (complementary picture dialog was opened).
 
+        newPictureFilename = frame.getPictureFilename();
+        final LinearLayout pictureLayout = inflatedView.findViewById(R.id.picture_layout);
+        pictureImageView = inflatedView.findViewById(R.id.iv_picture);
+        pictureTextView = inflatedView.findViewById(R.id.picture_text);
+        setComplementaryPicture();
+        pictureLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Check if the camera feature is available
+                if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+                    Toast.makeText(getActivity(), R.string.NoCameraFeatureWasFound, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // Advance with taking the picture
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    // Create the file where the photo should go
+                    final File pictureFile = createPictureFile();
+                    Uri photoURI;
+                    //Android Nougat requires that the file is given via FileProvider
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        photoURI = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext()
+                                .getPackageName() + ".provider", pictureFile);
+                    } else {
+                        photoURI = Uri.fromFile(pictureFile);
+                    }
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    startActivityForResult(takePictureIntent, CAPTURE_IMAGE_REQUEST);
+                }
+            }
+        });
+        //==========================================================================================
 
 
 
@@ -1025,18 +1103,16 @@ public class EditFrameDialog extends DialogFragment {
 
 
         //User pressed OK, save.
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(new OnPositiveButtonClickListener(dialog) {
             @Override
             public void onClick(View v) {
-                finalizeFrame();
-
+                super.onClick(v);
                 // Return the new entered name to the calling activity
                 Intent intent = new Intent();
                 intent.putExtra(ExtraKeys.FRAME, frame);
-                dialog.dismiss();
                 getTargetFragment().onActivityResult(
                         getTargetRequestCode(), Activity.RESULT_OK, intent);
-
             }
         });
 
@@ -1066,18 +1142,15 @@ public class EditFrameDialog extends DialogFragment {
     }
 
     /**
-     * Package-private method to finalize the member that is passed to the target fragment
-     * Also used in the child class EditFrameDialogCallback
+     * Method to finalize the member that is passed to the target fragment.
+     * Also used to delete possibly unused older complementary pictures.
      */
-    void finalizeFrame(){
+    private void onDialogDismiss(){
         frame.setShutter(newShutter);
         frame.setAperture(newAperture);
         frame.setCount(newFrameCount);
         frame.setNote(noteEditText.getText().toString());
-
-        // PARSE THE DATE
         frame.setDate(newDate);
-
         frame.setLensId(newLensId);
         frame.setLocation(newLocation);
         frame.setFormattedAddress(newFormattedAddress);
@@ -1085,8 +1158,24 @@ public class EditFrameDialog extends DialogFragment {
         frame.setExposureComp(newExposureComp);
         frame.setNoOfExposures(newNoOfExposures);
         frame.setFocalLength(newFocalLength);
+        frame.setPictureFilename(newPictureFilename);
     }
 
+    /**
+     * Class used by this class AlertDialog class and its subclasses. Implemented for positive button
+     * onClick events.
+     */
+    protected class OnPositiveButtonClickListener implements View.OnClickListener {
+        private AlertDialog dialog;
+        OnPositiveButtonClickListener(AlertDialog dialog) {
+            this.dialog = dialog;
+        }
+        @Override
+        public void onClick(View view) {
+            onDialogDismiss();
+            dialog.dismiss();
+        }
+    }
 
     /**
      * Executed when an activity or fragment, which is started for result, sends an onActivityResult
@@ -1145,6 +1234,82 @@ public class EditFrameDialog extends DialogFragment {
             database.addMountableFilterLens(filter, database.getLens(newLensId));
             filterTextView.setText(filter.getName());
             newFilterId = filter.getId();
+        }
+
+        if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
+            newPictureFilename = tempPictureFilename;
+            galleryAddPicture();
+            setComplementaryPicture();
+        }
+
+    }
+
+    /**
+     *
+     * @return reference to the new file where the picture should be saved
+     */
+    private File createPictureFile() {
+        // Create a unique name for the new picture file
+        final String pictureFilename = UUID.randomUUID().toString() + ".jpg";
+        // If the destination folder does not exist, create it
+        if (!PICTURE_STORAGE_DIRECTORY.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            PICTURE_STORAGE_DIRECTORY.mkdirs(); // also create possible non-existing parent directories -> mkdirs()
+        }
+        // Create a reference to the picture file
+        final File picture = new File(PICTURE_STORAGE_DIRECTORY, pictureFilename);
+        tempPictureFilename = pictureFilename;
+        // Return the File
+        return picture;
+    }
+
+    /**
+     * Notify the gallery application, that a new picture has been added to external storage
+     */
+    private void galleryAddPicture() {
+        final Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        final String picturePath = PICTURE_STORAGE_DIRECTORY.getAbsolutePath() + "/" + newPictureFilename;
+        final File pictureFile = new File(picturePath);
+        final Uri contentUri = Uri.fromFile(pictureFile);
+        mediaScanIntent.setData(contentUri);
+        getActivity().sendBroadcast(mediaScanIntent);
+    }
+
+    /**
+     * Set the complementary picture ImageView with the newly selected/taken picture
+     */
+    private void setComplementaryPicture() {
+        // If the picture filename was not set, do nothing and return
+        if (newPictureFilename == null) return;
+        // Otherwise continue
+
+        final String picturePath = PICTURE_STORAGE_DIRECTORY.getAbsolutePath() + "/" + newPictureFilename;
+        final File pictureFile = new File(picturePath);
+        if (pictureFile.exists()) {
+            pictureImageView.setVisibility(View.VISIBLE);
+            pictureTextView.setVisibility(View.GONE);
+
+            // Get the target ImageView height
+            final int targetH = (int) getResources().getDimension(R.dimen.ComplementaryPictureImageViewHeight);
+
+            // Get the dimensions of the bitmap
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
+            final int photoH = options.outHeight;
+
+            // Determine how much to scale down the image
+            final int scale = photoH / targetH;
+
+            // Decode the image file into a Bitmap sized to fill the view
+            options.inJustDecodeBounds = false;
+            options.inSampleSize = scale;
+            options.inPurgeable = true;
+            final Bitmap bitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
+            pictureImageView.setImageBitmap(bitmap);
+        } else {
+            // The file does not exist. Show error message in the TextView.
+            pictureTextView.setText(R.string.PictureSetButNotFound);
         }
     }
 

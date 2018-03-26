@@ -99,6 +99,11 @@ public class Frame implements Parcelable {
     private int meteringMode;
 
     /**
+     * Filename (relative, not absolute) of the complementary picture stored in external storage
+     */
+    private String pictureFilename;
+
+    /**
      * empty constructor
      */
     public Frame(){
@@ -251,6 +256,14 @@ public class Frame implements Parcelable {
         this.meteringMode = input;
     }
 
+    /**
+     *
+     * @param input relative (not absolute) filename of the complementary picture
+     */
+    public void setPictureFilename(String input) {
+        this.pictureFilename = input;
+    }
+
     //Methods to get members
 
     /**
@@ -397,6 +410,14 @@ public class Frame implements Parcelable {
         return this.meteringMode;
     }
 
+    /**
+     *
+     * @return relative (not absolute) filename of the complementary picture stored in external storage
+     */
+    public String getPictureFilename() {
+        return this.pictureFilename;
+    }
+
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
     /**
@@ -423,6 +444,7 @@ public class Frame implements Parcelable {
         this.flashComp = pc.readString();
         this.filterId = pc.readLong();
         this.meteringMode = pc.readInt();
+        this.pictureFilename = pc.readString();
     }
 
     /**
@@ -461,6 +483,7 @@ public class Frame implements Parcelable {
         parcel.writeString(flashComp);
         parcel.writeLong(filterId);
         parcel.writeInt(meteringMode);
+        parcel.writeString(pictureFilename);
     }
 
     /**

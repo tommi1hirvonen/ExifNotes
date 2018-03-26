@@ -344,13 +344,13 @@
     <!--activity_roll_info.xml-->
     <string name="NoFrames">No added frames</string>
 
-    fragment_cameras.xml.xml-->
+    <!--fragment_cameras.xml.xml-->
     <string name="NoCameras">No added cameras</string>
 
-    fragment_filters.xml.xml-->
+    <!--fragment_filters.xml.xml-->
     <string name="NoFilters">No added filters</string>
 
-    dialog_roll.xml.xml-->
+    <!--dialog_roll.xml.xml-->
     <string name="Name">Name</string>
     <string name="Empty">Empty</string>
     <string name="Camera">Camera</string>
@@ -358,7 +358,7 @@
     <string name="PushPull">Push(+)/pull(-)</string>
     <string name="Format">Format</string>
 
-    dialog_frame.xml.xml-->
+    <!--dialog_frame.xml.xml-->
     <string name="Lens">Lens</string>
     <string name="Date">Date</string>
     <string name="Time">Time</string>
@@ -377,6 +377,10 @@
     <string name="NoFilter">No filter</string>
     <string name="UsedFilter">Choose used filter</string>
     <string name="SelectLensToAddFilters">Select a lens to add filters.</string>
+    <string name="ComplementaryPicture">Complementary picture</string>
+    <string name="ClickToAdd">Click to add</string>
+    <string name="NoCameraFeatureWasFound">No camera feature was found!</string>
+    <string name="PictureSetButNotFound">Picture was set but the file could not be found</string>
 
     <!--frame batch edit-->
 
