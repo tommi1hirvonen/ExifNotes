@@ -688,7 +688,6 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="15sp"
                     android:id="@+id/picture_text"
-                    android:text="@string/ClickToAdd"
                     />
 
                 <ImageView

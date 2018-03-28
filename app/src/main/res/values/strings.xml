@@ -380,7 +380,9 @@
     <string name="ComplementaryPicture">Complementary picture</string>
     <string name="ClickToAdd">Click to add</string>
     <string name="NoCameraFeatureWasFound">No camera feature was found!</string>
-    <string name="PictureSetButNotFound">Picture was set but the file could not be found</string>
+    <string name="PictureSetButNotFound">Picture was set but the file could no longer be found</string>
+    <string name="Clear">Clear</string>
+    <string name="TakeNewComplementaryPicture">Take new complementary picture</string>
 
     <!--frame batch edit-->
 

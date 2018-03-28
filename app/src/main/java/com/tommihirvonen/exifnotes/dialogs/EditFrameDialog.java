@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -28,6 +29,8 @@ import android.view.View;
 
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -129,6 +132,12 @@ public class EditFrameDialog extends DialogFragment {
      * Button used to display the currently selected filter
      */
     private TextView filterTextView;
+
+    /**
+     * Reference to the complementary picture's layout. If this view becomes visible,
+     * load the complementary picture.
+     */
+    private LinearLayout pictureLayout;
 
     /**
      * ImageView used to display complementary image taken with the phone's camera
@@ -270,9 +279,10 @@ public class EditFrameDialog extends DialogFragment {
     private String[] displayedApertureValues;
 
     /**
-     * Location of the complementary pictures
+     * Reference to the nested scroll view inside the dialog. A scroll listener is
+     * attached to this scroll view.
      */
-    private static final File PICTURE_STORAGE_DIRECTORY = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Exif Notes");
+    private NestedScrollView nestedScrollView;
 
     /**
      * Empty constructor
@@ -319,11 +329,12 @@ public class EditFrameDialog extends DialogFragment {
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
                 R.layout.dialog_frame, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+
+        nestedScrollView = inflatedView.findViewById(R.id.nested_scroll_view);
+
         // Set ScrollIndicators only if Material Design is used with the current Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = inflatedView.findViewById(
-                    R.id.nested_scroll_view);
             Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
                     ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
         }
@@ -652,21 +663,21 @@ public class EditFrameDialog extends DialogFragment {
         //==========================================================================================
         //COMPLEMENTARY PICTURE
 
-        // TODO: Implement separate dialog for interactions with complementary picture.
-        // TODO: This way the bitmap doesn't need to be loaded right after a frame was selected.
-        // TODO: The bitmap is only loaded on demand (complementary picture dialog was opened).
-
         newPictureFilename = frame.getPictureFilename();
-        final LinearLayout pictureLayout = inflatedView.findViewById(R.id.picture_layout);
+        pictureLayout = inflatedView.findViewById(R.id.picture_layout);
         pictureImageView = inflatedView.findViewById(R.id.iv_picture);
         pictureTextView = inflatedView.findViewById(R.id.picture_text);
-        setComplementaryPicture();
         pictureLayout.setOnClickListener(new PictureLayoutOnClickListener());
+        // Set the scroll change listener AFTER pictureLayout has been assigned with findViewById.
+        // Reference is made to pictureLayout in OnScrollChangeListener, and if the OnScrollChangeListener
+        // class is instantiated before pictureLayout has been set, the reference will be null (probably).
+        nestedScrollView.setOnScrollChangeListener(new OnScrollChangeListener());
 
 
 
         //==========================================================================================
         //FINALISE BUILDING THE DIALOG
+
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 Intent intent = new Intent();
@@ -810,7 +821,9 @@ public class EditFrameDialog extends DialogFragment {
             // The user has taken a new complementary picture. Update the possible new filename,
             // notify gallery app and set the complementary picture bitmap.
             newPictureFilename = tempPictureFilename;
-            galleryAddPicture();
+            // Don't add picture to gallery. Besides, the pictures are stored to the app's external
+            // storage directory, which isn't visible to other apps.
+            //galleryAddPicture();
             setComplementaryPicture();
         }
 
@@ -823,8 +836,7 @@ public class EditFrameDialog extends DialogFragment {
      */
     private void galleryAddPicture() {
         final Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        final String picturePath = PICTURE_STORAGE_DIRECTORY.getAbsolutePath() + "/" + newPictureFilename;
-        final File pictureFile = new File(picturePath);
+        final File pictureFile = getPictureFile(newPictureFilename);
         final Uri contentUri = Uri.fromFile(pictureFile);
         mediaScanIntent.setData(contentUri);
         getActivity().sendBroadcast(mediaScanIntent);
@@ -834,38 +846,67 @@ public class EditFrameDialog extends DialogFragment {
      * Set the complementary picture ImageView with the newly selected/taken picture
      */
     private void setComplementaryPicture() {
-        // If the picture filename was not set, do nothing and return
-        if (newPictureFilename == null) return;
-        // Otherwise continue
 
-        final String picturePath = PICTURE_STORAGE_DIRECTORY.getAbsolutePath() + "/" + newPictureFilename;
-        final File pictureFile = new File(picturePath);
+        // If the picture filename was not set, set text and return. Otherwise continue
+        if (newPictureFilename == null) {
+            pictureTextView.setText(R.string.ClickToAdd);
+            return;
+        }
+
+        final File pictureFile = getPictureFile(newPictureFilename);
+
+        // If the picture file exists, set the picture ImageView.
         if (pictureFile.exists()) {
-            pictureImageView.setVisibility(View.VISIBLE);
+
+            // Set the visibilities first, so that the views in general are displayed
+            // when the user scrolls down.
             pictureTextView.setVisibility(View.GONE);
+            pictureImageView.setVisibility(View.VISIBLE);
 
-            // Get the target ImageView height
-            final int targetH = (int) getResources().getDimension(R.dimen.ComplementaryPictureImageViewHeight);
+            // Load the bitmap on a background thread
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // Get the target ImageView height
+                    final int targetH = (int) getResources().getDimension(R.dimen.ComplementaryPictureImageViewHeight);
 
-            // Get the dimensions of the bitmap
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
-            final int photoH = options.outHeight;
+                    // Get the dimensions of the bitmap
+                    final BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
+                    final int photoH = options.outHeight;
 
-            // Determine how much to scale down the image
-            final int scale = photoH / targetH;
+                    // Determine how much to scale down the image
+                    final int scale = photoH / targetH;
 
-            // Decode the image file into a Bitmap sized to fill the view
-            options.inJustDecodeBounds = false;
-            options.inSampleSize = scale;
-            options.inPurgeable = true;
-            final Bitmap bitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
-            pictureImageView.setImageBitmap(bitmap);
-        } else {
-            // The file does not exist. Show error message in the TextView.
+                    // Decode the image file into a Bitmap sized to fill the view
+                    options.inJustDecodeBounds = false;
+                    options.inSampleSize = scale;
+                    options.inPurgeable = true;
+                    final Bitmap bitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
+
+                    // Do UI changes on the UI thread.
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pictureImageView.setImageBitmap(bitmap);
+                            Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_fast);
+                            pictureImageView.startAnimation(animation);
+                        }
+                    });
+                }
+            }).start();
+
+        }
+        // The file does not exist. Show error message in the TextView.
+        else {
             pictureTextView.setText(R.string.PictureSetButNotFound);
         }
+    }
+
+    private File getPictureFile(final String fileName) {
+        // Get the absolute path to the picture file.
+        return new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
     }
 
     /**
@@ -1180,6 +1221,23 @@ public class EditFrameDialog extends DialogFragment {
         public void onClick(View view) {
             onDialogDismiss();
             dialog.dismiss();
+        }
+    }
+
+    /**
+     * Scroll change listener used to detect when the pictureLayout is visible.
+     * Only then will the complementary picture be loaded.
+     */
+    private class OnScrollChangeListener implements NestedScrollView.OnScrollChangeListener {
+        private boolean pictureLoaded = false;
+        @Override
+        public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+            Rect scrollBounds = new Rect();
+            nestedScrollView.getHitRect(scrollBounds);
+            if (pictureLayout.getLocalVisibleRect(scrollBounds) && !pictureLoaded) {
+                setComplementaryPicture();
+                pictureLoaded = true;
+            }
         }
     }
 
@@ -1632,11 +1690,61 @@ public class EditFrameDialog extends DialogFragment {
 
     /**
      * Listener class attached to complementary picture layout.
-     * Starts a capture image request activity if a camera feature is available.
+     * Shows various actions regarding the complementary picture.
      */
     private class PictureLayoutOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
+
+            // If a complementary picture was not set, automatically start the picture activity
+            if (newPictureFilename == null) {
+                startPictureActivity();
+            }
+            // Otherwise, show various action options
+            else {
+                AlertDialog.Builder pictureActionDialogBuilder = new AlertDialog.Builder(getActivity());
+                final String[] items = {
+                        getString(R.string.Clear),
+                        getString(R.string.TakeNewComplementaryPicture)
+                };
+                pictureActionDialogBuilder.setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i) {
+
+                            // Clear the complementary picture
+                            case 0:
+                                newPictureFilename = null;
+                                pictureImageView.setVisibility(View.GONE);
+                                pictureTextView.setVisibility(View.VISIBLE);
+                                pictureTextView.setText(R.string.ClickToAdd);
+                                dialogInterface.dismiss();
+                                break;
+
+                            // Take a new complementary picture
+                            case 1:
+                                startPictureActivity();
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
+                });
+                pictureActionDialogBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                pictureActionDialogBuilder.create().show();
+            }
+        }
+
+        /**
+         * Starts a camera activity to take a new complementary picture
+         */
+        private void startPictureActivity() {
             // Check if the camera feature is available
             if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
                 Toast.makeText(getActivity(), R.string.NoCameraFeatureWasFound, Toast.LENGTH_SHORT).show();
@@ -1667,13 +1775,15 @@ public class EditFrameDialog extends DialogFragment {
         private File createPictureFile() {
             // Create a unique name for the new picture file
             final String pictureFilename = UUID.randomUUID().toString() + ".jpg";
-            // If the destination folder does not exist, create it
-            if (!PICTURE_STORAGE_DIRECTORY.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                PICTURE_STORAGE_DIRECTORY.mkdirs(); // also create possible non-existing parent directories -> mkdirs()
-            }
             // Create a reference to the picture file
-            final File picture = new File(PICTURE_STORAGE_DIRECTORY, pictureFilename);
+            final File picture = getPictureFile(pictureFilename);
+            // Get reference to the destination folder by the file's parent
+            final File pictureStorageDirectory = picture.getParentFile();
+            // If the destination folder does not exist, create it
+            if (!pictureStorageDirectory.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                pictureStorageDirectory.mkdirs(); // also create possible non-existing parent directories -> mkdirs()
+            }
             tempPictureFilename = pictureFilename;
             // Return the File
             return picture;
