@@ -17,9 +17,7 @@ import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -57,16 +55,6 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                final FileInputStream databaseFile;
-                try {
-                    databaseFile = new FileInputStream(FilmDbHelper.getDatabaseFile(getActivity()));
-                } catch (FileNotFoundException e) {
-                    Toast.makeText(getActivity(),
-                            getResources().getString(R.string.ErrorBuildingDatabaseFile),
-                            Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-
                 DirectoryChooserDialog directoryChooserDialog = DirectoryChooserDialog.newInstance(
                         new DirectoryChooserDialog.OnChosenDirectoryListener() {
                     @Override
@@ -77,20 +65,13 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                             //Export the files to the given path
                             //Inform the user if something went wrong
                             directory = directory + "/" + FilmDbHelper.DATABASE_NAME;
-                            FileOutputStream outputFile;
-                            try {
-                                outputFile = new FileOutputStream(directory);
-                            } catch (FileNotFoundException e) {
-                                Toast.makeText(getActivity(),
-                                        getResources().getString(R.string.ErrorBuildingOutputFile) + directory,
-                                        Toast.LENGTH_SHORT).show();
-                                return;
-                            }
+                            final File databaseFile = FilmDbHelper.getDatabaseFile(getActivity());
+                            final File outputFile = new File(directory);
                             try {
                                 Utilities.copyFile(databaseFile, outputFile);
                             } catch (IOException e){
                                 Toast.makeText(getActivity(),
-                                        getResources().getString(R.string.ErrorCopyingFile),
+                                        getResources().getString(R.string.ErrorExportingDatabase),
                                         Toast.LENGTH_SHORT).show();
                                 return;
                             }

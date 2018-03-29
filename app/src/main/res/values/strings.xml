@@ -383,6 +383,11 @@
     <string name="PictureSetButNotFound">Picture was set but the file could no longer be found</string>
     <string name="Clear">Clear</string>
     <string name="TakeNewComplementaryPicture">Take new complementary picture</string>
+    <string name="AddPictureToGallery">Add current picture to gallery</string>
+    <string name="ErrorAddingPictureToGallery">Error adding picture to gallery</string>
+    <string name="PictureAddedToGallery">Picture added to gallery</string>
+    <string name="SelectPictureFromGallery">Select from gallery</string>
+    <string name="UpcomingFeatureStayTuned">Upcoming feature, stay tuned!</string>
 
     <!--frame batch edit-->
 
@@ -486,9 +491,9 @@
     <string name="ImportDatabaseTitle">Import database</string>
     <string name="ImportDatabaseSummary">Import SQL database from a previously exported file</string>
 
-    <string name="ErrorBuildingDatabaseFile">Error building database file</string>
+    <string name="ErrorGettingDatabaseFile">Error getting database file</string>
     <string name="ErrorBuildingOutputFile">Error building output file: </string>
-    <string name="ErrorCopyingFile">Error copying file</string>
+    <string name="ErrorExportingDatabase">Error exporting database</string>
     <string name="DatabaseCopiedTo">Database copied to: </string>
     <string name="ImportDatabaseVerification">
         Are you sure you want to continue importing?\n

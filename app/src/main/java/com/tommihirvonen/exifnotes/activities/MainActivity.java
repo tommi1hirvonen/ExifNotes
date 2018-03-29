@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -22,10 +23,13 @@ import com.tommihirvonen.exifnotes.fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.fragments.RollsFragment;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
+import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.util.List;
 
 /**
  * MainActivity is the first activity to be called when the app is launched.
@@ -61,6 +65,34 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        //------------------------------------------------------------------------------------------
+        // Delete all complementary pictures, which are not linked to any frame.
+        // Do this each time the app is launched to keep the storage consumption to a minimum.
+
+        // List of all filenames that are being used in the database
+        final List<String> complementaryPictureFilenames = FilmDbHelper.getInstance(this).getAllComplementaryPictureFilenames();
+        // The application private external storage directory, where complementary pictures are stored
+        final File picturesDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        // Create a FileNameFilter using the filenames
+        final FilenameFilter filter = new FilenameFilter() {
+            @Override
+            public boolean accept(File file, String s) {
+                // Include filenames, which are NOT included in the list of filenames from the database
+                return !complementaryPictureFilenames.contains(s);
+            }
+        };
+        // Delete all files, that are not filtered
+        if (picturesDirectory != null)
+            for (File pictureFile : picturesDirectory.listFiles(filter))
+                //noinspection ResultOfMethodCallIgnored
+                pictureFile.delete();
+        //------------------------------------------------------------------------------------------
+
+
+
+        //------------------------------------------------------------------------------------------
+        // Set the activity's UI
+
         if (Utilities.isAppThemeDark(getBaseContext())) {
             setTheme(R.style.AppTheme_Dark);
         }
@@ -74,8 +106,13 @@ public class MainActivity extends AppCompatActivity implements
         Utilities.setUiColor(this, false);
         if (getSupportActionBar() != null) getSupportActionBar().setTitle(
                 "  " + getResources().getString(R.string.MainActivityTitle));
+        //------------------------------------------------------------------------------------------
 
-        LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+
+
+        //------------------------------------------------------------------------------------------
+        // Check that the application has write permission to the phone's external storage
+        // and access to location services.
 
         boolean permissionWriteExternalStorage = ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
@@ -84,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements
         boolean permissionAccessFineLocation = ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
-        //Check if the app has all necessary permissions
         if (!permissionWriteExternalStorage || !permissionAccessCoarseLocation || !permissionAccessFineLocation) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -94,18 +130,30 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             locationPermissionsGranted = true;
         }
+        //------------------------------------------------------------------------------------------
 
+
+
+        //------------------------------------------------------------------------------------------
         // Get from DefaultSharedPreferences whether the user has enabled
         // location updates in the app's settings.
+
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         final boolean requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true);
 
-        // getting GPS status
+        // Getting GPS status
+        LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
         boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
         // Show a dialog to go to settings only if GPS is not enabled in system settings
         // but location updates are enabled in the app's settings.
         if (!isGPSEnabled && requestingLocationUpdates) showSettingsAlert();
+        //------------------------------------------------------------------------------------------
+
+
+
+        //------------------------------------------------------------------------------------------
+        // Set the Fragment to the activity's fragment container
 
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout

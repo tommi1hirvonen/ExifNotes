@@ -424,6 +424,22 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         db.delete(TABLE_FRAMES, KEY_ROLL_ID + " = ? ", new String[]{Long.toString(roll_id)});
     }
 
+    /**
+     * Gets all complementary picture filenames from the frames table.
+     * @return List of all complementary picture filenames
+     */
+    public List<String> getAllComplementaryPictureFilenames() {
+        final List<String> filenames = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_PICTURE_FILENAME},
+                KEY_PICTURE_FILENAME + " IS NOT NULL", null, null, null, null);
+        while (cursor.moveToNext()) {
+            filenames.add(cursor.getString(cursor.getColumnIndex(KEY_PICTURE_FILENAME)));
+        }
+        cursor.close();
+        return filenames;
+    }
+
     // ******************** CRUD operations for the lenses table ********************
 
     /**
@@ -1241,10 +1257,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             close();
 
             //Backup the old database file in case the new file is corrupted.
-            Utilities.copyFile(new FileInputStream(oldDb), new FileOutputStream(oldDbBackup));
+            Utilities.copyFile(oldDb, oldDbBackup);
 
             //Replace the old database file with the new one.
-            Utilities.copyFile(new FileInputStream(newDb), new FileOutputStream(oldDb));
+            Utilities.copyFile(newDb, oldDb);
             // Access the copied database so SQLiteHelper will cache it and mark
             // it as created.
             SQLiteDatabase db;
@@ -1253,7 +1269,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
             } catch (SQLiteException e) {
                 //If the new database file couldn't be accesses, replace it with the backup.
-                Utilities.copyFile(new FileInputStream(oldDbBackup), new FileOutputStream(oldDb));
+                Utilities.copyFile(oldDbBackup, oldDb);
                 Toast.makeText(context, context.getResources().getString(R.string.CouldNotReadDatabase),
                         Toast.LENGTH_LONG).show();
                 return false;
@@ -1261,7 +1277,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             if (!runIntegrityCheck()) {
                 //If the new database file failed the integrity check, replace it with the backup.
                 db.close();
-                Utilities.copyFile(new FileInputStream(oldDbBackup), new FileOutputStream(oldDb));
+                Utilities.copyFile(oldDbBackup, oldDb);
                 Toast.makeText(context, context.getResources().getString(R.string.IntegrityCheckFailed),
                         Toast.LENGTH_LONG).show();
                 return false;

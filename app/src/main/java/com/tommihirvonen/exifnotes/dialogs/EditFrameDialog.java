@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.icu.text.UnicodeSetSpanner;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -55,6 +56,9 @@ import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -821,25 +825,55 @@ public class EditFrameDialog extends DialogFragment {
             // The user has taken a new complementary picture. Update the possible new filename,
             // notify gallery app and set the complementary picture bitmap.
             newPictureFilename = tempPictureFilename;
+
+            // Compress the image
+            final File pictureFile = getPictureFile(newPictureFilename);
+            if (pictureFile.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
+                bitmap = getResizedBitmap(bitmap);
+                //noinspection ResultOfMethodCallIgnored
+                pictureFile.delete();
+                try {
+                    FileOutputStream out = new FileOutputStream(pictureFile);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    out.flush();
+                    out.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             // Don't add picture to gallery. Besides, the pictures are stored to the app's external
             // storage directory, which isn't visible to other apps.
-            //galleryAddPicture();
             setComplementaryPicture();
         }
 
     }
 
-
-
     /**
-     * Notify the gallery application, that a new picture has been added to external storage
+     * Used to scale down a bitmap for reduced storage usage.
+     *
+     * @param image the bitmap to be scaled
+     * @return scaled bitmap where the size of the longer side is maxSize
      */
-    private void galleryAddPicture() {
-        final Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        final File pictureFile = getPictureFile(newPictureFilename);
-        final Uri contentUri = Uri.fromFile(pictureFile);
-        mediaScanIntent.setData(contentUri);
-        getActivity().sendBroadcast(mediaScanIntent);
+    public Bitmap getResizedBitmap(Bitmap image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        final int maxSize = 1024;
+
+        // If the specified max size is bigger than either width or height, return original bitmap.
+        if (maxSize > Math.max(width, height)) return image;
+
+        // Otherwise continue scaling while maintaining original aspect ratio.
+        final float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
     /**
@@ -1696,49 +1730,91 @@ public class EditFrameDialog extends DialogFragment {
         @Override
         public void onClick(View view) {
 
-            // If a complementary picture was not set, automatically start the picture activity
+            AlertDialog.Builder pictureActionDialogBuilder = new AlertDialog.Builder(getActivity());
+            final String[] items;
+
+            // If a complementary picture was not set, set only the two first options
             if (newPictureFilename == null) {
-                startPictureActivity();
-            }
-            // Otherwise, show various action options
-            else {
-                AlertDialog.Builder pictureActionDialogBuilder = new AlertDialog.Builder(getActivity());
-                final String[] items = {
-                        getString(R.string.Clear),
-                        getString(R.string.TakeNewComplementaryPicture)
+                items = new String[]{
+                        getString(R.string.TakeNewComplementaryPicture),
+                        getString(R.string.SelectPictureFromGallery)
                 };
-                pictureActionDialogBuilder.setItems(items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        switch (i) {
 
-                            // Clear the complementary picture
-                            case 0:
-                                newPictureFilename = null;
-                                pictureImageView.setVisibility(View.GONE);
-                                pictureTextView.setVisibility(View.VISIBLE);
-                                pictureTextView.setText(R.string.ClickToAdd);
-                                dialogInterface.dismiss();
-                                break;
-
-                            // Take a new complementary picture
-                            case 1:
-                                startPictureActivity();
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
-                });
-                pictureActionDialogBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                pictureActionDialogBuilder.create().show();
             }
+            // If a complementary picture was set, show additional two options
+            else {
+                items = new String[]{
+                        getString(R.string.TakeNewComplementaryPicture),
+                        getString(R.string.SelectPictureFromGallery),
+                        getString(R.string.AddPictureToGallery),
+                        getString(R.string.Clear)
+                };
+            }
+
+            // Add the items and the listener
+            pictureActionDialogBuilder.setItems(items, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    switch (i) {
+
+                        // Take a new complementary picture
+                        case 0:
+                            dialogInterface.dismiss();
+                            startPictureActivity();
+                            break;
+
+                        // Select picture from gallery
+                        case 1:
+                            // TODO Implement selecting a complementary picture from gallery
+                            Toast.makeText(getActivity(), R.string.UpcomingFeatureStayTuned, Toast.LENGTH_SHORT).show();
+                            break;
+
+                        // Add the picture to gallery
+                        case 2:
+                            final File publicPictureDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), getString(R.string.app_name));
+                            final File copyFromFile = getPictureFile(newPictureFilename);
+                            final File copyToFile = new File(publicPictureDirectory, newPictureFilename);
+                            try {
+                                Utilities.copyFile(copyFromFile, copyToFile);
+                                galleryAddPicture(copyToFile);
+                                Toast.makeText(getActivity(), R.string.PictureAddedToGallery, Toast.LENGTH_SHORT).show();
+                            } catch (IOException e) {
+                                Toast.makeText(getActivity(), R.string.ErrorAddingPictureToGallery,Toast.LENGTH_LONG).show();
+                            }
+                            dialogInterface.dismiss();
+                            break;
+
+                        // Clear the complementary picture
+                        case 3:
+                            newPictureFilename = null;
+                            pictureImageView.setVisibility(View.GONE);
+                            pictureTextView.setVisibility(View.VISIBLE);
+                            pictureTextView.setText(R.string.ClickToAdd);
+                            dialogInterface.dismiss();
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            });
+            pictureActionDialogBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            pictureActionDialogBuilder.create().show();
+        }
+
+        /**
+         * Notify the gallery application, that a new picture has been added to external storage
+         */
+        private void galleryAddPicture(File pictureFile) {
+            final Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            final Uri contentUri = Uri.fromFile(pictureFile);
+            mediaScanIntent.setData(contentUri);
+            getActivity().sendBroadcast(mediaScanIntent);
         }
 
         /**

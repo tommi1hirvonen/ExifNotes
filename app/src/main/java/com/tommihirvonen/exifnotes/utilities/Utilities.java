@@ -1113,21 +1113,23 @@ public class Utilities {
      * will be replaced with a copy of fromFile. The name and path
      * of toFile will be that of toFile.
      *
-     * Note: fromFile and toFile will be closed by
-     * this function.
-     *
-     * @param fromFile
-     *            - FileInputStream for the file to copy from.
-     * @param toFile
-     *            - FileInputStream for the file to copy to.
+     * @param fromFile the file to copy from
+     * @param toFile the file to copy to
      */
     @SuppressWarnings("ThrowFromFinallyBlock")
-    public static void copyFile(FileInputStream fromFile, FileOutputStream toFile) throws IOException {
+    public static void copyFile(File fromFile, File toFile) throws IOException {
+        // Check that the destination folder exists. Create if not.
+        if (!toFile.getParentFile().exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            toFile.getParentFile().mkdirs();
+        }
+        final FileInputStream fromFileInputStream = new FileInputStream(fromFile);
+        final FileOutputStream toFileOutputStream = new FileOutputStream(toFile);
         FileChannel fromChannel = null;
         FileChannel toChannel = null;
         try {
-            fromChannel = fromFile.getChannel();
-            toChannel = toFile.getChannel();
+            fromChannel = fromFileInputStream.getChannel();
+            toChannel = toFileOutputStream.getChannel();
             fromChannel.transferTo(0, fromChannel.size(), toChannel);
         } finally {
             try {
