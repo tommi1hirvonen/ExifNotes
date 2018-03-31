@@ -264,16 +264,12 @@ public class RollsFragment extends Fragment implements
             // Set the ListView to use the ArrayAdapter.
             mainRecyclerView.setAdapter(rollAdapter);
             // Notify the adapter to update itself.
-            rollAdapter.notifyItemRangeChanged(0, rollAdapter.getItemCount());
+            rollAdapter.notifyDataSetChanged();
         } else {
             // rollAdapter still references the old rollList. Update its reference.
-            final int oldItemCount = rollAdapter.getItemCount();
             rollAdapter.setRollList(rollList);
-            final int newItemCount = rollAdapter.getItemCount();
-            // For itemCount use the one which is bigger. This makes sure,
-            // that if the old list was empty, the new items will be updated.
-            // Also if the new list is empty, old items will be removed.
-            rollAdapter.notifyItemRangeChanged(0, oldItemCount > newItemCount ? oldItemCount : newItemCount);
+            // Notify the adapter to update itself
+            rollAdapter.notifyDataSetChanged();
         }
         if (rollList.size() > 0) mainTextViewAnimateInvisible();
         else mainTextViewAnimateVisible();
@@ -333,7 +329,7 @@ public class RollsFragment extends Fragment implements
                         editor.apply();
                         dialog.dismiss();
                         Utilities.sortRollList(getActivity(), database, rollList);
-                        rollAdapter.notifyItemRangeChanged(0, rollAdapter.getItemCount());
+                        rollAdapter.notifyDataSetChanged();
                     }
                 });
                 sortDialog.setNegativeButton(getResources().getString(R.string.Cancel),

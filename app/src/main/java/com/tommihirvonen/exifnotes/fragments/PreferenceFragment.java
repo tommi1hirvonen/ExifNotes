@@ -50,7 +50,25 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         UIColorDialogPreference UIColor = (UIColorDialogPreference) findPreference(PreferenceConstants.KEY_UI_COLOR);
         UIColor.setSummary(UIColor.getSelectedColorName());
 
-        Preference exportDatabase = findPreference(PreferenceConstants.KEY_EXPORT_DATABASE);
+        final Preference exportComplementaryPictures = findPreference(PreferenceConstants.KEY_EXPORT_COMPLEMENTARY_PICTURES);
+        exportComplementaryPictures.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                // TODO: Implement exporting complementary pictures
+                return true;
+            }
+        });
+
+        final Preference importComplementaryPictures = findPreference(PreferenceConstants.KEY_IMPORT_COMPLEMENTARY_PICTURES);
+        importComplementaryPictures.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                // TODO: Implement importing complementary pictures
+                return true;
+            }
+        });
+
+        final Preference exportDatabase = findPreference(PreferenceConstants.KEY_EXPORT_DATABASE);
         exportDatabase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -88,7 +106,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
             }
         });
 
-        Preference importDatabase = findPreference(PreferenceConstants.KEY_IMPORT_DATABASE);
+        final Preference importDatabase = findPreference(PreferenceConstants.KEY_IMPORT_DATABASE);
         importDatabase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -147,7 +165,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                 });
                 builder.create().show();
 
-                return false;
+                return true;
             }
         });
     }

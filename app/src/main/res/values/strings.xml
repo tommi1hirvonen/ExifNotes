@@ -388,6 +388,9 @@
     <string name="PictureAddedToGallery">Picture added to gallery</string>
     <string name="SelectPictureFromGallery">Select from gallery</string>
     <string name="UpcomingFeatureStayTuned">Upcoming feature, stay tuned!</string>
+    <string name="ErrorCompressingComplementaryPicture">Error compressing complementary picture</string>
+    <string name="ErrorSavingSelectedPicture">Error saving selected picture</string>
+    <string name="ErrorLocatingSelectedPicture">Error locating selected picture</string>
 
     <!--frame batch edit-->
 
@@ -508,6 +511,12 @@
     <string name="No">No</string>
     <string name="ErrorImportingDatabaseFrom">Error importing database from: </string>
     <string name="DatabaseImported">Database imported successfully</string>
+
+    <string name="ComplementaryPicturesCap">COMPLEMENTARY PICTURES</string>
+    <string name="ExportComplementaryPicturesTitle">Export complementary pictures</string>
+    <string name="ExportComplementaryPicturesSummary">Export complementary pictures as a compressed .zip file</string>
+    <string name="ImportComplementaryPicturesTitle">Import complementary pictures</string>
+    <string name="ImportComplementaryPicturesSummary">Import complementary pictures as a compressed .zip file</string>
 
     <string name="style_json">
         [

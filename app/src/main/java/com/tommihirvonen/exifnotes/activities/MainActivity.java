@@ -22,6 +22,7 @@ import com.tommihirvonen.exifnotes.dialogs.SimpleEula;
 import com.tommihirvonen.exifnotes.fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.fragments.RollsFragment;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
@@ -69,23 +70,7 @@ public class MainActivity extends AppCompatActivity implements
         // Delete all complementary pictures, which are not linked to any frame.
         // Do this each time the app is launched to keep the storage consumption to a minimum.
 
-        // List of all filenames that are being used in the database
-        final List<String> complementaryPictureFilenames = FilmDbHelper.getInstance(this).getAllComplementaryPictureFilenames();
-        // The application private external storage directory, where complementary pictures are stored
-        final File picturesDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        // Create a FileNameFilter using the filenames
-        final FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File file, String s) {
-                // Include filenames, which are NOT included in the list of filenames from the database
-                return !complementaryPictureFilenames.contains(s);
-            }
-        };
-        // Delete all files, that are not filtered
-        if (picturesDirectory != null)
-            for (File pictureFile : picturesDirectory.listFiles(filter))
-                //noinspection ResultOfMethodCallIgnored
-                pictureFile.delete();
+        ComplementaryPicturesManager.deleteUnusedPictures(this);
         //------------------------------------------------------------------------------------------
 
 

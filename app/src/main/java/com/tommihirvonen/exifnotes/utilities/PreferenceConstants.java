@@ -33,6 +33,10 @@ public final class PreferenceConstants {
 
     public static final String VALUE_EXIFTOOL = "EXIFTOOL";
 
+    public static final String KEY_EXPORT_COMPLEMENTARY_PICTURES = "ExportComplementaryPictures";
+
+    public static final String KEY_IMPORT_COMPLEMENTARY_PICTURES = "ImportComplementaryPictures";
+
     public static final String KEY_EXPORT_DATABASE = "ExportDatabase";
 
     public static final String KEY_IMPORT_DATABASE = "ImportDatabase";

@@ -85,6 +85,24 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="@string/ComplementaryPicturesCap"
+        >
+
+        <Preference
+            android:key="ExportComplementaryPictures"
+            android:title="@string/ExportComplementaryPicturesTitle"
+            android:summary="@string/ExportComplementaryPicturesSummary"
+            />
+
+        <Preference
+            android:key="ImportComplementaryPictures"
+            android:title="@string/ImportComplementaryPicturesTitle"
+            android:summary="@string/ImportComplementaryPicturesSummary"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/DatabaseCap"
         >
 

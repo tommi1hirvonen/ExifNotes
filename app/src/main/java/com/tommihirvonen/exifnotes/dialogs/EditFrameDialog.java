@@ -13,10 +13,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.icu.text.UnicodeSetSpanner;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.content.DialogInterface;
@@ -48,6 +46,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
+import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity;
@@ -56,14 +55,12 @@ import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import static java.lang.Math.round;
 
@@ -96,6 +93,11 @@ public class EditFrameDialog extends DialogFragment {
      * Constant passed to takePictureIntent for result
      */
     private static final int CAPTURE_IMAGE_REQUEST = 4;
+
+    /**
+     * Constant passed to selectPictureIntent for result
+     */
+    private static final int SELECT_PICTURE_REQUEST = 5;
 
     /**
      * Database id of the camera used to take this frame
@@ -822,58 +824,49 @@ public class EditFrameDialog extends DialogFragment {
 
         if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
 
+            // TODO: Implement the decoding on a background thread for more fluid UI experience.
+
             // The user has taken a new complementary picture. Update the possible new filename,
             // notify gallery app and set the complementary picture bitmap.
             newPictureFilename = tempPictureFilename;
 
-            // Compress the image
-            final File pictureFile = getPictureFile(newPictureFilename);
-            if (pictureFile.exists()) {
-                Bitmap bitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
-                bitmap = getResizedBitmap(bitmap);
-                //noinspection ResultOfMethodCallIgnored
-                pictureFile.delete();
+            // Compress the picture file
+            try {
+                ComplementaryPicturesManager.compressPictureFile(getActivity(), newPictureFilename);
+            } catch (IOException e) {
+                Toast.makeText(getActivity(), R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show();
+            }
+            setComplementaryPicture();
+            
+        }
+
+        if (requestCode == SELECT_PICTURE_REQUEST && resultCode == Activity.RESULT_OK) {
+
+            // TODO: Implement the decoding on a background thread for more fluid UI experience.
+
+            final Uri selectedPictureUri = data.getData();
+            if (selectedPictureUri != null) {
+                // Create the placeholder file in the complementary pictures directory.
+                final File pictureFile = ComplementaryPicturesManager.createNewPictureFile(getActivity());
                 try {
-                    FileOutputStream out = new FileOutputStream(pictureFile);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                    out.flush();
-                    out.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    // Get the compressed bitmap from the Uri.
+                    final Bitmap pictureBitmap = ComplementaryPicturesManager.getCompressedBitmap(getActivity(), selectedPictureUri);
+                    try {
+                        // Save the compressed bitmap to the placeholder file.
+                        ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile);
+                        // Update the member reference and set the complementary picture.
+                        newPictureFilename = pictureFile.getName();
+                        setComplementaryPicture();
+                    } catch (IOException e) {
+                        Toast.makeText(getActivity(), R.string.ErrorSavingSelectedPicture, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (FileNotFoundException e) {
+                    Toast.makeText(getActivity(), R.string.ErrorLocatingSelectedPicture, Toast.LENGTH_SHORT).show();
                 }
             }
 
-            // Don't add picture to gallery. Besides, the pictures are stored to the app's external
-            // storage directory, which isn't visible to other apps.
-            setComplementaryPicture();
         }
 
-    }
-
-    /**
-     * Used to scale down a bitmap for reduced storage usage.
-     *
-     * @param image the bitmap to be scaled
-     * @return scaled bitmap where the size of the longer side is maxSize
-     */
-    public Bitmap getResizedBitmap(Bitmap image) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-        final int maxSize = 1024;
-
-        // If the specified max size is bigger than either width or height, return original bitmap.
-        if (maxSize > Math.max(width, height)) return image;
-
-        // Otherwise continue scaling while maintaining original aspect ratio.
-        final float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 1) {
-            width = maxSize;
-            height = (int) (width / bitmapRatio);
-        } else {
-            height = maxSize;
-            width = (int) (height * bitmapRatio);
-        }
-        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
     /**
@@ -887,7 +880,7 @@ public class EditFrameDialog extends DialogFragment {
             return;
         }
 
-        final File pictureFile = getPictureFile(newPictureFilename);
+        final File pictureFile = ComplementaryPicturesManager.getPictureFile(getActivity(), newPictureFilename);
 
         // If the picture file exists, set the picture ImageView.
         if (pictureFile.exists()) {
@@ -906,6 +899,8 @@ public class EditFrameDialog extends DialogFragment {
 
                     // Get the dimensions of the bitmap
                     final BitmapFactory.Options options = new BitmapFactory.Options();
+                    // Setting the inJustDecodeBounds property to true while decoding avoids memory allocation,
+                    // returning null for the bitmap object but setting outWidth, outHeight and outMimeType.
                     options.inJustDecodeBounds = true;
                     BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
                     final int photoH = options.outHeight;
@@ -913,10 +908,11 @@ public class EditFrameDialog extends DialogFragment {
                     // Determine how much to scale down the image
                     final int scale = photoH / targetH;
 
-                    // Decode the image file into a Bitmap sized to fill the view
+                    // Set inJustDecodeBounds back to false, so that decoding returns a bitmap object.
                     options.inJustDecodeBounds = false;
                     options.inSampleSize = scale;
                     options.inPurgeable = true;
+                    // Decode the image file into a Bitmap sized to fill the view
                     final Bitmap bitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
 
                     // Do UI changes on the UI thread.
@@ -936,11 +932,6 @@ public class EditFrameDialog extends DialogFragment {
         else {
             pictureTextView.setText(R.string.PictureSetButNotFound);
         }
-    }
-
-    private File getPictureFile(final String fileName) {
-        // Get the absolute path to the picture file.
-        return new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
     }
 
     /**
@@ -1765,18 +1756,15 @@ public class EditFrameDialog extends DialogFragment {
 
                         // Select picture from gallery
                         case 1:
-                            // TODO Implement selecting a complementary picture from gallery
-                            Toast.makeText(getActivity(), R.string.UpcomingFeatureStayTuned, Toast.LENGTH_SHORT).show();
+                            final Intent selectPictureIntent = new Intent(Intent.ACTION_PICK);
+                            selectPictureIntent.setType("image/*");
+                            startActivityForResult(selectPictureIntent, SELECT_PICTURE_REQUEST);
                             break;
 
                         // Add the picture to gallery
                         case 2:
-                            final File publicPictureDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), getString(R.string.app_name));
-                            final File copyFromFile = getPictureFile(newPictureFilename);
-                            final File copyToFile = new File(publicPictureDirectory, newPictureFilename);
                             try {
-                                Utilities.copyFile(copyFromFile, copyToFile);
-                                galleryAddPicture(copyToFile);
+                                ComplementaryPicturesManager.addPictureToGallery(getActivity(), newPictureFilename);
                                 Toast.makeText(getActivity(), R.string.PictureAddedToGallery, Toast.LENGTH_SHORT).show();
                             } catch (IOException e) {
                                 Toast.makeText(getActivity(), R.string.ErrorAddingPictureToGallery,Toast.LENGTH_LONG).show();
@@ -1808,16 +1796,6 @@ public class EditFrameDialog extends DialogFragment {
         }
 
         /**
-         * Notify the gallery application, that a new picture has been added to external storage
-         */
-        private void galleryAddPicture(File pictureFile) {
-            final Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            final Uri contentUri = Uri.fromFile(pictureFile);
-            mediaScanIntent.setData(contentUri);
-            getActivity().sendBroadcast(mediaScanIntent);
-        }
-
-        /**
          * Starts a camera activity to take a new complementary picture
          */
         private void startPictureActivity() {
@@ -1830,7 +1808,8 @@ public class EditFrameDialog extends DialogFragment {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                 // Create the file where the photo should go
-                final File pictureFile = createPictureFile();
+                final File pictureFile = ComplementaryPicturesManager.createNewPictureFile(getActivity());
+                tempPictureFilename = pictureFile.getName();
                 Uri photoURI;
                 //Android Nougat requires that the file is given via FileProvider
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -1844,26 +1823,7 @@ public class EditFrameDialog extends DialogFragment {
             }
         }
 
-        /**
-         *
-         * @return reference to the new file where the picture should be saved
-         */
-        private File createPictureFile() {
-            // Create a unique name for the new picture file
-            final String pictureFilename = UUID.randomUUID().toString() + ".jpg";
-            // Create a reference to the picture file
-            final File picture = getPictureFile(pictureFilename);
-            // Get reference to the destination folder by the file's parent
-            final File pictureStorageDirectory = picture.getParentFile();
-            // If the destination folder does not exist, create it
-            if (!pictureStorageDirectory.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                pictureStorageDirectory.mkdirs(); // also create possible non-existing parent directories -> mkdirs()
-            }
-            tempPictureFilename = pictureFilename;
-            // Return the File
-            return picture;
-        }
+
     }
 
 }
