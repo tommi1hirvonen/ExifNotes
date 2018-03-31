@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/textview_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Text"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"/>
+
+    <Chronometer
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/elapsed_time"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/textview_1"
+        android:layout_marginBottom="20dp"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:indeterminate="false"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/elapsed_time"/>
+
+    <TextView
+        android:id="@+id/textview_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/progress_bar"
+        android:layout_margin="20dp"
+        android:text="@string/Text"
+        />
+
+</RelativeLayout>

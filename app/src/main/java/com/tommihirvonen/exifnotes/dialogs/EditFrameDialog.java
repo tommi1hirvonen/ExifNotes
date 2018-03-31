@@ -824,45 +824,65 @@ public class EditFrameDialog extends DialogFragment {
 
         if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
 
-            // TODO: Implement the decoding on a background thread for more fluid UI experience.
+            // Decode and compress the picture on a background thread.
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // The user has taken a new complementary picture. Update the possible new filename,
+                    // notify gallery app and set the complementary picture bitmap.
+                    newPictureFilename = tempPictureFilename;
 
-            // The user has taken a new complementary picture. Update the possible new filename,
-            // notify gallery app and set the complementary picture bitmap.
-            newPictureFilename = tempPictureFilename;
-
-            // Compress the picture file
-            try {
-                ComplementaryPicturesManager.compressPictureFile(getActivity(), newPictureFilename);
-            } catch (IOException e) {
-                Toast.makeText(getActivity(), R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show();
-            }
-            setComplementaryPicture();
+                    // Compress the picture file
+                    try {
+                        ComplementaryPicturesManager.compressPictureFile(getActivity(), newPictureFilename);
+                    } catch (IOException e) {
+                        Toast.makeText(getActivity(), R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show();
+                    }
+                    // Set the complementary picture ImageView on the UI thread.
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setComplementaryPicture();
+                        }
+                    });
+                }
+            }).start();
             
         }
 
         if (requestCode == SELECT_PICTURE_REQUEST && resultCode == Activity.RESULT_OK) {
 
-            // TODO: Implement the decoding on a background thread for more fluid UI experience.
-
             final Uri selectedPictureUri = data.getData();
             if (selectedPictureUri != null) {
-                // Create the placeholder file in the complementary pictures directory.
-                final File pictureFile = ComplementaryPicturesManager.createNewPictureFile(getActivity());
-                try {
-                    // Get the compressed bitmap from the Uri.
-                    final Bitmap pictureBitmap = ComplementaryPicturesManager.getCompressedBitmap(getActivity(), selectedPictureUri);
-                    try {
-                        // Save the compressed bitmap to the placeholder file.
-                        ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile);
-                        // Update the member reference and set the complementary picture.
-                        newPictureFilename = pictureFile.getName();
-                        setComplementaryPicture();
-                    } catch (IOException e) {
-                        Toast.makeText(getActivity(), R.string.ErrorSavingSelectedPicture, Toast.LENGTH_SHORT).show();
+                // Decode and compress the selected file on a background thread.
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Create the placeholder file in the complementary pictures directory.
+                        final File pictureFile = ComplementaryPicturesManager.createNewPictureFile(getActivity());
+                        try {
+                            // Get the compressed bitmap from the Uri.
+                            final Bitmap pictureBitmap = ComplementaryPicturesManager.getCompressedBitmap(getActivity(), selectedPictureUri);
+                            try {
+                                // Save the compressed bitmap to the placeholder file.
+                                ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile);
+                                // Update the member reference and set the complementary picture.
+                                newPictureFilename = pictureFile.getName();
+                                // Set the complementary picture ImageView on the UI thread.
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setComplementaryPicture();
+                                    }
+                                });
+                            } catch (IOException e) {
+                                Toast.makeText(getActivity(), R.string.ErrorSavingSelectedPicture, Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (FileNotFoundException e) {
+                            Toast.makeText(getActivity(), R.string.ErrorLocatingSelectedPicture, Toast.LENGTH_SHORT).show();
+                        }
                     }
-                } catch (FileNotFoundException e) {
-                    Toast.makeText(getActivity(), R.string.ErrorLocatingSelectedPicture, Toast.LENGTH_SHORT).show();
-                }
+                }).start();
             }
 
         }

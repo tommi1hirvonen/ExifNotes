@@ -490,9 +490,9 @@
 
     <string name="DatabaseCap">DATABASE</string>
     <string name="ExportDatabaseTitle">Export database</string>
-    <string name="ExportDatabaseSummary">Export SQL database file (filmnotes.db)</string>
+    <string name="ExportDatabaseSummary">Export SQL database file (filmnotes.db)\n\nNote: This does not export complementary pictures. These have to be exported separately.</string>
     <string name="ImportDatabaseTitle">Import database</string>
-    <string name="ImportDatabaseSummary">Import SQL database from a previously exported file</string>
+    <string name="ImportDatabaseSummary">Import SQL database from a previously exported file\n\nNote: This does not import complementary pictures. These have to be imported separately after the database has been imported.</string>
 
     <string name="ErrorGettingDatabaseFile">Error getting database file</string>
     <string name="ErrorBuildingOutputFile">Error building output file: </string>
@@ -516,7 +516,13 @@
     <string name="ExportComplementaryPicturesTitle">Export complementary pictures</string>
     <string name="ExportComplementaryPicturesSummary">Export complementary pictures as a compressed .zip file</string>
     <string name="ImportComplementaryPicturesTitle">Import complementary pictures</string>
-    <string name="ImportComplementaryPicturesSummary">Import complementary pictures as a compressed .zip file</string>
+    <string name="ImportComplementaryPicturesSummary">Import complementary pictures from a previously exported .zip file</string>
+
+    <string name="ZipFileCopiedTo">.zip file copied to: </string>
+    <string name="ErrorExportingComplementaryPictures">Error exporting complementary pictures</string>
+    <string name="ErrorImportingComplementaryPicturesFrom">Error importing complementary pictures from: </string>
+    <string name="ComplementaryPicturesImported">Complementary pictures imported successfully</string>
+    <string name="ImportingComplementaryPicturesPleaseWait">Importing complementary pictures, please wait.\n\nDepending on the size of the .zip file, this can take several minutes.</string>
 
     <string name="style_json">
         [

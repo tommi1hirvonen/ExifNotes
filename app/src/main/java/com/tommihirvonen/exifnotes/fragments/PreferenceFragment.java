@@ -1,10 +1,15 @@
 package com.tommihirvonen.exifnotes.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.view.View;
+import android.widget.Chronometer;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
@@ -12,6 +17,7 @@ import com.tommihirvonen.exifnotes.dialogs.DirectoryChooserDialog;
 import com.tommihirvonen.exifnotes.dialogs.FileChooserDialog;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.AppThemeDialogPreference;
+import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference;
@@ -50,31 +56,91 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         UIColorDialogPreference UIColor = (UIColorDialogPreference) findPreference(PreferenceConstants.KEY_UI_COLOR);
         UIColor.setSummary(UIColor.getSelectedColorName());
 
+        // OnClickListener to start complementary pictures export.
         final Preference exportComplementaryPictures = findPreference(PreferenceConstants.KEY_EXPORT_COMPLEMENTARY_PICTURES);
         exportComplementaryPictures.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                // TODO: Implement exporting complementary pictures
+
+                // TODO: Implement similar asynchronous background task as in import to create the zip file and export it.
+
+                DirectoryChooserDialog.newInstance(new DirectoryChooserDialog.OnChosenDirectoryListener() {
+                    @Override
+                    public void onChosenDirectory(String directory) {
+                        // directory is empty if the export was canceled.
+                        if (directory.length() == 0) return;
+                        final File targetDirectory = new File(directory);
+                        try {
+                            ComplementaryPicturesManager.exportComplementaryPictures(getActivity(), targetDirectory);
+                            Toast.makeText(getActivity(), getString(R.string.ZipFileCopiedTo) + directory, Toast.LENGTH_LONG).show();
+                        } catch (IOException e) {
+                            Toast.makeText(getActivity(), R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }).show(getFragmentManager(), "DirChooserDialogTag");
+
                 return true;
             }
         });
 
+        // OnClickListener to start complementary pictures import
         final Preference importComplementaryPictures = findPreference(PreferenceConstants.KEY_IMPORT_COMPLEMENTARY_PICTURES);
         importComplementaryPictures.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                // TODO: Implement importing complementary pictures
+
+                FileChooserDialog.newInstance(new FileChooserDialog.OnChosenFileListener() {
+                    @Override
+                    public void onChosenFile(final String filePath) {
+                        // filePath is empty if the import was canceled
+                        if (filePath.length() == 0) return;
+
+                        // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        @SuppressLint("InflateParams")
+                        final View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_progress, null);
+                        builder.setView(view);
+                        final ProgressBar progressBar = view.findViewById(R.id.progress_bar);
+                        final TextView messageTextView = view.findViewById(R.id.textview_1);
+                        messageTextView.setText(R.string.ImportingComplementaryPicturesPleaseWait);
+                        final TextView progressTextView = view.findViewById(R.id.textview_2);
+                        final Chronometer chronometer = view.findViewById(R.id.elapsed_time);
+                        progressBar.setMax(100);
+                        progressBar.setProgress(0);
+                        progressTextView.setText("");
+                        final AlertDialog dialog = builder.create();
+                        dialog.setCancelable(false);
+                        dialog.show();
+                        chronometer.start();
+                        ComplementaryPicturesManager.importComplementaryPictures(getActivity(),
+                                new File(filePath), new ComplementaryPicturesManager.ZipFileReaderAsyncTask.ProgressListener() {
+                            @Override
+                            public void onProgressChanged(int progressPercentage, int completed, int total) {
+                                progressBar.setProgress(progressPercentage);
+                                final String progressText = "" + completed + "/" + total;
+                                progressTextView.setText(progressText);
+                            }
+                            @Override
+                            public void onCompleted(boolean success) {
+                                dialog.dismiss();
+                                if (success) Toast.makeText(getActivity(), R.string.ComplementaryPicturesImported, Toast.LENGTH_LONG).show();
+                                else Toast.makeText(getActivity(), R.string.ErrorImportingComplementaryPicturesFrom, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }).show(getFragmentManager(), "FileChooserDialogTag");
+
                 return true;
             }
         });
 
+        // OnClickListener to start database export
         final Preference exportDatabase = findPreference(PreferenceConstants.KEY_EXPORT_DATABASE);
         exportDatabase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                DirectoryChooserDialog directoryChooserDialog = DirectoryChooserDialog.newInstance(
-                        new DirectoryChooserDialog.OnChosenDirectoryListener() {
+                DirectoryChooserDialog.newInstance(new DirectoryChooserDialog.OnChosenDirectoryListener() {
                     @Override
                     public void onChosenDirectory(String directory) {
                         //dir is empty if the export was canceled.
@@ -90,22 +156,21 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                             } catch (IOException e){
                                 Toast.makeText(getActivity(),
                                         getResources().getString(R.string.ErrorExportingDatabase),
-                                        Toast.LENGTH_SHORT).show();
+                                        Toast.LENGTH_LONG).show();
                                 return;
                             }
                             Toast.makeText(getActivity(),
                                     getResources().getString(R.string.DatabaseCopiedTo) + directory,
-                                    Toast.LENGTH_SHORT).show();
+                                    Toast.LENGTH_LONG).show();
                         }
                     }
-                });
-                directoryChooserDialog.show(getFragmentManager(), "DirChooserDialogTag");
-
+                }).show(getFragmentManager(), "DirChooserDialogTag");
 
                 return true;
             }
         });
 
+        // OnClickListener to start database import
         final Preference importDatabase = findPreference(PreferenceConstants.KEY_IMPORT_DATABASE);
         importDatabase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -117,8 +182,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                         new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        FileChooserDialog fileChooserDialog = FileChooserDialog.newInstance(
-                                new FileChooserDialog.OnChosenFileListener() {
+                        FileChooserDialog.newInstance(new FileChooserDialog.OnChosenFileListener() {
                             @Override
                             public void onChosenFile(String filePath) {
                                 //If the length of filePath is 0, then the user canceled the import.
@@ -131,7 +195,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                                         Toast.makeText(getActivity(),
                                                 getResources().getString(R.string.ErrorImportingDatabaseFrom) +
                                                         filePath,
-                                                Toast.LENGTH_SHORT).show();
+                                                Toast.LENGTH_LONG).show();
                                         return;
                                     }
                                     if (importSuccess) {
@@ -152,8 +216,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                                     }
                                 }
                             }
-                        });
-                        fileChooserDialog.show(getFragmentManager(), "FileChooserDialogTag");
+                        }).show(getFragmentManager(), "FileChooserDialogTag");
                     }
                 });
                 builder.setNegativeButton(getResources().getString(R.string.No),
