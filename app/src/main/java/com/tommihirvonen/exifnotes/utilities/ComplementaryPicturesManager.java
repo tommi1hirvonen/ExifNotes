@@ -11,7 +11,6 @@ import android.os.Environment;
 import com.tommihirvonen.exifnotes.R;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -267,9 +266,8 @@ public final class ComplementaryPicturesManager {
      *
      * @param context activity's context
      * @param targetDirectory the directory where the zip file should be saved
-     * @throws IOException in there was an error while creating the zip file
      */
-    public static void exportComplementaryPictures(Context context, File targetDirectory) throws IOException {
+    public static void exportComplementaryPictures(Context context, File targetDirectory, ZipFileCreatorAsyncTask.ProgressListener progressListener) {
         final List<String> complementaryPictureFilenames = FilmDbHelper.getInstance(context).getAllComplementaryPictureFilenames();
         final File picturesDirectory = getComplementaryPicturesDirectory(context);
         final FilenameFilter filter = new FilenameFilter() {
@@ -285,7 +283,7 @@ public final class ComplementaryPicturesManager {
         if (files != null && files.length > 0) {
             final String date = Utilities.getCurrentTime().split("\\s+")[0];
             final File targetFile = new File(targetDirectory, "Exif_Notes_Complementary_Pictures_" + date + ".zip");
-            createZipFile(files, targetFile);
+            new ZipFileCreatorAsyncTask(files, targetFile, progressListener).execute();
         }
     }
 
@@ -302,39 +300,6 @@ public final class ComplementaryPicturesManager {
     }
 
     /**
-     * Creates a zip file from an array of files to a target file.
-     *
-     * @param files array of files to be included in the zip file
-     * @param zipFile the target file of the zip file
-     * @throws IOException if an error was encountered while reading and writing the input and output streams
-     */
-    private static void createZipFile(File[] files, File zipFile) throws IOException {
-        // Limit the buffer memory size while reading and writing buffer into the zip stream
-        final int BUFFER = 10240;  // 10KB - good buffer size for disk access
-        // Set the ZipOutputStream beginning with FileOutputStream,
-        // then BufferedOutputStream and ending with ZipOutputStream.
-        final ZipOutputStream outputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
-        // byte array where the bytes read from input stream should be stored
-        byte buffer[] = new byte[BUFFER];
-        // Iterate the files from the files aray
-        for (File file : files) {
-            // Set the BufferedInputStream using FileInputStream
-            final BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file), BUFFER);
-            final ZipEntry entry = new ZipEntry(file.getName());
-            // Begin writing a new zip file entry.
-            outputStream.putNextEntry(entry);
-            int count;
-            // BufferedInputStream.read() returns the number of bytes read
-            // or -1 if the end of stream was reached.
-            while ((count = inputStream.read(buffer, 0, BUFFER)) != -1) {
-                outputStream.write(buffer, 0, count);
-            }
-            inputStream.close();
-        }
-        outputStream.close();
-    }
-
-    /**
      * Creates the directory given as parameter if it does not yet exist
      *
      * @param directory the directory to be checked and created if necessary
@@ -347,9 +312,117 @@ public final class ComplementaryPicturesManager {
     }
 
     /**
+     * Asynchronous task used to export complementary pictures to a zip file.
+     */
+    public static class ZipFileCreatorAsyncTask extends AsyncTask<Void, Void, Boolean> {
+        /**
+         * Limit the buffer memory size while reading and writing buffer into the zip stream
+         */
+        private static final int BUFFER = 10240; // 10KB - good buffer size for disk access
+        /**
+         * The files that should be included in the zip file
+         */
+        private File[] files;
+        /**
+         * The target zip file
+         */
+        private File zipFile;
+        /**
+         * Number of completed entries. Increment by +1 whenever a file has been zipped.
+         */
+        private int completedEntries = 0;
+        /**
+         * Reference to the implementing class's listener interface.
+         */
+        private ProgressListener delegate;
+        /**
+         * Interface for the implementing class. Used to send progress changes and to notify,
+         * when the AsyncTask has finished.
+         */
+        public interface ProgressListener {
+            void onProgressChanged(int progressPercentage, int completed, int total);
+            void onCompleted(boolean success);
+        }
+        /**
+         * Constructor
+         *
+         * @param files files to be zipped
+         * @param zipFile target zip file
+         * @param delegate implementing class's interface
+         */
+        ZipFileCreatorAsyncTask(File[] files, File zipFile, ProgressListener delegate) {
+            this.files = files;
+            this.zipFile = zipFile;
+            this.delegate = delegate;
+        }
+        /**
+         * Run on a background thread. Zip the files.
+         *
+         * @param voids ignore
+         * @return true if the zipping was successful, false if not
+         */
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                // If the files array is empty, return true and end here.
+                if (files.length == 0) return true;
+                // Publish empty progress to tell the interface, that the process has begun.
+                publishProgress();
+                // Set the ZipOutputStream beginning with FileOutputStream then ZipOutputStream.
+                final ZipOutputStream outputStream = new ZipOutputStream(new FileOutputStream(zipFile));
+                // byte array where the bytes read from input stream should be stored.
+                byte buffer[] = new byte[BUFFER];
+                // Iterate the files from the files array
+                for (File file : files) {
+                    // Set the BufferedInputStream using FileInputStream
+                    final BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file), BUFFER);
+                    final ZipEntry entry = new ZipEntry(file.getName());
+                    // Begin writing a new zip file entry.
+                    outputStream.putNextEntry(entry);
+                    int count;
+                    // BufferedInputStream.read() returns the number of bytes read
+                    // or -1 if the end of stream was reached.
+                    while ((count = inputStream.read(buffer, 0, BUFFER)) != -1) {
+                        outputStream.write(buffer, 0, count);
+                    }
+                    inputStream.close();
+                    ++completedEntries;
+                    publishProgress();
+                }
+                outputStream.close();
+            } catch (IOException e) {
+                return false;
+            }
+            return true;
+        }
+        /**
+         * Run on the UI thread. Pass the progress percentage to the implementing class's interface.
+         *
+         * @param values ignore
+         */
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            delegate.onProgressChanged((int) ((float) completedEntries / (float) files.length * 100f), completedEntries, files.length);
+        }
+        /**
+         * Run on the UI thread. Tell the implementing class, that the task has been finished.
+         *
+         * @param bool true if the unzipping was successful, false if not
+         */
+        @Override
+        protected void onPostExecute(Boolean bool) {
+            delegate.onCompleted(bool);
+        }
+    }
+
+    /**
      * Asynchronous task used to import complementary pictures from a zip file.
      */
     public static class ZipFileReaderAsyncTask extends AsyncTask<Void, Void, Boolean> {
+        /**
+         * Limit the buffer memory size while reading and writing buffer from the zip stream
+         */
+        private static final int BUFFER = 10240; // 10KB - good buffer size for disk access
         /**
          * The zip file to be unzipped
          */
@@ -367,7 +440,7 @@ public final class ComplementaryPicturesManager {
          */
         private int totalEntries;
         /**
-         * Reference to the class that is implementing the ProgressListener interface
+         * Reference to the implementing class's listener interface.
          */
         private ProgressListener delegate;
         /**
@@ -400,9 +473,10 @@ public final class ComplementaryPicturesManager {
         protected Boolean doInBackground(Void... voids) {
             try {
                 totalEntries = new ZipFile(zipFile).size();
+                // If the zip file was empty, return true and end here.
+                if (totalEntries == 0) return true;
                 // Publish empty progress to tell the interface, that the process has begun.
                 publishProgress();
-                final int BUFFER = 10240; // 10KB - good buffer size for disk access
                 // Create target directory if it does not exists
                 directoryChecker(targetDirectory);
                 final ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));

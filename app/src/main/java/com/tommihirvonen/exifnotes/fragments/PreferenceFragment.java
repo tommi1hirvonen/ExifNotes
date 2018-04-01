@@ -62,20 +62,44 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                // TODO: Implement similar asynchronous background task as in import to create the zip file and export it.
-
                 DirectoryChooserDialog.newInstance(new DirectoryChooserDialog.OnChosenDirectoryListener() {
                     @Override
-                    public void onChosenDirectory(String directory) {
+                    public void onChosenDirectory(final String directory) {
                         // directory is empty if the export was canceled.
                         if (directory.length() == 0) return;
-                        final File targetDirectory = new File(directory);
-                        try {
-                            ComplementaryPicturesManager.exportComplementaryPictures(getActivity(), targetDirectory);
-                            Toast.makeText(getActivity(), getString(R.string.ZipFileCopiedTo) + directory, Toast.LENGTH_LONG).show();
-                        } catch (IOException e) {
-                            Toast.makeText(getActivity(), R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show();
-                        }
+
+                        // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        @SuppressLint("InflateParams")
+                        final View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_progress, null);
+                        builder.setView(view);
+                        final ProgressBar progressBar = view.findViewById(R.id.progress_bar);
+                        final TextView messageTextView = view.findViewById(R.id.textview_1);
+                        messageTextView.setText(R.string.ExportingComplementaryPicturesPleaseWait);
+                        final TextView progressTextView = view.findViewById(R.id.textview_2);
+                        final Chronometer chronometer = view.findViewById(R.id.elapsed_time);
+                        progressBar.setMax(100);
+                        progressBar.setProgress(0);
+                        progressTextView.setText("");
+                        final AlertDialog dialog = builder.create();
+                        dialog.setCancelable(false);
+                        dialog.show();
+                        chronometer.start();
+                        ComplementaryPicturesManager.exportComplementaryPictures(getActivity(),
+                                new File(directory), new ComplementaryPicturesManager.ZipFileCreatorAsyncTask.ProgressListener() {
+                            @Override
+                            public void onProgressChanged(int progressPercentage, int completed, int total) {
+                                progressBar.setProgress(progressPercentage);
+                                final String progressText = "" + completed + "/" + total;
+                                progressTextView.setText(progressText);
+                            }
+                            @Override
+                            public void onCompleted(boolean success) {
+                                dialog.dismiss();
+                                if (success) Toast.makeText(getActivity(), getString(R.string.ZipFileCopiedTo) + directory, Toast.LENGTH_LONG).show();
+                                else Toast.makeText(getActivity(), R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }
                 }).show(getFragmentManager(), "DirChooserDialogTag");
 

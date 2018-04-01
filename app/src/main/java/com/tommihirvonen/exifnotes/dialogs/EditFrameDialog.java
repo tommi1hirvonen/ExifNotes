@@ -824,6 +824,9 @@ public class EditFrameDialog extends DialogFragment {
 
         if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
 
+            // In case the picture decoding takes a long time, show the user, that the picture is being loaded.
+            pictureTextView.setText(R.string.LoadingPicture);
+            pictureTextView.setVisibility(View.VISIBLE);
             // Decode and compress the picture on a background thread.
             new Thread(new Runnable() {
                 @Override
@@ -854,6 +857,9 @@ public class EditFrameDialog extends DialogFragment {
 
             final Uri selectedPictureUri = data.getData();
             if (selectedPictureUri != null) {
+                // In case the picture decoding takes a long time, show the user, that the picture is being loaded.
+                pictureTextView.setText(R.string.LoadingPicture);
+                pictureTextView.setVisibility(View.VISIBLE);
                 // Decode and compress the selected file on a background thread.
                 new Thread(new Runnable() {
                     @Override

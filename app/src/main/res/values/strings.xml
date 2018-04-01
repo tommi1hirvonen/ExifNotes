@@ -391,6 +391,7 @@
     <string name="ErrorCompressingComplementaryPicture">Error compressing complementary picture</string>
     <string name="ErrorSavingSelectedPicture">Error saving selected picture</string>
     <string name="ErrorLocatingSelectedPicture">Error locating selected picture</string>
+    <string name="LoadingPicture">Loading picture…</string>
 
     <!--frame batch edit-->
 
@@ -519,6 +520,7 @@
     <string name="ImportComplementaryPicturesSummary">Import complementary pictures from a previously exported .zip file</string>
 
     <string name="ZipFileCopiedTo">.zip file copied to: </string>
+    <string name="ExportingComplementaryPicturesPleaseWait">Exporting complementary pictures, please wait.\n\nDepending on the number of complementary pictures, this can take several minutes.</string>
     <string name="ErrorExportingComplementaryPictures">Error exporting complementary pictures</string>
     <string name="ErrorImportingComplementaryPicturesFrom">Error importing complementary pictures from: </string>
     <string name="ComplementaryPicturesImported">Complementary pictures imported successfully</string>
