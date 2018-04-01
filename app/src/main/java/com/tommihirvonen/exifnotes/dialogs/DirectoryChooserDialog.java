@@ -65,6 +65,11 @@ public class DirectoryChooserDialog extends DialogFragment {
     private ArrayAdapter<String> subdirectoryAdapter = null;
 
     /**
+     * ListView element in the dialog containing folders
+     */
+    private ListView listView;
+
+    /**
      * The interface to be implemented in the calling/implementing class
      */
     public interface OnChosenDirectoryListener{
@@ -183,7 +188,7 @@ public class DirectoryChooserDialog extends DialogFragment {
 
         //Set up the ListAdapter, ListView and listener
         subdirectoryAdapter = createListAdapter(subdirectories);
-        ListView listView = inflatedView.findViewById(R.id.subdirectories_listview);
+        listView = inflatedView.findViewById(R.id.subdirectories_listview);
         listView.setAdapter(subdirectoryAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -223,6 +228,7 @@ public class DirectoryChooserDialog extends DialogFragment {
         subdirectories.addAll(getDirectories(currentDirectory));
         currentDirectoryTextView.setText(currentDirectory);
         subdirectoryAdapter.notifyDataSetChanged();
+        listView.setSelection(0);
     }
 
     /**
@@ -296,8 +302,9 @@ public class DirectoryChooserDialog extends DialogFragment {
         }
 
         Collections.sort(directories, new Comparator<String>() {
-            public int compare(String o1, String o2) {
-                return o1.compareTo(o2);
+            @Override
+            public int compare(String s1, String s2) {
+                return s1.compareToIgnoreCase(s2);
             }
         });
 

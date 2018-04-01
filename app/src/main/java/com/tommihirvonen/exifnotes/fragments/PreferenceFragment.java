@@ -24,6 +24,7 @@ import com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 
 /**
@@ -113,7 +114,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                FileChooserDialog.newInstance(new FileChooserDialog.OnChosenFileListener() {
+                FileChooserDialog.newInstance(".zip", new FileChooserDialog.OnChosenFileListener() {
                     @Override
                     public void onChosenFile(final String filePath) {
                         // filePath is empty if the import was canceled
@@ -121,8 +122,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
 
                         // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
                         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        @SuppressLint("InflateParams")
-                        final View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_progress, null);
+                        @SuppressLint("InflateParams") final View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_progress, null);
                         builder.setView(view);
                         final ProgressBar progressBar = view.findViewById(R.id.progress_bar);
                         final TextView messageTextView = view.findViewById(R.id.textview_1);
@@ -138,19 +138,22 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                         chronometer.start();
                         ComplementaryPicturesManager.importComplementaryPictures(getActivity(),
                                 new File(filePath), new ComplementaryPicturesManager.ZipFileReaderAsyncTask.ProgressListener() {
-                            @Override
-                            public void onProgressChanged(int progressPercentage, int completed, int total) {
-                                progressBar.setProgress(progressPercentage);
-                                final String progressText = "" + completed + "/" + total;
-                                progressTextView.setText(progressText);
-                            }
-                            @Override
-                            public void onCompleted(boolean success) {
-                                dialog.dismiss();
-                                if (success) Toast.makeText(getActivity(), R.string.ComplementaryPicturesImported, Toast.LENGTH_LONG).show();
-                                else Toast.makeText(getActivity(), R.string.ErrorImportingComplementaryPicturesFrom, Toast.LENGTH_LONG).show();
-                            }
-                        });
+                                    @Override
+                                    public void onProgressChanged(int progressPercentage, int completed, int total) {
+                                        progressBar.setProgress(progressPercentage);
+                                        final String progressText = "" + completed + "/" + total;
+                                        progressTextView.setText(progressText);
+                                    }
+
+                                    @Override
+                                    public void onCompleted(boolean success) {
+                                        dialog.dismiss();
+                                        if (success)
+                                            Toast.makeText(getActivity(), R.string.ComplementaryPicturesImported, Toast.LENGTH_LONG).show();
+                                        else
+                                            Toast.makeText(getActivity(), R.string.ErrorImportingComplementaryPicturesFrom, Toast.LENGTH_LONG).show();
+                                    }
+                                });
                     }
                 }).show(getFragmentManager(), "FileChooserDialogTag");
 
@@ -206,11 +209,11 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                         new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        FileChooserDialog.newInstance(new FileChooserDialog.OnChosenFileListener() {
+                        FileChooserDialog.newInstance(".db", new FileChooserDialog.OnChosenFileListener() {
                             @Override
                             public void onChosenFile(String filePath) {
                                 //If the length of filePath is 0, then the user canceled the import.
-                                if (filePath.length()>0) {
+                                if (filePath.length() > 0) {
                                     FilmDbHelper database = FilmDbHelper.getInstance(getActivity());
                                     boolean importSuccess;
                                     try {

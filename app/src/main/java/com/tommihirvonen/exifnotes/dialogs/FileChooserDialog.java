@@ -28,6 +28,7 @@ import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -64,6 +65,16 @@ public class FileChooserDialog extends DialogFragment {
     private ArrayAdapter<FileOrDirectory> listAdapter = null;
 
     /**
+     * ListView element in the dialog containing files and folders
+     */
+    private ListView listView;
+
+    /**
+     * File filter used to filter displayed files
+     */
+    private FileFilter fileFilter;
+
+    /**
      * The interface to be implemented in the calling/implementing class
      */
     public interface OnChosenFileListener{
@@ -76,7 +87,6 @@ public class FileChooserDialog extends DialogFragment {
     public FileChooserDialog(){
 
     }
-
 
     /**
      * Private class to holds both directories and files
@@ -91,15 +101,23 @@ public class FileChooserDialog extends DialogFragment {
     }
 
     /**
-     * Custom constructor for the FileChooserDialog class. Attach the listener
-     * to this class's member.
+     * Custom constructor for the FileChooserDialog class.
+     * Attach the listener and filename filter to this class's member.
      *
-     * @param listener OnChosenFileListener from the activity
-     * @return a new FileChooserDialog
+     * @param filenameMustEndWith String, with which any file that is shown, should end. Null if all files are allowed. Directories are always allowed.
+     * @param listener listener from the implementing class
+     * @return new FileChooserDialog
      */
-    public static FileChooserDialog newInstance(FileChooserDialog.OnChosenFileListener listener) {
+    public static FileChooserDialog newInstance(final String filenameMustEndWith, OnChosenFileListener listener) {
         FileChooserDialog dialog = new FileChooserDialog();
         dialog.callback = listener;
+        dialog.fileFilter = new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                // If filenameMustEndWith is null, allow all files (return true). Otherwise allow directories and files ending with filenameMustEndWith.
+                return filenameMustEndWith == null || file.isDirectory() || file.getName().endsWith(filenameMustEndWith);
+            }
+        };
         return dialog;
     }
 
@@ -166,7 +184,7 @@ public class FileChooserDialog extends DialogFragment {
 
         //Set up the ListAdapter, ListView and listener
         listAdapter = createListAdapter(fileOrDirectoryList);
-        ListView listView = inflatedView.findViewById(R.id.subdirectories_listview);
+        listView = inflatedView.findViewById(R.id.subdirectories_listview);
         listView.setAdapter(listAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -182,14 +200,12 @@ public class FileChooserDialog extends DialogFragment {
             }
         });
 
-
         dialogBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 callback.onChosenFile("");
             }
         });
-
 
         dialogBuilder.setCancelable(true);
 
@@ -205,6 +221,7 @@ public class FileChooserDialog extends DialogFragment {
         fileOrDirectoryList.addAll(getFileDirs(currentDirectory));
         currentDirectoryTextView.setText(currentDirectory);
         listAdapter.notifyDataSetChanged();
+        listView.setSelection(0);
     }
 
     /**
@@ -222,9 +239,7 @@ public class FileChooserDialog extends DialogFragment {
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
-//                String text = getItem(position);
-                FileOrDirectory fileOrDirectory = getItem(position);
-
+                final FileOrDirectory fileOrDirectory = getItem(position);
                 FileChooserDialog.ViewHolder holder;
 
                 if (convertView == null) {
@@ -270,11 +285,12 @@ public class FileChooserDialog extends DialogFragment {
         List<FileOrDirectory> fileOrDirectories = new ArrayList<>();
         try {
             File directoryFile = new File(directoryPath);
+            // If the file/directory doesn't exist or it is not a directory, return empty list.
             if (!directoryFile.exists() || !directoryFile.isDirectory()) {
                 return fileOrDirectories;
             }
-
-            for (File file : directoryFile.listFiles()) {
+            // Otherwise, iterate the files and directories in the location.
+            for (File file : directoryFile.listFiles(fileFilter)) {
                 if (file.isDirectory()) {
                     fileOrDirectories.add(new FileOrDirectory(file.getName(), true));
                 } else {
@@ -286,20 +302,17 @@ public class FileChooserDialog extends DialogFragment {
             Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + directoryPath,
                     Toast.LENGTH_LONG).show();
         }
-
         Collections.sort(fileOrDirectories, new Comparator<FileOrDirectory>() {
             public int compare(FileOrDirectory o1, FileOrDirectory o2) {
                 if (o1.directory == o2.directory) {
-                    return o1.path.compareTo(o2.path);
+                    return o1.path.compareToIgnoreCase(o2.path);
                 } else {
                     if (o1.directory) return -1;
                     else return 1;
                 }
             }
         });
-
         return fileOrDirectories;
     }
-
 
 }
