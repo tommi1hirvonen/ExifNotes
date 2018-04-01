@@ -65,7 +65,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
 
                 DirectoryChooserDialog.newInstance(new DirectoryChooserDialog.OnChosenDirectoryListener() {
                     @Override
-                    public void onChosenDirectory(final String directory) {
+                    public void onChosenDirectory(String directory) {
                         // directory is empty if the export was canceled.
                         if (directory.length() == 0) return;
 
@@ -95,9 +95,12 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                                 progressTextView.setText(progressText);
                             }
                             @Override
-                            public void onCompleted(boolean success) {
+                            public void onCompleted(boolean success, int completedEntries) {
                                 dialog.dismiss();
-                                if (success) Toast.makeText(getActivity(), getString(R.string.ZipFileCopiedTo) + directory, Toast.LENGTH_LONG).show();
+                                if (success) {
+                                    if (completedEntries == 0) Toast.makeText(getActivity(), R.string.NoPicturesExported, Toast.LENGTH_LONG).show();
+                                    else Toast.makeText(getActivity(), getResources().getQuantityString(R.plurals.ComplementaryPicturesExported, completedEntries, completedEntries), Toast.LENGTH_LONG).show();
+                                }
                                 else Toast.makeText(getActivity(), R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show();
                             }
                         });
@@ -146,12 +149,13 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                                     }
 
                                     @Override
-                                    public void onCompleted(boolean success) {
+                                    public void onCompleted(boolean success, int completedEntries) {
                                         dialog.dismiss();
-                                        if (success)
-                                            Toast.makeText(getActivity(), R.string.ComplementaryPicturesImported, Toast.LENGTH_LONG).show();
-                                        else
-                                            Toast.makeText(getActivity(), R.string.ErrorImportingComplementaryPicturesFrom, Toast.LENGTH_LONG).show();
+                                        if (success) {
+                                            if (completedEntries == 0) Toast.makeText(getActivity(), R.string.NoPicturesImported, Toast.LENGTH_LONG).show();
+                                            else Toast.makeText(getActivity(), getResources().getQuantityString(R.plurals.ComplementaryPicturesImported, completedEntries, completedEntries), Toast.LENGTH_LONG).show();
+                                        }
+                                        else Toast.makeText(getActivity(), R.string.ErrorImportingComplementaryPicturesFrom, Toast.LENGTH_LONG).show();
                                     }
                                 });
                     }

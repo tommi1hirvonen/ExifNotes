@@ -519,12 +519,20 @@
     <string name="ImportComplementaryPicturesTitle">Import complementary pictures</string>
     <string name="ImportComplementaryPicturesSummary">Import complementary pictures from a previously exported .zip file</string>
 
-    <string name="ZipFileCopiedTo">.zip file copied to: </string>
     <string name="ExportingComplementaryPicturesPleaseWait">Exporting complementary pictures, please wait.\n\nDepending on the number of complementary pictures, this can take several minutes.</string>
     <string name="ErrorExportingComplementaryPictures">Error exporting complementary pictures</string>
     <string name="ErrorImportingComplementaryPicturesFrom">Error importing complementary pictures from: </string>
-    <string name="ComplementaryPicturesImported">Complementary pictures imported successfully</string>
     <string name="ImportingComplementaryPicturesPleaseWait">Importing complementary pictures, please wait.\n\nDepending on the size of the .zip file, this can take several minutes.</string>
+    <string name="NoPicturesExported">No pictures were exported</string>
+    <plurals name="ComplementaryPicturesExported">
+        <item quantity="one">%d picture exported successfully</item>
+        <item quantity="other">%d pictures exported successfully</item>
+    </plurals>
+    <string name="NoPicturesImported">No pictures were imported</string>
+    <plurals name="ComplementaryPicturesImported">
+        <item quantity="one">%d picture imported successfully</item>
+        <item quantity="other">%d pictures imported successfully</item>
+    </plurals>
 
     <string name="style_json">
         [

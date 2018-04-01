@@ -280,7 +280,8 @@ public final class ComplementaryPicturesManager {
         if (picturesDirectory != null) {
             files = picturesDirectory.listFiles(filter);
         }
-        if (files != null && files.length > 0) {
+        // If files is empty, no zip file will be created in ZipFileCreatorAsyncTask
+        if (files != null) {
             final String date = Utilities.getCurrentTime().split("\\s+")[0];
             final File targetFile = new File(targetDirectory, "Exif_Notes_Complementary_Pictures_" + date + ".zip");
             new ZipFileCreatorAsyncTask(files, targetFile, progressListener).execute();
@@ -341,7 +342,7 @@ public final class ComplementaryPicturesManager {
          */
         public interface ProgressListener {
             void onProgressChanged(int progressPercentage, int completed, int total);
-            void onCompleted(boolean success);
+            void onCompleted(boolean success, int completedEntries);
         }
         /**
          * Constructor
@@ -411,7 +412,7 @@ public final class ComplementaryPicturesManager {
          */
         @Override
         protected void onPostExecute(Boolean bool) {
-            delegate.onCompleted(bool);
+            delegate.onCompleted(bool, completedEntries);
         }
     }
 
@@ -449,7 +450,7 @@ public final class ComplementaryPicturesManager {
          */
         public interface ProgressListener {
             void onProgressChanged(int progressPercentage, int completed, int total);
-            void onCompleted(boolean success);
+            void onCompleted(boolean success, int completedEntries);
         }
         /**
          * Constructor
@@ -526,7 +527,7 @@ public final class ComplementaryPicturesManager {
          */
         @Override
         protected void onPostExecute(Boolean bool) {
-            delegate.onCompleted(bool);
+            delegate.onCompleted(bool, completedEntries);
         }
     }
 
