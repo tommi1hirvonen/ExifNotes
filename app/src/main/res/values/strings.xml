@@ -7,17 +7,20 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.10.1\nCopyright 2018 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.11.0\nCopyright 2018 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -UI improvements\n
-        -Fixed bug which prevented from batch editing frames\' locations.\n
-        -Fixed bug which caused app to crash on pre L devices when batch editing frame counts upwards.\n
+        -You can now add a complementary picture to a frame using the phone\'s camera or the gallery application. Pictures are saved in a compressed format (max 1024px on longest side) and can be exported/imported in the app\'s settings. Individual pictures can also be added to the gallery application in the frame edit window.\n
+        -Bug fixes\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.11.0 2018-04-08:\n
+        -You can now add a complementary picture to a frame using the phone\'s camera or the gallery application. Pictures are saved in a compressed format (max 1024px on longest side) and can be exported/imported in the app\'s settings. Individual pictures can also be added to the gallery application in the frame edit window.\n
+        -Bug fixes\n
         \n
         v1.10.1 2018-03-20:\n
         -UI improvements\n
