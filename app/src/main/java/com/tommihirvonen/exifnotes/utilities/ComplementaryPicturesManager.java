@@ -342,7 +342,7 @@ public final class ComplementaryPicturesManager {
          */
         public interface ProgressListener {
             void onProgressChanged(int progressPercentage, int completed, int total);
-            void onCompleted(boolean success, int completedEntries);
+            void onCompleted(boolean success, int completedEntries, File zipFile);
         }
         /**
          * Constructor
@@ -412,7 +412,7 @@ public final class ComplementaryPicturesManager {
          */
         @Override
         protected void onPostExecute(Boolean bool) {
-            delegate.onCompleted(bool, completedEntries);
+            delegate.onCompleted(bool, completedEntries, zipFile);
         }
     }
 

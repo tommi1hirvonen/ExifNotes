@@ -491,26 +491,29 @@
 
     <string name="DatabaseCap">DATABASE</string>
     <string name="ExportDatabaseTitle">Export database</string>
-    <string name="ExportDatabaseSummary">Export SQL database file (filmnotes.db)\n\nNote: This does not export complementary pictures. These have to be exported separately.</string>
+    <string name="ExportDatabaseSummary">Export SQL database as a .db file</string>
     <string name="ImportDatabaseTitle">Import database</string>
-    <string name="ImportDatabaseSummary">Import SQL database from a previously exported file\n\nNote: This does not import complementary pictures. These have to be imported separately after the database has been imported.</string>
+    <string name="ImportDatabaseSummary">Import SQL database from a previously exported .db file</string>
 
     <string name="ErrorGettingDatabaseFile">Error getting database file</string>
-    <string name="ErrorBuildingOutputFile">Error building output file: </string>
+    <string name="ErrorBuildingOutputFile">Error building output file:\u0020</string>
     <string name="ErrorExportingDatabase">Error exporting database</string>
-    <string name="DatabaseCopiedTo">Database copied to: </string>
+    <string name="DatabaseCopiedToFile">Database copied to file\u0020</string>
     <string name="ImportDatabaseVerification">
-        Are you sure you want to continue importing?\n
-        \n
-        This will replace the current database with the imported one.\n
-        \n
-        IMPORTANT! The imported database file must be in exactly the same format as the exported file.
+        Are you sure you want to continue importing?
+        \n\nThis will replace the current database with the imported one.
+        \n\nIMPORTANT! The imported database file must be in exactly the same format as the exported file.
         If structural changes have been made to the database file or the file is otherwise corrupted, the import will fail!
         In this case the old database will be used.
     </string>
+    <string name="ExportDatabaseVerification">
+        NOTE: Exporting the SQL database does not export any complementary pictures attached to frames.
+        \n\nIf you wish to export complementary pictures as well, this needs to be done separately
+        with the \'Export complementary pictures\' option in settings.
+    </string>
     <string name="Continue">Continue</string>
     <string name="No">No</string>
-    <string name="ErrorImportingDatabaseFrom">Error importing database from: </string>
+    <string name="ErrorImportingDatabaseFrom">Error importing database from:\u0020</string>
     <string name="DatabaseImported">Database imported successfully</string>
 
     <string name="ComplementaryPicturesCap">COMPLEMENTARY PICTURES</string>
@@ -519,14 +522,19 @@
     <string name="ImportComplementaryPicturesTitle">Import complementary pictures</string>
     <string name="ImportComplementaryPicturesSummary">Import complementary pictures from a previously exported .zip file</string>
 
+    <string name="ImportComplementaryPicturesVerification">
+        NOTE: If you are importing complementary pictures from a previous device for example, you should import the .db database file first.
+        \n\nWhen complementary pictures are imported, Exif Notes looks for matches between the filenames of imported pictures and frames\' details in the current database.
+        \n\nImported pictures, which have no matching frames, are discarded.
+    </string>
     <string name="ExportingComplementaryPicturesPleaseWait">Exporting complementary pictures, please wait.\n\nDepending on the number of complementary pictures, this can take several minutes.</string>
     <string name="ErrorExportingComplementaryPictures">Error exporting complementary pictures</string>
     <string name="ErrorImportingComplementaryPicturesFrom">Error importing complementary pictures from: </string>
     <string name="ImportingComplementaryPicturesPleaseWait">Importing complementary pictures, please wait.\n\nDepending on the size of the .zip file, this can take several minutes.</string>
     <string name="NoPicturesExported">No pictures were exported</string>
-    <plurals name="ComplementaryPicturesExported">
-        <item quantity="one">%d picture exported successfully</item>
-        <item quantity="other">%d pictures exported successfully</item>
+    <plurals name="ComplementaryPicturesExportedTo">
+        <item quantity="one">%d picture exported to\u0020</item>
+        <item quantity="other">%d pictures exported to\u0020</item>
     </plurals>
     <string name="NoPicturesImported">No pictures were imported</string>
     <plurals name="ComplementaryPicturesImported">
