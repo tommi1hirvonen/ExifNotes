@@ -507,7 +507,7 @@
     <string name="DatabaseCopiedToFile">Database copied to file\u0020</string>
     <string name="ImportDatabaseVerification">
         Are you sure you want to continue importing?
-        \n\nThis will replace the current database with the imported one.
+        \n\nThis will replace the current database with the imported one. Orphaned complementary pictures will also eventually be removed from storage.
         \n\nIMPORTANT! The imported database file must be in exactly the same format as the exported file.
         If structural changes have been made to the database file or the file is otherwise corrupted, the import will fail!
         In this case the old database will be used.
