@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.R;
 
@@ -232,6 +234,50 @@ public final class ComplementaryPicturesManager {
         final int width = options.outWidth;
         if (maxSize >= Math.max(height, width)) return 1;
         else return Math.max(height / maxSize, width / maxSize);
+    }
+
+    /**
+     * Set the picture orientation 90 degrees clockwise using ExifInterface.
+     *
+     * @param context activity's context
+     * @param filename the name of the picture file to be rotated
+     * @throws IOException if reading/writing exif data caused an exception
+     */
+    public static void rotatePictureRight(Context context, String filename) throws IOException {
+        final File pictureFile = getPictureFile(context, filename);
+        final ExifInterface exifInterface = new ExifInterface(pictureFile.getAbsolutePath());
+        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        int newOrientation = ExifInterface.ORIENTATION_NORMAL;
+
+        if (orientation == ExifInterface.ORIENTATION_NORMAL || orientation == ExifInterface.ORIENTATION_UNDEFINED) newOrientation = ExifInterface.ORIENTATION_ROTATE_90;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_90) newOrientation = ExifInterface.ORIENTATION_ROTATE_180;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) newOrientation = ExifInterface.ORIENTATION_ROTATE_270;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) newOrientation = ExifInterface.ORIENTATION_NORMAL;
+
+        exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(newOrientation));
+        exifInterface.saveAttributes();
+    }
+
+    /**
+     * Set the picture orientation 90 degrees counterclockwise using ExifInterface.
+     *
+     * @param context activity's context
+     * @param filename the name of the picture file to be rotated
+     * @throws IOException if reading/writing exif data caused an exception
+     */
+    public static void rotatePictureLeft(Context context, String filename) throws IOException {
+        final File pictureFile = getPictureFile(context, filename);
+        final ExifInterface exifInterface = new ExifInterface(pictureFile.getAbsolutePath());
+        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        int newOrientation = ExifInterface.ORIENTATION_NORMAL;
+
+        if (orientation == ExifInterface.ORIENTATION_NORMAL || orientation == ExifInterface.ORIENTATION_UNDEFINED) newOrientation = ExifInterface.ORIENTATION_ROTATE_270;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_90) newOrientation = ExifInterface.ORIENTATION_NORMAL;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) newOrientation = ExifInterface.ORIENTATION_ROTATE_90;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) newOrientation = ExifInterface.ORIENTATION_ROTATE_180;
+
+        exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(newOrientation));
+        exifInterface.saveAttributes();
     }
 
     /**

@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.support.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -920,8 +921,25 @@ public class EditFrameDialog extends DialogFragment {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    // Get the target ImageView height
-                    final int targetH = (int) getResources().getDimension(R.dimen.ComplementaryPictureImageViewHeight);
+                    // Get the target ImageView height.
+                    // Because the complementary picture ImageView uses subclass SquareImageView,
+                    // the ImageView width should also be its height. Because the ImageView's
+                    // width is match_parent, we get the dialog's width instead.
+                    // If there is a problem getting the dialog window, use the resource dimension instead.
+                    final int targetH = getDialog().getWindow() != null ?
+                            getDialog().getWindow().getDecorView().getWidth() :
+                            (int) getResources().getDimension(R.dimen.ComplementaryPictureImageViewHeight);
+
+                    // Rotate the complementary picture ImageView if necessary
+                    int rotationTemp = 0;
+                    try {
+                        final ExifInterface exifInterface = new ExifInterface(pictureFile.getAbsolutePath());
+                        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) rotationTemp = 90;
+                        else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) rotationTemp = 180;
+                        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) rotationTemp = 270;
+                    } catch (IOException ignore) {}
+                    final int rotation = rotationTemp;
 
                     // Get the dimensions of the bitmap
                     final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -945,6 +963,7 @@ public class EditFrameDialog extends DialogFragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            pictureImageView.setRotation(rotation);
                             pictureImageView.setImageBitmap(bitmap);
                             Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_fast);
                             pictureImageView.startAnimation(animation);
@@ -1764,6 +1783,8 @@ public class EditFrameDialog extends DialogFragment {
                         getString(R.string.TakeNewComplementaryPicture),
                         getString(R.string.SelectPictureFromGallery),
                         getString(R.string.AddPictureToGallery),
+                        getString(R.string.RotateRight90Degrees),
+                        getString(R.string.RotateLeft90Degrees),
                         getString(R.string.Clear)
                 };
             }
@@ -1798,8 +1819,18 @@ public class EditFrameDialog extends DialogFragment {
                             dialogInterface.dismiss();
                             break;
 
-                        // Clear the complementary picture
+                        // Rotate the picture 90 degrees clockwise
                         case 3:
+                            rotateComplementaryPictureRight();
+                            break;
+
+                        // Rotate the picture 90 degrees counterclockwise
+                        case 4:
+                            rotateComplementaryPictureLeft();
+                            break;
+
+                        // Clear the complementary picture
+                        case 5:
                             newPictureFilename = null;
                             pictureImageView.setVisibility(View.GONE);
                             pictureTextView.setVisibility(View.VISIBLE);
@@ -1849,6 +1880,35 @@ public class EditFrameDialog extends DialogFragment {
             }
         }
 
+        /**
+         * Rotate the complementary picture ImageView 90 degrees clockwise and
+         * set the complementary picture orientation with ComplementaryPicturesManager.
+         */
+        private void rotateComplementaryPictureRight() {
+            try {
+                ComplementaryPicturesManager.rotatePictureRight(getActivity(), newPictureFilename);
+                pictureImageView.setRotation(pictureImageView.getRotation() + 90);
+                final Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_right);
+                pictureImageView.startAnimation(animation);
+            } catch (IOException e) {
+                Toast.makeText(getActivity(), R.string.ErrorWhileEditingPicturesExifData, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        /**
+         * Rotate the complementary picture ImageView 90 degrees counterclockwise and set
+         * the complementary picture orientation with ComplementaryPicturesManager.
+         */
+        private void rotateComplementaryPictureLeft() {
+            try {
+                ComplementaryPicturesManager.rotatePictureLeft(getActivity(), newPictureFilename);
+                pictureImageView.setRotation(pictureImageView.getRotation() - 90);
+                final Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_left);
+                pictureImageView.startAnimation(animation);
+            } catch (IOException e) {
+                Toast.makeText(getActivity(), R.string.ErrorWhileEditingPicturesExifData, Toast.LENGTH_SHORT).show();
+            }
+        }
 
     }
 

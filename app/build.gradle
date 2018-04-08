@@ -52,4 +52,5 @@ dependencies {
     compile 'com.android.support:support-v13:26.1.0'
     compile 'com.android.support:percent:26.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support:exifinterface:26.1.0'
 }

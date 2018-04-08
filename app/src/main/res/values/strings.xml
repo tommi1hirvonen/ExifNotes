@@ -395,6 +395,9 @@
     <string name="ErrorSavingSelectedPicture">Error saving selected picture</string>
     <string name="ErrorLocatingSelectedPicture">Error locating selected picture</string>
     <string name="LoadingPicture">Loading picture…</string>
+    <string name="RotateRight90Degrees">Rotate right 90 degrees</string>
+    <string name="RotateLeft90Degrees">Rotate left 90 degrees</string>
+    <string name="ErrorWhileEditingPicturesExifData">Error while editing picture\'s EXIF data</string>
 
     <!--frame batch edit-->
 

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -24,13 +23,10 @@ import com.tommihirvonen.exifnotes.fragments.RollsFragment;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.List;
 
 /**
  * MainActivity is the first activity to be called when the app is launched.
@@ -69,8 +65,9 @@ public class MainActivity extends AppCompatActivity implements
         //------------------------------------------------------------------------------------------
         // Delete all complementary pictures, which are not linked to any frame.
         // Do this each time the app is launched to keep the storage consumption to a minimum.
-
-        ComplementaryPicturesManager.deleteUnusedPictures(this);
+        // If savedInstanceState is not null, then the activity is being recreated. In this case,
+        // don't delete pictures.
+        if (savedInstanceState == null) ComplementaryPicturesManager.deleteUnusedPictures(this);
         //------------------------------------------------------------------------------------------
 
 

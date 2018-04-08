@@ -24,7 +24,6 @@ import com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 
 /**
