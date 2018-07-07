@@ -30,6 +30,7 @@ import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
+import com.tommihirvonen.exifnotes.datastructures.FilterMode;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
@@ -85,29 +86,26 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
 
         final SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        final int getRollsArchivalArg =
-                sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
+        final FilterMode filterMode = FilterMode.fromValue(
+                sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilterMode.ACTIVE.getValue()));
 
         database = FilmDbHelper.getInstance(this);
-        rollList = database.getRolls(getRollsArchivalArg);
+        rollList = database.getRolls(filterMode);
 
         Utilities.setUiColor(this, true);
 
         // Set the ActionBar title and subtitle.
         if (getSupportActionBar() != null) {
             // Set the subtitle according to which film rolls are shown.
-            switch (getRollsArchivalArg) {
-                case FilmDbHelper.ROLLS_ACTIVE:
+            switch (filterMode) {
+                case ACTIVE: default:
                     getSupportActionBar().setSubtitle(R.string.ActiveRolls);
                     break;
-                case FilmDbHelper.ROLLS_ARCHIVED:
+                case ARCHIVED:
                     getSupportActionBar().setSubtitle(R.string.ArchivedRolls);
                     break;
-                case FilmDbHelper.ROLLS_ALL:
+                case ALL:
                     getSupportActionBar().setSubtitle(R.string.AllRolls);
-                    break;
-                default:
-                    getSupportActionBar().setSubtitle(R.string.ActiveRolls);
                     break;
             }
             getSupportActionBar().setTitle(R.string.AllFrames);
@@ -312,7 +310,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                         TextView noteTextView = view.findViewById(R.id.note);
 
                         rollTextView.setText(roll.getName());
-                        cameraTextView.setText(camera.getMake() + " " + camera.getModel());
+                        cameraTextView.setText(camera.getName());
 
                         String frameCountText = "#" + frame.getCount();
                         frameCountTextView.setText(frameCountText);
@@ -320,7 +318,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                         dateTimeTextView.setText(frame.getDate());
 
                         if (lens != null) {
-                            lensTextView.setText(lens.getMake() + " " + lens.getModel());
+                            lensTextView.setText(lens.getName());
                         }
                         else {
                             lensTextView.setText(getResources().getString(R.string.NoLens));

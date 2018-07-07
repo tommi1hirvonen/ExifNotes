@@ -7,6 +7,25 @@
         android:id="@+id/menu_item_filter"
         android:icon="@drawable/ic_filter_list_white_48dp"
         app:showAsAction="ifRoom">
+        <menu
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
+            <group
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/active_rolls_filter"
+                    android:title="@string/ActiveRolls"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/archived_rolls_filter"
+                    android:title="@string/ArchivedRolls"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/all_rolls_filter"
+                    android:title="@string/AllRolls"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
     </item>
 
     <item
@@ -14,6 +33,25 @@
         android:id="@+id/menu_item_sort"
         android:icon="@drawable/ic_sort_white_48dp"
         app:showAsAction="ifRoom">
+        <menu
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
+            <group
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/date_sort_mode"
+                    android:title="@string/DateNoColon"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/name_sort_mode"
+                    android:title="@string/NameNoColon"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/camera_sort_mode"
+                    android:title="@string/CameraNoColon"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
     </item>
 
     <item

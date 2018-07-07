@@ -7,6 +7,33 @@
         android:id="@+id/menu_item_sort"
         android:icon="@drawable/ic_sort_white_48dp"
         app:showAsAction="ifRoom">
+        <menu
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
+            <group
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/frame_count_sort_mode"
+                    android:title="@string/FrameCountNoColon"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/date_sort_mode"
+                    android:title="@string/DateNoColon"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/f_stop_sort_mode"
+                    android:title="@string/FStop"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/shutter_speed_sort_mode"
+                    android:title="@string/ShutterSpeed"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/lens_sort_mode"
+                    android:title="@string/LensNoColon"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
     </item>
 
     <item

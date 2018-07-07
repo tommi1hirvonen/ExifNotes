@@ -28,10 +28,12 @@ import android.widget.TextView;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
+import com.tommihirvonen.exifnotes.datastructures.FrameSortMode;
 import com.tommihirvonen.exifnotes.datastructures.Gear;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.datastructures.RollSortMode;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -521,17 +523,15 @@ public class Utilities {
      * This function is called when the user has selected a sorting criteria.
      * Sort the frame list depending on the sorting criteria defined in SharedPreferences.
      *
-     * @param activity reference to parent activity used to get SharedPreferences
+     * @param activity reference to the parent activity
+     * @param sortMode enum type referencing the frame sort mode
      * @param database reference to the application's database
      * @param listToSort reference to the frame list that is to be sorted
      */
-    public static void sortFrameList(Activity activity, final FilmDbHelper database, List<Frame> listToSort) {
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+    public static void sortFrameList(Activity activity, FrameSortMode sortMode, final FilmDbHelper database, List<Frame> listToSort) {
         final Utilities utilities = new Utilities(activity);
-        int sortId = sharedPref.getInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, 0);
-        switch (sortId){
-            //Sort by count
-            case 0:
+        switch (sortMode){
+            case FRAME_COUNT:
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
                     public int compare(Frame o1, Frame o2) {
@@ -546,8 +546,7 @@ public class Utilities {
                 });
                 break;
 
-            //Sort by date
-            case 1:
+            case DATE:
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
                     public int compare(Frame o1, Frame o2) {
@@ -576,8 +575,7 @@ public class Utilities {
                 });
                 break;
 
-            //Sort by f-stop
-            case 2:
+            case F_STOP:
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
                     public int compare(Frame o1, Frame o2) {
@@ -598,8 +596,7 @@ public class Utilities {
                 });
                 break;
 
-            //Sort by shutter speed
-            case 3:
+            case SHUTTER_SPEED:
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
                     public int compare(Frame o1, Frame o2) {
@@ -622,8 +619,7 @@ public class Utilities {
                 });
                 break;
 
-            //Sort by lens
-            case 4:
+            case LENS:
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
                     public int compare(Frame o1, Frame o2) {
@@ -652,16 +648,14 @@ public class Utilities {
     /**
      * Called when the user has selected a sorting criteria.
      *
-     * @param activity reference to parent activity used to get SharedPreferences
+     * @param sortMode SortMode enum type
      * @param database reference to the application's database
      * @param listToSort reference to the List that should be sorted
      */
-    public static void sortRollList(Activity activity, final FilmDbHelper database, List<Roll> listToSort) {
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        int sortId = sharedPref.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, 0);
-        switch (sortId){
-            //Sort by date
-            case 0:
+    public static void sortRollList(RollSortMode sortMode, final FilmDbHelper database, List<Roll> listToSort) {
+        switch (sortMode){
+
+            case DATE: default:
                 Collections.sort(listToSort, new Comparator<Roll>() {
                     @Override
                     public int compare(Roll o1, Roll o2) {
@@ -690,8 +684,7 @@ public class Utilities {
                 });
                 break;
 
-            //Sort by name
-            case 1:
+            case NAME:
                 Collections.sort(listToSort, new Comparator<Roll>() {
                     @Override
                     public int compare(Roll o1, Roll o2) {
@@ -700,8 +693,7 @@ public class Utilities {
                 });
                 break;
 
-            //Sort by camera
-            case 2:
+            case CAMERA:
                 Collections.sort(listToSort, new Comparator<Roll>() {
                     @Override
                     public int compare(Roll o1, Roll o2) {

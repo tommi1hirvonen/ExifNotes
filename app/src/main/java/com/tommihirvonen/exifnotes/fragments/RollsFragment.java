@@ -38,7 +38,9 @@ import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.datastructures.FilterMode;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
+import com.tommihirvonen.exifnotes.datastructures.RollSortMode;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.ArrayList;
@@ -116,7 +118,13 @@ public class RollsFragment extends Fragment implements
      * Holds the roll filter status (archived, active or all rolls).
      * This way we don't always have to query the value from SharedPreferences.
      */
-    private int visibleRolls;
+    private FilterMode filterMode;
+
+    /**
+     * Holds the roll sort mode (date, name or camera).
+     * This way we don't always have to query the value from SharedPreferences.
+     */
+    private RollSortMode sortMode;
 
     /**
      * This interface is implemented in MainActivity.
@@ -215,31 +223,29 @@ public class RollsFragment extends Fragment implements
 
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         // Get from preferences which rolls to load from the database.
-        visibleRolls = sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
+        filterMode = FilterMode.fromValue(
+                sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilterMode.ACTIVE.getValue()));
+        sortMode = RollSortMode.fromValue(
+                sharedPreferences.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, RollSortMode.DATE.getValue()));
 
         // Declare variables for the ActionBar subtitle, which shows the film roll filter status
         // and the main TextView, which is displayed if no rolls are shown.
         final String subtitleText;
         final String mainTextViewText;
-        switch (visibleRolls) {
-            case FilmDbHelper.ROLLS_ACTIVE:
+        switch (filterMode) {
+            case ACTIVE: default:
                 subtitleText = getResources().getString(R.string.ActiveFilmRolls);
                 mainTextViewText = getResources().getString(R.string.NoActiveRolls);
                 floatingActionButton.show();
                 break;
-            case FilmDbHelper.ROLLS_ARCHIVED:
+            case ARCHIVED:
                 subtitleText = getResources().getString(R.string.ArchivedFilmRolls);
                 mainTextViewText = getResources().getString(R.string.NoArchivedRolls);
                 floatingActionButton.hide();
                 break;
-            case FilmDbHelper.ROLLS_ALL:
+            case ALL:
                 subtitleText = getResources().getString(R.string.AllFilmRolls);
                 mainTextViewText = getResources().getString(R.string.NoActiveOrArchivedRolls);
-                floatingActionButton.show();
-                break;
-            default:
-                subtitleText = getResources().getString(R.string.ActiveFilmRolls);
-                mainTextViewText = getResources().getString(R.string.NoActiveRolls);
                 floatingActionButton.show();
                 break;
         }
@@ -255,9 +261,10 @@ public class RollsFragment extends Fragment implements
         mainTextView.setText(mainTextViewText);
 
         // Load the rolls from the database.
-        rollList = database.getRolls(visibleRolls);
+        rollList = database.getRolls(filterMode);
         //Order the roll list according to preferences.
-        Utilities.sortRollList(getActivity(), database, rollList);
+
+        Utilities.sortRollList(sortMode, database, rollList);
         if (recreateRollAdapter) {
             // Create an ArrayAdapter for the ListView.
             rollAdapter = new RollAdapter(getActivity(), rollList, this);
@@ -304,6 +311,45 @@ public class RollsFragment extends Fragment implements
     }
 
     /**
+     * Called after onCreateOptionsMenu() to prepare the menu.
+     * Check the correct filter and sort options.
+     *
+     * @param menu reference to the menu that is to be prepared
+     */
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+
+        switch (filterMode) {
+            case ACTIVE: default:
+                menu.findItem(R.id.active_rolls_filter).setChecked(true);
+                break;
+            case ARCHIVED:
+                menu.findItem(R.id.archived_rolls_filter).setChecked(true);
+                break;
+            case ALL:
+                menu.findItem(R.id.all_rolls_filter).setChecked(true);
+                break;
+        }
+
+        switch (sortMode) {
+
+            case DATE: default:
+                menu.findItem(R.id.date_sort_mode).setChecked(true);
+                break;
+
+            case NAME:
+                menu.findItem(R.id.name_sort_mode).setChecked(true);
+                break;
+
+            case CAMERA:
+                menu.findItem(R.id.camera_sort_mode).setChecked(true);
+                break;
+        }
+
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    /**
      * Handle events when the user selects an action from the options menu.
      *
      * @param item selected menu item.
@@ -312,35 +358,6 @@ public class RollsFragment extends Fragment implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
-
-            case R.id.menu_item_sort:
-
-                final SharedPreferences sharedPrefSortDialog = getActivity().getPreferences(Context.MODE_PRIVATE);
-                int checkedItem = sharedPrefSortDialog.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, 0);
-                AlertDialog.Builder sortDialog = new AlertDialog.Builder(getActivity());
-                sortDialog.setTitle(R.string.SortBy);
-                sortDialog.setSingleChoiceItems(R.array.RollSortOptions, checkedItem,
-                        new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        SharedPreferences.Editor editor = sharedPrefSortDialog.edit();
-                        editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, which);
-                        editor.apply();
-                        dialog.dismiss();
-                        Utilities.sortRollList(getActivity(), database, rollList);
-                        rollAdapter.notifyDataSetChanged();
-                    }
-                });
-                sortDialog.setNegativeButton(getResources().getString(R.string.Cancel),
-                        new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //Do nothing
-                    }
-                });
-                sortDialog.show();
-                break;
 
             case R.id.menu_item_gear:
 
@@ -383,38 +400,66 @@ public class RollsFragment extends Fragment implements
                 startActivity(allFramesMapsActivityIntent);
                 break;
 
-            // Show archived rolls
-            case R.id.menu_item_filter:
-
-                // Use getDefaultSharedPreferences() to get application wide preferences
-                final SharedPreferences sharedPrefVisibleRollsDialog =
-                        PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-                final int visibleRollsCheckedItem =
-                        sharedPrefVisibleRollsDialog.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilmDbHelper.ROLLS_ACTIVE);
-                AlertDialog.Builder visibleRollsDialog = new AlertDialog.Builder(getActivity());
-                visibleRollsDialog.setTitle(R.string.ChooseVisibleRolls);
-                visibleRollsDialog.setSingleChoiceItems(R.array.VisibleRollsOptions, visibleRollsCheckedItem,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                SharedPreferences.Editor editor = sharedPrefVisibleRollsDialog.edit();
-                                editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, which);
-                                editor.apply();
-                                dialog.dismiss();
-                                updateFragment(false);
-                            }
-                        });
-                visibleRollsDialog.setNegativeButton(getResources().getString(R.string.Cancel),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Do nothing
-                            }
-                        });
-                visibleRollsDialog.show();
+            case R.id.active_rolls_filter:
+                item.setChecked(true);
+                setFilterMode(FilterMode.ACTIVE);
                 break;
+
+            case R.id.archived_rolls_filter:
+                item.setChecked(true);
+                setFilterMode(FilterMode.ARCHIVED);
+                break;
+
+            case R.id.all_rolls_filter:
+                item.setChecked(true);
+                setFilterMode(FilterMode.ALL);
+                break;
+
+            case R.id.date_sort_mode:
+                item.setChecked(true);
+                setSortMode(RollSortMode.DATE);
+                break;
+
+            case R.id.name_sort_mode:
+                item.setChecked(true);
+                setSortMode(RollSortMode.NAME);
+                break;
+
+            case R.id.camera_sort_mode:
+                item.setChecked(true);
+                setSortMode(RollSortMode.CAMERA);
+                break;
+
         }
         return true;
+    }
+
+    /**
+     * Change the way visible rolls are filtered. Update SharedPreferences and the fragment.
+     *
+     * @param filterMode enum type referencing the filtering mode
+     */
+    private void setFilterMode(FilterMode filterMode) {
+        final SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, filterMode.getValue());
+        editor.apply();
+        updateFragment(false);
+    }
+
+    /**
+     * Change the sort order of rolls.
+     *
+     * @param sortMode enum type referencing the sorting mode
+     */
+    private void setSortMode(RollSortMode sortMode) {
+        final SharedPreferences sharedPreferences = getActivity().getPreferences(Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, sortMode.getValue());
+        editor.apply();
+        Utilities.sortRollList(sortMode, database, rollList);
+        rollAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -542,7 +587,7 @@ public class RollsFragment extends Fragment implements
                         mainTextViewAnimateInvisible();
                         // Add new roll to the top of the list
                         rollList.add(0, roll);
-                        Utilities.sortRollList(getActivity(), database, rollList);
+                        Utilities.sortRollList(sortMode, database, rollList);
                         rollAdapter.notifyItemInserted(rollList.indexOf(roll));
 
                         // When the new roll is added jump to view the added entry
@@ -571,7 +616,7 @@ public class RollsFragment extends Fragment implements
 
                         // Notify array adapter that the dataset has to be updated
                         final int oldPosition = rollList.indexOf(roll);
-                        Utilities.sortRollList(getActivity(), database, rollList);
+                        Utilities.sortRollList(sortMode, database, rollList);
                         final int newPosition = rollList.indexOf(roll);
                         rollAdapter.notifyItemChanged(oldPosition);
                         rollAdapter.notifyItemMoved(oldPosition, newPosition);
@@ -622,9 +667,9 @@ public class RollsFragment extends Fragment implements
             floatingActionButton.hide();
 
             // Use different action mode menu layouts depending on which rolls are shown.
-            if (visibleRolls == FilmDbHelper.ROLLS_ACTIVE)
+            if (filterMode == FilterMode.ACTIVE)
                 actionMode.getMenuInflater().inflate(R.menu.menu_action_mode_rolls_active, menu);
-            else if (visibleRolls == FilmDbHelper.ROLLS_ARCHIVED)
+            else if (filterMode == FilterMode.ARCHIVED)
                 actionMode.getMenuInflater().inflate(R.menu.menu_action_mode_rolls_archived, menu);
             else
                 actionMode.getMenuInflater().inflate(R.menu.menu_action_mode_rolls_all, menu);
@@ -722,7 +767,7 @@ public class RollsFragment extends Fragment implements
                         final Roll roll = rollList.get(position);
                         roll.setArchived(true);
                         database.updateRoll(roll);
-                        if (visibleRolls == FilmDbHelper.ROLLS_ACTIVE) {
+                        if (filterMode == FilterMode.ACTIVE) {
                             rollList.remove(position);
                             rollAdapter.notifyItemRemoved(position);
                         }
@@ -739,7 +784,7 @@ public class RollsFragment extends Fragment implements
                         final Roll roll = rollList.get(position);
                         roll.setArchived(false);
                         database.updateRoll(roll);
-                        if (visibleRolls == FilmDbHelper.ROLLS_ARCHIVED) {
+                        if (filterMode == FilterMode.ARCHIVED) {
                             rollList.remove(position);
                             rollAdapter.notifyItemRemoved(position);
                         }

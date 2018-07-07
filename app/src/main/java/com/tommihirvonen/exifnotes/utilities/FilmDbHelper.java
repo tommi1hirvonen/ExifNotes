@@ -10,14 +10,13 @@ import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
+import com.tommihirvonen.exifnotes.datastructures.FilterMode;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.R;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -703,28 +702,21 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_ROLLS, null, values);
     }
 
-    public static final int ROLLS_ACTIVE = 0;
-    public static final int ROLLS_ARCHIVED = 1;
-    public static final int ROLLS_ALL = 2;
-
     /**
      * Gets all the rolls in the database
      * @return a List of all the rolls in the database
      */
-    public List<Roll> getRolls(int archivalParam){
+    public List<Roll> getRolls(FilterMode filterMode){
         String selectionArg;
-        switch (archivalParam) {
-            case ROLLS_ACTIVE:
+        switch (filterMode) {
+            case ACTIVE: default:
                 selectionArg = KEY_ROLL_ARCHIVED + "=0";
                 break;
-            case ROLLS_ARCHIVED:
+            case ARCHIVED:
                 selectionArg = KEY_ROLL_ARCHIVED + ">0";
                 break;
-            case ROLLS_ALL:
+            case ALL:
                 selectionArg = null;
-                break;
-            default:
-                selectionArg = KEY_ROLL_ARCHIVED + "=0";
                 break;
         }
         List<Roll> rolls = new ArrayList<>();

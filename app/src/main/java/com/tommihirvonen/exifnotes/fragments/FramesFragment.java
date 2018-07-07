@@ -59,6 +59,7 @@ import com.tommihirvonen.exifnotes.activities.GearActivity;
 import com.tommihirvonen.exifnotes.activities.MapsActivity;
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.datastructures.FrameSortMode;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
@@ -147,6 +148,10 @@ public class FramesFragment extends Fragment implements
      */
     private FloatingActionButton floatingActionButton;
 
+    /**
+     * Holds the frame sort mode.
+     */
+    private FrameSortMode sortMode;
 
     // Google client to interact with Google API
     /**
@@ -237,8 +242,17 @@ public class FramesFragment extends Fragment implements
         database = FilmDbHelper.getInstance(getActivity());
         frameList = database.getAllFramesFromRoll(rollId);
 
+        //getActivity().getPreferences() returns a preferences file related to the
+        //activity it is opened from. getDefaultSharedPreferences() returns the
+        //applications global preferences. This is something to keep in mind.
+        //If the same sort order setting is to be used elsewhere in the app, then
+        //getDefaultSharedPreferences() should be used.
+        final SharedPreferences sharedPreferences = getActivity().getPreferences(Context.MODE_PRIVATE);
+        sortMode = FrameSortMode.fromValue(
+                sharedPreferences.getInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, FrameSortMode.FRAME_COUNT.getValue()));
+
         //Sort the list according to preferences
-        Utilities.sortFrameList(getActivity(), database, frameList);
+        Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
 
         // Activate GPS locating if the user has granted permission.
         if (locationPermissionsGranted) {
@@ -345,6 +359,34 @@ public class FramesFragment extends Fragment implements
     }
 
     /**
+     * Called after onCreateOptionsMenu() to prepare the menu.
+     * Check the correct sort option.
+     *
+     * @param menu reference to the menu that is to be prepared
+     */
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        switch (sortMode) {
+            case FRAME_COUNT: default:
+                menu.findItem(R.id.frame_count_sort_mode).setChecked(true);
+                break;
+            case DATE:
+                menu.findItem(R.id.date_sort_mode).setChecked(true);
+                break;
+            case F_STOP:
+                menu.findItem(R.id.f_stop_sort_mode).setChecked(true);
+                break;
+            case SHUTTER_SPEED:
+                menu.findItem(R.id.shutter_speed_sort_mode).setChecked(true);
+                break;
+            case LENS:
+                menu.findItem(R.id.lens_sort_mode).setChecked(true);
+                break;
+        }
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    /**
      * Handle events when the user selects an action from the options menu.
      *
      * @param item selected menu item.
@@ -354,39 +396,29 @@ public class FramesFragment extends Fragment implements
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
 
-            case R.id.menu_item_sort:
-                //==================================================================================
-                //getActivity().getPreferences() returns a preferences file related to the
-                //activity it is opened from. getDefaultSharedPreferences() returns the
-                //applications global preferences. This is something to keep in mind.
-                //If the same sort order setting is to be used elsewhere in the app, then
-                //getDefaultSharedPreferences() should be used.
-                final SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                int checkedItem = sharedPref.getInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, 0);
-                AlertDialog.Builder sortDialog = new AlertDialog.Builder(getActivity());
-                sortDialog.setTitle(R.string.SortBy);
-                sortDialog.setSingleChoiceItems(
-                        R.array.FrameSortOptions, checkedItem, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+            case R.id.frame_count_sort_mode:
+                item.setChecked(true);
+                setSortMode(FrameSortMode.FRAME_COUNT);
+                break;
 
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, which);
-                        editor.apply();
-                        dialog.dismiss();
-                        Utilities.sortFrameList(getActivity(), database, frameList);
-                        frameAdapter.notifyDataSetChanged();
-                    }
-                });
-                sortDialog.setNegativeButton(getResources().getString(R.string.Cancel),
-                        new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //Do nothing
-                    }
-                });
-                sortDialog.show();
+            case R.id.date_sort_mode:
+                item.setChecked(true);
+                setSortMode(FrameSortMode.DATE);
+                break;
 
+            case R.id.f_stop_sort_mode:
+                item.setChecked(true);
+                setSortMode(FrameSortMode.F_STOP);
+                break;
+
+            case R.id.shutter_speed_sort_mode:
+                item.setChecked(true);
+                setSortMode(FrameSortMode.SHUTTER_SPEED);
+                break;
+
+            case R.id.lens_sort_mode:
+                item.setChecked(true);
+                setSortMode(FrameSortMode.LENS);
                 break;
 
             case R.id.menu_item_gear:
@@ -491,7 +523,20 @@ public class FramesFragment extends Fragment implements
         return true;
     }
 
-
+    /**
+     * Change the sort order of frames.
+     *
+     * @param sortMode enum type referencing the sort mode
+     */
+    private void setSortMode(FrameSortMode sortMode) {
+        this.sortMode = sortMode;
+        final SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, sortMode.getValue());
+        editor.apply();
+        Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
+        frameAdapter.notifyDataSetChanged();
+    }
 
     /**
      * Used to export csv and/or exiftool commands to the device's own storage.
@@ -790,7 +835,7 @@ public class FramesFragment extends Fragment implements
                         long rowId = database.addFrame(frame);
                         frame.setId(rowId);
                         frameList.add(frame);
-                        Utilities.sortFrameList(getActivity(), database, frameList);
+                        Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
                         frameAdapter.notifyItemInserted(frameList.indexOf(frame));
                         mainTextView.setVisibility(View.GONE);
 
@@ -817,7 +862,7 @@ public class FramesFragment extends Fragment implements
 
                         database.updateFrame(frame);
                         final int oldPosition = frameList.indexOf(frame);
-                        Utilities.sortFrameList(getActivity(), database, frameList);
+                        Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
                         final int newPosition = frameList.indexOf(frame);
                         frameAdapter.notifyItemChanged(oldPosition);
                         frameAdapter.notifyItemMoved(oldPosition, newPosition);
@@ -848,7 +893,7 @@ public class FramesFragment extends Fragment implements
 
                     // Update the frame list in case updates were made in MapsActivity.
                     frameList = database.getAllFramesFromRoll(rollId);
-                    Utilities.sortFrameList(getActivity(), database, frameList);
+                    Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
                     frameAdapter = new FrameAdapter(getActivity(), frameList, this);
                     mainRecyclerView.setAdapter(frameAdapter);
                     frameAdapter.notifyDataSetChanged();
@@ -1133,7 +1178,7 @@ public class FramesFragment extends Fragment implements
                             database.updateFrame(frame);
                         }
                         if (actionMode != null) actionMode.finish();
-                        Utilities.sortFrameList(getActivity(), database, frameList);
+                        Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
                         frameAdapter.notifyDataSetChanged();
                     }
                 });
