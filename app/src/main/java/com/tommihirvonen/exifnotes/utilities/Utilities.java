@@ -383,6 +383,9 @@ public class Utilities {
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void purgeDirectory(File directory) {
+        // Return if the given File is null
+        // (for example no read/write access or storage is not mounted).
+        if (directory == null) return;
         for(File file: directory.listFiles()) {
             if (!file.isDirectory()) {
                 file.delete();
