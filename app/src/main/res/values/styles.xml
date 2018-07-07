@@ -5,12 +5,14 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="actionModeBackground">@color/grey</item>
         <item name="android:actionModeBackground">@color/grey</item>
+        <item name="RollNameTextColor">@color/roll_name_dark</item>
     </style>
 
     <style name="AppTheme_Dark" parent="Theme.AppCompat">
         <item name="android:windowContentOverlay">@null</item>
         <item name="actionModeBackground">@color/grey</item>
         <item name="android:actionModeBackground">@color/grey</item>
+        <item name="RollNameTextColor">@color/roll_name_light</item>
     </style>
 
     <style name="AppToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
