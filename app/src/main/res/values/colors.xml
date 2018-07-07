@@ -24,7 +24,4 @@
     <color name="ui_purple">#9C27B0</color>
     <color name="ui_red">#F44336</color>
 
-    <color name="roll_name_light">#EEFFFFFF</color>
-    <color name="roll_name_dark">#CC000000</color>
-
 </resources>

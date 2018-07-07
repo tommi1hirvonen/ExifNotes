@@ -24,9 +24,8 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:paddingTop="5dp"
-        android:textColor="?RollNameTextColor"
         android:textSize="16sp"
-        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:maxLines="2"
         android:ellipsize="end"
         />

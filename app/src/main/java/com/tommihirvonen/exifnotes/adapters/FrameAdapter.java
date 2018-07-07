@@ -1,6 +1,7 @@
 package com.tommihirvonen.exifnotes.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
@@ -201,6 +202,16 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
         if (frame != null) {
             holder.frameTextView.setText(frame.getDate());
             holder.countTextView.setText("" + frame.getCount());
+
+            // If the app theme is dark and the UI color is grey, use near white color.
+            if (Utilities.isAppThemeDark(context)
+                    && Utilities.getPrimaryUiColor(context) == Color.parseColor("#424242")) {
+                holder.countTextView.setTextColor(ContextCompat.getColor(context, R.color.near_white));
+            // Otherwise use the UI color for the frame count color.
+            } else {
+                holder.countTextView.setTextColor(Utilities.getPrimaryUiColor(context));
+            }
+
             if (frame.getLensId() > 0) {
                 Lens lens = database.getLens(frame.getLensId());
                 holder.frameTextView2.setText(lens.getName());

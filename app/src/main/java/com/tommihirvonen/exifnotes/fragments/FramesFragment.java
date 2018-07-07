@@ -322,7 +322,7 @@ public class FramesFragment extends Fragment implements
         // invalidate the options menu. Using only setHasOptionsMenu(true) is not enough, because
         // it won't apparently guarantee that onCreateOptionsMenu will be called in this fragment
         // if the parent activity was recreated.
-        getActivity().invalidateOptionsMenu();
+        ((AppCompatActivity) getActivity()).supportInvalidateOptionsMenu();
 
         // Access the ListView
         mainRecyclerView = view.findViewById(R.id.frames_recycler_view);
@@ -1254,6 +1254,10 @@ public class FramesFragment extends Fragment implements
         // If action mode is enabled, color the status bar dark grey.
         if (frameAdapter.getSelectedItemCount() > 0 || actionMode != null) {
             Utilities.setStatusBarColor(getActivity(), ContextCompat.getColor(getActivity(), R.color.dark_grey));
+        } else {
+            // Otherwise we can update the frame adapter in case the user has changed the UI color.
+            // This way the frame count text color will be updated according to the changed settings.
+            frameAdapter.notifyDataSetChanged();
         }
     }
 

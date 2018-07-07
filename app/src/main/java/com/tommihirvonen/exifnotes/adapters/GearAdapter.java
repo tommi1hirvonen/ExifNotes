@@ -2,6 +2,8 @@ package com.tommihirvonen.exifnotes.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Gear;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
+import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.Collections;
 import java.util.List;
@@ -153,6 +156,16 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
                 stringBuilder.append("\n- ").append(g.getName());
             }
             holder.nameTextView.setText(gearName);
+
+            // If the app theme is dark and the UI color is grey, use near white color.
+            if (Utilities.isAppThemeDark(context)
+                    && Utilities.getPrimaryUiColor(context) == Color.parseColor("#424242")) {
+                holder.nameTextView.setTextColor(ContextCompat.getColor(context, R.color.near_white));
+                // Otherwise use the UI color for the frame count color.
+            } else {
+                holder.nameTextView.setTextColor(Utilities.getPrimaryUiColor(context));
+            }
+
             holder.mountablesTextView.setText(stringBuilder.toString());
         }
     }

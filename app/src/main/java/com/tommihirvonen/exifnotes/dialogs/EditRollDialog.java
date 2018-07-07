@@ -179,6 +179,7 @@ public class EditRollDialog extends DialogFragment {
         nameEditText.setText(roll.getName());
         // Place the cursor at the end of the input field
         nameEditText.setSelection(nameEditText.getText().length());
+        nameEditText.setSingleLine(false);
 
 
         //==========================================================================================

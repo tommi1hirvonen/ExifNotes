@@ -9,7 +9,7 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="32dp"
+        android:layout_height="28dp"
         android:id="@+id/tv_gear_name"
         android:text="@string/Text"
         android:paddingLeft="20dp"
@@ -17,8 +17,7 @@
         android:gravity="bottom"
         android:layout_marginBottom="2dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:alpha="0.9"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:scrollHorizontally="true"
         android:ellipsize="end"
         android:maxLines="1"
