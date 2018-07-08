@@ -65,6 +65,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.Math.ceil;
 import static java.lang.Math.round;
 
 /**
@@ -194,6 +195,11 @@ public class EditFrameDialog extends DialogFragment {
     private int shutterIncrements;
 
     /**
+     * The exposure compensation increment setting of the camera used
+     */
+    private int exposureCompIncrements;
+
+    /**
      * Currently selected frame count number
      */
     private int newFrameCount;
@@ -288,6 +294,12 @@ public class EditFrameDialog extends DialogFragment {
     private String[] displayedApertureValues;
 
     /**
+     * Stores the currently displayed exposure compensation values.
+     * Changes depending on the film's camera.
+     */
+    private String[] displayedExposureCompValues;
+
+    /**
      * Reference to the nested scroll view inside the dialog. A scroll listener is
      * attached to this scroll view.
      */
@@ -328,6 +340,7 @@ public class EditFrameDialog extends DialogFragment {
         mountableLenses = database.getMountableLenses(camera);
 
         shutterIncrements = camera.getShutterIncrements();
+        exposureCompIncrements = camera.getExposureCompIncrements();
         apertureIncrements = 0;
         if (frame.getLensId() > 0) {
             apertureIncrements = database.getLens(frame.getLensId()).getApertureIncrements();
@@ -1738,13 +1751,23 @@ public class EditFrameDialog extends DialogFragment {
                     (NumberPicker) dialogView.findViewById(R.id.number_picker)
             );
 
+            // Set the displayed exposure compensation increments depending on the camera's settings.
+            switch (exposureCompIncrements) {
+                case 0: default:
+                    displayedExposureCompValues = Utilities.compValues;
+                    break;
+                case 1:
+                    displayedExposureCompValues = Utilities.compValuesHalf;
+                    break;
+            }
+
             exposureCompPicker.setMinValue(0);
-            exposureCompPicker.setMaxValue(Utilities.compValues.length-1);
-            exposureCompPicker.setDisplayedValues(Utilities.compValues);
-            exposureCompPicker.setValue(9);
+            exposureCompPicker.setMaxValue(displayedExposureCompValues.length-1);
+            exposureCompPicker.setDisplayedValues(displayedExposureCompValues);
+            exposureCompPicker.setValue((int) ceil(displayedExposureCompValues.length / 2));
             if (newExposureComp != null) {
-                for (int i = 0; i < Utilities.compValues.length; ++i) {
-                    if (newExposureComp.equals(Utilities.compValues[i])) {
+                for (int i = 0; i < displayedExposureCompValues.length; ++i) {
+                    if (newExposureComp.equals(displayedExposureCompValues[i])) {
                         exposureCompPicker.setValue(i);
                         break;
                     }
@@ -1759,7 +1782,7 @@ public class EditFrameDialog extends DialogFragment {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            newExposureComp = Utilities.compValues[exposureCompPicker.getValue()];
+                            newExposureComp = displayedExposureCompValues[exposureCompPicker.getValue()];
                             exposureCompTextView.setText(
                                     newExposureComp == null || newExposureComp.equals("0") ? "" : newExposureComp
                             );

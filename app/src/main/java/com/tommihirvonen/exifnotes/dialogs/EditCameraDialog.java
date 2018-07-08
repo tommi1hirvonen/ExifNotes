@@ -62,6 +62,11 @@ public class EditCameraDialog extends DialogFragment {
     private int newShutterIncrements;
 
     /**
+     * Stores the currently selected exposure compensation increment setting
+     */
+    private int newExposureCompIncrements;
+
+    /**
      * Stores the currently displayed shutter speed values.
      * Changes depending on the currently selected shutter increments
      */
@@ -288,6 +293,38 @@ public class EditCameraDialog extends DialogFragment {
         });
 
 
+        //EXPOSURE COMPENSATION INCREMENTS BUTTON
+        newExposureCompIncrements = camera.getExposureCompIncrements();
+        final TextView exposureCompIncrementsTextView = inflatedView.findViewById(R.id.exposure_comp_increment_text);
+        exposureCompIncrementsTextView.setText(
+                getResources().getStringArray(R.array.ExposureCompIncrements)[camera.getExposureCompIncrements()]);
+        final LinearLayout exposureCompIncrementLayout = inflatedView.findViewById(R.id.exposure_comp_increment_layout);
+        exposureCompIncrementLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int checkedItem = newExposureCompIncrements;
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getResources().getString(R.string.ChooseIncrements));
+                builder.setSingleChoiceItems(R.array.ExposureCompIncrements, checkedItem, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        newExposureCompIncrements = i;
+                        exposureCompIncrementsTextView.setText(
+                                getResources().getStringArray(R.array.ExposureCompIncrements)[i]);
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.setNegativeButton(getResources().getString(R.string.Cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
+                builder.create().show();
+            }
+        });
+
+
         //FINALISE BUILDING THE DIALOG
         alert.setPositiveButton(positiveButton, null);
 
@@ -330,6 +367,7 @@ public class EditCameraDialog extends DialogFragment {
                     camera.setShutterIncrements(newShutterIncrements);
                     camera.setMinShutter(newMinShutter);
                     camera.setMaxShutter(newMaxShutter);
+                    camera.setExposureCompIncrements(newExposureCompIncrements);
 
                     // Return the new entered name to the calling activity
                     Intent intent = new Intent();

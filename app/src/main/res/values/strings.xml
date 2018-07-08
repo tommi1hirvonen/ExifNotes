@@ -427,6 +427,7 @@
     <string name="ChooseIncrements">Choose increments</string>
     <string name="Sheet">Sheet</string>
     <string name="ApertureIncrements">Aperture increments</string>
+    <string name="ExposureCompensationIncrements">Exposure compensation increments</string>
 
 
     <!--item_frame.xml-->

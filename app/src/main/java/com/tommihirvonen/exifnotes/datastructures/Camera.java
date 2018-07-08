@@ -34,6 +34,15 @@ public class Camera extends Gear {
     private int shutterIncrements = 0;
 
     /**
+     * Integer defining whether the exposure compensation values can be changed in
+     * third or half stop increments.
+     *
+     * 0 = third stop (default)
+     * 1 = half stop
+     */
+    private int exposureCompIncrements = 0;
+
+    /**
      * empty constructor
      */
     public Camera(){
@@ -81,6 +90,18 @@ public class Camera extends Gear {
 
     /**
      *
+     * @param input exposure compensation value change increments
+     *              0 = third stop (default)
+     *              1 = half stop
+     */
+    public void setExposureCompIncrements(int input) {
+        if (input <= 1 && input >= 0) {
+            this.exposureCompIncrements = input;
+        }
+    }
+
+    /**
+     *
      * @return camera's serial number
      */
     public String getSerialNumber(){
@@ -116,6 +137,16 @@ public class Camera extends Gear {
         return this.shutterIncrements;
     }
 
+    /**
+     *
+     * @return exposure compensation value change increments
+     *          0 = third stop (default)
+     *          1 = half stop
+     */
+    public int getExposureCompIncrements() {
+        return this.exposureCompIncrements;
+    }
+
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
     /**
@@ -129,6 +160,7 @@ public class Camera extends Gear {
         this.minShutter = pc.readString();
         this.maxShutter = pc.readString();
         this.shutterIncrements = pc.readInt();
+        this.exposureCompIncrements = pc.readInt();
     }
 
     /**
@@ -144,6 +176,7 @@ public class Camera extends Gear {
         parcel.writeString(minShutter);
         parcel.writeString(maxShutter);
         parcel.writeInt(shutterIncrements);
+        parcel.writeInt(exposureCompIncrements);
     }
 
     /**

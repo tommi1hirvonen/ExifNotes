@@ -85,6 +85,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_CAMERA_MIN_SHUTTER = "camera_min_shutter";
     private static final String KEY_CAMERA_SERIAL_NO = "camera_serial_no";
     private static final String KEY_CAMERA_SHUTTER_INCREMENTS = "shutter_increments";
+    //Added in database version 18
+    private static final String KEY_CAMERA_EXPOSURE_COMP_INCREMENTS = "exposure_comp_increments";
 
     //Roll
     private static final String KEY_ROLL_ID = "roll_id";
@@ -112,7 +114,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     //Updated version from 14 to 15 - 2017-04-29
     //Updated version from 15 to 16 - 2018-02-17
     //Updated version from 16 to 17 - 2018-03-26
-    private static final int DATABASE_VERSION = 17;
+    private static final int DATABASE_VERSION = 18;
 
     //=============================================================================================
     //onCreate strings
@@ -156,7 +158,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_CAMERA_MAX_SHUTTER + " text, "
             + KEY_CAMERA_MIN_SHUTTER + " text, "
             + KEY_CAMERA_SERIAL_NO + " text, "
-            + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null"
+            + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null, "
+            + KEY_CAMERA_EXPOSURE_COMP_INCREMENTS + " integer not null default 0"
             + ");";
     private static final String CREATE_ROLL_TABLE = "create table " + TABLE_ROLLS
             + "(" + KEY_ROLL_ID + " integer primary key autoincrement, "
@@ -231,6 +234,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " ADD COLUMN " + KEY_CAMERA_SERIAL_NO + " text;";
     private static final String ALTER_TABLE_CAMERAS_4 = "ALTER TABLE " + TABLE_CAMERAS
             + " ADD COLUMN " + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null default 0;";
+    private static final String ALTER_TABLE_CAMERAS_5 = "ALTER TABLE " + TABLE_CAMERAS
+            + " ADD COLUMN " + KEY_CAMERA_EXPOSURE_COMP_INCREMENTS + " integer not null default 0;";
 
     private static final String ALTER_TABLE_ROLLS_1 = "ALTER TABLE " + TABLE_ROLLS
             + " ADD COLUMN " + KEY_ROLL_ISO + " integer;";
@@ -347,6 +352,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         }
         if (oldVersion <= 16) {
             db.execSQL(ALTER_TABLE_FRAMES_11);
+        }
+        if (oldVersion <= 18) {
+            db.execSQL(ALTER_TABLE_CAMERAS_5);
         }
     }
 
@@ -1085,6 +1093,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         camera.setMinShutter(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MIN_SHUTTER)));
         camera.setMaxShutter(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAX_SHUTTER)));
         camera.setShutterIncrements(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_SHUTTER_INCREMENTS)));
+        camera.setExposureCompIncrements(cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS)));
         return camera;
     }
 
@@ -1179,6 +1188,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_CAMERA_MIN_SHUTTER, camera.getMinShutter());
         contentValues.put(KEY_CAMERA_MAX_SHUTTER, camera.getMaxShutter());
         contentValues.put(KEY_CAMERA_SHUTTER_INCREMENTS, camera.getShutterIncrements());
+        contentValues.put(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, camera.getExposureCompIncrements());
         return contentValues;
     }
 
@@ -1301,6 +1311,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MIN_SHUTTER, TEXT, 0, 0, false) &&
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SERIAL_NO, TEXT, 0, 0, false) &&
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SHUTTER_INCREMENTS, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, INTEGER, 1, 0, false) &&
 
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_ID, INTEGER, 0, 1, true) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_MAKE, TEXT, 1, 0, false) &&

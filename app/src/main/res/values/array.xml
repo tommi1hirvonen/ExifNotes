@@ -7,6 +7,11 @@
         <item>@string/FullStop</item>
     </string-array>
 
+    <string-array name="ExposureCompIncrements">
+        <item>@string/ThirdStop</item>
+        <item>@string/HalfStop</item>
+    </string-array>
+
     <string-array name="UIColorOptions">
         <item>@string/Blue</item>
         <item>@string/Cyan</item>
