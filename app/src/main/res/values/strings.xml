@@ -365,7 +365,7 @@
     <string name="PushPull">Push(+)/pull(-)</string>
     <string name="Format">Format</string>
 
-    <!--dialog_frame.xml.xml-->
+    <!--dialog_frame.xml-->
     <string name="Lens">Lens</string>
     <string name="Date">Date</string>
     <string name="Time">Time</string>
@@ -402,6 +402,7 @@
     <string name="RotateRight90Degrees">Rotate right 90 degrees</string>
     <string name="RotateLeft90Degrees">Rotate left 90 degrees</string>
     <string name="ErrorWhileEditingPicturesExifData">Error while editing picture\'s EXIF data</string>
+    <string name="UseCustomValue">Use custom value</string>
 
     <!--frame batch edit-->
 

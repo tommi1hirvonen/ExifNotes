@@ -143,6 +143,8 @@
         android:text="@string/Text"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="15sp"
+        android:maxLines="1"
+        android:ellipsize="end"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/drawable_aperture"
         app:layout_constraintTop_toBottomOf="@+id/tvShutter"

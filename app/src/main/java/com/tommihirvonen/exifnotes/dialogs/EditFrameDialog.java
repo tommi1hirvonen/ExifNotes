@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -39,6 +40,7 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -984,9 +986,11 @@ public class EditFrameDialog extends DialogFragment {
      * Sets the values for the NumberPicker.
      *
      * @param aperturePicker NumberPicker associated with the aperture value
+     * @return true if the current aperture value corresponds to some predefined aperture value,
+     *          false if not.
      */
     @SuppressWarnings("ManualArrayToCollectionCopy")
-    private void initialiseAperturePicker(NumberPicker aperturePicker){
+    private boolean initialiseAperturePicker(NumberPicker aperturePicker){
         //Get the array of displayed aperture values according to the set increments.
         switch (apertureIncrements) {
             case 0:
@@ -1018,9 +1022,10 @@ public class EditFrameDialog extends DialogFragment {
             for (int i = 0; i < displayedApertureValues.length; ++i) {
                 if (newAperture.equals(displayedApertureValues[i])) {
                     aperturePicker.setValue(i);
+                    return true;
                 }
             }
-            return;
+            return false;
         }
 
         //Otherwise continue to set min and max apertures
@@ -1067,8 +1072,10 @@ public class EditFrameDialog extends DialogFragment {
         for (int i = 0; i < displayedApertureValues.length; ++i) {
             if (newAperture.equals(displayedApertureValues[i])) {
                 aperturePicker.setValue(i);
+                return true;
             }
         }
+        return false;
     }
 
     /**
@@ -1357,24 +1364,79 @@ public class EditFrameDialog extends DialogFragment {
      * Opens a new dialog to display aperture value options.
      */
     private class ApertureLayoutOnClickListener implements View.OnClickListener {
+
+        /**
+         * Variable to denote whether a custom aperture is being used or a predefined one.
+         */
+        private boolean manualOverride = false;
+
         @Override
         public void onClick(View view) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             LayoutInflater inflater = getActivity().getLayoutInflater();
             @SuppressLint("InflateParams")
-            View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
+            View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker_custom, null);
             final NumberPicker aperturePicker = dialogView.findViewById(R.id.number_picker);
+            final EditText editText = dialogView.findViewById(R.id.edit_text);
+            final Switch customApertureSwitch = dialogView.findViewById(R.id.custom_aperture_switch);
 
-            initialiseAperturePicker(aperturePicker);
+            // Initialise the aperture value NumberPicker. The return value is true, if the
+            // aperture value corresponds to a predefined value. The return value is false,
+            // if the aperture value is a custom value.
+            final boolean apertureValueMatch = initialiseAperturePicker(aperturePicker);
 
             aperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
             builder.setView(dialogView);
             builder.setTitle(getResources().getString(R.string.ChooseApertureValue));
+
+            // If the aperture value did not match to any predefined aperture values, enable custom input.
+            if (!apertureValueMatch) {
+                customApertureSwitch.setChecked(true);
+                editText.setText(newAperture);
+                aperturePicker.setVisibility(View.INVISIBLE);
+                editText.setVisibility(View.VISIBLE);
+                manualOverride = true;
+            }
+
+            // The user can switch between predefined aperture values and custom values using a switch.
+            customApertureSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (b) {
+                        aperturePicker.setVisibility(View.INVISIBLE);
+                        editText.setVisibility(View.VISIBLE);
+                        manualOverride = true;
+                        final Animation animation1 = AnimationUtils.loadAnimation(getActivity(), R.anim.exit_to_right_alt);
+                        final Animation animation2 = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_left_alt);
+                        aperturePicker.startAnimation(animation1);
+                        editText.startAnimation(animation2);
+                    } else {
+                        editText.setVisibility(View.INVISIBLE);
+                        aperturePicker.setVisibility(View.VISIBLE);
+                        manualOverride = false;
+                        final Animation animation1 = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_right_alt);
+                        final Animation animation2 = AnimationUtils.loadAnimation(getActivity(), R.anim.exit_to_left_alt);
+                        aperturePicker.startAnimation(animation1);
+                        editText.startAnimation(animation2);
+                    }
+                }
+            });
+
             builder.setPositiveButton(getResources().getString(R.string.OK),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            newAperture = displayedApertureValues[aperturePicker.getValue()];
+                            // Use the aperture value from the NumberPicker or EditText
+                            // depending on whether a custom value was used.
+                            if (!manualOverride) {
+                                newAperture = displayedApertureValues[aperturePicker.getValue()];
+                            }
+                            else {
+                                String customAperture = editText.getText().toString();
+                                customAperture = customAperture.length() > 0 ?
+                                        customAperture : getString(R.string.NoValue);
+                                newAperture = customAperture;
+                            }
                             updateApertureTextView();
                         }
                     });
@@ -1387,6 +1449,7 @@ public class EditFrameDialog extends DialogFragment {
                     });
             AlertDialog dialog = builder.create();
             dialog.show();
+
         }
     }
 
