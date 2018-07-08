@@ -16,12 +16,12 @@ android {
         }
     }
 
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '28.0.1'
     defaultConfig {
         applicationId 'com.tommihirvonen.exifnotes'
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 24
         versionName "1.11.0"
         vectorDrawables.useSupportLibrary = true // Enabling this allows us to use resources when PNGs are generated during build-time
@@ -42,15 +42,15 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:support-v4:26.1.0'
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.android.support:recyclerview-v7:26.1.0'
-    compile 'com.android.support:design:26.1.0'
-    compile 'com.google.android.gms:play-services-maps:10.2.1'
-    compile 'com.google.android.gms:play-services-location:10.2.1'
-    compile 'com.android.support:support-v13:26.1.0'
-    compile 'com.android.support:percent:26.1.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation 'com.android.support:exifinterface:26.1.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
+    implementation 'com.android.support:support-v13:27.1.1'
+    implementation 'com.android.support:percent:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    implementation 'com.android.support:exifinterface:27.1.1'
 }

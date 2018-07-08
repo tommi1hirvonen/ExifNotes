@@ -94,8 +94,6 @@ public class LocationPickActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        overridePendingTransition(R.anim.enter_from_right, R.anim.hold);
-
         super.onCreate(savedInstanceState);
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
@@ -178,12 +176,6 @@ public class LocationPickActivity extends AppCompatActivity implements
                 }
             }
         }
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(R.anim.nothing, R.anim.exit_to_right);
     }
 
     /**
