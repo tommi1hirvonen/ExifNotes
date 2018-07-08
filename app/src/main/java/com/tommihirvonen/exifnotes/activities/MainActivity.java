@@ -76,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
             setTheme(R.style.AppTheme_Dark);
         }
 
+        // The point at which super.onCreate() is called is important.
+        // Calling it at the end of the method resulted in the back button not appearing
+        // when action mode was enabled.
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);

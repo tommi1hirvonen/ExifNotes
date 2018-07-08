@@ -23,6 +23,11 @@ public class FramesActivity extends AppCompatActivity {
 
         if (Utilities.isAppThemeDark(getBaseContext())) setTheme(R.style.AppTheme_Dark);
 
+        // The point at which super.onCreate() is called is important.
+        // Calling it at the end of the method resulted in the back button not appearing
+        // when action mode was enabled.
+        super.onCreate(savedInstanceState);
+
         // Use the same activity layout as in MainActivity.
         setContentView(R.layout.activity_main);
 
@@ -51,7 +56,6 @@ public class FramesActivity extends AppCompatActivity {
 
         }
 
-        super.onCreate(savedInstanceState);
     }
 
     @Override
