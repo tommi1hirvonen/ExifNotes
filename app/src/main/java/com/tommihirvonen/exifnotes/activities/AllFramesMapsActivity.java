@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,7 +41,7 @@ import java.util.List;
 /**
  * AllFramesMapsActivity displays all the frames in the user's database on a map.
  */
-public class AllFramesMapsActivity extends AppCompatActivity implements OnMapReadyCallback, PopupMenu.OnMenuItemClickListener {
+public class AllFramesMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     /**
      * Reference to the singleton database
@@ -64,6 +63,11 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      * Some animations will only be activated if this value is false.
      */
     private boolean continueActivity = false;
+
+    /**
+     * Holds reference to the GoogleMap map type
+     */
+    private int mapType;
 
     /**
      * Sets up the activity's layout and view and reads all the rolls from the database.
@@ -91,6 +95,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                 PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         final FilterMode filterMode = FilterMode.fromValue(
                 sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilterMode.ACTIVE.getValue()));
+        mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL);
 
         database = FilmDbHelper.getInstance(this);
         rollList = database.getRolls(filterMode);
@@ -139,6 +144,25 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        switch (mapType) {
+            case GoogleMap.MAP_TYPE_NORMAL: default:
+                menu.findItem(R.id.menu_item_normal).setChecked(true);
+                break;
+            case GoogleMap.MAP_TYPE_HYBRID:
+                menu.findItem(R.id.menu_item_hybrid).setChecked(true);
+                break;
+            case GoogleMap.MAP_TYPE_SATELLITE:
+                menu.findItem(R.id.menu_item_satellite).setChecked(true);
+                break;
+            case GoogleMap.MAP_TYPE_TERRAIN:
+                menu.findItem(R.id.menu_item_terrain).setChecked(true);
+                break;
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     /**
      * Handles the home as up press event.
      *
@@ -153,51 +177,38 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                 onBackPressed();
                 return true;
 
-            case R.id.menu_item_map_type:
-                View menuItemView = findViewById(R.id.menu_item_map_type);
-                PopupMenu popupMenu = new PopupMenu(this, menuItemView);
-                popupMenu.inflate(R.menu.menu_map_types);
-                popupMenu.setOnMenuItemClickListener(this);
-                popupMenu.show();
+            case R.id.menu_item_normal:
+                item.setChecked(true);
+                setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                return true;
+            case R.id.menu_item_hybrid:
+                item.setChecked(true);
+                setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                return true;
+            case R.id.menu_item_satellite:
+                item.setChecked(true);
+                setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                return true;
+            case R.id.menu_item_terrain:
+                item.setChecked(true);
+                setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     /**
-     * Handle the map type PopupMenu item click events
+     * Sets the GoogleMap map type
      *
-     * @param item MenuItem which was clicked
-     * @return true if the item id matches to one of the map type menu items
+     * @param mapType One of the map type constants from class GoogleMap
      */
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
+    private void setMapType(int mapType) {
+        this.mapType = mapType;
+        googleMap_.setMapType(mapType);
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        switch (item.getItemId()) {
-            case R.id.menu_item_normal:
-                googleMap_.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL);
-                editor.apply();
-                return true;
-            case R.id.menu_item_hybrid:
-                googleMap_.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_HYBRID);
-                editor.apply();
-                return true;
-            case R.id.menu_item_satellite:
-                googleMap_.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_SATELLITE);
-                editor.apply();
-                return true;
-            case R.id.menu_item_terrain:
-                googleMap_.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                editor.putInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_TERRAIN);
-                editor.apply();
-                return true;
-        }
+        final SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(PreferenceConstants.KEY_MAP_TYPE, mapType);
         editor.apply();
-        return false;
     }
 
     /**
