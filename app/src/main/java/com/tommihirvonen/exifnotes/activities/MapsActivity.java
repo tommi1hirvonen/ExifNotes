@@ -72,6 +72,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        overridePendingTransition(R.anim.enter_from_right, R.anim.hold);
+
         super.onCreate(savedInstanceState);
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
@@ -80,7 +83,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         database = FilmDbHelper.getInstance(this);
 
-        // In onSaveInstanceState a dummy boolean was put into outState.
+        // In onSaveInstanceState a nothing boolean was put into outState.
         // savedInstanceState is not null if the activity was continued.
         if (savedInstanceState != null) continueActivity = true;
 
@@ -106,6 +109,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.nothing, R.anim.exit_to_right);
     }
 
     /**
@@ -279,7 +288,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         if (frame.getLensId() > 0) {
                             Lens lens = database.getLens(frame.getLensId());
-                            lensTextView.setText(lens.getMake() + " " + lens.getModel());
+                            lensTextView.setText(lens.getName());
                         }
                         else {
                             lensTextView.setText(getResources().getString(R.string.NoLens));
@@ -361,14 +370,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     /**
-     * Store a dummy boolean to outState to indicate that the activity will be resumed.
-     * @param outState used to store the dummy boolean
+     * Store a nothing boolean to outState to indicate that the activity will be resumed.
+     * @param outState used to store the nothing boolean
      */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        // Insert dummy boolean so that outState is not null.
+        // Insert nothing boolean so that outState is not null.
         outState.putBoolean(ExtraKeys.CONTINUE, true);
     }
 

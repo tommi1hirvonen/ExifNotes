@@ -72,6 +72,9 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        overridePendingTransition(R.anim.enter_from_right, R.anim.hold);
+
         super.onCreate(savedInstanceState);
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
@@ -115,6 +118,12 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.nothing, R.anim.exit_to_right);
     }
 
     /**

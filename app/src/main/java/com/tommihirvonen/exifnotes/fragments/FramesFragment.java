@@ -180,18 +180,6 @@ public class FramesFragment extends Fragment implements
     private boolean requestingLocationUpdates;
 
     /**
-     * Reference to the parent activity's OnHomeAsUpPressedListener
-     */
-    private OnHomeAsUpPressedListener callback;
-
-    /**
-     * This interface is implemented in MainActivity.
-     */
-    public interface OnHomeAsUpPressedListener {
-        void onHomeAsUpPressed();
-    }
-
-    /**
      * Private callback class which is given as an argument when the SupportActionMode is started.
      */
     private final ActionModeCallback actionModeCallback = new ActionModeCallback();
@@ -200,29 +188,6 @@ public class FramesFragment extends Fragment implements
      * Reference to the (Support)ActionMode, which is launched when a list item is long pressed.
      */
     private ActionMode actionMode;
-
-    /**
-     * This on attach is called before API 23
-     *
-     * @param a Activity to which the OnHomeAsUpPressedListener is attached.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    public void onAttach(Activity a) {
-        super.onAttach(a);
-        callback = (OnHomeAsUpPressedListener) a;
-    }
-
-    /**
-     * This on attach is called after API 23
-     *
-     * @param c Context to which the OnHomeAsUpPressedListener is attached.
-     */
-    @Override
-    public void onAttach(Context c) {
-        super.onAttach(c);
-        callback = (OnHomeAsUpPressedListener) c;
-    }
 
     /**
      * Called when the fragment is created.
@@ -299,9 +264,9 @@ public class FramesFragment extends Fragment implements
             Roll roll = database.getRoll(rollId);
             //noinspection ConstantConditions
             actionBar.setTitle(roll.getName());
-            Camera camera = database.getCamera(roll.getCameraId());
+            final Camera camera = database.getCamera(roll.getCameraId());
             //noinspection ConstantConditions
-            actionBar.setSubtitle(camera.getMake() + " " + camera.getModel());
+            actionBar.setSubtitle(camera.getName());
             //noinspection ConstantConditions
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
@@ -315,14 +280,6 @@ public class FramesFragment extends Fragment implements
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         mainTextView = view.findViewById(R.id.no_added_frames);
-
-        // Tell the host activity that this fragment has menu items it wants to add.
-        // To compensate for a bug in pre Nougat (maybe Marshmallow) devices:
-        // If the activity was recreated in MainActivity's onActivityResult because of a theme change,
-        // invalidate the options menu. Using only setHasOptionsMenu(true) is not enough, because
-        // it won't apparently guarantee that onCreateOptionsMenu will be called in this fragment
-        // if the parent activity was recreated.
-        ((AppCompatActivity) getActivity()).supportInvalidateOptionsMenu();
 
         // Access the ListView
         mainRecyclerView = view.findViewById(R.id.frames_recycler_view);
@@ -459,9 +416,7 @@ public class FramesFragment extends Fragment implements
 
             case android.R.id.home:
 
-                // INTERFACE TO MAINACTIVITY
-                callback.onHomeAsUpPressed();
-
+                getActivity().finish();
                 break;
 
             case R.id.menu_item_show_on_map:

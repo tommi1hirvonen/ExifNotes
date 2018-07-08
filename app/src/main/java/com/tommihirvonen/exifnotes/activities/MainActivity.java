@@ -14,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.dialogs.SimpleEula;
@@ -33,9 +32,7 @@ import java.io.File;
  * It contains the RollsFragment and FramesFragment fragments.
  * The activity switches between these two fragments.
  */
-public class MainActivity extends AppCompatActivity implements
-        RollsFragment.OnRollSelectedListener,
-        FramesFragment.OnHomeAsUpPressedListener {
+public class MainActivity extends AppCompatActivity implements RollsFragment.OnRollSelectedListener {
 
     /**
      * Tag for permission request
@@ -125,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements
 
         // Getting GPS status
         LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
-        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean isGPSEnabled = locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
         // Show a dialog to go to settings only if GPS is not enabled in system settings
         // but location updates are enabled in the app's settings.
@@ -171,28 +168,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * This function is called when the user presses the back button.
-     * If the FramesFragment is in front then pop the stack back by one
-     * and bring the RollsFragment to front.
-     * Also bring the shadow under the action bar to front.
-     */
-    @Override
-    public void onBackPressed() {
-
-        int count = getFragmentManager().getBackStackEntryCount();
-
-        if (count == 0) {
-            super.onBackPressed();
-            //additional code
-        } else {
-            getFragmentManager().popBackStack();
-            View shadow = findViewById(R.id.shadow);
-            shadow.bringToFront();
-        }
-
-    }
-
-    /**
      * This function is called when MainActivity is started, in other words when the
      * application is started. All the files created in FramesFragment.setShareIntentExportRoll
      * in the application's external storage directory are deleted. This way we can keep
@@ -216,30 +191,10 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     public void onRollSelected(long rollId){
-        FramesFragment newFragment = new FramesFragment();
-        Bundle args = new Bundle();
-        args.putLong(ExtraKeys.ROLL_ID, rollId);
-        args.putBoolean(ExtraKeys.LOCATION_ENABLED, locationPermissionsGranted);
-        newFragment.setArguments(args);
-        getFragmentManager().beginTransaction()
-                .setCustomAnimations(
-                        R.animator.slide_left,
-                        R.animator.slide_right,
-                        R.animator.slide_left,
-                        R.animator.slide_right)
-                .replace(R.id.fragment_container, newFragment, FramesFragment.FRAMES_FRAGMENT_TAG)
-                .addToBackStack(null).commit();
-        View shadow = findViewById(R.id.shadow);
-        shadow.bringToFront();
-    }
-
-
-    /**
-     * When the user presses the home as up button in the action bar this function is called.
-     * Pop the FramesFragment off the stack.
-     */
-    public void onHomeAsUpPressed(){
-        getFragmentManager().popBackStack();
+        final Intent framesActivityIntent = new Intent(this, FramesActivity.class);
+        framesActivityIntent.putExtra(ExtraKeys.ROLL_ID, rollId);
+        framesActivityIntent.putExtra(ExtraKeys.LOCATION_ENABLED, locationPermissionsGranted);
+        startActivity(framesActivityIntent);
     }
 
 

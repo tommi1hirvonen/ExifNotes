@@ -53,6 +53,9 @@ public class GearActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        overridePendingTransition(R.anim.enter_from_right, R.anim.hold);
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
@@ -90,6 +93,12 @@ public class GearActivity extends AppCompatActivity {
         super.onStop();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         prefs.edit().putInt(GEAR_ACTIVITY_SAVED_VIEW, viewPager.getCurrentItem()).apply();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.nothing, R.anim.exit_to_right);
     }
 
     /**

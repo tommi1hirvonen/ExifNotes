@@ -79,6 +79,8 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
 
+        overridePendingTransition(R.anim.enter_from_right, R.anim.hold);
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
@@ -198,5 +200,11 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         Utilities.setStatusBarColor(this, secondaryColor);
         actionbar = findViewById(R.id.actionbar);
         actionbar.setBackgroundColor(primaryColor);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.nothing, R.anim.exit_to_right);
     }
 }
