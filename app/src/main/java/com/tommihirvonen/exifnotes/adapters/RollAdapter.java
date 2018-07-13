@@ -1,9 +1,8 @@
 package com.tommihirvonen.exifnotes.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -17,7 +16,6 @@ import android.widget.TextView;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
-import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,8 +150,9 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      * @param viewType not used
      * @return inflated view
      */
+    @NonNull
     @Override
-    public RollAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RollAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_roll_constraint, parent, false);
         return new ViewHolder(view);
     }
@@ -167,7 +166,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      * @param position position of the current item
      */
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Roll roll = rollList.get(position);
         if (roll != null) {
             final String rollName = roll.getName();
@@ -192,15 +191,6 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             final float lightFade = 0.9f;
             final float moderateFade = 0.5f;
             final float heavyFade = 0.4f;
-
-            // If the app theme is dark and the UI color is grey, use near white color.
-            if (Utilities.isAppThemeDark(context)
-                    && Utilities.getPrimaryUiColor(context) == Color.parseColor("#424242")) {
-                holder.nameTextView.setTextColor(ContextCompat.getColor(context, R.color.near_white));
-            // Otherwise use the UI color for the roll name color.
-            } else {
-                holder.nameTextView.setTextColor(Utilities.getPrimaryUiColor(context));
-            }
 
             // If the roll is archived, fade the text somewhat
             if (roll.getArchived()) {

@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="94dp"
+    android:layout_height="105dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/item_roll_layout"
     android:background="?android:attr/selectableItemBackground"
@@ -19,16 +19,16 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="46dp"
+        android:layout_height="44dp"
         android:id="@+id/tv_roll_name"
         android:text="@string/Text"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:paddingTop="5dp"
-        android:textSize="16sp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textSize="17sp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:maxLines="2"
         android:ellipsize="end"
+        app:layout_constraintBottom_toTopOf="@+id/guideline3"
         />
 
     <TextView
@@ -129,6 +129,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/guideline3"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.55"/>
+        app:layout_constraintGuide_percent="0.5"/>
 
 </android.support.constraint.ConstraintLayout>

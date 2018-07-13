@@ -1,8 +1,8 @@
 package com.tommihirvonen.exifnotes.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -182,8 +182,9 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      * @param viewType not used
      * @return inflated view
      */
+    @NonNull
     @Override
-    public FrameAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FrameAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_frame_constraint, parent, false);
         return new ViewHolder(view);
     }
@@ -197,20 +198,11 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      * @param position position of the current item
      */
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Frame frame = frameList.get(position);
         if (frame != null) {
             holder.frameTextView.setText(frame.getDate());
             holder.countTextView.setText("" + frame.getCount());
-
-            // If the app theme is dark and the UI color is grey, use near white color.
-            if (Utilities.isAppThemeDark(context)
-                    && Utilities.getPrimaryUiColor(context) == Color.parseColor("#424242")) {
-                holder.countTextView.setTextColor(ContextCompat.getColor(context, R.color.near_white));
-            // Otherwise use the UI color for the frame count color.
-            } else {
-                holder.countTextView.setTextColor(Utilities.getPrimaryUiColor(context));
-            }
 
             if (frame.getLensId() > 0) {
                 Lens lens = database.getLens(frame.getLensId());
