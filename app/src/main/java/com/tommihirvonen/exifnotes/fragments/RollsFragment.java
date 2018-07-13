@@ -523,7 +523,8 @@ public class RollsFragment extends Fragment implements
             final boolean visible = rollAdapter.getSelectedItemCount() == 1;
             actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(visible);
             // Set the action mode toolbar title to display the number of selected items.
-            actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()));
+            actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()) + "/"
+                    + Integer.toString(rollAdapter.getItemCount()));
         }
     }
 
@@ -747,7 +748,8 @@ public class RollsFragment extends Fragment implements
                             rollAdapter.resetAnimateAll();
                         }
                     });
-                    actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()));
+                    actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()) + "/"
+                            + Integer.toString(rollAdapter.getItemCount()));
                     // Set the edit item visibility to false because all rolls are selected.
                     actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(false);
                     return true;

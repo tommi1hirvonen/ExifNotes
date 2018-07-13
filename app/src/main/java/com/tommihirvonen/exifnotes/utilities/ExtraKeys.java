@@ -21,6 +21,8 @@ public final class ExtraKeys {
 
     public static final String LOCATION_ENABLED = "LOCATION_ENABLED";
 
+    public static final String OVERRIDE_PENDING_TRANSITION = "OVERRIDE_PENDING_TRANSITION";
+
     public static final String TITLE = "TITLE";
 
     public static final String POSITIVE_BUTTON = "POSITIVE_BUTTON";

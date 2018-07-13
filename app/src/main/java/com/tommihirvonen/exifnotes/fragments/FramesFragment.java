@@ -45,8 +45,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.tommihirvonen.exifnotes.activities.FramesActivity;
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity;
-import com.tommihirvonen.exifnotes.activities.MainActivity;
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
@@ -391,9 +391,9 @@ public class FramesFragment extends Fragment implements
                         PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName());
                 preferenceActivityIntent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
 
-                //Start the preference activity from MainActivity.
-                //The result will be handled in MainActivity.
-                getActivity().startActivityForResult(preferenceActivityIntent, MainActivity.PREFERENCE_ACTIVITY_REQUEST);
+                //Start the preference activity from FramesActivity.
+                //The result will be handled in FramesActivity.
+                getActivity().startActivityForResult(preferenceActivityIntent, FramesActivity.PREFERENCE_ACTIVITY_REQUEST);
 
                 break;
 
@@ -926,8 +926,9 @@ public class FramesFragment extends Fragment implements
         frameAdapter.toggleSelection(position);
         // If the user deselected the last of the selected items, exit action mode.
         if (frameAdapter.getSelectedItemCount() == 0) actionMode.finish();
-        // Set the action mode toolbar title to display the number of selected items.
-        else actionMode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()));
+        // Set the action mode toolbar title to display the number of selected items and the number of all items.
+        else actionMode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()) + "/"
+                + Integer.toString(frameAdapter.getItemCount()));
     }
 
     /**
@@ -1058,7 +1059,8 @@ public class FramesFragment extends Fragment implements
                             frameAdapter.resetAnimateAll();
                         }
                     });
-                    mode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()));
+                    mode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()) + "/"
+                            + Integer.toString(frameAdapter.getItemCount()));
                     return true;
 
                 default:

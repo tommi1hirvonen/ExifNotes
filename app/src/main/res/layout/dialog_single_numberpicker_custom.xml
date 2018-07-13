@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingBottom="20dp">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -36,7 +35,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/edit_elements"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
         android:orientation="horizontal">
 
         <TextView
@@ -47,7 +45,7 @@
             android:layout_marginRight="10dp"
             />
 
-        <Switch
+        <android.support.v7.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/custom_aperture_switch"

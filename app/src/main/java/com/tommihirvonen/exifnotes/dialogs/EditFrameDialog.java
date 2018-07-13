@@ -24,6 +24,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -40,7 +41,6 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -1081,7 +1081,7 @@ public class EditFrameDialog extends DialogFragment {
         aperturePicker.setMinValue(0);
         aperturePicker.setMaxValue(displayedApertureValues.length-1);
         aperturePicker.setDisplayedValues(displayedApertureValues);
-        aperturePicker.setValue(0);
+        aperturePicker.setValue(displayedApertureValues.length-1);
         for (int i = 0; i < displayedApertureValues.length; ++i) {
             if (newAperture.equals(displayedApertureValues[i])) {
                 aperturePicker.setValue(i);
@@ -1391,7 +1391,7 @@ public class EditFrameDialog extends DialogFragment {
             View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker_custom, null);
             final NumberPicker aperturePicker = dialogView.findViewById(R.id.number_picker);
             final EditText editText = dialogView.findViewById(R.id.edit_text);
-            final Switch customApertureSwitch = dialogView.findViewById(R.id.custom_aperture_switch);
+            final SwitchCompat customApertureSwitch = dialogView.findViewById(R.id.custom_aperture_switch);
 
             // Initialise the aperture value NumberPicker. The return value is true, if the
             // aperture value corresponds to a predefined value. The return value is false,
@@ -1409,6 +1409,11 @@ public class EditFrameDialog extends DialogFragment {
                 aperturePicker.setVisibility(View.INVISIBLE);
                 editText.setVisibility(View.VISIBLE);
                 manualOverride = true;
+            } else {
+                // Otherwise set manualOverride to false. This has to be done in case manual
+                // override was enabled in a previous onClick event and the value of manualOverride
+                // was left to true.
+                manualOverride = false;
             }
 
             // The user can switch between predefined aperture values and custom values using a switch.

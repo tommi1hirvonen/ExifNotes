@@ -17,7 +17,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.dialogs.SimpleEula;
-import com.tommihirvonen.exifnotes.fragments.FramesFragment;
 import com.tommihirvonen.exifnotes.fragments.RollsFragment;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
@@ -50,6 +49,10 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
      */
     public static final int PREFERENCE_ACTIVITY_REQUEST = 8;
 
+    private static final int FRAMES_ACTIVITY_REQUEST = 10;
+
+    private boolean darkThemeEnabled = false;
+
     /**
      * Create the layout and activate location services.
      *
@@ -74,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
             setTheme(R.style.AppTheme_Dark);
+            darkThemeEnabled = true;
         }
 
         // The point at which super.onCreate() is called is important.
@@ -163,7 +167,11 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
     @Override
     public void onResume(){
         super.onResume();
-
+        if (Utilities.isAppThemeDark(getBaseContext()) && !darkThemeEnabled ||
+                !Utilities.isAppThemeDark(getBaseContext()) && darkThemeEnabled) {
+            recreate();
+            return;
+        }
         int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
         int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
         Utilities.setSupportActionBarColor(this, primaryColor);
@@ -197,7 +205,8 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         final Intent framesActivityIntent = new Intent(this, FramesActivity.class);
         framesActivityIntent.putExtra(ExtraKeys.ROLL_ID, rollId);
         framesActivityIntent.putExtra(ExtraKeys.LOCATION_ENABLED, locationPermissionsGranted);
-        startActivity(framesActivityIntent);
+        framesActivityIntent.putExtra(ExtraKeys.OVERRIDE_PENDING_TRANSITION, true);
+        startActivityForResult(framesActivityIntent, FRAMES_ACTIVITY_REQUEST);
     }
 
 
@@ -278,39 +287,39 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
     }
 
     /**
-     * The PreferenceActivity is started for result and the result is captured here in MainActivity.
-     * The result is OK if the user has successfully imported a new database.
+     * PreferenceActivity and FramesActivity are started for result
+     * and the possible result is captured here.
+     *
+     * The result code is compared using bitwise operators to determine
+     * whether a new database was imported, the app theme was changed or both.
      *
      * @param requestCode passed to the activity when it is launched
-     * @param resultCode OK if the user has successfully imported a new database
+     * @param resultCode integer to be compared using bitwise operators to determine the action(s)
+     *                   that were taken in PreferenceActivity
      * @param data not used
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
 
-            case PREFERENCE_ACTIVITY_REQUEST:
+            // Intentional fallthrough
+            case PREFERENCE_ACTIVITY_REQUEST: case FRAMES_ACTIVITY_REQUEST:
 
+                // If a new database was imported, update the contents of RollsFragment.
                 if ((resultCode & PreferenceActivity.RESULT_DATABASE_IMPORTED) ==
                         PreferenceActivity.RESULT_DATABASE_IMPORTED) {
-
-                    Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-                    if (fragment instanceof FramesFragment) {
-                        getFragmentManager().popBackStack();
-                    }
-                    fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+                    final Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
                     if (fragment instanceof RollsFragment) {
-                        RollsFragment rollsFragment = (RollsFragment) fragment;
-                        rollsFragment.updateFragment(true);
+                        ((RollsFragment) fragment).updateFragment(true);
                     }
                 }
-
+                // If the app theme was changed, recreate activity.
                 if ((resultCode & PreferenceActivity.RESULT_THEME_CHANGED) ==
                         PreferenceActivity.RESULT_THEME_CHANGED) {
                     recreate();
                 }
-
                 return;
+
         }
 
         // Call super in case the result was not handled here
