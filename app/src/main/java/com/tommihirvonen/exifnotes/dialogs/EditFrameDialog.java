@@ -1255,6 +1255,11 @@ public class EditFrameDialog extends DialogFragment {
                         .getStringArray(R.array.ApertureValuesThird);
                 break;
         }
+        //Reverse the order if necessary. This is necessary for the aperture range checks later,
+        //so that minIndex is actually smaller than maxIndex.
+        if (displayedApertureValues[0].equals(getResources().getString(R.string.NoValue))) {
+            Collections.reverse(Arrays.asList(displayedApertureValues));
+        }
 
         boolean apertureFound = false;
 
