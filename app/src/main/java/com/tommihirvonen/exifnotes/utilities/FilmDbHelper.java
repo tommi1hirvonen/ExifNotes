@@ -114,6 +114,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     //Updated version from 14 to 15 - 2017-04-29
     //Updated version from 15 to 16 - 2018-02-17
     //Updated version from 16 to 17 - 2018-03-26
+    //Updated version from 17 to 18 - 2018-07-08
     private static final int DATABASE_VERSION = 18;
 
     //=============================================================================================
@@ -353,7 +354,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         if (oldVersion <= 16) {
             db.execSQL(ALTER_TABLE_FRAMES_11);
         }
-        if (oldVersion <= 18) {
+        if (oldVersion <= 17) {
             db.execSQL(ALTER_TABLE_CAMERAS_5);
         }
     }
