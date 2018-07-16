@@ -355,12 +355,13 @@ public class EditRollDialog extends DialogFragment {
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker isoPicker = dialogView.findViewById(R.id.number_picker);
+                final String[] isoValues = getActivity().getResources().getStringArray(R.array.ISOValues);
                 isoPicker.setMinValue(0);
-                isoPicker.setMaxValue(Utilities.isoValues.length-1);
-                isoPicker.setDisplayedValues(Utilities.isoValues);
+                isoPicker.setMaxValue(isoValues.length-1);
+                isoPicker.setDisplayedValues(isoValues);
                 isoPicker.setValue(0);
-                for (int i = 0; i < Utilities.isoValues.length; ++i) {
-                    if (newIso == Integer.parseInt(Utilities.isoValues[i])) {
+                for (int i = 0; i < isoValues.length; ++i) {
+                    if (newIso == Integer.parseInt(isoValues[i])) {
                         isoPicker.setValue(i);
                         break;
                     }
@@ -373,7 +374,7 @@ public class EditRollDialog extends DialogFragment {
                     new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        newIso = Integer.parseInt(Utilities.isoValues[isoPicker.getValue()]);
+                        newIso = Integer.parseInt(isoValues[isoPicker.getValue()]);
                         isoTextView.setText(newIso == 0 ? "" : String.valueOf(newIso));
                     }
                 });
@@ -410,13 +411,14 @@ public class EditRollDialog extends DialogFragment {
                 View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker pushPullPicker =
                         Utilities.fixNumberPicker((NumberPicker) dialogView.findViewById(R.id.number_picker));
+                final String[] compValues = getActivity().getResources().getStringArray(R.array.CompValues);
                 pushPullPicker.setMinValue(0);
-                pushPullPicker.setMaxValue(Utilities.compValues.length-1);
-                pushPullPicker.setDisplayedValues(Utilities.compValues);
+                pushPullPicker.setMaxValue(compValues.length-1);
+                pushPullPicker.setDisplayedValues(compValues);
                 pushPullPicker.setValue(9);
                 if (newPushPull != null) {
-                    for (int i = 0; i < Utilities.compValues.length; ++i) {
-                        if (newPushPull.equals(Utilities.compValues[i])) {
+                    for (int i = 0; i < compValues.length; ++i) {
+                        if (newPushPull.equals(compValues[i])) {
                             pushPullPicker.setValue(i);
                             break;
                         }
@@ -430,7 +432,7 @@ public class EditRollDialog extends DialogFragment {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            newPushPull = Utilities.compValues[pushPullPicker.getValue()];
+                            newPushPull = compValues[pushPullPicker.getValue()];
                             pushPullTextView.setText(
                                     newPushPull.equals("0") ? "" : newPushPull
                             );

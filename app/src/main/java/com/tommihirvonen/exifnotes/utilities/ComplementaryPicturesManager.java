@@ -8,7 +8,6 @@ import android.support.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.R;
 

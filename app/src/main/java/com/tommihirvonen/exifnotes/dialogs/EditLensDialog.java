@@ -58,11 +58,6 @@ public class EditLensDialog extends DialogFragment {
     private Lens lens;
 
     /**
-     * Reference to the utilities class
-     */
-    private Utilities utilities;
-
-    /**
      * Stores the currently selected aperture value increment setting
      */
     private int newApertureIncrements;
@@ -122,8 +117,6 @@ public class EditLensDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
-
-        utilities = new Utilities(getActivity());
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
@@ -201,16 +194,20 @@ public class EditLensDialog extends DialogFragment {
                         boolean minFound = false, maxFound = false;
                         switch (newApertureIncrements) {
                             case 0:
-                                displayedApertureValues = utilities.apertureValuesThird;
+                                displayedApertureValues = getActivity().getResources()
+                                        .getStringArray(R.array.ApertureValuesThird);
                                 break;
                             case 1:
-                                displayedApertureValues = utilities.apertureValuesHalf;
+                                displayedApertureValues = getActivity().getResources()
+                                        .getStringArray(R.array.ApertureValuesHalf);
                                 break;
                             case 2:
-                                displayedApertureValues = utilities.apertureValuesFull;
+                                displayedApertureValues = getActivity().getResources()
+                                        .getStringArray(R.array.ApertureValuesFull);
                                 break;
                             default:
-                                displayedApertureValues = utilities.apertureValuesThird;
+                                displayedApertureValues = getActivity().getResources()
+                                        .getStringArray(R.array.ApertureValuesThird);
                                 break;
                         }
                         for (String string : displayedApertureValues) {
@@ -496,16 +493,20 @@ public class EditLensDialog extends DialogFragment {
                                                 NumberPicker maxAperturePicker){
         switch (newApertureIncrements) {
             case 0:
-                displayedApertureValues = utilities.apertureValuesThird;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesThird);
                 break;
             case 1:
-                displayedApertureValues = utilities.apertureValuesHalf;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesHalf);
                 break;
             case 2:
-                displayedApertureValues = utilities.apertureValuesFull;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesFull);
                 break;
             default:
-                displayedApertureValues = utilities.apertureValuesThird;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesThird);
                 break;
         }
         if (displayedApertureValues[0].equals(getResources().getString(R.string.NoValue))) {

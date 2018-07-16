@@ -52,11 +52,6 @@ public class EditCameraDialog extends DialogFragment {
     private Camera camera;
 
     /**
-     * Reference to the utilities class
-     */
-    private Utilities utilities;
-
-    /**
      * Stores the currently selected shutter speed value increment setting
      */
     private int newShutterIncrements;
@@ -106,8 +101,6 @@ public class EditCameraDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
-
-        utilities = new Utilities(getActivity());
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
@@ -185,16 +178,20 @@ public class EditCameraDialog extends DialogFragment {
                         boolean minFound = false, maxFound = false;
                         switch (newShutterIncrements) {
                             case 0:
-                                displayedShutterValues = utilities.shutterValuesThird;
+                                displayedShutterValues = getActivity().getResources()
+                                        .getStringArray(R.array.ShutterValuesThird);
                                 break;
                             case 1:
-                                displayedShutterValues = utilities.shutterValuesHalf;
+                                displayedShutterValues = getActivity().getResources()
+                                        .getStringArray(R.array.ShutterValuesHalf);
                                 break;
                             case 2:
-                                displayedShutterValues = utilities.shutterValuesFull;
+                                displayedShutterValues = getActivity().getResources()
+                                        .getStringArray(R.array.ShutterValuesFull);
                                 break;
                             default:
-                                displayedShutterValues = utilities.shutterValuesThird;
+                                displayedShutterValues = getActivity().getResources()
+                                        .getStringArray(R.array.ShutterValuesThird);
                                 break;
                         }
                         for (String string : displayedShutterValues) {
@@ -393,16 +390,20 @@ public class EditCameraDialog extends DialogFragment {
                                                NumberPicker maxShutterPicker) {
         switch (newShutterIncrements) {
             case 0:
-                displayedShutterValues = utilities.shutterValuesThird;
+                displayedShutterValues = getActivity().getResources()
+                        .getStringArray(R.array.ShutterValuesThird);
                 break;
             case 1:
-                displayedShutterValues = utilities.shutterValuesHalf;
+                displayedShutterValues = getActivity().getResources()
+                        .getStringArray(R.array.ShutterValuesHalf);
                 break;
             case 2:
-                displayedShutterValues = utilities.shutterValuesFull;
+                displayedShutterValues = getActivity().getResources()
+                        .getStringArray(R.array.ShutterValuesFull);
                 break;
             default:
-                displayedShutterValues = utilities.shutterValuesThird;
+                displayedShutterValues = getActivity().getResources()
+                        .getStringArray(R.array.ShutterValuesThird);
                 break;
         }
         if (displayedShutterValues[0].equals(getResources().getString(R.string.NoValue))) {

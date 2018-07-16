@@ -278,11 +278,6 @@ public class EditFrameDialog extends DialogFragment {
     private EditText noteEditText;
 
     /**
-     * Reference to the utilities class
-     */
-    private Utilities utilities;
-
-    /**
      * Stores the currently displayed shutter speed values.
      */
     private String[] displayedShutterValues;
@@ -326,8 +321,6 @@ public class EditFrameDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
-
-        utilities = new Utilities(getActivity());
 
         String title = getArguments().getString(ExtraKeys.TITLE);
         final String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
@@ -1007,16 +1000,20 @@ public class EditFrameDialog extends DialogFragment {
         //Get the array of displayed aperture values according to the set increments.
         switch (apertureIncrements) {
             case 0:
-                displayedApertureValues = utilities.apertureValuesThird;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesThird);
                 break;
             case 1:
-                displayedApertureValues = utilities.apertureValuesHalf;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesHalf);
                 break;
             case 2:
-                displayedApertureValues = utilities.apertureValuesFull;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesFull);
                 break;
             default:
-                displayedApertureValues = utilities.apertureValuesThird;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesThird);
                 break;
         }
         //Reverse the order if necessary.
@@ -1102,16 +1099,20 @@ public class EditFrameDialog extends DialogFragment {
         // Set the increments according to settings
         switch (shutterIncrements) {
             case 0:
-                displayedShutterValues = utilities.shutterValuesThird;
+                displayedShutterValues = getActivity().getResources()
+                        .getStringArray(R.array.ShutterValuesThird);
                 break;
             case 1:
-                displayedShutterValues = utilities.shutterValuesHalf;
+                displayedShutterValues = getActivity().getResources()
+                        .getStringArray(R.array.ShutterValuesHalf);
                 break;
             case 2:
-                displayedShutterValues = utilities.shutterValuesFull;
+                displayedShutterValues = getActivity().getResources()
+                        .getStringArray(R.array.ShutterValuesFull);
                 break;
             default:
-                displayedShutterValues = utilities.shutterValuesThird;
+                displayedShutterValues = getActivity().getResources()
+                        .getStringArray(R.array.ShutterValuesThird);
                 break;
         }
         //Reverse the order if necessary
@@ -1238,16 +1239,20 @@ public class EditFrameDialog extends DialogFragment {
         //Check the aperture value's validity against the new lens' properties.
         switch (apertureIncrements) {
             case 0:
-                displayedApertureValues = utilities.apertureValuesThird;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesThird);
                 break;
             case 1:
-                displayedApertureValues = utilities.apertureValuesHalf;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesHalf);
                 break;
             case 2:
-                displayedApertureValues = utilities.apertureValuesFull;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesFull);
                 break;
             default:
-                displayedApertureValues = utilities.apertureValuesThird;
+                displayedApertureValues = getActivity().getResources()
+                        .getStringArray(R.array.ApertureValuesThird);
                 break;
         }
 
@@ -1345,7 +1350,9 @@ public class EditFrameDialog extends DialogFragment {
             LayoutInflater inflater = getActivity().getLayoutInflater();
             @SuppressLint("InflateParams")
             View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
-            final NumberPicker shutterPicker = dialogView.findViewById(R.id.number_picker);
+            final NumberPicker shutterPicker = Utilities.fixNumberPicker(
+                    (NumberPicker) dialogView.findViewById(R.id.number_picker)
+            );
 
             initialiseShutterPicker(shutterPicker);
 
@@ -1759,10 +1766,12 @@ public class EditFrameDialog extends DialogFragment {
             // Set the displayed exposure compensation increments depending on the camera's settings.
             switch (exposureCompIncrements) {
                 case 0: default:
-                    displayedExposureCompValues = Utilities.compValues;
+                    displayedExposureCompValues = getActivity().getResources()
+                            .getStringArray(R.array.CompValues);
                     break;
                 case 1:
-                    displayedExposureCompValues = Utilities.compValuesHalf;
+                    displayedExposureCompValues = getActivity().getResources()
+                            .getStringArray(R.array.CompValuesHalf);
                     break;
             }
 

@@ -55,112 +55,15 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Class containing utility functions
+ * Class containing utility functions.
+ * Class mimics a static class.
  */
-public class Utilities {
+public final class Utilities {
 
     /**
-     * All possible aperture values
+     * Limit instantiation -> empty private constructor
      */
-    private final String[] allApertureValues;
-
-    /**
-     * Aperture values in one third stop increments
-     */
-    public final String[] apertureValuesThird;
-
-    /**
-     * Aperture values in half stop increments
-     */
-    public final String[] apertureValuesHalf;
-
-    /**
-     * Aperture values in full stop increments
-     */
-    public final String[] apertureValuesFull;
-
-
-    /**
-     * All possible shutter speed values
-     */
-    private final String[] allShutterValues;
-
-    /**
-     * Shutter speed values in one third stop increments
-     */
-    public final String[] shutterValuesThird;
-
-    /**
-     * Shutter speed values in one half stop increments
-     */
-    public final String[] shutterValuesHalf;
-
-    /**
-     * Shutter speed values in full stop increments
-     */
-    public final String[] shutterValuesFull;
-
-    /**
-     * Constructor to initialize aperture and shutter speed value arrays.
-     *
-     * @param context application's context used to get resource strings
-     */
-    public Utilities(Context context){
-        allApertureValues = new String[]{context.getResources().getString(R.string.NoValue),
-                "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
-                "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "6.7", "7.1", "8", "9", "9.5",
-                "10", "11", "13", "14", "16", "18", "19", "20", "22", "25", "27", "29", "32", "36", "38",
-                "42", "45", "50", "57", "64"};
-        apertureValuesThird = new String[]{context.getResources().getString(R.string.NoValue),
-                "1.0", "1.1", "1.2", "1.4", "1.6", "1.8", "2.0", "2.2", "2.5",
-                "2.8", "3.2", "3.5", "4.0", "4.5", "5.0", "5.6", "6.3", "7.1", "8", "9",
-                "10", "11", "13", "14", "16", "18", "20", "22", "25", "29", "32", "36",
-                "42", "45", "50", "57", "64"};
-        apertureValuesHalf = new String[]{context.getResources().getString(R.string.NoValue),
-                "1.0", "1.2", "1.4", "1.8", "2.0", "2.5", "2.8", "3.5",
-                "4.0", "4.5", "5.6", "6.7", "8", "9.5", "11", "13", "16", "19",
-                "22", "27", "32", "38", "45", "64" };
-        apertureValuesFull = new String[]{context.getResources().getString(R.string.NoValue),
-                "1.0", "1.4", "2.0", "2.8", "4.0", "5.6", "8", "11",
-                "16", "22", "32", "45", "64" };
-
-        allShutterValues = new String[]{context.getResources().getString(R.string.NoValue),
-                "B", "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
-                "3.2\"", "3\"", "2.5\"", "2\"", "1.6\"", "1.5\"","1.3\"", "1\"", "0.8\"", "0.7\"", "0.6\"", "1/2", "0.4\"", "1/3", "0.3\"",
-                "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
-                "1/30", "1/40", "1/45", "1/50", "1/60", "1/80", "1/90", "1/100", "1/125", "1/160", "1/180", "1/200",
-                "1/250", "1/320", "1/350", "1/400", "1/500", "1/640", "1/750", "1/800", "1/1000", "1/1250", "1/1500",
-                "1/1600", "1/2000", "1/2500", "1/3000", "1/3200", "1/4000", "1/5000", "1/6000", "1/6400", "1/8000"};
-        shutterValuesThird = new String[]{context.getResources().getString(R.string.NoValue),
-                "30\"", "25\"", "20\"", "15\"", "13\"", "10\"", "8\"", "6\"", "5\"", "4\"",
-                "3.2\"", "2.5\"", "2\"", "1.6\"", "1.3\"", "1\"", "0.8\"", "0.6\"", "1/2", "0.4\"", "0.3\"",
-                "1/4", "1/5", "1/6", "1/8", "1/10", "1/13", "1/15", "1/20", "1/25",
-                "1/30", "1/40", "1/50", "1/60", "1/80", "1/100", "1/125", "1/160", "1/200",
-                "1/250", "1/320", "1/400", "1/500", "1/640", "1/800", "1/1000", "1/1250",
-                "1/1600", "1/2000", "1/2500", "1/3200", "1/4000", "1/5000", "1/6400", "1/8000"};
-
-        shutterValuesHalf = new String[]{context.getResources().getString(R.string.NoValue),
-                "30\"", "20\"", "15\"", "10\"", "8\"", "6\"", "4\"", "3\"", "2\"", "1.5\"",
-                "1\"", "0.7\"", "1/2", "1/3", "1/4", "1/6", "1/8", "1/10", "1/15", "1/20",
-                "1/30", "1/45", "1/60", "1/90", "1/125", "1/180", "1/250", "1/350",
-                "1/500", "1/750", "1/1000", "1/1500", "1/2000", "1/3000", "1/4000", "1/6000", "1/8000" };
-
-        shutterValuesFull = new String[]{context.getResources().getString(R.string.NoValue),
-                "30\"", "15\"", "8\"", "4\"", "2\"", "1\"", "1/2", "1/4", "1/8",
-                "1/15", "1/30", "1/60", "1/125", "1/250", "1/500", "1/1000", "1/2000", "1/4000", "1/8000" };
-    }
-
-    public static final String[] isoValues = {"0", "12", "16", "20", "25", "32", "40", "50", "64", "80", "100", "125", "160", "200",
-            "250", "320", "400", "500", "640", "800", "1000",
-            "1250", "1600", "2000", "2500", "3200", "4000", "5000", "6400", "8000", "10000", "12800", "16000",
-            "20000", "25600"};
-
-    public static final String[] compValues = {"-3", "-2 2/3", "-2 1/3", "-2", "-1 2/3", "-1 1/3", "-1", "-2/3", "-1/3",
-                "0",
-                "+1/3", "+2/3", "+1", "+1 1/3", "+1 2/3", "+2", "+2 1/3", "+2 2/3", "+3"};
-    public static final String[] compValuesHalf = {"-3", "-2 1/2", "-2", "-1 1/2", "-1", "-1/2",
-            "0",
-            "+1/2", "+1", "+1 1/2", "+2", "+2 1/2", "+3"};
+    private Utilities() { }
 
     /**
      * Shows a general dialog containing a title and a message.
@@ -278,7 +181,8 @@ public class Utilities {
     }
 
     /**
-     * This function is used to fix a bug which Google hasn't been able to fix in five years.
+     * This function is used to fix a bug which Google hasn't been able to fix in five years
+     * (at the time of writing).
      * https://code.google.com/p/android/issues/detail?id=35482
      *
      * Initially the NumberPicker shows the wrong value, but when the Picker is first scrolled,
@@ -291,17 +195,19 @@ public class Utilities {
     public static NumberPicker fixNumberPicker(NumberPicker numberPicker) {
         Field field = null;
         try {
+            // Disregard IDE warning "Cannot resolve field mInputText'".
+            // This function seems to work despite the warning.
             field = NumberPicker.class.getDeclaredField("mInputText");
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+        } catch (NoSuchFieldException ignore) {
+
         }
         if (field != null) {
             field.setAccessible(true);
             EditText inputText = null;
             try {
                 inputText = (EditText) field.get(numberPicker);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+            } catch (IllegalAccessException ignore) {
+
             }
             if (inputText != null) inputText.setFilters(new InputFilter[0]);
         }
@@ -526,13 +432,12 @@ public class Utilities {
      * This function is called when the user has selected a sorting criteria.
      * Sort the frame list depending on the sorting criteria defined in SharedPreferences.
      *
-     * @param activity reference to the parent activity
+     * @param context reference to the parent activity
      * @param sortMode enum type referencing the frame sort mode
      * @param database reference to the application's database
      * @param listToSort reference to the frame list that is to be sorted
      */
-    public static void sortFrameList(Activity activity, FrameSortMode sortMode, final FilmDbHelper database, List<Frame> listToSort) {
-        final Utilities utilities = new Utilities(activity);
+    public static void sortFrameList(final Context context, FrameSortMode sortMode, final FilmDbHelper database, List<Frame> listToSort) {
         switch (sortMode){
             case FRAME_COUNT:
                 Collections.sort(listToSort, new Comparator<Frame>() {
@@ -583,13 +488,14 @@ public class Utilities {
                     @Override
                     public int compare(Frame o1, Frame o2) {
 
+                        final String[] allApertureValues = context.getResources().getStringArray(R.array.AllApertureValues);
                         String aperture1 = o1.getAperture();
                         String aperture2 = o2.getAperture();
                         int pos1 = 0;
                         int pos2 = 0;
-                        for (int i = 0; i < utilities.allApertureValues.length; ++i){
-                            if (aperture1.equals(utilities.allApertureValues[i])) pos1 = i;
-                            if (aperture2.equals(utilities.allApertureValues[i])) pos2 = i;
+                        for (int i = 0; i < allApertureValues.length; ++i){
+                            if (aperture1.equals(allApertureValues[i])) pos1 = i;
+                            if (aperture2.equals(allApertureValues[i])) pos2 = i;
                         }
                         int result;
                         if (pos1 < pos2) result = -1;
@@ -604,15 +510,16 @@ public class Utilities {
                     @Override
                     public int compare(Frame o1, Frame o2) {
 
+                        final String[] allShutterValues = context.getResources().getStringArray(R.array.AllShutterValues);
                         //Shutter speed strings need to be modified so that the sorting
                         //works properly.
                         String shutter1 = o1.getShutter().replace("\"", "");
                         String shutter2 = o2.getShutter().replace("\"", "");
                         int pos1 = 0;
                         int pos2 = 0;
-                        for (int i = 0; i < utilities.allShutterValues.length; ++i){
-                            if (shutter1.equals(utilities.allShutterValues[i])) pos1 = i;
-                            if (shutter2.equals(utilities.allShutterValues[i])) pos2 = i;
+                        for (int i = 0; i < allShutterValues.length; ++i){
+                            if (shutter1.equals(allShutterValues[i])) pos1 = i;
+                            if (shutter2.equals(allShutterValues[i])) pos2 = i;
                         }
                         int result;
                         if (pos1 < pos2) result = -1;

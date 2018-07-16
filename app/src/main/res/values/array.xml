@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string-array name="StopIncrements">
         <item>@string/ThirdStop</item>
@@ -76,6 +76,414 @@
         <item>120</item>
         <item>110</item>
         <item>@string/Sheet</item>
+    </string-array>
+
+    <string-array name="AllApertureValues">
+        <item>@string/NoValue</item>
+        <item>1.0</item>
+        <item>1.1</item>
+        <item>1.2</item>
+        <item>1.4</item>
+        <item>1.6</item>
+        <item>1.8</item>
+        <item>2.0</item>
+        <item>2.2</item>
+        <item>2.5</item>
+        <item>2.8</item>
+        <item>3.2</item>
+        <item>3.5</item>
+        <item>4.0</item>
+        <item>4.5</item>
+        <item>5.0</item>
+        <item>5.6</item>
+        <item>6.3</item>
+        <item>6.7</item>
+        <item>7.1</item>
+        <item>8</item>
+        <item>9</item>
+        <item>9.5</item>
+        <item>10</item>
+        <item>11</item>
+        <item>13</item>
+        <item>14</item>
+        <item>16</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>22</item>
+        <item>25</item>
+        <item>27</item>
+        <item>29</item>
+        <item>32</item>
+        <item>36</item>
+        <item>38</item>
+        <item>42</item>
+        <item>45</item>
+        <item>50</item>
+        <item>57</item>
+        <item>64</item>
+    </string-array>
+
+    <string-array name="ApertureValuesThird">
+        <item>@string/NoValue</item>
+        <item>1.0</item>
+        <item>1.1</item>
+        <item>1.2</item>
+        <item>1.4</item>
+        <item>1.6</item>
+        <item>1.8</item>
+        <item>2.0</item>
+        <item>2.2</item>
+        <item>2.5</item>
+        <item>2.8</item>
+        <item>3.2</item>
+        <item>3.5</item>
+        <item>4.0</item>
+        <item>4.5</item>
+        <item>5.0</item>
+        <item>5.6</item>
+        <item>6.3</item>
+        <item>6.7</item>
+        <item>7.1</item>
+        <item>8</item>
+        <item>9</item>
+        <item>9.5</item>
+        <item>10</item>
+        <item>11</item>
+        <item>13</item>
+        <item>14</item>
+        <item>16</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>22</item>
+        <item>25</item>
+        <item>27</item>
+        <item>29</item>
+        <item>32</item>
+        <item>36</item>
+        <item>38</item>
+        <item>42</item>
+        <item>45</item>
+        <item>50</item>
+        <item>57</item>
+        <item>64</item>
+    </string-array>
+
+    <string-array name="ApertureValuesHalf">
+        <item>@string/NoValue</item>
+        <item>1.0</item>
+        <item>1.2</item>
+        <item>1.4</item>
+        <item>1.8</item>
+        <item>2.0</item>
+        <item>2.5</item>
+        <item>2.8</item>
+        <item>3.5</item>
+        <item>4.0</item>
+        <item>4.5</item>
+        <item>5.6</item>
+        <item>6.7</item>
+        <item>8</item>
+        <item>9.5</item>
+        <item>11</item>
+        <item>13</item>
+        <item>16</item>
+        <item>19</item>
+        <item>22</item>
+        <item>27</item>
+        <item>32</item>
+        <item>38</item>
+        <item>45</item>
+        <item>64</item>
+    </string-array>
+
+    <string-array name="ApertureValuesFull">
+        <item>@string/NoValue</item>
+        <item>1.0</item>
+        <item>1.4</item>
+        <item>2.0</item>
+        <item>2.8</item>
+        <item>4.0</item>
+        <item>5.6</item>
+        <item>8</item>
+        <item>11</item>
+        <item>16</item>
+        <item>22</item>
+        <item>32</item>
+        <item>45</item>
+        <item>64</item>
+    </string-array>
+
+    <string-array name="AllShutterValues">
+        <item>@string/NoValue</item>
+        <item>B</item>
+        <item>30\"</item>
+        <item>25\"</item>
+        <item>20\"</item>
+        <item>15\"</item>
+        <item>13\"</item>
+        <item>10\"</item>
+        <item>8\"</item>
+        <item>6\"</item>
+        <item>5\"</item>
+        <item>4\"</item>
+        <item>3.2\"</item>
+        <item>3\"</item>
+        <item>2.5\"</item>
+        <item>2\"</item>
+        <item>1.6\"</item>
+        <item>1.5\"</item>
+        <item>1.3\"</item>
+        <item>1\"</item>
+        <item>0.8\"</item>
+        <item>0.7\"</item>
+        <item>0.6\"</item>
+        <item tools:ignore="TypographyFractions">1/2</item>
+        <item>0.4\"</item>
+        <item tools:ignore="TypographyFractions">1/3</item>
+        <item>0.3\"</item>
+        <item tools:ignore="TypographyFractions">1/4</item>
+        <item>1/5</item>
+        <item>1/6</item>
+        <item>1/8</item>
+        <item>1/10</item>
+        <item>1/13</item>
+        <item>1/15</item>
+        <item>1/20</item>
+        <item>1/25</item>
+        <item>1/30</item>
+        <item>1/40</item>
+        <item>1/45</item>
+        <item>1/50</item>
+        <item>1/60</item>
+        <item>1/80</item>
+        <item>1/90</item>
+        <item>1/100</item>
+        <item>1/125</item>
+        <item>1/160</item>
+        <item>1/180</item>
+        <item>1/200</item>
+        <item>1/250</item>
+        <item>1/320</item>
+        <item>1/350</item>
+        <item>1/400</item>
+        <item>1/500</item>
+        <item>1/640</item>
+        <item>1/750</item>
+        <item>1/800</item>
+        <item>1/1000</item>
+        <item>1/1250</item>
+        <item>1/1500</item>
+        <item>1/1600</item>
+        <item>1/2000</item>
+        <item>1/2500</item>
+        <item>1/3000</item>
+        <item>1/3200</item>
+        <item>1/4000</item>
+        <item>1/5000</item>
+        <item>1/6000</item>
+        <item>1/6400</item>
+        <item>1/8000</item>
+    </string-array>
+
+    <string-array name="ShutterValuesThird">
+        <item>@string/NoValue</item>
+        <item>30\"</item>
+        <item>25\"</item>
+        <item>20\"</item>
+        <item>15\"</item>
+        <item>13\"</item>
+        <item>10\"</item>
+        <item>8\"</item>
+        <item>6\"</item>
+        <item>5\"</item>
+        <item>4\"</item>
+        <item>3.2\"</item>
+        <item>2.5\"</item>
+        <item>2\"</item>
+        <item>1.6\"</item>
+        <item>1.3\"</item>
+        <item>1\"</item>
+        <item>0.8\"</item>
+        <item>0.6\"</item>
+        <item tools:ignore="TypographyFractions">1/2</item>
+        <item>0.4\"</item>
+        <item>0.3\"</item>
+        <item tools:ignore="TypographyFractions">1/4</item>
+        <item>1/5</item>
+        <item>1/6</item>
+        <item>1/8</item>
+        <item>1/10</item>
+        <item>1/13</item>
+        <item>1/15</item>
+        <item>1/20</item>
+        <item>1/25</item>
+        <item>1/30</item>
+        <item>1/40</item>
+        <item>1/50</item>
+        <item>1/60</item>
+        <item>1/80</item>
+        <item>1/100</item>
+        <item>1/125</item>
+        <item>1/160</item>
+        <item>1/200</item>
+        <item>1/250</item>
+        <item>1/320</item>
+        <item>1/400</item>
+        <item>1/500</item>
+        <item>1/640</item>
+        <item>1/800</item>
+        <item>1/1000</item>
+        <item>1/1250</item>
+        <item>1/1600</item>
+        <item>1/2000</item>
+        <item>1/2500</item>
+        <item>1/3200</item>
+        <item>1/4000</item>
+        <item>1/5000</item>
+        <item>1/6400</item>
+        <item>1/8000</item>
+    </string-array>
+
+    <string-array name="ShutterValuesHalf">
+        <item>@string/NoValue</item>
+        <item>30\"</item>
+        <item>20\"</item>
+        <item>15\"</item>
+        <item>10\"</item>
+        <item>8\"</item>
+        <item>6\"</item>
+        <item>4\"</item>
+        <item>3\"</item>
+        <item>2\"</item>
+        <item>1.5\"</item>
+        <item>1\"</item>
+        <item>0.7\"</item>
+        <item tools:ignore="TypographyFractions">1/2</item>
+        <item tools:ignore="TypographyFractions">1/3</item>
+        <item tools:ignore="TypographyFractions">1/4</item>
+        <item>1/6</item>
+        <item>1/8</item>
+        <item>1/10</item>
+        <item>1/15</item>
+        <item>1/20</item>
+        <item>1/30</item>
+        <item>1/45</item>
+        <item>1/60</item>
+        <item>1/90</item>
+        <item>1/125</item>
+        <item>1/180</item>
+        <item>1/250</item>
+        <item>1/350</item>
+        <item>1/500</item>
+        <item>1/750</item>
+        <item>1/1000</item>
+        <item>1/1500</item>
+        <item>1/2000</item>
+        <item>1/3000</item>
+        <item>1/4000</item>
+        <item>1/6000</item>
+        <item>1/8000</item>
+    </string-array>
+
+    <string-array name="ShutterValuesFull">
+        <item>@string/NoValue</item>
+        <item>30\"</item>
+        <item>15\"</item>
+        <item>8\"</item>
+        <item>4\"</item>
+        <item>2\"</item>
+        <item>1\"</item>
+        <item tools:ignore="TypographyFractions">1/2</item>
+        <item tools:ignore="TypographyFractions">1/4</item>
+        <item>1/8</item>
+        <item>1/15</item>
+        <item>1/30</item>
+        <item>1/60</item>
+        <item>1/125</item>
+        <item>1/250</item>
+        <item>1/500</item>
+        <item>1/1000</item>
+        <item>1/2000</item>
+        <item>1/4000</item>
+        <item>1/8000</item>
+    </string-array>
+
+    <string-array name="ISOValues">
+        <item>0</item>
+        <item>12</item>
+        <item>16</item>
+        <item>20</item>
+        <item>25</item>
+        <item>32</item>
+        <item>40</item>
+        <item>50</item>
+        <item>64</item>
+        <item>80</item>
+        <item>100</item>
+        <item>125</item>
+        <item>160</item>
+        <item>200</item>
+        <item>250</item>
+        <item>320</item>
+        <item>400</item>
+        <item>500</item>
+        <item>640</item>
+        <item>800</item>
+        <item>1000</item>
+        <item>1250</item>
+        <item>1600</item>
+        <item>2000</item>
+        <item>2500</item>
+        <item>3200</item>
+        <item>4000</item>
+        <item>5000</item>
+        <item>6400</item>
+        <item>8000</item>
+        <item>10000</item>
+        <item>12800</item>
+        <item>16000</item>
+        <item>20000</item>
+        <item>25600</item>
+    </string-array>
+
+    <string-array name="CompValues">
+        <item>-3</item>
+        <item>-2 2/3</item>
+        <item tools:ignore="TypographyFractions">-2 1/3</item>
+        <item>-2</item>
+        <item>-1 2/3</item>
+        <item tools:ignore="TypographyFractions">-1 1/3</item>
+        <item>-1</item>
+        <item>-2/3</item>
+        <item tools:ignore="TypographyFractions">-1/3</item>
+        <item>0</item>
+        <item tools:ignore="TypographyFractions">+1/3</item>
+        <item>+2/3</item>
+        <item>+1</item>
+        <item tools:ignore="TypographyFractions">+1 1/3</item>
+        <item>+1 2/3</item>
+        <item>+2</item>
+        <item tools:ignore="TypographyFractions">+2 1/3</item>
+        <item>+2 2/3</item>
+        <item>+3</item>
+    </string-array>
+
+    <string-array name="CompValuesHalf">
+        <item>-3</item>
+        <item tools:ignore="TypographyFractions">-2 1/2</item>
+        <item>-2</item>
+        <item tools:ignore="TypographyFractions">-1 1/2</item>
+        <item>-1</item>
+        <item tools:ignore="TypographyFractions">-1/2</item>
+        <item>0</item>
+        <item tools:ignore="TypographyFractions">+1/2</item>
+        <item>+1</item>
+        <item tools:ignore="TypographyFractions">+1 1/2</item>
+        <item>+2</item>
+        <item tools:ignore="TypographyFractions">+2 1/2</item>
+        <item>+3</item>
     </string-array>
 
 </resources>
