@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.support.annotation.Nullable;
 import android.support.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -49,6 +50,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
+import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
@@ -104,13 +106,9 @@ public class EditFrameDialog extends DialogFragment {
     private static final int SELECT_PICTURE_REQUEST = 5;
 
     /**
-     * Database id of the camera used to take this frame
-     */
-    private long cameraId;
-
-    /**
      * Reference to the camera used to take this frame
      */
+    @Nullable
     private Camera camera;
 
     /**
@@ -141,7 +139,7 @@ public class EditFrameDialog extends DialogFragment {
     /**
      * Button used to display the currently selected filter
      */
-    private TextView filterTextView;
+    private TextView filtersTextView;
 
     /**
      * Reference to the complementary picture's layout. If this view becomes visible,
@@ -160,9 +158,10 @@ public class EditFrameDialog extends DialogFragment {
     private TextView pictureTextView;
 
     /**
-     * Database id of the currently selected lens
+     * Currently selected lens
      */
-    private long newLensId;
+    @Nullable
+    private Lens newLens;
 
     /**
      * Currently selected datetime in format 'YYYY-M-D H:MM'
@@ -172,32 +171,34 @@ public class EditFrameDialog extends DialogFragment {
     /**
      * Currently selected latitude longitude location in format '12,3456... 12,3456...'
      */
+    @Nullable
     private String newLocation;
 
     /**
      * Currently set formatted address for location
      */
+    @Nullable
     private String newFormattedAddress;
 
     /**
-     * Database id of the currently selected filter
+     * Currently selected filter(s)
      */
-    private long newFilterId;
+    private List<Filter> newFilters;
 
     /**
      * Currently selected lens's aperture increment setting
      */
-    private int apertureIncrements;
+    private int apertureIncrements = 0;
 
     /**
      * The shutter speed increment setting of the camera used
      */
-    private int shutterIncrements;
+    private int shutterIncrements = 0;
 
     /**
      * The exposure compensation increment setting of the camera used
      */
-    private int exposureCompIncrements;
+    private int exposureCompIncrements = 0;
 
     /**
      * Currently selected frame count number
@@ -207,11 +208,13 @@ public class EditFrameDialog extends DialogFragment {
     /**
      * Currently selected shutter speed value in format 1/X, Y" or B, where X and Y are numbers
      */
+    @Nullable
     private String newShutter;
 
     /**
      * Currently selected aperture value, number only
      */
+    @Nullable
     private String newAperture;
 
     /**
@@ -223,6 +226,7 @@ public class EditFrameDialog extends DialogFragment {
      * Currently selected exposure compensation in format
      * 0, +/-X or +/-Y/Z where X, Y and Z are numbers
      */
+    @Nullable
     private String newExposureComp;
 
     /**
@@ -233,6 +237,7 @@ public class EditFrameDialog extends DialogFragment {
     /**
      * Currently selected filename of the complementary picture
      */
+    @Nullable
     private String newPictureFilename;
 
     /**
@@ -240,6 +245,7 @@ public class EditFrameDialog extends DialogFragment {
      * if the user presses ok in the camera activity. If the user cancels the camera activity,
      * then this member's value is ignored and newPictureFilename's value isn't changed.
      */
+    @Nullable
     private String tempPictureFilename;
 
     /**
@@ -328,16 +334,20 @@ public class EditFrameDialog extends DialogFragment {
         if (frame == null) frame = new Frame();
 
         database = FilmDbHelper.getInstance(getActivity());
-        cameraId = database.getRoll(frame.getRollId()).getCameraId();
-        camera = database.getCamera(cameraId);
-        mountableLenses = database.getMountableLenses(camera);
-
-        shutterIncrements = camera.getShutterIncrements();
-        exposureCompIncrements = camera.getExposureCompIncrements();
-        apertureIncrements = 0;
-        if (frame.getLensId() > 0) {
-            apertureIncrements = database.getLens(frame.getLensId()).getApertureIncrements();
+        final Roll roll  = database.getRoll(frame.getRollId());
+        if (roll != null) {
+            camera = database.getCamera(roll.getCameraId());
+            if (camera != null) {
+                mountableLenses = database.getLinkedLenses(camera);
+                shutterIncrements = camera.getShutterIncrements();
+                exposureCompIncrements = camera.getExposureCompIncrements();
+            } else {
+                mountableLenses = database.getAllLenses();
+            }
         }
+
+        final Lens lens = database.getLens(frame.getLensId());
+        if (lens != null) apertureIncrements = lens.getApertureIncrements();
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
@@ -401,14 +411,11 @@ public class EditFrameDialog extends DialogFragment {
         //==========================================================================================
         //LENS TEXT
         lensTextView = inflatedView.findViewById(R.id.lens_text);
-        if (frame.getLensId() > 0) {
-            Lens currentLens = database.getLens(frame.getLensId());
-            lensTextView.setText(currentLens.getName());
-        }
+        if (lens != null) lensTextView.setText(lens.getName());
         else lensTextView.setText("");
 
         // LENS PICK DIALOG
-        newLensId = frame.getLensId();
+        newLens = database.getLens(frame.getLensId());
         final LinearLayout lensLayout = inflatedView.findViewById(R.id.lens_layout);
         lensLayout.setOnClickListener(new LensLayoutOnClickListener());
 
@@ -436,13 +443,14 @@ public class EditFrameDialog extends DialogFragment {
         // DATE PICK DIALOG
         final TextView dateTextView = inflatedView.findViewById(R.id.date_text);
         final TextView timeTextView = inflatedView.findViewById(R.id.time_text);
-        if (frame.getDate() == null) frame.setDate(Utilities.getCurrentTime());
-        final List<String> dateValue = Utilities.splitDate(frame.getDate());
-        final int tempYear = Integer.parseInt(dateValue.get(0));
-        final int tempMonth = Integer.parseInt(dateValue.get(1));
-        final int tempDay = Integer.parseInt(dateValue.get(2));
-        final String dateText = tempYear + "-" + tempMonth + "-" + tempDay;
-        dateTextView.setText(dateText);
+        if (frame.getDate() != null) {
+            final List<String> dateValue = Utilities.splitDate(frame.getDate());
+            final int tempYear = Integer.parseInt(dateValue.get(0));
+            final int tempMonth = Integer.parseInt(dateValue.get(1));
+            final int tempDay = Integer.parseInt(dateValue.get(2));
+            final String dateText = tempYear + "-" + tempMonth + "-" + tempDay;
+            dateTextView.setText(dateText);
+        }
 
         newDate = frame.getDate();
 
@@ -476,13 +484,15 @@ public class EditFrameDialog extends DialogFragment {
 
         //==========================================================================================
         // TIME PICK DIALOG
-        final List<String> timeValue = Utilities.splitTime(frame.getDate());
-        final int tempHours = Integer.parseInt(timeValue.get(0));
-        final int tempMinutes = Integer.parseInt(timeValue.get(1));
-        final String timeText;
-        if (tempMinutes < 10) timeText = tempHours + ":0" + tempMinutes;
-        else timeText = tempHours + ":" + tempMinutes;
-        timeTextView.setText(timeText);
+        if (frame.getDate() != null) {
+            final List<String> timeValue = Utilities.splitTime(frame.getDate());
+            final int tempHours = Integer.parseInt(timeValue.get(0));
+            final int tempMinutes = Integer.parseInt(timeValue.get(1));
+            final String timeText;
+            if (tempMinutes < 10) timeText = tempHours + ":0" + tempMinutes;
+            else timeText = tempHours + ":" + tempMinutes;
+            timeTextView.setText(timeText);
+        }
 
         final LinearLayout timeLayout = inflatedView.findViewById(R.id.time_layout);
         timeLayout.setOnClickListener(new View.OnClickListener() {
@@ -636,17 +646,11 @@ public class EditFrameDialog extends DialogFragment {
 
         //==========================================================================================
         //FILTER BUTTON
-        filterTextView = inflatedView.findViewById(R.id.filter_text);
-        if (frame.getFilterId() > 0) {
-            Filter currentFilter = database.getFilter(frame.getFilterId());
-            filterTextView.setText(currentFilter.getName());
-        }
-        else {
-            filterTextView.setText("");
-        }
+        filtersTextView = inflatedView.findViewById(R.id.filter_text);
+        newFilters = frame.getFilters();
+        updateFiltersTextView();
 
         // FILTER PICK DIALOG
-        newFilterId = frame.getFilterId();
         final LinearLayout filterLayout = inflatedView.findViewById(R.id.filter_layout);
         filterLayout.setOnClickListener(new FilterLayoutOnClickListener());
 
@@ -657,7 +661,7 @@ public class EditFrameDialog extends DialogFragment {
             @SuppressLint("CommitTransaction")
             @Override
             public void onClick(View v) {
-                if (newLensId <= 0) {
+                if (newLens == null) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters),
                             Toast.LENGTH_LONG).show();
                     return;
@@ -752,6 +756,20 @@ public class EditFrameDialog extends DialogFragment {
     }
 
     /**
+     * Updates the filters TextView
+     */
+    private void updateFiltersTextView() {
+        final StringBuilder filtersStringBuilder = new StringBuilder("");
+        for (int i = 0; i < newFilters.size(); ++i) {
+            final Filter filter = newFilters.get(i);
+            filtersStringBuilder.append("-").append(filter.getName())
+                    // Append line change only if we are not at the last element.
+                    .append(i == newFilters.size() - 1 ? "" : "\n");
+        }
+        filtersTextView.setText(filtersStringBuilder.toString());
+    }
+
+    /**
      * Method to finalize the member that is passed to the target fragment.
      * Also used to delete possibly unused older complementary pictures.
      */
@@ -761,14 +779,14 @@ public class EditFrameDialog extends DialogFragment {
         frame.setCount(newFrameCount);
         frame.setNote(noteEditText.getText().toString());
         frame.setDate(newDate);
-        frame.setLensId(newLensId);
+        frame.setLensId(newLens == null ? 0 : newLens.getId());
         frame.setLocation(newLocation);
         frame.setFormattedAddress(newFormattedAddress);
-        frame.setFilterId(newFilterId);
         frame.setExposureComp(newExposureComp);
         frame.setNoOfExposures(newNoOfExposures);
         frame.setFocalLength(newFocalLength);
         frame.setPictureFilename(newPictureFilename);
+        frame.setFilters(newFilters);
     }
 
     /**
@@ -802,19 +820,20 @@ public class EditFrameDialog extends DialogFragment {
         if (requestCode == ADD_LENS && resultCode == Activity.RESULT_OK) {
 
             // After Ok code.
-            Lens lens = data.getParcelableExtra(ExtraKeys.LENS);
-            long rowId = database.addLens(lens);
-            lens.setId(rowId);
-            database.addMountable(database.getCamera(cameraId), lens);
-            mountableLenses.add(lens);
-            lensTextView.setText(lens.getName());
-            newLensId = lens.getId();
-            apertureIncrements = lens.getApertureIncrements();
+            newLens = data.getParcelableExtra(ExtraKeys.LENS);
+            long rowId = database.addLens(newLens);
+            newLens.setId(rowId);
+            if (camera != null) {
+                database.addCameraLensLink(camera, newLens);
+                mountableLenses.add(newLens);
+            }
+            lensTextView.setText(newLens.getName());
+            apertureIncrements = newLens.getApertureIncrements();
             checkApertureValueValidity();
-            if (newFocalLength > lens.getMaxFocalLength()) {
-                newFocalLength = lens.getMaxFocalLength();
-            } else if (newFocalLength < lens.getMinFocalLength()) {
-                newFocalLength = lens.getMinFocalLength();
+            if (newFocalLength > newLens.getMaxFocalLength()) {
+                newFocalLength = newLens.getMaxFocalLength();
+            } else if (newFocalLength < newLens.getMinFocalLength()) {
+                newFocalLength = newLens.getMinFocalLength();
             }
             updateFocalLengthTextView();
             resetFilters();
@@ -823,12 +842,12 @@ public class EditFrameDialog extends DialogFragment {
         if (requestCode == ADD_FILTER && resultCode == Activity.RESULT_OK) {
 
             // After Ok code.
-            Filter filter = data.getParcelableExtra(ExtraKeys.FILTER);
+            final Filter filter = data.getParcelableExtra(ExtraKeys.FILTER);
             long rowId = database.addFilter(filter);
             filter.setId(rowId);
-            database.addMountableFilterLens(filter, database.getLens(newLensId));
-            filterTextView.setText(filter.getName());
-            newFilterId = filter.getId();
+            if (newLens != null) database.addLensFilterLink(filter, newLens);
+            newFilters.add(filter);
+            updateFiltersTextView();
         }
 
         if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
@@ -999,7 +1018,7 @@ public class EditFrameDialog extends DialogFragment {
     private boolean initialiseAperturePicker(NumberPicker aperturePicker){
         //Get the array of displayed aperture values according to the set increments.
         switch (apertureIncrements) {
-            case 0:
+            default: case 0:
                 displayedApertureValues = getActivity().getResources()
                         .getStringArray(R.array.ApertureValuesThird);
                 break;
@@ -1011,10 +1030,6 @@ public class EditFrameDialog extends DialogFragment {
                 displayedApertureValues = getActivity().getResources()
                         .getStringArray(R.array.ApertureValuesFull);
                 break;
-            default:
-                displayedApertureValues = getActivity().getResources()
-                        .getStringArray(R.array.ApertureValuesThird);
-                break;
         }
         //Reverse the order if necessary.
         if (displayedApertureValues[0].equals(getResources().getString(R.string.NoValue))) {
@@ -1023,12 +1038,14 @@ public class EditFrameDialog extends DialogFragment {
         }
 
         //If no lens is selected, end here
-        if (newLensId <= 0) {
+        if (newLens == null) {
             aperturePicker.setDisplayedValues(null);
             aperturePicker.setMinValue(0);
             aperturePicker.setMaxValue(displayedApertureValues.length-1);
             aperturePicker.setDisplayedValues(displayedApertureValues);
             aperturePicker.setValue(displayedApertureValues.length-1);
+            // Null aperture value is empty, which is a known value. Return true.
+            if (newAperture == null) return true;
             for (int i = 0; i < displayedApertureValues.length; ++i) {
                 if (newAperture.equals(displayedApertureValues[i])) {
                     aperturePicker.setValue(i);
@@ -1039,7 +1056,6 @@ public class EditFrameDialog extends DialogFragment {
         }
 
         //Otherwise continue to set min and max apertures
-        Lens lens = database.getLens(newLensId);
         List<String> apertureValuesList = new ArrayList<>(); //to store the temporary values
         int minIndex = 0;
         int maxIndex = displayedApertureValues.length-1; //we begin the maxIndex from the last element
@@ -1047,22 +1063,23 @@ public class EditFrameDialog extends DialogFragment {
         //Set the min and max values only if they are set for the lens.
         //Otherwise the displayedApertureValues array will be left alone
         //(all aperture values available, since min and max were not defined).
-        if (lens.getMinAperture() != null && lens.getMaxAperture() != null) {
+        if (newLens != null && newLens.getMinAperture() != null && newLens.getMaxAperture() != null) {
             for (int i = 0; i < displayedApertureValues.length; ++i) {
-                if (lens.getMinAperture().equals(displayedApertureValues[i])) {
+                if (newLens.getMinAperture().equals(displayedApertureValues[i])) {
                     minIndex = i;
                 }
-                if (lens.getMaxAperture().equals(displayedApertureValues[i])) {
+                if (newLens.getMaxAperture().equals(displayedApertureValues[i])) {
                     maxIndex = i;
                 }
             }
-            //Add the <empty> option to the beginning of the temp list.
-            apertureValuesList.add(getResources().getString(R.string.NoValue));
 
             //Add the values between and min and max to the temp list from the initial array.
             for (int i = minIndex; i <= maxIndex; ++i) {
                 apertureValuesList.add(displayedApertureValues[i]);
             }
+
+            //Add the <empty> option to the end of the temp list.
+            apertureValuesList.add(getResources().getString(R.string.NoValue));
 
             //Copy the temp list over the initial array.
             displayedApertureValues = apertureValuesList.toArray(new String[0]);
@@ -1079,6 +1096,8 @@ public class EditFrameDialog extends DialogFragment {
         aperturePicker.setMaxValue(displayedApertureValues.length-1);
         aperturePicker.setDisplayedValues(displayedApertureValues);
         aperturePicker.setValue(displayedApertureValues.length-1);
+        // Null aperture value is empty, which is a known value. Return true.
+        if (newAperture == null) return true;
         for (int i = 0; i < displayedApertureValues.length; ++i) {
             if (newAperture.equals(displayedApertureValues[i])) {
                 aperturePicker.setValue(i);
@@ -1098,7 +1117,7 @@ public class EditFrameDialog extends DialogFragment {
     private void initialiseShutterPicker(NumberPicker shutterPicker){
         // Set the increments according to settings
         switch (shutterIncrements) {
-            case 0:
+            default: case 0:
                 displayedShutterValues = getActivity().getResources()
                         .getStringArray(R.array.ShutterValuesThird);
                 break;
@@ -1109,10 +1128,6 @@ public class EditFrameDialog extends DialogFragment {
             case 2:
                 displayedShutterValues = getActivity().getResources()
                         .getStringArray(R.array.ShutterValuesFull);
-                break;
-            default:
-                displayedShutterValues = getActivity().getResources()
-                        .getStringArray(R.array.ShutterValuesThird);
                 break;
         }
         //Reverse the order if necessary
@@ -1127,7 +1142,7 @@ public class EditFrameDialog extends DialogFragment {
         //Set the min and max values only if they are set for the camera.
         //Otherwise the displayedShutterValues array will be left alone (apart from bulb)
         //(all shutter values available, since min and max were not defined).
-        if (camera.getMinShutter() != null && camera.getMaxShutter() != null) {
+        if (camera != null && camera.getMinShutter() != null && camera.getMaxShutter() != null) {
             for (int i = 0; i < displayedShutterValues.length; ++i) {
                 if (camera.getMinShutter().equals(displayedShutterValues[i])) {
                     minIndex = i;
@@ -1136,8 +1151,6 @@ public class EditFrameDialog extends DialogFragment {
                     maxIndex = i;
                 }
             }
-            //Add the no value option to the beginning.
-            shutterValuesList.add(0, getResources().getString(R.string.NoValue));
 
             //Add the values between and min and max to the temp list from the initial array.
             for (int i = minIndex; i <= maxIndex; ++i) {
@@ -1146,6 +1159,10 @@ public class EditFrameDialog extends DialogFragment {
 
             //Also add the bulb mode option.
             shutterValuesList.add("B");
+
+            //Add the no value option to the end.
+            shutterValuesList.add(getResources().getString(R.string.NoValue));
+
             displayedShutterValues = shutterValuesList.toArray(new String[0]);
 
         } else {
@@ -1163,9 +1180,9 @@ public class EditFrameDialog extends DialogFragment {
         shutterPicker.setMinValue(0);
         shutterPicker.setMaxValue(displayedShutterValues.length-1);
         shutterPicker.setDisplayedValues(displayedShutterValues);
-        shutterPicker.setValue(0);
+        shutterPicker.setValue(displayedShutterValues.length-1);
         for (int i = 0; i < displayedShutterValues.length; ++i) {
-            if (newShutter.equals(displayedShutterValues[i])) {
+            if (newShutter != null && newShutter.equals(displayedShutterValues[i])) {
                 shutterPicker.setValue(i);
             }
         }
@@ -1175,8 +1192,8 @@ public class EditFrameDialog extends DialogFragment {
      * Reset filters and update the filter button's text.
      */
     private void resetFilters(){
-        newFilterId = -1;
-        filterTextView.setText("");
+        newFilters.clear();
+        filtersTextView.setText("");
     }
 
     /**
@@ -1184,7 +1201,7 @@ public class EditFrameDialog extends DialogFragment {
      */
     private void updateShutterTextView(){
         if (shutterTextView != null) {
-            if (newShutter.contains("<") || newShutter.contains(">")) {
+            if (newShutter == null) {
                 shutterTextView.setText("");
             } else {
                 shutterTextView.setText(newShutter);
@@ -1197,7 +1214,7 @@ public class EditFrameDialog extends DialogFragment {
      */
     private void updateApertureTextView(){
         if (apertureTextView != null) {
-            if (newAperture.contains("<") || newAperture.contains(">")) {
+            if (newAperture == null) {
                 apertureTextView.setText("");
             } else {
                 String newText = "f/" + newAperture;
@@ -1238,7 +1255,7 @@ public class EditFrameDialog extends DialogFragment {
     private void checkApertureValueValidity(){
         //Check the aperture value's validity against the new lens' properties.
         switch (apertureIncrements) {
-            case 0:
+            default: case 0:
                 displayedApertureValues = getActivity().getResources()
                         .getStringArray(R.array.ApertureValuesThird);
                 break;
@@ -1250,10 +1267,6 @@ public class EditFrameDialog extends DialogFragment {
                 displayedApertureValues = getActivity().getResources()
                         .getStringArray(R.array.ApertureValuesFull);
                 break;
-            default:
-                displayedApertureValues = getActivity().getResources()
-                        .getStringArray(R.array.ApertureValuesThird);
-                break;
         }
         //Reverse the order if necessary. This is necessary for the aperture range checks later,
         //so that minIndex is actually smaller than maxIndex.
@@ -1263,7 +1276,6 @@ public class EditFrameDialog extends DialogFragment {
 
         boolean apertureFound = false;
 
-        Lens lens = database.getLens(newLensId);
         List<String> apertureValuesList = new ArrayList<>(); //to store the temporary values
         int minIndex = 0;
         int maxIndex = displayedApertureValues.length-1; //we begin the maxIndex from the last element
@@ -1271,12 +1283,12 @@ public class EditFrameDialog extends DialogFragment {
         //Set the min and max values only if they are set for the lens.
         //Otherwise the displayedApertureValues array will be left alone
         //(all aperture values available, since min and max were not defined).
-        if (lens.getMinAperture() != null && lens.getMaxAperture() != null) {
+        if (newLens != null && newLens.getMinAperture() != null && newLens.getMaxAperture() != null) {
             for (int i = 0; i < displayedApertureValues.length; ++i) {
-                if (lens.getMinAperture().equals(displayedApertureValues[i])) {
+                if (newLens.getMinAperture().equals(displayedApertureValues[i])) {
                     minIndex = i;
                 }
-                if (lens.getMaxAperture().equals(displayedApertureValues[i])) {
+                if (newLens.getMaxAperture().equals(displayedApertureValues[i])) {
                     maxIndex = i;
                 }
             }
@@ -1300,7 +1312,7 @@ public class EditFrameDialog extends DialogFragment {
             }
         }
         if (!apertureFound) {
-            newAperture = getResources().getString(R.string.NoValue);
+            newAperture = null;
             updateApertureTextView();
         }
     }
@@ -1368,7 +1380,9 @@ public class EditFrameDialog extends DialogFragment {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            newShutter = displayedShutterValues[shutterPicker.getValue()];
+                            newShutter = shutterPicker.getValue() != shutterPicker.getMaxValue() ?
+                                    displayedShutterValues[shutterPicker.getValue()] :
+                                    null;
                             updateShutterTextView();
                         }
                     });
@@ -1459,13 +1473,13 @@ public class EditFrameDialog extends DialogFragment {
                             // Use the aperture value from the NumberPicker or EditText
                             // depending on whether a custom value was used.
                             if (!manualOverride) {
-                                newAperture = displayedApertureValues[aperturePicker.getValue()];
+                                newAperture = aperturePicker.getValue() != aperturePicker.getMaxValue() ?
+                                        displayedApertureValues[aperturePicker.getValue()] :
+                                        null;
                             }
                             else {
-                                String customAperture = editText.getText().toString();
-                                customAperture = customAperture.length() > 0 ?
-                                        customAperture : getString(R.string.NoValue);
-                                newAperture = customAperture;
+                                final String customAperture = editText.getText().toString();
+                                newAperture = customAperture.length() > 0 ? customAperture : null;
                             }
                             updateApertureTextView();
                         }
@@ -1538,7 +1552,9 @@ public class EditFrameDialog extends DialogFragment {
 
                 //If the id's match, set the initial checkedItem.
                 // Account for the 'no lens' option with the + 1
-                if (mountableLenses.get(i).getId() == newLensId) checkedItem = i + 1;
+                if (mountableLenses.get(i).equals(newLens)) {
+                    checkedItem = i + 1;
+                }
             }
             final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -1550,19 +1566,18 @@ public class EditFrameDialog extends DialogFragment {
                     // listItems also contains the No lens option
 
                     // Check if the lens was changed
-                    if (which > 0 && newLensId != mountableLenses.get(which - 1).getId()) {
+                    if (which > 0) {
                         lensTextView.setText(listItems.get(which));
-                        newLensId = mountableLenses.get(which - 1).getId();
-                        Lens lens = database.getLens(newLensId);
-                        if (newFocalLength > lens.getMaxFocalLength()) {
-                            newFocalLength = lens.getMaxFocalLength();
-                        } else if (newFocalLength < lens.getMinFocalLength()) {
-                            newFocalLength = lens.getMinFocalLength();
+                        newLens = mountableLenses.get(which - 1);
+                        if (newFocalLength > newLens.getMaxFocalLength()) {
+                            newFocalLength = newLens.getMaxFocalLength();
+                        } else if (newFocalLength < newLens.getMinFocalLength()) {
+                            newFocalLength = newLens.getMinFocalLength();
                         }
                         focalLengthTextView.setText(
                                 newFocalLength == 0 ? "" : String.valueOf(newFocalLength)
                         );
-                        apertureIncrements = database.getLens(newLensId).getApertureIncrements();
+                        apertureIncrements = newLens.getApertureIncrements();
 
                         //Check the aperture value's validity against the new lens' properties.
                         checkApertureValueValidity();
@@ -1571,9 +1586,9 @@ public class EditFrameDialog extends DialogFragment {
                         resetFilters();
                     }
                     // No lens option was selected
-                    else if (which == 0) {
+                    else {
                         lensTextView.setText("");
-                        newLensId = -1;
+                        newLens = null;
                         newFocalLength = 0;
                         updateFocalLengthTextView();
                         apertureIncrements = 0;
@@ -1601,35 +1616,50 @@ public class EditFrameDialog extends DialogFragment {
     private class FilterLayoutOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            int checkedItem = 0; //default option is 0, no filter
+            final List<Filter> possibleFilters = newLens != null ?
+                    database.getLinkedFilters(newLens) :
+                    database.getAllFilters();
+
             final List<String> listItems = new ArrayList<>();
-            listItems.add(getResources().getString(R.string.NoFilter));
-            final List<Filter> mountableFilters;
-            if (newLensId > 0) {
-                mountableFilters = database.getMountableFilters(database.getLens(newLensId));
-                for (int i = 0; i < mountableFilters.size(); ++i) {
-                    listItems.add(mountableFilters.get(i).getMake() + " " +
-                            mountableFilters.get(i).getModel());
-                    if (mountableFilters.get(i).getId() == newFilterId) checkedItem = i + 1;
-                }
-            } else {
-                mountableFilters = new ArrayList<>();
+            for (Filter filter : possibleFilters) {
+                listItems.add(filter.getName());
             }
             final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+            final boolean[] booleans = new boolean[possibleFilters.size()];
+            for (int i = 0; i < possibleFilters.size(); ++i) {
+                booleans[i] = newFilters.contains(possibleFilters.get(i));
+            }
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final List<Integer> selectedItemsIndexList = new ArrayList<>();
+            for (int i = 0; i < booleans.length; ++i) {
+                if (booleans[i]) selectedItemsIndexList.add(i);
+            }
             builder.setTitle(R.string.UsedFilter);
-            builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
+            builder.setMultiChoiceItems(items, booleans, new DialogInterface.OnMultiChoiceClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // listItems also contains the No lens option
-                    if (which > 0) {
-                        filterTextView.setText(listItems.get(which));
-                        newFilterId = mountableFilters.get(which - 1).getId();
+                public void onClick(DialogInterface dialogInterface, int which, boolean isChecked) {
+                    if (isChecked) {
+                        // If the user checked the item, add it to the selected items.
+                        selectedItemsIndexList.add(which);
+                    } else if (selectedItemsIndexList.contains(which)) {
+                        // Else, if the item is already in the array, remove it.
+                        selectedItemsIndexList.remove(Integer.valueOf(which));
                     }
-                    else if (which == 0) {
-                        resetFilters();
+                }
+            });
+            builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int id) {
+                    Collections.sort(selectedItemsIndexList);
+                    final List<Filter> filters = new ArrayList<>();
+                    // Iterate through the selected items.
+                    for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                        int which = selectedItemsIndexList.get(i);
+                        final Filter filter = possibleFilters.get(which);
+                        filters.add(filter);
                     }
-                    dialog.dismiss();
+                    newFilters = filters;
+                    updateFiltersTextView();
                 }
             });
             builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -1658,13 +1688,11 @@ public class EditFrameDialog extends DialogFragment {
             final TextView focalLengthTextView = dialogView.findViewById(R.id.value_text_view);
 
             // Get the min and max focal lengths
-            Lens lens = null;
-            if (newLensId > 0) lens = database.getLens(newLensId);
             final int minValue;
             final int maxValue;
-            if (lens != null) {
-                minValue = lens.getMinFocalLength();
-                maxValue = lens.getMaxFocalLength();
+            if (newLens != null) {
+                minValue = newLens.getMinFocalLength();
+                maxValue = newLens.getMaxFocalLength();
             } else {
                 minValue = 0;
                 maxValue = 500;

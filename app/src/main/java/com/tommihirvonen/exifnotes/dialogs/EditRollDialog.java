@@ -13,6 +13,7 @@ import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
@@ -76,9 +77,10 @@ public class EditRollDialog extends DialogFragment {
     //unless the user presses ok.
 
     /**
-     * Database id of the currently selected camera
+     * Currently selected camera
      */
-    private long newCameraId;
+    @Nullable
+    private Camera newCamera;
 
     /**
      * Currently selected datetime in format 'YYYY-M-D H:MM'
@@ -120,16 +122,16 @@ public class EditRollDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog (Bundle SavedInstanceState) {
 
+        database = FilmDbHelper.getInstance(getActivity());
+
         String title = getArguments().getString(ExtraKeys.TITLE);
         String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
         roll = getArguments().getParcelable(ExtraKeys.ROLL);
         if (roll == null) roll = new Roll();
 
-        newCameraId = roll.getCameraId();
+        newCamera = database.getCamera(roll.getCameraId());
         newIso = roll.getIso();
         newPushPull = roll.getPushPull();
-
-        database = FilmDbHelper.getInstance(getActivity());
         cameraList = database.getAllCameras();
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
@@ -195,7 +197,7 @@ public class EditRollDialog extends DialogFragment {
         //==========================================================================================
         // CAMERA PICK DIALOG
         cameraTextView = inflatedView.findViewById(R.id.camera_text);
-        if (roll.getCameraId() > 0) cameraTextView.setText(database.getCamera(roll.getCameraId()).getName());
+        if (newCamera != null) cameraTextView.setText(newCamera.getName());
         else cameraTextView.setText("");
 
         final LinearLayout cameraLayout = inflatedView.findViewById(R.id.camera_layout);
@@ -203,10 +205,11 @@ public class EditRollDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 final List<String> listItems = new ArrayList<>();
-                int checkedItem = -1;
+                int checkedItem = 0; // Default checked item is 'No camera'
+                listItems.add(getResources().getString(R.string.NoCamera));
                 for (int i = 0; i < cameraList.size(); ++i) {
                     listItems.add(cameraList.get(i).getMake() + " " + cameraList.get(i).getModel());
-                    if (cameraList.get(i).getId() == newCameraId) checkedItem = i;
+                    if (cameraList.get(i).equals(newCamera)) checkedItem = i + 1;
                 }
                 final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -214,9 +217,14 @@ public class EditRollDialog extends DialogFragment {
                 builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
-                        // listItems also contains the No lens option
-                        cameraTextView.setText(listItems.get(which));
-                        newCameraId = cameraList.get(which).getId();
+                        // listItems also contains the No camera option
+                        if (which > 0) {
+                            cameraTextView.setText(listItems.get(which));
+                            newCamera = cameraList.get(which - 1);
+                        } else {
+                            cameraTextView.setText("");
+                            newCamera = null;
+                        }
                         dialogInterface.dismiss();
                     }
                 });
@@ -264,7 +272,7 @@ public class EditRollDialog extends DialogFragment {
         final TextView timeTextView = inflatedView.findViewById(R.id.time_text);
 
         if (roll.getDate() == null) roll.setDate(Utilities.getCurrentTime());
-        List<String> dateValue = Utilities.splitDate(roll.getDate());
+        List<String> dateValue = Utilities.splitDate(roll.getDate() != null ? roll.getDate() : Utilities.getCurrentTime());
         int tempYear = Integer.parseInt(dateValue.get(0));
         int tempMonth = Integer.parseInt(dateValue.get(1));
         int tempDay = Integer.parseInt(dateValue.get(2));
@@ -518,19 +526,13 @@ public class EditRollDialog extends DialogFragment {
 
                 String name = nameEditText.getText().toString();
 
-                if (name.length() == 0 && newCameraId > 0) {
+                if (name.length() == 0) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.NoName),
-                            Toast.LENGTH_SHORT).show();
-                } else if (name.length() > 0 && newCameraId <= 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoCamera),
-                            Toast.LENGTH_SHORT).show();
-                } else if (name.length() == 0 && newCameraId <= 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoNameOrCamera),
                             Toast.LENGTH_SHORT).show();
                 } else {
                     roll.setName(name);
                     roll.setNote(noteEditText.getText().toString());
-                    roll.setCameraId(newCameraId);
+                    roll.setCameraId(newCamera != null ? newCamera.getId() : 0);
                     roll.setDate(newDate);
                     roll.setIso(newIso);
                     roll.setPushPull(newPushPull);
@@ -567,17 +569,11 @@ public class EditRollDialog extends DialogFragment {
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    Camera camera = data.getParcelableExtra(ExtraKeys.CAMERA);
-
-                    if (camera.getMake().length() > 0 && camera.getModel().length() > 0) {
-
-                        long rowId = database.addCamera(camera);
-                        camera.setId(rowId);
-                        cameraList.add(camera);
-
-                        cameraTextView.setText(camera.getName());
-                        newCameraId = camera.getId();
-                    }
+                    newCamera = data.getParcelableExtra(ExtraKeys.CAMERA);
+                    long rowId = database.addCamera(newCamera);
+                    newCamera.setId(rowId);
+                    cameraList.add(newCamera);
+                    cameraTextView.setText(newCamera.getName());
 
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After Cancel code.

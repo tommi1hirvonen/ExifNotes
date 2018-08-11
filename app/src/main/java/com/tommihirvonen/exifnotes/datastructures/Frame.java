@@ -2,6 +2,11 @@ package com.tommihirvonen.exifnotes.datastructures;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The frame class holds the information of one frame.
@@ -89,11 +94,6 @@ public class Frame implements Parcelable {
     private String flashComp;
 
     /**
-     * database id of the filter used
-     */
-    private long filterId;
-
-    /**
      * NOT YET IN USE
      */
     private int meteringMode;
@@ -102,6 +102,11 @@ public class Frame implements Parcelable {
      * Filename (relative, not absolute) of the complementary picture stored in external storage
      */
     private String pictureFilename;
+
+    /**
+     * List of Filter objects linked to this frame
+     */
+    private List<Filter> filters = new ArrayList<>();
 
     /**
      * empty constructor
@@ -140,7 +145,7 @@ public class Frame implements Parcelable {
      *
      * @param input datetime of exposure in format 'YYYY-M-D H:MM'
      */
-    public void setDate(String input) {
+    public void setDate(@NonNull String input) {
         this.date = input;
     }
 
@@ -242,14 +247,6 @@ public class Frame implements Parcelable {
 
     /**
      *
-     * @param input database id of the used filter
-     */
-    public void setFilterId(long input){
-        this.filterId = input;
-    }
-
-    /**
-     *
      * @param input NOT YET IN USE
      */
     public void setMeteringMode(int input){
@@ -262,6 +259,14 @@ public class Frame implements Parcelable {
      */
     public void setPictureFilename(String input) {
         this.pictureFilename = input;
+    }
+
+    /**
+     *
+     * @param input list of Filter objects linked to this frame
+     */
+    public void setFilters(List<Filter> input) {
+        this.filters = input;
     }
 
     //Methods to get members
@@ -294,6 +299,7 @@ public class Frame implements Parcelable {
      *
      * @return datetime of exposure in format 'YYYY-M-D H:MM'
      */
+    @Nullable
     public String getDate(){
         return this.date;
     }
@@ -310,6 +316,7 @@ public class Frame implements Parcelable {
      *
      * @return shutter speed value in format 1/X, Y" or B, where X and Y are numbers
      */
+    @Nullable
     public String getShutter(){
         return this.shutter;
     }
@@ -318,6 +325,7 @@ public class Frame implements Parcelable {
      *
      * @return aperture value, number only
      */
+    @Nullable
     public String getAperture(){
         return this.aperture;
     }
@@ -326,6 +334,7 @@ public class Frame implements Parcelable {
      *
      * @return custom note
      */
+    @Nullable
     public String getNote(){
         return this.note;
     }
@@ -334,6 +343,7 @@ public class Frame implements Parcelable {
      *
      * @return latitude and longitude in format '12,3456... 12,3456...'
      */
+    @Nullable
     public String getLocation(){
         return this.location;
     }
@@ -342,6 +352,7 @@ public class Frame implements Parcelable {
      *
      * @return formatted address
      */
+    @Nullable
     public String getFormattedAddress(){
         return this.formattedAddress;
     }
@@ -358,6 +369,7 @@ public class Frame implements Parcelable {
      *
      * @return used exposure compensation in format 0, +/-X or +/-Y/Z where X, Y and Z are numbers
      */
+    @Nullable
     public String getExposureComp(){
         return this.exposureComp;
     }
@@ -382,6 +394,7 @@ public class Frame implements Parcelable {
      *
      * @return NOT YET IN USE
      */
+    @Nullable
     public String getFlashPower(){
         return this.flashPower;
     }
@@ -390,16 +403,9 @@ public class Frame implements Parcelable {
      *
      * @return NOT YET IN USE
      */
+    @Nullable
     public String getFlashComp(){
         return this.flashComp;
-    }
-
-    /**
-     *
-     * @return database id of the filter used
-     */
-    public long getFilterId(){
-        return this.filterId;
     }
 
     /**
@@ -414,8 +420,18 @@ public class Frame implements Parcelable {
      *
      * @return relative (not absolute) filename of the complementary picture stored in external storage
      */
+    @Nullable
     public String getPictureFilename() {
         return this.pictureFilename;
+    }
+
+    /**
+     *
+     * @return List of Filter objects linked to this frame
+     */
+    @NonNull
+    public List<Filter> getFilters() {
+        return this.filters;
     }
 
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
@@ -442,9 +458,14 @@ public class Frame implements Parcelable {
         this.flashUsed = pc.readInt();
         this.flashPower = pc.readString();
         this.flashComp = pc.readString();
-        this.filterId = pc.readLong();
         this.meteringMode = pc.readInt();
         this.pictureFilename = pc.readString();
+        final int filtersAmount = pc.readInt();
+        final List<Filter> filters = new ArrayList<>();
+        for (int i = 0; i < filtersAmount; ++i) {
+            filters.add((Filter) pc.readParcelable(Filter.class.getClassLoader()));
+        }
+        this.filters = filters;
     }
 
     /**
@@ -481,9 +502,10 @@ public class Frame implements Parcelable {
         parcel.writeInt(flashUsed);
         parcel.writeString(flashPower);
         parcel.writeString(flashComp);
-        parcel.writeLong(filterId);
         parcel.writeInt(meteringMode);
         parcel.writeString(pictureFilename);
+        parcel.writeInt(filters.size());
+        for (Filter filter : filters) parcel.writeParcelable(filter, 0);
     }
 
     /**

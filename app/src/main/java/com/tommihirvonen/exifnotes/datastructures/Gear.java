@@ -2,6 +2,7 @@ package com.tommihirvonen.exifnotes.datastructures;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 /**
  * Abstract super class for different types of gear.
@@ -44,6 +45,7 @@ public abstract class Gear implements Parcelable {
      *
      * @return make of the Gear
      */
+    @NonNull
     public String getMake() {
         return this.make;
     }
@@ -52,6 +54,7 @@ public abstract class Gear implements Parcelable {
      *
      * @return model of the Gear
      */
+    @NonNull
     public String getModel() {
         return this.model;
     }
@@ -60,6 +63,7 @@ public abstract class Gear implements Parcelable {
      *
      * @return make and model of the Gear concatenated
      */
+    @NonNull
     public String getName() {
         return this.make + " " + this.model;
     }
@@ -76,7 +80,7 @@ public abstract class Gear implements Parcelable {
      *
      * @param input make of the Gear
      */
-    public void setMake(String input) {
+    public void setMake(@NonNull String input) {
         this.make = input;
     }
 
@@ -84,7 +88,7 @@ public abstract class Gear implements Parcelable {
      *
      * @param input model of the Gear
      */
-    public void setModel(String input) {
+    public void setModel(@NonNull String input) {
         this.model = input;
     }
 

@@ -179,7 +179,10 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             holder.nameTextView.setText(rollName);
             holder.dateTextView.setText(date);
             holder.noteTextView.setText(note);
-            holder.cameraTextView.setText(database.getCamera(cameraId).getName());
+
+            if (cameraId > 0) holder.cameraTextView.setText(database.getCamera(cameraId).getName());
+            else holder.cameraTextView.setText("No camera");
+
             if (numberOfFrames == 1)
                 holder.photosTextView.setText("" + numberOfFrames + " " + context.getString(R.string.Photo));
             else if (numberOfFrames == 0)

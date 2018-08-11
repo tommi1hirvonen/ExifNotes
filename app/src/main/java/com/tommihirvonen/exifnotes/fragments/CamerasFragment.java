@@ -332,7 +332,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener {
      */
     private void showSelectMountableLensesDialog(final int position){
         final Camera camera = cameraList.get(position);
-        final List<Lens> mountableLenses = database.getMountableLenses(camera);
+        final List<Lens> mountableLenses = database.getLinkedLenses(camera);
         final List<Lens> allLenses = database.getAllLenses();
 
         // Make a list of strings for all the camera names to be showed in the
@@ -406,14 +406,14 @@ public class CamerasFragment extends Fragment implements View.OnClickListener {
                         for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
                             int which = selectedItemsIndexList.get(i);
                             Lens lens = allLenses.get(which);
-                            database.addMountable(camera, lens);
+                            database.addCameraLensLink(camera, lens);
                         }
 
                         // Iterate through the not selected items
                         for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
                             int which = notSelectedItemsIndexList.get(i);
                             Lens lens = allLenses.get(which);
-                            database.deleteMountable(camera, lens);
+                            database.deleteCameraLensLink(camera, lens);
                         }
                         cameraAdapter.notifyItemChanged(position);
 

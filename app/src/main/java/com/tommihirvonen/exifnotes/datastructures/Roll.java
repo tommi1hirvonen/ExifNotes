@@ -2,6 +2,8 @@ package com.tommihirvonen.exifnotes.datastructures;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Roll class holds the information of one roll of film.
@@ -74,7 +76,7 @@ public class Roll implements Parcelable {
      *
      * @param input name/title of the roll
      */
-    public void setName(String input){
+    public void setName(@NonNull String input){
         this.name = input;
     }
 
@@ -83,7 +85,7 @@ public class Roll implements Parcelable {
      * @param input datetime when the film roll was loaded, for example
      *              in format 'YYYY-M-D H:MM'
      */
-    public void setDate(String input) {
+    public void setDate(@NonNull String input) {
         this.date = input;
     }
 
@@ -156,6 +158,7 @@ public class Roll implements Parcelable {
      *
      * @return name/title of roll
      */
+    @Nullable
     public String getName(){
         return this.name;
     }
@@ -164,6 +167,7 @@ public class Roll implements Parcelable {
      *
      * @return datetime when the film was loaded, in format 'YYYY-M-D H:MM'
      */
+    @Nullable
     public String getDate(){
         return this.date;
     }
@@ -172,6 +176,7 @@ public class Roll implements Parcelable {
      *
      * @return custom note
      */
+    @Nullable
     public String getNote(){
         return this.note;
     }
@@ -196,6 +201,7 @@ public class Roll implements Parcelable {
      *
      * @return push or pull in format 0, +/-X or +/-Y/Z where X, Y and Z are numbers
      */
+    @Nullable
     public String getPushPull(){
         return this.pushPull;
     }

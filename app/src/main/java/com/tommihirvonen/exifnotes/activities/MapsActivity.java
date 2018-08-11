@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
+import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialogCallback;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
@@ -99,14 +100,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // If the rollId is -1, then something went wrong.
         if (rollId == -1) finish();
 
-        FilmDbHelper database = FilmDbHelper.getInstance(this);
-        frameList = database.getAllFramesFromRoll(rollId);
+        final Roll roll = database.getRoll(rollId);
 
-        Utilities.setUiColor(this, true);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(database.getRoll(rollId).getName());
-            Camera camera = database.getCamera(database.getRoll(rollId).getCameraId());
-            getSupportActionBar().setSubtitle(camera.getMake() + " " + camera.getModel());
+        if (roll != null) {
+
+            frameList = database.getAllFramesFromRoll(roll);
+
+            Utilities.setUiColor(this, true);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(roll.getName());
+                final Camera camera = database.getCamera(roll.getCameraId());
+                getSupportActionBar().setSubtitle(
+                        camera != null ? camera.getName() : getString(R.string.NoCamera)
+                );
+            }
+
         }
 
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -298,13 +306,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         frameCountTextView.setText(frameCountText);
                         dateTimeTextView.setText(frame.getDate());
 
-                        if (frame.getLensId() > 0) {
-                            Lens lens = database.getLens(frame.getLensId());
-                            lensTextView.setText(lens.getName());
-                        }
-                        else {
-                            lensTextView.setText(getResources().getString(R.string.NoLens));
-                        }
+                        final Lens lens = database.getLens(frame.getLensId());
+                        lensTextView.setText(
+                                lens != null ? lens.getName() : getString(R.string.NoLens)
+                        );
+
                         noteTextView.setText(frame.getNote());
 
                         return view;

@@ -331,7 +331,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
      */
     private void showSelectMountableLensesDialog(final int position){
         final Filter filter = filterList.get(position);
-        final List<Lens> mountableLenses = database.getMountableLenses(filter);
+        final List<Lens> mountableLenses = database.getLinkedLenses(filter);
         final List<Lens> allLenses = database.getAllLenses();
 
         // Make a list of strings for all the lens names to be showed in the
@@ -407,14 +407,14 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
                         for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
                             int which = selectedItemsIndexList.get(i);
                             Lens lens = allLenses.get(which);
-                            database.addMountableFilterLens(filter, lens);
+                            database.addLensFilterLink(filter, lens);
                         }
 
                         // Iterate through the not selected items
                         for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
                             int which = notSelectedItemsIndexList.get(i);
                             Lens lens = allLenses.get(which);
-                            database.deleteMountableFilterLens(filter, lens);
+                            database.deleteLensFilterLink(filter, lens);
                         }
                         filterAdapter.notifyItemChanged(position);
 

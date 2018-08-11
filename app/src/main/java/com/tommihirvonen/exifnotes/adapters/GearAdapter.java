@@ -134,12 +134,12 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
             List<? extends Gear> mountables2 = Collections.emptyList();
             // If the type of gear is lens, then get both mountable types.
             if (gear instanceof Lens) {
-                mountables1 = database.getMountableCameras((Lens) gear);
-                mountables2 = database.getMountableFilters((Lens) gear);
+                mountables1 = database.getLinkedCameras((Lens) gear);
+                mountables2 = database.getLinkedFilters((Lens) gear);
             } else if (gear instanceof Camera) {
-                mountables1 = database.getMountableLenses((Camera) gear);
+                mountables1 = database.getLinkedLenses((Camera) gear);
             } else if (gear instanceof Filter) {
-                mountables1 = database.getMountableLenses((Filter) gear);
+                mountables1 = database.getLinkedLenses((Filter) gear);
             }
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(context.getString(R.string.MountsTo));

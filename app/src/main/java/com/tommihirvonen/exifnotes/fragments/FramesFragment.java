@@ -139,9 +139,14 @@ public class FramesFragment extends Fragment implements
     private FrameAdapter frameAdapter;
 
     /**
-     * Database id of this roll
+     * Currently selected roll
      */
-    private long rollId;
+    private Roll roll;
+
+    /**
+     * Currently used camera
+     */
+    private Camera camera;
 
     /**
      * Reference to the FloatingActionButton
@@ -201,11 +206,13 @@ public class FramesFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        rollId = getArguments().getLong(ExtraKeys.ROLL_ID);
-        locationPermissionsGranted = getArguments().getBoolean(ExtraKeys.LOCATION_ENABLED);
-
         database = FilmDbHelper.getInstance(getActivity());
-        frameList = database.getAllFramesFromRoll(rollId);
+
+        final long rollId = getArguments().getLong(ExtraKeys.ROLL_ID);
+        roll = database.getRoll(rollId);
+        if (roll != null) camera = database.getCamera(roll.getCameraId());
+        locationPermissionsGranted = getArguments().getBoolean(ExtraKeys.LOCATION_ENABLED);
+        frameList = database.getAllFramesFromRoll(roll);
 
         //getActivity().getPreferences() returns a preferences file related to the
         //activity it is opened from. getDefaultSharedPreferences() returns the
@@ -261,13 +268,8 @@ public class FramesFragment extends Fragment implements
 
         final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
-            Roll roll = database.getRoll(rollId);
-            //noinspection ConstantConditions
-            actionBar.setTitle(roll.getName());
-            final Camera camera = database.getCamera(roll.getCameraId());
-            //noinspection ConstantConditions
-            actionBar.setSubtitle(camera.getName());
-            //noinspection ConstantConditions
+            if (roll != null) actionBar.setTitle(roll.getName());
+            if (camera != null) actionBar.setSubtitle(camera.getName());
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -421,10 +423,8 @@ public class FramesFragment extends Fragment implements
 
             case R.id.menu_item_show_on_map:
 
-                // Save the current scroll position
-                //mainListViewScrollState = mainRecyclerView.onSaveInstanceState();
                 Intent mapsActivityIntent = new Intent(getActivity(), MapsActivity.class);
-                mapsActivityIntent.putExtra(ROLL_ID_EXTRA_MESSAGE, rollId);
+                mapsActivityIntent.putExtra(ROLL_ID_EXTRA_MESSAGE, roll.getId());
                 startActivityForResult(mapsActivityIntent, SHOW_ON_MAP);
                 break;
 
@@ -502,7 +502,7 @@ public class FramesFragment extends Fragment implements
     private boolean exportFilesTo(String dir){
 
         //Replace illegal characters from the roll name to make it a valid file name.
-        String rollName = Utilities.replaceIllegalChars(database.getRoll(rollId).getName());
+        String rollName = Utilities.replaceIllegalChars(roll.getName() != null ? roll.getName() : "");
 
         //Get the user setting about which files to export. By default, share both files.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
@@ -515,8 +515,8 @@ public class FramesFragment extends Fragment implements
         String fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt";
 
         //Create the strings to be written on those two files
-        String csvString = Utilities.createCsvString(getActivity(), database, rollId);
-        String exifToolCmds = Utilities.createExifToolCmdsString(getActivity(), database, rollId);
+        String csvString = Utilities.createCsvString(getActivity(), roll);
+        String exifToolCmds = Utilities.createExifToolCmdsString(getActivity(), roll);
 
         //Create the files in external storage
         File fileCsv = new File(dir, fileNameCsv);
@@ -561,7 +561,7 @@ public class FramesFragment extends Fragment implements
     private Intent getShareRollIntent() {
 
         //Replace illegal characters from the roll name to make it a valid file name.
-        String rollName = Utilities.replaceIllegalChars(database.getRoll(rollId).getName());
+        String rollName = Utilities.replaceIllegalChars(roll.getName() != null ? roll.getName() : "");
 
         //Get the user setting about which files to export. By default, share only ExifTool.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
@@ -582,8 +582,8 @@ public class FramesFragment extends Fragment implements
         String fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt";
 
         //Create the strings to be written on those two files
-        String csvString = Utilities.createCsvString(getActivity(), database, rollId);
-        String exifToolCmds = Utilities.createExifToolCmdsString(getActivity(), database, rollId);
+        String csvString = Utilities.createCsvString(getActivity(), roll);
+        String exifToolCmds = Utilities.createExifToolCmdsString(getActivity(), roll);
 
         //Create the files in external storage
         File fileCsv = new File(externalStorageDir, fileNameCsv);
@@ -718,7 +718,7 @@ public class FramesFragment extends Fragment implements
         Frame frame = new Frame();
         frame.setDate(Utilities.getCurrentTime());
         frame.setCount(0);
-        frame.setRollId(rollId);
+        frame.setRollId(roll.getId());
 
         //Get the location only if the app has location permission (locationPermissionsGranted) and
         //the user has enabled GPS updates in the app's settings.
@@ -748,13 +748,13 @@ public class FramesFragment extends Fragment implements
             frame.setLensId(previousFrame.getLensId());
             frame.setShutter(previousFrame.getShutter());
             frame.setAperture(previousFrame.getAperture());
-            frame.setFilterId(previousFrame.getFilterId());
+            frame.setFilters(previousFrame.getFilters());
             frame.setFocalLength(previousFrame.getFocalLength());
 
         } else {
             frame.setCount(1);
-            frame.setShutter(getResources().getString(R.string.NoValue));
-            frame.setAperture(getResources().getString(R.string.NoValue));
+            frame.setShutter(null);
+            frame.setAperture(null);
         }
         frame.setNoOfExposures(1);
 
@@ -787,16 +787,16 @@ public class FramesFragment extends Fragment implements
 
                     if (frame != null) {
 
-                        long rowId = database.addFrame(frame);
-                        frame.setId(rowId);
-                        frameList.add(frame);
-                        Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
-                        frameAdapter.notifyItemInserted(frameList.indexOf(frame));
-                        mainTextView.setVisibility(View.GONE);
+                        if (database.addFrame(frame)) {
+                            frameList.add(frame);
+                            Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
+                            frameAdapter.notifyItemInserted(frameList.indexOf(frame));
+                            mainTextView.setVisibility(View.GONE);
 
-                        // When the new frame is added jump to view the added entry
-                        int pos = frameList.indexOf(frame);
-                        if (pos < frameAdapter.getItemCount()) mainRecyclerView.scrollToPosition(pos);
+                            // When the new frame is added jump to view the added entry
+                            int pos = frameList.indexOf(frame);
+                            if (pos < frameAdapter.getItemCount()) mainRecyclerView.scrollToPosition(pos);
+                        }
 
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -847,7 +847,7 @@ public class FramesFragment extends Fragment implements
                 if (resultCode == Activity.RESULT_OK) {
 
                     // Update the frame list in case updates were made in MapsActivity.
-                    frameList = database.getAllFramesFromRoll(rollId);
+                    frameList = database.getAllFramesFromRoll(roll);
                     Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
                     frameAdapter = new FrameAdapter(getActivity(), frameList, this);
                     mainRecyclerView.setAdapter(frameAdapter);

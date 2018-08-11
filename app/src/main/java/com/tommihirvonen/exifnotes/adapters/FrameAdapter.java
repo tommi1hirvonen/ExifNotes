@@ -213,12 +213,12 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             holder.noteTextView.setText(frame.getNote());
 
             // If the apertureImageView is empty, then don't show anything.
-            if (!frame.getAperture().contains("<"))
+            if (frame.getAperture() != null)
                 holder.apertureTextView.setText("f/" + frame.getAperture());
             else holder.apertureTextView.setText("");
 
             // If the shutter is empty, then don't show anything.
-            if (!frame.getShutter().contains("<")) holder.shutterTextView.setText(frame.getShutter());
+            if (frame.getShutter() != null) holder.shutterTextView.setText(frame.getShutter());
             else holder.shutterTextView.setText("");
         }
         holder.itemView.setActivated(selectedItems.get(position, false));

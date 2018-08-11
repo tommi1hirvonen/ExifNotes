@@ -26,7 +26,6 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
-import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode;
 import com.tommihirvonen.exifnotes.datastructures.Gear;
@@ -442,10 +441,10 @@ public final class Utilities {
             case FRAME_COUNT:
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
-                    public int compare(Frame o1, Frame o2) {
+                    public int compare(Frame frame1, Frame frame2) {
                         // Negative to reverse the sorting order
-                        int count1 = o1.getCount();
-                        int count2 = o2.getCount();
+                        int count1 = frame1.getCount();
+                        int count2 = frame2.getCount();
                         int result;
                         if (count1 < count2) result = -1;
                         else result = 1;
@@ -457,9 +456,9 @@ public final class Utilities {
             case DATE:
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
-                    public int compare(Frame o1, Frame o2) {
-                        String date1 = o1.getDate();
-                        String date2 = o2.getDate();
+                    public int compare(Frame frame1, Frame frame2) {
+                        String date1 = frame1.getDate();
+                        String date2 = frame2.getDate();
                         @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
                                 new SimpleDateFormat("yyyy-M-d H:m");
                         Date d1 = null;
@@ -486,11 +485,13 @@ public final class Utilities {
             case F_STOP:
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
-                    public int compare(Frame o1, Frame o2) {
+                    public int compare(Frame frame1, Frame frame2) {
 
                         final String[] allApertureValues = context.getResources().getStringArray(R.array.AllApertureValues);
-                        String aperture1 = o1.getAperture();
-                        String aperture2 = o2.getAperture();
+                        String aperture1 = frame1.getAperture();
+                        aperture1 = aperture1 != null ? aperture1 : "";
+                        String aperture2 = frame2.getAperture();
+                        aperture2 = aperture2 != null ? aperture2 : "";
                         int pos1 = 0;
                         int pos2 = 0;
                         for (int i = 0; i < allApertureValues.length; ++i){
@@ -508,13 +509,15 @@ public final class Utilities {
             case SHUTTER_SPEED:
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
-                    public int compare(Frame o1, Frame o2) {
+                    public int compare(Frame frame1, Frame frame2) {
 
                         final String[] allShutterValues = context.getResources().getStringArray(R.array.AllShutterValues);
                         //Shutter speed strings need to be modified so that the sorting
                         //works properly.
-                        String shutter1 = o1.getShutter().replace("\"", "");
-                        String shutter2 = o2.getShutter().replace("\"", "");
+                        String shutter1 = frame1.getShutter();
+                        shutter1 = shutter1 != null ? shutter1.replace("\"", "") : "";
+                        String shutter2 = frame2.getShutter();
+                        shutter2 = shutter2 != null ? shutter2.replace("\"", "") : "";
                         int pos1 = 0;
                         int pos2 = 0;
                         for (int i = 0; i < allShutterValues.length; ++i){
@@ -532,23 +535,12 @@ public final class Utilities {
             case LENS:
                 Collections.sort(listToSort, new Comparator<Frame>() {
                     @Override
-                    public int compare(Frame o1, Frame o2) {
-                        String s1;
-                        Lens lens1;
-
-                        String s2;
-                        Lens lens2;
-
-                        if (o1.getLensId() > 0) {
-                            lens1 = database.getLens(o1.getLensId());
-                            s1 = lens1.getMake() + lens1.getModel();
-                        } else s1 = "-1";
-                        if (o2.getLensId() > 0) {
-                            lens2 = database.getLens(o2.getLensId());
-                            s2 = lens2.getMake() + lens2.getModel();
-                        } else s2 = "-1";
-
-                        return s1.compareTo(s2);
+                    public int compare(Frame frame1, Frame frame2) {
+                        final Lens lens1 = database.getLens(frame1.getLensId());
+                        final Lens lens2 = database.getLens(frame2.getLensId());
+                        final String name1 = lens1 != null ? lens1.getName() : "";
+                        final String name2 = lens2 != null ? lens2.getName() : "";
+                        return name1.compareTo(name2);
                     }
                 });
                 break;
@@ -568,9 +560,9 @@ public final class Utilities {
             case DATE: default:
                 Collections.sort(listToSort, new Comparator<Roll>() {
                     @Override
-                    public int compare(Roll o1, Roll o2) {
-                        String date1 = o1.getDate();
-                        String date2 = o2.getDate();
+                    public int compare(Roll roll1, Roll roll2) {
+                        String date1 = roll1.getDate();
+                        String date2 = roll2.getDate();
                         @SuppressLint("SimpleDateFormat") SimpleDateFormat format =
                                 new SimpleDateFormat("yyyy-M-d H:m");
                         Date d1 = null;
@@ -597,8 +589,10 @@ public final class Utilities {
             case NAME:
                 Collections.sort(listToSort, new Comparator<Roll>() {
                     @Override
-                    public int compare(Roll o1, Roll o2) {
-                        return o1.getName().compareTo(o2.getName());
+                    public int compare(Roll roll1, Roll roll2) {
+                        final String name1 = roll1.getName() != null ? roll1.getName() : "";
+                        final String name2 = roll2.getName() != null ? roll2.getName() : "";
+                        return name1.compareTo(name2);
                     }
                 });
                 break;
@@ -606,12 +600,12 @@ public final class Utilities {
             case CAMERA:
                 Collections.sort(listToSort, new Comparator<Roll>() {
                     @Override
-                    public int compare(Roll o1, Roll o2) {
-                        Camera camera1 = database.getCamera(o1.getCameraId());
-                        String s1 = camera1.getMake() + camera1.getModel();
-                        Camera camera2 = database.getCamera(o2.getCameraId());
-                        String s2 = camera2.getMake() + camera2.getModel();
-                        return s1.compareTo(s2);
+                    public int compare(Roll roll1, Roll roll2) {
+                        final Camera camera1 = database.getCamera(roll1.getCameraId());
+                        final Camera camera2 = database.getCamera(roll2.getCameraId());
+                        final String name1 = camera1 != null ? camera1.getName() : "";
+                        final String name2 = camera2 != null ? camera2.getName() : "";
+                        return name1.compareTo(name2);
                     }
                 });
                 break;
@@ -637,11 +631,13 @@ public final class Utilities {
      * of the specified roll.
      *
      * @param context application's context
-     * @param database reference to the application's database
-     * @param rollId database id of the roll of which the commands should be created
+     * @param roll Roll object of which the commands should be created
      * @return String containing the ExifTool commands
      */
-    public static String createExifToolCmdsString(Context context, FilmDbHelper database, long rollId) {
+    public static String createExifToolCmdsString(Context context, Roll roll) {
+
+        final FilmDbHelper database = FilmDbHelper.getInstance(context);
+
         StringBuilder stringBuilder = new StringBuilder();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -686,9 +682,8 @@ public final class Utilities {
         String space = " ";
         String lineSep = "\r\n";
 
-        List<Frame> frameList = database.getAllFramesFromRoll(rollId);
-        Roll roll = database.getRoll(rollId);
-        Camera camera = database.getCamera(roll.getCameraId());
+        List<Frame> frameList = database.getAllFramesFromRoll(roll);
+        final Camera camera = database.getCamera(roll.getCameraId());
 
         for (Frame frame : frameList) {
 
@@ -701,28 +696,40 @@ public final class Utilities {
             stringBuilder.append(exiftoolCmd).append(space);
             //Ignore warnings
             if (ignoreWarnings) stringBuilder.append(ignoreWarningsOption).append(space);
-            //CameraMakeTag
-            stringBuilder.append(cameraMakeTag).append(quote).append(database.getCamera(roll.getCameraId()).getMake()).append(quote).append(space);
-            //CameraModelTag
-            stringBuilder.append(cameraModelTag).append(quote).append(database.getCamera(roll.getCameraId()).getModel()).append(quote).append(space);
-            //LensMakeTag & LensModelTag & LensTag
-            if (lens != null) {
-                stringBuilder.append(lensMakeTag).append(quote).append(lens.getMake()).append(quote).append(space);
-                stringBuilder.append(lensModelTag).append(quote).append(lens.getModel()).append(quote).append(space);
-                stringBuilder.append(lensTag).append(quote).append(lens.getMake()).append(space).append(lens.getModel()).append(quote).append(space);
+            if (camera != null) {
+                //CameraMakeTag
+                stringBuilder.append(cameraMakeTag).append(quote).append(camera.getMake()).append(quote).append(space);
+                //CameraModelTag
+                stringBuilder.append(cameraModelTag).append(quote).append(camera.getModel()).append(quote).append(space);
+                //SerialNumber
+                if (camera.getSerialNumber() != null && camera.getSerialNumber().length() > 0)
+                    stringBuilder.append(serialNumberTag).append(quote).append(camera.getSerialNumber()).append(quote).append(space);
             }
-            //DateTime
-            stringBuilder.append(dateTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
-            //DateTimeOriginal
-            stringBuilder.append(dateTimeOriginalTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
+            if (lens != null) {
+                //LensMakeTag
+                stringBuilder.append(lensMakeTag).append(quote).append(lens.getMake()).append(quote).append(space);
+                //LensModelTag
+                stringBuilder.append(lensModelTag).append(quote).append(lens.getModel()).append(quote).append(space);
+                //LensTag
+                stringBuilder.append(lensTag).append(quote).append(lens.getMake()).append(space).append(lens.getModel()).append(quote).append(space);
+                //LensSerialNumber
+                if (lens.getSerialNumber() != null && lens.getSerialNumber().length() > 0)
+                    stringBuilder.append(lensSerialNumberTag).append(quote).append(lens.getSerialNumber()).append(quote).append(space);
+            }
+            if (frame.getDate() != null) {
+                //DateTime
+                stringBuilder.append(dateTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
+                //DateTimeOriginal
+                stringBuilder.append(dateTimeOriginalTag).append(quote).append(frame.getDate().replace("-", ":")).append(quote).append(space);
+            }
             //ShutterSpeedValue & ExposureTime
-            if (!frame.getShutter().contains("<")) {
+            if (frame.getShutter() != null) {
                 stringBuilder.append(shutterTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
                 stringBuilder.append(exposureTimeTag).append(quote).append(frame.getShutter().replace("\"", "")).append(quote).append(space);
             }
 
             //ApertureValue & FNumber
-            if (!frame.getAperture().contains("<")) {
+            if (frame.getAperture() != null) {
                 stringBuilder.append(apertureTag).append(quote).append(frame.getAperture()).append(quote).append(space);
                 stringBuilder.append(fNumberTag).append(quote).append(frame.getAperture()).append(quote).append(space);
             }
@@ -761,12 +768,8 @@ public final class Utilities {
             if (frame.getFocalLength() > 0) stringBuilder.append(focalLengthTag).append(quote).append(frame.getFocalLength()).append(quote).append(space);
             //ISO
             if (roll.getIso() > 0) stringBuilder.append(isoTag).append(quote).append(roll.getIso()).append(quote).append(space);
-            //SerialNumber
-            if (camera.getSerialNumber() != null && camera.getSerialNumber().length() > 0)
-                stringBuilder.append(serialNumberTag).append(quote).append(camera.getSerialNumber()).append(quote).append(space);
-            //LensSerialNumber
-            if (lens != null && lens.getSerialNumber() != null && lens.getSerialNumber().length() > 0)
-                stringBuilder.append(lensSerialNumberTag).append(quote).append(lens.getSerialNumber()).append(quote).append(space);
+
+
 
             //Artist
             if (artistName.length() > 0) stringBuilder.append(artistTag).append(quote).append(artistName).append(quote).append(space);
@@ -790,14 +793,13 @@ public final class Utilities {
      * This function creates a string which contains csv information about the roll.
      *
      * @param context application's context
-     * @param database reference to the application's database
-     * @param rollId database id of the roll from which the csv information should be created
+     * @param roll Roll object from which the csv information should be created
      * @return String containing the csv information
      */
-    public static String createCsvString(Context context, FilmDbHelper database, long rollId) {
+    public static String createCsvString(Context context, Roll roll) {
 
-        List<Frame> frameList = database.getAllFramesFromRoll(rollId);
-        Roll roll = database.getRoll(rollId);
+        FilmDbHelper database = FilmDbHelper.getInstance(context);
+        List<Frame> frameList = database.getAllFramesFromRoll(roll);
         Camera camera = database.getCamera(roll.getCameraId());
 
         final String separator = ",";
@@ -814,8 +816,8 @@ public final class Utilities {
         stringBuilder.append("ISO: ").append(roll.getIso()).append("\n");
         stringBuilder.append("Format: ").append(context.getResources().getStringArray(R.array.FilmFormats)[roll.getFormat()]).append("\n");
         stringBuilder.append("Push/pull: ").append(roll.getPushPull()).append("\n");
-        stringBuilder.append("Camera: ").append(camera.getMake()).append(" ").append(camera.getModel()).append("\n");
-        stringBuilder.append("Serial number: ").append(camera.getSerialNumber() != null ? camera.getSerialNumber() : "").append("\n");
+        stringBuilder.append("Camera: ").append(camera != null ? camera.getName() : "").append("\n");
+        stringBuilder.append("Serial number: ").append(camera != null && camera.getSerialNumber() != null ? camera.getSerialNumber() : "").append("\n");
         stringBuilder.append("Notes: ").append(roll.getNote()).append("\n");
         stringBuilder.append("Artist name: ").append(artistName).append("\n");
         stringBuilder.append("Copyright: ").append(copyrightInformation).append("\n");
@@ -859,11 +861,11 @@ public final class Utilities {
             stringBuilder.append(separator);
 
             // /Shutter speed
-            if (!frame.getShutter().contains("<"))stringBuilder.append(frame.getShutter());
+            if (frame.getShutter() != null) stringBuilder.append(frame.getShutter());
             stringBuilder.append(separator);
 
             //Aperture
-            if (!frame.getAperture().contains("<"))
+            if (frame.getAperture() != null)
                 stringBuilder.append("f").append(frame.getAperture());
             stringBuilder.append(separator);
 
@@ -884,13 +886,15 @@ public final class Utilities {
             stringBuilder.append(frame.getNoOfExposures());
             stringBuilder.append(separator);
             
-            //Filter
-            if (frame.getFilterId() > 0) {
-                Filter filter = database.getFilter(frame.getFilterId());
-                String filterText = filter.getMake() + " " + filter.getModel();
-                stringBuilder.append(filterText);
+            //Filters
+            if (frame.getFilters().size() > 0) {
+                final StringBuilder filterBuilder = new StringBuilder();
+                for (int i = 0; i < frame.getFilters().size(); ++i) {
+                    filterBuilder.append(frame.getFilters().get(i).getName());
+                    if (i < frame.getFilters().size() - 1) filterBuilder.append("|");
+                }
+                stringBuilder.append(filterBuilder.toString());
             }
-            stringBuilder.append(separator);
 
             //Location
             if (frame.getLocation() != null && frame.getLocation().length() > 0) {

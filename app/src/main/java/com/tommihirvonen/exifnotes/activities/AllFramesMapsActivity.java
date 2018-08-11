@@ -256,7 +256,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
 
         for (Roll roll : rollList) {
 
-            frameList = database.getAllFramesFromRoll(roll.getId());
+            frameList = database.getAllFramesFromRoll(roll);
 
             for (Frame frame : frameList) {
 
@@ -313,11 +313,16 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
 
                     if (marker.getTag() instanceof Frame) {
 
-                        Frame frame = (Frame) marker.getTag();
-                        Roll roll = database.getRoll(frame.getRollId());
-                        Camera camera = database.getCamera(roll.getCameraId());
-                        Lens lens = null;
-                        if (frame.getLensId() > 0) lens = database.getLens(frame.getLensId());
+                        final Frame frame = (Frame) marker.getTag();
+                        final Roll roll = database.getRoll(frame.getRollId());
+                        if (roll == null) return null;
+
+                        final Camera camera = roll.getCameraId() > 0 ?
+                                database.getCamera(roll.getCameraId()) :
+                                null;
+                        final Lens lens = frame.getLensId() > 0 ?
+                                database.getLens(frame.getLensId()) :
+                                null;
 
                         @SuppressLint("InflateParams")
                         View view = getLayoutInflater().inflate(R.layout.info_window_all_frames, null);
@@ -330,19 +335,18 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                         TextView noteTextView = view.findViewById(R.id.note);
 
                         rollTextView.setText(roll.getName());
-                        cameraTextView.setText(camera.getName());
+                        cameraTextView.setText(
+                                camera == null ? getString(R.string.NoCamera) : camera.getName()
+                        );
 
                         String frameCountText = "#" + frame.getCount();
                         frameCountTextView.setText(frameCountText);
 
                         dateTimeTextView.setText(frame.getDate());
 
-                        if (lens != null) {
-                            lensTextView.setText(lens.getName());
-                        }
-                        else {
-                            lensTextView.setText(getResources().getString(R.string.NoLens));
-                        }
+                        lensTextView.setText(
+                                lens == null ? getString(R.string.NoLens) : lens.getName()
+                        );
 
                         noteTextView.setText(frame.getNote());
 

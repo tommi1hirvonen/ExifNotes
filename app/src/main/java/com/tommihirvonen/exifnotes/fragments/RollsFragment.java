@@ -579,22 +579,19 @@ public class RollsFragment extends Fragment implements
                 if (resultCode == Activity.RESULT_OK) {
 
                     Roll roll = data.getParcelableExtra(ExtraKeys.ROLL);
+                    long rowId = database.addRoll(roll);
+                    roll.setId(rowId);
 
-                    if (roll.getName().length() > 0 && roll.getCameraId() > 0) {
+                    mainTextViewAnimateInvisible();
+                    // Add new roll to the top of the list
+                    rollList.add(0, roll);
+                    Utilities.sortRollList(sortMode, database, rollList);
+                    rollAdapter.notifyItemInserted(rollList.indexOf(roll));
 
-                        long rowId = database.addRoll(roll);
-                        roll.setId(rowId);
+                    // When the new roll is added jump to view the added entry
+                    int pos = rollList.indexOf(roll);
+                    if (pos < rollAdapter.getItemCount()) mainRecyclerView.scrollToPosition(pos);
 
-                        mainTextViewAnimateInvisible();
-                        // Add new roll to the top of the list
-                        rollList.add(0, roll);
-                        Utilities.sortRollList(sortMode, database, rollList);
-                        rollAdapter.notifyItemInserted(rollList.indexOf(roll));
-
-                        // When the new roll is added jump to view the added entry
-                        int pos = rollList.indexOf(roll);
-                        if (pos < rollAdapter.getItemCount()) mainRecyclerView.scrollToPosition(pos);
-                    }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After cancel do nothing
                     return;
@@ -608,20 +605,14 @@ public class RollsFragment extends Fragment implements
                     if (actionMode != null) actionMode.finish();
 
                     Roll roll = data.getParcelableExtra(ExtraKeys.ROLL);
+                    database.updateRoll(roll);
+                    // Notify array adapter that the dataset has to be updated
+                    final int oldPosition = rollList.indexOf(roll);
+                    Utilities.sortRollList(sortMode, database, rollList);
+                    final int newPosition = rollList.indexOf(roll);
+                    rollAdapter.notifyItemChanged(oldPosition);
+                    rollAdapter.notifyItemMoved(oldPosition, newPosition);
 
-                    if (roll.getName().length() > 0 &&
-                            roll.getCameraId() > 0 &&
-                            roll.getId() > 0) {
-
-                        database.updateRoll(roll);
-
-                        // Notify array adapter that the dataset has to be updated
-                        final int oldPosition = rollList.indexOf(roll);
-                        Utilities.sortRollList(sortMode, database, rollList);
-                        final int newPosition = rollList.indexOf(roll);
-                        rollAdapter.notifyItemChanged(oldPosition);
-                        rollAdapter.notifyItemMoved(oldPosition, newPosition);
-                    }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     // After cancel do nothing
                     return;
@@ -724,8 +715,8 @@ public class RollsFragment extends Fragment implements
                             for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
                                 final int rollPosition = selectedItemPositions.get(i);
                                 final Roll roll = rollList.get(rollPosition);
-                                // Delete all the frames from the frames database
-                                database.deleteAllFramesFromRoll(roll.getId());
+                                // Delete the roll. Database foreign key rules make sure,
+                                // that any linked frames are deleted as well.
                                 database.deleteRoll(roll);
                                 // Remove the roll from the rollList. Do this last!!!
                                 rollList.remove(rollPosition);

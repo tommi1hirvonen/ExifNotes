@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
@@ -34,10 +37,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String TABLE_LENSES = "lenses";
     private static final String TABLE_ROLLS = "rolls";
     private static final String TABLE_CAMERAS = "cameras";
-    private static final String TABLE_MOUNTABLES = "mountables";
+    private static final String TABLE_LINK_CAMERA_LENS = "link_camera_lens";
     //Added in database version 14
     private static final String TABLE_FILTERS = "filters";
-    private static final String TABLE_MOUNTABLE_FILTERS_LENSES = "mountable_filters_lenses";
+    private static final String TABLE_LINK_LENS_FILTER = "link_lens_filter";
+    //Added in database version 19
+    private static final String TABLE_LINK_FRAME_FILTER = "link_frame_filter";
 
     //=============================================================================================
     //Column names
@@ -108,39 +113,19 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     //=============================================================================================
     //Database information
-    public static final String DATABASE_NAME = "filmnotes.db";
+    private static final String DATABASE_NAME = "filmnotes.db";
 
     //Updated version from 13 to 14 - 2016-12-03
     //Updated version from 14 to 15 - 2017-04-29
     //Updated version from 15 to 16 - 2018-02-17
     //Updated version from 16 to 17 - 2018-03-26
     //Updated version from 17 to 18 - 2018-07-08
-    private static final int DATABASE_VERSION = 18;
+    //Updated version from 18 to 19 - 2018-07-17
+    private static final int DATABASE_VERSION = 19;
 
     //=============================================================================================
     //onCreate strings
-    private static final String CREATE_FRAME_TABLE = "create table " + TABLE_FRAMES
-            + "(" + KEY_FRAME_ID + " integer primary key autoincrement, "
-            + KEY_ROLL_ID + " integer not null, "
-            + KEY_COUNT + " integer not null, "
-            + KEY_DATE + " text not null, "
-            + KEY_LENS_ID + " integer not null, "
-            + KEY_SHUTTER + " text not null, "
-            + KEY_APERTURE + " text not null, "
-            + KEY_FRAME_NOTE + " text, "
-            + KEY_LOCATION + " text, "
-            + KEY_FOCAL_LENGTH + " integer, "
-            + KEY_EXPOSURE_COMP + " text, "
-            + KEY_NO_OF_EXPOSURES + " integer, "
-            + KEY_FLASH_USED + " integer, "
-            + KEY_FLASH_POWER + " text, "
-            + KEY_FLASH_COMP + " text, "
-            + KEY_FRAME_SIZE + " text, "
-            + KEY_FILTER_ID + " integer, "
-            + KEY_METERING_MODE + " integer, "
-            + KEY_FORMATTED_ADDRESS + " text, "
-            + KEY_PICTURE_FILENAME + " text"
-            + ");";
+
     private static final String CREATE_LENS_TABLE = "create table " + TABLE_LENSES
             + "(" + KEY_LENS_ID + " integer primary key autoincrement, "
             + KEY_LENS_MAKE + " text not null, "
@@ -152,6 +137,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_LENS_SERIAL_NO + " text, "
             + KEY_LENS_APERTURE_INCREMENTS + " integer not null"
             + ");";
+
     private static final String CREATE_CAMERA_TABLE = "create table " + TABLE_CAMERAS
             + "(" + KEY_CAMERA_ID + " integer primary key autoincrement, "
             + KEY_CAMERA_MAKE + " text not null, "
@@ -162,21 +148,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null, "
             + KEY_CAMERA_EXPOSURE_COMP_INCREMENTS + " integer not null default 0"
             + ");";
-    private static final String CREATE_ROLL_TABLE = "create table " + TABLE_ROLLS
-            + "(" + KEY_ROLL_ID + " integer primary key autoincrement, "
-            + KEY_ROLLNAME + " text not null, "
-            + KEY_ROLL_DATE + " text not null, "
-            + KEY_ROLL_NOTE + " text, "
-            + KEY_CAMERA_ID + " integer not null, "
-            + KEY_ROLL_ISO + " integer, "
-            + KEY_ROLL_PUSH + " text, "
-            + KEY_ROLL_FORMAT + " integer,"
-            + KEY_ROLL_ARCHIVED + " integer not null default 0"
-            + ");";
-    private static final String CREATE_MOUNTABLES_TABLE = "create table " + TABLE_MOUNTABLES
-            + "(" + KEY_CAMERA_ID + " integer not null, "
-            + KEY_LENS_ID + " integer not null"
-            + ");";
 
     private static final String CREATE_FILTER_TABLE = "create table " + TABLE_FILTERS
             + "(" + KEY_FILTER_ID + " integer primary key autoincrement, "
@@ -184,9 +155,56 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_FILTER_MODEL + " text not null"
             + ");";
 
-    private static final String CREATE_MOUNTABLE_FILTERS_LENSES_TABLE = "create table " + TABLE_MOUNTABLE_FILTERS_LENSES
-            + "(" + KEY_LENS_ID + " integer not null, "
-            + KEY_FILTER_ID + " integer not null"
+    private static final String CREATE_ROLL_TABLE = "create table " + TABLE_ROLLS
+            + "(" + KEY_ROLL_ID + " integer primary key autoincrement, "
+            + KEY_ROLLNAME + " text not null, "
+            + KEY_ROLL_DATE + " text not null, "
+            + KEY_ROLL_NOTE + " text, "
+            + KEY_CAMERA_ID + " integer references " + TABLE_CAMERAS + " on delete set null, "
+            + KEY_ROLL_ISO + " integer, "
+            + KEY_ROLL_PUSH + " text, "
+            + KEY_ROLL_FORMAT + " integer, "
+            + KEY_ROLL_ARCHIVED + " integer not null default 0"
+            + ");";
+
+    private static final String CREATE_FRAME_TABLE = "create table " + TABLE_FRAMES
+            + "(" + KEY_FRAME_ID + " integer primary key autoincrement, "
+            + KEY_ROLL_ID + " integer not null references " + TABLE_ROLLS + " on delete cascade, "
+            + KEY_COUNT + " integer not null, "
+            + KEY_DATE + " text not null, "
+            + KEY_LENS_ID + " integer references " + TABLE_LENSES + " on delete set null, "
+            + KEY_SHUTTER + " text, "
+            + KEY_APERTURE + " text, "
+            + KEY_FRAME_NOTE + " text, "
+            + KEY_LOCATION + " text, "
+            + KEY_FOCAL_LENGTH + " integer, "
+            + KEY_EXPOSURE_COMP + " text, "
+            + KEY_NO_OF_EXPOSURES + " integer, "
+            + KEY_FLASH_USED + " integer, "
+            + KEY_FLASH_POWER + " text, "
+            + KEY_FLASH_COMP + " text, "
+            + KEY_FRAME_SIZE + " text, "
+            + KEY_METERING_MODE + " integer, "
+            + KEY_FORMATTED_ADDRESS + " text, "
+            + KEY_PICTURE_FILENAME + " text"
+            + ");";
+
+    private static final String CREATE_CAMERA_LENS_LINK_TABLE = "create table " + TABLE_LINK_CAMERA_LENS
+            + "(" + KEY_CAMERA_ID + " integer not null references " + TABLE_CAMERAS + " on delete cascade, "
+            + KEY_LENS_ID + " integer not null references " + TABLE_LENSES + " on delete cascade, "
+            + "primary key(" + KEY_CAMERA_ID + ", " + KEY_LENS_ID + ")"
+            + ");";
+
+    private static final String CREATE_LENS_FILTER_LINK_TABLE = "create table " + TABLE_LINK_LENS_FILTER
+            + "(" + KEY_LENS_ID + " integer not null references " + TABLE_LENSES + " on delete cascade, "
+            + KEY_FILTER_ID + " integer not null references " + TABLE_FILTERS + " on delete cascade, "
+            + "primary key(" + KEY_LENS_ID + ", " + KEY_FILTER_ID + ")"
+            + ");";
+
+    private static final String CREATE_FRAME_FILTER_LINK_TABLE = "create table " + TABLE_LINK_FRAME_FILTER
+            + "(" + KEY_FRAME_ID + " integer not null references " + TABLE_FRAMES + " on delete cascade, "
+            + KEY_FILTER_ID + " integer not null references " + TABLE_FILTERS + " on delete cascade, "
+            + "primary key(" + KEY_FRAME_ID + ", " + KEY_FILTER_ID + ")"
             + ");";
 
     //=============================================================================================
@@ -251,6 +269,122 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " SET " + KEY_SHUTTER + " = REPLACE(" + KEY_SHUTTER + ", \'q\', \'\"\')"
             + " WHERE " + KEY_SHUTTER + " LIKE \'%q\';";
 
+    // (1) Rename the table, (2) create a new table with new structure,
+    // (3) insert data from the renamed table to the new table and (4) drop the renamed table.
+    private static final String ROLLS_TABLE_REVISION_1 = "alter table " + TABLE_ROLLS + " rename to temp_rolls;";
+    private static final String ROLLS_TABLE_REVISION_2 = "create table " + TABLE_ROLLS
+            + "(" + KEY_ROLL_ID + " integer primary key autoincrement, "
+            + KEY_ROLLNAME + " text not null, "
+            + KEY_ROLL_DATE + " text not null, "
+            + KEY_ROLL_NOTE + " text, "
+            + KEY_CAMERA_ID + " integer references " + TABLE_CAMERAS + " on delete set null, "
+            + KEY_ROLL_ISO + " integer, "
+            + KEY_ROLL_PUSH + " text, "
+            + KEY_ROLL_FORMAT + " integer, "
+            + KEY_ROLL_ARCHIVED + " integer not null default 0"
+            + ");";
+    private static final String ROLLS_TABLE_REVISION_3 = "insert into " + TABLE_ROLLS + " ("
+            + KEY_ROLL_ID + ", " + KEY_ROLLNAME + ", " + KEY_ROLL_DATE + ", " + KEY_ROLL_NOTE + ", "
+            + KEY_CAMERA_ID + ", " + KEY_ROLL_ISO + ", " + KEY_ROLL_PUSH + ", "
+            + KEY_ROLL_FORMAT + ", " + KEY_ROLL_ARCHIVED + ") "
+            + "select "
+            + KEY_ROLL_ID + ", " + KEY_ROLLNAME + ", " + KEY_ROLL_DATE + ", " + KEY_ROLL_NOTE + ", "
+            + "case when " + KEY_CAMERA_ID + " not in (select " + KEY_CAMERA_ID + " from " + TABLE_CAMERAS + ") then null else " + KEY_CAMERA_ID + " end" + ", "
+            + KEY_ROLL_ISO + ", " + KEY_ROLL_PUSH + ", "
+            + KEY_ROLL_FORMAT + ", " + KEY_ROLL_ARCHIVED + " "
+            + "from temp_rolls;";
+    private static final String ROLLS_TABLE_REVISION_4 = "drop table temp_rolls;";
+
+    // (1) Rename the table, (2) create a new table with new structure,
+    // (3) insert data from the renamed table to the new table,
+    // (4) create a new link table between frames and filters,
+    // (5) insert data from the renamed table to the new link table and
+    // (6) drop the renamed table.
+    private static final String FRAMES_TABLE_REVISION_1 = "alter table " + TABLE_FRAMES + " rename to temp_frames;";
+    private static final String FRAMES_TABLE_REVISION_2 = "create table " + TABLE_FRAMES
+            + "(" + KEY_FRAME_ID + " integer primary key autoincrement, "
+            + KEY_ROLL_ID + " integer not null references " + TABLE_ROLLS + " on delete cascade, "
+            + KEY_COUNT + " integer not null, "
+            + KEY_DATE + " text not null, "
+            + KEY_LENS_ID + " integer references " + TABLE_LENSES + " on delete set null, "
+            + KEY_SHUTTER + " text, "
+            + KEY_APERTURE + " text, "
+            + KEY_FRAME_NOTE + " text, "
+            + KEY_LOCATION + " text, "
+            + KEY_FOCAL_LENGTH + " integer, "
+            + KEY_EXPOSURE_COMP + " text, "
+            + KEY_NO_OF_EXPOSURES + " integer, "
+            + KEY_FLASH_USED + " integer, "
+            + KEY_FLASH_POWER + " text, "
+            + KEY_FLASH_COMP + " text, "
+            + KEY_FRAME_SIZE + " text, "
+            + KEY_METERING_MODE + " integer, "
+            + KEY_FORMATTED_ADDRESS + " text, "
+            + KEY_PICTURE_FILENAME + " text"
+            + ");";
+    private static final String FRAMES_TABLE_REVISION_3 = "insert into " + TABLE_FRAMES + " ("
+            + KEY_FRAME_ID + ", " + KEY_ROLL_ID + ", " + KEY_COUNT + ", " + KEY_DATE + ", "
+            + KEY_LENS_ID + ", " + KEY_SHUTTER + ", " + KEY_APERTURE + ", " + KEY_FRAME_NOTE + ", "
+            + KEY_LOCATION + ", " + KEY_FOCAL_LENGTH + ", " + KEY_EXPOSURE_COMP + ", "
+            + KEY_NO_OF_EXPOSURES + ", " + KEY_FLASH_USED + ", " + KEY_FLASH_POWER + ", "
+            + KEY_FLASH_COMP + ", " + KEY_FRAME_SIZE + ", " + KEY_METERING_MODE + ", "
+            + KEY_FORMATTED_ADDRESS + ", " + KEY_PICTURE_FILENAME + ") "
+            + "select "
+            + KEY_FRAME_ID + ", " + KEY_ROLL_ID + ", " + KEY_COUNT + ", " + KEY_DATE + ", "
+            + "case when " + KEY_LENS_ID + " not in (select " + KEY_LENS_ID + " from " + TABLE_LENSES + ") then null else " + KEY_LENS_ID + " end" + ", "
+            + "nullif(" + KEY_SHUTTER + ", '<empty>')" + ", "
+            + "nullif(" + KEY_APERTURE + ", '<empty>')" + ", "
+            + KEY_FRAME_NOTE + ", " + KEY_LOCATION + ", " + KEY_FOCAL_LENGTH + ", "
+            + KEY_EXPOSURE_COMP + ", " + KEY_NO_OF_EXPOSURES + ", " + KEY_FLASH_USED + ", "
+            + KEY_FLASH_POWER + ", " + KEY_FLASH_COMP + ", " + KEY_FRAME_SIZE + ", "
+            + KEY_METERING_MODE + ", " + KEY_FORMATTED_ADDRESS + ", " + KEY_PICTURE_FILENAME + " "
+            + "from temp_frames "
+            + "where " + KEY_ROLL_ID + " in (select " + KEY_ROLL_ID + " from " + TABLE_ROLLS + ")" + ";";
+    private static final String FRAMES_TABLE_REVISION_4 = "create table " + TABLE_LINK_FRAME_FILTER
+            + "(" + KEY_FRAME_ID + " integer not null references " + TABLE_FRAMES + " on delete cascade, "
+            + KEY_FILTER_ID + " integer not null references " + TABLE_FILTERS + " on delete cascade, "
+            + "primary key(" + KEY_FRAME_ID + ", " + KEY_FILTER_ID + ")"
+            + ");";
+    private static final String FRAMES_TABLE_REVISION_5 = "insert into " + TABLE_LINK_FRAME_FILTER + " ("
+            + KEY_FRAME_ID + ", " + KEY_FILTER_ID + ") "
+            + "select " + KEY_FRAME_ID + ", " + KEY_FILTER_ID + " "
+            + "from temp_frames "
+            + "where " + KEY_FILTER_ID + " in (select " + KEY_FILTER_ID + " from " + TABLE_FILTERS + ");";
+    private static final String FRAMES_TABLE_REVISION_6 = "drop table temp_frames;";
+
+    // (1) Rename the table (in pre database 19 versions called "mountables"),
+    // (2) create a new table with new structure,
+    // (3) insert data from the renamed table to the new table and (4) drop the renamed table.
+    private static final String CAMERA_LENS_LINK_TABLE_REVISION_1 = "alter table mountables rename to temp_mountables;";
+    private static final String CAMERA_LENS_LINK_TABLE_REVISION_2 = "create table " + TABLE_LINK_CAMERA_LENS
+            + "(" + KEY_CAMERA_ID + " integer not null references " + TABLE_CAMERAS + " on delete cascade, "
+            + KEY_LENS_ID + " integer not null references " + TABLE_LENSES + " on delete cascade, "
+            + "primary key(" + KEY_CAMERA_ID + ", " + KEY_LENS_ID + ")"
+            + ");";
+    private static final String CAMERA_LENS_LINK_TABLE_REVISION_3 = "insert into " + TABLE_LINK_CAMERA_LENS + " ("
+            + KEY_CAMERA_ID + ", " + KEY_LENS_ID + ") "
+            + "select " + KEY_CAMERA_ID + ", " + KEY_LENS_ID + " "
+            + "from temp_mountables "
+            + "where " + KEY_CAMERA_ID + " in (select " + KEY_CAMERA_ID + " from " + TABLE_CAMERAS + ") "
+            + "and " + KEY_LENS_ID + " in (select " + KEY_LENS_ID + " from " + TABLE_LENSES + ")" + ";";
+    private static final String CAMERA_LENS_LINK_TABLE_REVISION_4 = "drop table temp_mountables;";
+
+    // (1) Rename the table (in pre database 19 versions called "mountable_filters_lenses"),
+    // (2) create a new table with new structure,
+    // (3) insert data from the renamed table to the new table and (4) drop the renamed table.
+    private static final String LENS_FILTER_LINK_TABLE_REVISION_1 = "alter table mountable_filters_lenses rename to temp_mountable_filters_lenses;";
+    private static final String LENS_FILTER_LINK_TABLE_REVISION_2 = "create table " + TABLE_LINK_LENS_FILTER
+            + "(" + KEY_LENS_ID + " integer not null references " + TABLE_LENSES + " on delete cascade, "
+            + KEY_FILTER_ID + " integer not null references " + TABLE_FILTERS + " on delete cascade, "
+            + "primary key(" + KEY_LENS_ID + ", " + KEY_FILTER_ID + ")"
+            + ");";
+    private static final String LENS_FILTER_LINK_TABLE_REVISION_3 = "insert into " + TABLE_LINK_LENS_FILTER + " ("
+            + KEY_LENS_ID + ", " + KEY_FILTER_ID + ") "
+            + "select " + KEY_LENS_ID + ", " + KEY_FILTER_ID + " "
+            + "from temp_mountable_filters_lenses "
+            + "where " + KEY_LENS_ID + " in (select " + KEY_LENS_ID + " from " + TABLE_LENSES + ") "
+            + "and " + KEY_FILTER_ID + " in (select " + KEY_FILTER_ID + " from " + TABLE_FILTERS + ")" + ";";
+    private static final String LENS_FILTER_LINK_TABLE_REVISION_4 = "drop table temp_mountable_filters_lenses;";
 
     /**
      * Store reference to the singleton instance.
@@ -283,19 +417,33 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        // The only time foreign key constraints are enforced, is when something is written
+        // to the database. Only enable foreign keys, if the database may be written to.
+        if (!db.isReadOnly()) {
+            db.execSQL("PRAGMA foreign_keys=ON;");
+        }
+    }
+
     /**
      * When the database is first created, the required tables are created.
      * @param database the SQLite database to be populated.
      */
     @Override
     public void onCreate(SQLiteDatabase database) {
-        database.execSQL(CREATE_FRAME_TABLE);
+        // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
+        database.execSQL("PRAGMA foreign_keys=ON;");
         database.execSQL(CREATE_LENS_TABLE);
-        database.execSQL(CREATE_ROLL_TABLE);
         database.execSQL(CREATE_CAMERA_TABLE);
-        database.execSQL(CREATE_MOUNTABLES_TABLE);
         database.execSQL(CREATE_FILTER_TABLE);
-        database.execSQL(CREATE_MOUNTABLE_FILTERS_LENSES_TABLE);
+        database.execSQL(CREATE_ROLL_TABLE);
+        database.execSQL(CREATE_FRAME_TABLE);
+        database.execSQL(CREATE_CAMERA_LENS_LINK_TABLE);
+        database.execSQL(CREATE_LENS_FILTER_LINK_TABLE);
+        database.execSQL(CREATE_FRAME_FILTER_LINK_TABLE);
     }
 
     /**
@@ -343,7 +491,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             db.execSQL(REPLACE_QUOTE_CHARS);
             //TABLE_FILTERS
             db.execSQL(CREATE_FILTER_TABLE);
-            db.execSQL(CREATE_MOUNTABLE_FILTERS_LENSES_TABLE);
+            db.execSQL(CREATE_LENS_FILTER_LINK_TABLE);
         }
         if (oldVersion <= 14) {
             db.execSQL(ALTER_TABLE_FRAMES_10);
@@ -357,6 +505,37 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         if (oldVersion <= 17) {
             db.execSQL(ALTER_TABLE_CAMERAS_5);
         }
+        if (oldVersion <= 18) {
+            // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
+            db.execSQL("PRAGMA foreign_keys=ON;");
+            // Alter statements
+            db.beginTransaction();
+            try {
+                // execSQL() does not support multiple SQL commands separated with a semi-colon.
+                // Separate the upgrade commands into single SQL commands.
+                db.execSQL(ROLLS_TABLE_REVISION_1);
+                db.execSQL(ROLLS_TABLE_REVISION_2);
+                db.execSQL(ROLLS_TABLE_REVISION_3);
+                db.execSQL(ROLLS_TABLE_REVISION_4);
+                db.execSQL(FRAMES_TABLE_REVISION_1);
+                db.execSQL(FRAMES_TABLE_REVISION_2);
+                db.execSQL(FRAMES_TABLE_REVISION_3);
+                db.execSQL(FRAMES_TABLE_REVISION_4);
+                db.execSQL(FRAMES_TABLE_REVISION_5);
+                db.execSQL(FRAMES_TABLE_REVISION_6);
+                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_1);
+                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_2);
+                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_3);
+                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_4);
+                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_1);
+                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_2);
+                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_3);
+                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_4);
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        }
     }
 
     // ******************** CRUD operations for the frames table ********************
@@ -365,29 +544,40 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new frame to the database.
      * @param frame the new frame to be added to the database
      */
-    public long addFrame(Frame frame) {
+    public boolean addFrame(@NonNull Frame frame) {
         // Get reference to writable database
         SQLiteDatabase db = this.getWritableDatabase();
         // Create ContentValues to add key "column"/value
         ContentValues values = buildFrameContentValues(frame);
         // Insert
-        return db.insert(TABLE_FRAMES, // table
+        final long rowId = db.insert(TABLE_FRAMES, // table
                 null, // nullColumnHack
                 values);
+        // Update the frame's id with the insert statement's return value
+        frame.setId(rowId);
+        // Add the filter links, if the frame was inserted successfully.
+        if (rowId != -1) {
+            for (Filter filter : frame.getFilters()) {
+                addFrameFilterLink(frame, filter);
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * Gets all the frames from a specified roll.
-     * @param roll_id the id of the roll
+     * @param roll Roll object whose frames should be fetched
      * @return an array of Frames
      */
-    public List<Frame> getAllFramesFromRoll(long roll_id){
+    public List<Frame> getAllFramesFromRoll(@NonNull Roll roll){
         List<Frame> frames = new ArrayList<>();
         // Get reference to readable database
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(
                 TABLE_FRAMES, null, KEY_ROLL_ID + "=?",
-                new String[]{Long.toString(roll_id)}, null, null, KEY_COUNT);
+                new String[]{Long.toString(roll.getId())}, null, null, KEY_COUNT);
         Frame frame;
         // Go over each row, build list
         while (cursor.moveToNext()) {
@@ -402,34 +592,27 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Updates the information of a frame.
      * @param frame the frame to be updated.
      */
-    public void updateFrame(Frame frame) {
+    public void updateFrame(@NonNull Frame frame) {
         // Get reference to writable database
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = buildFrameContentValues(frame);
         db.update(TABLE_FRAMES, contentValues, KEY_FRAME_ID + "=?",
                 new String[]{Long.toString(frame.getId())});
+        deleteAllFrameFilterLinks(frame);
+        for (Filter filter : frame.getFilters()) addFrameFilterLink(frame, filter);
     }
 
     /**
      * Deletes a frame from the database.
      * @param frame the frame to be deleted
      */
-    public void deleteFrame(Frame frame) {
+    public void deleteFrame(@NonNull Frame frame) {
         // Get reference to writable database
         SQLiteDatabase db = this.getWritableDatabase();
         // Delete
         db.delete(TABLE_FRAMES,
                 KEY_FRAME_ID + " = ?",
                 new String[]{Long.toString(frame.getId())});
-    }
-
-    /**
-     * Deletes all frames from a specified roll.
-     * @param roll_id the id of the roll whose frames are to be deleted.
-     */
-    public void deleteAllFramesFromRoll(long roll_id){
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_FRAMES, KEY_ROLL_ID + " = ? ", new String[]{Long.toString(roll_id)});
     }
 
     /**
@@ -454,7 +637,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new lens to the database.
      * @param lens the lens to be added to the database
      */
-    public long addLens(Lens lens){
+    public long addLens(@NonNull Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = buildLensContentValues(lens);
         return db.insert(TABLE_LENSES, null, values);
@@ -465,14 +648,14 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param lens_id the id of the lens
      * @return a Lens corresponding to the id
      */
+    @Nullable
     public Lens getLens(long lens_id){
         SQLiteDatabase db = this.getReadableDatabase();
-        Lens lens = new Lens();
+        Lens lens = null;
         Cursor cursor = db.query(TABLE_LENSES, null, KEY_LENS_ID + "=?",
                 new String[]{Long.toString(lens_id)}, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            lens = getLensFromCursor(cursor, lens);
+        if (cursor.moveToFirst()) {
+            lens = getLensFromCursor(cursor);
             cursor.close();
         }
         return lens;
@@ -499,10 +682,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Deletes Lens from the database.
      * @param lens the Lens to be deleted
      */
-    public void deleteLens(Lens lens){
+    public void deleteLens(@NonNull Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_LENSES, KEY_LENS_ID + " = ?", new String[]{Long.toString(lens.getId())});
-        db.delete(TABLE_MOUNTABLES, KEY_LENS_ID + " = ?", new String[]{Long.toString(lens.getId())});
     }
 
     /**
@@ -510,7 +692,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param lens Lens to be checked
      * @return true if the lens is in use, false if not
      */
-    public boolean isLensInUse(Lens lens){
+    public boolean isLensInUse(@NonNull Lens lens){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_LENS_ID}, KEY_LENS_ID + "=?",
                 new String[]{Long.toString(lens.getId())}, null, null, null);
@@ -528,7 +710,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Updates the information of a lens
      * @param lens the Lens to be updated
      */
-    public void updateLens(Lens lens) {
+    public void updateLens(@NonNull Lens lens) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = buildLensContentValues(lens);
         db.update(TABLE_LENSES, contentValues, KEY_LENS_ID + "=?",
@@ -541,7 +723,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new camera to the database.
      * @param camera the camera to be added to the database
      */
-    public long addCamera(Camera camera){
+    public long addCamera(@NonNull Camera camera){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = buildCameraContentValues(camera);
         return db.insert(TABLE_CAMERAS, null, values);
@@ -552,14 +734,14 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera_id the id of the Camera
      * @return the Camera corresponding to the given id
      */
+    @Nullable
     public Camera getCamera(long camera_id){
         SQLiteDatabase db = this.getReadableDatabase();
-        Camera camera = new Camera();
+        Camera camera = null;
         Cursor cursor = db.query(TABLE_CAMERAS, null, KEY_CAMERA_ID + "=?",
                 new String[]{Long.toString(camera_id)}, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            camera = getCameraFromCursor(cursor, camera);
+        if (cursor.moveToFirst()) {
+            camera = getCameraFromCursor(cursor);
             cursor.close();
         }
         return camera;
@@ -586,11 +768,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Deletes the specified camera from the database
      * @param camera the camera to be deleted
      */
-    public void deleteCamera(Camera camera){
+    public void deleteCamera(@NonNull Camera camera){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CAMERAS, KEY_CAMERA_ID + " = ?",
-                new String[]{Long.toString(camera.getId())});
-        db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ?",
                 new String[]{Long.toString(camera.getId())});
     }
 
@@ -599,7 +779,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera the camera to be checked
      * @return true if the camera is in use, false if not
      */
-    public boolean isCameraBeingUsed(Camera camera) {
+    public boolean isCameraBeingUsed(@NonNull Camera camera) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_CAMERA_ID}, KEY_CAMERA_ID + "=?",
                 new String[]{Long.toString(camera.getId())}, null, null, null);
@@ -617,28 +797,28 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Updates the information of the specified camera.
      * @param camera the camera to be updated
      */
-    public void updateCamera(Camera camera) {
+    public void updateCamera(@NonNull Camera camera) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = buildCameraContentValues(camera);
         db.update(TABLE_CAMERAS, contentValues, KEY_CAMERA_ID + "=?",
                 new String[]{Long.toString(camera.getId())});
     }
 
-    // ******************** CRUD operations for the mountables table ********************
+    // ******************** CRUD operations for the camera-lens link table ********************
 
     /**
      * Adds a mountable combination of camera and lens to the database.
      * @param camera the camera that can be mounted with the lens
      * @param lens the lens that can be mounted with the camera
      */
-    public void addMountable(Camera camera, Lens lens){
+    public void addCameraLensLink(@NonNull Camera camera, @NonNull Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
-        String query = "INSERT INTO " + TABLE_MOUNTABLES + "(" + KEY_CAMERA_ID + "," + KEY_LENS_ID
+        String query = "INSERT INTO " + TABLE_LINK_CAMERA_LENS + "(" + KEY_CAMERA_ID + "," + KEY_LENS_ID
                 + ") SELECT " + camera.getId() + ", " + lens.getId()
-                + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_MOUNTABLES + " WHERE "
-                + KEY_CAMERA_ID + "=" + camera.getId() + " AND " + KEY_LENS_ID + "=" + lens.getId() + ")";
+                + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
+                + KEY_CAMERA_ID + "=" + camera.getId() + " AND " + KEY_LENS_ID + "=" + lens.getId() + ");";
         db.execSQL(query);
     }
 
@@ -647,23 +827,23 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera the camera that can be mounted with the lens
      * @param lens the lens that can be mounted with the camera
      */
-    public void deleteMountable(Camera camera, Lens lens){
+    public void deleteCameraLensLink(@NonNull Camera camera, @NonNull Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_MOUNTABLES, KEY_CAMERA_ID + " = ? AND " + KEY_LENS_ID + " = ?",
+        db.delete(TABLE_LINK_CAMERA_LENS, KEY_CAMERA_ID + " = ? AND " + KEY_LENS_ID + " = ?",
                     new String[]{Long.toString(camera.getId()), Long.toString(lens.getId())});
     }
 
     /**
      * Gets all the lenses that can be mounted to the specified camera
      * @param camera the camera whose lenses we want to get
-     * @return a List of all the mountable lenses
+     * @return a List of all linked lenses
      */
-    public List<Lens> getMountableLenses(Camera camera){
+    public List<Lens> getLinkedLenses(@NonNull Camera camera){
         List<Lens> lenses = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
-                + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_MOUNTABLES + " WHERE "
+                + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
                 + KEY_CAMERA_ID + "=" + camera.getId() + ") ORDER BY " + KEY_LENS_MAKE;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
@@ -677,16 +857,16 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Gets all the camras that can be mounted to the specified lens
+     * Gets all the cameras that can be mounted to the specified lens
      * @param lens the lens whose cameras we want to get
-     * @return a List of all the mountable cameras
+     * @return a List of all linked cameras
      */
-    public List<Camera> getMountableCameras(Lens lens){
+    public List<Camera> getLinkedCameras(@NonNull Lens lens){
         List<Camera> cameras = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         String query = "SELECT * FROM " + TABLE_CAMERAS + " WHERE " + KEY_CAMERA_ID + " IN "
-                + "(" + "SELECT " + KEY_CAMERA_ID + " FROM " + TABLE_MOUNTABLES + " WHERE "
+                + "(" + "SELECT " + KEY_CAMERA_ID + " FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
                 + KEY_LENS_ID + "=" + lens.getId() + ") ORDER BY " + KEY_CAMERA_MAKE;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
@@ -705,7 +885,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new roll to the database.
      * @param roll the roll to be added
      */
-    public long addRoll(Roll roll){
+    public long addRoll(@NonNull Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = buildRollContentValues(roll);
         return db.insert(TABLE_ROLLS, null, values);
@@ -746,14 +926,14 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param id the id of the roll
      * @return the roll corresponding to the given id
      */
+    @Nullable
     public Roll getRoll(long id){
         SQLiteDatabase db = this.getReadableDatabase();
-        Roll roll = new Roll();
+        Roll roll = null;
         Cursor cursor = db.query(TABLE_ROLLS, null, KEY_ROLL_ID + "=?",
                 new String[]{Long.toString(id)}, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            roll = getRollFromCursor(cursor, roll);
+        if (cursor.moveToFirst()) {
+            roll = getRollFromCursor(cursor);
             cursor.close();
         }
         return roll;
@@ -763,7 +943,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Deletes a roll from the database.
      * @param roll the roll to be deleted from the database
      */
-    public void deleteRoll(Roll roll){
+    public void deleteRoll(@NonNull Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_ROLLS, KEY_ROLL_ID + " = ?", new String[]{Long.toString(roll.getId())});
     }
@@ -772,7 +952,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Updates the specified roll's information
      * @param roll the roll to be updated
      */
-    public void updateRoll(Roll roll){
+    public void updateRoll(@NonNull Roll roll){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = buildRollContentValues(roll);
         db.update(TABLE_ROLLS, contentValues, KEY_ROLL_ID + "=?",
@@ -784,13 +964,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param roll the roll whose frame count we want
      * @return an integer of the the number of frames on that roll
      */
-    public int getNumberOfFrames(Roll roll){
+    public int getNumberOfFrames(@NonNull Roll roll){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_FRAMES, new String[]{"COUNT(" + KEY_FRAME_ID + ")"}, KEY_ROLL_ID + "=?",
                 new String[]{Long.toString(roll.getId())}, null, null, null);
         int returnValue = 0;
-        if (cursor != null) {
-            cursor.moveToFirst();
+        if (cursor.moveToFirst()) {
             returnValue = cursor.getInt(0);
             cursor.close();
         }
@@ -804,7 +983,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new filter to the database.
      * @param filter the filter to be added to the database
      */
-    public long addFilter(Filter filter){
+    public long addFilter(@NonNull Filter filter){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = buildFilterContentValues(filter);
         return db.insert(TABLE_FILTERS, null, values);
@@ -820,8 +999,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Filter filter = new Filter();
         Cursor cursor = db.query(TABLE_FILTERS, null, KEY_FILTER_ID + "=?",
                 new String[]{Long.toString(filter_id)}, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
+        if (cursor.moveToFirst()) {
             filter = getFilterFromCursor(cursor, filter);
             cursor.close();
         }
@@ -849,7 +1027,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Deletes the specified filter from the database
      * @param filter the filter to be deleted
      */
-    public void deleteFilter(Filter filter){
+    public void deleteFilter(@NonNull Filter filter){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_FILTERS, KEY_FILTER_ID + " = ?", new String[]{Long.toString(filter.getId())});
     }
@@ -859,9 +1037,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter the filter to be checked
      * @return true if the filter is in use, false if not
      */
-    public boolean isFilterBeingUsed(Filter filter) {
+    public boolean isFilterBeingUsed(@NonNull Filter filter) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_FILTER_ID}, KEY_FILTER_ID + "=?",
+        Cursor cursor = db.query(TABLE_LINK_FRAME_FILTER, new String[]{KEY_FILTER_ID}, KEY_FILTER_ID + "=?",
                 new String[]{Long.toString(filter.getId())}, null, null, null);
         if (cursor.moveToFirst()) {
             cursor.close();
@@ -877,28 +1055,28 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Updates the information of the specified filter.
      * @param filter the filter to be updated
      */
-    public void updateFilter(Filter filter) {
+    public void updateFilter(@NonNull Filter filter) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = buildFilterContentValues(filter);
         db.update(TABLE_FILTERS, contentValues, KEY_FILTER_ID + "=?",
                 new String[]{Long.toString(filter.getId())});
     }
 
-    // ******************** CRUD operations for the mountable lenses filters table ********************
+    // ******************** CRUD operations for the lens-filter link table ********************
 
     /**
      * Adds a mountable combination of filter and lens to the database.
      * @param filter the filter that can be mounted with the lens
      * @param lens the lens that can be mounted with the filter
      */
-    public void addMountableFilterLens(Filter filter, Lens lens){
+    public void addLensFilterLink(@NonNull Filter filter, @NonNull Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
-        String query = "INSERT INTO " + TABLE_MOUNTABLE_FILTERS_LENSES + "(" + KEY_FILTER_ID + "," + KEY_LENS_ID
+        String query = "INSERT INTO " + TABLE_LINK_LENS_FILTER + "(" + KEY_FILTER_ID + "," + KEY_LENS_ID
                 + ") SELECT " + filter.getId() + ", " + lens.getId()
-                + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_MOUNTABLE_FILTERS_LENSES + " WHERE "
-                + KEY_FILTER_ID + "=" + filter.getId() + " AND " + KEY_LENS_ID + "=" + lens.getId() + ")";
+                + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
+                + KEY_FILTER_ID + "=" + filter.getId() + " AND " + KEY_LENS_ID + "=" + lens.getId() + ");";
         db.execSQL(query);
     }
 
@@ -907,23 +1085,23 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter the filter that can be mounted with the lens
      * @param lens the lens that can be mounted with the filter
      */
-    public void deleteMountableFilterLens(Filter filter, Lens lens){
+    public void deleteLensFilterLink(@NonNull Filter filter, @NonNull Lens lens){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_MOUNTABLE_FILTERS_LENSES, KEY_FILTER_ID + " = ? AND " + KEY_LENS_ID + " = ?",
+        db.delete(TABLE_LINK_LENS_FILTER, KEY_FILTER_ID + " = ? AND " + KEY_LENS_ID + " = ?",
                 new String[]{Long.toString(filter.getId()), Long.toString(lens.getId())});
     }
 
     /**
      * Gets all the lenses that can be mounted to the specified filter
      * @param filter the filter whose lenses we want to get
-     * @return a List of all the mountable lenses
+     * @return a List of all linked lenses
      */
-    public List<Lens> getMountableLenses(Filter filter){
+    public List<Lens> getLinkedLenses(@NonNull Filter filter){
         List<Lens> lenses = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
-                + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_MOUNTABLE_FILTERS_LENSES + " WHERE "
+                + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
                 + KEY_FILTER_ID + "=" + filter.getId() + ") ORDER BY " + KEY_LENS_MAKE;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
@@ -939,14 +1117,14 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     /**
      * Gets all the filters that can be mounted to the specified lens
      * @param lens the lens whose filters we want to get
-     * @return a List of all the mountable filters
+     * @return a List of all linked filters
      */
-    public List<Filter> getMountableFilters(Lens lens){
+    public List<Filter> getLinkedFilters(@NonNull Lens lens){
         List<Filter> filters = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         String query = "SELECT * FROM " + TABLE_FILTERS + " WHERE " + KEY_FILTER_ID + " IN "
-                + "(" + "SELECT " + KEY_FILTER_ID + " FROM " + TABLE_MOUNTABLE_FILTERS_LENSES + " WHERE "
+                + "(" + "SELECT " + KEY_FILTER_ID + " FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
                 + KEY_LENS_ID + "=" + lens.getId() + ") ORDER BY " + KEY_FILTER_MAKE;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
@@ -960,6 +1138,61 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     }
 
 
+    // ******************** CRUD operations for the frame-filter link table ********************
+
+    /**
+     * Adds a new link between a frame and a filter object
+     *
+     * @param frame frame that is linked to the filter
+     * @param filter filter that is linked to the frame
+     */
+    private void addFrameFilterLink(@NonNull Frame frame, @NonNull Filter filter) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        //Here it is safe to use a raw query, because we only use id values, which are database generated.
+        //So there is no danger of SQL injection.
+        final String query = "insert into " + TABLE_LINK_FRAME_FILTER + " ("
+                + KEY_FRAME_ID + ", " + KEY_FILTER_ID + ") "
+                + "select " + frame.getId() + ", " + filter.getId() + " "
+                + "where not exists (select * from " + TABLE_LINK_FRAME_FILTER + " "
+                + "where " + KEY_FRAME_ID + " = " + frame.getId() + " and "
+                + KEY_FILTER_ID + " = " + filter.getId() + ");";
+        db.execSQL(query);
+    }
+
+    /**
+     * Deletes all links between a single frame and all its linked filters.
+     *
+     * @param frame Frame object whose filter links should be deleted
+     */
+    private void deleteAllFrameFilterLinks(@NonNull Frame frame) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_LINK_FRAME_FILTER, KEY_FRAME_ID + " = ?",
+                new String[]{Long.toString(frame.getId())});
+    }
+
+    /**
+     * Gets all filter objects that are linked to a specific Frame object
+     *
+     * @param frame the Frame object whose linked filters we want to get
+     * @return List object containing all Filter objects linked to the specified Frame object
+     */
+    private List<Filter> getLinkedFilters(@NonNull Frame frame) {
+        final List<Filter> filters = new ArrayList<>();
+        //Here it is safe to use a raw query, because we only use id values, which are database generated.
+        //So there is no danger of SQL injection
+        final String query = "select * from " + TABLE_FILTERS + " where " + KEY_FILTER_ID + " in "
+                + "(select " + KEY_FILTER_ID + " from " + TABLE_LINK_FRAME_FILTER + " where "
+                + KEY_FRAME_ID + " = " + frame.getId() + ") order by " + KEY_FILTER_MAKE;
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.rawQuery(query, null);
+        Filter filter;
+        while (cursor.moveToNext()) {
+            filter = getFilterFromCursor(cursor);
+            filters.add(filter);
+        }
+        cursor.close();
+        return filters;
+    }
 
 
     //*********************** METHODS TO GET OBJECTS FROM CURSOR **********************************
@@ -971,7 +1204,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Frame object
      * @return Frame object generated from cursor
      */
-    private Frame getFrameFromCursor (Cursor cursor) {
+    private Frame getFrameFromCursor (@NonNull Cursor cursor) {
         Frame frame = new Frame();
         return getFrameFromCursor(cursor, frame);
     }
@@ -983,7 +1216,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param frame the Frame whose attributes should be set
      * @return reference to the Frame object given as the parameter
      */
-    private Frame getFrameFromCursor (Cursor cursor, Frame frame) {
+    private Frame getFrameFromCursor (@NonNull Cursor cursor, @NonNull Frame frame) {
         frame.setId(cursor.getLong(cursor.getColumnIndex(KEY_FRAME_ID)));
         frame.setRollId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
         frame.setCount(cursor.getInt(cursor.getColumnIndex(KEY_COUNT)));
@@ -999,10 +1232,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setFlashUsed(cursor.getInt(cursor.getColumnIndex(KEY_FLASH_USED)));
         frame.setFlashPower(cursor.getString(cursor.getColumnIndex(KEY_FLASH_POWER)));
         frame.setFlashComp(cursor.getString(cursor.getColumnIndex(KEY_FLASH_COMP)));
-        frame.setFilterId(cursor.getLong(cursor.getColumnIndex(KEY_FILTER_ID)));
         frame.setMeteringMode(cursor.getInt(cursor.getColumnIndex(KEY_METERING_MODE)));
         frame.setFormattedAddress(cursor.getString(cursor.getColumnIndex(KEY_FORMATTED_ADDRESS)));
         frame.setPictureFilename(cursor.getString(cursor.getColumnIndex(KEY_PICTURE_FILENAME)));
+        frame.setFilters(getLinkedFilters(frame));
         return frame;
     }
 
@@ -1012,7 +1245,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Roll object
      * @return Roll object generated from cursor
      */
-    private Roll getRollFromCursor (Cursor cursor) {
+    private Roll getRollFromCursor (@NonNull Cursor cursor) {
         Roll roll = new Roll();
         return getRollFromCursor(cursor, roll);
     }
@@ -1024,7 +1257,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param roll the Roll whose attributes should be set
      * @return reference to the Roll object given as the parameter
      */
-    private Roll getRollFromCursor (Cursor cursor, Roll roll) {
+    private Roll getRollFromCursor (@NonNull Cursor cursor, @NonNull Roll roll) {
         roll.setId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
         roll.setName(cursor.getString(cursor.getColumnIndex(KEY_ROLLNAME)));
         roll.setDate(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE)));
@@ -1043,7 +1276,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Lens object
      * @return Lens object generated from cursor
      */
-    private Lens getLensFromCursor (Cursor cursor) {
+    private Lens getLensFromCursor (@NonNull Cursor cursor) {
         Lens lens = new Lens();
         return getLensFromCursor(cursor, lens);
     }
@@ -1055,7 +1288,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param lens the Lens whose attributes should be set
      * @return reference to the Lens object given as the parameter
      */
-    private Lens getLensFromCursor (Cursor cursor, Lens lens) {
+    private Lens getLensFromCursor (@NonNull Cursor cursor, @NonNull Lens lens) {
         lens.setId(cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID)));
         lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
         lens.setModel(cursor.getString(cursor.getColumnIndex(KEY_LENS_MODEL)));
@@ -1074,7 +1307,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Camera object
      * @return Camera object generated from cursor
      */
-    private Camera getCameraFromCursor (Cursor cursor) {
+    private Camera getCameraFromCursor (@NonNull Cursor cursor) {
         Camera camera = new Camera();
         return getCameraFromCursor(cursor, camera);
     }
@@ -1086,7 +1319,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera the Camera whose attributes should be set
      * @return reference to the Camera object given as the parameter
      */
-    private Camera getCameraFromCursor (Cursor cursor, Camera camera) {
+    private Camera getCameraFromCursor (@NonNull Cursor cursor, @NonNull Camera camera) {
         camera.setId(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
         camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
         camera.setModel(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MODEL)));
@@ -1104,7 +1337,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Filter object
      * @return Filter object generated from cursor
      */
-    private Filter getFilterFromCursor (Cursor cursor) {
+    private Filter getFilterFromCursor (@NonNull Cursor cursor) {
         Filter filter = new Filter();
         return getFilterFromCursor(cursor, filter);
     }
@@ -1116,7 +1349,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter the Filter whose attributes should be set
      * @return reference to the Filter object given as the parameter
      */
-    private Filter getFilterFromCursor (Cursor cursor, Filter filter) {
+    private Filter getFilterFromCursor (@NonNull Cursor cursor, @NonNull Filter filter) {
         filter.setId(cursor.getLong(cursor.getColumnIndex(KEY_FILTER_ID)));
         filter.setMake(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MAKE)));
         filter.setModel(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MODEL)));
@@ -1133,12 +1366,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param frame Frame object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Frame object.
      */
-    private ContentValues buildFrameContentValues(Frame frame){
+    private ContentValues buildFrameContentValues(@NonNull Frame frame){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_ROLL_ID, frame.getRollId());
         contentValues.put(KEY_COUNT, frame.getCount());
         contentValues.put(KEY_DATE, frame.getDate());
-        contentValues.put(KEY_LENS_ID, frame.getLensId());
+        if (frame.getLensId() > 0) contentValues.put(KEY_LENS_ID, frame.getLensId());
+        else contentValues.putNull(KEY_LENS_ID);
         contentValues.put(KEY_SHUTTER, frame.getShutter());
         contentValues.put(KEY_APERTURE, frame.getAperture());
         contentValues.put(KEY_FRAME_NOTE, frame.getNote());
@@ -1149,7 +1383,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_FLASH_USED, frame.getFlashUsed());
         contentValues.put(KEY_FLASH_POWER, frame.getFlashPower());
         contentValues.put(KEY_FLASH_COMP, frame.getFlashComp());
-        contentValues.put(KEY_FILTER_ID, frame.getFilterId());
         contentValues.put(KEY_METERING_MODE, frame.getMeteringMode());
         contentValues.put(KEY_FORMATTED_ADDRESS, frame.getFormattedAddress());
         contentValues.put(KEY_PICTURE_FILENAME, frame.getPictureFilename());
@@ -1162,7 +1395,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param lens Lens object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the lens object.
      */
-    private ContentValues buildLensContentValues(Lens lens){
+    private ContentValues buildLensContentValues(@NonNull Lens lens){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_LENS_MAKE, lens.getMake());
         contentValues.put(KEY_LENS_MODEL, lens.getModel());
@@ -1181,7 +1414,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera Camera object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Camera object.
      */
-    private ContentValues buildCameraContentValues(Camera camera){
+    private ContentValues buildCameraContentValues(@NonNull Camera camera){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_CAMERA_MAKE, camera.getMake());
         contentValues.put(KEY_CAMERA_MODEL, camera.getModel());
@@ -1199,12 +1432,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param roll Roll object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Roll object.
      */
-    private ContentValues buildRollContentValues(Roll roll){
+    private ContentValues buildRollContentValues(@NonNull Roll roll){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_ROLLNAME, roll.getName());
         contentValues.put(KEY_ROLL_DATE, roll.getDate());
         contentValues.put(KEY_ROLL_NOTE, roll.getNote());
-        contentValues.put(KEY_CAMERA_ID, roll.getCameraId());
+        if (roll.getCameraId() > 0) contentValues.put(KEY_CAMERA_ID, roll.getCameraId());
+        else contentValues.putNull(KEY_CAMERA_ID);
         contentValues.put(KEY_ROLL_ISO, roll.getIso());
         contentValues.put(KEY_ROLL_PUSH, roll.getPushPull());
         contentValues.put(KEY_ROLL_FORMAT, roll.getFormat());
@@ -1218,7 +1452,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter Filter object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Filter object.
      */
-    private ContentValues buildFilterContentValues(Filter filter){
+    private ContentValues buildFilterContentValues(@NonNull Filter filter){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_FILTER_MAKE, filter.getMake());
         contentValues.put(KEY_FILTER_MODEL, filter.getModel());
@@ -1302,68 +1536,72 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     private boolean runIntegrityCheck() {
 
+        // TODO: Implement foreign key checks.
+
         final String INTEGER = "int";
         final String TEXT = "text";
         //Run integrity checks to see if the current database is whole
-        return checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_ID, INTEGER, 0, 1, true) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAKE, TEXT, 1, 0, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MODEL, TEXT, 1, 0, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAX_SHUTTER, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MIN_SHUTTER, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SERIAL_NO, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SHUTTER_INCREMENTS, INTEGER, 1, 0, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, INTEGER, 1, 0, false) &&
+        return checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_ID, INTEGER, 0, true, true) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAKE, TEXT, 1, false, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MODEL, TEXT, 1, false, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAX_SHUTTER, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MIN_SHUTTER, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SERIAL_NO, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SHUTTER_INCREMENTS, INTEGER, 1, false, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, INTEGER, 1, false, false) &&
 
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_ID, INTEGER, 0, 1, true) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAKE, TEXT, 1, 0, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MODEL, TEXT, 1, 0, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_APERTURE, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_APERTURE, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_FOCAL_LENGTH, INTEGER, 0, 0, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_FOCAL_LENGTH, INTEGER, 0, 0, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_SERIAL_NO, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_APERTURE_INCREMENTS, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_ID, INTEGER, 0, true, true) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAKE, TEXT, 1, false, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MODEL, TEXT, 1, false, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_APERTURE, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_APERTURE, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_FOCAL_LENGTH, INTEGER, 0, false, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_FOCAL_LENGTH, INTEGER, 0, false, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_SERIAL_NO, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_APERTURE_INCREMENTS, INTEGER, 1, false, false) &&
 
-                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_ID, INTEGER, 0, 1, true) &&
-                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MAKE, TEXT, 1, 0, false) &&
-                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MODEL, TEXT, 1, 0, false) &&
+                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_ID, INTEGER, 0, true, true) &&
+                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MAKE, TEXT, 1, false, false) &&
+                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MODEL, TEXT, 1, false, false) &&
 
-                checkColumnProperties(TABLE_MOUNTABLES, KEY_CAMERA_ID, INTEGER, 1, 0, false) &&
-                checkColumnProperties(TABLE_MOUNTABLES, KEY_LENS_ID, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_LINK_CAMERA_LENS, KEY_CAMERA_ID, INTEGER, 1, true, false) &&
+                checkColumnProperties(TABLE_LINK_CAMERA_LENS, KEY_LENS_ID, INTEGER, 1, true, false) &&
 
-                checkColumnProperties(TABLE_MOUNTABLE_FILTERS_LENSES, KEY_LENS_ID, INTEGER, 1, 0, false) &&
-                checkColumnProperties(TABLE_MOUNTABLE_FILTERS_LENSES, KEY_FILTER_ID, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_LINK_LENS_FILTER, KEY_LENS_ID, INTEGER, 1, true, false) &&
+                checkColumnProperties(TABLE_LINK_LENS_FILTER, KEY_FILTER_ID, INTEGER, 1, true, false) &&
 
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ID, INTEGER, 0, 1, true) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLLNAME, TEXT, 1, 0, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_DATE, TEXT, 1, 0, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_NOTE, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_CAMERA_ID, INTEGER, 1, 0, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ISO, INTEGER, 0, 0, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_PUSH, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_FORMAT, INTEGER, 0, 0, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ARCHIVED, INTEGER, 1, 0, false) &&
+                checkColumnProperties(TABLE_LINK_FRAME_FILTER, KEY_FRAME_ID, INTEGER, 1, true, false) &&
+                checkColumnProperties(TABLE_LINK_FRAME_FILTER, KEY_FILTER_ID, INTEGER, 1, true, false) &&
 
-                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_ID, INTEGER, 0, 1, true) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_ROLL_ID, INTEGER, 1, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_COUNT, INTEGER, 1, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_DATE, TEXT, 1, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_LENS_ID, INTEGER, 1, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_SHUTTER, TEXT, 1, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_APERTURE, TEXT, 1, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_NOTE, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_LOCATION, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FOCAL_LENGTH, INTEGER, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_EXPOSURE_COMP, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_NO_OF_EXPOSURES, INTEGER, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_USED, INTEGER, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_POWER, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_COMP, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_SIZE, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FILTER_ID, INTEGER, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_METERING_MODE, INTEGER, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FORMATTED_ADDRESS, TEXT, 0, 0, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_PICTURE_FILENAME, TEXT, 0, 0, false)
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ID, INTEGER, 0, true, true) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLLNAME, TEXT, 1, false, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_DATE, TEXT, 1, false, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_NOTE, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_CAMERA_ID, INTEGER, 0, false, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ISO, INTEGER, 0, false, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_PUSH, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_FORMAT, INTEGER, 0, false, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ARCHIVED, INTEGER, 1, false, false) &&
+
+                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_ID, INTEGER, 0, true, true) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_ROLL_ID, INTEGER, 1, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_COUNT, INTEGER, 1, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_DATE, TEXT, 1, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_LENS_ID, INTEGER, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_SHUTTER, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_APERTURE, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_NOTE, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_LOCATION, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FOCAL_LENGTH, INTEGER, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_EXPOSURE_COMP, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_NO_OF_EXPOSURES, INTEGER, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_USED, INTEGER, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_POWER, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_COMP, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_SIZE, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_METERING_MODE, INTEGER, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FORMATTED_ADDRESS, TEXT, 0, false, false) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_PICTURE_FILENAME, TEXT, 0, false, false)
                 ;
 
     }
@@ -1381,7 +1619,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @return true if the parameter properties match the database
      */
     private boolean checkColumnProperties(String tableNameInput, String columnNameInput, String columnTypeInput,
-                                          int notNullInput, int primaryKeyInput, boolean autoIncrementInput) {
+                                          int notNullInput, boolean primaryKeyInput, boolean autoIncrementInput) {
 
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "PRAGMA TABLE_INFO('" + tableNameInput + "');";
@@ -1413,10 +1651,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
                 String columnType = cursor.getString(cursor.getColumnIndex("type"));
                 int notNull = cursor.getInt(cursor.getColumnIndex("notnull"));
-                int primaryKey = cursor.getInt(cursor.getColumnIndex("pk"));
+                boolean primaryKey = cursor.getInt(cursor.getColumnIndex("pk")) > 0;
 
                 cursor.close();
-
+                Log.d("ExifNotes", tableNameInput + ": " + columnNameInput + ": " + primaryKey);
                 //Check that the attributes are correct and return the result
                 return columnType.startsWith(columnTypeInput) && //type can be int or integer
                         notNull == notNullInput &&
