@@ -1536,74 +1536,93 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     private boolean runIntegrityCheck() {
 
-        // TODO: Implement foreign key checks.
-
         final String INTEGER = "int";
         final String TEXT = "text";
+        final String CASCADE = "CASCADE";
+        final String SET_NULL = "SET NULL";
         //Run integrity checks to see if the current database is whole
         return checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_ID, INTEGER, 0, true, true) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAKE, TEXT, 1, false, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MODEL, TEXT, 1, false, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAX_SHUTTER, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MIN_SHUTTER, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SERIAL_NO, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SHUTTER_INCREMENTS, INTEGER, 1, false, false) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, INTEGER, 1, false, false) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAKE, TEXT, 1) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MODEL, TEXT, 1) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAX_SHUTTER, TEXT, 0) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MIN_SHUTTER, TEXT, 0) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SERIAL_NO, TEXT, 0) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SHUTTER_INCREMENTS, INTEGER, 1) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, INTEGER, 1) &&
 
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_ID, INTEGER, 0, true, true) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAKE, TEXT, 1, false, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MODEL, TEXT, 1, false, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_APERTURE, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_APERTURE, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_FOCAL_LENGTH, INTEGER, 0, false, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_FOCAL_LENGTH, INTEGER, 0, false, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_SERIAL_NO, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_APERTURE_INCREMENTS, INTEGER, 1, false, false) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAKE, TEXT, 1) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MODEL, TEXT, 1) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_APERTURE, TEXT, 0) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_APERTURE, TEXT, 0) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_FOCAL_LENGTH, INTEGER, 0) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_FOCAL_LENGTH, INTEGER, 0) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_SERIAL_NO, TEXT, 0) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_APERTURE_INCREMENTS, INTEGER, 1) &&
 
                 checkColumnProperties(TABLE_FILTERS, KEY_FILTER_ID, INTEGER, 0, true, true) &&
-                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MAKE, TEXT, 1, false, false) &&
-                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MODEL, TEXT, 1, false, false) &&
+                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MAKE, TEXT, 1) &&
+                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MODEL, TEXT, 1) &&
 
-                checkColumnProperties(TABLE_LINK_CAMERA_LENS, KEY_CAMERA_ID, INTEGER, 1, true, false) &&
-                checkColumnProperties(TABLE_LINK_CAMERA_LENS, KEY_LENS_ID, INTEGER, 1, true, false) &&
+                checkColumnProperties(TABLE_LINK_CAMERA_LENS, KEY_CAMERA_ID, INTEGER, 1, true, false, true, TABLE_CAMERAS, CASCADE) &&
+                checkColumnProperties(TABLE_LINK_CAMERA_LENS, KEY_LENS_ID, INTEGER, 1, true, false, true, TABLE_LENSES, CASCADE) &&
 
-                checkColumnProperties(TABLE_LINK_LENS_FILTER, KEY_LENS_ID, INTEGER, 1, true, false) &&
-                checkColumnProperties(TABLE_LINK_LENS_FILTER, KEY_FILTER_ID, INTEGER, 1, true, false) &&
+                checkColumnProperties(TABLE_LINK_LENS_FILTER, KEY_LENS_ID, INTEGER, 1, true, false, true, TABLE_LENSES, CASCADE) &&
+                checkColumnProperties(TABLE_LINK_LENS_FILTER, KEY_FILTER_ID, INTEGER, 1, true, false, true, TABLE_FILTERS, CASCADE) &&
 
-                checkColumnProperties(TABLE_LINK_FRAME_FILTER, KEY_FRAME_ID, INTEGER, 1, true, false) &&
-                checkColumnProperties(TABLE_LINK_FRAME_FILTER, KEY_FILTER_ID, INTEGER, 1, true, false) &&
+                checkColumnProperties(TABLE_LINK_FRAME_FILTER, KEY_FRAME_ID, INTEGER, 1, true, false, true, TABLE_FRAMES, CASCADE) &&
+                checkColumnProperties(TABLE_LINK_FRAME_FILTER, KEY_FILTER_ID, INTEGER, 1, true, false, true, TABLE_FILTERS, CASCADE) &&
 
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ID, INTEGER, 0, true, true) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLLNAME, TEXT, 1, false, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_DATE, TEXT, 1, false, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_NOTE, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_CAMERA_ID, INTEGER, 0, false, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ISO, INTEGER, 0, false, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_PUSH, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_FORMAT, INTEGER, 0, false, false) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ARCHIVED, INTEGER, 1, false, false) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLLNAME, TEXT, 1) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_DATE, TEXT, 1) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_NOTE, TEXT, 0) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_CAMERA_ID, INTEGER, 0, false, false, true, TABLE_CAMERAS, SET_NULL) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ISO, INTEGER, 0) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_PUSH, TEXT, 0) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_FORMAT, INTEGER, 0) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ARCHIVED, INTEGER, 1) &&
 
                 checkColumnProperties(TABLE_FRAMES, KEY_FRAME_ID, INTEGER, 0, true, true) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_ROLL_ID, INTEGER, 1, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_COUNT, INTEGER, 1, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_DATE, TEXT, 1, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_LENS_ID, INTEGER, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_SHUTTER, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_APERTURE, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_NOTE, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_LOCATION, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FOCAL_LENGTH, INTEGER, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_EXPOSURE_COMP, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_NO_OF_EXPOSURES, INTEGER, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_USED, INTEGER, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_POWER, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_COMP, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_SIZE, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_METERING_MODE, INTEGER, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FORMATTED_ADDRESS, TEXT, 0, false, false) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_PICTURE_FILENAME, TEXT, 0, false, false)
+                checkColumnProperties(TABLE_FRAMES, KEY_ROLL_ID, INTEGER, 1, false, false, true, TABLE_ROLLS, CASCADE) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_COUNT, INTEGER, 1) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_DATE, TEXT, 1) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_LENS_ID, INTEGER, 0, false, false, true, TABLE_LENSES, SET_NULL) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_SHUTTER, TEXT, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_APERTURE, TEXT, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_NOTE, TEXT, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_LOCATION, TEXT, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FOCAL_LENGTH, INTEGER, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_EXPOSURE_COMP, TEXT, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_NO_OF_EXPOSURES, INTEGER, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_USED, INTEGER, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_POWER, TEXT, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_COMP, TEXT, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_SIZE, TEXT, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_METERING_MODE, INTEGER, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_FORMATTED_ADDRESS, TEXT, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_PICTURE_FILENAME, TEXT, 0)
                 ;
 
+    }
+
+    /**
+     * Help method to mimic default parameter values in Java style.
+     * Full method description found down the method call path.
+     */
+    private boolean checkColumnProperties(String tableNameInput, String columnNameInput, String columnTypeInput,
+                                          int notNullInput) {
+        return checkColumnProperties(tableNameInput, columnNameInput, columnTypeInput, notNullInput, false, false);
+    }
+
+    /**
+     * Help method to mimic default parameter values in Java style.
+     * Full method description found down the method call path.
+     */
+    private boolean checkColumnProperties(String tableNameInput, String columnNameInput, String columnTypeInput,
+                                          int notNullInput, boolean primaryKeyInput, boolean autoIncrementInput) {
+        return checkColumnProperties(tableNameInput, columnNameInput, columnTypeInput,
+                notNullInput, primaryKeyInput, autoIncrementInput, false, null, null);
     }
 
     /**
@@ -1619,11 +1638,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @return true if the parameter properties match the database
      */
     private boolean checkColumnProperties(String tableNameInput, String columnNameInput, String columnTypeInput,
-                                          int notNullInput, boolean primaryKeyInput, boolean autoIncrementInput) {
+                                          int notNullInput, boolean primaryKeyInput, boolean autoIncrementInput,
+                                          boolean foreignKeyInput, String referenceTableNameInput,
+                                          String onDeleteActionInput) {
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "PRAGMA TABLE_INFO('" + tableNameInput + "');";
-        Cursor cursor = db.rawQuery(query, null);
+        final SQLiteDatabase db = this.getReadableDatabase();
 
         //Check for possible autoincrement
         if (autoIncrementInput) {
@@ -1632,8 +1651,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             // If a table is autoincrement, then it can only have one primary key.
             // If the primary key matches, then also the autoincrement column is correct.
             // The primary key will be checked later in this method.
-            String incrementQuery = "SELECT * FROM sqlite_master WHERE type = 'table' AND name = '" + tableNameInput +"' AND sql LIKE '%AUTOINCREMENT%'";
-            Cursor incrementCursor = db.rawQuery(incrementQuery, null);
+            final String incrementQuery = "SELECT * FROM sqlite_master WHERE type = 'table' AND name = '" + tableNameInput +"' AND sql LIKE '%AUTOINCREMENT%'";
+            final Cursor incrementCursor = db.rawQuery(incrementQuery, null);
             if (!incrementCursor.moveToFirst()) {
                 //No rows were returned. The table has no autoincrement. Integrity check fails.
                 incrementCursor.close();
@@ -1642,19 +1661,50 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             incrementCursor.close();
         }
 
+        //Check for possible foreign key reference
+        if (foreignKeyInput) {
+            // We can check that the column is a foreign key column using one of the SQLite pragma statements.
+            final String foreignKeyQuery = "PRAGMA FOREIGN_KEY_LIST('" + tableNameInput + "')";
+            final Cursor foreignKeyCursor = db.rawQuery(foreignKeyQuery, null);
+            boolean foreignKeyFound = false;
+            //Iterate through the tables foreign key columns and get the properties.
+            while (foreignKeyCursor.moveToNext()) {
+                final String table = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndex("table"));
+                final String from = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndex("from"));
+                final String onDelete = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndex("on_delete"));
+                final String to = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndex("to"));
+                //If the table, from-column and on-delete actions match to those defined
+                //by the parameters, the foreign key is correct. The to-column value
+                //should be null, because during table creation we have used the shorthand form
+                //to reference the parent table's primary key.
+                if (table.equals(referenceTableNameInput) && from.equals(columnNameInput)
+                        && onDelete.equalsIgnoreCase(onDeleteActionInput) && to == null) {
+                    foreignKeyFound = true;
+                    break;
+                }
+            }
+            foreignKeyCursor.close();
+            //If foreign key was not defined, integrity check fails -> return false.
+            if (!foreignKeyFound) return false;
+        }
+
+        final String query = "PRAGMA TABLE_INFO('" + tableNameInput + "');";
+        final Cursor cursor = db.rawQuery(query, null);
+
         //Iterate the result rows...
         while (cursor.moveToNext()) {
 
-            String columnName = cursor.getString(cursor.getColumnIndex("name"));
+            final String columnName = cursor.getString(cursor.getColumnIndex("name"));
             // ...until the name checks.
             if (columnName.equals(columnNameInput)) {
 
-                String columnType = cursor.getString(cursor.getColumnIndex("type"));
-                int notNull = cursor.getInt(cursor.getColumnIndex("notnull"));
-                boolean primaryKey = cursor.getInt(cursor.getColumnIndex("pk")) > 0;
+                final String columnType = cursor.getString(cursor.getColumnIndex("type"));
+                final int notNull = cursor.getInt(cursor.getColumnIndex("notnull"));
+                //If the column is defined as primary key, the pk value is 1.
+                final boolean primaryKey = cursor.getInt(cursor.getColumnIndex("pk")) > 0;
 
                 cursor.close();
-                Log.d("ExifNotes", tableNameInput + ": " + columnNameInput + ": " + primaryKey);
+
                 //Check that the attributes are correct and return the result
                 return columnType.startsWith(columnTypeInput) && //type can be int or integer
                         notNull == notNullInput &&
