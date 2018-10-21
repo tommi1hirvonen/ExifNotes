@@ -1006,16 +1006,15 @@ public class EditFrameDialog extends DialogFragment {
         }
     }
 
+
+
     /**
-     * Called when the aperture value dialog is opened.
-     * Sets the values for the NumberPicker.
-     *
-     * @param aperturePicker NumberPicker associated with the aperture value
-     * @return true if the current aperture value corresponds to some predefined aperture value,
-     *          false if not.
+     * Set the displayed aperture values depending on the lens's aperture increments
+     * and its max and min aperture values. If no lens is selected, default to third stop
+     * increments and don't limit the aperture values from either end.
      */
     @SuppressWarnings("ManualArrayToCollectionCopy")
-    private boolean initialiseAperturePicker(NumberPicker aperturePicker){
+    private void setDisplayedApertureValues() {
         //Get the array of displayed aperture values according to the set increments.
         switch (apertureIncrements) {
             default: case 0:
@@ -1037,30 +1036,11 @@ public class EditFrameDialog extends DialogFragment {
             Collections.reverse(Arrays.asList(displayedApertureValues));
         }
 
-        //If no lens is selected, end here
-        if (newLens == null) {
-            aperturePicker.setDisplayedValues(null);
-            aperturePicker.setMinValue(0);
-            aperturePicker.setMaxValue(displayedApertureValues.length-1);
-            aperturePicker.setDisplayedValues(displayedApertureValues);
-            aperturePicker.setValue(displayedApertureValues.length-1);
-            // Null aperture value is empty, which is a known value. Return true.
-            if (newAperture == null) return true;
-            for (int i = 0; i < displayedApertureValues.length; ++i) {
-                if (newAperture.equals(displayedApertureValues[i])) {
-                    aperturePicker.setValue(i);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        //Otherwise continue to set min and max apertures
         List<String> apertureValuesList = new ArrayList<>(); //to store the temporary values
         int minIndex = 0;
         int maxIndex = displayedApertureValues.length-1; //we begin the maxIndex from the last element
 
-        //Set the min and max values only if they are set for the lens.
+        //Set the min and max values only if a lens is selected and they are set for the lens.
         //Otherwise the displayedApertureValues array will be left alone
         //(all aperture values available, since min and max were not defined).
         if (newLens != null && newLens.getMinAperture() != null && newLens.getMaxAperture() != null) {
@@ -1084,27 +1064,6 @@ public class EditFrameDialog extends DialogFragment {
             //Copy the temp list over the initial array.
             displayedApertureValues = apertureValuesList.toArray(new String[0]);
         }
-
-        //Set the displayed values to null. If we set the displayed values
-        //and the maxValue is smaller than the length of the new displayed values array,
-        //ArrayIndexOutOfBounds is thrown.
-        //Also if we set maxValue and the currently displayed values array length is smaller,
-        //ArrayIndexOutOfBounds is thrown.
-        //Setting displayed values to null solves this problem.
-        aperturePicker.setDisplayedValues(null);
-        aperturePicker.setMinValue(0);
-        aperturePicker.setMaxValue(displayedApertureValues.length-1);
-        aperturePicker.setDisplayedValues(displayedApertureValues);
-        aperturePicker.setValue(displayedApertureValues.length-1);
-        // Null aperture value is empty, which is a known value. Return true.
-        if (newAperture == null) return true;
-        for (int i = 0; i < displayedApertureValues.length; ++i) {
-            if (newAperture.equals(displayedApertureValues[i])) {
-                aperturePicker.setValue(i);
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -1253,58 +1212,8 @@ public class EditFrameDialog extends DialogFragment {
      * selected aperture value. I.e. it has to be within the new lens's aperture range.
      */
     private void checkApertureValueValidity(){
-        //Check the aperture value's validity against the new lens' properties.
-        switch (apertureIncrements) {
-            default: case 0:
-                displayedApertureValues = getActivity().getResources()
-                        .getStringArray(R.array.ApertureValuesThird);
-                break;
-            case 1:
-                displayedApertureValues = getActivity().getResources()
-                        .getStringArray(R.array.ApertureValuesHalf);
-                break;
-            case 2:
-                displayedApertureValues = getActivity().getResources()
-                        .getStringArray(R.array.ApertureValuesFull);
-                break;
-        }
-        //Reverse the order if necessary. This is necessary for the aperture range checks later,
-        //so that minIndex is actually smaller than maxIndex.
-        if (displayedApertureValues[0].equals(getResources().getString(R.string.NoValue))) {
-            Collections.reverse(Arrays.asList(displayedApertureValues));
-        }
-
+        setDisplayedApertureValues();
         boolean apertureFound = false;
-
-        List<String> apertureValuesList = new ArrayList<>(); //to store the temporary values
-        int minIndex = 0;
-        int maxIndex = displayedApertureValues.length-1; //we begin the maxIndex from the last element
-
-        //Set the min and max values only if they are set for the lens.
-        //Otherwise the displayedApertureValues array will be left alone
-        //(all aperture values available, since min and max were not defined).
-        if (newLens != null && newLens.getMinAperture() != null && newLens.getMaxAperture() != null) {
-            for (int i = 0; i < displayedApertureValues.length; ++i) {
-                if (newLens.getMinAperture().equals(displayedApertureValues[i])) {
-                    minIndex = i;
-                }
-                if (newLens.getMaxAperture().equals(displayedApertureValues[i])) {
-                    maxIndex = i;
-                }
-            }
-            //Add the <empty> option to the beginning of the temp list.
-            apertureValuesList.add(getResources().getString(R.string.NoValue));
-
-            //Add the values between and min and max to the temp list from the initial array.
-            //noinspection ManualArrayToCollectionCopy
-            for (int i = minIndex; i <= maxIndex; ++i) {
-                apertureValuesList.add(displayedApertureValues[i]);
-            }
-
-            //Copy the temp list over the initial array.
-            displayedApertureValues = apertureValuesList.toArray(new String[0]);
-        }
-
         for (String string : displayedApertureValues) {
             if (string.equals(newAperture)) {
                 apertureFound = true;
@@ -1494,6 +1403,56 @@ public class EditFrameDialog extends DialogFragment {
             AlertDialog dialog = builder.create();
             dialog.show();
 
+        }
+
+        /**
+         * Called when the aperture value dialog is opened.
+         * Sets the values for the NumberPicker.
+         *
+         * @param aperturePicker NumberPicker associated with the aperture value
+         * @return true if the current aperture value corresponds to some predefined aperture value,
+         *          false if not.
+         */
+        private boolean initialiseAperturePicker(NumberPicker aperturePicker){
+            setDisplayedApertureValues();
+            //If no lens is selected, end here
+            if (newLens == null) {
+                aperturePicker.setDisplayedValues(null);
+                aperturePicker.setMinValue(0);
+                aperturePicker.setMaxValue(displayedApertureValues.length-1);
+                aperturePicker.setDisplayedValues(displayedApertureValues);
+                aperturePicker.setValue(displayedApertureValues.length-1);
+                // Null aperture value is empty, which is a known value. Return true.
+                if (newAperture == null) return true;
+                for (int i = 0; i < displayedApertureValues.length; ++i) {
+                    if (newAperture.equals(displayedApertureValues[i])) {
+                        aperturePicker.setValue(i);
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            //Set the NumberPicker displayed values to null. If we set the displayed values
+            //and the maxValue is smaller than the length of the new displayed values array,
+            //ArrayIndexOutOfBounds is thrown.
+            //Also if we set maxValue and the currently displayed values array length is smaller,
+            //ArrayIndexOutOfBounds is thrown.
+            //Setting displayed values to null solves this problem.
+            aperturePicker.setDisplayedValues(null);
+            aperturePicker.setMinValue(0);
+            aperturePicker.setMaxValue(displayedApertureValues.length-1);
+            aperturePicker.setDisplayedValues(displayedApertureValues);
+            aperturePicker.setValue(displayedApertureValues.length-1);
+            // Null aperture value is empty, which is a known value. Return true.
+            if (newAperture == null) return true;
+            for (int i = 0; i < displayedApertureValues.length; ++i) {
+                if (newAperture.equals(displayedApertureValues[i])) {
+                    aperturePicker.setValue(i);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
