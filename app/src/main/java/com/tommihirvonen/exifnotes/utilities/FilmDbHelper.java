@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
@@ -115,12 +114,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     //Database information
     private static final String DATABASE_NAME = "filmnotes.db";
 
-    //Updated version from 13 to 14 - 2016-12-03
-    //Updated version from 14 to 15 - 2017-04-29
-    //Updated version from 15 to 16 - 2018-02-17
-    //Updated version from 16 to 17 - 2018-03-26
-    //Updated version from 17 to 18 - 2018-07-08
-    //Updated version from 18 to 19 - 2018-07-17
+    //Updated version from 13 to 14 - 2016-12-03 - v1.7.0
+    //Updated version from 14 to 15 - 2017-04-29 - v1.9.0
+    //Updated version from 15 to 16 - 2018-02-17 - v1.9.5
+    //Updated version from 16 to 17 - 2018-03-26 - v1.11.0
+    //Updated version from 17 to 18 - 2018-07-08 - v1.12.0
+    //Updated version from 18 to 19 - 2018-07-17 - awaiting
     private static final int DATABASE_VERSION = 19;
 
     //=============================================================================================
@@ -189,26 +188,43 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_PICTURE_FILENAME + " text"
             + ");";
 
-    private static final String CREATE_CAMERA_LENS_LINK_TABLE = "create table " + TABLE_LINK_CAMERA_LENS
+    private static final String CREATE_LINK_CAMERA_LENS_TABLE = "create table " + TABLE_LINK_CAMERA_LENS
             + "(" + KEY_CAMERA_ID + " integer not null references " + TABLE_CAMERAS + " on delete cascade, "
             + KEY_LENS_ID + " integer not null references " + TABLE_LENSES + " on delete cascade, "
             + "primary key(" + KEY_CAMERA_ID + ", " + KEY_LENS_ID + ")"
             + ");";
 
-    private static final String CREATE_LENS_FILTER_LINK_TABLE = "create table " + TABLE_LINK_LENS_FILTER
+    private static final String CREATE_LINK_LENS_FILTER_TABLE = "create table " + TABLE_LINK_LENS_FILTER
             + "(" + KEY_LENS_ID + " integer not null references " + TABLE_LENSES + " on delete cascade, "
             + KEY_FILTER_ID + " integer not null references " + TABLE_FILTERS + " on delete cascade, "
             + "primary key(" + KEY_LENS_ID + ", " + KEY_FILTER_ID + ")"
             + ");";
 
-    private static final String CREATE_FRAME_FILTER_LINK_TABLE = "create table " + TABLE_LINK_FRAME_FILTER
+    private static final String CREATE_LINK_FRAME_FILTER_TABLE = "create table " + TABLE_LINK_FRAME_FILTER
             + "(" + KEY_FRAME_ID + " integer not null references " + TABLE_FRAMES + " on delete cascade, "
             + KEY_FILTER_ID + " integer not null references " + TABLE_FILTERS + " on delete cascade, "
             + "primary key(" + KEY_FRAME_ID + ", " + KEY_FILTER_ID + ")"
             + ");";
 
+
     //=============================================================================================
     //onUpgrade strings
+
+    //Legacy table names for onUpgrade() statements.
+    //These table names were used in pre 19 versions of the database.
+    private static final String LEGACY_TABLE_LINK_CAMERA_LENS = "mountables";
+    private static final String LEGACY_TABLE_LINK_LENS_FILTER = "mountable_filters_lenses";
+
+    private static final String ON_UPGRADE_CREATE_FILTER_TABLE = "create table " + TABLE_FILTERS
+            + "(" + KEY_FILTER_ID + " integer primary key autoincrement, "
+            + KEY_FILTER_MAKE + " text not null, "
+            + KEY_FILTER_MODEL + " text not null"
+            + ");";
+    private static final String ON_UPGRADE_CREATE_LINK_LENS_FILTER_TABLE = "create table " + LEGACY_TABLE_LINK_LENS_FILTER
+            + "(" + KEY_LENS_ID + " integer not null, "
+            + KEY_FILTER_ID + " integer not null"
+            + ");";
+
     private static final String ALTER_TABLE_FRAMES_1 = "ALTER TABLE " + TABLE_FRAMES
             + " ADD COLUMN " + KEY_FOCAL_LENGTH + " integer;";
     private static final String ALTER_TABLE_FRAMES_2 = "ALTER TABLE " + TABLE_FRAMES
@@ -340,22 +356,22 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_METERING_MODE + ", " + KEY_FORMATTED_ADDRESS + ", " + KEY_PICTURE_FILENAME + " "
             + "from temp_frames "
             + "where " + KEY_ROLL_ID + " in (select " + KEY_ROLL_ID + " from " + TABLE_ROLLS + ")" + ";";
-    private static final String FRAMES_TABLE_REVISION_4 = "create table " + TABLE_LINK_FRAME_FILTER
+    private static final String ON_UPGRADE_CREATE_LINK_FRAME_FILTER_TABLE = "create table " + TABLE_LINK_FRAME_FILTER
             + "(" + KEY_FRAME_ID + " integer not null references " + TABLE_FRAMES + " on delete cascade, "
             + KEY_FILTER_ID + " integer not null references " + TABLE_FILTERS + " on delete cascade, "
             + "primary key(" + KEY_FRAME_ID + ", " + KEY_FILTER_ID + ")"
             + ");";
-    private static final String FRAMES_TABLE_REVISION_5 = "insert into " + TABLE_LINK_FRAME_FILTER + " ("
+    private static final String FRAMES_TABLE_REVISION_4 = "insert into " + TABLE_LINK_FRAME_FILTER + " ("
             + KEY_FRAME_ID + ", " + KEY_FILTER_ID + ") "
             + "select " + KEY_FRAME_ID + ", " + KEY_FILTER_ID + " "
             + "from temp_frames "
             + "where " + KEY_FILTER_ID + " in (select " + KEY_FILTER_ID + " from " + TABLE_FILTERS + ");";
-    private static final String FRAMES_TABLE_REVISION_6 = "drop table temp_frames;";
+    private static final String FRAMES_TABLE_REVISION_5 = "drop table temp_frames;";
 
     // (1) Rename the table (in pre database 19 versions called "mountables"),
     // (2) create a new table with new structure,
     // (3) insert data from the renamed table to the new table and (4) drop the renamed table.
-    private static final String CAMERA_LENS_LINK_TABLE_REVISION_1 = "alter table mountables rename to temp_mountables;";
+    private static final String CAMERA_LENS_LINK_TABLE_REVISION_1 = "alter table " + LEGACY_TABLE_LINK_CAMERA_LENS + " rename to temp_mountables;";
     private static final String CAMERA_LENS_LINK_TABLE_REVISION_2 = "create table " + TABLE_LINK_CAMERA_LENS
             + "(" + KEY_CAMERA_ID + " integer not null references " + TABLE_CAMERAS + " on delete cascade, "
             + KEY_LENS_ID + " integer not null references " + TABLE_LENSES + " on delete cascade, "
@@ -372,7 +388,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     // (1) Rename the table (in pre database 19 versions called "mountable_filters_lenses"),
     // (2) create a new table with new structure,
     // (3) insert data from the renamed table to the new table and (4) drop the renamed table.
-    private static final String LENS_FILTER_LINK_TABLE_REVISION_1 = "alter table mountable_filters_lenses rename to temp_mountable_filters_lenses;";
+    private static final String LENS_FILTER_LINK_TABLE_REVISION_1 = "alter table " + LEGACY_TABLE_LINK_LENS_FILTER + " rename to temp_mountable_filters_lenses;";
     private static final String LENS_FILTER_LINK_TABLE_REVISION_2 = "create table " + TABLE_LINK_LENS_FILTER
             + "(" + KEY_LENS_ID + " integer not null references " + TABLE_LENSES + " on delete cascade, "
             + KEY_FILTER_ID + " integer not null references " + TABLE_FILTERS + " on delete cascade, "
@@ -441,9 +457,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_FILTER_TABLE);
         database.execSQL(CREATE_ROLL_TABLE);
         database.execSQL(CREATE_FRAME_TABLE);
-        database.execSQL(CREATE_CAMERA_LENS_LINK_TABLE);
-        database.execSQL(CREATE_LENS_FILTER_LINK_TABLE);
-        database.execSQL(CREATE_FRAME_FILTER_LINK_TABLE);
+        database.execSQL(CREATE_LINK_CAMERA_LENS_TABLE);
+        database.execSQL(CREATE_LINK_LENS_FILTER_TABLE);
+        database.execSQL(CREATE_LINK_FRAME_FILTER_TABLE);
     }
 
     /**
@@ -459,7 +475,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion <= 13) {
+        if (oldVersion < 14) {
             //TABLE_FRAMES
             db.execSQL(ALTER_TABLE_FRAMES_1);
             db.execSQL(ALTER_TABLE_FRAMES_2);
@@ -490,22 +506,23 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             //Instead quote marks were changed to 'q' when stored in the SQLite database.
             db.execSQL(REPLACE_QUOTE_CHARS);
             //TABLE_FILTERS
-            db.execSQL(CREATE_FILTER_TABLE);
-            db.execSQL(CREATE_LENS_FILTER_LINK_TABLE);
+            db.execSQL(ON_UPGRADE_CREATE_FILTER_TABLE);
+            //TABLE MOUNTABLES
+            db.execSQL(ON_UPGRADE_CREATE_LINK_LENS_FILTER_TABLE);
         }
-        if (oldVersion <= 14) {
+        if (oldVersion < 15) {
             db.execSQL(ALTER_TABLE_FRAMES_10);
         }
-        if (oldVersion <= 15) {
+        if (oldVersion < 16) {
             db.execSQL(ALTER_TABLE_ROLLS_4);
         }
-        if (oldVersion <= 16) {
+        if (oldVersion < 17) {
             db.execSQL(ALTER_TABLE_FRAMES_11);
         }
-        if (oldVersion <= 17) {
+        if (oldVersion < 18) {
             db.execSQL(ALTER_TABLE_CAMERAS_5);
         }
-        if (oldVersion <= 18) {
+        if (oldVersion < 19) {
             // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
             db.execSQL("PRAGMA foreign_keys=ON;");
             // Alter statements
@@ -520,9 +537,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 db.execSQL(FRAMES_TABLE_REVISION_1);
                 db.execSQL(FRAMES_TABLE_REVISION_2);
                 db.execSQL(FRAMES_TABLE_REVISION_3);
+                db.execSQL(ON_UPGRADE_CREATE_LINK_FRAME_FILTER_TABLE);
                 db.execSQL(FRAMES_TABLE_REVISION_4);
                 db.execSQL(FRAMES_TABLE_REVISION_5);
-                db.execSQL(FRAMES_TABLE_REVISION_6);
                 db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_1);
                 db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_2);
                 db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_3);
