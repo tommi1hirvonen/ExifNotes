@@ -12,10 +12,8 @@
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -Bug fixes\n
-        -UI improvements\n
-        -Frame\'s aperture value can now be manually overridden for custom aperture values (e.g. f/0.95 and f/1.7)\n
-        -Exposure compensation increments are now camera specific (third stop or full stop)\n
+        -Database overhaul: added foreign key references and removed some not-null constraints\n
+        -Frames can now have multiple filters\n
     </string>
     <string name="VersionHistory">
         Version history\n
