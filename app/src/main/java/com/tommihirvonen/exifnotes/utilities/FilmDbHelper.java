@@ -365,7 +365,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_FRAME_ID + ", " + KEY_FILTER_ID + ") "
             + "select " + KEY_FRAME_ID + ", " + KEY_FILTER_ID + " "
             + "from temp_frames "
-            + "where " + KEY_FILTER_ID + " in (select " + KEY_FILTER_ID + " from " + TABLE_FILTERS + ");";
+            + "where " + KEY_FILTER_ID + " in (select " + KEY_FILTER_ID + " from " + TABLE_FILTERS + ")"
+            + "and " + KEY_ROLL_ID + " in (select " + KEY_ROLL_ID + " from " + TABLE_ROLLS + ")" + ";";
     private static final String FRAMES_TABLE_REVISION_5 = "drop table temp_frames;";
 
     // (1) Rename the table (in pre database 19 versions called "mountables"),
