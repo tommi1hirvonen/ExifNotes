@@ -78,6 +78,8 @@ public class LocationPickActivity extends AppCompatActivity implements
      */
     private String location = "";
 
+    private String googleMapsApiKey;
+
     /**
      * Member to indicate whether this acitivty was continued or not.
      * Some animations will only be activated if this value is false.
@@ -138,6 +140,8 @@ public class LocationPickActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        googleMapsApiKey = getResources().getString(R.string.google_maps_key);
+
         // If the activity is continued, then savedInstanceState is not null.
         // Get the location from there.
         if (savedInstanceState != null) {
@@ -178,7 +182,7 @@ public class LocationPickActivity extends AppCompatActivity implements
                                 formattedAddress = null;
                             }
                         }
-                    }).execute(location);
+                    }).execute(location, googleMapsApiKey);
                 }
             }
         }
@@ -351,7 +355,7 @@ public class LocationPickActivity extends AppCompatActivity implements
                     formattedAddress = null;
                 }
             }
-        }).execute(query);
+        }).execute(query, googleMapsApiKey);
 
         // if the location was cleared before editing -> add marker to selected location
         if (marker == null) marker = googleMap_.addMarker(new MarkerOptions().position(latLng));
@@ -397,7 +401,7 @@ public class LocationPickActivity extends AppCompatActivity implements
                     formattedAddress = null;
                 }
             }
-        }).execute(query);
+        }).execute(query, googleMapsApiKey);
 
         return false;
     }

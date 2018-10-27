@@ -2,6 +2,7 @@ package com.tommihirvonen.exifnotes.utilities;
 
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,9 +16,9 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 /**
- * AsyncTask which takes a search string as an argument and returns
+ * AsyncTask which takes a search string and Google Maps API key as arguments and returns
  * latitude and longitude location as well as a formatted address.
- * The class utilizes Google Maps's geocode api.
+ * The class utilizes the http version of Google Maps Geocode API.
  */
 public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
 
@@ -47,7 +48,8 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
      *
      * Get the JSON array from the Google Maps geocode api.
      *
-     * @param params String array with one element which is the search string
+     * @param params String array with two elements: first one either coordinates or address and
+     *               the second one the Google API key of this application.
      * @return String array with one element which contains the JSON array.
      * If the connection was unsuccessful, the element is an empty string.
      */
@@ -56,14 +58,18 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
         String response;
         try {
             String queryUrl = new Uri.Builder()
-                    .scheme("http")
+                    // Requests must be made over SSL.
+                    .scheme("https")
                     .authority("maps.google.com")
                     .appendPath("maps")
                     .appendPath("api")
                     .appendPath("geocode")
                     .appendPath("json")
+                    // Use address parameter for both the coordinates and search string.
                     .appendQueryParameter("address", params[0])
                     .appendQueryParameter("sensor", "false")
+                    // Use key parameter to pass the API key credentials.
+                    .appendQueryParameter("key", params[1])
                     .build().toString();
             response = getLatLongByURL(queryUrl);
             return new String[]{response};

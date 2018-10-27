@@ -15,6 +15,7 @@
         -Database overhaul: added foreign key references and removed some not-null constraints\n
         -Frames can have multiple filters\n
         -Rolls can be added without specifying a camera\n
+        -Fixed deprecated Google Maps Geocode API calls\n
     </string>
     <string name="VersionHistory">
         Version history\n
@@ -23,6 +24,7 @@
         -Database overhaul: added foreign key references and removed some not-null constraints\n
         -Frames can have multiple filters\n
         -Rolls can be added without specifying a camera\n
+        -Fixed deprecated Google Maps Geocode API calls\n
         \n
         v1.12.0 2018-07-16:\n
         -Bug fixes\n

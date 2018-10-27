@@ -620,7 +620,7 @@ public class EditFrameDialog extends DialogFragment {
                     }
                     updateLocationTextView();
                 }
-            }).execute(newLocation);
+            }).execute(newLocation, getResources().getString(R.string.google_maps_key));
         }
 
         final ImageView clearLocation = inflatedView.findViewById(R.id.clear_location);
