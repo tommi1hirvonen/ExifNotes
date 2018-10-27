@@ -2,7 +2,6 @@ package com.tommihirvonen.exifnotes.utilities;
 
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +24,7 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
     /**
      * Reference to the implementing class's listener
      */
-    private AsyncResponse delegate = null;
+    private AsyncResponse delegate;
 
     /**
      * This interface is implemented in LocationPickActivity's onQueryTextSubmit.
@@ -122,7 +121,7 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
      */
     private String getLatLongByURL(String requestURL) {
         URL url;
-        String response = "";
+        StringBuilder response = new StringBuilder();
         try {
             url = new URL(requestURL);
 
@@ -142,17 +141,17 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
                 String line;
                 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 while ((line = br.readLine()) != null) {
-                    response += line;
+                    response.append(line);
                 }
 
                 // Else return an empty string.
             } else {
-                response = "";
+                response = new StringBuilder("");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return response;
+        return response.toString();
     }
 }
