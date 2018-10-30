@@ -42,9 +42,11 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.tommihirvonen.exifnotes.activities.FramesActivity;
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity;
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter;
@@ -75,8 +77,7 @@ public class FramesFragment extends Fragment implements
         View.OnClickListener,
         FrameAdapter.FrameAdapterListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        GoogleApiClient.OnConnectionFailedListener {
 
     /**
      * Public constant to tag a message in intent to MapsActivity
@@ -180,6 +181,11 @@ public class FramesFragment extends Fragment implements
     private LocationRequest locationRequest;
 
     /**
+     * Member to specify the callback implementation for the location services.
+     */
+    private LocationCallback locationCallback;
+
+    /**
      * True if the user has enabled location updates in the app's settings, false if not
      */
     private boolean requestingLocationUpdates;
@@ -245,7 +251,14 @@ public class FramesFragment extends Fragment implements
             locationRequest.setFastestInterval(1000);
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
+
         // This can be done anyway. It only has effect if locationPermissionsGranted is true.
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                lastLocation = locationResult.getLastLocation();
+            }
+        };
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
         requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true);
@@ -1183,7 +1196,7 @@ public class FramesFragment extends Fragment implements
         //Apparently some users were encountering a bug where during onResume
         //googleApiClient was null.
         if (googleApiClient != null && googleApiClient.isConnected())
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+            LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(locationCallback);
     }
 
     /**
@@ -1231,7 +1244,8 @@ public class FramesFragment extends Fragment implements
             //Apparently some users were encountering a bug where during onResume
             //googleApiClient was null.
             if (googleApiClient != null) {
-                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+                LocationServices.getFusedLocationProviderClient(getActivity())
+                        .requestLocationUpdates(locationRequest, locationCallback, null);
             }
         }
     }
@@ -1252,7 +1266,13 @@ public class FramesFragment extends Fragment implements
             //Apparently some users were encountering a bug where during onResume
             //googleApiClient was null.
             if (googleApiClient != null) {
-                lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+                LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation()
+                        .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) lastLocation = location;
+                    }
+                });
             }
             if (requestingLocationUpdates) {
                 startLocationUpdates();
@@ -1273,15 +1293,7 @@ public class FramesFragment extends Fragment implements
         if (locationPermissionsGranted && googleApiClient != null) googleApiClient.connect();
     }
 
-    /**
-     * Called when the location is changed.
-     *
-     * @param location the new location
-     */
-    @Override
-    public void onLocationChanged(Location location) {
-        lastLocation = location;
-    }
+
 
     /**
      * Request code to use when launching the resolution activity

@@ -7,18 +7,18 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.12.0\nCopyright 2018 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.13.1\nCopyright 2018 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -Database overhaul: added foreign key references and removed some not-null constraints\n
-        -Frames can have multiple filters\n
-        -Rolls can be added without specifying a camera\n
-        -Fixed deprecated Google Maps Geocode API calls\n
+        -Updated deprecated location API calls\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.13.1 2018-10-30:\n
+        -Updated deprecated location API calls\n
         \n
         v1.13.0 2018-10-21:\n
         -Database overhaul: added foreign key references and removed some not-null constraints\n
