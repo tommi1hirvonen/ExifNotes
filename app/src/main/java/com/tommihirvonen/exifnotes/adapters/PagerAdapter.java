@@ -3,7 +3,7 @@ package com.tommihirvonen.exifnotes.adapters;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.support.v13.app.FragmentPagerAdapter;
+import androidx.legacy.app.FragmentPagerAdapter;
 
 import com.tommihirvonen.exifnotes.fragments.CamerasFragment;
 import com.tommihirvonen.exifnotes.fragments.FiltersFragment;

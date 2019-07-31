@@ -1,13 +1,13 @@
 package com.tommihirvonen.exifnotes.utilities;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 
 /**
  * Custom ImageView class, that forces the view to be square.
  */
-public class SquareImageView extends android.support.v7.widget.AppCompatImageView {
+public class SquareImageView extends androidx.appcompat.widget.AppCompatImageView {
 
     /**
      * {@inheritDoc}
