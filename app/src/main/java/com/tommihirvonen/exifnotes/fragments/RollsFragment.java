@@ -223,9 +223,9 @@ public class RollsFragment extends Fragment implements
 
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         // Get from preferences which rolls to load from the database.
-        filterMode = FilterMode.fromValue(
+        filterMode = FilterMode.Companion.fromValue(
                 sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilterMode.ACTIVE.getValue()));
-        sortMode = RollSortMode.fromValue(
+        sortMode = RollSortMode.Companion.fromValue(
                 sharedPreferences.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, RollSortMode.DATE.getValue()));
 
         // Declare variables for the ActionBar subtitle, which shows the film roll filter status

@@ -93,7 +93,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
 
         final SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        final FilterMode filterMode = FilterMode.fromValue(
+        final FilterMode filterMode = FilterMode.Companion.fromValue(
                 sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilterMode.ACTIVE.getValue()));
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL);
 

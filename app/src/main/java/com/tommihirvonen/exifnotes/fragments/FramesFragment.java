@@ -226,7 +226,7 @@ public class FramesFragment extends Fragment implements
         //If the same sort order setting is to be used elsewhere in the app, then
         //getDefaultSharedPreferences() should be used.
         final SharedPreferences sharedPreferences = getActivity().getPreferences(Context.MODE_PRIVATE);
-        sortMode = FrameSortMode.fromValue(
+        sortMode = FrameSortMode.Companion.fromValue(
                 sharedPreferences.getInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, FrameSortMode.FRAME_COUNT.getValue()));
 
         //Sort the list according to preferences
