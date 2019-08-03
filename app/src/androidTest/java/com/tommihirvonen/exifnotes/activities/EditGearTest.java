@@ -5,7 +5,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.test.filters.LargeTest;
-import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 import androidx.test.runner.AndroidJUnit4;
@@ -19,6 +18,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
@@ -28,15 +28,16 @@ import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.is;
 
 /**
  * Prerequisites: AddGearTest.java has to be successfully run first on an empty database.
- * Deletes all gear added by AddGearTest.
+ * Edits various pieces of gear.
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class DeleteGearTest {
+public class EditGearTest {
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
@@ -49,7 +50,7 @@ public class DeleteGearTest {
                     "android.permission.WRITE_EXTERNAL_STORAGE");
 
     @Test
-    public void deleteGearTest() {
+    public void editGearTest() {
 
         // Navigate to GearActivity
         onView(
@@ -70,29 +71,30 @@ public class DeleteGearTest {
                         isDisplayed())).perform(click());
 
 
-        // Navigate to filters tab
+        // Navigate to cameras tab
         onView(
-                allOf(withContentDescription("FILTERS"),
+                allOf(withContentDescription("CAMERAS"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.sliding_tabs),
                                         0),
-                                2),
+                                0),
                         isDisplayed())).perform(click());
 
 
-        // Delete filter 2
+
+        // Edit camera 2
         onView(
                 allOf(withId(R.id.item_gear_layout),
                         childAtPosition(
-                                allOf(withId(R.id.filters_recycler_view),
+                                allOf(withId(R.id.cameras_recycler_view),
                                         childAtPosition(
                                                 withClassName(is("android.widget.FrameLayout")),
                                                 1)),
                                 1),
                         isDisplayed())).perform(click());
         onView(
-                allOf(withId(android.R.id.title), withText("Delete"),
+                allOf(withId(android.R.id.title), withText("Edit"),
                         childAtPosition(
                                 childAtPosition(
                                         withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
@@ -103,35 +105,51 @@ public class DeleteGearTest {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withClassName(is("android.widget.ScrollView")),
                                         0),
-                                3))).perform(click());
+                                3))).perform(scrollTo(), click());
 
-        // Delete filter 1
-        onView(
-                allOf(withId(R.id.item_gear_layout),
-                        childAtPosition(
-                                allOf(withId(R.id.filters_recycler_view),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
-                                                1)),
-                                0),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(android.R.id.title), withText("Delete"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
-                                        0),
-                                0),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(android.R.id.button1), withText("OK"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.buttonPanel),
-                                        0),
-                                3))).perform(click());
+        // Swap mountable lenses. Do this twice to get back to the original setup.
+        int counter = 0;
+        while (counter < 2) {
+            onView(
+                    allOf(withId(R.id.item_gear_layout),
+                            childAtPosition(
+                                    allOf(withId(R.id.cameras_recycler_view),
+                                            childAtPosition(
+                                                    withClassName(is("android.widget.FrameLayout")),
+                                                    1)),
+                                    1),
+                            isDisplayed())).perform(click());
+            onView(
+                    allOf(withId(android.R.id.title), withText("Select mountable lenses"),
+                            childAtPosition(
+                                    childAtPosition(
+                                            withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                            0),
+                                    0),
+                            isDisplayed())).perform(click());
+            onData(anything())
+                    .inAdapterView(allOf(withId(R.id.select_dialog_listview),
+                            childAtPosition(
+                                    withId(R.id.contentPanel),
+                                    0)))
+                    .atPosition(0).perform(click());
+            onData(anything())
+                    .inAdapterView(allOf(withId(R.id.select_dialog_listview),
+                            childAtPosition(
+                                    withId(R.id.contentPanel),
+                                    0)))
+                    .atPosition(1).perform(click());
+            onView(
+                    allOf(withId(android.R.id.button1), withText("OK"),
+                            childAtPosition(
+                                    childAtPosition(
+                                            withId(R.id.buttonPanel),
+                                            0),
+                                    3))).perform(scrollTo(), click());
+            counter++;
+        }
 
 
         // Navigate to lenses tab
@@ -144,8 +162,33 @@ public class DeleteGearTest {
                                 1),
                         isDisplayed())).perform(click());
 
-
-        // Delete lens 4
+        // Edit lens 2
+        onView(
+                allOf(withId(R.id.item_gear_layout),
+                        childAtPosition(
+                                allOf(withId(R.id.lenses_recycler_view),
+                                        childAtPosition(
+                                                withClassName(is("android.widget.FrameLayout")),
+                                                1)),
+                                1),
+                        isDisplayed())).perform(click());
+        onView(
+                allOf(withId(android.R.id.title), withText("Edit"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                        0),
+                                0),
+                        isDisplayed())).perform(click());
+        onView(
+                allOf(withId(android.R.id.button1), withText("OK"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withClassName(is("android.widget.ScrollView")),
+                                        0),
+                                3))).perform(scrollTo(), click());
+        
+        // Set mountable filters using the lens tab
         onView(
                 allOf(withId(R.id.item_gear_layout),
                         childAtPosition(
@@ -156,122 +199,56 @@ public class DeleteGearTest {
                                 3),
                         isDisplayed())).perform(click());
         onView(
-                allOf(withId(android.R.id.title), withText("Delete"),
+                allOf(withId(android.R.id.title), withText("Select mountable filters"),
                         childAtPosition(
                                 childAtPosition(
                                         withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
                                         0),
                                 0),
                         isDisplayed())).perform(click());
+        onData(anything())
+                .inAdapterView(allOf(withId(R.id.select_dialog_listview),
+                        childAtPosition(
+                                withId(R.id.contentPanel),
+                                0)))
+                .atPosition(0).perform(click());
+        onData(anything())
+                .inAdapterView(allOf(withId(R.id.select_dialog_listview),
+                        childAtPosition(
+                                withId(R.id.contentPanel),
+                                0)))
+                .atPosition(1).perform(click());
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.buttonPanel),
                                         0),
-                                3))).perform(click());
-
-        // Delete lens 3
+                                3))).perform(scrollTo(), click());
+        
+        
+        // Navigate to filters tab
         onView(
-                allOf(withId(R.id.item_gear_layout),
-                        childAtPosition(
-                                allOf(withId(R.id.lenses_recycler_view),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
-                                                1)),
-                                2),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(android.R.id.title), withText("Delete"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
-                                        0),
-                                0),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(android.R.id.button1), withText("OK"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.buttonPanel),
-                                        0),
-                                3))).perform(click());
-
-        // Delete lens 2
-        onView(
-                allOf(withId(R.id.item_gear_layout),
-                        childAtPosition(
-                                allOf(withId(R.id.lenses_recycler_view),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
-                                                1)),
-                                1),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(android.R.id.title), withText("Delete"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
-                                        0),
-                                0),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(android.R.id.button1), withText("OK"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.buttonPanel),
-                                        0),
-                                3))).perform(click());
-
-        // Delete lens 1
-        onView(
-                allOf(withId(R.id.item_gear_layout),
-                        childAtPosition(
-                                allOf(withId(R.id.lenses_recycler_view),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
-                                                1)),
-                                0),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(android.R.id.title), withText("Delete"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
-                                        0),
-                                0),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(android.R.id.button1), withText("OK"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.buttonPanel),
-                                        0),
-                                3))).perform(click());
-
-
-        // Navigate to cameras tab
-        onView(
-                allOf(withContentDescription("CAMERAS"),
+                allOf(withContentDescription("FILTERS"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.sliding_tabs),
                                         0),
-                                0),
+                                2),
                         isDisplayed())).perform(click());
 
-        // Delete camera 2
+        // Edit filter 2
         onView(
                 allOf(withId(R.id.item_gear_layout),
                         childAtPosition(
-                                allOf(withId(R.id.cameras_recycler_view),
+                                allOf(withId(R.id.filters_recycler_view),
                                         childAtPosition(
                                                 withClassName(is("android.widget.FrameLayout")),
                                                 1)),
                                 1),
                         isDisplayed())).perform(click());
         onView(
-                allOf(withId(android.R.id.title), withText("Delete"),
+                allOf(withId(android.R.id.title), withText("Edit"),
                         childAtPosition(
                                 childAtPosition(
                                         withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
@@ -282,36 +259,10 @@ public class DeleteGearTest {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withClassName(is("android.widget.ScrollView")),
                                         0),
-                                3))).perform(click());
-
-        // Delete camera 1
-        onView(
-                allOf(withId(R.id.item_gear_layout),
-                        childAtPosition(
-                                allOf(withId(R.id.cameras_recycler_view),
-                                        childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
-                                                1)),
-                                0),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(android.R.id.title), withText("Delete"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
-                                        0),
-                                0),
-                        isDisplayed())).perform(click());
-        onView(
-                allOf(withId(android.R.id.button1), withText("OK"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.buttonPanel),
-                                        0),
-                                3))).perform(click());
-
+                                3))).perform(scrollTo(), click());
+        
 
         // Go back to MainActivity
         onView(
