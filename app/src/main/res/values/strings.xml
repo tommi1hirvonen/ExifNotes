@@ -13,12 +13,16 @@
     <string name="Updates">
         Updates in this version:\n
         -Updated deprecated location API calls\n
+        -Targeting Android 9.+ (Q)\n
+        -Migrated from Android Support Library to AndroidX\n
     </string>
     <string name="VersionHistory">
         Version history\n
         \n
         v1.13.1 2018-10-30:\n
         -Updated deprecated location API calls\n
+        -Targeting Android 9.+ (Q)\n
+        -Migrated from Android Support Library to AndroidX\n
         \n
         v1.13.0 2018-10-21:\n
         -Database overhaul: added foreign key references and removed some not-null constraints\n

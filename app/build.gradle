@@ -26,7 +26,8 @@ android {
         versionName "1.13.1"
         // Enabling this allows us to use resources when PNGs are generated during build-time
         vectorDrawables.useSupportLibrary = true
-        testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
+        // Check current version at http://maven.google.com/
+        testInstrumentationRunner = 'androidx.test.ext:junit:1.1.1'
     }
 
     buildTypes {
