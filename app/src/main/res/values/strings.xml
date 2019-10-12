@@ -2,12 +2,12 @@
     <string name="app_name">Exif Notes</string>
 
     <!--When updating "eula" also update "about"-->
-    <string name="Eula">Copyright 2018 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="Eula">Copyright 2019 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
     <string name="Agree">Agree</string>
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.13.1\nCopyright 2018 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.13.1\nCopyright 2019 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
@@ -15,14 +15,16 @@
         -Updated deprecated location API calls\n
         -Targeting Android 9.+ (Q)\n
         -Migrated from Android Support Library to AndroidX\n
+        -Data structure classes migrated from Java to Kotlin\n
     </string>
     <string name="VersionHistory">
         Version history\n
         \n
-        v1.13.1 2018-10-30:\n
+        v1.13.1 2019-10-12:\n
         -Updated deprecated location API calls\n
         -Targeting Android 9.+ (Q)\n
         -Migrated from Android Support Library to AndroidX\n
+        -Data structure classes migrated from Java to Kotlin\n
         \n
         v1.13.0 2018-10-21:\n
         -Database overhaul: added foreign key references and removed some not-null constraints\n
