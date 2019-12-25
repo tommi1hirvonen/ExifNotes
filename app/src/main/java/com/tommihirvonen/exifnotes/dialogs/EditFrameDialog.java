@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -26,6 +25,8 @@ import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.fragment.app.DialogFragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -235,6 +236,11 @@ public class EditFrameDialog extends DialogFragment {
     private int newNoOfExposures;
 
     /**
+     * Currently selected light source
+     */
+    private int newLightSource;
+
+    /**
      * Currently selected filename of the complementary picture
      */
     @Nullable
@@ -273,10 +279,15 @@ public class EditFrameDialog extends DialogFragment {
      */
     private TextView noOfExposuresTextView;
 
-    /*
+    /**
      * Button used to display the current focal length value
      */
     private TextView focalLengthTextView;
+
+    /**
+     * TextView used to display the current light source
+     */
+    private TextView lightSourceTextView;
 
     /**
      * Reference to the EditText used to edit notes
@@ -389,21 +400,12 @@ public class EditFrameDialog extends DialogFragment {
             for (View v : dividerList) {
                 v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
             }
-            ((ImageView) inflatedView.findViewById(R.id.add_lens)).getDrawable().mutate()
-                    .setColorFilter(
-                            ContextCompat.getColor(getActivity(), R.color.white),
-                            PorterDuff.Mode.SRC_IN
-                    );
-            ((ImageView) inflatedView.findViewById(R.id.add_filter)).getDrawable().mutate()
-                    .setColorFilter(
-                            ContextCompat.getColor(getActivity(), R.color.white),
-                            PorterDuff.Mode.SRC_IN
-                    );
-            ((ImageView) inflatedView.findViewById(R.id.clear_location)).getDrawable().mutate()
-                    .setColorFilter(
-                            ContextCompat.getColor(getActivity(), R.color.white),
-                            PorterDuff.Mode.SRC_IN
-                    );
+            Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.add_lens)).getDrawable().mutate(),
+                    ContextCompat.getColor(getActivity(), R.color.white));
+            Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.add_filter)).getDrawable().mutate(),
+                    ContextCompat.getColor(getActivity(), R.color.white));
+            Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.clear_location)).getDrawable().mutate(),
+                    ContextCompat.getColor(getActivity(), R.color.white));
         }
 
 
@@ -695,6 +697,16 @@ public class EditFrameDialog extends DialogFragment {
 
 
         //==========================================================================================
+        //LIGHT SOURCE
+
+        newLightSource = frame.getLightSource();
+        lightSourceTextView = inflatedView.findViewById(R.id.light_source_text);
+        final LinearLayout lightSourceLayout = inflatedView.findViewById(R.id.light_source_layout);
+        lightSourceLayout.setOnClickListener(new LightSourceLayoutOnClickListener());
+
+
+
+        //==========================================================================================
         //FINALISE BUILDING THE DIALOG
 
         alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -759,7 +771,7 @@ public class EditFrameDialog extends DialogFragment {
      * Updates the filters TextView
      */
     private void updateFiltersTextView() {
-        final StringBuilder filtersStringBuilder = new StringBuilder("");
+        final StringBuilder filtersStringBuilder = new StringBuilder();
         for (int i = 0; i < newFilters.size(); ++i) {
             final Filter filter = newFilters.get(i);
             filtersStringBuilder.append("-").append(filter.getName())
@@ -787,6 +799,7 @@ public class EditFrameDialog extends DialogFragment {
         frame.setFocalLength(newFocalLength);
         frame.setPictureFilename(newPictureFilename);
         frame.setFilters(newFilters);
+        frame.setLightSource(newLightSource);
     }
 
     /**
@@ -982,7 +995,13 @@ public class EditFrameDialog extends DialogFragment {
                     // Set inJustDecodeBounds back to false, so that decoding returns a bitmap object.
                     options.inJustDecodeBounds = false;
                     options.inSampleSize = scale;
-                    options.inPurgeable = true;
+
+                    // TODO Investigate the need for inPurgeable = true
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                        //noinspection deprecation
+                        options.inPurgeable = true;
+                    }
+
                     // Decode the image file into a Bitmap sized to fill the view
                     final Bitmap bitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
 
@@ -1233,8 +1252,8 @@ public class EditFrameDialog extends DialogFragment {
      * Class used by this class AlertDialog class and its subclasses. Implemented for positive button
      * onClick events.
      */
-    protected class OnPositiveButtonClickListener implements View.OnClickListener {
-        private AlertDialog dialog;
+    class OnPositiveButtonClickListener implements View.OnClickListener {
+        private final AlertDialog dialog;
         OnPositiveButtonClickListener(AlertDialog dialog) {
             this.dialog = dialog;
         }
@@ -1515,7 +1534,7 @@ public class EditFrameDialog extends DialogFragment {
                     checkedItem = i + 1;
                 }
             }
-            final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+            final CharSequence[] items = listItems.toArray(new CharSequence[0]);
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.UsedLens);
             builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
@@ -1583,7 +1602,7 @@ public class EditFrameDialog extends DialogFragment {
             for (Filter filter : possibleFilters) {
                 listItems.add(filter.getName());
             }
-            final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+            final CharSequence[] items = listItems.toArray(new CharSequence[0]);
             final boolean[] booleans = new boolean[possibleFilters.size()];
             for (int i = 0; i < possibleFilters.size(); ++i) {
                 booleans[i] = newFilters.contains(possibleFilters.get(i));
@@ -2002,6 +2021,37 @@ public class EditFrameDialog extends DialogFragment {
             }
         }
 
+    }
+
+    /**
+     * Listener class attached to light source layout.
+     * Shows different light source options as a simple list.
+     */
+    private class LightSourceLayoutOnClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            int checkedItem = newLightSource;
+            builder.setSingleChoiceItems(R.array.LightSource, checkedItem, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    newLightSource = which;
+                    lightSourceTextView.setText(
+                            newLightSource == 0 ?
+                                    getResources().getString(R.string.ClickToSet) :
+                                    getResources().getStringArray(R.array.LightSource)[which]
+                    );
+                    dialog.dismiss();
+                }
+            });
+            builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // Do nothing
+                }
+            });
+            builder.create().show();
+        }
     }
 
 }

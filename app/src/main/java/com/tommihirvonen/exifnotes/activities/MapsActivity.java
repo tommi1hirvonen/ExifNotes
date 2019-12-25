@@ -1,12 +1,12 @@
 package com.tommihirvonen.exifnotes.activities;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -344,7 +344,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * @return new OnInfoWindowClickListener object
      */
     public static GoogleMap.OnInfoWindowClickListener mapsActivityInfoWindowClickListener(
-            final Activity activity, final FilmDbHelper database) {
+            final AppCompatActivity activity, final FilmDbHelper database) {
 
         return new GoogleMap.OnInfoWindowClickListener() {
             @SuppressLint("CommitTransaction")
@@ -368,18 +368,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         dialog.setOnPositiveButtonClickedListener(
                                 new EditFrameDialogCallback.OnPositiveButtonClickedListener() {
                                     @Override
-                                    public void onPositiveButtonClicked(int requestCode, int resultCode, Intent data) {
+                                    public void onPositiveButtonClicked(Intent data) {
                                         Frame editedFrame = data.getParcelableExtra(ExtraKeys.FRAME);
                                         if (editedFrame != null) {
                                             database.updateFrame(editedFrame);
                                             marker.setTag(editedFrame);
                                             marker.hideInfoWindow();
                                             marker.showInfoWindow();
-                                            activity.setResult(Activity.RESULT_OK);
+                                            activity.setResult(AppCompatActivity.RESULT_OK);
                                         }
                                     }
                                 });
-                        dialog.show(activity.getFragmentManager().beginTransaction(), EditFrameDialog.TAG);
+                        dialog.show(activity.getSupportFragmentManager().beginTransaction(), EditFrameDialog.TAG);
 
                     }
                 }

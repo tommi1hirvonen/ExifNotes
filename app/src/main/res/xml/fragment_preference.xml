@@ -1,27 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
 
     <PreferenceCategory
-        android:title="@string/General_Cap">
+        android:title="@string/General_Cap"
+        app:iconSpaceReserved="false"
+        >
 
         <CheckBoxPreference
             android:key="GPSUpdate"
             android:title="@string/GPSUpdateTitle"
             android:summary="@string/GPSUpdateSummary"
             android:defaultValue="true"
+            app:iconSpaceReserved="false"
             />
 
         <com.tommihirvonen.exifnotes.utilities.AppThemeDialogPreference
             android:key="AppTheme"
             android:title="@string/AppThemeTitle"
             android:defaultValue="LIGHT"
+            app:iconSpaceReserved="false"
             />
 
         <com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference
             android:key="UIColor"
             android:title="@string/UIColorTitle"
-            android:defaultValue="#00838F,#006064"/>
+            android:defaultValue="#00838F,#006064"
+            app:iconSpaceReserved="false"
+            />
 
         <ListPreference
             android:key="FilesToExport"
@@ -30,19 +39,23 @@
             android:entries="@array/FilesToExportOptions"
             android:entryValues="@array/FilesToExportData"
             android:defaultValue="BOTH"
+            app:iconSpaceReserved="false"
             />
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/Exiftool_Cap">
+        android:title="@string/Exiftool_Cap"
+        app:iconSpaceReserved="false"
+        >
 
         <EditTextPreference
             android:key="ArtistName"
             android:title="@string/ArtistName"
             android:summary="@string/ArtistNameSummary"
             android:defaultValue=""
-            android:capitalize="words"
+            android:inputType="textCapWords"
+            app:iconSpaceReserved="false"
             />
 
         <EditTextPreference
@@ -50,28 +63,35 @@
             android:title="@string/CopyrightInformationTitle"
             android:summary="@string/CopyrightInformationSummary"
             android:defaultValue=""
-            android:capitalize="words"/>
+            android:inputType="textCapWords"
+            app:iconSpaceReserved="false"
+            />
 
         <EditTextPreference
             android:key="ExiftoolPath"
             android:title="@string/ExiftoolPathTitle"
             android:summary="@string/ExiftoolPathSummary"
             android:defaultValue=""
-            android:capitalize="none"/>
+            android:inputType="text"
+            app:iconSpaceReserved="false"
+            />
 
         <EditTextPreference
             android:key="PicturesPath"
             android:title="@string/PicturesPathTitle"
             android:summary="@string/PicturesPathSummary"
             android:defaultValue=""
-            android:capitalize="none"/>
+            android:inputType="text"
+            app:iconSpaceReserved="false"
+            />
 
         <EditTextPreference
             android:key="FileEnding"
             android:title="@string/FileEndingTitle"
             android:summary="@string/FileEndingSummary"
             android:defaultValue=".jpg"
-            android:capitalize="none"
+            android:inputType="text"
+            app:iconSpaceReserved="false"
             />
 
         <CheckBoxPreference
@@ -79,43 +99,50 @@
             android:title="@string/IgnoreWarningsTitle"
             android:summary="@string/IgnoreWarningsSummary"
             android:defaultValue="false"
-            android:capitalize="none"
+            android:inputType="text"
+            app:iconSpaceReserved="false"
             />
 
     </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/ComplementaryPicturesCap"
+        app:iconSpaceReserved="false"
         >
 
         <Preference
             android:key="ExportComplementaryPictures"
             android:title="@string/ExportComplementaryPicturesTitle"
             android:summary="@string/ExportComplementaryPicturesSummary"
+            app:iconSpaceReserved="false"
             />
 
         <Preference
             android:key="ImportComplementaryPictures"
             android:title="@string/ImportComplementaryPicturesTitle"
             android:summary="@string/ImportComplementaryPicturesSummary"
+            app:iconSpaceReserved="false"
             />
 
     </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/DatabaseCap"
+        app:iconSpaceReserved="false"
         >
 
         <Preference
             android:key="ExportDatabase"
             android:title="@string/ExportDatabaseTitle"
             android:summary="@string/ExportDatabaseSummary"
+            app:iconSpaceReserved="false"
             />
 
         <Preference
             android:key="ImportDatabase"
             android:title="@string/ImportDatabaseTitle"
             android:summary="@string/ImportDatabaseSummary"
+            app:iconSpaceReserved="false"
             />
 
     </PreferenceCategory>

@@ -138,15 +138,9 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
                 }
             });
             // With these commands we can color the black png images grey. Very nice! I like!
-            frameImageView.getDrawable().mutate().setColorFilter(
-                    backgroundFrameColor, PorterDuff.Mode.SRC_IN
-            );
-            clockImageView.getDrawable().mutate().setColorFilter(
-                    ContextCompat.getColor(context, R.color.grey), PorterDuff.Mode.SRC_IN
-            );
-            apertureImageView.getDrawable().mutate().setColorFilter(
-                    ContextCompat.getColor(context, R.color.grey), PorterDuff.Mode.SRC_IN
-            );
+            Utilities.setColorFilter(frameImageView.getDrawable().mutate(), backgroundFrameColor);
+            Utilities.setColorFilter(clockImageView.getDrawable().mutate(), ContextCompat.getColor(context, R.color.grey));
+            Utilities.setColorFilter(apertureImageView.getDrawable().mutate(), ContextCompat.getColor(context, R.color.grey));
         }
 
     }

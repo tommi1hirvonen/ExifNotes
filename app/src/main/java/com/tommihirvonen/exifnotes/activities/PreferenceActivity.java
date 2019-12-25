@@ -5,7 +5,8 @@ import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatCheckedTextView;
@@ -13,6 +14,8 @@ import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
+
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -26,7 +29,7 @@ import com.tommihirvonen.exifnotes.utilities.Utilities;
  * PreferenceActivity contains the PreferenceFragment for editing the app's settings
  * and preferences.
  */
-public class PreferenceActivity extends android.preference.PreferenceActivity implements
+public class PreferenceActivity extends AppCompatActivity implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     /**
@@ -97,6 +100,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
         final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
         final int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
 
+        getSupportActionBar().hide();
 
         prefs.registerOnSharedPreferenceChangeListener(this);
 
@@ -122,8 +126,8 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
             actionbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.ic_ab_back_material));
         }
         if (actionbar.getNavigationIcon() != null) {
-            actionbar.getNavigationIcon().mutate().setColorFilter(
-                    ContextCompat.getColor(getBaseContext(), R.color.white), PorterDuff.Mode.SRC_IN);
+            Utilities.setColorFilter(actionbar.getNavigationIcon().mutate(),
+                    ContextCompat.getColor(getBaseContext(), R.color.white));
         }
 
         actionbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -132,7 +136,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
                 finish();
             }
         });
-        getFragmentManager().beginTransaction().add(R.id.rel_layout, new PreferenceFragment()).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.rel_layout, new PreferenceFragment()).commit();
     }
 
     /**
@@ -174,18 +178,10 @@ public class PreferenceActivity extends android.preference.PreferenceActivity im
     @Override
     public void onSaveInstanceState(Bundle outState) {
         // Save the result code so that it can be set for this activity's result when recreated
+        super.onSaveInstanceState(outState);
         outState.putInt(ExtraKeys.RESULT_CODE, resultCode);
     }
 
-    /**
-     * {@inheritDoc}
-     * @param fragmentName
-     * @return
-     */
-    @Override
-    protected boolean isValidFragment(String fragmentName) {
-        return PreferenceFragment.class.getName().equals(fragmentName);
-    }
 
     /**
      * Update the UI color when SharedPreferences are changed.

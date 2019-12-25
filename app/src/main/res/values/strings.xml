@@ -381,6 +381,7 @@
     <string name="ISO">ISO</string>
     <string name="PushPull">Push(+)/pull(-)</string>
     <string name="Format">Format</string>
+    <string name="FilmStock">Film stock</string>
 
     <!--dialog_frame.xml-->
     <string name="Lens">Lens</string>
@@ -420,6 +421,7 @@
     <string name="RotateLeft90Degrees">Rotate left 90 degrees</string>
     <string name="ErrorWhileEditingPicturesExifData">Error while editing picture\'s EXIF data</string>
     <string name="UseCustomValue">Use custom value</string>
+    <string name="LightSource">Light source</string>
 
     <!--frame batch edit-->
 
@@ -570,6 +572,15 @@
         <item quantity="one">%d picture imported successfully</item>
         <item quantity="other">%d pictures imported successfully</item>
     </plurals>
+
+    <string name="Unknown">Unknown</string>
+    <string name="Daylight">Daylight</string>
+    <string name="Cloudy">Cloudy</string>
+    <string name="Shade">Shade</string>
+    <string name="Fluorescent">Fluorescent</string>
+    <string name="Tungsten">Tungsten</string>
+    <string name="Flash">Flash</string>
+
 
     <string name="style_json">
         [

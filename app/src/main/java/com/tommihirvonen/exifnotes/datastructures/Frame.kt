@@ -110,6 +110,12 @@ class Frame : Parcelable {
      */
     var filters: List<Filter> = ArrayList()
 
+    /**
+     * Light source of the picture.
+     * Corresponding values are defined in res/values/array.xml (LightSource)
+     */
+    var lightSource: Int = 0
+
 
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
@@ -137,6 +143,7 @@ class Frame : Parcelable {
         this.flashComp = pc.readString()
         this.meteringMode = pc.readInt()
         this.pictureFilename = pc.readString()
+        this.lightSource = pc.readInt()
         val filtersAmount = pc.readInt()
         val filters = ArrayList<Filter>()
         for (i in 0 until filtersAmount) {
@@ -179,6 +186,7 @@ class Frame : Parcelable {
         parcel.writeString(flashComp)
         parcel.writeInt(meteringMode)
         parcel.writeString(pictureFilename)
+        parcel.writeInt(lightSource)
         parcel.writeInt(filters.size)
         for (filter in filters) parcel.writeParcelable(filter, 0)
     }

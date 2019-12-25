@@ -6,16 +6,23 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
-import android.preference.PreferenceManager;
+
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
+
 import android.text.InputFilter;
 import android.view.Gravity;
 import android.view.View;
@@ -741,16 +748,16 @@ public final class Utilities {
             //GPSLatitude & GPSLongitude & GPSLatitudeRef & GPSLongitudeRef
             if (frame.getLocation() != null && frame.getLocation().length() > 0) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
-                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
+                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1);
                 String latRef;
                 if (latString.substring(0, 1).equals("-")) {
                     latRef = "S";
-                    latString = latString.substring(1, latString.length());
+                    latString = latString.substring(1);
                 } else latRef = "N";
                 String lngRef;
                 if (lngString.substring(0, 1).equals("-")) {
                     lngRef = "W";
-                    lngString = lngString.substring(1, lngString.length());
+                    lngString = lngString.substring(1);
                 } else lngRef = "E";
                 latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
                 List<String> latStringList = Arrays.asList(latString.split(":"));
@@ -899,16 +906,16 @@ public final class Utilities {
             //Location
             if (frame.getLocation() != null && frame.getLocation().length() > 0) {
                 String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
-                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1, frame.getLocation().length());
+                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1);
                 String latRef;
                 if (latString.substring(0, 1).equals("-")) {
                     latRef = "S";
-                    latString = latString.substring(1, latString.length());
+                    latString = latString.substring(1);
                 } else latRef = "N";
                 String lngRef;
                 if (lngString.substring(0, 1).equals("-")) {
                     lngRef = "W";
-                    lngString = lngString.substring(1, lngString.length());
+                    lngString = lngString.substring(1);
                 } else lngRef = "E";
                 latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
                 List<String> latStringList = Arrays.asList(latString.split(":"));
@@ -954,18 +961,18 @@ public final class Utilities {
         StringBuilder stringBuilder = new StringBuilder();
 
         String latString = location.substring(0, location.indexOf(" "));
-        String lngString = location.substring(location.indexOf(" ") + 1, location.length());
+        String lngString = location.substring(location.indexOf(" ") + 1);
 
         String latRef;
         if (latString.substring(0, 1).equals("-")) {
             latRef = "S";
-            latString = latString.substring(1, latString.length());
+            latString = latString.substring(1);
         } else latRef = "N";
 
         String lngRef;
         if (lngString.substring(0, 1).equals("-")) {
             lngRef = "W";
-            lngString = lngString.substring(1, lngString.length());
+            lngString = lngString.substring(1);
         } else lngRef = "E";
 
         latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
@@ -1050,6 +1057,15 @@ public final class Utilities {
                     toChannel.close();
                 }
             }
+        }
+    }
+
+    public static void setColorFilter(@NonNull Drawable drawable, int color) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            drawable.setColorFilter(new BlendModeColorFilter(color, BlendMode.SRC_IN));
+        } else {
+            //noinspection deprecation
+            drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
         }
     }
 

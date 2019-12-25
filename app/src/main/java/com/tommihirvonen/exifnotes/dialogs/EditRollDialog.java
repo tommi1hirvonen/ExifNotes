@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.DialogFragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.fragments.CamerasFragment;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
@@ -72,6 +74,10 @@ public class EditRollDialog extends DialogFragment {
      */
     private TextView cameraTextView;
 
+    private TextView filmStockTextView;
+
+    private ImageView filmStockClearImageView;
+
 
     //These variables are used so that the object itself is not updated
     //unless the user presses ok.
@@ -101,6 +107,8 @@ public class EditRollDialog extends DialogFragment {
      * Currently selected push or pull value in format 0, +/-X or +/-Y/Z where X, Y and Z are numbers
      */
     private String newPushPull;
+
+    private FilmStock newFilmStock;
 
     /**
      * Empty constructor
@@ -133,6 +141,7 @@ public class EditRollDialog extends DialogFragment {
         newIso = roll.getIso();
         newPushPull = roll.getPushPull();
         cameraList = database.getAllCameras();
+        newFilmStock = database.getFilmStock(roll.getFilmStockId());
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
@@ -168,11 +177,8 @@ public class EditRollDialog extends DialogFragment {
             for (View v : dividerList) {
                 v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
             }
-            ((ImageView) inflatedView.findViewById(R.id.add_camera)).getDrawable().mutate()
-                    .setColorFilter(
-                            ContextCompat.getColor(getActivity(), R.color.white),
-                            PorterDuff.Mode.SRC_IN
-                    );
+            Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.add_camera)).getDrawable().mutate(),
+                    ContextCompat.getColor(getActivity(), R.color.white));
         }
         //==========================================================================================
 
@@ -193,6 +199,29 @@ public class EditRollDialog extends DialogFragment {
         //==========================================================================================
 
 
+        //==========================================================================================
+        // FILM STOCK PICK DIALOG
+        filmStockTextView = inflatedView.findViewById(R.id.film_stock_text);
+        filmStockClearImageView = inflatedView.findViewById(R.id.clear_film_stock);
+        if (newFilmStock != null) {
+            filmStockTextView.setText(newFilmStock.getName());
+        } else {
+            filmStockTextView.setText("");
+            filmStockClearImageView.setVisibility(View.GONE);
+        }
+        filmStockClearImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newFilmStock = null;
+                filmStockTextView.setText("");
+                filmStockClearImageView.setVisibility(View.GONE);
+            }
+        });
+
+        final LinearLayout filmStockLayout = inflatedView.findViewById(R.id.film_stock_layout);
+        filmStockLayout.setOnClickListener(new FilmStockLayoutOnClickListener());
+        //==========================================================================================
+
 
         //==========================================================================================
         // CAMERA PICK DIALOG
@@ -211,7 +240,7 @@ public class EditRollDialog extends DialogFragment {
                     listItems.add(cameraList.get(i).getMake() + " " + cameraList.get(i).getModel());
                     if (cameraList.get(i).equals(newCamera)) checkedItem = i + 1;
                 }
-                final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+                final CharSequence[] items = listItems.toArray(new CharSequence[0]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.UsedCamera);
                 builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
@@ -537,6 +566,7 @@ public class EditRollDialog extends DialogFragment {
                     roll.setIso(newIso);
                     roll.setPushPull(newPushPull);
                     roll.setFormat(newFormat);
+                    roll.setFilmStockId(newFilmStock != null ? newFilmStock.getId() : 0);
 
                     Intent intent = new Intent();
                     intent.putExtra(ExtraKeys.ROLL, roll);
@@ -562,25 +592,78 @@ public class EditRollDialog extends DialogFragment {
      * @param data the extra data attached to the passed intent
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
+        if (requestCode == CamerasFragment.ADD_CAMERA) {
+            if (resultCode == Activity.RESULT_OK) {
+                // After Ok code.
 
-            case CamerasFragment.ADD_CAMERA:
+                newCamera = data.getParcelableExtra(ExtraKeys.CAMERA);
+                long rowId = database.addCamera(newCamera);
+                newCamera.setId(rowId);
+                cameraList.add(newCamera);
+                cameraTextView.setText(newCamera.getName());
 
-                if (resultCode == Activity.RESULT_OK) {
-                    // After Ok code.
-
-                    newCamera = data.getParcelableExtra(ExtraKeys.CAMERA);
-                    long rowId = database.addCamera(newCamera);
-                    newCamera.setId(rowId);
-                    cameraList.add(newCamera);
-                    cameraTextView.setText(newCamera.getName());
-
-                } else if (resultCode == Activity.RESULT_CANCELED) {
-                    // After Cancel code.
-                    // Do nothing.
-                    return;
-                }
-                break;
+            }
         }
+    }
+
+    /**
+     * Private class to listen to clicks on the FilmStock layout.
+     */
+    private class FilmStockLayoutOnClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+
+            // First show a list of film stock manufacturers.
+            final CharSequence[] manufacturers = database.getAllFilmManufacturers().toArray(new CharSequence[0]);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setItems(manufacturers, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+
+                    // Once the user has selected a manufacturer,
+                    // show a list of film stocks by that manufacturer.
+                    final String manufacturer = manufacturers[which].toString();
+                    final List<FilmStock> filmStocks = database.getAllFilmStocks(manufacturer);
+                    final List<String> filmStockNames = new ArrayList<>();
+                    int checkedItem = -1;
+                    int counter = 0;
+                    for (FilmStock filmStock : filmStocks) {
+                        filmStockNames.add(filmStock.getName());
+                        if (newFilmStock != null && newFilmStock.getId() == filmStock.getId()) {
+                            checkedItem = counter;
+                        }
+                        counter++;
+                    }
+                    final CharSequence[] filmStockNames_ = filmStockNames.toArray(new CharSequence[0]);
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
+                    builder1.setSingleChoiceItems(filmStockNames_, checkedItem, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            filmStockTextView.setText(filmStocks.get(which).getName());
+                            newFilmStock = filmStocks.get(which);
+                            filmStockClearImageView.setVisibility(View.VISIBLE);
+                            dialog.dismiss();
+                        }
+                    });
+                    builder1.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do nothing
+                        }
+                    });
+                    builder1.create().show();
+                }
+            });
+            builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // Do nothing
+                }
+            });
+            builder.create().show();
+        }
+
     }
 }

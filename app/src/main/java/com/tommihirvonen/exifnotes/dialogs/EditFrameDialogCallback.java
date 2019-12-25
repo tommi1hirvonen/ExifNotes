@@ -1,6 +1,5 @@
 package com.tommihirvonen.exifnotes.dialogs;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -20,7 +19,7 @@ public class EditFrameDialogCallback extends EditFrameDialog {
      * Interface implemented by the calling class
      */
     public interface OnPositiveButtonClickedListener {
-        void onPositiveButtonClicked(int requestCode, int resultCode, Intent data);
+        void onPositiveButtonClicked(Intent data);
     }
 
     /**
@@ -64,7 +63,7 @@ public class EditFrameDialogCallback extends EditFrameDialog {
                 // Return the new entered name to the calling activity
                 Intent intent = new Intent();
                 intent.putExtra(ExtraKeys.FRAME, frame);
-                callback.onPositiveButtonClicked(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                callback.onPositiveButtonClicked(intent);
             }
         });
 

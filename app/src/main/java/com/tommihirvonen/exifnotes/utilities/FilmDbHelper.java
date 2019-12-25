@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
+import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.FilterMode;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
@@ -42,6 +43,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String TABLE_LINK_LENS_FILTER = "link_lens_filter";
     //Added in database version 19
     private static final String TABLE_LINK_FRAME_FILTER = "link_frame_filter";
+    //Added in database version 20
+    private static final String TABLE_FILM_STOCKS = "film_stocks";
 
     //=============================================================================================
     //Column names
@@ -67,6 +70,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_FORMATTED_ADDRESS = "formatted_address";
     //Added in database version 17
     private static final String KEY_PICTURE_FILENAME = "picture_filename";
+    // Added in database version 20
+    private static final String KEY_LIGHT_SOURCE = "light_source";
 
     //Lens
     private static final String KEY_LENS_ID = "lens_id";
@@ -110,6 +115,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_FILTER_MAKE = "filter_make";
     private static final String KEY_FILTER_MODEL = "filter_model";
 
+    //Film stocks
+    //Added in database version 20
+    private static final String KEY_FILM_STOCK_ID = "film_stock_id";
+    private static final String KEY_FILM_MANUFACTURER_NAME = "film_manufacturer_name";
+    private static final String KEY_FILM_STOCK_NAME = "film_stock_name";
+    private static final String KEY_FILM_ISO = "film_iso";
+
     //=============================================================================================
     //Database information
     private static final String DATABASE_NAME = "filmnotes.db";
@@ -120,10 +132,17 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     //Updated version from 16 to 17 - 2018-03-26 - v1.11.0
     //Updated version from 17 to 18 - 2018-07-08 - v1.12.0
     //Updated version from 18 to 19 - 2018-07-17 - awaiting
-    private static final int DATABASE_VERSION = 19;
+    private static final int DATABASE_VERSION = 20;
 
     //=============================================================================================
     //onCreate strings
+
+    private static final String CREATE_FILM_STOCKS_TABLE = "create table " + TABLE_FILM_STOCKS
+            + "(" + KEY_FILM_STOCK_ID + " integer primary key autoincrement, "
+            + KEY_FILM_MANUFACTURER_NAME + " text not null, "
+            + KEY_FILM_STOCK_NAME + " text not null, "
+            + KEY_FILM_ISO + " integer"
+            + ");";
 
     private static final String CREATE_LENS_TABLE = "create table " + TABLE_LENSES
             + "(" + KEY_LENS_ID + " integer primary key autoincrement, "
@@ -163,7 +182,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_ROLL_ISO + " integer, "
             + KEY_ROLL_PUSH + " text, "
             + KEY_ROLL_FORMAT + " integer, "
-            + KEY_ROLL_ARCHIVED + " integer not null default 0"
+            + KEY_ROLL_ARCHIVED + " integer not null default 0,"
+            + KEY_FILM_STOCK_ID + " integer references " + TABLE_FILM_STOCKS + " on delete set null"
             + ");";
 
     private static final String CREATE_FRAME_TABLE = "create table " + TABLE_FRAMES
@@ -185,7 +205,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_FRAME_SIZE + " text, "
             + KEY_METERING_MODE + " integer, "
             + KEY_FORMATTED_ADDRESS + " text, "
-            + KEY_PICTURE_FILENAME + " text"
+            + KEY_PICTURE_FILENAME + " text, "
+            + KEY_LIGHT_SOURCE + " integer"
             + ");";
 
     private static final String CREATE_LINK_CAMERA_LENS_TABLE = "create table " + TABLE_LINK_CAMERA_LENS
@@ -247,6 +268,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " ADD COLUMN " + KEY_FORMATTED_ADDRESS + " text;";
     private static final String ALTER_TABLE_FRAMES_11 = "ALTER TABLE " + TABLE_FRAMES
             + " ADD COLUMN " + KEY_PICTURE_FILENAME + " text;";
+    private static final String ALTER_TABLE_FRAMES_12 = "ALTER TABLE " + TABLE_FRAMES
+            + " ADD COLUMN " + KEY_LIGHT_SOURCE + " integer;";
 
     private static final String ALTER_TABLE_LENSES_1 = "ALTER TABLE " + TABLE_LENSES
             + " ADD COLUMN " + KEY_LENS_MAX_APERTURE + " text;";
@@ -280,6 +303,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " ADD COLUMN " + KEY_ROLL_FORMAT + " integer;";
     private static final String ALTER_TABLE_ROLLS_4 = "ALTER TABLE " + TABLE_ROLLS
             + " ADD COLUMN " + KEY_ROLL_ARCHIVED + " integer not null default 0;";
+    private static final String ALTER_TABLE_ROLLS_5 = "ALTER TABLE " + TABLE_ROLLS
+            + " ADD COLUMN " + KEY_FILM_STOCK_ID + " integer references " + TABLE_FILM_STOCKS + " on delete set null;";
+
 
     private static final String REPLACE_QUOTE_CHARS = "UPDATE " + TABLE_FRAMES
             + " SET " + KEY_SHUTTER + " = REPLACE(" + KEY_SHUTTER + ", \'q\', \'\"\')"
@@ -408,6 +434,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     private static FilmDbHelper instance;
 
+    private final Context context;
+
     /**
      * Singleton method to get reference to the database instance
      *
@@ -432,6 +460,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     private FilmDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
 
@@ -453,6 +482,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
         database.execSQL("PRAGMA foreign_keys=ON;");
+        database.execSQL(CREATE_FILM_STOCKS_TABLE);
         database.execSQL(CREATE_LENS_TABLE);
         database.execSQL(CREATE_CAMERA_TABLE);
         database.execSQL(CREATE_FILTER_TABLE);
@@ -461,6 +491,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_LINK_CAMERA_LENS_TABLE);
         database.execSQL(CREATE_LINK_LENS_FILTER_TABLE);
         database.execSQL(CREATE_LINK_FRAME_FILTER_TABLE);
+        populateFilmStocks(database);
     }
 
     /**
@@ -553,6 +584,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             } finally {
                 db.endTransaction();
             }
+        }
+        if (oldVersion < 20) {
+            db.execSQL(CREATE_FILM_STOCKS_TABLE);
+            db.execSQL(ALTER_TABLE_FRAMES_12);
+            db.execSQL(ALTER_TABLE_ROLLS_5);
+            populateFilmStocks(db);
         }
     }
 
@@ -1018,7 +1055,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_FILTERS, null, KEY_FILTER_ID + "=?",
                 new String[]{Long.toString(filter_id)}, null, null, null);
         if (cursor.moveToFirst()) {
-            filter = getFilterFromCursor(cursor, filter);
+            getFilterFromCursor(cursor, filter);
             cursor.close();
         }
         return filter;
@@ -1213,6 +1250,88 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     }
 
 
+    // ******************** CRUD operations for the film stock table ********************
+
+    public Long addFilmStock(@NonNull FilmStock filmStock) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues values = buildFilmStockContentValues(filmStock);
+        return db.insert(TABLE_FILM_STOCKS, null, values);
+    }
+
+    public FilmStock getFilmStock(long filmStockId) {
+        final SQLiteDatabase db = this.getReadableDatabase();
+        FilmStock filmStock = null;
+        Cursor cursor = db.query(TABLE_FILM_STOCKS, null, KEY_FILM_STOCK_ID + "=?",
+                new String[]{Long.toString(filmStockId)}, null, null, null);
+        if (cursor.moveToFirst()) {
+            filmStock = getFilmStockFromCursor(cursor, new FilmStock());
+            cursor.close();
+        }
+        return filmStock;
+    }
+
+    public List<FilmStock> getAllFilmStocks() {
+        final List<FilmStock> filmStocks = new ArrayList<>();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_FILM_STOCKS, null, null,
+                null, null, null,
+                KEY_FILM_MANUFACTURER_NAME + " collate nocase," + KEY_FILM_STOCK_NAME + " collate nocase");
+        while (cursor.moveToNext()) {
+            filmStocks.add(getFilmStockFromCursor(cursor, new FilmStock()));
+        }
+        cursor.close();
+        return filmStocks;
+    }
+
+    public List<FilmStock> getAllFilmStocks(String manufacturerName) {
+        final List<FilmStock> filmStocks = new ArrayList<>();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_FILM_STOCKS, null, KEY_FILM_MANUFACTURER_NAME + "=?",
+                new String[]{manufacturerName}, null, null, null);
+        while (cursor.moveToNext()) {
+            filmStocks.add(getFilmStockFromCursor(cursor, new FilmStock()));
+        }
+        cursor.close();
+        return filmStocks;
+    }
+
+    public List<String> getAllFilmManufacturers() {
+        final List<String> manufacturers = new ArrayList<>();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(true, TABLE_FILM_STOCKS, new String[]{KEY_FILM_MANUFACTURER_NAME},
+                null, null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            manufacturers.add(cursor.getString(cursor.getColumnIndex(KEY_FILM_MANUFACTURER_NAME)));
+        }
+        cursor.close();
+        return manufacturers;
+    }
+
+    public boolean isFilmStockBeingUsed(@NonNull FilmStock filmStock) {
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_FILM_STOCK_ID}, KEY_FILM_STOCK_ID + "=?",
+                new String[]{Long.toString(filmStock.getId())}, null, null, null);
+        if (cursor.moveToFirst()) {
+            cursor.close();
+            return true;
+        }
+        return false;
+    }
+
+    public void deleteFilmStock(@NonNull FilmStock filmStock) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_FILM_STOCKS, KEY_FILM_STOCK_ID + "=?",
+                new String[]{Long.toString(filmStock.getId())});
+    }
+
+    public void updateFilmStock(@NonNull FilmStock filmStock) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues contentValues = buildFilmStockContentValues(filmStock);
+        db.update(TABLE_FILM_STOCKS, contentValues, KEY_FILM_STOCK_ID + "=?",
+                new String[]{Long.toString(filmStock.getId())});
+    }
+
+
     //*********************** METHODS TO GET OBJECTS FROM CURSOR **********************************
 
 
@@ -1253,6 +1372,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setMeteringMode(cursor.getInt(cursor.getColumnIndex(KEY_METERING_MODE)));
         frame.setFormattedAddress(cursor.getString(cursor.getColumnIndex(KEY_FORMATTED_ADDRESS)));
         frame.setPictureFilename(cursor.getString(cursor.getColumnIndex(KEY_PICTURE_FILENAME)));
+        frame.setLightSource(cursor.getInt(cursor.getColumnIndex(KEY_LIGHT_SOURCE)));
         frame.setFilters(getLinkedFilters(frame));
         return frame;
     }
@@ -1285,6 +1405,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         roll.setPushPull(cursor.getString(cursor.getColumnIndex(KEY_ROLL_PUSH)));
         roll.setFormat(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_FORMAT)));
         roll.setArchived(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ARCHIVED)));
+        roll.setFilmStockId(cursor.getInt(cursor.getColumnIndex(KEY_FILM_STOCK_ID)));
         return roll;
     }
 
@@ -1374,6 +1495,21 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return filter;
     }
 
+    /**
+     * Sets the attributes of a FilmStock object using a Cursor object
+     *
+     * @param cursor Cursor object which should be used to get the attributes
+     * @param filmStock the FilmStock whose attributes should be set
+     * @return reference to the FilmStock object given as the parameter
+     */
+    private FilmStock getFilmStockFromCursor(@NonNull Cursor cursor, @NonNull FilmStock filmStock) {
+        filmStock.setId(cursor.getLong(cursor.getColumnIndex(KEY_FILM_STOCK_ID)));
+        filmStock.setManufacturerName(cursor.getString(cursor.getColumnIndex(KEY_FILM_MANUFACTURER_NAME)));
+        filmStock.setStockName(cursor.getString(cursor.getColumnIndex(KEY_FILM_STOCK_NAME)));
+        filmStock.setIso(cursor.getInt(cursor.getColumnIndex(KEY_FILM_ISO)));
+        return filmStock;
+    }
+
 
     //*********************** METHODS TO BUILD CONTENT VALUES **********************************
 
@@ -1404,6 +1540,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_METERING_MODE, frame.getMeteringMode());
         contentValues.put(KEY_FORMATTED_ADDRESS, frame.getFormattedAddress());
         contentValues.put(KEY_PICTURE_FILENAME, frame.getPictureFilename());
+        contentValues.put(KEY_LIGHT_SOURCE, frame.getLightSource());
         return contentValues;
     }
 
@@ -1461,6 +1598,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_ROLL_PUSH, roll.getPushPull());
         contentValues.put(KEY_ROLL_FORMAT, roll.getFormat());
         contentValues.put(KEY_ROLL_ARCHIVED, roll.getArchived());
+        contentValues.put(KEY_FILM_STOCK_ID, roll.getFilmStockId());
         return contentValues;
     }
 
@@ -1474,6 +1612,20 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_FILTER_MAKE, filter.getMake());
         contentValues.put(KEY_FILTER_MODEL, filter.getModel());
+        return contentValues;
+    }
+
+    /**
+     * Builds ContentValues container from a FilmStock object
+     *
+     * @param filmStock FilmStock object of which the ContentValues is created
+     * @return ContentValues containing the attributes of the FilmStock object
+     */
+    private ContentValues buildFilmStockContentValues(@NonNull FilmStock filmStock) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_FILM_MANUFACTURER_NAME, filmStock.getManufacturerName());
+        contentValues.put(KEY_FILM_STOCK_NAME, filmStock.getStockName());
+        contentValues.put(KEY_FILM_ISO, filmStock.getIso());
         return contentValues;
     }
 
@@ -1600,6 +1752,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_PUSH, TEXT, 0) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_FORMAT, INTEGER, 0) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ARCHIVED, INTEGER, 1) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_FILM_STOCK_ID, INTEGER, 0) &&
 
                 checkColumnProperties(TABLE_FRAMES, KEY_FRAME_ID, INTEGER, 0, true, true) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_ROLL_ID, INTEGER, 1, false, false, true, TABLE_ROLLS, CASCADE) &&
@@ -1619,7 +1772,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 checkColumnProperties(TABLE_FRAMES, KEY_FRAME_SIZE, TEXT, 0) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_METERING_MODE, INTEGER, 0) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_FORMATTED_ADDRESS, TEXT, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_PICTURE_FILENAME, TEXT, 0)
+                checkColumnProperties(TABLE_FRAMES, KEY_PICTURE_FILENAME, TEXT, 0) &&
+                checkColumnProperties(TABLE_FRAMES, KEY_LIGHT_SOURCE, INTEGER, 0) &&
+
+                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_STOCK_ID, INTEGER, 0, true, true) &&
+                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_STOCK_NAME, TEXT, 1) &&
+                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_MANUFACTURER_NAME, TEXT, 1) &&
+                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_ISO, INTEGER, 0)
                 ;
 
     }
@@ -1733,6 +1892,42 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         //We get here if no matching column names were found
         cursor.close();
         return false;
+    }
+
+    /**
+     * Populate films from resource arrays to the database
+     */
+    private void populateFilmStocks(SQLiteDatabase db) {
+        final String[] filmStocks = context.getResources().getStringArray(R.array.FilmStocks);
+        int counter = 0;
+        for (String s : filmStocks) {
+            try {
+                final String[] components = s.split(",");
+                FilmStock filmStock = new FilmStock();
+                filmStock.setManufacturerName(components[0]);
+                filmStock.setStockName(components[1]);
+                // Check if the ISO of the film stock was defined.
+                if (components.length >= 3) filmStock.setIso(Integer.parseInt(components[2]));
+                final ContentValues values = buildFilmStockContentValues(filmStock);
+
+                // Insert film stocks if they do not already exist.
+                final Cursor cursor = db.query(TABLE_FILM_STOCKS, null, KEY_FILM_MANUFACTURER_NAME + "=? AND " + KEY_FILM_STOCK_NAME + "=?",
+                        new String[]{filmStock.getManufacturerName(), filmStock.getStockName()}, null, null, null);
+                if (cursor.moveToFirst()) {
+                    cursor.close();
+                } else {
+                    db.insert(TABLE_FILM_STOCKS, null, values);
+                }
+
+            } catch (ArrayIndexOutOfBoundsException e) {
+                counter++;
+            } catch (NumberFormatException e) {
+                counter++;
+            }
+        }
+        if (counter > 0) {
+            Toast.makeText(context, "Error adding film stocks to database", Toast.LENGTH_LONG).show();
+        }
     }
 
 }

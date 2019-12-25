@@ -5,13 +5,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.preference.PreferenceManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.core.app.ActivityCompat;
 import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.preference.PreferenceManager;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -426,23 +427,19 @@ public class LocationPickActivity extends AppCompatActivity implements
      */
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.fab:
-
-                if (latLngLocation == null) {
-                    Toast.makeText(getBaseContext(), R.string.NoLocation, Toast.LENGTH_SHORT).show();
-                    break;
-                } else {
-                    String latitude = "" + latLngLocation.latitude;
-                    String longitude = "" + latLngLocation.longitude;
-                    Intent intent = new Intent();
-                    intent.putExtra(ExtraKeys.LATITUDE, latitude);
-                    intent.putExtra(ExtraKeys.LONGITUDE, longitude);
-                    intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, formattedAddress);
-                    setResult(RESULT_OK, intent);
-                    finish();
-                }
-
+        if (v.getId() == R.id.fab) {
+            if (latLngLocation == null) {
+                Toast.makeText(getBaseContext(), R.string.NoLocation, Toast.LENGTH_SHORT).show();
+            } else {
+                String latitude = "" + latLngLocation.latitude;
+                String longitude = "" + latLngLocation.longitude;
+                Intent intent = new Intent();
+                intent.putExtra(ExtraKeys.LATITUDE, latitude);
+                intent.putExtra(ExtraKeys.LONGITUDE, longitude);
+                intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, formattedAddress);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
         }
     }
 

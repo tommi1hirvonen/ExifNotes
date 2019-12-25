@@ -2,18 +2,19 @@ package com.tommihirvonen.exifnotes.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
+
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.dialogs.SimpleEula;
@@ -156,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
             RollsFragment firstFragment = new RollsFragment();
 
             // Add the fragment to the 'fragment_container' FrameLayout
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment, RollsFragment.ROLLS_FRAGMENT_TAG).commit();
         }
     }
@@ -262,27 +263,21 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
      * @param grantResults An array which is empty if the request was cancelled.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        switch (requestCode) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == MY_MULTIPLE_PERMISSIONS_REQUEST) {// If request is cancelled, the result arrays are empty. Thus we check
+            // the length of grantResults first.
 
-            case MY_MULTIPLE_PERMISSIONS_REQUEST:
+            //Check location permissions
+            if (grantResults.length > 0 && grantResults[1] == PackageManager.PERMISSION_GRANTED
+                    && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+                locationPermissionsGranted = true;
+            }
 
-                // If request is cancelled, the result arrays are empty. Thus we check
-                // the length of grantResults first.
-
-                //Check location permissions
-                if (grantResults.length > 0 && grantResults[1] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                    locationPermissionsGranted = true;
-                }
-
-                //Check write permissions
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    //In case write permission was denied, inform the user.
-                    Toast.makeText(this, R.string.NoWritePermission, Toast.LENGTH_LONG).show();
-                }
-
-                break;
+            //Check write permissions
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                //In case write permission was denied, inform the user.
+                Toast.makeText(this, R.string.NoWritePermission, Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -308,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
                 // If a new database was imported, update the contents of RollsFragment.
                 if ((resultCode & PreferenceActivity.RESULT_DATABASE_IMPORTED) ==
                         PreferenceActivity.RESULT_DATABASE_IMPORTED) {
-                    final Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+                    final Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                     if (fragment instanceof RollsFragment) {
                         ((RollsFragment) fragment).updateFragment(true);
                     }

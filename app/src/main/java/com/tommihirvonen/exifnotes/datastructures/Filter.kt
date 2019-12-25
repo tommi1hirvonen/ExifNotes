@@ -15,7 +15,7 @@ class Filter : Gear, Parcelable {
      *
      * @param pc parcel object containing Filter's information
      */
-    private constructor(pc: Parcel) : super(pc) {}
+    private constructor(pc: Parcel) : super(pc)
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
         super.writeToParcel(parcel, i)

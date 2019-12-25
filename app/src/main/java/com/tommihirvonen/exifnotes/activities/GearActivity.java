@@ -1,15 +1,19 @@
 package com.tommihirvonen.exifnotes.activities;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import com.google.android.material.tabs.TabLayout;
+
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import com.tommihirvonen.exifnotes.adapters.PagerAdapter;
 import com.tommihirvonen.exifnotes.fragments.CamerasFragment;
 import com.tommihirvonen.exifnotes.fragments.FiltersFragment;
 import com.tommihirvonen.exifnotes.fragments.LensesFragment;
@@ -71,7 +75,7 @@ public class GearActivity extends AppCompatActivity {
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = findViewById(R.id.viewpager);
-        pagerAdapter = new PagerAdapter(getFragmentManager(), this);
+        pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
 
         // Give the TabLayout the ViewPager
@@ -110,10 +114,9 @@ public class GearActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -124,7 +127,7 @@ public class GearActivity extends AppCompatActivity {
      * @param outState used to store the current index of ViewPager
      */
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(POSITION, tabLayout.getSelectedTabPosition());
     }
@@ -135,7 +138,7 @@ public class GearActivity extends AppCompatActivity {
      * @param savedInstanceState used to store the current index of ViewPager
      */
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         viewPager.setCurrentItem(savedInstanceState.getInt(POSITION));
     }
@@ -152,16 +155,67 @@ public class GearActivity extends AppCompatActivity {
 
         //CamerasFragment is active
         if (activeFragment == 0) {
-            if ((pagerAdapter.getItem(1)) != null) ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
+            ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
         }
         //LensesFragment is active
         else if (activeFragment == 1) {
-            if ((pagerAdapter.getItem(0)) != null) ((CamerasFragment)pagerAdapter.getItem(0)).updateFragment();
-            if ((pagerAdapter.getItem(2)) != null) ((FiltersFragment)pagerAdapter.getItem(2)).updateFragment();
+            ((CamerasFragment)pagerAdapter.getItem(0)).updateFragment();
+            ((FiltersFragment)pagerAdapter.getItem(2)).updateFragment();
         }
         //FiltersFragment is active
         else if (activeFragment == 2) {
-            if ((pagerAdapter.getItem(1)) != null) ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
+            ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
         }
     }
+
+    private class PagerAdapter extends FragmentPagerAdapter {
+
+        private static final int PAGE_COUNT = 3;
+
+        private Fragment Lenses, Cameras, Filters;
+
+        private PagerAdapter(@NonNull FragmentManager fm) {
+            super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        }
+
+        @NonNull
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 2:
+                    if(Filters == null)
+                        Filters = new FiltersFragment();
+                    return Filters;
+                case 1:
+                    if(Lenses == null)
+                        Lenses = new LensesFragment();
+                    return Lenses;
+                case 0:
+                    if(Cameras == null)
+                        Cameras = new CamerasFragment();
+                    return Cameras;
+            }
+            return new Fragment();
+        }
+
+        @Override
+        public int getCount() {
+            return PAGE_COUNT;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 2:
+                    return getApplicationContext().getResources().getString(R.string.Filters);
+                case 1:
+                    return getApplicationContext().getResources().getString(R.string.Lenses);
+                case 0:
+                    return getApplicationContext().getResources().getString(R.string.Cameras);
+            }
+            return null;
+        }
+
+    }
+
 }

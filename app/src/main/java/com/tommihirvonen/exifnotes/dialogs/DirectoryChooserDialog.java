@@ -3,15 +3,16 @@ package com.tommihirvonen.exifnotes.dialogs;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.preference.PreferenceManager;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -260,8 +261,8 @@ public class DirectoryChooserDialog extends DialogFragment {
                 }
 
                 holder.directoryTextView.setText(text);
-                holder.folderImageView.getDrawable().mutate().setColorFilter(ContextCompat.getColor(
-                        getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
+                Utilities.setColorFilter(holder.folderImageView.getDrawable().mutate(),
+                        ContextCompat.getColor(getContext(), R.color.grey));
 
                 return convertView;
             }
@@ -297,7 +298,7 @@ public class DirectoryChooserDialog extends DialogFragment {
             }
         }
         catch (Exception e) {
-            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " +
+            Toast.makeText(getActivity(), getResources().getString(R.string.CouldNotReadDirectories) + " " +
                     directoryPath, Toast.LENGTH_LONG).show();
         }
 

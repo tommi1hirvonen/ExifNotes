@@ -24,7 +24,7 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
     /**
      * Reference to the implementing class's listener
      */
-    private AsyncResponse delegate;
+    private final AsyncResponse delegate;
 
     /**
      * This interface is implemented in LocationPickActivity's onQueryTextSubmit.
@@ -146,7 +146,7 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
 
                 // Else return an empty string.
             } else {
-                response = new StringBuilder("");
+                response = new StringBuilder();
             }
 
         } catch (Exception e) {

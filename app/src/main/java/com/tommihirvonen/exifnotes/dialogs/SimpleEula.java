@@ -7,8 +7,10 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.preference.PreferenceManager;
+import android.os.Build;
 import android.widget.TextView;
+
+import androidx.preference.PreferenceManager;
 
 import com.tommihirvonen.exifnotes.R;
 
@@ -58,7 +60,10 @@ public class SimpleEula {
 
         // the eulaKey changes every time you increment the version number in the build.gradle script
         String eulaPrefix = "eula_";
-        final String eulaKey = eulaPrefix + versionInfo.versionCode;
+        //noinspection deprecation
+        final String eulaKey = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ?
+                        eulaPrefix + versionInfo.getLongVersionCode() :
+                        eulaPrefix + versionInfo.versionCode;
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
         boolean hasBeenShown = prefs.getBoolean(eulaKey, false);

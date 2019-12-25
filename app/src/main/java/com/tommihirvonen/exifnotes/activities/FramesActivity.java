@@ -61,8 +61,8 @@ public class FramesActivity extends AppCompatActivity {
             arguments.putBoolean(ExtraKeys.LOCATION_ENABLED, locationEnabled);
             framesFragment.setArguments(arguments);
 
-            getFragmentManager().beginTransaction().add(
-                    R.id.fragment_container, framesFragment, FramesFragment.FRAMES_FRAGMENT_TAG).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,
+                    framesFragment, FramesFragment.FRAMES_FRAGMENT_TAG).commit();
 
             // Bring the shadow element from the activity's layout to front.
             findViewById(R.id.shadow).bringToFront();
@@ -99,26 +99,19 @@ public class FramesActivity extends AppCompatActivity {
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-
-            case PREFERENCE_ACTIVITY_REQUEST:
-
-                // If a new database was imported, use setResult() to notify MainActivity as well.
-                // Finish this activity since the selected roll may not be valid anymore.
-                if ((resultCode & PreferenceActivity.RESULT_DATABASE_IMPORTED) ==
-                        PreferenceActivity.RESULT_DATABASE_IMPORTED) {
-                    setResult(resultCode);
-                    finish();
-                }
-                // If the app theme was changed, recreate activity for changes to take effect.
-                if ((resultCode & PreferenceActivity.RESULT_THEME_CHANGED) ==
-                        PreferenceActivity.RESULT_THEME_CHANGED) {
-                    recreate();
-                }
-                return;
-
-            default:
-                break;
+        if (requestCode == PREFERENCE_ACTIVITY_REQUEST) {// If a new database was imported, use setResult() to notify MainActivity as well.
+            // Finish this activity since the selected roll may not be valid anymore.
+            if ((resultCode & PreferenceActivity.RESULT_DATABASE_IMPORTED) ==
+                    PreferenceActivity.RESULT_DATABASE_IMPORTED) {
+                setResult(resultCode);
+                finish();
+            }
+            // If the app theme was changed, recreate activity for changes to take effect.
+            if ((resultCode & PreferenceActivity.RESULT_THEME_CHANGED) ==
+                    PreferenceActivity.RESULT_THEME_CHANGED) {
+                recreate();
+            }
+            return;
         }
 
         // Call super in case the result was not handled here

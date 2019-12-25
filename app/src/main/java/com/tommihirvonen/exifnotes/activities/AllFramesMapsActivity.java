@@ -1,11 +1,11 @@
 package com.tommihirvonen.exifnotes.activities;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -359,7 +359,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                 }
             });
 
-            final Activity activity = this;
+            final AppCompatActivity activity = this;
 
             googleMap_.setOnInfoWindowClickListener(
                     MapsActivity.mapsActivityInfoWindowClickListener(activity, database)

@@ -2,13 +2,13 @@ package com.tommihirvonen.exifnotes.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -74,6 +74,8 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
      */
     private FilmDbHelper database;
 
+    private boolean fragmentVisible = false;
+
     /**
      * Called when the fragment is created.
      * Tell the fragment that it has an options menu so that we can handle
@@ -85,6 +87,18 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onResume() {
+        fragmentVisible = true;
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        fragmentVisible = false;
     }
 
     /**
@@ -143,7 +157,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
     public boolean onContextItemSelected(MenuItem item) {
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
-        if (getUserVisibleHint()) {
+        if (fragmentVisible) {
 
             // Use the getOrder() method to unconventionally get the clicked item's position.
             // This is set to work correctly in the Adapter class.
@@ -322,10 +336,8 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
      */
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.fab_lenses:
-                showLensNameDialog();
-                break;
+        if (v.getId() == R.id.fab_lenses) {
+            showLensNameDialog();
         }
     }
 
@@ -362,7 +374,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
             booleans[i] = mountableCamerasId.contains(allCamerasId.get(i));
         }
 
-        final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+        final CharSequence[] items = listItems.toArray(new CharSequence[0]);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         // MULTIPLE CHOICE DIALOG
@@ -471,7 +483,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
 
 
 
-        final CharSequence[] items = listItems.toArray(new CharSequence[listItems.size()]);
+        final CharSequence[] items = listItems.toArray(new CharSequence[0]);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         // MULTIPLE CHOICE DIALOG

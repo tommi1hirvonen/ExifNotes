@@ -5,22 +5,27 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.view.View;
 import android.widget.Chronometer;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.DialogFragment;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
 import com.tommihirvonen.exifnotes.dialogs.DirectoryChooserDialog;
 import com.tommihirvonen.exifnotes.dialogs.FileChooserDialog;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.AppThemeDialogPreference;
+import com.tommihirvonen.exifnotes.utilities.AppThemePreferenceDialogFragment;
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference;
+import com.tommihirvonen.exifnotes.utilities.UIColorPreferenceDialogFragment;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
@@ -30,7 +35,7 @@ import java.io.IOException;
  * PreferenceFragment is shown in PreferenceActivity.
  * It is responsible for displaying all the preference options.
  */
-public class PreferenceFragment extends android.preference.PreferenceFragment implements
+public class PreferenceFragment extends PreferenceFragmentCompat implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     /**
@@ -50,10 +55,10 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         addPreferencesFromResource(R.xml.fragment_preference);
 
         // Set summaries for the list preferences
-        AppThemeDialogPreference appTheme = (AppThemeDialogPreference) findPreference(PreferenceConstants.KEY_APP_THEME);
+        AppThemeDialogPreference appTheme = findPreference(PreferenceConstants.KEY_APP_THEME);
         appTheme.setSummary(appTheme.getAppTheme());
 
-        UIColorDialogPreference UIColor = (UIColorDialogPreference) findPreference(PreferenceConstants.KEY_UI_COLOR);
+        UIColorDialogPreference UIColor = findPreference(PreferenceConstants.KEY_UI_COLOR);
         UIColor.setSummary(UIColor.getSelectedColorName());
 
         // OnClickListener to start complementary pictures export.
@@ -241,7 +246,7 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                         }).show(getFragmentManager(), "DirChooserDialogTag");
                     }
                 });
-                builder.create().show();;
+                builder.create().show();
 
                 return true;
             }
@@ -309,6 +314,27 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                 return true;
             }
         });
+    }
+
+    @Override
+    public void onDisplayPreferenceDialog(Preference preference) {
+        DialogFragment dialogFragment = null;
+        if (preference instanceof AppThemeDialogPreference) {
+            dialogFragment = AppThemePreferenceDialogFragment.newInstance(preference.getKey());
+        } else if (preference instanceof UIColorDialogPreference) {
+            dialogFragment = UIColorPreferenceDialogFragment.newInstance(preference.getKey());
+        }
+        if (dialogFragment != null) {
+            dialogFragment.setTargetFragment(this, 0);
+            dialogFragment.show(getFragmentManager(), null);
+        } else {
+            super.onDisplayPreferenceDialog(preference);
+        }
+    }
+
+    @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+
     }
 
     /**

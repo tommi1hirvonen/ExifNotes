@@ -3,19 +3,19 @@ package com.tommihirvonen.exifnotes.fragments;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
+import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -368,11 +368,6 @@ public class RollsFragment extends Fragment implements
             case R.id.menu_item_preferences:
 
                 Intent preferenceActivityIntent = new Intent(getActivity(), PreferenceActivity.class);
-                // With these extras we can skip the headers in the preferences.
-                preferenceActivityIntent.putExtra(
-                        PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName());
-                preferenceActivityIntent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
-
                 //Start the preference activity from MainActivity.
                 //The result will be handled in MainActivity.
                 getActivity().startActivityForResult(preferenceActivityIntent, MainActivity.PREFERENCE_ACTIVITY_REQUEST);
@@ -470,10 +465,8 @@ public class RollsFragment extends Fragment implements
      */
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.fab:
-                showRollDialog();
-                break;
+        if (v.getId() == R.id.fab) {
+            showRollDialog();
         }
     }
 
@@ -523,8 +516,8 @@ public class RollsFragment extends Fragment implements
             final boolean visible = rollAdapter.getSelectedItemCount() == 1;
             actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(visible);
             // Set the action mode toolbar title to display the number of selected items.
-            actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()) + "/"
-                    + Integer.toString(rollAdapter.getItemCount()));
+            actionMode.setTitle(rollAdapter.getSelectedItemCount() + "/"
+                    + rollAdapter.getItemCount());
         }
     }
 
@@ -739,8 +732,8 @@ public class RollsFragment extends Fragment implements
                             rollAdapter.resetAnimateAll();
                         }
                     });
-                    actionMode.setTitle(Integer.toString(rollAdapter.getSelectedItemCount()) + "/"
-                            + Integer.toString(rollAdapter.getItemCount()));
+                    actionMode.setTitle(rollAdapter.getSelectedItemCount() + "/"
+                            + rollAdapter.getItemCount());
                     // Set the edit item visibility to false because all rolls are selected.
                     actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(false);
                     return true;

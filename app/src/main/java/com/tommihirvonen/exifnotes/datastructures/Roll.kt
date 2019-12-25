@@ -30,8 +30,7 @@ class Roll : Parcelable {
     var date: String? = null
 
     /**
-     *
-     * @param input custom note
+     * custom note
      */
     var note: String? = null
 
@@ -61,6 +60,11 @@ class Roll : Parcelable {
     var archived = false
 
     /**
+     * Id of the film type used for roll
+     */
+    var filmStockId: Long = 0
+
+    /**
      *
      * @param input greater than zero if true, zero or smaller if false
      */
@@ -85,6 +89,7 @@ class Roll : Parcelable {
         this.pushPull = pc.readString()
         this.format = pc.readInt()
         this.archived = pc.readInt() == 1
+        this.filmStockId = pc.readLong()
     }
 
     /**
@@ -112,6 +117,7 @@ class Roll : Parcelable {
         parcel.writeString(pushPull)
         parcel.writeInt(format)
         parcel.writeInt(if (archived) 1 else 0)
+        parcel.writeLong(filmStockId)
     }
 
         companion object CREATOR : Parcelable.Creator<Roll> {

@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,8 +16,9 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
+
+import com.google.android.gms.common.SupportErrorDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -26,6 +26,8 @@ import androidx.core.content.FileProvider;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
+import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -401,11 +403,6 @@ public class FramesFragment extends Fragment implements
             case R.id.menu_item_preferences:
 
                 Intent preferenceActivityIntent = new Intent(getActivity(), PreferenceActivity.class);
-                // With these extras we can skip the headers in the preferences.
-                preferenceActivityIntent.putExtra(
-                        PreferenceActivity.EXTRA_SHOW_FRAGMENT, PreferenceFragment.class.getName());
-                preferenceActivityIntent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
-
                 //Start the preference activity from FramesActivity.
                 //The result will be handled in FramesActivity.
                 getActivity().startActivityForResult(preferenceActivityIntent, FramesActivity.PREFERENCE_ACTIVITY_REQUEST);
@@ -679,10 +676,8 @@ public class FramesFragment extends Fragment implements
      */
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.fab:
-                showFrameInfoDialog();
-                break;
+        if (v.getId() == R.id.fab) {
+            showFrameInfoDialog();
         }
     }
 
@@ -763,6 +758,7 @@ public class FramesFragment extends Fragment implements
             frame.setAperture(previousFrame.getAperture());
             frame.setFilters(previousFrame.getFilters());
             frame.setFocalLength(previousFrame.getFocalLength());
+            frame.setLightSource(previousFrame.getLightSource());
 
         } else {
             frame.setCount(1);
@@ -940,8 +936,8 @@ public class FramesFragment extends Fragment implements
         // If the user deselected the last of the selected items, exit action mode.
         if (frameAdapter.getSelectedItemCount() == 0) actionMode.finish();
         // Set the action mode toolbar title to display the number of selected items and the number of all items.
-        else actionMode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()) + "/"
-                + Integer.toString(frameAdapter.getItemCount()));
+        else actionMode.setTitle(frameAdapter.getSelectedItemCount() + "/"
+                + frameAdapter.getItemCount());
     }
 
     /**
@@ -1072,8 +1068,8 @@ public class FramesFragment extends Fragment implements
                             frameAdapter.resetAnimateAll();
                         }
                     });
-                    mode.setTitle(Integer.toString(frameAdapter.getSelectedItemCount()) + "/"
-                            + Integer.toString(frameAdapter.getItemCount()));
+                    mode.setTitle(frameAdapter.getSelectedItemCount() + "/"
+                            + frameAdapter.getItemCount());
                     return true;
 
                 default:
@@ -1120,7 +1116,7 @@ public class FramesFragment extends Fragment implements
                 // values ranging from -100 to +100.
                 final List<String> displayedValues = new ArrayList<>();
                 for (int k = -100; k <= 100; ++k) {
-                    if (k > 0) displayedValues.add("+" + Integer.toString(k));
+                    if (k > 0) displayedValues.add("+" + k);
                     else displayedValues.add(Integer.toString(k));
                 }
                 numberPicker.setDisplayedValues(displayedValues.toArray(new String[0]));
@@ -1362,7 +1358,7 @@ public class FramesFragment extends Fragment implements
     /**
      * A fragment to display an error dialog
      */
-    public static class ErrorDialogFragment extends com.google.android.gms.common.ErrorDialogFragment {
+    static class ErrorDialogFragment extends SupportErrorDialogFragment {
 
         /**
          * Empty constructor
@@ -1374,7 +1370,7 @@ public class FramesFragment extends Fragment implements
          * @param outState
          */
         @Override
-        public void onSaveInstanceState(final Bundle outState){
+        public void onSaveInstanceState(@NonNull final Bundle outState){
             setTargetFragment(null, -1);
         }
 
@@ -1388,7 +1384,7 @@ public class FramesFragment extends Fragment implements
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             if (savedInstanceState != null) {
                 setTargetFragment(
-                        getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG),
+                        getActivity().getSupportFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG),
                         ERROR_DIALOG);
             }
             // Get the error code and retrieve the appropriate dialog
@@ -1404,9 +1400,9 @@ public class FramesFragment extends Fragment implements
          */
         @Override
         public void onDismiss(DialogInterface dialog) {
-            if (getActivity() == null || getActivity().getFragmentManager() == null) return;
+            if (getActivity() == null || getActivity().getSupportFragmentManager() == null) return;
             FramesFragment framesfragment =
-                    (FramesFragment) getActivity().getFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG);
+                    (FramesFragment) getActivity().getSupportFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG);
             if (framesfragment != null) framesfragment.onDialogDismissed();
             super.onDismiss(dialog);
         }

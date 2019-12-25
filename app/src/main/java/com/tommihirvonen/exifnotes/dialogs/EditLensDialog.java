@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -14,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.DialogFragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -259,7 +260,7 @@ public class EditLensDialog extends DialogFragment {
                         ContextCompat.getColor(getActivity(), R.color.light_grey) :
                         ContextCompat.getColor(getActivity(), R.color.grey);
                 ImageView dash = dialogView.findViewById(R.id.dash);
-                dash.getDrawable().mutate().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                Utilities.setColorFilter(dash.getDrawable().mutate(), color);
 
                 //To prevent text edit
                 minAperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
@@ -351,7 +352,7 @@ public class EditLensDialog extends DialogFragment {
                 imageViewList.add((ImageView) dialogView.findViewById(R.id.picker_two_fast_forward_image));
                 imageViewList.add((ImageView) dialogView.findViewById(R.id.dash));
                 for (ImageView iv : imageViewList)
-                    iv.getDrawable().mutate().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                    Utilities.setColorFilter(iv.getDrawable().mutate(), color);
 
                 //To prevent text edit
                 minFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);

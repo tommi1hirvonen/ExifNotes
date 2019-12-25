@@ -368,11 +368,11 @@ public final class ComplementaryPicturesManager {
         /**
          * The files that should be included in the zip file
          */
-        private File[] files;
+        private final File[] files;
         /**
          * The target zip file
          */
-        private File zipFile;
+        private final File zipFile;
         /**
          * Number of completed entries. Increment by +1 whenever a file has been zipped.
          */
@@ -380,7 +380,7 @@ public final class ComplementaryPicturesManager {
         /**
          * Reference to the implementing class's listener interface.
          */
-        private ProgressListener delegate;
+        private final ProgressListener delegate;
         /**
          * Interface for the implementing class. Used to send progress changes and to notify,
          * when the AsyncTask has finished.
@@ -417,7 +417,7 @@ public final class ComplementaryPicturesManager {
                 // Set the ZipOutputStream beginning with FileOutputStream then ZipOutputStream.
                 final ZipOutputStream outputStream = new ZipOutputStream(new FileOutputStream(zipFile));
                 // byte array where the bytes read from input stream should be stored.
-                byte buffer[] = new byte[BUFFER];
+                byte[] buffer = new byte[BUFFER];
                 // Iterate the files from the files array
                 for (File file : files) {
                     // Set the BufferedInputStream using FileInputStream
@@ -472,11 +472,11 @@ public final class ComplementaryPicturesManager {
         /**
          * The zip file to be unzipped
          */
-        private File zipFile;
+        private final File zipFile;
         /**
          * Target directory where the files from the zip file should be placed
          */
-        private File targetDirectory;
+        private final File targetDirectory;
         /**
          * Number of completed entries. Increment by +1 whenever a file has been unzipped.
          */
@@ -488,7 +488,7 @@ public final class ComplementaryPicturesManager {
         /**
          * Reference to the implementing class's listener interface.
          */
-        private ProgressListener delegate;
+        private final ProgressListener delegate;
         /**
          * Interface for the implementing class. Used to send progress changes and to notify,
          * when the AsyncTask has finished.

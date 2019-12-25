@@ -3,15 +3,16 @@ package com.tommihirvonen.exifnotes.dialogs;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.preference.PreferenceManager;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -256,8 +257,8 @@ public class FileChooserDialog extends DialogFragment {
                 if (fileOrDirectory != null) {
                     holder.directoryTextView.setText(fileOrDirectory.path);
                     if (fileOrDirectory.directory) {
-                        holder.folderImageView.getDrawable().mutate().setColorFilter(
-                                ContextCompat.getColor(getContext(), R.color.grey), PorterDuff.Mode.SRC_IN);
+                        Utilities.setColorFilter(holder.folderImageView.getDrawable().mutate(),
+                                ContextCompat.getColor(getContext(), R.color.grey));
                         holder.folderImageView.setVisibility(View.VISIBLE);
                     } else {
                         holder.folderImageView.setVisibility(View.INVISIBLE);
@@ -283,7 +284,7 @@ public class FileChooserDialog extends DialogFragment {
      */
     private List<FileOrDirectory> getFileDirs(String directoryPath) {
         List<FileOrDirectory> fileOrDirectories = new ArrayList<>();
-        try {
+//        try {
             File directoryFile = new File(directoryPath);
             // If the file/directory doesn't exist or it is not a directory, return empty list.
             if (!directoryFile.exists() || !directoryFile.isDirectory()) {
@@ -297,11 +298,11 @@ public class FileChooserDialog extends DialogFragment {
                     fileOrDirectories.add(new FileOrDirectory(file.getName(), false));
                 }
             }
-        }
-        catch (Exception e) {
-            Toast.makeText(getActivity(), R.string.CouldNotReadDirectories + " " + directoryPath,
-                    Toast.LENGTH_LONG).show();
-        }
+//        }
+//        catch (Exception e) {
+//            Toast.makeText(getActivity(), getResources().getString(R.string.CouldNotReadDirectories) + " " + directoryPath,
+//                    Toast.LENGTH_LONG).show();
+//        }
         Collections.sort(fileOrDirectories, new Comparator<FileOrDirectory>() {
             public int compare(FileOrDirectory o1, FileOrDirectory o2) {
                 if (o1.directory == o2.directory) {
