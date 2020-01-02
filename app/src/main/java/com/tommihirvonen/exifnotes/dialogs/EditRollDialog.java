@@ -78,6 +78,8 @@ public class EditRollDialog extends DialogFragment {
 
     private ImageView filmStockClearImageView;
 
+    private EditText nameEditText;
+
 
     //These variables are used so that the object itself is not updated
     //unless the user presses ok.
@@ -183,7 +185,7 @@ public class EditRollDialog extends DialogFragment {
         //==========================================================================================
 
         // NAME EDIT TEXT
-        final EditText nameEditText = inflatedView.findViewById((R.id.name_editText));
+        nameEditText = inflatedView.findViewById((R.id.name_editText));
         nameEditText.setText(roll.getName());
         // Place the cursor at the end of the input field
         nameEditText.setSelection(nameEditText.getText().length());
@@ -205,6 +207,7 @@ public class EditRollDialog extends DialogFragment {
         filmStockClearImageView = inflatedView.findViewById(R.id.clear_film_stock);
         if (newFilmStock != null) {
             filmStockTextView.setText(newFilmStock.getName());
+            nameEditText.setHint(newFilmStock.getName());
         } else {
             filmStockTextView.setText("");
             filmStockClearImageView.setVisibility(View.GONE);
@@ -213,6 +216,7 @@ public class EditRollDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 newFilmStock = null;
+                nameEditText.setHint("");
                 filmStockTextView.setText("");
                 filmStockClearImageView.setVisibility(View.GONE);
             }
@@ -447,7 +451,7 @@ public class EditRollDialog extends DialogFragment {
                 @SuppressLint("InflateParams")
                 View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker pushPullPicker =
-                        Utilities.fixNumberPicker((NumberPicker) dialogView.findViewById(R.id.number_picker));
+                        Utilities.fixNumberPicker(dialogView.findViewById(R.id.number_picker));
                 final String[] compValues = getActivity().getResources().getStringArray(R.array.CompValues);
                 pushPullPicker.setMinValue(0);
                 pushPullPicker.setMaxValue(compValues.length-1);
@@ -555,10 +559,12 @@ public class EditRollDialog extends DialogFragment {
 
                 String name = nameEditText.getText().toString();
 
-                if (name.length() == 0) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoName),
-                            Toast.LENGTH_SHORT).show();
-                } else {
+                // Check if name is not set and if name can be replaced with the film stock's name.
+                if (name.length() == 0 && newFilmStock != null) {
+                    name = newFilmStock.getName();
+                }
+                // Check the length again.
+                if (name.length() > 0) {
                     roll.setName(name);
                     roll.setNote(noteEditText.getText().toString());
                     roll.setCameraId(newCamera != null ? newCamera.getId() : 0);
@@ -573,8 +579,10 @@ public class EditRollDialog extends DialogFragment {
                     dialog.dismiss();
                     getTargetFragment().onActivityResult(
                             getTargetRequestCode(), Activity.RESULT_OK, intent);
+                } else {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoName),
+                            Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
 
@@ -641,8 +649,9 @@ public class EditRollDialog extends DialogFragment {
                     builder1.setSingleChoiceItems(filmStockNames_, checkedItem, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            filmStockTextView.setText(filmStocks.get(which).getName());
                             newFilmStock = filmStocks.get(which);
+                            filmStockTextView.setText(newFilmStock.getName());
+                            nameEditText.setHint(newFilmStock.getName());
                             filmStockClearImageView.setVisibility(View.VISIBLE);
                             dialog.dismiss();
                         }

@@ -1296,7 +1296,7 @@ public class EditFrameDialog extends DialogFragment {
             @SuppressLint("InflateParams")
             View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
             final NumberPicker shutterPicker = Utilities.fixNumberPicker(
-                    (NumberPicker) dialogView.findViewById(R.id.number_picker)
+                    dialogView.findViewById(R.id.number_picker)
             );
 
             initialiseShutterPicker(shutterPicker);
@@ -1771,7 +1771,7 @@ public class EditFrameDialog extends DialogFragment {
             @SuppressLint("InflateParams")
             View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
             final NumberPicker exposureCompPicker = Utilities.fixNumberPicker(
-                    (NumberPicker) dialogView.findViewById(R.id.number_picker)
+                    dialogView.findViewById(R.id.number_picker)
             );
 
             // Set the displayed exposure compensation increments depending on the camera's settings.

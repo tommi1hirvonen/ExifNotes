@@ -346,11 +346,11 @@ public class EditLensDialog extends DialogFragment {
                         ContextCompat.getColor(getActivity(), R.color.light_grey) :
                         ContextCompat.getColor(getActivity(), R.color.grey);
                 List<ImageView> imageViewList = new ArrayList<>();
-                imageViewList.add((ImageView) dialogView.findViewById(R.id.picker_one_fast_rewind_image));
-                imageViewList.add((ImageView) dialogView.findViewById(R.id.picker_one_fast_forward_image));
-                imageViewList.add((ImageView) dialogView.findViewById(R.id.picker_two_fast_rewind_image));
-                imageViewList.add((ImageView) dialogView.findViewById(R.id.picker_two_fast_forward_image));
-                imageViewList.add((ImageView) dialogView.findViewById(R.id.dash));
+                imageViewList.add(dialogView.findViewById(R.id.picker_one_fast_rewind_image));
+                imageViewList.add(dialogView.findViewById(R.id.picker_one_fast_forward_image));
+                imageViewList.add(dialogView.findViewById(R.id.picker_two_fast_rewind_image));
+                imageViewList.add(dialogView.findViewById(R.id.picker_two_fast_forward_image));
+                imageViewList.add(dialogView.findViewById(R.id.dash));
                 for (ImageView iv : imageViewList)
                     Utilities.setColorFilter(iv.getDrawable().mutate(), color);
 

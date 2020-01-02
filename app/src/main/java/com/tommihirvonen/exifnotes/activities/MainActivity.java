@@ -188,8 +188,10 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
     @Override
     public void onStart(){
         //Delete all the files created in FramesFragment.setShareIntentExportRoll
-        File externalStorageDir = getExternalFilesDir(null);
+        final File externalStorageDir = getExternalFilesDir(null);
         Utilities.purgeDirectory(externalStorageDir);
+        final File externalCacheDir = getExternalCacheDir();
+        Utilities.purgeDirectory(externalCacheDir);
         super.onStart();
     }
 

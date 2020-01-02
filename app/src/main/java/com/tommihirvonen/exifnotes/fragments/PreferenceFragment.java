@@ -1,9 +1,12 @@
 package com.tommihirvonen.exifnotes.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Chronometer;
@@ -11,13 +14,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
-import com.tommihirvonen.exifnotes.dialogs.DirectoryChooserDialog;
-import com.tommihirvonen.exifnotes.dialogs.FileChooserDialog;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.AppThemeDialogPreference;
 import com.tommihirvonen.exifnotes.utilities.AppThemePreferenceDialogFragment;
@@ -28,8 +30,15 @@ import com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference;
 import com.tommihirvonen.exifnotes.utilities.UIColorPreferenceDialogFragment;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * PreferenceFragment is shown in PreferenceActivity.
@@ -37,6 +46,14 @@ import java.io.IOException;
  */
 public class PreferenceFragment extends PreferenceFragmentCompat implements
         SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static final int REQUEST_IMPORT_COMPLEMENTARY_PICTURES = 1;
+
+    private static final int REQUEST_IMPORT_DATABASE = 2;
+
+    private static final int REQUEST_EXPORT_COMPLEMENTARY_PICTURES = 3;
+
+    private static final int REQUEST_EXPORT_DATABASE = 4;
 
     /**
      * Get the preferences from resources. Set the UI and add listeners
@@ -66,58 +83,14 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
         exportComplementaryPictures.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
-                DirectoryChooserDialog.newInstance(new DirectoryChooserDialog.OnChosenDirectoryListener() {
-                    @Override
-                    public void onChosenDirectory(String directory) {
-                        // directory is empty if the export was canceled.
-                        if (directory.length() == 0) return;
-
-                        // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        @SuppressLint("InflateParams")
-                        final View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_progress, null);
-                        builder.setView(view);
-                        final ProgressBar progressBar = view.findViewById(R.id.progress_bar);
-                        final TextView messageTextView = view.findViewById(R.id.textview_1);
-                        messageTextView.setText(R.string.ExportingComplementaryPicturesPleaseWait);
-                        final TextView progressTextView = view.findViewById(R.id.textview_2);
-                        final Chronometer chronometer = view.findViewById(R.id.elapsed_time);
-                        progressBar.setMax(100);
-                        progressBar.setProgress(0);
-                        progressTextView.setText("");
-                        final AlertDialog dialog = builder.create();
-                        dialog.setCancelable(false);
-                        dialog.show();
-                        chronometer.start();
-                        ComplementaryPicturesManager.exportComplementaryPictures(getActivity(),
-                                new File(directory), new ComplementaryPicturesManager.ZipFileCreatorAsyncTask.ProgressListener() {
-                            @Override
-                            public void onProgressChanged(int progressPercentage, int completed, int total) {
-                                progressBar.setProgress(progressPercentage);
-                                final String progressText = "" + completed + "/" + total;
-                                progressTextView.setText(progressText);
-                            }
-                            @Override
-                            public void onCompleted(boolean success, int completedEntries, File zipFile) {
-                                dialog.dismiss();
-                                if (success) {
-                                    if (completedEntries == 0)
-                                        Toast.makeText(getActivity(), R.string.NoPicturesExported, Toast.LENGTH_LONG).show();
-                                    else
-                                        Toast.makeText(getActivity(),
-                                            getResources().getQuantityString(
-                                                    R.plurals.ComplementaryPicturesExportedTo,
-                                                    completedEntries, completedEntries)
-                                                    + zipFile.getName(), Toast.LENGTH_LONG).show();
-                                }
-                                else Toast.makeText(getActivity(),
-                                        R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show();
-                            }
-                        });
-                    }
-                }).show(getFragmentManager(), "DirChooserDialogTag");
-
+                final Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/zip");
+                final String date = Utilities.getCurrentTime().split("\\s+")[0];
+                final String title = "Exif_Notes_Complementary_Pictures_" + date + ".zip";
+                intent.putExtra(Intent.EXTRA_TITLE, title);
+                startActivityForResult(intent, REQUEST_EXPORT_COMPLEMENTARY_PICTURES);
                 return true;
             }
         });
@@ -135,61 +108,11 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                 builder.setPositiveButton(R.string.Continue, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-
-                        FileChooserDialog.newInstance(".zip", new FileChooserDialog.OnChosenFileListener() {
-                            @Override
-                            public void onChosenFile(final String filePath) {
-                                // filePath is empty if the import was canceled
-                                if (filePath.length() == 0) return;
-
-                                // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                @SuppressLint("InflateParams")
-                                final View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_progress, null);
-                                builder.setView(view);
-                                final ProgressBar progressBar = view.findViewById(R.id.progress_bar);
-                                final TextView messageTextView = view.findViewById(R.id.textview_1);
-                                messageTextView.setText(R.string.ImportingComplementaryPicturesPleaseWait);
-                                final TextView progressTextView = view.findViewById(R.id.textview_2);
-                                final Chronometer chronometer = view.findViewById(R.id.elapsed_time);
-                                progressBar.setMax(100);
-                                progressBar.setProgress(0);
-                                progressTextView.setText("");
-                                final AlertDialog dialog = builder.create();
-                                dialog.setCancelable(false);
-                                dialog.show();
-                                chronometer.start();
-                                ComplementaryPicturesManager.importComplementaryPictures(getActivity(),
-                                        new File(filePath), new ComplementaryPicturesManager.ZipFileReaderAsyncTask.ProgressListener() {
-                                            @Override
-                                            public void onProgressChanged(int progressPercentage, int completed, int total) {
-                                                progressBar.setProgress(progressPercentage);
-                                                final String progressText = "" + completed + "/" + total;
-                                                progressTextView.setText(progressText);
-                                            }
-
-                                            @Override
-                                            public void onCompleted(boolean success, int completedEntries) {
-                                                dialog.dismiss();
-                                                if (success) {
-                                                    if (completedEntries == 0)
-                                                        Toast.makeText(getActivity(),
-                                                                R.string.NoPicturesImported, Toast.LENGTH_LONG).show();
-                                                    else
-                                                        Toast.makeText(getActivity(),
-                                                                getResources().getQuantityString(
-                                                                        R.plurals.ComplementaryPicturesImported,
-                                                                        completedEntries, completedEntries),
-                                                                Toast.LENGTH_LONG).show();
-                                                }
-                                                else Toast.makeText(getActivity(),
-                                                        R.string.ErrorImportingComplementaryPicturesFrom,
-                                                        Toast.LENGTH_LONG).show();
-                                            }
-                                        });
-                            }
-                        }).show(getFragmentManager(), "FileChooserDialogTag");
-
+                        final Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("application/zip");
+                        startActivityForResult(intent, REQUEST_IMPORT_COMPLEMENTARY_PICTURES);
                     }
                 });
                 builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
@@ -217,33 +140,14 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                 builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-
-                        DirectoryChooserDialog.newInstance(new DirectoryChooserDialog.OnChosenDirectoryListener() {
-                            @Override
-                            public void onChosenDirectory(String directory) {
-                                //dir is empty if the export was canceled.
-                                //Otherwise proceed
-                                if (directory.length() > 0) {
-                                    //Export the files to the given path
-                                    //Inform the user if something went wrong
-                                    final String date = Utilities.getCurrentTime().split("\\s+")[0];
-                                    final String filename = "Exif_Notes_Database_" + date + ".db";
-                                    final File databaseFile = FilmDbHelper.getDatabaseFile(getActivity());
-                                    final File outputFile = new File(new File(directory), filename);
-                                    try {
-                                        Utilities.copyFile(databaseFile, outputFile);
-                                    } catch (IOException e){
-                                        Toast.makeText(getActivity(),
-                                                getResources().getString(R.string.ErrorExportingDatabase),
-                                                Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                    Toast.makeText(getActivity(),
-                                            getResources().getString(R.string.DatabaseCopiedToFile) + filename,
-                                            Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        }).show(getFragmentManager(), "DirChooserDialogTag");
+                        final Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("*/*");
+                        final String date = Utilities.getCurrentTime().split("\\s+")[0];
+                        final String filename = "Exif_Notes_Database_" + date + ".db";
+                        intent.putExtra(Intent.EXTRA_TITLE, filename);
+                        startActivityForResult(intent, REQUEST_EXPORT_DATABASE);
                     }
                 });
                 builder.create().show();
@@ -265,41 +169,11 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                 builder.setPositiveButton(R.string.Continue, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        FileChooserDialog.newInstance(".db", new FileChooserDialog.OnChosenFileListener() {
-                            @Override
-                            public void onChosenFile(String filePath) {
-                                //If the length of filePath is 0, then the user canceled the import.
-                                if (filePath.length() > 0) {
-                                    FilmDbHelper database = FilmDbHelper.getInstance(getActivity());
-                                    boolean importSuccess;
-                                    try {
-                                        importSuccess = database.importDatabase(getActivity(), filePath);
-                                    } catch (IOException e) {
-                                        Toast.makeText(getActivity(),
-                                                getResources().getString(R.string.ErrorImportingDatabaseFrom) +
-                                                        filePath,
-                                                Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                    if (importSuccess) {
-
-                                        // Set the parent activity's result code
-                                        PreferenceActivity preferenceActivity =
-                                                (PreferenceActivity) getActivity();
-                                        int resultCode = preferenceActivity.getResultCode();
-
-                                        // Preserve the previously put result code(s)
-                                        resultCode = resultCode | PreferenceActivity.RESULT_DATABASE_IMPORTED;
-                                        preferenceActivity.setResultCode(resultCode);
-
-                                        Toast.makeText(getActivity(),
-                                                getResources().getString(R.string.DatabaseImported),
-                                                Toast.LENGTH_LONG).show();
-
-                                    }
-                                }
-                            }
-                        }).show(getFragmentManager(), "FileChooserDialogTag");
+                        final Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("*/*");
+                        startActivityForResult(intent, REQUEST_IMPORT_DATABASE);
                     }
                 });
                 builder.setNegativeButton(getResources().getString(R.string.No),
@@ -330,6 +204,247 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
         } else {
             super.onDisplayPreferenceDialog(preference);
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+
+            case REQUEST_IMPORT_COMPLEMENTARY_PICTURES:
+
+                if (resultCode == Activity.RESULT_OK) {
+
+                    String filePath;
+
+                    try {
+                        final Uri picturesUri = data.getData();
+                        final InputStream inputStream = getContext().getContentResolver()
+                                .openInputStream(picturesUri);
+                        final File outputDir = getContext().getExternalCacheDir();
+                        final File outputFile = File.createTempFile("pictures", ".zip", outputDir);
+                        final OutputStream outputStream = new FileOutputStream(outputFile);
+                        IOUtils.copy(inputStream, outputStream);
+                        inputStream.close();
+                        outputStream.close();
+                        filePath = outputFile.getAbsolutePath();
+                        final String extension = FilenameUtils.getExtension(outputFile.getName());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+
+                    if (filePath == null) return;
+
+                    // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    @SuppressLint("InflateParams")
+                    final View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_progress, null);
+                    builder.setView(view);
+                    final ProgressBar progressBar = view.findViewById(R.id.progress_bar);
+                    final TextView messageTextView = view.findViewById(R.id.textview_1);
+                    messageTextView.setText(R.string.ImportingComplementaryPicturesPleaseWait);
+                    final TextView progressTextView = view.findViewById(R.id.textview_2);
+                    final Chronometer chronometer = view.findViewById(R.id.elapsed_time);
+                    progressBar.setMax(100);
+                    progressBar.setProgress(0);
+                    progressTextView.setText("");
+                    final AlertDialog dialog = builder.create();
+                    dialog.setCancelable(false);
+                    dialog.show();
+                    chronometer.start();
+                    ComplementaryPicturesManager.importComplementaryPictures(getActivity(),
+                            new File(filePath), new ComplementaryPicturesManager.ZipFileReaderAsyncTask.ProgressListener() {
+                                @Override
+                                public void onProgressChanged(int progressPercentage, int completed, int total) {
+                                    progressBar.setProgress(progressPercentage);
+                                    final String progressText = "" + completed + "/" + total;
+                                    progressTextView.setText(progressText);
+                                }
+
+                                @Override
+                                public void onCompleted(boolean success, int completedEntries) {
+                                    dialog.dismiss();
+                                    if (success) {
+                                        if (completedEntries == 0)
+                                            Toast.makeText(getActivity(),
+                                                    R.string.NoPicturesImported, Toast.LENGTH_LONG).show();
+                                        else
+                                            Toast.makeText(getActivity(),
+                                                    getResources().getQuantityString(
+                                                            R.plurals.ComplementaryPicturesImported,
+                                                            completedEntries, completedEntries),
+                                                    Toast.LENGTH_LONG).show();
+                                    }
+                                    else Toast.makeText(getActivity(),
+                                            R.string.ErrorImportingComplementaryPictures,
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            });
+                }
+
+                break;
+
+
+
+            case REQUEST_IMPORT_DATABASE:
+
+                if (resultCode == Activity.RESULT_OK) {
+
+                    try {
+                        // Copy the content from the Uri to a cached File so it can be read as a File.
+                        final Uri databaseUri = data.getData();
+                        final InputStream inputStream = getContext().getContentResolver()
+                                .openInputStream(databaseUri);
+                        final File outputDir = getContext().getExternalCacheDir();
+                        final File outputFile = File.createTempFile("database", ".db", outputDir);
+                        final OutputStream outputStream = new FileOutputStream(outputFile);
+                        IOUtils.copy(inputStream, outputStream);
+                        inputStream.close();
+                        outputStream.close();
+                        final String filePath = outputFile.getAbsolutePath();
+                        final String extension = FilenameUtils.getExtension(outputFile.getName());
+
+                        //If the length of filePath is 0, then the user canceled the import.
+                        if (filePath.length() > 0 && extension.equals("db")) {
+                            FilmDbHelper database = FilmDbHelper.getInstance(getActivity());
+                            boolean importSuccess;
+                            try {
+                                importSuccess = database.importDatabase(getActivity(), filePath);
+                            } catch (IOException e) {
+                                Toast.makeText(getActivity(),
+                                        getResources().getString(R.string.ErrorImportingDatabaseFrom) +
+                                                filePath,
+                                        Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            if (importSuccess) {
+
+                                // Set the parent activity's result code
+                                PreferenceActivity preferenceActivity =
+                                        (PreferenceActivity) getActivity();
+                                int resultCode_ = preferenceActivity.getResultCode();
+
+                                // Preserve the previously put result code(s)
+                                resultCode_ = resultCode_ | PreferenceActivity.RESULT_DATABASE_IMPORTED;
+                                preferenceActivity.setResultCode(resultCode_);
+
+                                Toast.makeText(getActivity(),
+                                        getResources().getString(R.string.DatabaseImported),
+                                        Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(getActivity(), "Import failed", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                break;
+
+            case REQUEST_EXPORT_COMPLEMENTARY_PICTURES:
+
+                if (resultCode == Activity.RESULT_OK) {
+
+                    try {
+                        final Uri picturesUri = data.getData();
+                        final OutputStream outputStream = getContext().getContentResolver()
+                                .openOutputStream(picturesUri);
+                        final File inputDir = getContext().getExternalCacheDir();
+                        final File inputFile = File.createTempFile("complementary_pictures", ".zip", inputDir);
+
+                        // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        @SuppressLint("InflateParams")
+                        final View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_progress, null);
+                        builder.setView(view);
+                        final ProgressBar progressBar = view.findViewById(R.id.progress_bar);
+                        final TextView messageTextView = view.findViewById(R.id.textview_1);
+                        messageTextView.setText(R.string.ExportingComplementaryPicturesPleaseWait);
+                        final TextView progressTextView = view.findViewById(R.id.textview_2);
+                        final Chronometer chronometer = view.findViewById(R.id.elapsed_time);
+                        progressBar.setMax(100);
+                        progressBar.setProgress(0);
+                        progressTextView.setText("");
+                        final AlertDialog dialog = builder.create();
+                        dialog.setCancelable(false);
+                        dialog.show();
+                        chronometer.start();
+                        ComplementaryPicturesManager.exportComplementaryPictures(getActivity(), inputFile,
+                                new ComplementaryPicturesManager.ZipFileCreatorAsyncTask.ProgressListener() {
+                                @Override
+                                public void onProgressChanged(int progressPercentage, int completed, int total) {
+                                    progressBar.setProgress(progressPercentage);
+                                    final String progressText = "" + completed + "/" + total;
+                                    progressTextView.setText(progressText);
+                                }
+                                @Override
+                                public void onCompleted(boolean success, int completedEntries, File zipFile) {
+                                    dialog.dismiss();
+                                    if (success) {
+                                        if (completedEntries == 0) {
+                                            Toast.makeText(getActivity(), R.string.NoPicturesExported, Toast.LENGTH_LONG).show();
+                                        } else {
+                                            try {
+                                                final InputStream inputStream = new FileInputStream(zipFile);
+                                                IOUtils.copy(inputStream, outputStream);
+                                                inputStream.close();
+                                                outputStream.close();
+                                                Toast.makeText(getActivity(),
+                                                        getResources().getQuantityString(
+                                                                R.plurals.ComplementaryPicturesExported,
+                                                                completedEntries, completedEntries), Toast.LENGTH_LONG).show();
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                                Toast.makeText(getActivity(),
+                                                        R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    } else {
+                                        Toast.makeText(getActivity(),
+                                                R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                        });
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getActivity(),
+                                R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                break;
+
+
+            case REQUEST_EXPORT_DATABASE:
+
+                if (resultCode == Activity.RESULT_OK) {
+                    try {
+                        final Uri destinationUri = data.getData();
+                        final OutputStream outputStream = getContext().getContentResolver()
+                                .openOutputStream(destinationUri);
+                        final File databaseFile = FilmDbHelper.getDatabaseFile(getActivity());
+                        final InputStream inputStream = new FileInputStream(databaseFile);
+                        IOUtils.copy(inputStream, outputStream);
+                        inputStream.close();
+                        outputStream.close();
+                        Toast.makeText(getActivity(),
+                                getResources().getString(R.string.DatabaseCopiedSuccessfully),
+                                Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getActivity(),
+                                getResources().getString(R.string.ErrorExportingDatabase),
+                                Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                break;
+
+        }
+
     }
 
     @Override

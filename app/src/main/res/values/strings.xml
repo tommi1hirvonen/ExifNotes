@@ -7,18 +7,24 @@
     <string name="Decline">Decline</string>
 
     <!--When updating "about" also update "eula"-->
-    <string name="about">Version 1.13.1\nCopyright 2019 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.14.0\nCopyright 2019 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
 
     <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
-        -Updated deprecated location API calls\n
-        -Targeting Android 10 (Q)\n
-        -Migrated from Android Support Library to AndroidX\n
-        -Data structure classes migrated from Java to Kotlin\n
+        -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
+        -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
+        -Added light source property to frames\n
+        -Added film stock property to rolls\n
     </string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.14.0 2020-01-02:\n
+        -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
+        -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
+        -Added light source property to frames\n
+        -Added film stock property to rolls\n
         \n
         v1.13.1 2019-10-12:\n
         -Updated deprecated location API calls\n
@@ -252,6 +258,7 @@
     <string name="ExportOrShare">Export/share files</string>
     <string name="ExportToDevice">Export files to storage</string>
     <string name="ErrorExporting">An error occurred while exporting the files.</string>
+    <string name="ExportedFilesSuccessfully">Files exported successfully</string>
     <string name="ExportedFilesTo">Exported file(s) to:</string>
     <string name="Share">Share</string>
 
@@ -529,7 +536,7 @@
     <string name="ErrorGettingDatabaseFile">Error getting database file</string>
     <string name="ErrorBuildingOutputFile">Error building output file:\u0020</string>
     <string name="ErrorExportingDatabase">Error exporting database</string>
-    <string name="DatabaseCopiedToFile">Database copied to file\u0020</string>
+    <string name="DatabaseCopiedSuccessfully">Database copied successfully</string>
     <string name="ImportDatabaseVerification">
         Are you sure you want to continue importing?
         \n\nThis will replace the current database with the imported one. Orphaned complementary pictures will also eventually be removed from storage.
@@ -560,12 +567,12 @@
     </string>
     <string name="ExportingComplementaryPicturesPleaseWait">Exporting complementary pictures, please wait.\n\nDepending on the number of complementary pictures, this can take several minutes.</string>
     <string name="ErrorExportingComplementaryPictures">Error exporting complementary pictures</string>
-    <string name="ErrorImportingComplementaryPicturesFrom">Error importing complementary pictures from: </string>
+    <string name="ErrorImportingComplementaryPictures">Error importing complementary pictures</string>
     <string name="ImportingComplementaryPicturesPleaseWait">Importing complementary pictures, please wait.\n\nDepending on the size of the .zip file, this can take several minutes.</string>
     <string name="NoPicturesExported">No pictures were exported</string>
-    <plurals name="ComplementaryPicturesExportedTo">
-        <item quantity="one">%d picture exported to\u0020</item>
-        <item quantity="other">%d pictures exported to\u0020</item>
+    <plurals name="ComplementaryPicturesExported">
+        <item quantity="one">%d picture exported</item>
+        <item quantity="other">%d pictures exported</item>
     </plurals>
     <string name="NoPicturesImported">No pictures were imported</string>
     <plurals name="ComplementaryPicturesImported">

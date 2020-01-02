@@ -12,6 +12,7 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.icu.util.Output;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
@@ -26,6 +27,7 @@ import androidx.core.content.FileProvider;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -55,7 +57,6 @@ import com.tommihirvonen.exifnotes.adapters.FrameAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
-import com.tommihirvonen.exifnotes.dialogs.DirectoryChooserDialog;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
@@ -68,6 +69,10 @@ import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,7 +119,9 @@ public class FramesFragment extends Fragment implements
     /**
      * Constant passed to LocationPickActivity
      */
-    private static final int LOCATION_PICK_REQUEST = 5;
+    private static final int REQUEST_LOCATION_PICK = 5;
+
+    private static final int REQUEST_EXPORT_FILES = 6;
 
     /**
      * Reference to the singleton database
@@ -444,12 +451,9 @@ public class FramesFragment extends Fragment implements
                 // Method getShareRollIntent() may take a while to run since it
                 // generates the files that will be shared.
                 // -> Run the code on a new thread, which lets the UI thread to finish menu animations.
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent shareIntent = getShareRollIntent();
-                        startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.Share)));
-                    }
+                new Thread(() -> {
+                    Intent shareIntent = getShareRollIntent();
+                    startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.Share)));
                 }).start();
 
                 break;
@@ -457,29 +461,9 @@ public class FramesFragment extends Fragment implements
             //Export to device
             case R.id.menu_item_export:
 
-                DirectoryChooserDialog dirChooserDialog = DirectoryChooserDialog.newInstance(
-                        new DirectoryChooserDialog.OnChosenDirectoryListener() {
-                    @Override
-                    public void onChosenDirectory(String directory) {
-                        //dir is empty if the export was canceled.
-                        //Otherwise proceed
-                        if (directory.length() > 0) {
-                            //Export the files to the given path
-                            //Inform the user if something went wrong
-                            if (exportFilesTo(directory)){
-                                Toast.makeText(getActivity(),
-                                        getResources().getString(R.string.ExportedFilesTo) + " " + directory,
-                                        Toast.LENGTH_LONG).show();
-                            } else {
-
-                                Toast.makeText(getActivity(),
-                                        getResources().getString(R.string.ErrorExporting),
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    }
-                });
-                dirChooserDialog.show(getFragmentManager(), "DirChooserDialogTag");
+                final Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                startActivityForResult(intent, REQUEST_EXPORT_FILES);
 
                 break;
 
@@ -503,64 +487,6 @@ public class FramesFragment extends Fragment implements
         frameAdapter.notifyDataSetChanged();
     }
 
-    /**
-     * Used to export csv and/or exiftool commands to the device's own storage.
-     *
-     * @param dir the directory to which the files are to be exported
-     * @return false if something went wrong, true otherwise
-     */
-    private boolean exportFilesTo(String dir){
-
-        //Replace illegal characters from the roll name to make it a valid file name.
-        String rollName = Utilities.replaceIllegalChars(roll.getName() != null ? roll.getName() : "");
-
-        //Get the user setting about which files to export. By default, share both files.
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
-                getActivity().getBaseContext());
-        String filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT,
-                PreferenceConstants.VALUE_BOTH);
-
-        //Create the file names for the two files to be put in that intent
-        String fileNameCsv = rollName + "_csv" + ".txt";
-        String fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt";
-
-        //Create the strings to be written on those two files
-        String csvString = Utilities.createCsvString(getActivity(), roll);
-        String exifToolCmds = Utilities.createExifToolCmdsString(getActivity(), roll);
-
-        //Create the files in external storage
-        File fileCsv = new File(dir, fileNameCsv);
-        File fileExifToolCmds = new File(dir, fileNameExifToolCmds);
-
-        boolean csvExportSuccess = false;
-        boolean exifToolCmdsExportSuccess = false;
-
-        if (filesToExport.equals(PreferenceConstants.VALUE_BOTH) ||
-                filesToExport.equals(PreferenceConstants.VALUE_CSV)) {
-            //Write the csv file
-            if (Utilities.writeTextFile(fileCsv, csvString))
-                csvExportSuccess = true;
-        }
-
-        if (filesToExport.equals(PreferenceConstants.VALUE_BOTH) ||
-                filesToExport.equals(PreferenceConstants.VALUE_EXIFTOOL)) {
-            //Write the ExifTool commands file
-            if (Utilities.writeTextFile(fileExifToolCmds, exifToolCmds))
-                exifToolCmdsExportSuccess = true;
-        }
-
-        switch (filesToExport) {
-            case PreferenceConstants.VALUE_BOTH:
-                return csvExportSuccess && exifToolCmdsExportSuccess;
-            case PreferenceConstants.VALUE_CSV:
-                return csvExportSuccess;
-            case PreferenceConstants.VALUE_EXIFTOOL:
-                return exifToolCmdsExportSuccess;
-            default:
-                return false;
-        }
-
-    }
 
     /**
      * Creates an Intent to share exiftool commands and a csv
@@ -865,7 +791,7 @@ public class FramesFragment extends Fragment implements
 
                 break;
 
-            case LOCATION_PICK_REQUEST:
+            case REQUEST_LOCATION_PICK:
 
                 // Consume the case when the user has edited
                 // the location of several frames in action mode.
@@ -890,6 +816,59 @@ public class FramesFragment extends Fragment implements
                     // Exit action mode after edit,
                     // so that getSelectedItemPositions() isn't an empty list.
                     if (actionMode != null) actionMode.finish();
+                }
+
+                break;
+
+            case REQUEST_EXPORT_FILES:
+
+                if (resultCode == Activity.RESULT_OK) {
+
+                    try {
+                        final String rollName = Utilities.replaceIllegalChars(roll.getName() != null ? roll.getName() : "");
+                        final Uri directoryUri = data.getData();
+                        final DocumentFile directoryDocumentFile = DocumentFile.fromTreeUri(getContext(), directoryUri);
+
+
+                        //Get the user setting about which files to export. By default, share both files.
+                        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                                getActivity().getBaseContext());
+                        final String filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT,
+                                PreferenceConstants.VALUE_BOTH);
+
+                        if (filesToExport.equals(PreferenceConstants.VALUE_BOTH) ||
+                                filesToExport.equals(PreferenceConstants.VALUE_CSV)) {
+
+                            final DocumentFile csvDocumentFile = directoryDocumentFile.createFile("text/plain", rollName + "_csv.txt");
+                            final OutputStream csvOutputStream = getActivity().getContentResolver().openOutputStream(csvDocumentFile.getUri());
+                            final String csvString = Utilities.createCsvString(getActivity(), roll);
+                            final OutputStreamWriter csvOutputStreamWriter = new OutputStreamWriter(csvOutputStream);
+                            csvOutputStreamWriter.write(csvString);
+                            csvOutputStreamWriter.flush();
+                            csvOutputStreamWriter.close();
+                            csvOutputStream.close();
+
+                        }
+                        if (filesToExport.equals(PreferenceConstants.VALUE_BOTH) ||
+                                filesToExport.equals(PreferenceConstants.VALUE_EXIFTOOL)) {
+
+                            final DocumentFile cmdDocumentFile = directoryDocumentFile.createFile("text/plain", rollName + "_ExifToolCmds.txt");
+                            final OutputStream cmdOutputStream = getActivity().getContentResolver().openOutputStream(cmdDocumentFile.getUri());
+                            final String cmdString = Utilities.createExifToolCmdsString(getActivity(), roll);
+                            final OutputStreamWriter cmdOutputStreamWriter = new OutputStreamWriter(cmdOutputStream);
+                            cmdOutputStreamWriter.write(cmdString);
+                            cmdOutputStreamWriter.flush();
+                            cmdOutputStreamWriter.close();
+                            cmdOutputStream.close();
+
+                        }
+
+                        Toast.makeText(getActivity(), R.string.ExportedFilesSuccessfully, Toast.LENGTH_SHORT).show();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getActivity(), R.string.ErrorExporting, Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 break;
@@ -1040,7 +1019,7 @@ public class FramesFragment extends Fragment implements
                                     case 1:
                                         // Edit location
                                         Intent intent = new Intent(getActivity(), LocationPickActivity.class);
-                                        startActivityForResult(intent, LOCATION_PICK_REQUEST);
+                                        startActivityForResult(intent, REQUEST_LOCATION_PICK);
                                         break;
                                     default:
                                         break;
@@ -1086,12 +1065,7 @@ public class FramesFragment extends Fragment implements
         public void onDestroyActionMode(ActionMode mode) {
             frameAdapter.clearSelections();
             actionMode = null;
-            mainRecyclerView.post(new Runnable() {
-                @Override
-                public void run() {
-                    frameAdapter.resetAnimationIndex();
-                }
-            });
+            mainRecyclerView.post(() -> { frameAdapter.resetAnimationIndex(); });
             // Return the status bar to its original color before action mode.
             Utilities.setStatusBarColor(getActivity(), Utilities.getSecondaryUiColor(getActivity()));
             // Make the floating action bar visible again since action mode is exited.

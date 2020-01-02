@@ -1,5 +1,6 @@
 package com.tommihirvonen.exifnotes.utilities;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -7,7 +8,9 @@ import android.graphics.BitmapFactory;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
+import android.provider.MediaStore;
 
 import com.tommihirvonen.exifnotes.R;
 
@@ -18,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
@@ -96,14 +100,41 @@ public final class ComplementaryPicturesManager {
      * @throws IOException thrown if the file copying failed
      */
     public static void addPictureToGallery(Context context, String fileName) throws IOException {
-        final File publicPictureDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), context.getString(R.string.app_name));
-        final File copyFromFile = ComplementaryPicturesManager.getPictureFile(context, fileName);
-        final File copyToFile = new File(publicPictureDirectory, fileName);
-        Utilities.copyFile(copyFromFile, copyToFile);
-        final Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        final Uri contentUri = Uri.fromFile(copyToFile);
-        mediaScanIntent.setData(contentUri);
-        context.sendBroadcast(mediaScanIntent);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+            final ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/" + context.getString(R.string.app_name));
+            contentValues.put(MediaStore.Images.Media.IS_PENDING, true);
+            final Uri uri = context.getContentResolver()
+                    .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+            if (uri != null) {
+                final File source = ComplementaryPicturesManager.getPictureFile(context, fileName);
+                final OutputStream outputStream = context.getContentResolver().openOutputStream(uri);
+                final Bitmap bitmap = BitmapFactory.decodeFile(source.getAbsolutePath());
+                if (outputStream != null) {
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                    outputStream.close();
+                }
+                contentValues.put(MediaStore.Images.Media.IS_PENDING, false);
+                context.getContentResolver().update(uri, contentValues, null, null);
+
+            }
+
+        } else {
+
+            @SuppressWarnings("deprecation")
+            final File publicPictureDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), context.getString(R.string.app_name));
+            final File copyFromFile = ComplementaryPicturesManager.getPictureFile(context, fileName);
+            final File copyToFile = new File(publicPictureDirectory, fileName);
+            Utilities.copyFile(copyFromFile, copyToFile);
+            @SuppressWarnings("deprecation")
+            final Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            final Uri contentUri = Uri.fromFile(copyToFile);
+            mediaScanIntent.setData(contentUri);
+            context.sendBroadcast(mediaScanIntent);
+
+        }
     }
 
     /**
@@ -310,9 +341,9 @@ public final class ComplementaryPicturesManager {
      * Exports all linked complementary pictures to a zip in the target directory.
      *
      * @param context activity's context
-     * @param targetDirectory the directory where the zip file should be saved
+     * @param targetFile the directory where the zip file should be saved
      */
-    public static void exportComplementaryPictures(Context context, File targetDirectory, ZipFileCreatorAsyncTask.ProgressListener progressListener) {
+    public static void exportComplementaryPictures(Context context, File targetFile, ZipFileCreatorAsyncTask.ProgressListener progressListener) {
         final List<String> complementaryPictureFilenames = FilmDbHelper.getInstance(context).getAllComplementaryPictureFilenames();
         final File picturesDirectory = getComplementaryPicturesDirectory(context);
         final FilenameFilter filter = new FilenameFilter() {
@@ -321,16 +352,9 @@ public final class ComplementaryPicturesManager {
                 return complementaryPictureFilenames.contains(s);
             }
         };
-        File[] files = null;
-        if (picturesDirectory != null) {
-            files = picturesDirectory.listFiles(filter);
-        }
+        final File[] files = picturesDirectory != null ? picturesDirectory.listFiles(filter) : null;
         // If files is empty, no zip file will be created in ZipFileCreatorAsyncTask
-        if (files != null) {
-            final String date = Utilities.getCurrentTime().split("\\s+")[0];
-            final File targetFile = new File(targetDirectory, "Exif_Notes_Complementary_Pictures_" + date + ".zip");
-            new ZipFileCreatorAsyncTask(files, targetFile, progressListener).execute();
-        }
+        if (files != null) new ZipFileCreatorAsyncTask(files, targetFile, progressListener).execute();
     }
 
     /**
