@@ -581,7 +581,9 @@ public final class Utilities {
      * @param gearList reference to the List that should be sorted.
      */
     public static void sortGearList(final List<? extends Gear> gearList) {
-        Collections.sort(gearList, (Comparator<Gear>) (g1, g2) -> g1.getName().compareTo(g2.getName()));
+        Collections.sort(gearList, (Comparator<Gear>) (g1, g2) ->
+                g1.getName().compareToIgnoreCase(g2.getName())
+        );
     }
 
     /**

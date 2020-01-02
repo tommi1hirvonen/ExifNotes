@@ -39,6 +39,8 @@ public final class ExtraKeys {
 
     public static final String ROLL = "ROLL";
 
+    public static final String FILM_STOCK = "FILM_STOCK";
+
     public static final String RESULT_CODE = "RESULT_CODE";
 
     /**

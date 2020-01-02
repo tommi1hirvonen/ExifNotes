@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.tommihirvonen.exifnotes.fragments.CamerasFragment;
+import com.tommihirvonen.exifnotes.fragments.FilmStocksFragment;
 import com.tommihirvonen.exifnotes.fragments.FiltersFragment;
 import com.tommihirvonen.exifnotes.fragments.LensesFragment;
 import com.tommihirvonen.exifnotes.R;
@@ -170,9 +171,9 @@ public class GearActivity extends AppCompatActivity {
 
     private class PagerAdapter extends FragmentPagerAdapter {
 
-        private static final int PAGE_COUNT = 3;
+        private static final int PAGE_COUNT = 4;
 
-        private Fragment Lenses, Cameras, Filters;
+        private Fragment Lenses, Cameras, Filters, Films;
 
         private PagerAdapter(@NonNull final FragmentManager fm) {
             super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
@@ -182,6 +183,10 @@ public class GearActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(final int position) {
             switch (position) {
+                case 3:
+                    if (Films == null)
+                        Films = new FilmStocksFragment();
+                    return Films;
                 case 2:
                     if(Filters == null)
                         Filters = new FiltersFragment();
@@ -206,6 +211,8 @@ public class GearActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(final int position) {
             switch (position) {
+                case 3:
+                    return getApplicationContext().getResources().getString(R.string.Films);
                 case 2:
                     return getApplicationContext().getResources().getString(R.string.Filters);
                 case 1:

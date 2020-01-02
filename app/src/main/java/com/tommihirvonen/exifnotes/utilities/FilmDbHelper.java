@@ -724,7 +724,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public List<Lens> getAllLenses(){
         final List<Lens> lenses = new ArrayList<>();
         final SQLiteDatabase db = this.getReadableDatabase();
-        final Cursor cursor = db.query(TABLE_LENSES, null, null, null, null, null, KEY_LENS_MAKE);
+        final Cursor cursor = db.query(TABLE_LENSES, null, null, null,
+                null, null, KEY_LENS_MAKE + " collate nocase," + KEY_LENS_MODEL + " collate nocase");
         Lens lens;
         while (cursor.moveToNext()) {
             lens = getLensFromCursor(cursor);
@@ -810,7 +811,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public List<Camera> getAllCameras(){
         final List<Camera> cameras = new ArrayList<>();
         final SQLiteDatabase db = this.getReadableDatabase();
-        final Cursor cursor = db.query(TABLE_CAMERAS, null, null, null, null, null, KEY_CAMERA_MAKE);
+        final Cursor cursor = db.query(TABLE_CAMERAS, null, null, null,
+                null, null, KEY_CAMERA_MAKE + " collate nocase," + KEY_CAMERA_MODEL + " collate nocase");
         Camera camera;
         while (cursor.moveToNext()) {
             camera = getCameraFromCursor(cursor);
@@ -1069,7 +1071,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     public List<Filter> getAllFilters(){
         final List<Filter> filters = new ArrayList<>();
         final SQLiteDatabase db = this.getReadableDatabase();
-        final Cursor cursor = db.query(TABLE_FILTERS, null, null, null,null, null, KEY_FILTER_MAKE);
+        final Cursor cursor = db.query(TABLE_FILTERS, null, null, null,
+                null, null, KEY_FILTER_MAKE + " collate nocase," + KEY_FILTER_MODEL + " collate nocase");
         Filter filter;
         while (cursor.moveToNext()) {
             filter = getFilterFromCursor(cursor);

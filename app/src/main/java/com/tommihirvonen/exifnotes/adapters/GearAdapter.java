@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
+import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Gear;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
@@ -137,17 +138,24 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
             } else if (gear instanceof Filter) {
                 mountables1 = database.getLinkedLenses((Filter) gear);
             }
+
             final StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(context.getString(R.string.MountsTo));
-            for (final Gear g : mountables1) {
-                stringBuilder.append("\n- ").append(g.getName());
+            if (gear instanceof FilmStock) {
+                final FilmStock filmStock = (FilmStock) gear;
+                stringBuilder.append("ISO ").append(filmStock.getIso());
+            } else {
+                stringBuilder.append(context.getString(R.string.MountsTo));
+                for (final Gear g : mountables1) {
+                    stringBuilder.append("\n- ").append(g.getName());
+                }
+                // If the second list of mountables is not empty, add a line change and additional mountables.
+                if (!mountables2.isEmpty()) stringBuilder.append("\n");
+                // For loop not iterated, if mountables2 is empty.
+                for (final Gear g : mountables2) {
+                    stringBuilder.append("\n- ").append(g.getName());
+                }
             }
-            // If the second list of mountables is not empty, add a line change and additional mountables.
-            if (!mountables2.isEmpty()) stringBuilder.append("\n");
-            // For loop not iterated, if mountables2 is empty.
-            for (final Gear g : mountables2) {
-                stringBuilder.append("\n- ").append(g.getName());
-            }
+
             holder.nameTextView.setText(gearName);
 
             holder.mountablesTextView.setText(stringBuilder.toString());

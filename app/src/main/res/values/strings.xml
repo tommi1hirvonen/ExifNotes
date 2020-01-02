@@ -285,6 +285,15 @@
     <string name="Filters">FILTERS</string>
     <string name="ConfirmFilterDelete">Delete filter</string>
 
+    <!--FilmStocksFragment-->
+    <string name="Films">FILMS</string>
+    <string name="NoFilmStocks">No added film stocks</string>
+    <string name="DeleteFilmStock">Delete film stock</string>
+    <string name="FilmStockIsInUseConfirmation">Film stock is in use. Delete anyway?</string>
+    <string name="Manufacturer">Manufacturer</string>
+    <string name="EditFilmStock">Edit film stock</string>
+    <string name="AddNewFilmStock">Add new film stock</string>
+
     <!--LensNameDialog-->
     <string name="NewLens">Add new lens</string>
     <string name="Add">Add</string>
