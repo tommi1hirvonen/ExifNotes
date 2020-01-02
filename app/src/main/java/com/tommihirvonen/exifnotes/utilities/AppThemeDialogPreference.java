@@ -16,11 +16,11 @@ public class AppThemeDialogPreference extends DialogPreference {
 
     private String selectedTheme;
 
-    public AppThemeDialogPreference(Context context, AttributeSet attrs) {
+    public AppThemeDialogPreference(final Context context, final AttributeSet attrs) {
         super(context, attrs);
     }
 
-    void setAppTheme(String theme) {
+    void setAppTheme(final String theme) {
         selectedTheme = theme;
         persistString(selectedTheme);
     }
@@ -38,12 +38,12 @@ public class AppThemeDialogPreference extends DialogPreference {
      * @return string containing the default value
      */
     @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
+    protected Object onGetDefaultValue(final TypedArray a, final int index) {
         return a.getString(index);
     }
 
     @Override
-    protected void onSetInitialValue(@Nullable Object defaultValue) {
+    protected void onSetInitialValue(@Nullable final Object defaultValue) {
         setAppTheme(getPersistedString(PreferenceConstants.VALUE_APP_THEME_LIGHT));
     }
 

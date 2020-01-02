@@ -2,10 +2,10 @@ package com.tommihirvonen.exifnotes.activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.widget.AppCompatCheckBox;
@@ -60,7 +60,7 @@ public class PreferenceActivity extends AppCompatActivity implements
      *                   to indicate that both a database was imported and the app's theme
      *                   was changed
      */
-    public void setResultCode(int resultCode) {
+    public void setResultCode(final int resultCode) {
         this.resultCode = resultCode;
         setResult(resultCode);
     }
@@ -80,11 +80,11 @@ public class PreferenceActivity extends AppCompatActivity implements
      * @param savedInstanceState {@inheritDoc}
      */
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    protected void onPostCreate(final Bundle savedInstanceState) {
 
         overridePendingTransition(R.anim.enter_from_right, R.anim.hold);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
             setTheme(R.style.Theme_AppCompat);
@@ -112,7 +112,7 @@ public class PreferenceActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_settings_legacy);
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
-            RelativeLayout relativeLayout = findViewById(R.id.rel_layout);
+            final RelativeLayout relativeLayout = findViewById(R.id.rel_layout);
             relativeLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.background_dark_grey));
         }
 
@@ -130,53 +130,12 @@ public class PreferenceActivity extends AppCompatActivity implements
                     ContextCompat.getColor(getBaseContext(), R.color.white));
         }
 
-        actionbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        actionbar.setNavigationOnClickListener(v -> finish());
         getSupportFragmentManager().beginTransaction().add(R.id.rel_layout, new PreferenceFragment()).commit();
     }
 
-    /**
-     * If the app is run on a pre-L device, then manually inject AppCompat preference element.
-     *
-     * @param name {@inheritDoc}
-     * @param context {@inheritDoc}
-     * @param attrs {@inheritDoc}
-     * @return null
-     */
     @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
-        // Allow super to try and create a view first
-        final View result = super.onCreateView(name, context, attrs);
-        if (result != null) {
-            return result;
-        }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            // If we're running pre-L, we need to 'inject' our tint aware Views in place of the
-            // standard framework versions
-            switch (name) {
-                case "EditText":
-                    return new AppCompatEditText(this, attrs);
-                case "Spinner":
-                    return new AppCompatSpinner(this, attrs);
-                case "CheckBox":
-                    return new AppCompatCheckBox(this, attrs);
-                case "RadioButton":
-                    return new AppCompatRadioButton(this, attrs);
-                case "CheckedTextView":
-                    return new AppCompatCheckedTextView(this, attrs);
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull final Bundle outState) {
         // Save the result code so that it can be set for this activity's result when recreated
         super.onSaveInstanceState(outState);
         outState.putInt(ExtraKeys.RESULT_CODE, resultCode);
@@ -190,7 +149,7 @@ public class PreferenceActivity extends AppCompatActivity implements
      * @param key {@inheritDoc}
      */
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
         final int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
         Utilities.setStatusBarColor(this, secondaryColor);

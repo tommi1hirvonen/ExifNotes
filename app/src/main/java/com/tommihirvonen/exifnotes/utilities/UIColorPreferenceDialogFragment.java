@@ -11,7 +11,7 @@ import com.tommihirvonen.exifnotes.R;
 
 public class UIColorPreferenceDialogFragment extends PreferenceDialogFragmentCompat {
 
-    public static UIColorPreferenceDialogFragment newInstance(String key) {
+    public static UIColorPreferenceDialogFragment newInstance(final String key) {
         final UIColorPreferenceDialogFragment fragment = new UIColorPreferenceDialogFragment();
         final Bundle b = new Bundle(1);
         b.putString(ARG_KEY, key);
@@ -39,16 +39,16 @@ public class UIColorPreferenceDialogFragment extends PreferenceDialogFragmentCom
 
 
     @Override
-    protected void onBindDialogView(View view) {
+    protected void onBindDialogView(final View view) {
         super.onBindDialogView(view);
-        ImageView color1 = view.findViewById(R.id.ui_color_option_1);
-        ImageView color2 = view.findViewById(R.id.ui_color_option_2);
-        ImageView color3 = view.findViewById(R.id.ui_color_option_3);
-        ImageView color4 = view.findViewById(R.id.ui_color_option_4);
-        ImageView color5 = view.findViewById(R.id.ui_color_option_5);
-        ImageView color6 = view.findViewById(R.id.ui_color_option_6);
-        ImageView color7 = view.findViewById(R.id.ui_color_option_7);
-        ImageView color8 = view.findViewById(R.id.ui_color_option_8);
+        final ImageView color1 = view.findViewById(R.id.ui_color_option_1);
+        final ImageView color2 = view.findViewById(R.id.ui_color_option_2);
+        final ImageView color3 = view.findViewById(R.id.ui_color_option_3);
+        final ImageView color4 = view.findViewById(R.id.ui_color_option_4);
+        final ImageView color5 = view.findViewById(R.id.ui_color_option_5);
+        final ImageView color6 = view.findViewById(R.id.ui_color_option_6);
+        final ImageView color7 = view.findViewById(R.id.ui_color_option_7);
+        final ImageView color8 = view.findViewById(R.id.ui_color_option_8);
         checkbox1 = view.findViewById(R.id.checkbox_1);
         checkbox2 = view.findViewById(R.id.checkbox_2);
         checkbox3 = view.findViewById(R.id.checkbox_3);
@@ -66,7 +66,7 @@ public class UIColorPreferenceDialogFragment extends PreferenceDialogFragmentCom
         color7.setOnClickListener(new ColorOnClickListener());
         color8.setOnClickListener(new ColorOnClickListener());
 
-        DialogPreference preference = getPreference();
+        final DialogPreference preference = getPreference();
         if (preference instanceof UIColorDialogPreference) {
             index = ((UIColorDialogPreference) preference).getSelectedColorIndex();
         }
@@ -75,10 +75,10 @@ public class UIColorPreferenceDialogFragment extends PreferenceDialogFragmentCom
     }
 
     @Override
-    public void onDialogClosed(boolean positiveResult) {
+    public void onDialogClosed(final boolean positiveResult) {
         if (positiveResult) {
 
-            DialogPreference preference = getPreference();
+            final DialogPreference preference = getPreference();
 
             if (preference instanceof UIColorDialogPreference &&
                     preference.callChangeListener(((UIColorDialogPreference) preference).getSelectedColorData())) {
@@ -130,7 +130,7 @@ public class UIColorPreferenceDialogFragment extends PreferenceDialogFragmentCom
 
     private class ColorOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View view) {
+        public void onClick(final View view) {
             final int id = view.getId();
             switch (id) {
                 case R.id.ui_color_option_1:

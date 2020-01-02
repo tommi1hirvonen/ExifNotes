@@ -38,7 +38,7 @@ public class EditFrameDialogCallback extends EditFrameDialog {
      * Method to set the reference to the calling class's interface
      * @param listener calling class's listener interface
      */
-    public void setOnPositiveButtonClickedListener (OnPositiveButtonClickedListener listener) {
+    public void setOnPositiveButtonClickedListener (final OnPositiveButtonClickedListener listener) {
         callback = listener;
     }
 
@@ -51,28 +51,23 @@ public class EditFrameDialogCallback extends EditFrameDialog {
      */
     @NonNull
     @Override
-    public Dialog onCreateDialog (Bundle SavedInstanceState) {
+    public Dialog onCreateDialog (final Bundle SavedInstanceState) {
 
         final AlertDialog dialog = (AlertDialog) super.onCreateDialog(SavedInstanceState);
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(new OnPositiveButtonClickListener(dialog) {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 super.onClick(v);
                 // Return the new entered name to the calling activity
-                Intent intent = new Intent();
+                final Intent intent = new Intent();
                 intent.putExtra(ExtraKeys.FRAME, frame);
                 callback.onPositiveButtonClicked(intent);
             }
         });
 
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(view -> dialog.dismiss());
 
         return dialog;
     }

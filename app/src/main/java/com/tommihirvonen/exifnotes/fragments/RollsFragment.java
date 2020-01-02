@@ -4,12 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -140,7 +141,7 @@ public class RollsFragment extends Fragment implements
      */
     @SuppressWarnings("deprecation")
     @Override
-    public void onAttach(Activity a) {
+    public void onAttach(@NonNull final Activity a) {
         super.onAttach(a);
         callback = (OnRollSelectedListener) a;
     }
@@ -151,7 +152,7 @@ public class RollsFragment extends Fragment implements
      * @param c Context to which the onRollSelectedListener is attached.
      */
     @Override
-    public void onAttach(Context c) {
+    public void onAttach(@NonNull final Context c) {
         super.onAttach(c);
         callback = (OnRollSelectedListener) c;
     }
@@ -165,7 +166,7 @@ public class RollsFragment extends Fragment implements
      *                           create the fragment
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
@@ -180,19 +181,18 @@ public class RollsFragment extends Fragment implements
      * @return The inflated view
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
+                             final Bundle savedInstanceState) {
         // Set the ActionBar title text.
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
-            //noinspection ConstantConditions
             actionBar.setTitle("  " + getResources().getString(R.string.MainActivityTitle));
-            //noinspection ConstantConditions
             actionBar.setDisplayHomeAsUpEnabled(false);
         }
         // Assign the database.
         database = FilmDbHelper.getInstance(getActivity());
         // Inflate the layout view.
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+        final LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         final View view = layoutInflater.inflate(R.layout.fragment_rolls, container, false);
         // Assign the FloatingActionButton and set this activity to react to the fab being pressed.
         floatingActionButton = view.findViewById(R.id.fab);
@@ -203,9 +203,10 @@ public class RollsFragment extends Fragment implements
         mainRecyclerView = view.findViewById(R.id.rolls_recycler_view);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mainRecyclerView.setLayoutManager(layoutManager);
-        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(), layoutManager.getOrientation()));
+        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(),
+                layoutManager.getOrientation()));
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
         // Use the updateFragment() method to load the film rolls from the database,
         // create an ArrayAdapter to link the list of rolls to the ListView,
@@ -219,9 +220,10 @@ public class RollsFragment extends Fragment implements
     /**
      * Public method to update the contents of this fragment.
      */
-    public void updateFragment(boolean recreateRollAdapter){
+    public void updateFragment(final boolean recreateRollAdapter){
 
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        final SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(getActivity().getBaseContext());
         // Get from preferences which rolls to load from the database.
         filterMode = FilterMode.Companion.fromValue(
                 sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilterMode.ACTIVE.getValue()));
@@ -250,10 +252,9 @@ public class RollsFragment extends Fragment implements
                 break;
         }
 
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         // Set the ActionBar subtitle.
         if (actionBar != null) {
-            //noinspection ConstantConditions
             actionBar.setSubtitle("   " + subtitleText);
         }
 
@@ -290,7 +291,7 @@ public class RollsFragment extends Fragment implements
     public void onResume(){
         super.onResume();
         rollAdapter.notifyDataSetChanged();
-        int secondaryColor = Utilities.getSecondaryUiColor(getActivity().getApplicationContext());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getActivity().getApplicationContext());
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
         // If action mode is enabled, color the status bar dark grey.
         if (rollAdapter.getSelectedItemCount() > 0 || actionMode != null) {
@@ -305,7 +306,7 @@ public class RollsFragment extends Fragment implements
      * @param inflater the MenuInflater from Activity
      */
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull final Menu menu, final MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.menu_rolls_fragment, menu);
     }
@@ -317,7 +318,7 @@ public class RollsFragment extends Fragment implements
      * @param menu reference to the menu that is to be prepared
      */
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
+    public void onPrepareOptionsMenu(@NonNull final Menu menu) {
 
         switch (filterMode) {
             case ACTIVE: default:
@@ -356,18 +357,18 @@ public class RollsFragment extends Fragment implements
      * @return true because the item selection was consumed/handled.
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
+    public boolean onOptionsItemSelected(final MenuItem item){
         switch (item.getItemId()) {
 
             case R.id.menu_item_gear:
 
-                Intent gearActivityIntent = new Intent(getActivity(), GearActivity.class);
+                final Intent gearActivityIntent = new Intent(getActivity(), GearActivity.class);
                 startActivity(gearActivityIntent);
                 break;
 
             case R.id.menu_item_preferences:
 
-                Intent preferenceActivityIntent = new Intent(getActivity(), PreferenceActivity.class);
+                final Intent preferenceActivityIntent = new Intent(getActivity(), PreferenceActivity.class);
                 //Start the preference activity from MainActivity.
                 //The result will be handled in MainActivity.
                 getActivity().startActivityForResult(preferenceActivityIntent, MainActivity.PREFERENCE_ACTIVITY_REQUEST);
@@ -375,15 +376,15 @@ public class RollsFragment extends Fragment implements
 
             case R.id.menu_item_help:
 
-                String helpTitle = getResources().getString(R.string.Help);
-                String helpMessage = getResources().getString(R.string.main_help);
+                final String helpTitle = getResources().getString(R.string.Help);
+                final String helpMessage = getResources().getString(R.string.main_help);
                 Utilities.showGeneralDialog(getActivity(), helpTitle, helpMessage);
                 break;
 
             case R.id.menu_item_about:
 
-                String aboutTitle = getResources().getString(R.string.app_name);
-                String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" +
+                final String aboutTitle = getResources().getString(R.string.app_name);
+                final String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" +
                         getResources().getString(R.string.VersionHistory);
                 Utilities.showGeneralDialog(getActivity(), aboutTitle, aboutMessage);
                 break;
@@ -391,7 +392,7 @@ public class RollsFragment extends Fragment implements
             case R.id.menu_item_show_on_map:
 
                 // Show all frames from all rolls on a map
-                Intent allFramesMapsActivityIntent = new Intent(getActivity(), AllFramesMapsActivity.class);
+                final Intent allFramesMapsActivityIntent = new Intent(getActivity(), AllFramesMapsActivity.class);
                 startActivity(allFramesMapsActivityIntent);
                 break;
 
@@ -434,7 +435,7 @@ public class RollsFragment extends Fragment implements
      *
      * @param filterMode enum type referencing the filtering mode
      */
-    private void setFilterMode(FilterMode filterMode) {
+    private void setFilterMode(final FilterMode filterMode) {
         final SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         final SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -448,7 +449,7 @@ public class RollsFragment extends Fragment implements
      *
      * @param sortMode enum type referencing the sorting mode
      */
-    private void setSortMode(RollSortMode sortMode) {
+    private void setSortMode(final RollSortMode sortMode) {
         final SharedPreferences sharedPreferences = getActivity().getPreferences(Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, sortMode.getValue());
@@ -464,7 +465,7 @@ public class RollsFragment extends Fragment implements
      * @param v view which was clicked.
      */
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
         if (v.getId() == R.id.fab) {
             showRollDialog();
         }
@@ -478,11 +479,11 @@ public class RollsFragment extends Fragment implements
      * @param position position of the item in RollAdapter
      */
     @Override
-    public void onItemClick(int position) {
+    public void onItemClick(final int position) {
         if (rollAdapter.getSelectedItemCount() > 0 || actionMode != null) {
             enableActionMode(position);
         } else {
-            long rollId = rollList.get(position).getId();
+            final long rollId = rollList.get(position).getId();
             callback.onRollSelected(rollId);
         }
     }
@@ -493,7 +494,7 @@ public class RollsFragment extends Fragment implements
      * @param position position of the item in RollAdapter
      */
     @Override
-    public void onItemLongClick(int position) {
+    public void onItemLongClick(final int position) {
         enableActionMode(position);
     }
 
@@ -503,7 +504,7 @@ public class RollsFragment extends Fragment implements
      *
      * @param position position of the item in RollAdapter
      */
-    private void enableActionMode(int position) {
+    private void enableActionMode(final int position) {
         if (actionMode == null) {
             actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
         }
@@ -529,9 +530,9 @@ public class RollsFragment extends Fragment implements
      * @param position the position of the roll in rollList
      */
     @SuppressLint("CommitTransaction")
-    private void showEditRollDialog(int position){
-        EditRollDialog dialog = new EditRollDialog();
-        Bundle arguments = new Bundle();
+    private void showEditRollDialog(final int position){
+        final EditRollDialog dialog = new EditRollDialog();
+        final Bundle arguments = new Bundle();
         arguments.putParcelable(ExtraKeys.ROLL, rollList.get(position));
         arguments.putString(ExtraKeys.TITLE, getActivity().getResources().getString(R.string.EditRoll));
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getActivity().getResources().getString(R.string.OK));
@@ -546,8 +547,8 @@ public class RollsFragment extends Fragment implements
      */
     @SuppressLint("CommitTransaction")
     private void showRollDialog() {
-        EditRollDialog dialog = new EditRollDialog();
-        Bundle arguments = new Bundle();
+        final EditRollDialog dialog = new EditRollDialog();
+        final Bundle arguments = new Bundle();
         arguments.putString(ExtraKeys.TITLE, getActivity().getResources().getString(R.string.NewRoll));
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getActivity().getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
@@ -564,15 +565,15 @@ public class RollsFragment extends Fragment implements
      * @param data the extra data attached to the passed Intent
      */
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch(requestCode) {
 
             case ROLL_DIALOG:
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Roll roll = data.getParcelableExtra(ExtraKeys.ROLL);
-                    long rowId = database.addRoll(roll);
+                    final Roll roll = data.getParcelableExtra(ExtraKeys.ROLL);
+                    final long rowId = database.addRoll(roll);
                     roll.setId(rowId);
 
                     mainTextViewAnimateInvisible();
@@ -582,7 +583,7 @@ public class RollsFragment extends Fragment implements
                     rollAdapter.notifyItemInserted(rollList.indexOf(roll));
 
                     // When the new roll is added jump to view the added entry
-                    int pos = rollList.indexOf(roll);
+                    final int pos = rollList.indexOf(roll);
                     if (pos < rollAdapter.getItemCount()) mainRecyclerView.scrollToPosition(pos);
 
                 } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -597,7 +598,7 @@ public class RollsFragment extends Fragment implements
 
                     if (actionMode != null) actionMode.finish();
 
-                    Roll roll = data.getParcelableExtra(ExtraKeys.ROLL);
+                    final Roll roll = data.getParcelableExtra(ExtraKeys.ROLL);
                     database.updateRoll(roll);
                     // Notify array adapter that the dataset has to be updated
                     final int oldPosition = rollList.indexOf(roll);
@@ -643,7 +644,7 @@ public class RollsFragment extends Fragment implements
          * @return {@inheritDoc}
          */
         @Override
-        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+        public boolean onCreateActionMode(final ActionMode actionMode, final Menu menu) {
 
             // Set the status bar color to be dark grey to complement the grey action mode toolbar.
             Utilities.setStatusBarColor(getActivity(), ContextCompat.getColor(getActivity(), R.color.dark_grey));
@@ -670,7 +671,7 @@ public class RollsFragment extends Fragment implements
          * @return {@inheritDoc}
          */
         @Override
-        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+        public boolean onPrepareActionMode(final ActionMode actionMode, final Menu menu) {
             return false;
         }
 
@@ -682,7 +683,7 @@ public class RollsFragment extends Fragment implements
          * @return {@inheritDoc}
          */
         @Override
-        public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
+        public boolean onActionItemClicked(final ActionMode actionMode, final MenuItem menuItem) {
             // Get the positions in the rollList of selected items
             final List<Integer> selectedItemPositions = rollAdapter.getSelectedItemPositions();
 
@@ -694,31 +695,25 @@ public class RollsFragment extends Fragment implements
                     final String title = selectedItemPositions.size() == 1 ?
                             getResources().getString(R.string.ConfirmRollDelete) + " \'" + rollList.get(selectedItemPositions.get(0)).getName() + "\'?" :
                             String.format(getResources().getString(R.string.ConfirmRollsDelete), selectedItemPositions.size());
-                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+                    final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
                     alertBuilder.setTitle(title);
-                    alertBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Do nothing
-                        }
+                    alertBuilder.setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                        // Do nothing
                     });
-                    alertBuilder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
-                                final int rollPosition = selectedItemPositions.get(i);
-                                final Roll roll = rollList.get(rollPosition);
-                                // Delete the roll. Database foreign key rules make sure,
-                                // that any linked frames are deleted as well.
-                                database.deleteRoll(roll);
-                                // Remove the roll from the rollList. Do this last!!!
-                                rollList.remove(rollPosition);
+                    alertBuilder.setPositiveButton(R.string.OK, (dialog, which) -> {
+                        for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
+                            final int rollPosition = selectedItemPositions.get(i);
+                            final Roll roll = rollList.get(rollPosition);
+                            // Delete the roll. Database foreign key rules make sure,
+                            // that any linked frames are deleted as well.
+                            database.deleteRoll(roll);
+                            // Remove the roll from the rollList. Do this last!!!
+                            rollList.remove(rollPosition);
 
-                                if (rollList.size() == 0) mainTextViewAnimateVisible();
-                                rollAdapter.notifyItemRemoved(rollPosition);
-                            }
-                            actionMode.finish();
+                            if (rollList.size() == 0) mainTextViewAnimateVisible();
+                            rollAdapter.notifyItemRemoved(rollPosition);
                         }
+                        actionMode.finish();
                     });
                     alertBuilder.create().show();
                     return true;
@@ -726,12 +721,7 @@ public class RollsFragment extends Fragment implements
                 case R.id.menu_item_select_all:
 
                     rollAdapter.toggleSelectionAll();
-                    mainRecyclerView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            rollAdapter.resetAnimateAll();
-                        }
-                    });
+                    mainRecyclerView.post(() -> rollAdapter.resetAnimateAll());
                     actionMode.setTitle(rollAdapter.getSelectedItemCount() + "/"
                             + rollAdapter.getItemCount());
                     // Set the edit item visibility to false because all rolls are selected.
@@ -791,15 +781,10 @@ public class RollsFragment extends Fragment implements
          * @param mode {@inheritDoc}
          */
         @Override
-        public void onDestroyActionMode(ActionMode mode) {
+        public void onDestroyActionMode(final ActionMode mode) {
             rollAdapter.clearSelections();
             actionMode = null;
-            mainRecyclerView.post(new Runnable() {
-                @Override
-                public void run() {
-                    rollAdapter.resetAnimationIndex();
-                }
-            });
+            mainRecyclerView.post(() -> rollAdapter.resetAnimationIndex());
             // Return the status bar to its original color before action mode.
             Utilities.setStatusBarColor(getActivity(), Utilities.getSecondaryUiColor(getActivity()));
             // Make the floating action bar visible again since action mode is exited.

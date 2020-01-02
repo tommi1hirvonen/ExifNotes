@@ -3,6 +3,8 @@ package com.tommihirvonen.exifnotes.activities;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
@@ -75,7 +77,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      * @param savedInstanceState if not null, then the activity is continued
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
 
         overridePendingTransition(R.anim.enter_from_right, R.anim.hold);
 
@@ -120,7 +122,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
@@ -138,14 +140,14 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      * @return super class to execute code for the menu to work properly.
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_maps_activity, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(final Menu menu) {
         switch (mapType) {
             case GoogleMap.MAP_TYPE_NORMAL: default:
                 menu.findItem(R.id.menu_item_normal).setChecked(true);
@@ -170,7 +172,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      * @return call to super
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
@@ -202,7 +204,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      *
      * @param mapType One of the map type constants from class GoogleMap
      */
-    private void setMapType(int mapType) {
+    private void setMapType(final int mapType) {
         this.mapType = mapType;
         googleMap_.setMapType(mapType);
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -224,7 +226,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      * @param googleMap {@inheritDoc}
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         googleMap_ = googleMap;
 
         // If the app's theme is dark, stylize the map with the custom night mode
@@ -237,12 +239,12 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         googleMap_.setMapType(prefs.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL));
 
         LatLng position;
-        List<Marker> markerList = new ArrayList<>();
+        final List<Marker> markerList = new ArrayList<>();
         List<Frame> frameList;
 
         // Iterator to change marker color
         int i = 0;
-        ArrayList<BitmapDescriptor> markerStyles = new ArrayList<>();
+        final ArrayList<BitmapDescriptor> markerStyles = new ArrayList<>();
         markerStyles.add(0, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         markerStyles.add(1, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
         markerStyles.add(2, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
@@ -254,23 +256,23 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         markerStyles.add(8, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
         markerStyles.add(9, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
 
-        for (Roll roll : rollList) {
+        for (final Roll roll : rollList) {
 
             frameList = database.getAllFramesFromRoll(roll);
 
-            for (Frame frame : frameList) {
+            for (final Frame frame : frameList) {
 
                 // Parse the latLngLocation string
-                String location = frame.getLocation();
+                final String location = frame.getLocation();
                 if (location != null && location.length() > 0 && !location.equals("null")) {
-                    String latString = location.substring(0, location.indexOf(" "));
-                    String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
-                    double lat = Double.parseDouble(latString.replace(",", "."));
-                    double lng = Double.parseDouble(lngString.replace(",", "."));
+                    final String latString = location.substring(0, location.indexOf(" "));
+                    final String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
+                    final double lat = Double.parseDouble(latString.replace(",", "."));
+                    final double lng = Double.parseDouble(lngString.replace(",", "."));
                     position = new LatLng(lat, lng);
-                    String title = "" + roll.getName();
-                    String snippet = "#" + frame.getCount();
-                    Marker marker = googleMap_.addMarker(new MarkerOptions()
+                    final String title = "" + roll.getName();
+                    final String snippet = "#" + frame.getCount();
+                    final Marker marker = googleMap_.addMarker(new MarkerOptions()
                             .icon(markerStyles.get(i))
                             .position(position)
                             .title(title)
@@ -284,32 +286,32 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         }
 
         if (markerList.size() > 0) {
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-            for (Marker marker : markerList) {
+            final LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (final Marker marker : markerList) {
                 builder.include(marker.getPosition());
             }
             final LatLngBounds bounds = builder.build();
 
             if (!continueActivity) {
-                int width = getResources().getDisplayMetrics().widthPixels;
-                int height = getResources().getDisplayMetrics().heightPixels;
-                int padding = (int) (width * 0.12); // offset from edges of the map 12% of screen
+                final int width = getResources().getDisplayMetrics().widthPixels;
+                final int height = getResources().getDisplayMetrics().heightPixels;
+                final int padding = (int) (width * 0.12); // offset from edges of the map 12% of screen
 
                 // We use this command where the map's dimensions are specified.
                 // This is because on some devices, the map's layout may not have yet occurred
                 // (map size is 0).
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+                final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
                 googleMap_.moveCamera(cameraUpdate);
             }
 
             googleMap_.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                 @Override
-                public View getInfoWindow(Marker marker) {
+                public View getInfoWindow(final Marker marker) {
                     return null;
                 }
 
                 @Override
-                public View getInfoContents(Marker marker) {
+                public View getInfoContents(final Marker marker) {
 
                     if (marker.getTag() instanceof Frame) {
 
@@ -325,21 +327,21 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                                 null;
 
                         @SuppressLint("InflateParams")
-                        View view = getLayoutInflater().inflate(R.layout.info_window_all_frames, null);
+                        final View view = getLayoutInflater().inflate(R.layout.info_window_all_frames, null);
 
-                        TextView rollTextView = view.findViewById(R.id.roll_name);
-                        TextView cameraTextView = view.findViewById(R.id.camera);
-                        TextView frameCountTextView = view.findViewById(R.id.frame_count);
-                        TextView dateTimeTextView = view.findViewById(R.id.date_time);
-                        TextView lensTextView = view.findViewById(R.id.lens);
-                        TextView noteTextView = view.findViewById(R.id.note);
+                        final TextView rollTextView = view.findViewById(R.id.roll_name);
+                        final TextView cameraTextView = view.findViewById(R.id.camera);
+                        final TextView frameCountTextView = view.findViewById(R.id.frame_count);
+                        final TextView dateTimeTextView = view.findViewById(R.id.date_time);
+                        final TextView lensTextView = view.findViewById(R.id.lens);
+                        final TextView noteTextView = view.findViewById(R.id.note);
 
                         rollTextView.setText(roll.getName());
                         cameraTextView.setText(
                                 camera == null ? getString(R.string.NoCamera) : camera.getName()
                         );
 
-                        String frameCountText = "#" + frame.getCount();
+                        final String frameCountText = "#" + frame.getCount();
                         frameCountTextView.setText(frameCountText);
 
                         dateTimeTextView.setText(frame.getDate());
@@ -377,7 +379,7 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
      * @param outState used to store the dummy boolean
      */
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
 
         // Insert dummy boolean so that outState is not null.

@@ -56,11 +56,11 @@ public class GearActivity extends AppCompatActivity {
      * @param savedInstanceState {@inheritDoc}
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
 
         overridePendingTransition(R.anim.enter_from_right, R.anim.hold);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         if (Utilities.isAppThemeDark(getBaseContext())) {
             setTheme(R.style.Theme_AppCompat);
@@ -95,7 +95,7 @@ public class GearActivity extends AppCompatActivity {
     @Override
     public void onStop(){
         super.onStop();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         prefs.edit().putInt(GEAR_ACTIVITY_SAVED_VIEW, viewPager.getCurrentItem()).apply();
     }
 
@@ -112,7 +112,7 @@ public class GearActivity extends AppCompatActivity {
      * @return call to super
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
 
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
@@ -127,7 +127,7 @@ public class GearActivity extends AppCompatActivity {
      * @param outState used to store the current index of ViewPager
      */
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(POSITION, tabLayout.getSelectedTabPosition());
     }
@@ -138,7 +138,7 @@ public class GearActivity extends AppCompatActivity {
      * @param savedInstanceState used to store the current index of ViewPager
      */
     @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         viewPager.setCurrentItem(savedInstanceState.getInt(POSITION));
     }
@@ -148,7 +148,7 @@ public class GearActivity extends AppCompatActivity {
      * have to be updated too to display the changes. This method updates the necessary fragment(s).
      */
     public void updateFragments(){
-        int activeFragment = viewPager.getCurrentItem();
+        final int activeFragment = viewPager.getCurrentItem();
 
         //If the mountables were changed in one fragment, then update other fragments
         //to reflect the changes.
@@ -174,13 +174,13 @@ public class GearActivity extends AppCompatActivity {
 
         private Fragment Lenses, Cameras, Filters;
 
-        private PagerAdapter(@NonNull FragmentManager fm) {
+        private PagerAdapter(@NonNull final FragmentManager fm) {
             super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         }
 
         @NonNull
         @Override
-        public Fragment getItem(int position) {
+        public Fragment getItem(final int position) {
             switch (position) {
                 case 2:
                     if(Filters == null)
@@ -204,7 +204,7 @@ public class GearActivity extends AppCompatActivity {
         }
 
         @Override
-        public CharSequence getPageTitle(int position) {
+        public CharSequence getPageTitle(final int position) {
             switch (position) {
                 case 2:
                     return getApplicationContext().getResources().getString(R.string.Filters);

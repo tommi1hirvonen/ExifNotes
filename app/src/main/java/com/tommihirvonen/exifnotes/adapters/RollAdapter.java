@@ -97,7 +97,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
         final TextView cameraTextView;
         final ImageView checkBox;
         final View selectedBackground;
-        ViewHolder(View itemView) {
+        ViewHolder(final View itemView) {
             super(itemView);
             layout = itemView.findViewById(R.id.item_roll_layout);
             nameTextView = itemView.findViewById(R.id.tv_roll_name);
@@ -107,18 +107,10 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             cameraTextView = itemView.findViewById(R.id.tv_camera);
             checkBox = itemView.findViewById(R.id.checkbox);
             selectedBackground = itemView.findViewById(R.id.grey_background);
-            layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.onItemClick(getAdapterPosition());
-                }
-            });
-            layout.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    listener.onItemLongClick(getAdapterPosition());
-                    return true;
-                }
+            layout.setOnClickListener(view -> listener.onItemClick(getAdapterPosition()));
+            layout.setOnLongClickListener(view -> {
+                listener.onItemLongClick(getAdapterPosition());
+                return true;
             });
         }
     }
@@ -130,7 +122,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      * @param rolls list of rolls from the implementing class
      * @param listener implementing class's OnItemClickListener
      */
-    public RollAdapter(Context context, List<Roll> rolls, RollAdapterListener listener) {
+    public RollAdapter(final Context context, final List<Roll> rolls, final RollAdapterListener listener) {
         this.context = context;
         this.rollList = rolls;
         this.listener = listener;
@@ -152,8 +144,9 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      */
     @NonNull
     @Override
-    public RollAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_roll_constraint, parent, false);
+    public RollAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        final View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_roll_constraint, parent, false);
         return new ViewHolder(view);
     }
 
@@ -166,14 +159,14 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      * @param position position of the current item
      */
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Roll roll = rollList.get(position);
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        final Roll roll = rollList.get(position);
         if (roll != null) {
             final String rollName = roll.getName();
             final String date = roll.getDate();
             final String note = roll.getNote();
-            long cameraId = roll.getCameraId();
-            int numberOfFrames = database.getNumberOfFrames(roll);
+            final long cameraId = roll.getCameraId();
+            final int numberOfFrames = database.getNumberOfFrames(roll);
 
             // Populate the data into the template view using the data object
             holder.nameTextView.setText(rollName);
@@ -217,7 +210,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
         }
     }
 
-    private void applyCheckBoxAnimation(ViewHolder holder, int position) {
+    private void applyCheckBoxAnimation(final ViewHolder holder, final int position) {
         if (selectedItems.get(position, false)) {
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
@@ -226,11 +219,12 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             holder.selectedBackground.setVisibility(View.VISIBLE);
 
             // If the item is selected or all items are being selected and the item was not previously selected
-            if (currentSelectedIndex == position || animateAll && !animationItemsIndex.get(position, false)) {
-                Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_up);
+            if (currentSelectedIndex == position || animateAll &&
+                    !animationItemsIndex.get(position, false)) {
+                final Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_up);
                 holder.checkBox.startAnimation(animation);
 
-                Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_in);
+                final Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_in);
                 holder.selectedBackground.startAnimation(animation1);
 
                 resetCurrentSelectedIndex();
@@ -243,11 +237,12 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             holder.selectedBackground.setVisibility(View.GONE);
 
             // If the item is deselected or all selections are undone and the item was previously selected
-            if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex.get(position, false)) {
-                Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_down);
+            if (currentSelectedIndex == position || reverseAllAnimations &&
+                    animationItemsIndex.get(position, false)) {
+                final Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_down);
                 holder.checkBox.startAnimation(animation);
 
-                Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+                final Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_out);
                 holder.selectedBackground.startAnimation(animation1);
 
                 resetCurrentSelectedIndex();
@@ -260,7 +255,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      *
      * @param newRollList reference to the new list of rolls
      */
-    public void setRollList(List<Roll> newRollList) {
+    public void setRollList(final List<Roll> newRollList) {
         this.rollList = newRollList;
     }
 
@@ -279,7 +274,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      *
      * @param position position of the item
      */
-    public void toggleSelection(int position) {
+    public void toggleSelection(final int position) {
         currentSelectedIndex = position;
         if (selectedItems.get(position, false)) {
             selectedItems.delete(position);
@@ -363,7 +358,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      * @return stable id
      */
     @Override
-    public long getItemId(int position) {
+    public long getItemId(final int position) {
         return rollList.get(position).getId();
     }
 

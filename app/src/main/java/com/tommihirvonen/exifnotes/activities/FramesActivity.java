@@ -21,7 +21,7 @@ public class FramesActivity extends AppCompatActivity {
     public static final int PREFERENCE_ACTIVITY_REQUEST = 8;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
 
         // Get the arguments from the intent from MainActivity.
         final Intent intent = getIntent();
@@ -56,7 +56,7 @@ public class FramesActivity extends AppCompatActivity {
 
             // Pass the arguments from MainActivity on to FramesFragment.
             final FramesFragment framesFragment = new FramesFragment();
-            Bundle arguments = new Bundle();
+            final Bundle arguments = new Bundle();
             arguments.putLong(ExtraKeys.ROLL_ID, rollId);
             arguments.putBoolean(ExtraKeys.LOCATION_ENABLED, locationEnabled);
             framesFragment.setArguments(arguments);
@@ -74,8 +74,8 @@ public class FramesActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
-        int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
+        final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
         Utilities.setSupportActionBarColor(this, primaryColor);
         Utilities.setStatusBarColor(this, secondaryColor);
     }
@@ -98,8 +98,9 @@ public class FramesActivity extends AppCompatActivity {
      * @param data not used
      */
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PREFERENCE_ACTIVITY_REQUEST) {// If a new database was imported, use setResult() to notify MainActivity as well.
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        // If a new database was imported, use setResult() to notify MainActivity as well.
+        if (requestCode == PREFERENCE_ACTIVITY_REQUEST) {
             // Finish this activity since the selected roll may not be valid anymore.
             if ((resultCode & PreferenceActivity.RESULT_DATABASE_IMPORTED) ==
                     PreferenceActivity.RESULT_DATABASE_IMPORTED) {

@@ -3,7 +3,7 @@ package com.tommihirvonen.exifnotes.adapters;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.ContextMenu;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,40 +49,35 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
         final LinearLayout linearLayout;
         final TextView nameTextView;
         final TextView mountablesTextView;
-        ViewHolder(View itemView) {
+        ViewHolder(final View itemView) {
             super(itemView);
             linearLayout = itemView.findViewById(R.id.item_gear_layout);
             nameTextView = itemView.findViewById(R.id.tv_gear_name);
             mountablesTextView = itemView.findViewById(R.id.tv_mountables);
             // Instead of short click perform long click to activate the OnCreateContextMenuListener.
-            linearLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    view.performLongClick();
-                }
-            });
-            linearLayout.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                @Override
-                public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-                    final Gear gear = gearList.get(getAdapterPosition());
-                    final String gearName = gear.getName();
-                    contextMenu.setHeaderTitle(gearName);
-                    // If the piece of gear is a camera or a filter, add the same menu item.
+            linearLayout.setOnClickListener(View::performLongClick);
+            linearLayout.setOnCreateContextMenuListener((contextMenu, view, contextMenuInfo) -> {
+                final Gear gear = gearList.get(getAdapterPosition());
+                final String gearName = gear.getName();
+                contextMenu.setHeaderTitle(gearName);
+                // If the piece of gear is a camera or a filter, add the same menu item.
 
-                    // Use the order parameter (3rd parameter) of the ContextMenu.add() method
-                    // to pass the position of the list item which was clicked.
-                    // This can be used in the implementing class to retrieve the items position.
-                    if (gear instanceof Camera || gear instanceof Filter) {
-                        contextMenu.add(0, R.id.menu_item_select_mountable_lenses, getAdapterPosition(), R.string.SelectMountableLenses);
-                    // If the piece of gear is a lens, add two menu items.
-                    } else if (gear instanceof Lens) {
-                        contextMenu.add(0, R.id.menu_item_select_mountable_cameras, getAdapterPosition(), R.string.SelectMountableCameras);
-                        contextMenu.add(0, R.id.menu_item_select_mountable_filters, getAdapterPosition(), R.string.SelectMountableFilters);
-                    }
-                    // Add the additional menu items common for all types of gear.
-                    contextMenu.add(0, R.id.menu_item_edit, getAdapterPosition(), R.string.Edit);
-                    contextMenu.add(0, R.id.menu_item_delete, getAdapterPosition(), R.string.Delete);
+                // Use the order parameter (3rd parameter) of the ContextMenu.add() method
+                // to pass the position of the list item which was clicked.
+                // This can be used in the implementing class to retrieve the items position.
+                if (gear instanceof Camera || gear instanceof Filter) {
+                    contextMenu.add(0, R.id.menu_item_select_mountable_lenses,
+                            getAdapterPosition(), R.string.SelectMountableLenses);
+                // If the piece of gear is a lens, add two menu items.
+                } else if (gear instanceof Lens) {
+                    contextMenu.add(0, R.id.menu_item_select_mountable_cameras,
+                            getAdapterPosition(), R.string.SelectMountableCameras);
+                    contextMenu.add(0, R.id.menu_item_select_mountable_filters,
+                            getAdapterPosition(), R.string.SelectMountableFilters);
                 }
+                // Add the additional menu items common for all types of gear.
+                contextMenu.add(0, R.id.menu_item_edit, getAdapterPosition(), R.string.Edit);
+                contextMenu.add(0, R.id.menu_item_delete, getAdapterPosition(), R.string.Delete);
             });
         }
     }
@@ -93,7 +88,7 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
      * @param context activity's context
      * @param gearList list of gear from implementing class
      */
-    public GearAdapter(Context context, List<? extends Gear> gearList) {
+    public GearAdapter(final Context context, final List<? extends Gear> gearList) {
         this.gearList = gearList;
         this.context = context;
         this.database = FilmDbHelper.getInstance(context);
@@ -112,8 +107,9 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
      */
     @NonNull
     @Override
-    public GearAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_gear, parent, false);
+    public GearAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        final View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_gear, parent, false);
         return new ViewHolder(view);
     }
 
@@ -126,8 +122,8 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
      * @param position position of the current item
      */
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Gear gear = gearList.get(position);
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        final Gear gear = gearList.get(position);
         if (gear != null) {
             final String gearName = gear.getName();
             List<? extends Gear> mountables1 = Collections.emptyList();
@@ -141,15 +137,15 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
             } else if (gear instanceof Filter) {
                 mountables1 = database.getLinkedLenses((Filter) gear);
             }
-            StringBuilder stringBuilder = new StringBuilder();
+            final StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(context.getString(R.string.MountsTo));
-            for (Gear g : mountables1) {
+            for (final Gear g : mountables1) {
                 stringBuilder.append("\n- ").append(g.getName());
             }
             // If the second list of mountables is not empty, add a line change and additional mountables.
             if (!mountables2.isEmpty()) stringBuilder.append("\n");
             // For loop not iterated, if mountables2 is empty.
-            for (Gear g : mountables2) {
+            for (final Gear g : mountables2) {
                 stringBuilder.append("\n- ").append(g.getName());
             }
             holder.nameTextView.setText(gearName);
@@ -175,7 +171,7 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
      * @return stable id
      */
     @Override
-    public long getItemId(int position) {
+    public long getItemId(final int position) {
         return gearList.get(position).getId();
     }
 

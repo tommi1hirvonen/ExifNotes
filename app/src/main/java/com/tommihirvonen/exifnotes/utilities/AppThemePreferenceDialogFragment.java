@@ -11,7 +11,7 @@ import com.tommihirvonen.exifnotes.R;
 
 public class AppThemePreferenceDialogFragment extends PreferenceDialogFragmentCompat {
 
-    public static AppThemePreferenceDialogFragment newInstance(String key) {
+    public static AppThemePreferenceDialogFragment newInstance(final String key) {
         final AppThemePreferenceDialogFragment fragment = new AppThemePreferenceDialogFragment();
         final Bundle b = new Bundle(1);
         b.putString(ARG_KEY, key);
@@ -32,16 +32,16 @@ public class AppThemePreferenceDialogFragment extends PreferenceDialogFragmentCo
 
 
     @Override
-    protected void onBindDialogView(View view) {
+    protected void onBindDialogView(final View view) {
         super.onBindDialogView(view);
-        ImageView light = view.findViewById(R.id.app_theme_light);
-        ImageView dark = view.findViewById(R.id.app_theme_dark);
+        final ImageView light = view.findViewById(R.id.app_theme_light);
+        final ImageView dark = view.findViewById(R.id.app_theme_dark);
         checkboxLight = view.findViewById(R.id.checkbox_light);
         checkboxDark = view.findViewById(R.id.checkbox_dark);
         light.setOnClickListener(new ThemeOnClickListener());
         dark.setOnClickListener(new ThemeOnClickListener());
 
-        DialogPreference preference = getPreference();
+        final DialogPreference preference = getPreference();
         if (preference instanceof AppThemeDialogPreference) {
             selectedTheme = ((AppThemeDialogPreference) preference).getAppTheme();
         }
@@ -50,9 +50,9 @@ public class AppThemePreferenceDialogFragment extends PreferenceDialogFragmentCo
     }
 
     @Override
-    public void onDialogClosed(boolean positiveResult) {
+    public void onDialogClosed(final boolean positiveResult) {
         if (positiveResult) {
-            DialogPreference preference = getPreference();
+            final DialogPreference preference = getPreference();
             if (preference instanceof AppThemeDialogPreference && preference.callChangeListener(selectedTheme)) {
                 ((AppThemeDialogPreference) preference).setAppTheme(selectedTheme);
                 preference.setSummary(((AppThemeDialogPreference)preference).getAppTheme());
@@ -84,7 +84,7 @@ public class AppThemePreferenceDialogFragment extends PreferenceDialogFragmentCo
      */
     private class ThemeOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View view) {
+        public void onClick(final View view) {
             final int id = view.getId();
             switch (id) {
                 case R.id.app_theme_light:

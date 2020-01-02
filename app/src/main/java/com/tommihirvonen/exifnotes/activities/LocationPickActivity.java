@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import android.os.Bundle;
 import androidx.core.content.ContextCompat;
@@ -98,7 +100,7 @@ public class LocationPickActivity extends AppCompatActivity implements
      * @param savedInstanceState if not null then the activity is continued
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
@@ -110,7 +112,7 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_location_pick);
 
-        FloatingActionButton confirmFab = findViewById(R.id.fab);
+        final FloatingActionButton confirmFab = findViewById(R.id.fab);
         confirmFab.setOnClickListener(this);
 
         Utilities.setUiColor(this, true);
@@ -118,14 +120,14 @@ public class LocationPickActivity extends AppCompatActivity implements
             getSupportActionBar().setTitle(getResources().getString(R.string.PickLocation));
         }
 
-        int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         confirmFab.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         // In case the app's theme is dark, color the bottom bar dark grey
         if (Utilities.isAppThemeDark(getBaseContext())) {
-            FrameLayout bottomBarLayout = findViewById(R.id.bottom_bar);
+            final FrameLayout bottomBarLayout = findViewById(R.id.bottom_bar);
             bottomBarLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey));
         }
 
@@ -137,7 +139,7 @@ public class LocationPickActivity extends AppCompatActivity implements
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -150,7 +152,7 @@ public class LocationPickActivity extends AppCompatActivity implements
             formattedAddress = savedInstanceState.getString(ExtraKeys.FORMATTED_ADDRESS);
         } else {
             // Else get the location from Intent.
-            Intent intent = getIntent();
+            final Intent intent = getIntent();
             location = intent.getStringExtra(ExtraKeys.LOCATION);
             formattedAddress = intent.getStringExtra(ExtraKeys.FORMATTED_ADDRESS);
         }
@@ -158,10 +160,10 @@ public class LocationPickActivity extends AppCompatActivity implements
             if (location.length() > 0 && !location.equals("null")) {
 
                 // Parse the location
-                String latString = location.substring(0, location.indexOf(" "));
-                String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
-                double lat = Double.parseDouble(latString.replace(",", "."));
-                double lng = Double.parseDouble(lngString.replace(",", "."));
+                final String latString = location.substring(0, location.indexOf(" "));
+                final String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
+                final double lat = Double.parseDouble(latString.replace(",", "."));
+                final double lng = Double.parseDouble(lngString.replace(",", "."));
                 latLngLocation = new LatLng(lat, lng);
 
                 // If the formatted address is set, display it
@@ -171,17 +173,14 @@ public class LocationPickActivity extends AppCompatActivity implements
                 // The formatted address was not set, try to query it
                 else {
                     progressBar.setVisibility(View.VISIBLE);
-                    new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
-                        @Override
-                        public void processFinish(String output, String formatted_address) {
-                            progressBar.setVisibility(View.INVISIBLE);
-                            if (formatted_address.length() != 0 ) {
-                                formattedAddressTextView.setText(formatted_address);
-                                formattedAddress = formatted_address;
-                            } else {
-                                formattedAddressTextView.setText(R.string.AddressNotFound);
-                                formattedAddress = null;
-                            }
+                    new GeocodingAsyncTask((output, formatted_address) -> {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        if (formatted_address.length() != 0 ) {
+                            formattedAddressTextView.setText(formatted_address);
+                            formattedAddress = formatted_address;
+                        } else {
+                            formattedAddressTextView.setText(R.string.AddressNotFound);
+                            formattedAddress = null;
                         }
                     }).execute(location, googleMapsApiKey);
                 }
@@ -196,10 +195,10 @@ public class LocationPickActivity extends AppCompatActivity implements
      * @return call to super
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_location_pick, menu);
         // Retrieve the SearchView and plug it into SearchManager
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         // The SearchView's query hint is localization dependant by default.
         // Replace it with the English text.
         searchView.setQueryHint(getString(R.string.SearchWEllipsis));
@@ -208,7 +207,7 @@ public class LocationPickActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(final Menu menu) {
         switch (mapType) {
             case GoogleMap.MAP_TYPE_NORMAL: default:
                 menu.findItem(R.id.menu_item_normal).setChecked(true);
@@ -233,7 +232,7 @@ public class LocationPickActivity extends AppCompatActivity implements
      * @return call to super
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
 
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -270,7 +269,7 @@ public class LocationPickActivity extends AppCompatActivity implements
      *
      * @param mapType One of the map type constants from class GoogleMap
      */
-    private void setMapType(int mapType) {
+    private void setMapType(final int mapType) {
         this.mapType = mapType;
         googleMap_.setMapType(mapType);
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -292,7 +291,7 @@ public class LocationPickActivity extends AppCompatActivity implements
      * @param googleMap {@inheritDoc}
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         googleMap_ = googleMap;
         googleMap_.setOnMapClickListener(this);
 
@@ -314,10 +313,10 @@ public class LocationPickActivity extends AppCompatActivity implements
         // If the latLngLocation is not empty
         if (location != null) {
             if (location.length() > 0 && !location.equals("null")) {
-                String latString = location.substring(0, location.indexOf(" "));
-                String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
-                double lat = Double.parseDouble(latString.replace(",", "."));
-                double lng = Double.parseDouble(lngString.replace(",", "."));
+                final String latString = location.substring(0, location.indexOf(" "));
+                final String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
+                final double lat = Double.parseDouble(latString.replace(",", "."));
+                final double lng = Double.parseDouble(lngString.replace(",", "."));
                 final LatLng position = new LatLng(lat, lng);
                 marker = googleMap_.addMarker(new MarkerOptions().position(position));
 
@@ -336,25 +335,22 @@ public class LocationPickActivity extends AppCompatActivity implements
      * @param latLng {@inheritDoc}
      */
     @Override
-    public void onMapClick(LatLng latLng) {
+    public void onMapClick(final LatLng latLng) {
 
         // Get the formatted address
         formattedAddressTextView.setText("");
         progressBar.setVisibility(View.VISIBLE);
-        String latitude = "" + latLng.latitude;
-        String longitude = "" + latLng.longitude;
-        String query = latitude + " " + longitude;
-        new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
-            @Override
-            public void processFinish(String output, String formatted_address) {
-                progressBar.setVisibility(View.INVISIBLE);
-                if (formatted_address.length() != 0 ) {
-                    formattedAddressTextView.setText(formatted_address);
-                    formattedAddress = formatted_address;
-                } else {
-                    formattedAddressTextView.setText(R.string.AddressNotFound);
-                    formattedAddress = null;
-                }
+        final String latitude = "" + latLng.latitude;
+        final String longitude = "" + latLng.longitude;
+        final String query = latitude + " " + longitude;
+        new GeocodingAsyncTask((output, formatted_address) -> {
+            progressBar.setVisibility(View.INVISIBLE);
+            if (formatted_address.length() != 0 ) {
+                formattedAddressTextView.setText(formatted_address);
+                formattedAddress = formatted_address;
+            } else {
+                formattedAddressTextView.setText(R.string.AddressNotFound);
+                formattedAddress = null;
             }
         }).execute(query, googleMapsApiKey);
 
@@ -373,34 +369,31 @@ public class LocationPickActivity extends AppCompatActivity implements
      * @return always false
      */
     @Override
-    public boolean onQueryTextSubmit(String query) {
+    public boolean onQueryTextSubmit(final String query) {
         formattedAddressTextView.setText("");
         progressBar.setVisibility(View.VISIBLE);
-        new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
-            @Override
-            public void processFinish(String output, String formatted_address) {
-                progressBar.setVisibility(View.INVISIBLE);
-                if (output.length() != 0 ) {
+        new GeocodingAsyncTask((output, formatted_address) -> {
+            progressBar.setVisibility(View.INVISIBLE);
+            if (output.length() != 0 ) {
 
-                    String latString = output.substring(0, output.indexOf(" "));
-                    String lngString = output.substring(output.indexOf(" ") + 1, output.length() - 1);
-                    double lat = Double.parseDouble(latString.replace(",", "."));
-                    double lng = Double.parseDouble(lngString.replace(",", "."));
-                    final LatLng position = new LatLng(lat, lng);
-                    // marker is null, if the search was made before the marker has been added
-                    // -> add marker to selected location
-                    if (marker == null) marker = googleMap_.addMarker(new MarkerOptions().position(position));
-                    // otherwise just set the location
-                    else marker.setPosition(position);
-                    latLngLocation = position;
-                    googleMap_.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
-                    formattedAddressTextView.setText(formatted_address);
-                    formattedAddress = formatted_address;
+                String latString = output.substring(0, output.indexOf(" "));
+                String lngString = output.substring(output.indexOf(" ") + 1, output.length() - 1);
+                double lat = Double.parseDouble(latString.replace(",", "."));
+                double lng = Double.parseDouble(lngString.replace(",", "."));
+                final LatLng position = new LatLng(lat, lng);
+                // marker is null, if the search was made before the marker has been added
+                // -> add marker to selected location
+                if (marker == null) marker = googleMap_.addMarker(new MarkerOptions().position(position));
+                // otherwise just set the location
+                else marker.setPosition(position);
+                latLngLocation = position;
+                googleMap_.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                formattedAddressTextView.setText(formatted_address);
+                formattedAddress = formatted_address;
 
-                } else {
-                    formattedAddressTextView.setText(R.string.AddressNotFound);
-                    formattedAddress = null;
-                }
+            } else {
+                formattedAddressTextView.setText(R.string.AddressNotFound);
+                formattedAddress = null;
             }
         }).execute(query, googleMapsApiKey);
 
@@ -414,7 +407,7 @@ public class LocationPickActivity extends AppCompatActivity implements
      * @return always false
      */
     @Override
-    public boolean onQueryTextChange(String newText) {
+    public boolean onQueryTextChange(final String newText) {
         // Do nothing
         return false;
     }
@@ -426,14 +419,14 @@ public class LocationPickActivity extends AppCompatActivity implements
      * @param v {@inheritDoc}
      */
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
         if (v.getId() == R.id.fab) {
             if (latLngLocation == null) {
                 Toast.makeText(getBaseContext(), R.string.NoLocation, Toast.LENGTH_SHORT).show();
             } else {
-                String latitude = "" + latLngLocation.latitude;
-                String longitude = "" + latLngLocation.longitude;
-                Intent intent = new Intent();
+                final String latitude = "" + latLngLocation.latitude;
+                final String longitude = "" + latLngLocation.longitude;
+                final Intent intent = new Intent();
                 intent.putExtra(ExtraKeys.LATITUDE, latitude);
                 intent.putExtra(ExtraKeys.LONGITUDE, longitude);
                 intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, formattedAddress);
@@ -449,11 +442,11 @@ public class LocationPickActivity extends AppCompatActivity implements
      * @param outState used to store the currently set location
      */
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         if (latLngLocation != null) {
-            String latitude = "" + latLngLocation.latitude;
-            String longitude = "" + latLngLocation.longitude;
+            final String latitude = "" + latLngLocation.latitude;
+            final String longitude = "" + latLngLocation.longitude;
             outState.putBoolean(ExtraKeys.CONTINUE, true);
             outState.putString(ExtraKeys.LOCATION, latitude + " " + longitude);
         }

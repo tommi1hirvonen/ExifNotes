@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
@@ -18,7 +17,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import androidx.annotation.NonNull;
-import android.content.DialogInterface;
+
 import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -34,8 +33,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.CompoundButton;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -44,7 +41,6 @@ import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
@@ -337,9 +333,9 @@ public class EditFrameDialog extends DialogFragment {
      */
     @NonNull
     @Override
-    public Dialog onCreateDialog (Bundle SavedInstanceState) {
+    public Dialog onCreateDialog (final Bundle SavedInstanceState) {
 
-        String title = getArguments().getString(ExtraKeys.TITLE);
+        final String title = getArguments().getString(ExtraKeys.TITLE);
         final String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
         frame = getArguments().getParcelable(ExtraKeys.FRAME);
         if (frame == null) frame = new Frame();
@@ -360,20 +356,17 @@ public class EditFrameDialog extends DialogFragment {
         final Lens lens = database.getLens(frame.getLensId());
         if (lens != null) apertureIncrements = lens.getApertureIncrements();
 
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+        final LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams") final View inflatedView = layoutInflater.inflate(
                 R.layout.dialog_frame, null);
-        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
         nestedScrollView = inflatedView.findViewById(R.id.nested_scroll_view);
 
-        // Set ScrollIndicators only if Material Design is used with the current Android version
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
-            Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
-                    ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
-        }
+        final FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
+        Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
+                ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflatedView);
 
@@ -384,7 +377,7 @@ public class EditFrameDialog extends DialogFragment {
 
         // Color the dividers white if the app's theme is dark
         if (Utilities.isAppThemeDark(getActivity())) {
-            List<View> dividerList = new ArrayList<>();
+            final List<View> dividerList = new ArrayList<>();
             dividerList.add(inflatedView.findViewById(R.id.divider_view1));
             dividerList.add(inflatedView.findViewById(R.id.divider_view2));
             dividerList.add(inflatedView.findViewById(R.id.divider_view3));
@@ -397,7 +390,7 @@ public class EditFrameDialog extends DialogFragment {
             dividerList.add(inflatedView.findViewById(R.id.divider_view10));
             dividerList.add(inflatedView.findViewById(R.id.divider_view11));
             dividerList.add(inflatedView.findViewById(R.id.divider_view12));
-            for (View v : dividerList) {
+            for (final View v : dividerList) {
                 v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
             }
             Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.add_lens)).getDrawable().mutate(),
@@ -424,19 +417,15 @@ public class EditFrameDialog extends DialogFragment {
         // LENS ADD DIALOG
         final ImageView addLensImageView = inflatedView.findViewById(R.id.add_lens);
         addLensImageView.setClickable(true);
-        addLensImageView.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("CommitTransaction")
-            @Override
-            public void onClick(View v) {
-                noteEditText.clearFocus();
-                EditLensDialog dialog = new EditLensDialog();
-                dialog.setTargetFragment(EditFrameDialog.this, ADD_LENS);
-                Bundle arguments = new Bundle();
-                arguments.putString(ExtraKeys.TITLE, getResources().getString(R.string.NewLens));
-                arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
-                dialog.setArguments(arguments);
-                dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
-            }
+        addLensImageView.setOnClickListener(v -> {
+            noteEditText.clearFocus();
+            final EditLensDialog dialog = new EditLensDialog();
+            dialog.setTargetFragment(EditFrameDialog.this, ADD_LENS);
+            final Bundle arguments = new Bundle();
+            arguments.putString(ExtraKeys.TITLE, getResources().getString(R.string.NewLens));
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
+            dialog.setArguments(arguments);
+            dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
         });
 
 
@@ -457,29 +446,23 @@ public class EditFrameDialog extends DialogFragment {
         newDate = frame.getDate();
 
         final LinearLayout dateLayout = inflatedView.findViewById(R.id.date_layout);
-        dateLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // DATE PICKER DIALOG IMPLEMENTATION HERE
-                final List<String> dateValue = Utilities.splitDate(newDate);
-                final int year = Integer.parseInt(dateValue.get(0));
-                final int month = Integer.parseInt(dateValue.get(1));
-                final int day = Integer.parseInt(dateValue.get(2));
-                DatePickerDialog dialog = new DatePickerDialog(
-                        getActivity(), new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        final String newInnerDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
-                        dateTextView.setText(newInnerDate);
-                        newDate = newInnerDate + " " + timeTextView.getText().toString();
-                    }
-                    // One month has to be subtracted from the default shown month, otherwise
-                    // the date picker shows one month forward.
-                }, year, (month - 1), day);
+        dateLayout.setOnClickListener(v -> {
+            // DATE PICKER DIALOG IMPLEMENTATION HERE
+            final List<String> dateValue = Utilities.splitDate(newDate);
+            final int year = Integer.parseInt(dateValue.get(0));
+            final int month = Integer.parseInt(dateValue.get(1));
+            final int day = Integer.parseInt(dateValue.get(2));
+            // One month has to be subtracted from the default shown month, otherwise
+// the date picker shows one month forward.
+            final DatePickerDialog dialog = new DatePickerDialog(
+                    getActivity(), (view, year1, monthOfYear, dayOfMonth) -> {
+                final String newInnerDate = year1 + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+                dateTextView.setText(newInnerDate);
+                newDate = newInnerDate + " " + timeTextView.getText().toString();
+            }, year, (month - 1), day);
 
-                dialog.show();
+            dialog.show();
 
-            }
         });
 
 
@@ -497,29 +480,23 @@ public class EditFrameDialog extends DialogFragment {
         }
 
         final LinearLayout timeLayout = inflatedView.findViewById(R.id.time_layout);
-        timeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TIME PICKER DIALOG IMPLEMENTATION HERE
-                final List<String> timeValue = Utilities.splitTime(newDate);
-                final int hours = Integer.parseInt(timeValue.get(0));
-                final int minutes = Integer.parseInt(timeValue.get(1));
-                TimePickerDialog dialog = new TimePickerDialog(
-                        getActivity(), new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        final String newTime;
-                        if (minute < 10) {
-                            newTime = hourOfDay + ":0" + minute;
-                        } else newTime = hourOfDay + ":" + minute;
-                        timeTextView.setText(newTime);
-                        newDate = dateTextView.getText().toString() + " " + newTime;
-                    }
-                }, hours, minutes, true);
+        timeLayout.setOnClickListener(v -> {
+            // TIME PICKER DIALOG IMPLEMENTATION HERE
+            final List<String> timeValue = Utilities.splitTime(newDate);
+            final int hours = Integer.parseInt(timeValue.get(0));
+            final int minutes = Integer.parseInt(timeValue.get(1));
+            final TimePickerDialog dialog = new TimePickerDialog(
+                    getActivity(), (view, hourOfDay, minute) -> {
+                final String newTime;
+                if (minute < 10) {
+                    newTime = hourOfDay + ":0" + minute;
+                } else newTime = hourOfDay + ":" + minute;
+                timeTextView.setText(newTime);
+                newDate = dateTextView.getText().toString() + " " + newTime;
+            }, hours, minutes, true);
 
-                dialog.show();
+            dialog.show();
 
-            }
         });
 
 
@@ -611,38 +588,29 @@ public class EditFrameDialog extends DialogFragment {
                 (newFormattedAddress == null || newFormattedAddress .length() == 0)) {
             // Make the ProgressBar visible to indicate that a query is being executed
             locationProgressBar.setVisibility(View.VISIBLE);
-            new GeocodingAsyncTask(new GeocodingAsyncTask.AsyncResponse() {
-                @Override
-                public void processFinish(String output, String formatted_address) {
-                    locationProgressBar.setVisibility(View.INVISIBLE);
-                    if (formatted_address.length() > 0 ) {
-                        newFormattedAddress = formatted_address;
-                    } else {
-                        newFormattedAddress = null;
-                    }
-                    updateLocationTextView();
+            new GeocodingAsyncTask((output, formatted_address) -> {
+                locationProgressBar.setVisibility(View.INVISIBLE);
+                if (formatted_address.length() > 0 ) {
+                    newFormattedAddress = formatted_address;
+                } else {
+                    newFormattedAddress = null;
                 }
+                updateLocationTextView();
             }).execute(newLocation, getResources().getString(R.string.google_maps_key));
         }
 
         final ImageView clearLocation = inflatedView.findViewById(R.id.clear_location);
-        clearLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                newLocation = null;
-                newFormattedAddress = null;
-                updateLocationTextView();
-            }
+        clearLocation.setOnClickListener(view -> {
+            newLocation = null;
+            newFormattedAddress = null;
+            updateLocationTextView();
         });
         final LinearLayout locationLayout = inflatedView.findViewById(R.id.location_layout);
-        locationLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), LocationPickActivity.class);
-                intent.putExtra(ExtraKeys.LOCATION, newLocation);
-                intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, newFormattedAddress);
-                startActivityForResult(intent, PLACE_PICKER_REQUEST);
-            }
+        locationLayout.setOnClickListener(view -> {
+            final Intent intent = new Intent(getActivity(), LocationPickActivity.class);
+            intent.putExtra(ExtraKeys.LOCATION, newLocation);
+            intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, newFormattedAddress);
+            startActivityForResult(intent, PLACE_PICKER_REQUEST);
         });
 
 
@@ -659,24 +627,20 @@ public class EditFrameDialog extends DialogFragment {
         // FILTER ADD DIALOG
         final ImageView addFilterImageView = inflatedView.findViewById(R.id.add_filter);
         addFilterImageView.setClickable(true);
-        addFilterImageView.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("CommitTransaction")
-            @Override
-            public void onClick(View v) {
-                if (newLens == null) {
-                    Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters),
-                            Toast.LENGTH_LONG).show();
-                    return;
-                }
-                noteEditText.clearFocus();
-                EditFilterDialog dialog = new EditFilterDialog();
-                dialog.setTargetFragment(EditFrameDialog.this, ADD_FILTER);
-                Bundle arguments = new Bundle();
-                arguments.putString(ExtraKeys.TITLE, getResources().getString(R.string.NewFilter));
-                arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
-                dialog.setArguments(arguments);
-                dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
+        addFilterImageView.setOnClickListener(v -> {
+            if (newLens == null) {
+                Toast.makeText(getActivity(), getResources().getString(R.string.SelectLensToAddFilters),
+                        Toast.LENGTH_LONG).show();
+                return;
             }
+            noteEditText.clearFocus();
+            final EditFilterDialog dialog = new EditFilterDialog();
+            dialog.setTargetFragment(EditFrameDialog.this, ADD_FILTER);
+            final Bundle arguments = new Bundle();
+            arguments.putString(ExtraKeys.TITLE, getResources().getString(R.string.NewFilter));
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
+            dialog.setArguments(arguments);
+            dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
         });
 
 
@@ -709,12 +673,10 @@ public class EditFrameDialog extends DialogFragment {
         //==========================================================================================
         //FINALISE BUILDING THE DIALOG
 
-        alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                Intent intent = new Intent();
-                getTargetFragment().onActivityResult(
-                        getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
-            }
+        alert.setNegativeButton(R.string.Cancel, (dialog, whichButton) -> {
+            final Intent intent = new Intent();
+            getTargetFragment().onActivityResult(
+                    getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
         });
         alert.setPositiveButton(positiveButton, null);
         final AlertDialog dialog = alert.create();
@@ -730,10 +692,10 @@ public class EditFrameDialog extends DialogFragment {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(new OnPositiveButtonClickListener(dialog) {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 super.onClick(v);
                 // Return the new entered name to the calling activity
-                Intent intent = new Intent();
+                final Intent intent = new Intent();
                 intent.putExtra(ExtraKeys.FRAME, frame);
                 getTargetFragment().onActivityResult(
                         getTargetRequestCode(), Activity.RESULT_OK, intent);
@@ -757,13 +719,13 @@ public class EditFrameDialog extends DialogFragment {
      * @param maxValue maximum focal length value
      * @return integer from 0 to 100 describing progress
      */
-    private int calculateProgress (int focalLength, int minValue, int maxValue) {
+    private int calculateProgress (final int focalLength, final int minValue, final int maxValue) {
         // progress = (newFocalLength - minValue) / (maxValue - minValue) * 100
-        double result1 = focalLength - minValue;
-        double result2 = maxValue - minValue;
+        final double result1 = focalLength - minValue;
+        final double result2 = maxValue - minValue;
         // No variables of type int can be used if parts of the calculation
         // result in fractions.
-        double progressDouble = result1 / result2 * 100;
+        final double progressDouble = result1 / result2 * 100;
         return (int) round(progressDouble);
     }
 
@@ -812,7 +774,7 @@ public class EditFrameDialog extends DialogFragment {
      * @param resultCode the result code to tell whether the user picked ok or cancel
      * @param data the extra data attached to the passed intent
      */
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
 
@@ -834,7 +796,7 @@ public class EditFrameDialog extends DialogFragment {
 
             // After Ok code.
             newLens = data.getParcelableExtra(ExtraKeys.LENS);
-            long rowId = database.addLens(newLens);
+            final long rowId = database.addLens(newLens);
             newLens.setId(rowId);
             if (camera != null) {
                 database.addCameraLensLink(camera, newLens);
@@ -856,7 +818,7 @@ public class EditFrameDialog extends DialogFragment {
 
             // After Ok code.
             final Filter filter = data.getParcelableExtra(ExtraKeys.FILTER);
-            long rowId = database.addFilter(filter);
+            final long rowId = database.addFilter(filter);
             filter.setId(rowId);
             if (newLens != null) database.addLensFilterLink(filter, newLens);
             newFilters.add(filter);
@@ -869,27 +831,19 @@ public class EditFrameDialog extends DialogFragment {
             pictureTextView.setText(R.string.LoadingPicture);
             pictureTextView.setVisibility(View.VISIBLE);
             // Decode and compress the picture on a background thread.
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    // The user has taken a new complementary picture. Update the possible new filename,
-                    // notify gallery app and set the complementary picture bitmap.
-                    newPictureFilename = tempPictureFilename;
+            new Thread(() -> {
+                // The user has taken a new complementary picture. Update the possible new filename,
+                // notify gallery app and set the complementary picture bitmap.
+                newPictureFilename = tempPictureFilename;
 
-                    // Compress the picture file
-                    try {
-                        ComplementaryPicturesManager.compressPictureFile(getActivity(), newPictureFilename);
-                    } catch (IOException e) {
-                        Toast.makeText(getActivity(), R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show();
-                    }
-                    // Set the complementary picture ImageView on the UI thread.
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            setComplementaryPicture();
-                        }
-                    });
+                // Compress the picture file
+                try {
+                    ComplementaryPicturesManager.compressPictureFile(getActivity(), newPictureFilename);
+                } catch (IOException e) {
+                    Toast.makeText(getActivity(), R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show();
                 }
+                // Set the complementary picture ImageView on the UI thread.
+                getActivity().runOnUiThread(this::setComplementaryPicture);
             }).start();
             
         }
@@ -902,32 +856,25 @@ public class EditFrameDialog extends DialogFragment {
                 pictureTextView.setText(R.string.LoadingPicture);
                 pictureTextView.setVisibility(View.VISIBLE);
                 // Decode and compress the selected file on a background thread.
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Create the placeholder file in the complementary pictures directory.
-                        final File pictureFile = ComplementaryPicturesManager.createNewPictureFile(getActivity());
+                new Thread(() -> {
+                    // Create the placeholder file in the complementary pictures directory.
+                    final File pictureFile = ComplementaryPicturesManager.createNewPictureFile(getActivity());
+                    try {
+                        // Get the compressed bitmap from the Uri.
+                        final Bitmap pictureBitmap = ComplementaryPicturesManager
+                                .getCompressedBitmap(getActivity(), selectedPictureUri);
                         try {
-                            // Get the compressed bitmap from the Uri.
-                            final Bitmap pictureBitmap = ComplementaryPicturesManager.getCompressedBitmap(getActivity(), selectedPictureUri);
-                            try {
-                                // Save the compressed bitmap to the placeholder file.
-                                ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile);
-                                // Update the member reference and set the complementary picture.
-                                newPictureFilename = pictureFile.getName();
-                                // Set the complementary picture ImageView on the UI thread.
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        setComplementaryPicture();
-                                    }
-                                });
-                            } catch (IOException e) {
-                                Toast.makeText(getActivity(), R.string.ErrorSavingSelectedPicture, Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (FileNotFoundException e) {
-                            Toast.makeText(getActivity(), R.string.ErrorLocatingSelectedPicture, Toast.LENGTH_SHORT).show();
+                            // Save the compressed bitmap to the placeholder file.
+                            ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile);
+                            // Update the member reference and set the complementary picture.
+                            newPictureFilename = pictureFile.getName();
+                            // Set the complementary picture ImageView on the UI thread.
+                            getActivity().runOnUiThread(this::setComplementaryPicture);
+                        } catch (IOException e) {
+                            Toast.makeText(getActivity(), R.string.ErrorSavingSelectedPicture, Toast.LENGTH_SHORT).show();
                         }
+                    } catch (FileNotFoundException e) {
+                        Toast.makeText(getActivity(), R.string.ErrorLocatingSelectedPicture, Toast.LENGTH_SHORT).show();
                     }
                 }).start();
             }
@@ -958,64 +905,53 @@ public class EditFrameDialog extends DialogFragment {
             pictureImageView.setVisibility(View.VISIBLE);
 
             // Load the bitmap on a background thread
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    // Get the target ImageView height.
-                    // Because the complementary picture ImageView uses subclass SquareImageView,
-                    // the ImageView width should also be its height. Because the ImageView's
-                    // width is match_parent, we get the dialog's width instead.
-                    // If there is a problem getting the dialog window, use the resource dimension instead.
-                    final int targetH = getDialog().getWindow() != null ?
-                            getDialog().getWindow().getDecorView().getWidth() :
-                            (int) getResources().getDimension(R.dimen.ComplementaryPictureImageViewHeight);
+            new Thread(() -> {
+                // Get the target ImageView height.
+                // Because the complementary picture ImageView uses subclass SquareImageView,
+                // the ImageView width should also be its height. Because the ImageView's
+                // width is match_parent, we get the dialog's width instead.
+                // If there is a problem getting the dialog window, use the resource dimension instead.
+                final int targetH = getDialog().getWindow() != null ?
+                        getDialog().getWindow().getDecorView().getWidth() :
+                        (int) getResources().getDimension(R.dimen.ComplementaryPictureImageViewHeight);
 
-                    // Rotate the complementary picture ImageView if necessary
-                    int rotationTemp = 0;
-                    try {
-                        final ExifInterface exifInterface = new ExifInterface(pictureFile.getAbsolutePath());
-                        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) rotationTemp = 90;
-                        else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) rotationTemp = 180;
-                        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) rotationTemp = 270;
-                    } catch (IOException ignore) {}
-                    final int rotation = rotationTemp;
+                // Rotate the complementary picture ImageView if necessary
+                int rotationTemp = 0;
+                try {
+                    final ExifInterface exifInterface = new ExifInterface(pictureFile.getAbsolutePath());
+                    int orientation = exifInterface
+                            .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                    if (orientation == ExifInterface.ORIENTATION_ROTATE_90) rotationTemp = 90;
+                    else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) rotationTemp = 180;
+                    else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) rotationTemp = 270;
+                } catch (IOException ignore) {}
+                final int rotation = rotationTemp;
 
-                    // Get the dimensions of the bitmap
-                    final BitmapFactory.Options options = new BitmapFactory.Options();
-                    // Setting the inJustDecodeBounds property to true while decoding avoids memory allocation,
-                    // returning null for the bitmap object but setting outWidth, outHeight and outMimeType.
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
-                    final int photoH = options.outHeight;
+                // Get the dimensions of the bitmap
+                final BitmapFactory.Options options = new BitmapFactory.Options();
+                // Setting the inJustDecodeBounds property to true while decoding avoids memory allocation,
+                // returning null for the bitmap object but setting outWidth, outHeight and outMimeType.
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
+                final int photoH = options.outHeight;
 
-                    // Determine how much to scale down the image
-                    final int scale = photoH / targetH;
+                // Determine how much to scale down the image
+                final int scale = photoH / targetH;
 
-                    // Set inJustDecodeBounds back to false, so that decoding returns a bitmap object.
-                    options.inJustDecodeBounds = false;
-                    options.inSampleSize = scale;
+                // Set inJustDecodeBounds back to false, so that decoding returns a bitmap object.
+                options.inJustDecodeBounds = false;
+                options.inSampleSize = scale;
 
-                    // TODO Investigate the need for inPurgeable = true
-                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-                        //noinspection deprecation
-                        options.inPurgeable = true;
-                    }
+                // Decode the image file into a Bitmap sized to fill the view
+                final Bitmap bitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
 
-                    // Decode the image file into a Bitmap sized to fill the view
-                    final Bitmap bitmap = BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
-
-                    // Do UI changes on the UI thread.
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            pictureImageView.setRotation(rotation);
-                            pictureImageView.setImageBitmap(bitmap);
-                            Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_fast);
-                            pictureImageView.startAnimation(animation);
-                        }
-                    });
-                }
+                // Do UI changes on the UI thread.
+                getActivity().runOnUiThread(() -> {
+                    pictureImageView.setRotation(rotation);
+                    pictureImageView.setImageBitmap(bitmap);
+                    Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_fast);
+                    pictureImageView.startAnimation(animation);
+                });
             }).start();
 
         }
@@ -1055,7 +991,7 @@ public class EditFrameDialog extends DialogFragment {
             Collections.reverse(Arrays.asList(displayedApertureValues));
         }
 
-        List<String> apertureValuesList = new ArrayList<>(); //to store the temporary values
+        final List<String> apertureValuesList = new ArrayList<>(); //to store the temporary values
         int minIndex = 0;
         int maxIndex = displayedApertureValues.length-1; //we begin the maxIndex from the last element
 
@@ -1092,7 +1028,7 @@ public class EditFrameDialog extends DialogFragment {
      * @param shutterPicker NumberPicker associated with the shutter speed value
      */
     @SuppressWarnings("ManualArrayToCollectionCopy")
-    private void initialiseShutterPicker(NumberPicker shutterPicker){
+    private void initialiseShutterPicker(final NumberPicker shutterPicker){
         // Set the increments according to settings
         switch (shutterIncrements) {
             default: case 0:
@@ -1113,7 +1049,7 @@ public class EditFrameDialog extends DialogFragment {
             // By reversing the order we can reverse the order in the NumberPicker too
             Collections.reverse(Arrays.asList(displayedShutterValues));
         }
-        List<String> shutterValuesList = new ArrayList<>();
+        final List<String> shutterValuesList = new ArrayList<>();
         int minIndex = 0;
         int maxIndex = displayedShutterValues.length-1;
 
@@ -1150,7 +1086,8 @@ public class EditFrameDialog extends DialogFragment {
             shutterValuesList.addAll(Arrays.asList(displayedShutterValues));
 
             //If no min and max were set for the shutter speed, then only add bulb.
-            shutterValuesList.add(shutterValuesList.size()-1, "B"); //add B between 30s and NoValue
+            //add B between 30s and NoValue
+            shutterValuesList.add(shutterValuesList.size()-1, "B");
 
             displayedShutterValues = shutterValuesList.toArray(new String[0]);
         }
@@ -1195,7 +1132,7 @@ public class EditFrameDialog extends DialogFragment {
             if (newAperture == null) {
                 apertureTextView.setText("");
             } else {
-                String newText = "f/" + newAperture;
+                final String newText = "f/" + newAperture;
                 apertureTextView.setText(newText);
             }
         }
@@ -1233,7 +1170,7 @@ public class EditFrameDialog extends DialogFragment {
     private void checkApertureValueValidity(){
         setDisplayedApertureValues();
         boolean apertureFound = false;
-        for (String string : displayedApertureValues) {
+        for (final String string : displayedApertureValues) {
             if (string.equals(newAperture)) {
                 apertureFound = true;
                 break;
@@ -1254,11 +1191,11 @@ public class EditFrameDialog extends DialogFragment {
      */
     class OnPositiveButtonClickListener implements View.OnClickListener {
         private final AlertDialog dialog;
-        OnPositiveButtonClickListener(AlertDialog dialog) {
+        OnPositiveButtonClickListener(final AlertDialog dialog) {
             this.dialog = dialog;
         }
         @Override
-        public void onClick(View view) {
+        public void onClick(final View view) {
             onDialogDismiss();
             dialog.dismiss();
         }
@@ -1271,8 +1208,9 @@ public class EditFrameDialog extends DialogFragment {
     private class OnScrollChangeListener implements NestedScrollView.OnScrollChangeListener {
         private boolean pictureLoaded = false;
         @Override
-        public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-            Rect scrollBounds = new Rect();
+        public void onScrollChange(final NestedScrollView v, final int scrollX, final int scrollY,
+                                   final int oldScrollX, final int oldScrollY) {
+            final Rect scrollBounds = new Rect();
             nestedScrollView.getHitRect(scrollBounds);
             if (pictureLayout.getLocalVisibleRect(scrollBounds) && !pictureLoaded) {
                 setComplementaryPicture();
@@ -1290,11 +1228,11 @@ public class EditFrameDialog extends DialogFragment {
      */
     private class ShutterLayoutOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View view) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+        public void onClick(final View view) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final LayoutInflater inflater = getActivity().getLayoutInflater();
             @SuppressLint("InflateParams")
-            View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
+            final View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
             final NumberPicker shutterPicker = Utilities.fixNumberPicker(
                     dialogView.findViewById(R.id.number_picker)
             );
@@ -1305,23 +1243,17 @@ public class EditFrameDialog extends DialogFragment {
             builder.setView(dialogView);
             builder.setTitle(getResources().getString(R.string.ChooseShutterSpeed));
             builder.setPositiveButton(getResources().getString(R.string.OK),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            newShutter = shutterPicker.getValue() != shutterPicker.getMaxValue() ?
-                                    displayedShutterValues[shutterPicker.getValue()] :
-                                    null;
-                            updateShutterTextView();
-                        }
+                    (dialogInterface, i) -> {
+                        newShutter = shutterPicker.getValue() != shutterPicker.getMaxValue() ?
+                                displayedShutterValues[shutterPicker.getValue()] :
+                                null;
+                        updateShutterTextView();
                     });
             builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            //Do nothing
-                        }
+                    (dialogInterface, i) -> {
+                        //Do nothing
                     });
-            AlertDialog dialog = builder.create();
+            final AlertDialog dialog = builder.create();
             dialog.show();
         }
     }
@@ -1338,11 +1270,11 @@ public class EditFrameDialog extends DialogFragment {
         private boolean manualOverride = false;
 
         @Override
-        public void onClick(View view) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+        public void onClick(final View view) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final LayoutInflater inflater = getActivity().getLayoutInflater();
             @SuppressLint("InflateParams")
-            View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker_custom, null);
+            final View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker_custom, null);
             final NumberPicker aperturePicker = dialogView.findViewById(R.id.number_picker);
             final EditText editText = dialogView.findViewById(R.id.edit_text);
             final SwitchCompat customApertureSwitch = dialogView.findViewById(R.id.custom_aperture_switch);
@@ -1371,55 +1303,46 @@ public class EditFrameDialog extends DialogFragment {
             }
 
             // The user can switch between predefined aperture values and custom values using a switch.
-            customApertureSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if (b) {
-                        aperturePicker.setVisibility(View.INVISIBLE);
-                        editText.setVisibility(View.VISIBLE);
-                        manualOverride = true;
-                        final Animation animation1 = AnimationUtils.loadAnimation(getActivity(), R.anim.exit_to_right_alt);
-                        final Animation animation2 = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_left_alt);
-                        aperturePicker.startAnimation(animation1);
-                        editText.startAnimation(animation2);
-                    } else {
-                        editText.setVisibility(View.INVISIBLE);
-                        aperturePicker.setVisibility(View.VISIBLE);
-                        manualOverride = false;
-                        final Animation animation1 = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_right_alt);
-                        final Animation animation2 = AnimationUtils.loadAnimation(getActivity(), R.anim.exit_to_left_alt);
-                        aperturePicker.startAnimation(animation1);
-                        editText.startAnimation(animation2);
-                    }
+            customApertureSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+                if (b) {
+                    aperturePicker.setVisibility(View.INVISIBLE);
+                    editText.setVisibility(View.VISIBLE);
+                    manualOverride = true;
+                    final Animation animation1 = AnimationUtils.loadAnimation(getActivity(), R.anim.exit_to_right_alt);
+                    final Animation animation2 = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_left_alt);
+                    aperturePicker.startAnimation(animation1);
+                    editText.startAnimation(animation2);
+                } else {
+                    editText.setVisibility(View.INVISIBLE);
+                    aperturePicker.setVisibility(View.VISIBLE);
+                    manualOverride = false;
+                    final Animation animation1 = AnimationUtils.loadAnimation(getActivity(), R.anim.enter_from_right_alt);
+                    final Animation animation2 = AnimationUtils.loadAnimation(getActivity(), R.anim.exit_to_left_alt);
+                    aperturePicker.startAnimation(animation1);
+                    editText.startAnimation(animation2);
                 }
             });
 
             builder.setPositiveButton(getResources().getString(R.string.OK),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // Use the aperture value from the NumberPicker or EditText
-                            // depending on whether a custom value was used.
-                            if (!manualOverride) {
-                                newAperture = aperturePicker.getValue() != aperturePicker.getMaxValue() ?
-                                        displayedApertureValues[aperturePicker.getValue()] :
-                                        null;
-                            }
-                            else {
-                                final String customAperture = editText.getText().toString();
-                                newAperture = customAperture.length() > 0 ? customAperture : null;
-                            }
-                            updateApertureTextView();
+                    (dialogInterface, i) -> {
+                        // Use the aperture value from the NumberPicker or EditText
+                        // depending on whether a custom value was used.
+                        if (!manualOverride) {
+                            newAperture = aperturePicker.getValue() != aperturePicker.getMaxValue() ?
+                                    displayedApertureValues[aperturePicker.getValue()] :
+                                    null;
                         }
+                        else {
+                            final String customAperture = editText.getText().toString();
+                            newAperture = customAperture.length() > 0 ? customAperture : null;
+                        }
+                        updateApertureTextView();
                     });
             builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            //Do nothing
-                        }
+                    (dialogInterface, i) -> {
+                        //Do nothing
                     });
-            AlertDialog dialog = builder.create();
+            final AlertDialog dialog = builder.create();
             dialog.show();
 
         }
@@ -1432,7 +1355,7 @@ public class EditFrameDialog extends DialogFragment {
          * @return true if the current aperture value corresponds to some predefined aperture value,
          *          false if not.
          */
-        private boolean initialiseAperturePicker(NumberPicker aperturePicker){
+        private boolean initialiseAperturePicker(final NumberPicker aperturePicker){
             setDisplayedApertureValues();
             //If no lens is selected, end here
             if (newLens == null) {
@@ -1481,11 +1404,11 @@ public class EditFrameDialog extends DialogFragment {
      */
     private class FrameCountLayoutOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View view) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+        public void onClick(final View view) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final LayoutInflater inflater = getActivity().getLayoutInflater();
             @SuppressLint("InflateParams")
-            View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
+            final View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
             final NumberPicker frameCountPicker = dialogView.findViewById(R.id.number_picker);
             frameCountPicker.setMinValue(0);
             frameCountPicker.setMaxValue(100);
@@ -1494,21 +1417,15 @@ public class EditFrameDialog extends DialogFragment {
             builder.setView(dialogView);
             builder.setTitle(getResources().getString(R.string.ChooseFrameCount));
             builder.setPositiveButton(getResources().getString(R.string.OK),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            newFrameCount = frameCountPicker.getValue();
-                            frameCountTextView.setText(String.valueOf(newFrameCount));
-                        }
+                    (dialogInterface, i) -> {
+                        newFrameCount = frameCountPicker.getValue();
+                        frameCountTextView.setText(String.valueOf(newFrameCount));
                     });
             builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            //Do nothing
-                        }
+                    (dialogInterface, i) -> {
+                        //Do nothing
                     });
-            AlertDialog dialog = builder.create();
+            final AlertDialog dialog = builder.create();
             dialog.show();
         }
     }
@@ -1520,7 +1437,7 @@ public class EditFrameDialog extends DialogFragment {
      */
     private class LensLayoutOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View view) {
+        public void onClick(final View view) {
             int checkedItem = 0; // default option is 'no lens' (first one the list)
             final List<String> listItems = new ArrayList<>();
             listItems.add(getResources().getString(R.string.NoLens));
@@ -1535,54 +1452,48 @@ public class EditFrameDialog extends DialogFragment {
                 }
             }
             final CharSequence[] items = listItems.toArray(new CharSequence[0]);
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.UsedLens);
-            builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            builder.setSingleChoiceItems(items, checkedItem, (dialog, which) -> {
 
-                    // listItems also contains the No lens option
+                // listItems also contains the No lens option
 
-                    // Check if the lens was changed
-                    if (which > 0) {
-                        lensTextView.setText(listItems.get(which));
-                        newLens = mountableLenses.get(which - 1);
-                        if (newFocalLength > newLens.getMaxFocalLength()) {
-                            newFocalLength = newLens.getMaxFocalLength();
-                        } else if (newFocalLength < newLens.getMinFocalLength()) {
-                            newFocalLength = newLens.getMinFocalLength();
-                        }
-                        focalLengthTextView.setText(
-                                newFocalLength == 0 ? "" : String.valueOf(newFocalLength)
-                        );
-                        apertureIncrements = newLens.getApertureIncrements();
-
-                        //Check the aperture value's validity against the new lens' properties.
-                        checkApertureValueValidity();
-
-                        // The lens was changed, reset filters
-                        resetFilters();
+                // Check if the lens was changed
+                if (which > 0) {
+                    lensTextView.setText(listItems.get(which));
+                    newLens = mountableLenses.get(which - 1);
+                    if (newFocalLength > newLens.getMaxFocalLength()) {
+                        newFocalLength = newLens.getMaxFocalLength();
+                    } else if (newFocalLength < newLens.getMinFocalLength()) {
+                        newFocalLength = newLens.getMinFocalLength();
                     }
-                    // No lens option was selected
-                    else {
-                        lensTextView.setText("");
-                        newLens = null;
-                        newFocalLength = 0;
-                        updateFocalLengthTextView();
-                        apertureIncrements = 0;
-                        resetFilters();
-                    }
+                    focalLengthTextView.setText(
+                            newFocalLength == 0 ? "" : String.valueOf(newFocalLength)
+                    );
+                    apertureIncrements = newLens.getApertureIncrements();
 
-                    dialog.dismiss();
+                    //Check the aperture value's validity against the new lens' properties.
+                    checkApertureValueValidity();
+
+                    // The lens was changed, reset filters
+                    resetFilters();
                 }
-            });
-            builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // Do nothing
+                // No lens option was selected
+                else {
+                    lensTextView.setText("");
+                    newLens = null;
+                    newFocalLength = 0;
+                    updateFocalLengthTextView();
+                    apertureIncrements = 0;
+                    resetFilters();
                 }
+
+                dialog.dismiss();
             });
-            AlertDialog alert = builder.create();
+            builder.setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                // Do nothing
+            });
+            final AlertDialog alert = builder.create();
             alert.show();
         }
     }
@@ -1593,13 +1504,13 @@ public class EditFrameDialog extends DialogFragment {
      */
     private class FilterLayoutOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View view) {
+        public void onClick(final View view) {
             final List<Filter> possibleFilters = newLens != null ?
                     database.getLinkedFilters(newLens) :
                     database.getAllFilters();
 
             final List<String> listItems = new ArrayList<>();
-            for (Filter filter : possibleFilters) {
+            for (final Filter filter : possibleFilters) {
                 listItems.add(filter.getName());
             }
             final CharSequence[] items = listItems.toArray(new CharSequence[0]);
@@ -1607,46 +1518,37 @@ public class EditFrameDialog extends DialogFragment {
             for (int i = 0; i < possibleFilters.size(); ++i) {
                 booleans[i] = newFilters.contains(possibleFilters.get(i));
             }
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             final List<Integer> selectedItemsIndexList = new ArrayList<>();
             for (int i = 0; i < booleans.length; ++i) {
                 if (booleans[i]) selectedItemsIndexList.add(i);
             }
             builder.setTitle(R.string.UsedFilter);
-            builder.setMultiChoiceItems(items, booleans, new DialogInterface.OnMultiChoiceClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int which, boolean isChecked) {
-                    if (isChecked) {
-                        // If the user checked the item, add it to the selected items.
-                        selectedItemsIndexList.add(which);
-                    } else if (selectedItemsIndexList.contains(which)) {
-                        // Else, if the item is already in the array, remove it.
-                        selectedItemsIndexList.remove(Integer.valueOf(which));
-                    }
+            builder.setMultiChoiceItems(items, booleans, (dialogInterface, which, isChecked) -> {
+                if (isChecked) {
+                    // If the user checked the item, add it to the selected items.
+                    selectedItemsIndexList.add(which);
+                } else if (selectedItemsIndexList.contains(which)) {
+                    // Else, if the item is already in the array, remove it.
+                    selectedItemsIndexList.remove(Integer.valueOf(which));
                 }
             });
-            builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int id) {
-                    Collections.sort(selectedItemsIndexList);
-                    final List<Filter> filters = new ArrayList<>();
-                    // Iterate through the selected items.
-                    for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
-                        int which = selectedItemsIndexList.get(i);
-                        final Filter filter = possibleFilters.get(which);
-                        filters.add(filter);
-                    }
-                    newFilters = filters;
-                    updateFiltersTextView();
+            builder.setPositiveButton(R.string.OK, (dialogInterface, id) -> {
+                Collections.sort(selectedItemsIndexList);
+                final List<Filter> filters = new ArrayList<>();
+                // Iterate through the selected items.
+                for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                    final int which = selectedItemsIndexList.get(i);
+                    final Filter filter = possibleFilters.get(which);
+                    filters.add(filter);
                 }
+                newFilters = filters;
+                updateFiltersTextView();
             });
-            builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // Do nothing
-                }
+            builder.setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                // Do nothing
             });
-            AlertDialog alert = builder.create();
+            final AlertDialog alert = builder.create();
             alert.show();
         }
     }
@@ -1657,11 +1559,11 @@ public class EditFrameDialog extends DialogFragment {
      */
     private class FocalLengthLayoutOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View view) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+        public void onClick(final View view) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final LayoutInflater inflater = getActivity().getLayoutInflater();
             @SuppressLint("InflateParams")
-            View dialogView = inflater.inflate(R.layout.dialog_seek_bar, null);
+            final View dialogView = inflater.inflate(R.layout.dialog_seek_bar, null);
             final SeekBar focalLengthSeekBar = dialogView.findViewById(R.id.seek_bar);
             final TextView focalLengthTextView = dialogView.findViewById(R.id.value_text_view);
 
@@ -1695,44 +1597,38 @@ public class EditFrameDialog extends DialogFragment {
             // the current focal length converted from the progress (int i)
             focalLengthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
-                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                    int focalLength = minValue + (maxValue - minValue) * i / 100;
+                public void onProgressChanged(final SeekBar seekBar, final int i, final boolean b) {
+                    final int focalLength = minValue + (maxValue - minValue) * i / 100;
                     focalLengthTextView.setText(String.valueOf(focalLength));
                 }
 
                 @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
+                public void onStartTrackingTouch(final SeekBar seekBar) {
                     // Do nothing
                 }
 
                 @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
+                public void onStopTrackingTouch(final SeekBar seekBar) {
                     // Do nothing
                 }
             });
 
             final TextView increaseFocalLength = dialogView.findViewById(R.id.increase_focal_length);
             final TextView decreaseFocalLength = dialogView.findViewById(R.id.decrease_focal_length);
-            increaseFocalLength.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int focalLength = Integer.parseInt(focalLengthTextView.getText().toString());
-                    if (focalLength < maxValue) {
-                        ++focalLength;
-                        focalLengthSeekBar.setProgress(calculateProgress(focalLength, minValue, maxValue));
-                        focalLengthTextView.setText(String.valueOf(focalLength));
-                    }
+            increaseFocalLength.setOnClickListener(view12 -> {
+                int focalLength = Integer.parseInt(focalLengthTextView.getText().toString());
+                if (focalLength < maxValue) {
+                    ++focalLength;
+                    focalLengthSeekBar.setProgress(calculateProgress(focalLength, minValue, maxValue));
+                    focalLengthTextView.setText(String.valueOf(focalLength));
                 }
             });
-            decreaseFocalLength.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int focalLength = Integer.parseInt(focalLengthTextView.getText().toString());
-                    if (focalLength > minValue) {
-                        --focalLength;
-                        focalLengthSeekBar.setProgress(calculateProgress(focalLength, minValue, maxValue));
-                        focalLengthTextView.setText(String.valueOf(focalLength));
-                    }
+            decreaseFocalLength.setOnClickListener(view1 -> {
+                int focalLength = Integer.parseInt(focalLengthTextView.getText().toString());
+                if (focalLength > minValue) {
+                    --focalLength;
+                    focalLengthSeekBar.setProgress(calculateProgress(focalLength, minValue, maxValue));
+                    focalLengthTextView.setText(String.valueOf(focalLength));
                 }
             });
 
@@ -1740,21 +1636,15 @@ public class EditFrameDialog extends DialogFragment {
             builder.setView(dialogView);
             builder.setTitle(getResources().getString(R.string.ChooseFocalLength));
             builder.setPositiveButton(getResources().getString(R.string.OK),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            newFocalLength = Integer.parseInt(focalLengthTextView.getText().toString());
-                            updateFocalLengthTextView();
-                        }
+                    (dialogInterface, i) -> {
+                        newFocalLength = Integer.parseInt(focalLengthTextView.getText().toString());
+                        updateFocalLengthTextView();
                     });
             builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            //Do nothing
-                        }
+                    (dialogInterface, i) -> {
+                        //Do nothing
                     });
-            AlertDialog dialog = builder.create();
+            final AlertDialog dialog = builder.create();
             dialog.show();
         }
     }
@@ -1765,11 +1655,11 @@ public class EditFrameDialog extends DialogFragment {
      */
     private class ExposureCompLayoutOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View view) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+        public void onClick(final View view) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final LayoutInflater inflater = getActivity().getLayoutInflater();
             @SuppressLint("InflateParams")
-            View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
+            final View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
             final NumberPicker exposureCompPicker = Utilities.fixNumberPicker(
                     dialogView.findViewById(R.id.number_picker)
             );
@@ -1804,23 +1694,17 @@ public class EditFrameDialog extends DialogFragment {
             builder.setView(dialogView);
             builder.setTitle(getResources().getString(R.string.ChooseExposureComp));
             builder.setPositiveButton(getResources().getString(R.string.OK),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            newExposureComp = displayedExposureCompValues[exposureCompPicker.getValue()];
-                            exposureCompTextView.setText(
-                                    newExposureComp == null || newExposureComp.equals("0") ? "" : newExposureComp
-                            );
-                        }
+                    (dialogInterface, i) -> {
+                        newExposureComp = displayedExposureCompValues[exposureCompPicker.getValue()];
+                        exposureCompTextView.setText(
+                                newExposureComp == null || newExposureComp.equals("0") ? "" : newExposureComp
+                        );
                     });
             builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            //Do nothing
-                        }
+                    (dialogInterface, i) -> {
+                        //Do nothing
                     });
-            AlertDialog dialog = builder.create();
+            final AlertDialog dialog = builder.create();
             dialog.show();
         }
     }
@@ -1831,11 +1715,11 @@ public class EditFrameDialog extends DialogFragment {
      */
     private class NoOfExposuresLayoutOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View view) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+        public void onClick(final View view) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final LayoutInflater inflater = getActivity().getLayoutInflater();
             @SuppressLint("InflateParams")
-            View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
+            final View dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null);
             final NumberPicker noOfExposuresPicker = dialogView.findViewById(R.id.number_picker);
 
             noOfExposuresPicker.setMinValue(1);
@@ -1850,21 +1734,15 @@ public class EditFrameDialog extends DialogFragment {
             builder.setView(dialogView);
             builder.setTitle(getResources().getString(R.string.ChooseNoOfExposures));
             builder.setPositiveButton(getResources().getString(R.string.OK),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            newNoOfExposures = noOfExposuresPicker.getValue();
-                            noOfExposuresTextView.setText(String.valueOf(newNoOfExposures));
-                        }
+                    (dialogInterface, i) -> {
+                        newNoOfExposures = noOfExposuresPicker.getValue();
+                        noOfExposuresTextView.setText(String.valueOf(newNoOfExposures));
                     });
             builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            //Do nothing
-                        }
+                    (dialogInterface, i) -> {
+                        //Do nothing
                     });
-            AlertDialog dialog = builder.create();
+            final AlertDialog dialog = builder.create();
             dialog.show();
         }
     }
@@ -1875,9 +1753,9 @@ public class EditFrameDialog extends DialogFragment {
      */
     private class PictureLayoutOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View view) {
+        public void onClick(final View view) {
 
-            AlertDialog.Builder pictureActionDialogBuilder = new AlertDialog.Builder(getActivity());
+            final AlertDialog.Builder pictureActionDialogBuilder = new AlertDialog.Builder(getActivity());
             final String[] items;
 
             // If a complementary picture was not set, set only the two first options
@@ -1901,65 +1779,57 @@ public class EditFrameDialog extends DialogFragment {
             }
 
             // Add the items and the listener
-            pictureActionDialogBuilder.setItems(items, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    switch (i) {
+            pictureActionDialogBuilder.setItems(items, (dialogInterface, i) -> {
+                switch (i) {
 
-                        // Take a new complementary picture
-                        case 0:
-                            dialogInterface.dismiss();
-                            startPictureActivity();
-                            break;
+                    // Take a new complementary picture
+                    case 0:
+                        dialogInterface.dismiss();
+                        startPictureActivity();
+                        break;
 
-                        // Select picture from gallery
-                        case 1:
-                            final Intent selectPictureIntent = new Intent(Intent.ACTION_PICK);
-                            selectPictureIntent.setType("image/*");
-                            startActivityForResult(selectPictureIntent, SELECT_PICTURE_REQUEST);
-                            break;
+                    // Select picture from gallery
+                    case 1:
+                        final Intent selectPictureIntent = new Intent(Intent.ACTION_PICK);
+                        selectPictureIntent.setType("image/*");
+                        startActivityForResult(selectPictureIntent, SELECT_PICTURE_REQUEST);
+                        break;
 
-                        // Add the picture to gallery
-                        case 2:
-                            try {
-                                ComplementaryPicturesManager.addPictureToGallery(getActivity(), newPictureFilename);
-                                Toast.makeText(getActivity(), R.string.PictureAddedToGallery, Toast.LENGTH_SHORT).show();
-                            } catch (IOException e) {
-                                Toast.makeText(getActivity(), R.string.ErrorAddingPictureToGallery,Toast.LENGTH_LONG).show();
-                            }
-                            dialogInterface.dismiss();
-                            break;
+                    // Add the picture to gallery
+                    case 2:
+                        try {
+                            ComplementaryPicturesManager.addPictureToGallery(getActivity(), newPictureFilename);
+                            Toast.makeText(getActivity(), R.string.PictureAddedToGallery, Toast.LENGTH_SHORT).show();
+                        } catch (final IOException e) {
+                            Toast.makeText(getActivity(), R.string.ErrorAddingPictureToGallery,Toast.LENGTH_LONG).show();
+                        }
+                        dialogInterface.dismiss();
+                        break;
 
-                        // Rotate the picture 90 degrees clockwise
-                        case 3:
-                            rotateComplementaryPictureRight();
-                            break;
+                    // Rotate the picture 90 degrees clockwise
+                    case 3:
+                        rotateComplementaryPictureRight();
+                        break;
 
-                        // Rotate the picture 90 degrees counterclockwise
-                        case 4:
-                            rotateComplementaryPictureLeft();
-                            break;
+                    // Rotate the picture 90 degrees counterclockwise
+                    case 4:
+                        rotateComplementaryPictureLeft();
+                        break;
 
-                        // Clear the complementary picture
-                        case 5:
-                            newPictureFilename = null;
-                            pictureImageView.setVisibility(View.GONE);
-                            pictureTextView.setVisibility(View.VISIBLE);
-                            pictureTextView.setText(R.string.ClickToAdd);
-                            dialogInterface.dismiss();
-                            break;
+                    // Clear the complementary picture
+                    case 5:
+                        newPictureFilename = null;
+                        pictureImageView.setVisibility(View.GONE);
+                        pictureTextView.setVisibility(View.VISIBLE);
+                        pictureTextView.setText(R.string.ClickToAdd);
+                        dialogInterface.dismiss();
+                        break;
 
-                        default:
-                            break;
-                    }
+                    default:
+                        break;
                 }
             });
-            pictureActionDialogBuilder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            });
+            pictureActionDialogBuilder.setNegativeButton(R.string.Cancel, (dialogInterface, i) -> dialogInterface.dismiss());
             pictureActionDialogBuilder.create().show();
         }
 
@@ -1973,12 +1843,12 @@ public class EditFrameDialog extends DialogFragment {
                 return;
             }
             // Advance with taking the picture
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            final Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                 // Create the file where the photo should go
                 final File pictureFile = ComplementaryPicturesManager.createNewPictureFile(getActivity());
                 tempPictureFilename = pictureFile.getName();
-                Uri photoURI;
+                final Uri photoURI;
                 //Android Nougat requires that the file is given via FileProvider
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     photoURI = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext()
@@ -2001,7 +1871,7 @@ public class EditFrameDialog extends DialogFragment {
                 pictureImageView.setRotation(pictureImageView.getRotation() + 90);
                 final Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_right);
                 pictureImageView.startAnimation(animation);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Toast.makeText(getActivity(), R.string.ErrorWhileEditingPicturesExifData, Toast.LENGTH_SHORT).show();
             }
         }
@@ -2016,7 +1886,7 @@ public class EditFrameDialog extends DialogFragment {
                 pictureImageView.setRotation(pictureImageView.getRotation() - 90);
                 final Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_left);
                 pictureImageView.startAnimation(animation);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Toast.makeText(getActivity(), R.string.ErrorWhileEditingPicturesExifData, Toast.LENGTH_SHORT).show();
             }
         }
@@ -2029,26 +1899,20 @@ public class EditFrameDialog extends DialogFragment {
      */
     private class LightSourceLayoutOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View v) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            int checkedItem = newLightSource;
-            builder.setSingleChoiceItems(R.array.LightSource, checkedItem, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    newLightSource = which;
-                    lightSourceTextView.setText(
-                            newLightSource == 0 ?
-                                    getResources().getString(R.string.ClickToSet) :
-                                    getResources().getStringArray(R.array.LightSource)[which]
-                    );
-                    dialog.dismiss();
-                }
+        public void onClick(final View v) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final int checkedItem = newLightSource;
+            builder.setSingleChoiceItems(R.array.LightSource, checkedItem, (dialog, which) -> {
+                newLightSource = which;
+                lightSourceTextView.setText(
+                        newLightSource == 0 ?
+                                getResources().getString(R.string.ClickToSet) :
+                                getResources().getStringArray(R.array.LightSource)[which]
+                );
+                dialog.dismiss();
             });
-            builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // Do nothing
-                }
+            builder.setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                // Do nothing
             });
             builder.create().show();
         }

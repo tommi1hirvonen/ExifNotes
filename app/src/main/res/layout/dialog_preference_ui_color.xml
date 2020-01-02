@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_margin="10dp"
     android:gravity="center_horizontal">
-
+    
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:src="@drawable/circle_blue"
         android:contentDescription="@string/Blue"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:layout_margin="10dp" />
 
     <ImageView
@@ -35,7 +35,7 @@
         android:layout_toRightOf="@id/ui_color_option_1"
         android:src="@drawable/circle_cyan"
         android:contentDescription="@string/Cyan"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:layout_margin="10dp" />
 
     <ImageView
@@ -57,7 +57,7 @@
         android:layout_toRightOf="@id/ui_color_option_2"
         android:src="@drawable/circle_green"
         android:contentDescription="@string/Green"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:layout_margin="10dp" />
 
     <ImageView
@@ -79,7 +79,7 @@
         android:layout_toRightOf="@id/ui_color_option_3"
         android:src="@drawable/circle_grey"
         android:contentDescription="@string/Grey"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:layout_margin="10dp" />
 
     <ImageView
@@ -101,7 +101,7 @@
         android:layout_below="@id/ui_color_option_1"
         android:src="@drawable/circle_orange"
         android:contentDescription="@string/Orange"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:layout_margin="10dp" />
 
     <ImageView
@@ -124,7 +124,7 @@
         android:layout_toRightOf="@id/ui_color_option_5"
         android:src="@drawable/circle_pink"
         android:contentDescription="@string/Pink"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:layout_margin="10dp" />
 
     <ImageView
@@ -146,7 +146,7 @@
         android:id="@+id/ui_color_option_7"
         android:layout_below="@id/ui_color_option_3"
         android:layout_toRightOf="@id/ui_color_option_6"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:src="@drawable/circle_purple"
         android:contentDescription="@string/Purple"
         android:layout_margin="10dp" />
@@ -170,7 +170,7 @@
         android:id="@+id/ui_color_option_8"
         android:layout_below="@id/ui_color_option_4"
         android:layout_toRightOf="@id/ui_color_option_7"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:src="@drawable/circle_red"
         android:contentDescription="@string/Red"
         android:layout_margin="10dp"/>

@@ -2,7 +2,6 @@ package com.tommihirvonen.exifnotes.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
      *                           create the fragment
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
 
         //------------------------------------------------------------------------------------------
         // Delete all complementary pictures, which are not linked to any frame.
@@ -101,11 +100,11 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         // Check that the application has write permission to the phone's external storage
         // and access to location services.
 
-        boolean permissionWriteExternalStorage = ActivityCompat.checkSelfPermission(
+        final boolean permissionWriteExternalStorage = ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-        boolean permissionAccessCoarseLocation = ActivityCompat.checkSelfPermission(
+        final boolean permissionAccessCoarseLocation = ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        boolean permissionAccessFineLocation = ActivityCompat.checkSelfPermission(
+        final boolean permissionAccessFineLocation = ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
         if (!permissionWriteExternalStorage || !permissionAccessCoarseLocation || !permissionAccessFineLocation) {
@@ -129,8 +128,8 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         final boolean requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true);
 
         // Getting GPS status
-        LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
-        boolean isGPSEnabled = locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        final LocationManager locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+        final boolean isGPSEnabled = locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
         // Show a dialog to go to settings only if GPS is not enabled in system settings
         // but location updates are enabled in the app's settings.
@@ -154,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
             }
 
             // Create a new Fragment to be placed in the activity layout
-            RollsFragment firstFragment = new RollsFragment();
+            final RollsFragment firstFragment = new RollsFragment();
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
@@ -173,8 +172,8 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
             recreate();
             return;
         }
-        int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
-        int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
+        final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
         Utilities.setSupportActionBarColor(this, primaryColor);
         Utilities.setStatusBarColor(this, secondaryColor);
     }
@@ -204,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
      * @param rollId The id of the roll that was pressed.
      */
     @Override
-    public void onRollSelected(long rollId){
+    public void onRollSelected(final long rollId){
         final Intent framesActivityIntent = new Intent(this, FramesActivity.class);
         framesActivityIntent.putExtra(ExtraKeys.ROLL_ID, rollId);
         framesActivityIntent.putExtra(ExtraKeys.LOCATION_ENABLED, locationPermissionsGranted);
@@ -218,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
      * Prompt the user to jump to settings to enable GPS.
      */
     private void showSettingsAlert(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 
         // Setting Dialog Title
         alertDialog.setTitle(R.string.GPSSettings);
@@ -227,31 +226,22 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         alertDialog.setMessage(R.string.GPSNotEnabled);
 
         // On pressing Settings button
-        alertDialog.setPositiveButton(R.string.GoToSettings, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog,int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
-            }
+        alertDialog.setPositiveButton(R.string.GoToSettings, (dialog, which) -> {
+            final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
         });
 
         // On pressing disable button
-        alertDialog.setNegativeButton(R.string.DisableInApp, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                final SharedPreferences.Editor prefsEditor = prefs.edit();
-                prefsEditor.putBoolean(PreferenceConstants.KEY_GPS_UPDATE, false);
-                prefsEditor.apply();
-                dialogInterface.dismiss();
-            }
+        alertDialog.setNegativeButton(R.string.DisableInApp, (dialogInterface, i) -> {
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+            final SharedPreferences.Editor prefsEditor = prefs.edit();
+            prefsEditor.putBoolean(PreferenceConstants.KEY_GPS_UPDATE, false);
+            prefsEditor.apply();
+            dialogInterface.dismiss();
         });
 
         // On pressing cancel button
-        alertDialog.setNeutralButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        alertDialog.setNeutralButton(R.string.Cancel, (dialog, which) -> dialog.cancel());
 
         // Showing Alert Message
         alertDialog.show();
@@ -265,8 +255,10 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
      * @param grantResults An array which is empty if the request was cancelled.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == MY_MULTIPLE_PERMISSIONS_REQUEST) {// If request is cancelled, the result arrays are empty. Thus we check
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions,
+                                           @NonNull final int[] grantResults) {
+        // If request is cancelled, the result arrays are empty. Thus we check
+        if (requestCode == MY_MULTIPLE_PERMISSIONS_REQUEST) {
             // the length of grantResults first.
 
             //Check location permissions
@@ -296,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
      * @param data not used
      */
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
 
             // Intentional fallthrough

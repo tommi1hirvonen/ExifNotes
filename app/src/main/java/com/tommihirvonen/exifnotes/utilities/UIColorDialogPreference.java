@@ -38,7 +38,7 @@ public class UIColorDialogPreference extends DialogPreference {
      * @param context {@inheritDoc}
      * @param attrs {@inheritDoc}
      */
-    public UIColorDialogPreference(Context context, AttributeSet attrs) {
+    public UIColorDialogPreference(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         // Get color option names
         uiColorOptions = Arrays.asList(getContext().getResources().getStringArray(R.array.UIColorOptions));
@@ -63,7 +63,7 @@ public class UIColorDialogPreference extends DialogPreference {
         return uiColorOptionsData.get(index);
     }
 
-    void setUIColor(int index) {
+    void setUIColor(final int index) {
         persistString(uiColorOptionsData.get(index));
         this.index = index;
     }
@@ -77,12 +77,12 @@ public class UIColorDialogPreference extends DialogPreference {
      * @return string containing the default value
      */
     @Override
-    protected Object onGetDefaultValue(TypedArray a, int index_) {
+    protected Object onGetDefaultValue(final TypedArray a, final int index_) {
         return a.getString(index_);
     }
 
     @Override
-    protected void onSetInitialValue(@Nullable Object defaultValue) {
+    protected void onSetInitialValue(@Nullable final Object defaultValue) {
         final String colorData = getPersistedString(uiColorOptionsData.get(1)); // Default index = 1 => cyan
         int index_ = uiColorOptionsData.indexOf(colorData);
         if (index_ < 0 || index_ >= uiColorOptionsData.size()) {

@@ -38,7 +38,7 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
      *
      * @param delegate AsyncResponse listener
      */
-    public GeocodingAsyncTask(AsyncResponse delegate){
+    public GeocodingAsyncTask(final AsyncResponse delegate){
         this.delegate = delegate;
     }
 
@@ -53,10 +53,10 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
      * If the connection was unsuccessful, the element is an empty string.
      */
     @Override
-    protected String[] doInBackground(String... params) {
-        String response;
+    protected String[] doInBackground(final String... params) {
+        final String response;
         try {
-            String queryUrl = new Uri.Builder()
+            final String queryUrl = new Uri.Builder()
                     // Requests must be made over SSL.
                     .scheme("https")
                     .authority("maps.google.com")
@@ -72,7 +72,7 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
                     .build().toString();
             response = getLatLongByURL(queryUrl);
             return new String[]{response};
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return new String[]{"error"};
         }
     }
@@ -87,25 +87,25 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
      *               and formatted address in JSON format
      */
     @Override
-    protected void onPostExecute(String... result) {
+    protected void onPostExecute(final String... result) {
         try {
-            JSONObject jsonObject = new JSONObject(result[0]);
+            final JSONObject jsonObject = new JSONObject(result[0]);
 
-            double lng = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
+            final double lng = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
                     .getJSONObject("geometry").getJSONObject("location")
                     .getDouble("lng");
 
-            double lat = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
+            final double lat = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
                     .getJSONObject("geometry").getJSONObject("location")
                     .getDouble("lat");
 
-            String formattedAddress = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
+            final String formattedAddress = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
                     .getString("formatted_address");
 
             // Call the implementing class's processFinish to pass the location
             // and formatted address.
             delegate.processFinish(lat + " " + lng, formattedAddress);
-        } catch (JSONException e) {
+        } catch (final JSONException e) {
             e.printStackTrace();
             // In the case of an exception, pass empty string to the implementing class.
             delegate.processFinish("", "");
@@ -119,13 +119,13 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
      * @param requestURL the request URL string
      * @return response string
      */
-    private String getLatLongByURL(String requestURL) {
-        URL url;
+    private String getLatLongByURL(final String requestURL) {
+        final URL url;
         StringBuilder response = new StringBuilder();
         try {
             url = new URL(requestURL);
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
             conn.setRequestMethod("GET");
@@ -133,13 +133,13 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
             conn.setRequestProperty("Content-Type",
                     "application/x-www-form-urlencoded");
             conn.setDoOutput(true);
-            int responseCode = conn.getResponseCode();
+            final int responseCode = conn.getResponseCode();
 
             // If the connection was successful, add the connection result to the response string
             // one line at a time.
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 String line;
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                final BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 while ((line = br.readLine()) != null) {
                     response.append(line);
                 }
@@ -149,7 +149,7 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
                 response = new StringBuilder();
             }
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
         return response.toString();

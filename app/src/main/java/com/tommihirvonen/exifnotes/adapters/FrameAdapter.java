@@ -1,7 +1,7 @@
 package com.tommihirvonen.exifnotes.adapters;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
+
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
@@ -110,7 +110,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
         final ImageView apertureImageView;
         final ImageView checkBox;
         final View selectedBackground;
-        ViewHolder(View itemView) {
+        ViewHolder(final View itemView) {
             super(itemView);
             constraintLayout = itemView.findViewById(R.id.item_frame_layout);
             countTextView = itemView.findViewById(R.id.tvCount);
@@ -124,18 +124,10 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
             apertureImageView = itemView.findViewById(R.id.drawable_aperture);
             checkBox = itemView.findViewById(R.id.checkbox);
             selectedBackground = itemView.findViewById(R.id.grey_background);
-            constraintLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.onItemClick(getAdapterPosition());
-                }
-            });
-            constraintLayout.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    listener.onItemLongClick(getAdapterPosition());
-                    return true;
-                }
+            constraintLayout.setOnClickListener(view -> listener.onItemClick(getAdapterPosition()));
+            constraintLayout.setOnLongClickListener(view -> {
+                listener.onItemLongClick(getAdapterPosition());
+                return true;
             });
             // With these commands we can color the black png images grey. Very nice! I like!
             Utilities.setColorFilter(frameImageView.getDrawable().mutate(), backgroundFrameColor);
@@ -152,8 +144,8 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      * @param frames list of Frames from the implementing class
      * @param listener implementing class's OnItemClickListener
      */
-    public FrameAdapter(Context context, List<Frame> frames,
-                        FrameAdapterListener listener) {
+    public FrameAdapter(final Context context, final List<Frame> frames,
+                        final FrameAdapterListener listener) {
         this.listener = listener;
         this.frameList = frames;
         this.context = context;
@@ -178,8 +170,9 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      */
     @NonNull
     @Override
-    public FrameAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_frame_constraint, parent, false);
+    public FrameAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        final View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_frame_constraint, parent, false);
         return new ViewHolder(view);
     }
 
@@ -192,14 +185,14 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      * @param position position of the current item
      */
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Frame frame = frameList.get(position);
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        final Frame frame = frameList.get(position);
         if (frame != null) {
             holder.frameTextView.setText(frame.getDate());
             holder.countTextView.setText("" + frame.getCount());
 
             if (frame.getLensId() > 0) {
-                Lens lens = database.getLens(frame.getLensId());
+                final Lens lens = database.getLens(frame.getLensId());
                 holder.frameTextView2.setText(lens.getName());
             } else {
                 holder.frameTextView2.setText(context.getResources().getString(R.string.NoLens));
@@ -225,7 +218,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      * @param holder reference to the item's holder
      * @param position position of the item
      */
-    private void applyCheckBoxAnimation(ViewHolder holder, int position) {
+    private void applyCheckBoxAnimation(final ViewHolder holder, final int position) {
         if (selectedItems.get(position, false)) {
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
@@ -235,10 +228,10 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
 
             // If the item is selected or all items are being selected and the item was not previously selected
             if (currentSelectedIndex == position || animateAll && !animationItemsIndex.get(position, false)) {
-                Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_up);
+                final Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_up);
                 holder.checkBox.startAnimation(animation);
 
-                Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_in);
+                final Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_in);
                 holder.selectedBackground.startAnimation(animation1);
 
                 resetCurrentSelectedIndex();
@@ -252,10 +245,10 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
 
             // If the item is deselected or all selections are undone and the item was previously selected
             if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex.get(position, false)) {
-                Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_down);
+                final Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_down);
                 holder.checkBox.startAnimation(animation);
 
-                Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+                final Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_out);
                 holder.selectedBackground.startAnimation(animation1);
 
                 resetCurrentSelectedIndex();
@@ -278,7 +271,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      *
      * @param position position of the item
      */
-    public void toggleSelection(int position) {
+    public void toggleSelection(final int position) {
         currentSelectedIndex = position;
         if (selectedItems.get(position, false)) {
             selectedItems.delete(position);
@@ -364,7 +357,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
      * @return stable id
      */
     @Override
-    public long getItemId(int position) {
+    public long getItemId(final int position) {
         return frameList.get(position).getId();
     }
 

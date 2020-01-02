@@ -4,7 +4,6 @@ import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.filters.LargeTest;
-import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 import androidx.test.runner.AndroidJUnit4;
@@ -25,7 +24,6 @@ import com.tommihirvonen.exifnotes.R;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,15 +39,15 @@ import static org.hamcrest.Matchers.is;
 @RunWith(AndroidJUnit4.class)
 public class AddGearTest {
 
-    private static void pauseTestFor(long milliseconds) {
+    private static void pauseTestFor(final long milliseconds) {
         try {
             Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private static void setNumberPickerValue(int pickerId, final int value) {
+    private static void setNumberPickerValue(final int pickerId, final int value) {
         onView(withId(pickerId)).perform(new ViewAction() {
             @Override
             public Matcher getConstraints() {
@@ -62,7 +60,7 @@ public class AddGearTest {
             }
 
             @Override
-            public void perform(UiController uiController, View view) {
+            public void perform(final UiController uiController, final View view) {
                 ((NumberPicker)view).setValue(value);
             }
         });
@@ -1134,14 +1132,14 @@ public class AddGearTest {
 
         return new TypeSafeMatcher<View>() {
             @Override
-            public void describeTo(Description description) {
+            public void describeTo(final Description description) {
                 description.appendText("Child at position " + position + " in parent ");
                 parentMatcher.describeTo(description);
             }
 
             @Override
-            public boolean matchesSafely(View view) {
-                ViewParent parent = view.getParent();
+            public boolean matchesSafely(final View view) {
+                final ViewParent parent = view.getParent();
                 return parent instanceof ViewGroup && parentMatcher.matches(parent)
                         && view.equals(((ViewGroup) parent).getChildAt(position));
             }

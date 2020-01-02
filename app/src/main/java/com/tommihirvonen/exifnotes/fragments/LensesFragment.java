@@ -2,11 +2,12 @@ package com.tommihirvonen.exifnotes.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -84,7 +85,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
      * @param savedInstanceState {@inheritDoc}
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
@@ -111,8 +112,9 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
      * @return the inflated view ready to be shown
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+    public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
+                             final Bundle savedInstanceState) {
+        final LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         database = FilmDbHelper.getInstance(getActivity());
         lensList = database.getAllLenses();
@@ -120,10 +122,10 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
 
         final View view = layoutInflater.inflate(R.layout.fragment_lenses, container, false);
 
-        FloatingActionButton fab = view.findViewById(R.id.fab_lenses);
+        final FloatingActionButton fab = view.findViewById(R.id.fab_lenses);
         fab.setOnClickListener(this);
 
-        int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         fab.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
@@ -134,7 +136,8 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         mainRecyclerView = view.findViewById(R.id.lenses_recycler_view);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mainRecyclerView.setLayoutManager(layoutManager);
-        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(), layoutManager.getOrientation()));
+        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(),
+                layoutManager.getOrientation()));
 
         lensAdapter = new GearAdapter(getActivity(), lensList);
         mainRecyclerView.setAdapter(lensAdapter);
@@ -154,7 +157,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
      */
     @SuppressLint("CommitTransaction")
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(@NonNull final MenuItem item) {
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
         if (fragmentVisible) {
@@ -186,34 +189,28 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
                         return true;
                     }
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle(getResources().getString(R.string.ConfirmLensDelete)
                             + " \'" + lens.getName() + "\'?"
                     );
-                    builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Do nothing
+                    builder.setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                        // Do nothing
 
-                        }
                     });
-                    builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                    builder.setPositiveButton(R.string.OK, (dialog, which) -> {
 
-                            database.deleteLens(lens);
+                        database.deleteLens(lens);
 
-                            // Remove the lens from the lensList. Do this last!!!
-                            lensList.remove(position);
+                        // Remove the lens from the lensList. Do this last!!!
+                        lensList.remove(position);
 
-                            if (lensList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                            lensAdapter.notifyItemRemoved(position);
+                        if (lensList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                        lensAdapter.notifyItemRemoved(position);
 
-                            // Update the CamerasFragment through the parent activity.
-                            GearActivity gearActivity = (GearActivity)getActivity();
-                            gearActivity.updateFragments();
+                        // Update the CamerasFragment through the parent activity.
+                        final GearActivity gearActivity = (GearActivity)getActivity();
+                        gearActivity.updateFragments();
 
-                        }
                     });
                     builder.create().show();
 
@@ -221,9 +218,9 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
 
                 case R.id.menu_item_edit:
 
-                    EditLensDialog dialog = new EditLensDialog();
+                    final EditLensDialog dialog = new EditLensDialog();
                     dialog.setTargetFragment(this, EDIT_LENS);
-                    Bundle arguments = new Bundle();
+                    final Bundle arguments = new Bundle();
                     arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.EditLens));
                     arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.OK));
                     arguments.putParcelable(ExtraKeys.LENS, lens);
@@ -242,9 +239,9 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
      */
     @SuppressLint("CommitTransaction")
     private void showLensNameDialog() {
-        EditLensDialog dialog = new EditLensDialog();
+        final EditLensDialog dialog = new EditLensDialog();
         dialog.setTargetFragment(this, ADD_LENS);
-        Bundle arguments = new Bundle();
+        final Bundle arguments = new Bundle();
         arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewLens));
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
@@ -260,7 +257,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
      * @param data the extra data attached to the passed Intent
      */
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch(requestCode) {
 
             case ADD_LENS:
@@ -268,13 +265,13 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    Lens lens = data.getParcelableExtra(ExtraKeys.LENS);
+                    final Lens lens = data.getParcelableExtra(ExtraKeys.LENS);
 
                     if (lens.getMake().length() > 0 && lens.getModel().length() > 0) {
 
                         mainTextView.setVisibility(View.GONE);
 
-                        long rowId = database.addLens(lens);
+                        final long rowId = database.addLens(lens);
                         lens.setId(rowId);
                         lensList.add(lens);
                         Utilities.sortGearList(lensList);
@@ -297,7 +294,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Lens lens = data.getParcelableExtra(ExtraKeys.LENS);
+                    final Lens lens = data.getParcelableExtra(ExtraKeys.LENS);
 
                     if (lens.getMake().length() > 0 &&
                             lens.getModel().length() > 0 &&
@@ -312,7 +309,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
                         mainRecyclerView.scrollToPosition(newPos);
 
                         // Update the LensesFragment through the parent activity.
-                        GearActivity gearActivity = (GearActivity)getActivity();
+                        final GearActivity gearActivity = (GearActivity)getActivity();
                         gearActivity.updateFragments();
 
                     } else {
@@ -335,7 +332,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
      * @param v view which was clicked
      */
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
         if (v.getId() == R.id.fab_lenses) {
             showLensNameDialog();
         }
@@ -355,15 +352,15 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         // multi choice list.
         // Also make an array list containing all the camera id's for list comparison.
         // Comparing lists containing frames is not easy.
-        List<String> listItems = new ArrayList<>();
-        List<Long> allCamerasId = new ArrayList<>();
+        final List<String> listItems = new ArrayList<>();
+        final List<Long> allCamerasId = new ArrayList<>();
         for (int i = 0; i < allCameras.size(); ++i) {
             listItems.add(allCameras.get(i).getName());
             allCamerasId.add(allCameras.get(i).getId());
         }
 
         // Make an array list containing all mountable camera id's.
-        List<Long> mountableCamerasId = new ArrayList<>();
+        final List<Long> mountableCamerasId = new ArrayList<>();
         for (int i = 0; i < mountableCameras.size(); ++i) {
             mountableCamerasId.add(mountableCameras.get(i).getId());
         }
@@ -375,7 +372,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         }
 
         final CharSequence[] items = listItems.toArray(new CharSequence[0]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         // MULTIPLE CHOICE DIALOG
 
@@ -387,64 +384,55 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         }
 
         builder.setTitle(R.string.SelectMountableCameras)
-                .setMultiChoiceItems(items, booleans, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        if (isChecked) {
+                .setMultiChoiceItems(items, booleans, (dialog, which, isChecked) -> {
+                    if (isChecked) {
 
-                            // If the user checked the item, add it to the selected items
-                            selectedItemsIndexList.add(which);
+                        // If the user checked the item, add it to the selected items
+                        selectedItemsIndexList.add(which);
 
-                        } else if (selectedItemsIndexList.contains(which)) {
+                    } else if (selectedItemsIndexList.contains(which)) {
 
-                            // Else, if the item is already in the array, remove it
-                            selectedItemsIndexList.remove(Integer.valueOf(which));
+                        // Else, if the item is already in the array, remove it
+                        selectedItemsIndexList.remove(Integer.valueOf(which));
 
-                        }
                     }
                 })
 
-                .setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
+                .setPositiveButton(R.string.OK, (dialog, id) -> {
 
-                        // Do something with the selections
-                        Collections.sort(selectedItemsIndexList);
+                    // Do something with the selections
+                    Collections.sort(selectedItemsIndexList);
 
-                        // Get the not selected indices.
-                        ArrayList<Integer> notSelectedItemsIndexList = new ArrayList<>();
-                        for (int i = 0; i < allCameras.size(); ++i) {
-                            if (!selectedItemsIndexList.contains(i))
-                                notSelectedItemsIndexList.add(i);
-                        }
-
-                        // Iterate through the selected items
-                        for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
-                            int which = selectedItemsIndexList.get(i);
-                            Camera camera = allCameras.get(which);
-                            database.addCameraLensLink(camera, lens);
-                        }
-
-                        // Iterate through the not selected items
-                        for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
-                            int which = notSelectedItemsIndexList.get(i);
-                            Camera camera = allCameras.get(which);
-                            database.deleteCameraLensLink(camera, lens);
-                        }
-                        lensAdapter.notifyItemChanged(position);
-
-                        // Update the CamerasFragment through the parent activity.
-                        GearActivity gearActivity = (GearActivity)getActivity();
-                        gearActivity.updateFragments();
+                    // Get the not selected indices.
+                    ArrayList<Integer> notSelectedItemsIndexList = new ArrayList<>();
+                    for (int i = 0; i < allCameras.size(); ++i) {
+                        if (!selectedItemsIndexList.contains(i))
+                            notSelectedItemsIndexList.add(i);
                     }
+
+                    // Iterate through the selected items
+                    for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                        int which = selectedItemsIndexList.get(i);
+                        Camera camera = allCameras.get(which);
+                        database.addCameraLensLink(camera, lens);
+                    }
+
+                    // Iterate through the not selected items
+                    for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
+                        int which = notSelectedItemsIndexList.get(i);
+                        Camera camera = allCameras.get(which);
+                        database.deleteCameraLensLink(camera, lens);
+                    }
+                    lensAdapter.notifyItemChanged(position);
+
+                    // Update the CamerasFragment through the parent activity.
+                    GearActivity gearActivity = (GearActivity)getActivity();
+                    gearActivity.updateFragments();
                 })
-                .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing
-                    }
+                .setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                    // Do nothing
                 });
-        AlertDialog alert = builder.create();
+        final AlertDialog alert = builder.create();
         alert.show();
     }
 
@@ -462,15 +450,15 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         // multi choice list.
         // Also make an array list containing all the filter id's for list comparison.
         // Comparing lists containing frames is not easy.
-        List<String> listItems = new ArrayList<>();
-        List<Long> allFiltersId = new ArrayList<>();
+        final List<String> listItems = new ArrayList<>();
+        final List<Long> allFiltersId = new ArrayList<>();
         for (int i = 0; i < allFilters.size(); ++i) {
             listItems.add(allFilters.get(i).getName());
             allFiltersId.add(allFilters.get(i).getId());
         }
 
         // Make an array list containing all mountable filter id's.
-        List<Long> mountableFiltersId = new ArrayList<>();
+        final List<Long> mountableFiltersId = new ArrayList<>();
         for (int i = 0; i < mountableFilters.size(); ++i) {
             mountableFiltersId.add(mountableFilters.get(i).getId());
         }
@@ -484,7 +472,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
 
 
         final CharSequence[] items = listItems.toArray(new CharSequence[0]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         // MULTIPLE CHOICE DIALOG
 
@@ -496,64 +484,55 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         }
 
         builder.setTitle(R.string.SelectMountableFilters)
-                .setMultiChoiceItems(items, booleans, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        if (isChecked) {
+                .setMultiChoiceItems(items, booleans, (dialog, which, isChecked) -> {
+                    if (isChecked) {
 
-                            // If the user checked the item, add it to the selected items
-                            selectedItemsIndexList.add(which);
+                        // If the user checked the item, add it to the selected items
+                        selectedItemsIndexList.add(which);
 
-                        } else if (selectedItemsIndexList.contains(which)) {
+                    } else if (selectedItemsIndexList.contains(which)) {
 
-                            // Else, if the item is already in the array, remove it
-                            selectedItemsIndexList.remove(Integer.valueOf(which));
+                        // Else, if the item is already in the array, remove it
+                        selectedItemsIndexList.remove(Integer.valueOf(which));
 
-                        }
                     }
                 })
 
-                .setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
+                .setPositiveButton(R.string.OK, (dialog, id) -> {
 
-                        // Do something with the selections
-                        Collections.sort(selectedItemsIndexList);
+                    // Do something with the selections
+                    Collections.sort(selectedItemsIndexList);
 
-                        // Get the not selected indices.
-                        List<Integer> notSelectedItemsIndexList = new ArrayList<>();
-                        for (int i = 0; i < allFilters.size(); ++i) {
-                            if (!selectedItemsIndexList.contains(i))
-                                notSelectedItemsIndexList.add(i);
-                        }
-
-                        // Iterate through the selected items
-                        for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
-                            int which = selectedItemsIndexList.get(i);
-                            Filter filter = allFilters.get(which);
-                            database.addLensFilterLink(filter, lens);
-                        }
-
-                        // Iterate through the not selected items
-                        for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
-                            int which = notSelectedItemsIndexList.get(i);
-                            Filter filter = allFilters.get(which);
-                            database.deleteLensFilterLink(filter, lens);
-                        }
-                        lensAdapter.notifyItemChanged(position);
-
-                        // Update the FiltersFragment through the parent activity.
-                        GearActivity gearActivity = (GearActivity)getActivity();
-                        gearActivity.updateFragments();
+                    // Get the not selected indices.
+                    List<Integer> notSelectedItemsIndexList = new ArrayList<>();
+                    for (int i = 0; i < allFilters.size(); ++i) {
+                        if (!selectedItemsIndexList.contains(i))
+                            notSelectedItemsIndexList.add(i);
                     }
+
+                    // Iterate through the selected items
+                    for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                        int which = selectedItemsIndexList.get(i);
+                        Filter filter = allFilters.get(which);
+                        database.addLensFilterLink(filter, lens);
+                    }
+
+                    // Iterate through the not selected items
+                    for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
+                        int which = notSelectedItemsIndexList.get(i);
+                        Filter filter = allFilters.get(which);
+                        database.deleteLensFilterLink(filter, lens);
+                    }
+                    lensAdapter.notifyItemChanged(position);
+
+                    // Update the FiltersFragment through the parent activity.
+                    GearActivity gearActivity = (GearActivity)getActivity();
+                    gearActivity.updateFragments();
                 })
-                .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing
-                    }
+                .setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                    // Do nothing
                 });
-        AlertDialog alert = builder.create();
+        final AlertDialog alert = builder.create();
         alert.show();
     }
 

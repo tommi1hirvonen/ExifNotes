@@ -21,7 +21,7 @@
             android:id="@+id/decrease_focal_length"
             android:text="−1"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:background="?android:attr/selectableItemBackground"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             />
 
         <TextView
@@ -43,7 +43,7 @@
             android:id="@+id/increase_focal_length"
             android:text="+1"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:background="?android:attr/selectableItemBackground"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             />
 
     </LinearLayout>

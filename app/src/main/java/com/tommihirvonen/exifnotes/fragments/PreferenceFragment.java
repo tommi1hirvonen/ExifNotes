@@ -3,7 +3,6 @@ package com.tommihirvonen.exifnotes.fragments;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -62,7 +61,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
      * @param savedInstanceState {@inheritDoc}
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Notice that all we need to do is invoke the addPreferencesFromResource(..) method,
@@ -72,126 +71,99 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
         addPreferencesFromResource(R.xml.fragment_preference);
 
         // Set summaries for the list preferences
-        AppThemeDialogPreference appTheme = findPreference(PreferenceConstants.KEY_APP_THEME);
+        final AppThemeDialogPreference appTheme = findPreference(PreferenceConstants.KEY_APP_THEME);
         appTheme.setSummary(appTheme.getAppTheme());
 
-        UIColorDialogPreference UIColor = findPreference(PreferenceConstants.KEY_UI_COLOR);
+        final UIColorDialogPreference UIColor = findPreference(PreferenceConstants.KEY_UI_COLOR);
         UIColor.setSummary(UIColor.getSelectedColorName());
 
         // OnClickListener to start complementary pictures export.
         final Preference exportComplementaryPictures = findPreference(PreferenceConstants.KEY_EXPORT_COMPLEMENTARY_PICTURES);
-        exportComplementaryPictures.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                final Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("application/zip");
-                final String date = Utilities.getCurrentTime().split("\\s+")[0];
-                final String title = "Exif_Notes_Complementary_Pictures_" + date + ".zip";
-                intent.putExtra(Intent.EXTRA_TITLE, title);
-                startActivityForResult(intent, REQUEST_EXPORT_COMPLEMENTARY_PICTURES);
-                return true;
-            }
+        exportComplementaryPictures.setOnPreferenceClickListener(preference -> {
+            final Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/zip");
+            final String date = Utilities.getCurrentTime().split("\\s+")[0];
+            final String title = "Exif_Notes_Complementary_Pictures_" + date + ".zip";
+            intent.putExtra(Intent.EXTRA_TITLE, title);
+            startActivityForResult(intent, REQUEST_EXPORT_COMPLEMENTARY_PICTURES);
+            return true;
         });
 
         // OnClickListener to start complementary pictures import
         final Preference importComplementaryPictures = findPreference(PreferenceConstants.KEY_IMPORT_COMPLEMENTARY_PICTURES);
-        importComplementaryPictures.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
+        importComplementaryPictures.setOnPreferenceClickListener(preference -> {
 
-                // Show additional message about importing complementary pictures using a separate dialog.
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.ImportDatabaseTitle);
-                builder.setMessage(R.string.ImportComplementaryPicturesVerification);
-                builder.setPositiveButton(R.string.Continue, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        final Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        intent.setType("application/zip");
-                        startActivityForResult(intent, REQUEST_IMPORT_COMPLEMENTARY_PICTURES);
-                    }
-                });
-                builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Do nothing
-                    }
-                });
-                builder.create().show();
+            // Show additional message about importing complementary pictures using a separate dialog.
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.ImportDatabaseTitle);
+            builder.setMessage(R.string.ImportComplementaryPicturesVerification);
+            builder.setPositiveButton(R.string.Continue, (dialogInterface, i) -> {
+                final Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/zip");
+                startActivityForResult(intent, REQUEST_IMPORT_COMPLEMENTARY_PICTURES);
+            });
+            builder.setNegativeButton(R.string.Cancel, (dialogInterface, i) -> {
+                // Do nothing
+            });
+            builder.create().show();
 
-                return true;
-            }
+            return true;
         });
 
         // OnClickListener to start database export
         final Preference exportDatabase = findPreference(PreferenceConstants.KEY_EXPORT_DATABASE);
-        exportDatabase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
+        exportDatabase.setOnPreferenceClickListener(preference -> {
 
-                // Show additional message about exporting the SQL database using a separate dialog.
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.ExportDatabaseTitle);
-                builder.setMessage(R.string.ExportDatabaseVerification);
-                builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        final Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        intent.setType("*/*");
-                        final String date = Utilities.getCurrentTime().split("\\s+")[0];
-                        final String filename = "Exif_Notes_Database_" + date + ".db";
-                        intent.putExtra(Intent.EXTRA_TITLE, filename);
-                        startActivityForResult(intent, REQUEST_EXPORT_DATABASE);
-                    }
-                });
-                builder.create().show();
+            // Show additional message about exporting the SQL database using a separate dialog.
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.ExportDatabaseTitle);
+            builder.setMessage(R.string.ExportDatabaseVerification);
+            builder.setPositiveButton(R.string.OK, (dialogInterface, i) -> {
+                final Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                final String date = Utilities.getCurrentTime().split("\\s+")[0];
+                final String filename = "Exif_Notes_Database_" + date + ".db";
+                intent.putExtra(Intent.EXTRA_TITLE, filename);
+                startActivityForResult(intent, REQUEST_EXPORT_DATABASE);
+            });
+            builder.create().show();
 
-                return true;
-            }
+            return true;
         });
 
         // OnClickListener to start database import
         final Preference importDatabase = findPreference(PreferenceConstants.KEY_IMPORT_DATABASE);
-        importDatabase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
+        importDatabase.setOnPreferenceClickListener(preference -> {
 
-                // Show additional message about importing the database using a separate dialog.
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.ImportDatabaseTitle);
-                builder.setMessage(R.string.ImportDatabaseVerification);
-                builder.setPositiveButton(R.string.Continue, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        final Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        intent.setType("*/*");
-                        startActivityForResult(intent, REQUEST_IMPORT_DATABASE);
-                    }
-                });
-                builder.setNegativeButton(getResources().getString(R.string.No),
-                        new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+            // Show additional message about importing the database using a separate dialog.
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.ImportDatabaseTitle);
+            builder.setMessage(R.string.ImportDatabaseVerification);
+            builder.setPositiveButton(R.string.Continue, (dialog, which) -> {
+                final Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                startActivityForResult(intent, REQUEST_IMPORT_DATABASE);
+            });
+            builder.setNegativeButton(getResources().getString(R.string.No),
+                    (dialog, which) -> {
                         //Do nothing
-                    }
-                });
-                builder.create().show();
+                    });
+            builder.create().show();
 
-                return true;
-            }
+            return true;
         });
     }
 
     @Override
-    public void onDisplayPreferenceDialog(Preference preference) {
+    public void onDisplayPreferenceDialog(final Preference preference) {
         DialogFragment dialogFragment = null;
         if (preference instanceof AppThemeDialogPreference) {
             dialogFragment = AppThemePreferenceDialogFragment.newInstance(preference.getKey());
@@ -207,14 +179,14 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
         switch (requestCode) {
 
             case REQUEST_IMPORT_COMPLEMENTARY_PICTURES:
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    String filePath;
+                    final String filePath;
 
                     try {
                         final Uri picturesUri = data.getData();
@@ -227,13 +199,10 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                         inputStream.close();
                         outputStream.close();
                         filePath = outputFile.getAbsolutePath();
-                        final String extension = FilenameUtils.getExtension(outputFile.getName());
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         e.printStackTrace();
                         return;
                     }
-
-                    if (filePath == null) return;
 
                     // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -253,16 +222,18 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                     dialog.show();
                     chronometer.start();
                     ComplementaryPicturesManager.importComplementaryPictures(getActivity(),
-                            new File(filePath), new ComplementaryPicturesManager.ZipFileReaderAsyncTask.ProgressListener() {
+                            new File(filePath),
+                            new ComplementaryPicturesManager.ZipFileReaderAsyncTask.ProgressListener() {
                                 @Override
-                                public void onProgressChanged(int progressPercentage, int completed, int total) {
+                                public void onProgressChanged(final int progressPercentage,
+                                                              final int completed, final int total) {
                                     progressBar.setProgress(progressPercentage);
                                     final String progressText = "" + completed + "/" + total;
                                     progressTextView.setText(progressText);
                                 }
 
                                 @Override
-                                public void onCompleted(boolean success, int completedEntries) {
+                                public void onCompleted(final boolean success, final int completedEntries) {
                                     dialog.dismiss();
                                     if (success) {
                                         if (completedEntries == 0)
@@ -306,11 +277,11 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
 
                         //If the length of filePath is 0, then the user canceled the import.
                         if (filePath.length() > 0 && extension.equals("db")) {
-                            FilmDbHelper database = FilmDbHelper.getInstance(getActivity());
-                            boolean importSuccess;
+                            final FilmDbHelper database = FilmDbHelper.getInstance(getActivity());
+                            final boolean importSuccess;
                             try {
                                 importSuccess = database.importDatabase(getActivity(), filePath);
-                            } catch (IOException e) {
+                            } catch (final IOException e) {
                                 Toast.makeText(getActivity(),
                                         getResources().getString(R.string.ErrorImportingDatabaseFrom) +
                                                 filePath,
@@ -320,7 +291,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                             if (importSuccess) {
 
                                 // Set the parent activity's result code
-                                PreferenceActivity preferenceActivity =
+                                final PreferenceActivity preferenceActivity =
                                         (PreferenceActivity) getActivity();
                                 int resultCode_ = preferenceActivity.getResultCode();
 
@@ -335,7 +306,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                                 Toast.makeText(getActivity(), "Import failed", Toast.LENGTH_SHORT).show();
                             }
                         }
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         e.printStackTrace();
                     }
 
@@ -374,17 +345,20 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                         ComplementaryPicturesManager.exportComplementaryPictures(getActivity(), inputFile,
                                 new ComplementaryPicturesManager.ZipFileCreatorAsyncTask.ProgressListener() {
                                 @Override
-                                public void onProgressChanged(int progressPercentage, int completed, int total) {
+                                public void onProgressChanged(final int progressPercentage,
+                                                              final int completed, final int total) {
                                     progressBar.setProgress(progressPercentage);
                                     final String progressText = "" + completed + "/" + total;
                                     progressTextView.setText(progressText);
                                 }
                                 @Override
-                                public void onCompleted(boolean success, int completedEntries, File zipFile) {
+                                public void onCompleted(final boolean success, final int completedEntries,
+                                                        final File zipFile) {
                                     dialog.dismiss();
                                     if (success) {
                                         if (completedEntries == 0) {
-                                            Toast.makeText(getActivity(), R.string.NoPicturesExported, Toast.LENGTH_LONG).show();
+                                            Toast.makeText(getActivity(), R.string.NoPicturesExported,
+                                                    Toast.LENGTH_LONG).show();
                                         } else {
                                             try {
                                                 final InputStream inputStream = new FileInputStream(zipFile);
@@ -395,10 +369,11 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                                                         getResources().getQuantityString(
                                                                 R.plurals.ComplementaryPicturesExported,
                                                                 completedEntries, completedEntries), Toast.LENGTH_LONG).show();
-                                            } catch (IOException e) {
+                                            } catch (final IOException e) {
                                                 e.printStackTrace();
                                                 Toast.makeText(getActivity(),
-                                                        R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show();
+                                                        R.string.ErrorExportingComplementaryPictures,
+                                                        Toast.LENGTH_LONG).show();
                                             }
                                         }
                                     } else {
@@ -408,7 +383,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                                 }
                         });
 
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         e.printStackTrace();
                         Toast.makeText(getActivity(),
                                 R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show();
@@ -433,7 +408,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                         Toast.makeText(getActivity(),
                                 getResources().getString(R.string.DatabaseCopiedSuccessfully),
                                 Toast.LENGTH_LONG).show();
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         e.printStackTrace();
                         Toast.makeText(getActivity(),
                                 getResources().getString(R.string.ErrorExportingDatabase),
@@ -448,7 +423,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
     }
 
     @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+    public void onCreatePreferences(final Bundle savedInstanceState, final String rootKey) {
 
     }
 
@@ -480,10 +455,10 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
      * @param key {@inheritDoc}
      */
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         if (key.equals(PreferenceConstants.KEY_APP_THEME)) {
             getActivity().recreate();
-            PreferenceActivity preferenceActivity = (PreferenceActivity) getActivity();
+            final PreferenceActivity preferenceActivity = (PreferenceActivity) getActivity();
             int resultCode = preferenceActivity.getResultCode();
             // Preserve previously put result code(s)
             resultCode = resultCode | PreferenceActivity.RESULT_THEME_CHANGED;

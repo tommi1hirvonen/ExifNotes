@@ -307,6 +307,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " ADD COLUMN " + KEY_FILM_STOCK_ID + " integer references " + TABLE_FILM_STOCKS + " on delete set null;";
 
 
+    @SuppressWarnings("SyntaxError")
     private static final String REPLACE_QUOTE_CHARS = "UPDATE " + TABLE_FRAMES
             + " SET " + KEY_SHUTTER + " = REPLACE(" + KEY_SHUTTER + ", \'q\', \'\"\')"
             + " WHERE " + KEY_SHUTTER + " LIKE \'%q\';";
@@ -442,7 +443,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param context current context
      * @return reference to the database singleton instance
      */
-    public static synchronized FilmDbHelper getInstance(Context context) {
+    public static synchronized FilmDbHelper getInstance(final Context context) {
 
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
@@ -458,14 +459,14 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      *
      * @param context the current context
      */
-    private FilmDbHelper(Context context) {
+    private FilmDbHelper(final Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
     }
 
 
     @Override
-    public void onOpen(SQLiteDatabase db) {
+    public void onOpen(final SQLiteDatabase db) {
         super.onOpen(db);
         // The only time foreign key constraints are enforced, is when something is written
         // to the database. Only enable foreign keys, if the database may be written to.
@@ -479,7 +480,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param database the SQLite database to be populated.
      */
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(final SQLiteDatabase database) {
         // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
         database.execSQL("PRAGMA foreign_keys=ON;");
         database.execSQL(CREATE_FILM_STOCKS_TABLE);
@@ -506,7 +507,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param newVersion the new version number of the database
      */
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         if (oldVersion < 14) {
             //TABLE_FRAMES
             db.execSQL(ALTER_TABLE_FRAMES_1);
@@ -599,11 +600,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new frame to the database.
      * @param frame the new frame to be added to the database
      */
-    public boolean addFrame(@NonNull Frame frame) {
+    public boolean addFrame(@NonNull final Frame frame) {
         // Get reference to writable database
-        SQLiteDatabase db = this.getWritableDatabase();
+        final SQLiteDatabase db = this.getWritableDatabase();
         // Create ContentValues to add key "column"/value
-        ContentValues values = buildFrameContentValues(frame);
+        final ContentValues values = buildFrameContentValues(frame);
         // Insert
         final long rowId = db.insert(TABLE_FRAMES, // table
                 null, // nullColumnHack
@@ -612,7 +613,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setId(rowId);
         // Add the filter links, if the frame was inserted successfully.
         if (rowId != -1) {
-            for (Filter filter : frame.getFilters()) {
+            for (final Filter filter : frame.getFilters()) {
                 addFrameFilterLink(frame, filter);
             }
             return true;
@@ -626,11 +627,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param roll Roll object whose frames should be fetched
      * @return an array of Frames
      */
-    public List<Frame> getAllFramesFromRoll(@NonNull Roll roll){
-        List<Frame> frames = new ArrayList<>();
+    public List<Frame> getAllFramesFromRoll(@NonNull final Roll roll){
+        final List<Frame> frames = new ArrayList<>();
         // Get reference to readable database
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(
                 TABLE_FRAMES, null, KEY_ROLL_ID + "=?",
                 new String[]{Long.toString(roll.getId())}, null, null, KEY_COUNT);
         Frame frame;
@@ -647,23 +648,23 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Updates the information of a frame.
      * @param frame the frame to be updated.
      */
-    public void updateFrame(@NonNull Frame frame) {
+    public void updateFrame(@NonNull final Frame frame) {
         // Get reference to writable database
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = buildFrameContentValues(frame);
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues contentValues = buildFrameContentValues(frame);
         db.update(TABLE_FRAMES, contentValues, KEY_FRAME_ID + "=?",
                 new String[]{Long.toString(frame.getId())});
         deleteAllFrameFilterLinks(frame);
-        for (Filter filter : frame.getFilters()) addFrameFilterLink(frame, filter);
+        for (final Filter filter : frame.getFilters()) addFrameFilterLink(frame, filter);
     }
 
     /**
      * Deletes a frame from the database.
      * @param frame the frame to be deleted
      */
-    public void deleteFrame(@NonNull Frame frame) {
+    public void deleteFrame(@NonNull final Frame frame) {
         // Get reference to writable database
-        SQLiteDatabase db = this.getWritableDatabase();
+        final SQLiteDatabase db = this.getWritableDatabase();
         // Delete
         db.delete(TABLE_FRAMES,
                 KEY_FRAME_ID + " = ?",
@@ -676,8 +677,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     public List<String> getAllComplementaryPictureFilenames() {
         final List<String> filenames = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_PICTURE_FILENAME},
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_PICTURE_FILENAME},
                 KEY_PICTURE_FILENAME + " IS NOT NULL", null, null, null, null);
         while (cursor.moveToNext()) {
             filenames.add(cursor.getString(cursor.getColumnIndex(KEY_PICTURE_FILENAME)));
@@ -692,9 +693,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new lens to the database.
      * @param lens the lens to be added to the database
      */
-    public long addLens(@NonNull Lens lens){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = buildLensContentValues(lens);
+    public long addLens(@NonNull final Lens lens){
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues values = buildLensContentValues(lens);
         return db.insert(TABLE_LENSES, null, values);
     }
 
@@ -704,10 +705,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @return a Lens corresponding to the id
      */
     @Nullable
-    public Lens getLens(long lens_id){
-        SQLiteDatabase db = this.getReadableDatabase();
+    public Lens getLens(final long lens_id){
+        final SQLiteDatabase db = this.getReadableDatabase();
         Lens lens = null;
-        Cursor cursor = db.query(TABLE_LENSES, null, KEY_LENS_ID + "=?",
+        final Cursor cursor = db.query(TABLE_LENSES, null, KEY_LENS_ID + "=?",
                 new String[]{Long.toString(lens_id)}, null, null, null);
         if (cursor.moveToFirst()) {
             lens = getLensFromCursor(cursor);
@@ -721,9 +722,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @return a List of all the lenses in the database.
      */
     public List<Lens> getAllLenses(){
-        List<Lens> lenses = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_LENSES, null, null, null, null, null, KEY_LENS_MAKE);
+        final List<Lens> lenses = new ArrayList<>();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_LENSES, null, null, null, null, null, KEY_LENS_MAKE);
         Lens lens;
         while (cursor.moveToNext()) {
             lens = getLensFromCursor(cursor);
@@ -737,8 +738,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Deletes Lens from the database.
      * @param lens the Lens to be deleted
      */
-    public void deleteLens(@NonNull Lens lens){
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void deleteLens(@NonNull final Lens lens){
+        final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_LENSES, KEY_LENS_ID + " = ?", new String[]{Long.toString(lens.getId())});
     }
 
@@ -747,9 +748,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param lens Lens to be checked
      * @return true if the lens is in use, false if not
      */
-    public boolean isLensInUse(@NonNull Lens lens){
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_LENS_ID}, KEY_LENS_ID + "=?",
+    public boolean isLensInUse(@NonNull final Lens lens){
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_FRAMES, new String[]{KEY_LENS_ID}, KEY_LENS_ID + "=?",
                 new String[]{Long.toString(lens.getId())}, null, null, null);
         if (cursor.moveToFirst()) {
             cursor.close();
@@ -765,9 +766,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Updates the information of a lens
      * @param lens the Lens to be updated
      */
-    public void updateLens(@NonNull Lens lens) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = buildLensContentValues(lens);
+    public void updateLens(@NonNull final Lens lens) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues contentValues = buildLensContentValues(lens);
         db.update(TABLE_LENSES, contentValues, KEY_LENS_ID + "=?",
                 new String[]{Long.toString(lens.getId())});
     }
@@ -778,9 +779,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new camera to the database.
      * @param camera the camera to be added to the database
      */
-    public long addCamera(@NonNull Camera camera){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = buildCameraContentValues(camera);
+    public long addCamera(@NonNull final Camera camera){
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues values = buildCameraContentValues(camera);
         return db.insert(TABLE_CAMERAS, null, values);
     }
 
@@ -790,10 +791,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @return the Camera corresponding to the given id
      */
     @Nullable
-    public Camera getCamera(long camera_id){
-        SQLiteDatabase db = this.getReadableDatabase();
+    public Camera getCamera(final long camera_id){
+        final SQLiteDatabase db = this.getReadableDatabase();
         Camera camera = null;
-        Cursor cursor = db.query(TABLE_CAMERAS, null, KEY_CAMERA_ID + "=?",
+        final Cursor cursor = db.query(TABLE_CAMERAS, null, KEY_CAMERA_ID + "=?",
                 new String[]{Long.toString(camera_id)}, null, null, null);
         if (cursor.moveToFirst()) {
             camera = getCameraFromCursor(cursor);
@@ -807,9 +808,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @return a List of all the cameras in the database
      */
     public List<Camera> getAllCameras(){
-        List<Camera> cameras = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_CAMERAS, null, null, null, null, null, KEY_CAMERA_MAKE);
+        final List<Camera> cameras = new ArrayList<>();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_CAMERAS, null, null, null, null, null, KEY_CAMERA_MAKE);
         Camera camera;
         while (cursor.moveToNext()) {
             camera = getCameraFromCursor(cursor);
@@ -823,8 +824,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Deletes the specified camera from the database
      * @param camera the camera to be deleted
      */
-    public void deleteCamera(@NonNull Camera camera){
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void deleteCamera(@NonNull final Camera camera){
+        final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CAMERAS, KEY_CAMERA_ID + " = ?",
                 new String[]{Long.toString(camera.getId())});
     }
@@ -834,9 +835,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera the camera to be checked
      * @return true if the camera is in use, false if not
      */
-    public boolean isCameraBeingUsed(@NonNull Camera camera) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_CAMERA_ID}, KEY_CAMERA_ID + "=?",
+    public boolean isCameraBeingUsed(@NonNull final Camera camera) {
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_CAMERA_ID}, KEY_CAMERA_ID + "=?",
                 new String[]{Long.toString(camera.getId())}, null, null, null);
         if (cursor.moveToFirst()) {
             cursor.close();
@@ -852,9 +853,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Updates the information of the specified camera.
      * @param camera the camera to be updated
      */
-    public void updateCamera(@NonNull Camera camera) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = buildCameraContentValues(camera);
+    public void updateCamera(@NonNull final Camera camera) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues contentValues = buildCameraContentValues(camera);
         db.update(TABLE_CAMERAS, contentValues, KEY_CAMERA_ID + "=?",
                 new String[]{Long.toString(camera.getId())});
     }
@@ -866,11 +867,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera the camera that can be mounted with the lens
      * @param lens the lens that can be mounted with the camera
      */
-    public void addCameraLensLink(@NonNull Camera camera, @NonNull Lens lens){
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void addCameraLensLink(@NonNull final Camera camera, @NonNull final Lens lens){
+        final SQLiteDatabase db = this.getWritableDatabase();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
-        String query = "INSERT INTO " + TABLE_LINK_CAMERA_LENS + "(" + KEY_CAMERA_ID + "," + KEY_LENS_ID
+        final String query = "INSERT INTO " + TABLE_LINK_CAMERA_LENS + "(" + KEY_CAMERA_ID + "," + KEY_LENS_ID
                 + ") SELECT " + camera.getId() + ", " + lens.getId()
                 + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
                 + KEY_CAMERA_ID + "=" + camera.getId() + " AND " + KEY_LENS_ID + "=" + lens.getId() + ");";
@@ -882,8 +883,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera the camera that can be mounted with the lens
      * @param lens the lens that can be mounted with the camera
      */
-    public void deleteCameraLensLink(@NonNull Camera camera, @NonNull Lens lens){
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void deleteCameraLensLink(@NonNull final Camera camera, @NonNull final Lens lens){
+        final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_LINK_CAMERA_LENS, KEY_CAMERA_ID + " = ? AND " + KEY_LENS_ID + " = ?",
                     new String[]{Long.toString(camera.getId()), Long.toString(lens.getId())});
     }
@@ -893,15 +894,15 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera the camera whose lenses we want to get
      * @return a List of all linked lenses
      */
-    public List<Lens> getLinkedLenses(@NonNull Camera camera){
-        List<Lens> lenses = new ArrayList<>();
+    public List<Lens> getLinkedLenses(@NonNull final Camera camera){
+        final List<Lens> lenses = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
-        String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
+        final String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
                 + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
                 + KEY_CAMERA_ID + "=" + camera.getId() + ") ORDER BY " + KEY_LENS_MAKE;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.rawQuery(query, null);
         Lens lens;
         while (cursor.moveToNext()) {
             lens = getLensFromCursor(cursor);
@@ -916,15 +917,15 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param lens the lens whose cameras we want to get
      * @return a List of all linked cameras
      */
-    public List<Camera> getLinkedCameras(@NonNull Lens lens){
-        List<Camera> cameras = new ArrayList<>();
+    public List<Camera> getLinkedCameras(@NonNull final Lens lens){
+        final List<Camera> cameras = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
-        String query = "SELECT * FROM " + TABLE_CAMERAS + " WHERE " + KEY_CAMERA_ID + " IN "
+        final String query = "SELECT * FROM " + TABLE_CAMERAS + " WHERE " + KEY_CAMERA_ID + " IN "
                 + "(" + "SELECT " + KEY_CAMERA_ID + " FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
                 + KEY_LENS_ID + "=" + lens.getId() + ") ORDER BY " + KEY_CAMERA_MAKE;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.rawQuery(query, null);
         Camera camera;
         while (cursor.moveToNext()) {
             camera = getCameraFromCursor(cursor);
@@ -940,9 +941,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new roll to the database.
      * @param roll the roll to be added
      */
-    public long addRoll(@NonNull Roll roll){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = buildRollContentValues(roll);
+    public long addRoll(@NonNull final Roll roll){
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues values = buildRollContentValues(roll);
         return db.insert(TABLE_ROLLS, null, values);
     }
 
@@ -950,8 +951,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Gets all the rolls in the database
      * @return a List of all the rolls in the database
      */
-    public List<Roll> getRolls(FilterMode filterMode){
-        String selectionArg;
+    public List<Roll> getRolls(final FilterMode filterMode){
+        final String selectionArg;
         switch (filterMode) {
             case ACTIVE: default:
                 selectionArg = KEY_ROLL_ARCHIVED + "=0";
@@ -963,9 +964,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 selectionArg = null;
                 break;
         }
-        List<Roll> rolls = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_ROLLS, null, selectionArg, null,
+        final List<Roll> rolls = new ArrayList<>();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_ROLLS, null, selectionArg, null,
                 null, null, KEY_ROLL_DATE + " DESC");
         Roll roll;
         while (cursor.moveToNext()) {
@@ -982,10 +983,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @return the roll corresponding to the given id
      */
     @Nullable
-    public Roll getRoll(long id){
-        SQLiteDatabase db = this.getReadableDatabase();
+    public Roll getRoll(final long id){
+        final SQLiteDatabase db = this.getReadableDatabase();
         Roll roll = null;
-        Cursor cursor = db.query(TABLE_ROLLS, null, KEY_ROLL_ID + "=?",
+        final Cursor cursor = db.query(TABLE_ROLLS, null, KEY_ROLL_ID + "=?",
                 new String[]{Long.toString(id)}, null, null, null);
         if (cursor.moveToFirst()) {
             roll = getRollFromCursor(cursor);
@@ -998,8 +999,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Deletes a roll from the database.
      * @param roll the roll to be deleted from the database
      */
-    public void deleteRoll(@NonNull Roll roll){
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void deleteRoll(@NonNull final Roll roll){
+        final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_ROLLS, KEY_ROLL_ID + " = ?", new String[]{Long.toString(roll.getId())});
     }
 
@@ -1007,9 +1008,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Updates the specified roll's information
      * @param roll the roll to be updated
      */
-    public void updateRoll(@NonNull Roll roll){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = buildRollContentValues(roll);
+    public void updateRoll(@NonNull final Roll roll){
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues contentValues = buildRollContentValues(roll);
         db.update(TABLE_ROLLS, contentValues, KEY_ROLL_ID + "=?",
                 new String[]{Long.toString(roll.getId())});
     }
@@ -1019,9 +1020,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param roll the roll whose frame count we want
      * @return an integer of the the number of frames on that roll
      */
-    public int getNumberOfFrames(@NonNull Roll roll){
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FRAMES, new String[]{"COUNT(" + KEY_FRAME_ID + ")"}, KEY_ROLL_ID + "=?",
+    public int getNumberOfFrames(@NonNull final Roll roll){
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_FRAMES, new String[]{"COUNT(" + KEY_FRAME_ID + ")"}, KEY_ROLL_ID + "=?",
                 new String[]{Long.toString(roll.getId())}, null, null, null);
         int returnValue = 0;
         if (cursor.moveToFirst()) {
@@ -1038,9 +1039,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Adds a new filter to the database.
      * @param filter the filter to be added to the database
      */
-    public long addFilter(@NonNull Filter filter){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = buildFilterContentValues(filter);
+    public long addFilter(@NonNull final Filter filter){
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues values = buildFilterContentValues(filter);
         return db.insert(TABLE_FILTERS, null, values);
     }
 
@@ -1049,10 +1050,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter_id the id of the Filter
      * @return the Filter corresponding to the given id
      */
-    public Filter getFilter(long filter_id){
-        SQLiteDatabase db = this.getReadableDatabase();
-        Filter filter = new Filter();
-        Cursor cursor = db.query(TABLE_FILTERS, null, KEY_FILTER_ID + "=?",
+    public Filter getFilter(final long filter_id){
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Filter filter = new Filter();
+        final Cursor cursor = db.query(TABLE_FILTERS, null, KEY_FILTER_ID + "=?",
                 new String[]{Long.toString(filter_id)}, null, null, null);
         if (cursor.moveToFirst()) {
             getFilterFromCursor(cursor, filter);
@@ -1066,9 +1067,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @return a List of all the filters in the database
      */
     public List<Filter> getAllFilters(){
-        List<Filter> filters = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FILTERS, null, null, null,null, null, KEY_FILTER_MAKE);
+        final List<Filter> filters = new ArrayList<>();
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_FILTERS, null, null, null,null, null, KEY_FILTER_MAKE);
         Filter filter;
         while (cursor.moveToNext()) {
             filter = getFilterFromCursor(cursor);
@@ -1082,8 +1083,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Deletes the specified filter from the database
      * @param filter the filter to be deleted
      */
-    public void deleteFilter(@NonNull Filter filter){
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void deleteFilter(@NonNull final Filter filter){
+        final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_FILTERS, KEY_FILTER_ID + " = ?", new String[]{Long.toString(filter.getId())});
     }
 
@@ -1092,9 +1093,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter the filter to be checked
      * @return true if the filter is in use, false if not
      */
-    public boolean isFilterBeingUsed(@NonNull Filter filter) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_LINK_FRAME_FILTER, new String[]{KEY_FILTER_ID}, KEY_FILTER_ID + "=?",
+    public boolean isFilterBeingUsed(@NonNull final Filter filter) {
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.query(TABLE_LINK_FRAME_FILTER, new String[]{KEY_FILTER_ID}, KEY_FILTER_ID + "=?",
                 new String[]{Long.toString(filter.getId())}, null, null, null);
         if (cursor.moveToFirst()) {
             cursor.close();
@@ -1110,9 +1111,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Updates the information of the specified filter.
      * @param filter the filter to be updated
      */
-    public void updateFilter(@NonNull Filter filter) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = buildFilterContentValues(filter);
+    public void updateFilter(@NonNull final Filter filter) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final ContentValues contentValues = buildFilterContentValues(filter);
         db.update(TABLE_FILTERS, contentValues, KEY_FILTER_ID + "=?",
                 new String[]{Long.toString(filter.getId())});
     }
@@ -1124,11 +1125,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter the filter that can be mounted with the lens
      * @param lens the lens that can be mounted with the filter
      */
-    public void addLensFilterLink(@NonNull Filter filter, @NonNull Lens lens){
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void addLensFilterLink(@NonNull final Filter filter, @NonNull final Lens lens){
+        final SQLiteDatabase db = this.getWritableDatabase();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
-        String query = "INSERT INTO " + TABLE_LINK_LENS_FILTER + "(" + KEY_FILTER_ID + "," + KEY_LENS_ID
+        final String query = "INSERT INTO " + TABLE_LINK_LENS_FILTER + "(" + KEY_FILTER_ID + "," + KEY_LENS_ID
                 + ") SELECT " + filter.getId() + ", " + lens.getId()
                 + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
                 + KEY_FILTER_ID + "=" + filter.getId() + " AND " + KEY_LENS_ID + "=" + lens.getId() + ");";
@@ -1140,8 +1141,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter the filter that can be mounted with the lens
      * @param lens the lens that can be mounted with the filter
      */
-    public void deleteLensFilterLink(@NonNull Filter filter, @NonNull Lens lens){
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void deleteLensFilterLink(@NonNull final Filter filter, @NonNull final Lens lens){
+        final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_LINK_LENS_FILTER, KEY_FILTER_ID + " = ? AND " + KEY_LENS_ID + " = ?",
                 new String[]{Long.toString(filter.getId()), Long.toString(lens.getId())});
     }
@@ -1151,15 +1152,15 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter the filter whose lenses we want to get
      * @return a List of all linked lenses
      */
-    public List<Lens> getLinkedLenses(@NonNull Filter filter){
-        List<Lens> lenses = new ArrayList<>();
+    public List<Lens> getLinkedLenses(@NonNull final Filter filter){
+        final List<Lens> lenses = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
-        String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
+        final String query = "SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
                 + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
                 + KEY_FILTER_ID + "=" + filter.getId() + ") ORDER BY " + KEY_LENS_MAKE;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.rawQuery(query, null);
         Lens lens;
         while (cursor.moveToNext()) {
             lens = getLensFromCursor(cursor);
@@ -1174,15 +1175,15 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param lens the lens whose filters we want to get
      * @return a List of all linked filters
      */
-    public List<Filter> getLinkedFilters(@NonNull Lens lens){
-        List<Filter> filters = new ArrayList<>();
+    public List<Filter> getLinkedFilters(@NonNull final Lens lens){
+        final List<Filter> filters = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
-        String query = "SELECT * FROM " + TABLE_FILTERS + " WHERE " + KEY_FILTER_ID + " IN "
+        final String query = "SELECT * FROM " + TABLE_FILTERS + " WHERE " + KEY_FILTER_ID + " IN "
                 + "(" + "SELECT " + KEY_FILTER_ID + " FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
                 + KEY_LENS_ID + "=" + lens.getId() + ") ORDER BY " + KEY_FILTER_MAKE;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final Cursor cursor = db.rawQuery(query, null);
         Filter filter;
         while (cursor.moveToNext()) {
             filter = getFilterFromCursor(cursor);
@@ -1201,7 +1202,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param frame frame that is linked to the filter
      * @param filter filter that is linked to the frame
      */
-    private void addFrameFilterLink(@NonNull Frame frame, @NonNull Filter filter) {
+    private void addFrameFilterLink(@NonNull final Frame frame, @NonNull final Filter filter) {
         final SQLiteDatabase db = this.getWritableDatabase();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
@@ -1219,7 +1220,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      *
      * @param frame Frame object whose filter links should be deleted
      */
-    private void deleteAllFrameFilterLinks(@NonNull Frame frame) {
+    private void deleteAllFrameFilterLinks(@NonNull final Frame frame) {
         final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_LINK_FRAME_FILTER, KEY_FRAME_ID + " = ?",
                 new String[]{Long.toString(frame.getId())});
@@ -1231,7 +1232,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param frame the Frame object whose linked filters we want to get
      * @return List object containing all Filter objects linked to the specified Frame object
      */
-    private List<Filter> getLinkedFilters(@NonNull Frame frame) {
+    private List<Filter> getLinkedFilters(@NonNull final Frame frame) {
         final List<Filter> filters = new ArrayList<>();
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
@@ -1252,16 +1253,16 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
     // ******************** CRUD operations for the film stock table ********************
 
-    public Long addFilmStock(@NonNull FilmStock filmStock) {
+    public Long addFilmStock(@NonNull final FilmStock filmStock) {
         final SQLiteDatabase db = this.getWritableDatabase();
         final ContentValues values = buildFilmStockContentValues(filmStock);
         return db.insert(TABLE_FILM_STOCKS, null, values);
     }
 
-    public FilmStock getFilmStock(long filmStockId) {
+    public FilmStock getFilmStock(final long filmStockId) {
         final SQLiteDatabase db = this.getReadableDatabase();
         FilmStock filmStock = null;
-        Cursor cursor = db.query(TABLE_FILM_STOCKS, null, KEY_FILM_STOCK_ID + "=?",
+        final Cursor cursor = db.query(TABLE_FILM_STOCKS, null, KEY_FILM_STOCK_ID + "=?",
                 new String[]{Long.toString(filmStockId)}, null, null, null);
         if (cursor.moveToFirst()) {
             filmStock = getFilmStockFromCursor(cursor, new FilmStock());
@@ -1283,7 +1284,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return filmStocks;
     }
 
-    public List<FilmStock> getAllFilmStocks(String manufacturerName) {
+    public List<FilmStock> getAllFilmStocks(final String manufacturerName) {
         final List<FilmStock> filmStocks = new ArrayList<>();
         final SQLiteDatabase db = this.getReadableDatabase();
         final Cursor cursor = db.query(TABLE_FILM_STOCKS, null, KEY_FILM_MANUFACTURER_NAME + "=?",
@@ -1307,7 +1308,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return manufacturers;
     }
 
-    public boolean isFilmStockBeingUsed(@NonNull FilmStock filmStock) {
+    public boolean isFilmStockBeingUsed(@NonNull final FilmStock filmStock) {
         final SQLiteDatabase db = this.getReadableDatabase();
         final Cursor cursor = db.query(TABLE_ROLLS, new String[]{KEY_FILM_STOCK_ID}, KEY_FILM_STOCK_ID + "=?",
                 new String[]{Long.toString(filmStock.getId())}, null, null, null);
@@ -1318,13 +1319,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    public void deleteFilmStock(@NonNull FilmStock filmStock) {
+    public void deleteFilmStock(@NonNull final FilmStock filmStock) {
         final SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_FILM_STOCKS, KEY_FILM_STOCK_ID + "=?",
                 new String[]{Long.toString(filmStock.getId())});
     }
 
-    public void updateFilmStock(@NonNull FilmStock filmStock) {
+    public void updateFilmStock(@NonNull final FilmStock filmStock) {
         final SQLiteDatabase db = this.getWritableDatabase();
         final ContentValues contentValues = buildFilmStockContentValues(filmStock);
         db.update(TABLE_FILM_STOCKS, contentValues, KEY_FILM_STOCK_ID + "=?",
@@ -1341,8 +1342,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Frame object
      * @return Frame object generated from cursor
      */
-    private Frame getFrameFromCursor (@NonNull Cursor cursor) {
-        Frame frame = new Frame();
+    private Frame getFrameFromCursor (@NonNull final Cursor cursor) {
+        final Frame frame = new Frame();
         return getFrameFromCursor(cursor, frame);
     }
 
@@ -1353,7 +1354,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param frame the Frame whose attributes should be set
      * @return reference to the Frame object given as the parameter
      */
-    private Frame getFrameFromCursor (@NonNull Cursor cursor, @NonNull Frame frame) {
+    private Frame getFrameFromCursor (@NonNull final Cursor cursor, @NonNull final Frame frame) {
         frame.setId(cursor.getLong(cursor.getColumnIndex(KEY_FRAME_ID)));
         frame.setRollId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
         frame.setCount(cursor.getInt(cursor.getColumnIndex(KEY_COUNT)));
@@ -1383,8 +1384,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Roll object
      * @return Roll object generated from cursor
      */
-    private Roll getRollFromCursor (@NonNull Cursor cursor) {
-        Roll roll = new Roll();
+    private Roll getRollFromCursor (@NonNull final Cursor cursor) {
+        final Roll roll = new Roll();
         return getRollFromCursor(cursor, roll);
     }
 
@@ -1395,7 +1396,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param roll the Roll whose attributes should be set
      * @return reference to the Roll object given as the parameter
      */
-    private Roll getRollFromCursor (@NonNull Cursor cursor, @NonNull Roll roll) {
+    private Roll getRollFromCursor (@NonNull final Cursor cursor, @NonNull final Roll roll) {
         roll.setId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
         roll.setName(cursor.getString(cursor.getColumnIndex(KEY_ROLLNAME)));
         roll.setDate(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE)));
@@ -1415,8 +1416,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Lens object
      * @return Lens object generated from cursor
      */
-    private Lens getLensFromCursor (@NonNull Cursor cursor) {
-        Lens lens = new Lens();
+    private Lens getLensFromCursor (@NonNull final Cursor cursor) {
+        final Lens lens = new Lens();
         return getLensFromCursor(cursor, lens);
     }
 
@@ -1427,7 +1428,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param lens the Lens whose attributes should be set
      * @return reference to the Lens object given as the parameter
      */
-    private Lens getLensFromCursor (@NonNull Cursor cursor, @NonNull Lens lens) {
+    private Lens getLensFromCursor (@NonNull final Cursor cursor, @NonNull final Lens lens) {
         lens.setId(cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID)));
         lens.setMake(cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE)));
         lens.setModel(cursor.getString(cursor.getColumnIndex(KEY_LENS_MODEL)));
@@ -1446,8 +1447,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Camera object
      * @return Camera object generated from cursor
      */
-    private Camera getCameraFromCursor (@NonNull Cursor cursor) {
-        Camera camera = new Camera();
+    private Camera getCameraFromCursor (@NonNull final Cursor cursor) {
+        final Camera camera = new Camera();
         return getCameraFromCursor(cursor, camera);
     }
 
@@ -1458,7 +1459,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera the Camera whose attributes should be set
      * @return reference to the Camera object given as the parameter
      */
-    private Camera getCameraFromCursor (@NonNull Cursor cursor, @NonNull Camera camera) {
+    private Camera getCameraFromCursor (@NonNull final Cursor cursor, @NonNull final Camera camera) {
         camera.setId(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
         camera.setMake(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE)));
         camera.setModel(cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MODEL)));
@@ -1476,8 +1477,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Filter object
      * @return Filter object generated from cursor
      */
-    private Filter getFilterFromCursor (@NonNull Cursor cursor) {
-        Filter filter = new Filter();
+    private Filter getFilterFromCursor (@NonNull final Cursor cursor) {
+        final Filter filter = new Filter();
         return getFilterFromCursor(cursor, filter);
     }
 
@@ -1488,7 +1489,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter the Filter whose attributes should be set
      * @return reference to the Filter object given as the parameter
      */
-    private Filter getFilterFromCursor (@NonNull Cursor cursor, @NonNull Filter filter) {
+    private Filter getFilterFromCursor (@NonNull final Cursor cursor, @NonNull final Filter filter) {
         filter.setId(cursor.getLong(cursor.getColumnIndex(KEY_FILTER_ID)));
         filter.setMake(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MAKE)));
         filter.setModel(cursor.getString(cursor.getColumnIndex(KEY_FILTER_MODEL)));
@@ -1502,7 +1503,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filmStock the FilmStock whose attributes should be set
      * @return reference to the FilmStock object given as the parameter
      */
-    private FilmStock getFilmStockFromCursor(@NonNull Cursor cursor, @NonNull FilmStock filmStock) {
+    private FilmStock getFilmStockFromCursor(@NonNull final Cursor cursor, @NonNull final FilmStock filmStock) {
         filmStock.setId(cursor.getLong(cursor.getColumnIndex(KEY_FILM_STOCK_ID)));
         filmStock.setManufacturerName(cursor.getString(cursor.getColumnIndex(KEY_FILM_MANUFACTURER_NAME)));
         filmStock.setStockName(cursor.getString(cursor.getColumnIndex(KEY_FILM_STOCK_NAME)));
@@ -1520,8 +1521,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param frame Frame object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Frame object.
      */
-    private ContentValues buildFrameContentValues(@NonNull Frame frame){
-        ContentValues contentValues = new ContentValues();
+    private ContentValues buildFrameContentValues(@NonNull final Frame frame){
+        final ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_ROLL_ID, frame.getRollId());
         contentValues.put(KEY_COUNT, frame.getCount());
         contentValues.put(KEY_DATE, frame.getDate());
@@ -1550,8 +1551,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param lens Lens object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the lens object.
      */
-    private ContentValues buildLensContentValues(@NonNull Lens lens){
-        ContentValues contentValues = new ContentValues();
+    private ContentValues buildLensContentValues(@NonNull final Lens lens){
+        final ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_LENS_MAKE, lens.getMake());
         contentValues.put(KEY_LENS_MODEL, lens.getModel());
         contentValues.put(KEY_LENS_SERIAL_NO, lens.getSerialNumber());
@@ -1569,8 +1570,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param camera Camera object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Camera object.
      */
-    private ContentValues buildCameraContentValues(@NonNull Camera camera){
-        ContentValues contentValues = new ContentValues();
+    private ContentValues buildCameraContentValues(@NonNull final Camera camera){
+        final ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_CAMERA_MAKE, camera.getMake());
         contentValues.put(KEY_CAMERA_MODEL, camera.getModel());
         contentValues.put(KEY_CAMERA_SERIAL_NO, camera.getSerialNumber());
@@ -1587,8 +1588,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param roll Roll object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Roll object.
      */
-    private ContentValues buildRollContentValues(@NonNull Roll roll){
-        ContentValues contentValues = new ContentValues();
+    private ContentValues buildRollContentValues(@NonNull final Roll roll){
+        final ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_ROLLNAME, roll.getName());
         contentValues.put(KEY_ROLL_DATE, roll.getDate());
         contentValues.put(KEY_ROLL_NOTE, roll.getNote());
@@ -1608,8 +1609,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filter Filter object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Filter object.
      */
-    private ContentValues buildFilterContentValues(@NonNull Filter filter){
-        ContentValues contentValues = new ContentValues();
+    private ContentValues buildFilterContentValues(@NonNull final Filter filter){
+        final ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_FILTER_MAKE, filter.getMake());
         contentValues.put(KEY_FILTER_MODEL, filter.getModel());
         return contentValues;
@@ -1621,8 +1622,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param filmStock FilmStock object of which the ContentValues is created
      * @return ContentValues containing the attributes of the FilmStock object
      */
-    private ContentValues buildFilmStockContentValues(@NonNull FilmStock filmStock) {
-        ContentValues contentValues = new ContentValues();
+    private ContentValues buildFilmStockContentValues(@NonNull final FilmStock filmStock) {
+        final ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_FILM_MANUFACTURER_NAME, filmStock.getManufacturerName());
         contentValues.put(KEY_FILM_STOCK_NAME, filmStock.getStockName());
         contentValues.put(KEY_FILM_ISO, filmStock.getIso());
@@ -1637,8 +1638,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param context the application's context
      * @return File referencing the database file used by this SQLite database
      */
-    public static File getDatabaseFile(Context context){
-        String databasePath = context.getDatabasePath(DATABASE_NAME).getAbsolutePath();
+    public static File getDatabaseFile(final Context context){
+        final String databasePath = context.getDatabasePath(DATABASE_NAME).getAbsolutePath();
         return new File(databasePath);
     }
 
@@ -1654,10 +1655,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @return true if the database was imported successfully
      * @throws IOException is thrown if the new database file cannot be opened
      */
-    public boolean importDatabase(Context context, String importDatabasePath) throws IOException {
-        File newDb = new File(importDatabasePath);
-        File oldDbBackup = new File(context.getDatabasePath(DATABASE_NAME).getAbsolutePath() + "_backup");
-        File oldDb = getDatabaseFile(context);
+    public boolean importDatabase(final Context context, final String importDatabasePath) throws IOException {
+        final File newDb = new File(importDatabasePath);
+        final File oldDbBackup = new File(context.getDatabasePath(DATABASE_NAME).getAbsolutePath() + "_backup");
+        final File oldDb = getDatabaseFile(context);
 
         if (newDb.exists()) {
 
@@ -1670,11 +1671,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             Utilities.copyFile(newDb, oldDb);
             // Access the copied database so SQLiteHelper will cache it and mark
             // it as created.
-            SQLiteDatabase db;
+            final SQLiteDatabase db;
             try {
                 db = this.getWritableDatabase();
 
-            } catch (SQLiteException e) {
+            } catch (final SQLiteException e) {
                 //If the new database file couldn't be accesses, replace it with the backup.
                 Utilities.copyFile(oldDbBackup, oldDb);
                 Toast.makeText(context, context.getResources().getString(R.string.CouldNotReadDatabase),
@@ -1787,8 +1788,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Help method to mimic default parameter values in Java style.
      * Full method description found down the method call path.
      */
-    private boolean checkColumnProperties(String tableNameInput, String columnNameInput, String columnTypeInput,
-                                          int notNullInput) {
+    private boolean checkColumnProperties(final String tableNameInput, final String columnNameInput, final String columnTypeInput,
+                                          final int notNullInput) {
         return checkColumnProperties(tableNameInput, columnNameInput, columnTypeInput, notNullInput, false, false);
     }
 
@@ -1796,8 +1797,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Help method to mimic default parameter values in Java style.
      * Full method description found down the method call path.
      */
-    private boolean checkColumnProperties(String tableNameInput, String columnNameInput, String columnTypeInput,
-                                          int notNullInput, boolean primaryKeyInput, boolean autoIncrementInput) {
+    private boolean checkColumnProperties(final String tableNameInput, final String columnNameInput, final String columnTypeInput,
+                                          final int notNullInput, final boolean primaryKeyInput, final boolean autoIncrementInput) {
         return checkColumnProperties(tableNameInput, columnNameInput, columnTypeInput,
                 notNullInput, primaryKeyInput, autoIncrementInput, false, null, null);
     }
@@ -1814,10 +1815,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param autoIncrementInput true if the table should be autoincrement
      * @return true if the parameter properties match the database
      */
-    private boolean checkColumnProperties(String tableNameInput, String columnNameInput, String columnTypeInput,
-                                          int notNullInput, boolean primaryKeyInput, boolean autoIncrementInput,
-                                          boolean foreignKeyInput, String referenceTableNameInput,
-                                          String onDeleteActionInput) {
+    private boolean checkColumnProperties(final String tableNameInput, final String columnNameInput, final String columnTypeInput,
+                                          final int notNullInput, final boolean primaryKeyInput, final boolean autoIncrementInput,
+                                          final boolean foreignKeyInput, final String referenceTableNameInput,
+                                          final String onDeleteActionInput) {
 
         final SQLiteDatabase db = this.getReadableDatabase();
 
@@ -1897,13 +1898,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     /**
      * Populate films from resource arrays to the database
      */
-    private void populateFilmStocks(SQLiteDatabase db) {
+    private void populateFilmStocks(final SQLiteDatabase db) {
         final String[] filmStocks = context.getResources().getStringArray(R.array.FilmStocks);
         int counter = 0;
-        for (String s : filmStocks) {
+        for (final String s : filmStocks) {
             try {
                 final String[] components = s.split(",");
-                FilmStock filmStock = new FilmStock();
+                final FilmStock filmStock = new FilmStock();
                 filmStock.setManufacturerName(components[0]);
                 filmStock.setStockName(components[1]);
                 // Check if the ISO of the film stock was defined.
@@ -1919,9 +1920,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                     db.insert(TABLE_FILM_STOCKS, null, values);
                 }
 
-            } catch (ArrayIndexOutOfBoundsException e) {
-                counter++;
-            } catch (NumberFormatException e) {
+            } catch (final ArrayIndexOutOfBoundsException | NumberFormatException e) {
                 counter++;
             }
         }

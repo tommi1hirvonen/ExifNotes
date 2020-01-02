@@ -2,11 +2,12 @@ package com.tommihirvonen.exifnotes.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -83,7 +84,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
      * @param savedInstanceState {@inheritDoc}
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
@@ -110,8 +111,9 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
      * @return the inflated view ready to be shown
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+    public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
+                             final Bundle savedInstanceState) {
+        final LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         database = FilmDbHelper.getInstance(getActivity());
         filterList = database.getAllFilters();
@@ -119,10 +121,10 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
 
         final View view = layoutInflater.inflate(R.layout.fragment_filters, container, false);
 
-        FloatingActionButton floatingActionButton = view.findViewById(R.id.fab_filters);
+        final FloatingActionButton floatingActionButton = view.findViewById(R.id.fab_filters);
         floatingActionButton.setOnClickListener(this);
 
-        int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
@@ -133,7 +135,8 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
         mainRecyclerView = view.findViewById(R.id.filters_recycler_view);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mainRecyclerView.setLayoutManager(layoutManager);
-        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(), layoutManager.getOrientation()));
+        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(),
+                layoutManager.getOrientation()));
 
         // Create an ArrayAdapter for the ListView
         filterAdapter = new GearAdapter(getActivity(), filterList);
@@ -154,7 +157,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
      * @param v view which was clicked
      */
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
         if (v.getId() == R.id.fab_filters) {
             showFilterNameDialog();
         }
@@ -165,9 +168,9 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
      */
     @SuppressLint("CommitTransaction")
     private void showFilterNameDialog() {
-        EditFilterDialog dialog = new EditFilterDialog();
+        final EditFilterDialog dialog = new EditFilterDialog();
         dialog.setTargetFragment(this, ADD_FILTER);
-        Bundle arguments = new Bundle();
+        final Bundle arguments = new Bundle();
         arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewFilter));
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
@@ -182,7 +185,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
      */
     @SuppressLint("CommitTransaction")
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(@NonNull final MenuItem item) {
         // Because of a bug with ViewPager and context menu actions,
         // we have to check which fragment is visible to the user.
         if (fragmentVisible) {
@@ -209,34 +212,28 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
                         return true;
                     }
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle(getResources().getString(R.string.ConfirmFilterDelete)
                             + " \'" + filter.getName() + "\'?"
                     );
-                    builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Do nothing
+                    builder.setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                        // Do nothing
 
-                        }
                     });
-                    builder.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                    builder.setPositiveButton(R.string.OK, (dialog, which) -> {
 
-                            database.deleteFilter(filter);
+                        database.deleteFilter(filter);
 
-                            // Remove the filter from the filterList. Do this last!!!
-                            filterList.remove(position);
+                        // Remove the filter from the filterList. Do this last!!!
+                        filterList.remove(position);
 
-                            if (filterList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                            filterAdapter.notifyItemRemoved(position);
+                        if (filterList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                        filterAdapter.notifyItemRemoved(position);
 
-                            // Update the LensesFragment through the parent activity.
-                            GearActivity gearActivity = (GearActivity)getActivity();
-                            gearActivity.updateFragments();
+                        // Update the LensesFragment through the parent activity.
+                        final GearActivity gearActivity = (GearActivity)getActivity();
+                        gearActivity.updateFragments();
 
-                        }
                     });
                     builder.create().show();
 
@@ -244,9 +241,9 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
 
                 case R.id.menu_item_edit:
 
-                    EditFilterDialog dialog = new EditFilterDialog();
+                    final EditFilterDialog dialog = new EditFilterDialog();
                     dialog.setTargetFragment(this, EDIT_FILTER);
-                    Bundle arguments = new Bundle();
+                    final Bundle arguments = new Bundle();
                     arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.EditFilter));
                     arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.OK));
                     arguments.putParcelable(ExtraKeys.FILTER, filter);
@@ -268,7 +265,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
      * @param data the extra data attached to the passed Intent
      */
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch(requestCode) {
 
             case ADD_FILTER:
@@ -276,13 +273,13 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
                 if (resultCode == Activity.RESULT_OK) {
                     // After Ok code.
 
-                    Filter filter = data.getParcelableExtra(ExtraKeys.FILTER);
+                    final Filter filter = data.getParcelableExtra(ExtraKeys.FILTER);
 
                     if (filter.getMake().length() > 0 && filter.getModel().length() > 0) {
 
                         mainTextView.setVisibility(View.GONE);
 
-                        long rowId = database.addFilter(filter);
+                        final long rowId = database.addFilter(filter);
                         filter.setId(rowId);
                         filterList.add(filter);
                         Utilities.sortGearList(filterList);
@@ -304,7 +301,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Filter filter = data.getParcelableExtra(ExtraKeys.FILTER);
+                    final Filter filter = data.getParcelableExtra(ExtraKeys.FILTER);
 
                     if (filter.getMake().length() > 0 &&
                             filter.getModel().length() > 0 &&
@@ -319,7 +316,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
                         mainRecyclerView.scrollToPosition(newPos);
 
                         // Update the LensesFragment through the parent activity.
-                        GearActivity gearActivity = (GearActivity)getActivity();
+                        final GearActivity gearActivity = (GearActivity)getActivity();
                         gearActivity.updateFragments();
 
                     } else {
@@ -350,15 +347,15 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
         // multi choice list.
         // Also make an array list containing all the lens id's for list comparison.
         // Comparing lists containing lenses is not easy.
-        List<String> listItems = new ArrayList<>();
-        List<Long> allLensesId = new ArrayList<>();
+        final List<String> listItems = new ArrayList<>();
+        final List<Long> allLensesId = new ArrayList<>();
         for (int i = 0; i < allLenses.size(); ++i) {
             listItems.add(allLenses.get(i).getName());
             allLensesId.add(allLenses.get(i).getId());
         }
 
         // Make an array list containing all mountable lens id's.
-        List<Long> mountableLensesId = new ArrayList<>();
+        final List<Long> mountableLensesId = new ArrayList<>();
         for (int i = 0; i < mountableLenses.size(); ++i) {
             mountableLensesId.add(mountableLenses.get(i).getId());
         }
@@ -372,7 +369,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
 
 
         final CharSequence[] items = listItems.toArray(new CharSequence[0]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         // MULTIPLE CHOICE DIALOG
 
@@ -384,64 +381,55 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
         }
 
         builder.setTitle(R.string.SelectMountableLenses)
-                .setMultiChoiceItems(items, booleans, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        if (isChecked) {
+                .setMultiChoiceItems(items, booleans, (dialog, which, isChecked) -> {
+                    if (isChecked) {
 
-                            // If the user checked the item, add it to the selected items
-                            selectedItemsIndexList.add(which);
+                        // If the user checked the item, add it to the selected items
+                        selectedItemsIndexList.add(which);
 
-                        } else if (selectedItemsIndexList.contains(which)) {
+                    } else if (selectedItemsIndexList.contains(which)) {
 
-                            // Else, if the item is already in the array, remove it
-                            selectedItemsIndexList.remove(Integer.valueOf(which));
+                        // Else, if the item is already in the array, remove it
+                        selectedItemsIndexList.remove(Integer.valueOf(which));
 
-                        }
                     }
                 })
 
-                .setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
+                .setPositiveButton(R.string.OK, (dialog, id) -> {
 
-                        // Do something with the selections
-                        Collections.sort(selectedItemsIndexList);
+                    // Do something with the selections
+                    Collections.sort(selectedItemsIndexList);
 
-                        // Get the not selected indices.
-                        List<Integer> notSelectedItemsIndexList = new ArrayList<>();
-                        for (int i = 0; i < allLenses.size(); ++i) {
-                            if (!selectedItemsIndexList.contains(i))
-                                notSelectedItemsIndexList.add(i);
-                        }
-
-                        // Iterate through the selected items
-                        for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
-                            int which = selectedItemsIndexList.get(i);
-                            Lens lens = allLenses.get(which);
-                            database.addLensFilterLink(filter, lens);
-                        }
-
-                        // Iterate through the not selected items
-                        for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
-                            int which = notSelectedItemsIndexList.get(i);
-                            Lens lens = allLenses.get(which);
-                            database.deleteLensFilterLink(filter, lens);
-                        }
-                        filterAdapter.notifyItemChanged(position);
-
-                        // Update the LensesFragment through the parent activity.
-                        GearActivity myActivity = (GearActivity)getActivity();
-                        myActivity.updateFragments();
+                    // Get the not selected indices.
+                    List<Integer> notSelectedItemsIndexList = new ArrayList<>();
+                    for (int i = 0; i < allLenses.size(); ++i) {
+                        if (!selectedItemsIndexList.contains(i))
+                            notSelectedItemsIndexList.add(i);
                     }
+
+                    // Iterate through the selected items
+                    for (int i = selectedItemsIndexList.size() - 1; i >= 0; --i) {
+                        int which = selectedItemsIndexList.get(i);
+                        Lens lens = allLenses.get(which);
+                        database.addLensFilterLink(filter, lens);
+                    }
+
+                    // Iterate through the not selected items
+                    for (int i = notSelectedItemsIndexList.size() - 1; i >= 0; --i) {
+                        int which = notSelectedItemsIndexList.get(i);
+                        Lens lens = allLenses.get(which);
+                        database.deleteLensFilterLink(filter, lens);
+                    }
+                    filterAdapter.notifyItemChanged(position);
+
+                    // Update the LensesFragment through the parent activity.
+                    GearActivity myActivity = (GearActivity)getActivity();
+                    myActivity.updateFragments();
                 })
-                .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing
-                    }
+                .setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                    // Do nothing
                 });
-        AlertDialog alert = builder.create();
+        final AlertDialog alert = builder.create();
         alert.show();
     }
 

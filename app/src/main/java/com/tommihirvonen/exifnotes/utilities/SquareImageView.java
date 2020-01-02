@@ -14,7 +14,7 @@ public class SquareImageView extends androidx.appcompat.widget.AppCompatImageVie
      * @param context {@inheritDoc}
      * @param attrs {@inheritDoc}
      */
-    public SquareImageView(Context context, @Nullable AttributeSet attrs) {
+    public SquareImageView(final Context context, @Nullable final AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -25,7 +25,7 @@ public class SquareImageView extends androidx.appcompat.widget.AppCompatImageVie
      * @param heightMeasureSpec {@inheritDoc}
      */
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         final int width = getMeasuredWidth();
         //noinspection SuspiciousNameCombination

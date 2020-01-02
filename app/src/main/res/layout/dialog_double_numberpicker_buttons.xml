@@ -24,7 +24,7 @@
             android:clickable="true"
             android:padding="5dp"
             android:id="@+id/picker_one_fast_rewind"
-            android:background="?android:attr/selectableItemBackground"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             tools:ignore="KeyboardInaccessibleWidget">
             <ImageView
                 android:id="@+id/picker_one_fast_rewind_image"
@@ -57,7 +57,7 @@
             android:clickable="true"
             android:id="@+id/picker_one_fast_forward"
             android:padding="5dp"
-            android:background="?android:attr/selectableItemBackground"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             tools:ignore="KeyboardInaccessibleWidget">
 
             <TextView
@@ -104,7 +104,7 @@
             android:clickable="true"
             android:padding="5dp"
             android:id="@+id/picker_two_fast_rewind"
-            android:background="?android:attr/selectableItemBackground"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             tools:ignore="KeyboardInaccessibleWidget">
             <ImageView
                 android:id="@+id/picker_two_fast_rewind_image"
@@ -137,7 +137,7 @@
             android:clickable="true"
             android:padding="5dp"
             android:id="@+id/picker_two_fast_forward"
-            android:background="?android:attr/selectableItemBackground"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             tools:ignore="KeyboardInaccessibleWidget">
             <TextView
                 android:layout_width="wrap_content"

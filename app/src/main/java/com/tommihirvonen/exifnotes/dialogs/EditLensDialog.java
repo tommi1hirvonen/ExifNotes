@@ -4,9 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -117,27 +115,24 @@ public class EditLensDialog extends DialogFragment {
      */
     @NonNull
     @Override
-    public Dialog onCreateDialog (Bundle SavedInstanceState) {
+    public Dialog onCreateDialog (final Bundle SavedInstanceState) {
 
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+        final LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams") final View inflatedView =
                 layoutInflater.inflate(R.layout.dialog_lens, null);
-        AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        String title = getArguments().getString(ExtraKeys.TITLE);
-        String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
+        final String title = getArguments().getString(ExtraKeys.TITLE);
+        final String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
         lens = getArguments().getParcelable(ExtraKeys.LENS);
         if (lens == null) lens = new Lens();
 
-        // Set ScrollIndicators only if Material Design is used with the current Android version
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
-            NestedScrollView nestedScrollView = inflatedView.findViewById(
-                    R.id.nested_scroll_view);
-            Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
-                    ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
-        }
+        final FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
+        final NestedScrollView nestedScrollView = inflatedView.findViewById(
+                R.id.nested_scroll_view);
+        Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
+                ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
 
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflatedView);
@@ -147,13 +142,13 @@ public class EditLensDialog extends DialogFragment {
 
         // Color the dividers white if the app's theme is dark
         if (Utilities.isAppThemeDark(getActivity())) {
-            List<View> dividerList = new ArrayList<>();
+            final List<View> dividerList = new ArrayList<>();
             dividerList.add(inflatedView.findViewById(R.id.divider_view1));
             dividerList.add(inflatedView.findViewById(R.id.divider_view2));
             dividerList.add(inflatedView.findViewById(R.id.divider_view3));
             dividerList.add(inflatedView.findViewById(R.id.divider_view4));
             dividerList.add(inflatedView.findViewById(R.id.divider_view5));
-            for (View v : dividerList) {
+            for (final View v : dividerList) {
                 v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
             }
         }
@@ -175,16 +170,12 @@ public class EditLensDialog extends DialogFragment {
                 getResources().getStringArray(R.array.StopIncrements)[lens.getApertureIncrements()]);
 
         final LinearLayout apertureIncrementLayout = inflatedView.findViewById(R.id.increment_layout);
-        apertureIncrementLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int checkedItem = newApertureIncrements;
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(getResources().getString(R.string.ChooseIncrements));
-                builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem,
-                        new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+        apertureIncrementLayout.setOnClickListener(view -> {
+            final int checkedItem = newApertureIncrements;
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(getResources().getString(R.string.ChooseIncrements));
+            builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem,
+                    (dialogInterface, i) -> {
                         newApertureIncrements = i;
                         apertureIncrementsTextView.setText(
                                 getResources().getStringArray(R.array.StopIncrements)[i]);
@@ -194,10 +185,6 @@ public class EditLensDialog extends DialogFragment {
                         //Otherwise reset them to null
                         boolean minFound = false, maxFound = false;
                         switch (newApertureIncrements) {
-                            case 0:
-                                displayedApertureValues = getActivity().getResources()
-                                        .getStringArray(R.array.ApertureValuesThird);
-                                break;
                             case 1:
                                 displayedApertureValues = getActivity().getResources()
                                         .getStringArray(R.array.ApertureValuesHalf);
@@ -206,12 +193,13 @@ public class EditLensDialog extends DialogFragment {
                                 displayedApertureValues = getActivity().getResources()
                                         .getStringArray(R.array.ApertureValuesFull);
                                 break;
+                            case 0:
                             default:
                                 displayedApertureValues = getActivity().getResources()
                                         .getStringArray(R.array.ApertureValuesThird);
                                 break;
                         }
-                        for (String string : displayedApertureValues) {
+                        for (final String string : displayedApertureValues) {
                             if (!minFound && string.equals(newMinAperture)) minFound = true;
                             if (!maxFound && string.equals(newMaxAperture)) maxFound = true;
                             if (minFound && maxFound) break;
@@ -224,17 +212,12 @@ public class EditLensDialog extends DialogFragment {
                         }
 
                         dialogInterface.dismiss();
-                    }
-                });
-                builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                        new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+                    });
+            builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                    (dialogInterface, i) -> {
                         //Do nothing
-                    }
-                });
-                builder.create().show();
-            }
+                    });
+            builder.create().show();
         });
 
         //APERTURE RANGE BUTTON
@@ -244,72 +227,63 @@ public class EditLensDialog extends DialogFragment {
         updateApertureRangeTextView();
 
         final LinearLayout apertureRangeLayout = inflatedView.findViewById(R.id.aperture_range_layout);
-        apertureRangeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                LayoutInflater inflater = getActivity().getLayoutInflater();
-                @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.dialog_double_numberpicker, null);
-                final NumberPicker maxAperturePicker =
-                        dialogView.findViewById(R.id.number_picker_one);
-                final NumberPicker minAperturePicker =
-                        dialogView.findViewById(R.id.number_picker_two);
+        apertureRangeLayout.setOnClickListener(v -> {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final LayoutInflater inflater = getActivity().getLayoutInflater();
+            @SuppressLint("InflateParams")
+            final View dialogView = inflater.inflate(R.layout.dialog_double_numberpicker, null);
+            final NumberPicker maxAperturePicker =
+                    dialogView.findViewById(R.id.number_picker_one);
+            final NumberPicker minAperturePicker =
+                    dialogView.findViewById(R.id.number_picker_two);
 
-                int color = Utilities.isAppThemeDark(getActivity()) ?
-                        ContextCompat.getColor(getActivity(), R.color.light_grey) :
-                        ContextCompat.getColor(getActivity(), R.color.grey);
-                ImageView dash = dialogView.findViewById(R.id.dash);
-                Utilities.setColorFilter(dash.getDrawable().mutate(), color);
+            final int color = Utilities.isAppThemeDark(getActivity()) ?
+                    ContextCompat.getColor(getActivity(), R.color.light_grey) :
+                    ContextCompat.getColor(getActivity(), R.color.grey);
+            final ImageView dash = dialogView.findViewById(R.id.dash);
+            Utilities.setColorFilter(dash.getDrawable().mutate(), color);
 
-                //To prevent text edit
-                minAperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-                maxAperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+            //To prevent text edit
+            minAperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+            maxAperturePicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
-                initialiseApertureRangePickers(minAperturePicker, maxAperturePicker);
+            initialiseApertureRangePickers(minAperturePicker, maxAperturePicker);
 
-                builder.setView(dialogView);
-                builder.setTitle(getResources().getString(R.string.ChooseApertureRange));
-                builder.setPositiveButton(getResources().getString(R.string.OK), null);
-                builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Do nothing
-                            }
-                        });
-                final AlertDialog dialog = builder.create();
-                dialog.show();
-                //Override the positiveButton to check the range before accepting.
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if ((minAperturePicker.getValue() == displayedApertureValues.length-1 &&
-                                maxAperturePicker.getValue() != displayedApertureValues.length-1)
-                                ||
-                                (minAperturePicker.getValue() != displayedApertureValues.length-1 &&
-                                        maxAperturePicker.getValue() == displayedApertureValues.length-1)){
-                            // No min or max shutter was set
-                            Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxAperture),
-                                    Toast.LENGTH_LONG).show();
-                        } else {
-                            if (minAperturePicker.getValue() == displayedApertureValues.length-1 &&
-                                    maxAperturePicker.getValue() == displayedApertureValues.length-1) {
-                                newMinAperture = null;
-                                newMaxAperture = null;
-                            } else if (minAperturePicker.getValue() < maxAperturePicker.getValue()) {
-                                newMinAperture = displayedApertureValues[minAperturePicker.getValue()];
-                                newMaxAperture = displayedApertureValues[maxAperturePicker.getValue()];
-                            } else {
-                                newMinAperture = displayedApertureValues[maxAperturePicker.getValue()];
-                                newMaxAperture = displayedApertureValues[minAperturePicker.getValue()];
-                            }
-                            updateApertureRangeTextView();
-                        }
-                        dialog.dismiss();
+            builder.setView(dialogView);
+            builder.setTitle(getResources().getString(R.string.ChooseApertureRange));
+            builder.setPositiveButton(getResources().getString(R.string.OK), null);
+            builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                    (dialogInterface, i) -> {
+                        //Do nothing
+                    });
+            final AlertDialog dialog = builder.create();
+            dialog.show();
+            //Override the positiveButton to check the range before accepting.
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v1 -> {
+                if ((minAperturePicker.getValue() == displayedApertureValues.length - 1 &&
+                        maxAperturePicker.getValue() != displayedApertureValues.length - 1)
+                        ||
+                        (minAperturePicker.getValue() != displayedApertureValues.length - 1 &&
+                                maxAperturePicker.getValue() == displayedApertureValues.length - 1)) {
+                    // No min or max shutter was set
+                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMinOrMaxAperture),
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    if (minAperturePicker.getValue() == displayedApertureValues.length - 1 &&
+                            maxAperturePicker.getValue() == displayedApertureValues.length - 1) {
+                        newMinAperture = null;
+                        newMaxAperture = null;
+                    } else if (minAperturePicker.getValue() < maxAperturePicker.getValue()) {
+                        newMinAperture = displayedApertureValues[minAperturePicker.getValue()];
+                        newMaxAperture = displayedApertureValues[maxAperturePicker.getValue()];
+                    } else {
+                        newMinAperture = displayedApertureValues[maxAperturePicker.getValue()];
+                        newMaxAperture = displayedApertureValues[minAperturePicker.getValue()];
                     }
-                });
-            }
+                    updateApertureRangeTextView();
+                }
+                dialog.dismiss();
+            });
         });
 
 
@@ -320,117 +294,90 @@ public class EditLensDialog extends DialogFragment {
         updateFocalLengthRangeTextView();
 
         final LinearLayout focalLengthRangeLayout = inflatedView.findViewById(R.id.focal_length_range_layout);
-        focalLengthRangeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                LayoutInflater inflater = getActivity().getLayoutInflater();
-                @SuppressLint("InflateParams")
-                View dialogView = inflater.inflate(R.layout.dialog_double_numberpicker_buttons, null);
-                final NumberPicker minFocalLengthPicker =
-                        dialogView.findViewById(R.id.number_picker_one);
-                final NumberPicker maxFocalLengthPicker =
-                        dialogView.findViewById(R.id.number_picker_two);
+        focalLengthRangeLayout.setOnClickListener(view -> {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final LayoutInflater inflater = getActivity().getLayoutInflater();
+            @SuppressLint("InflateParams")
+            final View dialogView = inflater.inflate(R.layout.dialog_double_numberpicker_buttons, null);
+            final NumberPicker minFocalLengthPicker =
+                    dialogView.findViewById(R.id.number_picker_one);
+            final NumberPicker maxFocalLengthPicker =
+                    dialogView.findViewById(R.id.number_picker_two);
 
-                final int jumpAmount = 50;
-                final LinearLayout minFocalLengthFastRewind =
-                        dialogView.findViewById(R.id.picker_one_fast_rewind);
-                final LinearLayout minFocalLengthFastForward =
-                        dialogView.findViewById(R.id.picker_one_fast_forward);
-                final LinearLayout maxFocalLengthFastRewind =
-                        dialogView.findViewById(R.id.picker_two_fast_rewind);
-                final LinearLayout maxFocalLengthFastForward =
-                        dialogView.findViewById(R.id.picker_two_fast_forward);
+            final int jumpAmount = 50;
+            final LinearLayout minFocalLengthFastRewind =
+                    dialogView.findViewById(R.id.picker_one_fast_rewind);
+            final LinearLayout minFocalLengthFastForward =
+                    dialogView.findViewById(R.id.picker_one_fast_forward);
+            final LinearLayout maxFocalLengthFastRewind =
+                    dialogView.findViewById(R.id.picker_two_fast_rewind);
+            final LinearLayout maxFocalLengthFastForward =
+                    dialogView.findViewById(R.id.picker_two_fast_forward);
 
-                int color = Utilities.isAppThemeDark(getActivity()) ?
-                        ContextCompat.getColor(getActivity(), R.color.light_grey) :
-                        ContextCompat.getColor(getActivity(), R.color.grey);
-                List<ImageView> imageViewList = new ArrayList<>();
-                imageViewList.add(dialogView.findViewById(R.id.picker_one_fast_rewind_image));
-                imageViewList.add(dialogView.findViewById(R.id.picker_one_fast_forward_image));
-                imageViewList.add(dialogView.findViewById(R.id.picker_two_fast_rewind_image));
-                imageViewList.add(dialogView.findViewById(R.id.picker_two_fast_forward_image));
-                imageViewList.add(dialogView.findViewById(R.id.dash));
-                for (ImageView iv : imageViewList)
-                    Utilities.setColorFilter(iv.getDrawable().mutate(), color);
+            final int color = Utilities.isAppThemeDark(getActivity()) ?
+                    ContextCompat.getColor(getActivity(), R.color.light_grey) :
+                    ContextCompat.getColor(getActivity(), R.color.grey);
+            final List<ImageView> imageViewList = new ArrayList<>();
+            imageViewList.add(dialogView.findViewById(R.id.picker_one_fast_rewind_image));
+            imageViewList.add(dialogView.findViewById(R.id.picker_one_fast_forward_image));
+            imageViewList.add(dialogView.findViewById(R.id.picker_two_fast_rewind_image));
+            imageViewList.add(dialogView.findViewById(R.id.picker_two_fast_forward_image));
+            imageViewList.add(dialogView.findViewById(R.id.dash));
+            for (final ImageView iv : imageViewList)
+                Utilities.setColorFilter(iv.getDrawable().mutate(), color);
 
-                //To prevent text edit
-                minFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-                maxFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+            //To prevent text edit
+            minFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+            maxFocalLengthPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
-                initialiseFocalLengthRangePickers(minFocalLengthPicker, maxFocalLengthPicker);
+            initialiseFocalLengthRangePickers(minFocalLengthPicker, maxFocalLengthPicker);
 
-                minFocalLengthFastRewind.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        minFocalLengthPicker.setValue(minFocalLengthPicker.getValue()-jumpAmount);
-                    }
-                });
-                minFocalLengthFastForward.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        minFocalLengthPicker.setValue(minFocalLengthPicker.getValue()+jumpAmount);
-                    }
-                });
-                maxFocalLengthFastRewind.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        maxFocalLengthPicker.setValue(maxFocalLengthPicker.getValue()-jumpAmount);
-                    }
-                });
-                maxFocalLengthFastForward.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        maxFocalLengthPicker.setValue(maxFocalLengthPicker.getValue()+jumpAmount);
-                    }
-                });
+            minFocalLengthFastRewind.setOnClickListener(view14 ->
+                    minFocalLengthPicker.setValue(minFocalLengthPicker.getValue() - jumpAmount));
+            minFocalLengthFastForward.setOnClickListener(view13 ->
+                    minFocalLengthPicker.setValue(minFocalLengthPicker.getValue() + jumpAmount));
+            maxFocalLengthFastRewind.setOnClickListener(view12 ->
+                    maxFocalLengthPicker.setValue(maxFocalLengthPicker.getValue() - jumpAmount));
+            maxFocalLengthFastForward.setOnClickListener(view1 ->
+                    maxFocalLengthPicker.setValue(maxFocalLengthPicker.getValue() + jumpAmount));
 
-                builder.setView(dialogView);
-                builder.setTitle(getResources().getString(R.string.ChooseFocalLengthRange));
-                builder.setPositiveButton(getResources().getString(R.string.OK), null);
-                builder.setNegativeButton(getResources().getString(R.string.Cancel),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Do nothing
-                            }
-                        });
-                final AlertDialog dialog = builder.create();
-                dialog.show();
+            builder.setView(dialogView);
+            builder.setTitle(getResources().getString(R.string.ChooseFocalLengthRange));
+            builder.setPositiveButton(getResources().getString(R.string.OK), null);
+            builder.setNegativeButton(getResources().getString(R.string.Cancel),
+                    (dialogInterface, i) -> {
+                        //Do nothing
+                    });
+            final AlertDialog dialog = builder.create();
+            dialog.show();
 
-                //Override the positiveButton to check the range before accepting.
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Set the max and min focal lengths. Check which is smaller and set it to be
-                        //min and vice versa.
-                        if (minFocalLengthPicker.getValue() == 0 || maxFocalLengthPicker.getValue() == 0) {
-                            newMinFocalLength = 0;
-                            newMaxFocalLength = 0;
-                        } else if (minFocalLengthPicker.getValue() < maxFocalLengthPicker.getValue()) {
-                            newMaxFocalLength = maxFocalLengthPicker.getValue();
-                            newMinFocalLength = minFocalLengthPicker.getValue();
-                        } else {
-                            newMaxFocalLength = minFocalLengthPicker.getValue();
-                            newMinFocalLength = maxFocalLengthPicker.getValue();
-                        }
-                        updateFocalLengthRangeTextView();
-                        dialog.dismiss();
-                    }
-                });
-            }
+            //Override the positiveButton to check the range before accepting.
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                //Set the max and min focal lengths. Check which is smaller and set it to be
+                //min and vice versa.
+                if (minFocalLengthPicker.getValue() == 0 || maxFocalLengthPicker.getValue() == 0) {
+                    newMinFocalLength = 0;
+                    newMaxFocalLength = 0;
+                } else if (minFocalLengthPicker.getValue() < maxFocalLengthPicker.getValue()) {
+                    newMaxFocalLength = maxFocalLengthPicker.getValue();
+                    newMinFocalLength = minFocalLengthPicker.getValue();
+                } else {
+                    newMaxFocalLength = minFocalLengthPicker.getValue();
+                    newMinFocalLength = maxFocalLengthPicker.getValue();
+                }
+                updateFocalLengthRangeTextView();
+                dialog.dismiss();
+            });
         });
 
 
         //FINALISE BUILDING THE DIALOG
         alert.setPositiveButton(positiveButton, null);
 
-        alert.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                Intent intent = new Intent();
-                getTargetFragment().onActivityResult(
-                        getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
-            }
+        alert.setNegativeButton(R.string.Cancel, (dialog, whichButton) -> {
+            final Intent intent = new Intent();
+            getTargetFragment().onActivityResult(
+                    getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
         });
         final AlertDialog dialog = alert.create();
         //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
@@ -441,43 +388,40 @@ public class EditLensDialog extends DialogFragment {
         dialog.show();
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
 
-                String make = makeEditText.getText().toString();
-                String model = modelEditText.getText().toString();
-                String serialNumber = serialNumberEditText.getText().toString();
+            final String make = makeEditText.getText().toString();
+            final String model = modelEditText.getText().toString();
+            final String serialNumber = serialNumberEditText.getText().toString();
 
-                if (make.length() == 0 && model.length() == 0) {
-                    // No make or model was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel),
-                            Toast.LENGTH_SHORT).show();
-                } else if (make.length() > 0 && model.length() == 0) {
-                    // No model was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
-                } else if (make.length() == 0 && model.length() > 0) {
-                    // No make was set
-                    Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
-                } else {
-                    //All the required information was given. Save.
-                    lens.setMake(make);
-                    lens.setModel(model);
-                    lens.setSerialNumber(serialNumber);
-                    lens.setApertureIncrements(newApertureIncrements);
-                    lens.setMinAperture(newMinAperture);
-                    lens.setMaxAperture(newMaxAperture);
-                    lens.setMinFocalLength(newMinFocalLength);
-                    lens.setMaxFocalLength(newMaxFocalLength);
+            if (make.length() == 0 && model.length() == 0) {
+                // No make or model was set
+                Toast.makeText(getActivity(), getResources().getString(R.string.NoMakeOrModel),
+                        Toast.LENGTH_SHORT).show();
+            } else if (make.length() > 0 && model.length() == 0) {
+                // No model was set
+                Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
+            } else if (make.length() == 0 && model.length() > 0) {
+                // No make was set
+                Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
+            } else {
+                //All the required information was given. Save.
+                lens.setMake(make);
+                lens.setModel(model);
+                lens.setSerialNumber(serialNumber);
+                lens.setApertureIncrements(newApertureIncrements);
+                lens.setMinAperture(newMinAperture);
+                lens.setMaxAperture(newMaxAperture);
+                lens.setMinFocalLength(newMinFocalLength);
+                lens.setMaxFocalLength(newMaxFocalLength);
 
-                    // Return the new entered name to the calling activity
-                    Intent intent = new Intent();
-                    intent.putExtra(ExtraKeys.LENS, lens);
-                    dialog.dismiss();
-                    getTargetFragment().onActivityResult(
-                            getTargetRequestCode(), Activity.RESULT_OK, intent
-                    );
-                }
+                // Return the new entered name to the calling activity
+                final Intent intent = new Intent();
+                intent.putExtra(ExtraKeys.LENS, lens);
+                dialog.dismiss();
+                getTargetFragment().onActivityResult(
+                        getTargetRequestCode(), Activity.RESULT_OK, intent
+                );
             }
         });
         return dialog;
@@ -490,13 +434,9 @@ public class EditLensDialog extends DialogFragment {
      * @param minAperturePicker NumberPicker associated with the minimum aperture value
      * @param maxAperturePicker NumberPicker associated with the maximum aperture value
      */
-    private void initialiseApertureRangePickers(NumberPicker minAperturePicker,
-                                                NumberPicker maxAperturePicker){
+    private void initialiseApertureRangePickers(final NumberPicker minAperturePicker,
+                                                final NumberPicker maxAperturePicker){
         switch (newApertureIncrements) {
-            case 0:
-                displayedApertureValues = getActivity().getResources()
-                        .getStringArray(R.array.ApertureValuesThird);
-                break;
             case 1:
                 displayedApertureValues = getActivity().getResources()
                         .getStringArray(R.array.ApertureValuesHalf);
@@ -505,6 +445,7 @@ public class EditLensDialog extends DialogFragment {
                 displayedApertureValues = getActivity().getResources()
                         .getStringArray(R.array.ApertureValuesFull);
                 break;
+            case 0:
             default:
                 displayedApertureValues = getActivity().getResources()
                         .getStringArray(R.array.ApertureValuesThird);
@@ -542,8 +483,8 @@ public class EditLensDialog extends DialogFragment {
      * @param minFocalLengthPicker NumberPicker associated with the minimum focal length
      * @param maxFocalLengthPicker NumberPicker associated with the maximum focal length
      */
-    private void initialiseFocalLengthRangePickers(NumberPicker minFocalLengthPicker,
-                                                   NumberPicker maxFocalLengthPicker) {
+    private void initialiseFocalLengthRangePickers(final NumberPicker minFocalLengthPicker,
+                                                   final NumberPicker maxFocalLengthPicker) {
         minFocalLengthPicker.setMinValue(0);
         maxFocalLengthPicker.setMinValue(0);
         minFocalLengthPicker.setMaxValue(MAX_FOCAL_LENGTH);
@@ -578,7 +519,7 @@ public class EditLensDialog extends DialogFragment {
      * Update the focal length range button's text
      */
     private void updateFocalLengthRangeTextView(){
-        String text;
+        final String text;
         if (newMinFocalLength == 0 || newMaxFocalLength == 0) {
             text = getResources().getString(R.string.ClickToSet);
         } else if (newMinFocalLength == newMaxFocalLength) {

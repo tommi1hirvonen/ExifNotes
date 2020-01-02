@@ -51,7 +51,7 @@ public final class ComplementaryPicturesManager {
      * @param context activity's context
      * @return directory File for the location of complementary pictures
      */
-    private static File getComplementaryPicturesDirectory(Context context) {
+    private static File getComplementaryPicturesDirectory(final Context context) {
         return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
     }
 
@@ -62,7 +62,7 @@ public final class ComplementaryPicturesManager {
      * @param context activity's context
      * @return File referencing to the newly created placeholder File
      */
-    public static File createNewPictureFile(Context context) {
+    public static File createNewPictureFile(final Context context) {
         // Create a unique name for the new picture file
         final String pictureFilename = UUID.randomUUID().toString() + ".jpg";
         // Create a reference to the picture file
@@ -86,7 +86,7 @@ public final class ComplementaryPicturesManager {
      * @param fileName the name of the complementary picture file
      * @return reference to the complementary picture file
      */
-    public static File getPictureFile(Context context, final String fileName) {
+    public static File getPictureFile(final Context context, final String fileName) {
         // Get the absolute path to the picture file.
         return new File(getComplementaryPicturesDirectory(context), fileName);
     }
@@ -99,7 +99,7 @@ public final class ComplementaryPicturesManager {
      * @param fileName the name of the complementary picture
      * @throws IOException thrown if the file copying failed
      */
-    public static void addPictureToGallery(Context context, String fileName) throws IOException {
+    public static void addPictureToGallery(final Context context, final String fileName) throws IOException {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
@@ -123,12 +123,11 @@ public final class ComplementaryPicturesManager {
 
         } else {
 
-            @SuppressWarnings("deprecation")
-            final File publicPictureDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), context.getString(R.string.app_name));
+            final File publicPictureDirectory = new File(Environment
+                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), context.getString(R.string.app_name));
             final File copyFromFile = ComplementaryPicturesManager.getPictureFile(context, fileName);
             final File copyToFile = new File(publicPictureDirectory, fileName);
             Utilities.copyFile(copyFromFile, copyToFile);
-            @SuppressWarnings("deprecation")
             final Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             final Uri contentUri = Uri.fromFile(copyToFile);
             mediaScanIntent.setData(contentUri);
@@ -144,11 +143,11 @@ public final class ComplementaryPicturesManager {
      * @param fileName the name of the complementary picture
      * @throws IOException thrown if saving the bitmap causes an IOException
      */
-    public static void compressPictureFile(Context context, String fileName) throws IOException {
+    public static void compressPictureFile(final Context context, final String fileName) throws IOException {
         // Compress the image
         final File pictureFile = getPictureFile(context, fileName);
         if (pictureFile.exists()) {
-            Bitmap bitmap = getCompressedBitmap(pictureFile);
+            final Bitmap bitmap = getCompressedBitmap(pictureFile);
             //noinspection ResultOfMethodCallIgnored
             pictureFile.delete();
             saveBitmapToFile(bitmap, pictureFile);
@@ -162,7 +161,7 @@ public final class ComplementaryPicturesManager {
      * @param toFile file where the bitmap should be saved
      * @throws IOException if the file was not found or if the output stream could not be flushed/closed
      */
-    public static void saveBitmapToFile(Bitmap bitmap, File toFile) throws IOException {
+    public static void saveBitmapToFile(final Bitmap bitmap, final File toFile) throws IOException {
         final FileOutputStream out = new FileOutputStream(toFile);
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
         out.flush();
@@ -179,7 +178,7 @@ public final class ComplementaryPicturesManager {
      * @return compressed bitmap
      * @throws FileNotFoundException if no file was found using the given Uri
      */
-    public static Bitmap getCompressedBitmap(Context context, Uri uri) throws FileNotFoundException {
+    public static Bitmap getCompressedBitmap(final Context context, final Uri uri) throws FileNotFoundException {
         // Get the dimensions of the picture
         final BitmapFactory.Options options = new BitmapFactory.Options();
         // Setting the inJustDecodeBounds property to true while decoding avoids memory allocation,
@@ -191,7 +190,8 @@ public final class ComplementaryPicturesManager {
         options.inJustDecodeBounds = false;
         // Load the bitmap into memory using the inSampleSize option to reduce the excess resolution
         // and to avoid OutOfMemoryErrors.
-        final Bitmap decodedBitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, options);
+        final Bitmap decodedBitmap = BitmapFactory
+                .decodeStream(context.getContentResolver().openInputStream(uri), null, options);
         // Then resize the bitmap to the exact dimensions specified by MAX_SIZE.
         return getResizedBitmap(decodedBitmap);
     }
@@ -204,7 +204,7 @@ public final class ComplementaryPicturesManager {
      * @param pictureFile file to decoded to bitmap
      * @return compressed bitmap
      */
-    private static Bitmap getCompressedBitmap(File pictureFile) {
+    private static Bitmap getCompressedBitmap(final File pictureFile) {
         // Get the dimensions of the picture
         final BitmapFactory.Options options = new BitmapFactory.Options();
         // Setting the inJustDecodeBounds property to true while decoding avoids memory allocation,
@@ -229,10 +229,10 @@ public final class ComplementaryPicturesManager {
      */
     private static Bitmap getResizedBitmap(final Bitmap bitmap) {
         final int maxSize = MAX_SIZE;
-        int outWidth;
-        int outHeight;
-        int inWidth = bitmap.getWidth();
-        int inHeight = bitmap.getHeight();
+        final int outWidth;
+        final int outHeight;
+        final int inWidth = bitmap.getWidth();
+        final int inHeight = bitmap.getHeight();
         if (maxSize >= Math.max(inHeight, inWidth)) return bitmap;
         if(inWidth > inHeight){
             outWidth = maxSize;
@@ -273,16 +273,22 @@ public final class ComplementaryPicturesManager {
      * @param filename the name of the picture file to be rotated
      * @throws IOException if reading/writing exif data caused an exception
      */
-    public static void rotatePictureRight(Context context, String filename) throws IOException {
+    public static void rotatePictureRight(final Context context, final String filename) throws IOException {
         final File pictureFile = getPictureFile(context, filename);
         final ExifInterface exifInterface = new ExifInterface(pictureFile.getAbsolutePath());
-        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        final int orientation = exifInterface
+                .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
         int newOrientation = ExifInterface.ORIENTATION_NORMAL;
 
-        if (orientation == ExifInterface.ORIENTATION_NORMAL || orientation == ExifInterface.ORIENTATION_UNDEFINED) newOrientation = ExifInterface.ORIENTATION_ROTATE_90;
-        else if (orientation == ExifInterface.ORIENTATION_ROTATE_90) newOrientation = ExifInterface.ORIENTATION_ROTATE_180;
-        else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) newOrientation = ExifInterface.ORIENTATION_ROTATE_270;
-        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) newOrientation = ExifInterface.ORIENTATION_NORMAL;
+        if (orientation == ExifInterface.ORIENTATION_NORMAL ||
+                orientation == ExifInterface.ORIENTATION_UNDEFINED)
+            newOrientation = ExifInterface.ORIENTATION_ROTATE_90;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_90)
+            newOrientation = ExifInterface.ORIENTATION_ROTATE_180;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_180)
+            newOrientation = ExifInterface.ORIENTATION_ROTATE_270;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270)
+            newOrientation = ExifInterface.ORIENTATION_NORMAL;
 
         exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(newOrientation));
         exifInterface.saveAttributes();
@@ -295,16 +301,22 @@ public final class ComplementaryPicturesManager {
      * @param filename the name of the picture file to be rotated
      * @throws IOException if reading/writing exif data caused an exception
      */
-    public static void rotatePictureLeft(Context context, String filename) throws IOException {
+    public static void rotatePictureLeft(final Context context, final String filename) throws IOException {
         final File pictureFile = getPictureFile(context, filename);
         final ExifInterface exifInterface = new ExifInterface(pictureFile.getAbsolutePath());
-        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        final int orientation = exifInterface
+                .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
         int newOrientation = ExifInterface.ORIENTATION_NORMAL;
 
-        if (orientation == ExifInterface.ORIENTATION_NORMAL || orientation == ExifInterface.ORIENTATION_UNDEFINED) newOrientation = ExifInterface.ORIENTATION_ROTATE_270;
-        else if (orientation == ExifInterface.ORIENTATION_ROTATE_90) newOrientation = ExifInterface.ORIENTATION_NORMAL;
-        else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) newOrientation = ExifInterface.ORIENTATION_ROTATE_90;
-        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) newOrientation = ExifInterface.ORIENTATION_ROTATE_180;
+        if (orientation == ExifInterface.ORIENTATION_NORMAL ||
+                orientation == ExifInterface.ORIENTATION_UNDEFINED)
+            newOrientation = ExifInterface.ORIENTATION_ROTATE_270;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_90)
+            newOrientation = ExifInterface.ORIENTATION_NORMAL;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_180)
+            newOrientation = ExifInterface.ORIENTATION_ROTATE_90;
+        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270)
+            newOrientation = ExifInterface.ORIENTATION_ROTATE_180;
 
         exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(newOrientation));
         exifInterface.saveAttributes();
@@ -315,22 +327,20 @@ public final class ComplementaryPicturesManager {
      *
      * @param context activity's context
      */
-    public static void deleteUnusedPictures(Context context) {
+    public static void deleteUnusedPictures(final Context context) {
         // List of all filenames that are being used in the database
-        final List<String> complementaryPictureFilenames = FilmDbHelper.getInstance(context).getAllComplementaryPictureFilenames();
+        final List<String> complementaryPictureFilenames =
+                FilmDbHelper.getInstance(context).getAllComplementaryPictureFilenames();
         // The application private external storage directory, where complementary pictures are stored
         final File picturesDirectory = getComplementaryPicturesDirectory(context);
         // Create a FileNameFilter using the filenames
-        final FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File file, String s) {
-                // Include filenames, which are NOT included in the list of filenames from the database
-                return !complementaryPictureFilenames.contains(s);
-            }
+        final FilenameFilter filter = (file, s) -> {
+            // Include filenames, which are NOT included in the list of filenames from the database
+            return !complementaryPictureFilenames.contains(s);
         };
         // Delete all files, that are not filtered
         if (picturesDirectory != null) {
-            for (File pictureFile : picturesDirectory.listFiles(filter)) {
+            for (final File pictureFile : picturesDirectory.listFiles(filter)) {
                 //noinspection ResultOfMethodCallIgnored
                 pictureFile.delete();
             }
@@ -343,15 +353,12 @@ public final class ComplementaryPicturesManager {
      * @param context activity's context
      * @param targetFile the directory where the zip file should be saved
      */
-    public static void exportComplementaryPictures(Context context, File targetFile, ZipFileCreatorAsyncTask.ProgressListener progressListener) {
-        final List<String> complementaryPictureFilenames = FilmDbHelper.getInstance(context).getAllComplementaryPictureFilenames();
+    public static void exportComplementaryPictures(final Context context, final File targetFile,
+                                                   final ZipFileCreatorAsyncTask.ProgressListener progressListener) {
+        final List<String> complementaryPictureFilenames = FilmDbHelper.getInstance(context)
+                .getAllComplementaryPictureFilenames();
         final File picturesDirectory = getComplementaryPicturesDirectory(context);
-        final FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File file, String s) {
-                return complementaryPictureFilenames.contains(s);
-            }
-        };
+        final FilenameFilter filter = (file, s) -> complementaryPictureFilenames.contains(s);
         final File[] files = picturesDirectory != null ? picturesDirectory.listFiles(filter) : null;
         // If files is empty, no zip file will be created in ZipFileCreatorAsyncTask
         if (files != null) new ZipFileCreatorAsyncTask(files, targetFile, progressListener).execute();
@@ -364,7 +371,8 @@ public final class ComplementaryPicturesManager {
      * @param context activity's context
      * @param zipFile the zip file to be imported
      */
-    public static void importComplementaryPictures(Context context, File zipFile, ZipFileReaderAsyncTask.ProgressListener progressListener) {
+    public static void importComplementaryPictures(final Context context, final File zipFile,
+                                                   final ZipFileReaderAsyncTask.ProgressListener progressListener) {
         final File picturesDirectory = getComplementaryPicturesDirectory(context);
         new ZipFileReaderAsyncTask(zipFile, picturesDirectory, progressListener).execute();
     }
@@ -374,7 +382,7 @@ public final class ComplementaryPicturesManager {
      *
      * @param directory the directory to be checked and created if necessary
      */
-    private static void directoryChecker(File directory) {
+    private static void directoryChecker(final File directory) {
         if (!directory.isDirectory()) {
             //noinspection ResultOfMethodCallIgnored
             directory.mkdirs();
@@ -420,7 +428,7 @@ public final class ComplementaryPicturesManager {
          * @param zipFile target zip file
          * @param delegate implementing class's interface
          */
-        ZipFileCreatorAsyncTask(File[] files, File zipFile, ProgressListener delegate) {
+        ZipFileCreatorAsyncTask(final File[] files, final File zipFile, final ProgressListener delegate) {
             this.files = files;
             this.zipFile = zipFile;
             this.delegate = delegate;
@@ -432,7 +440,7 @@ public final class ComplementaryPicturesManager {
          * @return true if the zipping was successful, false if not
          */
         @Override
-        protected Boolean doInBackground(Void... voids) {
+        protected Boolean doInBackground(final Void... voids) {
             try {
                 // If the files array is empty, return true and end here.
                 if (files.length == 0) return true;
@@ -441,9 +449,9 @@ public final class ComplementaryPicturesManager {
                 // Set the ZipOutputStream beginning with FileOutputStream then ZipOutputStream.
                 final ZipOutputStream outputStream = new ZipOutputStream(new FileOutputStream(zipFile));
                 // byte array where the bytes read from input stream should be stored.
-                byte[] buffer = new byte[BUFFER];
+                final byte[] buffer = new byte[BUFFER];
                 // Iterate the files from the files array
-                for (File file : files) {
+                for (final File file : files) {
                     // Set the BufferedInputStream using FileInputStream
                     final BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file), BUFFER);
                     final ZipEntry entry = new ZipEntry(file.getName());
@@ -460,7 +468,7 @@ public final class ComplementaryPicturesManager {
                     publishProgress();
                 }
                 outputStream.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 return false;
             }
             return true;
@@ -471,8 +479,9 @@ public final class ComplementaryPicturesManager {
          * @param values ignore
          */
         @Override
-        protected void onProgressUpdate(Void... values) {
-            delegate.onProgressChanged((int) ((float) completedEntries / (float) files.length * 100f), completedEntries, files.length);
+        protected void onProgressUpdate(final Void... values) {
+            delegate.onProgressChanged((int) ((float) completedEntries / (float) files.length * 100f),
+                    completedEntries, files.length);
         }
         /**
          * Run on the UI thread. Tell the implementing class, that the task has been finished.
@@ -480,7 +489,7 @@ public final class ComplementaryPicturesManager {
          * @param bool true if the unzipping was successful, false if not
          */
         @Override
-        protected void onPostExecute(Boolean bool) {
+        protected void onPostExecute(final Boolean bool) {
             delegate.onCompleted(bool, completedEntries, zipFile);
         }
     }
@@ -528,7 +537,7 @@ public final class ComplementaryPicturesManager {
          * @param targetDirectory the directory where the files from the zip file should be placed
          * @param delegate implementing class's interface
          */
-        ZipFileReaderAsyncTask(File zipFile, File targetDirectory, ProgressListener delegate) {
+        ZipFileReaderAsyncTask(final File zipFile, final File targetDirectory, final ProgressListener delegate) {
             this.zipFile = zipFile;
             this.targetDirectory = targetDirectory;
             this.delegate = delegate;
@@ -540,7 +549,7 @@ public final class ComplementaryPicturesManager {
          * @return true if the unzipping was successful, false if not
          */
         @Override
-        protected Boolean doInBackground(Void... voids) {
+        protected Boolean doInBackground(final Void... voids) {
             try {
                 totalEntries = new ZipFile(zipFile).size();
                 // If the zip file was empty, return true and end here.
@@ -551,7 +560,7 @@ public final class ComplementaryPicturesManager {
                 directoryChecker(targetDirectory);
                 final ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
                 ZipEntry zipEntry;
-                byte[] buffer = new byte[BUFFER];
+                final byte[] buffer = new byte[BUFFER];
                 while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                     // Create directory if required while unzipping
                     if (zipEntry.isDirectory()) {
@@ -575,7 +584,7 @@ public final class ComplementaryPicturesManager {
                     }
                 }
                 zipInputStream.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 return false;
             }
             return true;
@@ -586,8 +595,9 @@ public final class ComplementaryPicturesManager {
          * @param voids ignore
          */
         @Override
-        protected void onProgressUpdate(Void... voids) {
-            delegate.onProgressChanged((int) ((float) completedEntries / (float) totalEntries * 100f), completedEntries, totalEntries);
+        protected void onProgressUpdate(final Void... voids) {
+            delegate.onProgressChanged((int) ((float) completedEntries / (float) totalEntries * 100f),
+                    completedEntries, totalEntries);
         }
         /**
          * Run on the UI thread. Tell the implementing class, that the task has been finished.
@@ -595,7 +605,7 @@ public final class ComplementaryPicturesManager {
          * @param bool true if the unzipping was successful, false if not
          */
         @Override
-        protected void onPostExecute(Boolean bool) {
+        protected void onPostExecute(final Boolean bool) {
             delegate.onCompleted(bool, completedEntries);
         }
     }

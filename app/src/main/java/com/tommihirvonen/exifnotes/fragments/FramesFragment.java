@@ -12,7 +12,6 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.icu.util.Output;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
@@ -50,7 +49,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.tommihirvonen.exifnotes.activities.FramesActivity;
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity;
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter;
@@ -72,7 +70,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -217,7 +214,7 @@ public class FramesFragment extends Fragment implements
      * @param savedInstanceState saved state of the Fragment
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
@@ -264,11 +261,11 @@ public class FramesFragment extends Fragment implements
         // This can be done anyway. It only has effect if locationPermissionsGranted is true.
         locationCallback = new LocationCallback() {
             @Override
-            public void onLocationResult(LocationResult locationResult) {
+            public void onLocationResult(final LocationResult locationResult) {
                 lastLocation = locationResult.getLastLocation();
             }
         };
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
         requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true);
     }
@@ -282,9 +279,9 @@ public class FramesFragment extends Fragment implements
      * @return The inflated view
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+    public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
+                             final Bundle savedInstanceState) {
+        final LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         final View view = layoutInflater.inflate(R.layout.fragment_frames, container, false);
 
@@ -298,7 +295,7 @@ public class FramesFragment extends Fragment implements
         floatingActionButton = view.findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(this);
 
-        int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
@@ -313,7 +310,8 @@ public class FramesFragment extends Fragment implements
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mainRecyclerView.setLayoutManager(layoutManager);
         // Add dividers for list items.
-        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(), layoutManager.getOrientation()));
+        mainRecyclerView.addItemDecoration(new DividerItemDecoration(mainRecyclerView.getContext(),
+                layoutManager.getOrientation()));
 
         // Set the RecyclerView to use frameAdapter
         mainRecyclerView.setAdapter(frameAdapter);
@@ -334,7 +332,7 @@ public class FramesFragment extends Fragment implements
      * @param inflater the MenuInflater from Activity
      */
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull final Menu menu, final MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.menu_frames_fragment, menu);
     }
@@ -346,7 +344,7 @@ public class FramesFragment extends Fragment implements
      * @param menu reference to the menu that is to be prepared
      */
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
+    public void onPrepareOptionsMenu(@NonNull final Menu menu) {
         switch (sortMode) {
             case FRAME_COUNT: default:
                 menu.findItem(R.id.frame_count_sort_mode).setChecked(true);
@@ -374,7 +372,7 @@ public class FramesFragment extends Fragment implements
      * @return true because the item selection was consumed/handled.
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
+    public boolean onOptionsItemSelected(final MenuItem item){
         switch (item.getItemId()) {
 
             case R.id.frame_count_sort_mode:
@@ -403,13 +401,13 @@ public class FramesFragment extends Fragment implements
                 break;
 
             case R.id.menu_item_gear:
-                Intent gearActivityIntent = new Intent(getActivity(), GearActivity.class);
+                final Intent gearActivityIntent = new Intent(getActivity(), GearActivity.class);
                 startActivity(gearActivityIntent);
 
                 break;
             case R.id.menu_item_preferences:
 
-                Intent preferenceActivityIntent = new Intent(getActivity(), PreferenceActivity.class);
+                final Intent preferenceActivityIntent = new Intent(getActivity(), PreferenceActivity.class);
                 //Start the preference activity from FramesActivity.
                 //The result will be handled in FramesActivity.
                 getActivity().startActivityForResult(preferenceActivityIntent, FramesActivity.PREFERENCE_ACTIVITY_REQUEST);
@@ -418,16 +416,16 @@ public class FramesFragment extends Fragment implements
 
             case R.id.menu_item_help:
 
-                String helpTitle = getResources().getString(R.string.Help);
-                String helpMessage = getResources().getString(R.string.main_help);
+                final String helpTitle = getResources().getString(R.string.Help);
+                final String helpMessage = getResources().getString(R.string.main_help);
                 Utilities.showGeneralDialog(getActivity(), helpTitle, helpMessage);
 
                 break;
 
             case R.id.menu_item_about:
 
-                String aboutTitle = getResources().getString(R.string.app_name);
-                String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" +
+                final String aboutTitle = getResources().getString(R.string.app_name);
+                final String aboutMessage = getResources().getString(R.string.about) + "\n\n\n" +
                         getResources().getString(R.string.VersionHistory);
                 Utilities.showGeneralDialog(getActivity(), aboutTitle, aboutMessage);
 
@@ -440,7 +438,7 @@ public class FramesFragment extends Fragment implements
 
             case R.id.menu_item_show_on_map:
 
-                Intent mapsActivityIntent = new Intent(getActivity(), MapsActivity.class);
+                final Intent mapsActivityIntent = new Intent(getActivity(), MapsActivity.class);
                 mapsActivityIntent.putExtra(ROLL_ID_EXTRA_MESSAGE, roll.getId());
                 startActivityForResult(mapsActivityIntent, SHOW_ON_MAP);
                 break;
@@ -477,10 +475,10 @@ public class FramesFragment extends Fragment implements
      *
      * @param sortMode enum type referencing the sort mode
      */
-    private void setSortMode(FrameSortMode sortMode) {
+    private void setSortMode(final FrameSortMode sortMode) {
         this.sortMode = sortMode;
         final SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
+        final SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, sortMode.getValue());
         editor.apply();
         Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
@@ -497,33 +495,33 @@ public class FramesFragment extends Fragment implements
     private Intent getShareRollIntent() {
 
         //Replace illegal characters from the roll name to make it a valid file name.
-        String rollName = Utilities.replaceIllegalChars(roll.getName() != null ? roll.getName() : "");
+        final String rollName = Utilities.replaceIllegalChars(roll.getName() != null ? roll.getName() : "");
 
         //Get the user setting about which files to export. By default, share only ExifTool.
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
-        String filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT,
+        final String filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT,
                 PreferenceConstants.VALUE_BOTH);
 
         //Create the Intent to be shared, no initialization yet
-        Intent shareIntent;
+        final Intent shareIntent;
 
         //Create the files
 
         //Get the external storage path (not the same as SD card)
-        File externalStorageDir = getActivity().getExternalFilesDir(null);
+        final File externalStorageDir = getActivity().getExternalFilesDir(null);
 
         //Create the file names for the two files to be put in that intent
-        String fileNameCsv = rollName + "_csv" + ".txt";
-        String fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt";
+        final String fileNameCsv = rollName + "_csv" + ".txt";
+        final String fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt";
 
         //Create the strings to be written on those two files
-        String csvString = Utilities.createCsvString(getActivity(), roll);
-        String exifToolCmds = Utilities.createExifToolCmdsString(getActivity(), roll);
+        final String csvString = Utilities.createCsvString(getActivity(), roll);
+        final String exifToolCmds = Utilities.createExifToolCmdsString(getActivity(), roll);
 
         //Create the files in external storage
-        File fileCsv = new File(externalStorageDir, fileNameCsv);
-        File fileExifToolCmds = new File(externalStorageDir, fileNameExifToolCmds);
+        final File fileCsv = new File(externalStorageDir, fileNameCsv);
+        final File fileExifToolCmds = new File(externalStorageDir, fileNameExifToolCmds);
 
         //Write the csv file
         Utilities.writeTextFile(fileCsv, csvString);
@@ -538,16 +536,16 @@ public class FramesFragment extends Fragment implements
             shareIntent.setType("text/plain");
 
             //Create an array with the file names
-            List<String> filesToSend = new ArrayList<>();
+            final List<String> filesToSend = new ArrayList<>();
             filesToSend.add(externalStorageDir + "/" + fileNameCsv);
             filesToSend.add(externalStorageDir + "/" + fileNameExifToolCmds);
 
             //Create an ArrayList of files.
             //NOTE: putParcelableArrayListExtra requires an ArrayList as its argument
-            ArrayList<Uri> files = new ArrayList<>();
-            for(String path : filesToSend ) {
-                File file = new File(path);
-                Uri uri;
+            final ArrayList<Uri> files = new ArrayList<>();
+            for(final String path : filesToSend ) {
+                final File file = new File(path);
+                final Uri uri;
                 //Android Nougat requires that the file is given via FileProvider
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext()
@@ -566,7 +564,7 @@ public class FramesFragment extends Fragment implements
             shareIntent.setType("text/plain");
             //The user has chosen to export only the csv
             if (filesToExport.equals(PreferenceConstants.VALUE_CSV)) {
-                Uri uri;
+                final Uri uri;
                 //Android Nougat requires that the file is given via FileProvider
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext()
@@ -578,7 +576,7 @@ public class FramesFragment extends Fragment implements
             }
             //The user has chosen to export only the ExifTool commands
             else if (filesToExport.equals(PreferenceConstants.VALUE_EXIFTOOL)) {
-                Uri uri;
+                final Uri uri;
                 //Android Nougat requires that the file is given via FileProvider
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext()
@@ -601,7 +599,7 @@ public class FramesFragment extends Fragment implements
      * @param v The view which was clicked.
      */
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
         if (v.getId() == R.id.fab) {
             showFrameInfoDialog();
         }
@@ -613,17 +611,17 @@ public class FramesFragment extends Fragment implements
      * @param position position of the Frame in frameList
      */
     @SuppressLint("CommitTransaction")
-    private void showFrameInfoEditDialog(int position) {
+    private void showFrameInfoEditDialog(final int position) {
         // Edit frame info
-        Frame frame = frameList.get(position);
-        Bundle arguments = new Bundle();
-        String title = "" + getActivity().getString(R.string.EditFrame) + frame.getCount();
-        String positiveButton = getActivity().getResources().getString(R.string.OK);
+        final Frame frame = frameList.get(position);
+        final Bundle arguments = new Bundle();
+        final String title = "" + getActivity().getString(R.string.EditFrame) + frame.getCount();
+        final String positiveButton = getActivity().getResources().getString(R.string.OK);
         arguments.putString(ExtraKeys.TITLE, title);
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton);
         arguments.putParcelable(ExtraKeys.FRAME, frame);
 
-        EditFrameDialog dialog = new EditFrameDialog();
+        final EditFrameDialog dialog = new EditFrameDialog();
         dialog.setTargetFragment(this, EDIT_FRAME_DIALOG);
         dialog.setArguments(arguments);
         dialog.show(getFragmentManager().beginTransaction(), EditFrameDialog.TAG);
@@ -637,19 +635,19 @@ public class FramesFragment extends Fragment implements
 
         // If the frame count is greater than 100, then don't add a new frame.
         if (!frameList.isEmpty()) {
-            int countCheck = frameList.get(frameList.size() - 1).getCount() + 1;
+            final int countCheck = frameList.get(frameList.size() - 1).getCount() + 1;
             if (countCheck > 100) {
-                Toast toast = Toast.makeText(getActivity(),
+                final Toast toast = Toast.makeText(getActivity(),
                         getResources().getString(R.string.TooManyFrames), Toast.LENGTH_LONG);
                 toast.show();
                 return;
             }
         }
 
-        String title = getActivity().getResources().getString(R.string.NewFrame);
-        String positiveButton = getActivity().getResources().getString(R.string.Add);
+        final String title = getActivity().getResources().getString(R.string.NewFrame);
+        final String positiveButton = getActivity().getResources().getString(R.string.Add);
 
-        Frame frame = new Frame();
+        final Frame frame = new Frame();
         frame.setDate(Utilities.getCurrentTime());
         frame.setCount(0);
         frame.setRollId(roll.getId());
@@ -668,7 +666,7 @@ public class FramesFragment extends Fragment implements
             //The last added frame has the highest id number (database autoincrement).
             Frame previousFrame = frameList.get(frameList.size() - 1);
             long i = 0;
-            for (Frame frameIterator : frameList) {
+            for (final Frame frameIterator : frameList) {
                 if (frameIterator.getId() > i) {
                     i = frameIterator.getId();
                     previousFrame = frameIterator;
@@ -693,9 +691,9 @@ public class FramesFragment extends Fragment implements
         }
         frame.setNoOfExposures(1);
 
-        EditFrameDialog dialog = new EditFrameDialog();
+        final EditFrameDialog dialog = new EditFrameDialog();
         dialog.setTargetFragment(this, FRAME_DIALOG);
-        Bundle arguments = new Bundle();
+        final Bundle arguments = new Bundle();
         arguments.putString(ExtraKeys.TITLE, title);
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton);
         arguments.putParcelable(ExtraKeys.FRAME, frame);
@@ -711,14 +709,14 @@ public class FramesFragment extends Fragment implements
      * @param data the extra data attached to the passed Intent
      */
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
 
             case FRAME_DIALOG:
 
                 if (resultCode == Activity.RESULT_OK) {
 
-                    Frame frame = data.getParcelableExtra(ExtraKeys.FRAME);
+                    final Frame frame = data.getParcelableExtra(ExtraKeys.FRAME);
 
                     if (frame != null) {
 
@@ -729,7 +727,7 @@ public class FramesFragment extends Fragment implements
                             mainTextView.setVisibility(View.GONE);
 
                             // When the new frame is added jump to view the added entry
-                            int pos = frameList.indexOf(frame);
+                            final int pos = frameList.indexOf(frame);
                             if (pos < frameAdapter.getItemCount()) mainRecyclerView.scrollToPosition(pos);
                         }
 
@@ -746,7 +744,7 @@ public class FramesFragment extends Fragment implements
 
                     if (actionMode != null) actionMode.finish();
 
-                    Frame frame = data.getParcelableExtra(ExtraKeys.FRAME);
+                    final Frame frame = data.getParcelableExtra(ExtraKeys.FRAME);
 
                     if (frame != null && frame.getId() > 0) {
 
@@ -839,8 +837,10 @@ public class FramesFragment extends Fragment implements
                         if (filesToExport.equals(PreferenceConstants.VALUE_BOTH) ||
                                 filesToExport.equals(PreferenceConstants.VALUE_CSV)) {
 
-                            final DocumentFile csvDocumentFile = directoryDocumentFile.createFile("text/plain", rollName + "_csv.txt");
-                            final OutputStream csvOutputStream = getActivity().getContentResolver().openOutputStream(csvDocumentFile.getUri());
+                            final DocumentFile csvDocumentFile = directoryDocumentFile
+                                    .createFile("text/plain", rollName + "_csv.txt");
+                            final OutputStream csvOutputStream = getActivity()
+                                    .getContentResolver().openOutputStream(csvDocumentFile.getUri());
                             final String csvString = Utilities.createCsvString(getActivity(), roll);
                             final OutputStreamWriter csvOutputStreamWriter = new OutputStreamWriter(csvOutputStream);
                             csvOutputStreamWriter.write(csvString);
@@ -852,8 +852,10 @@ public class FramesFragment extends Fragment implements
                         if (filesToExport.equals(PreferenceConstants.VALUE_BOTH) ||
                                 filesToExport.equals(PreferenceConstants.VALUE_EXIFTOOL)) {
 
-                            final DocumentFile cmdDocumentFile = directoryDocumentFile.createFile("text/plain", rollName + "_ExifToolCmds.txt");
-                            final OutputStream cmdOutputStream = getActivity().getContentResolver().openOutputStream(cmdDocumentFile.getUri());
+                            final DocumentFile cmdDocumentFile = directoryDocumentFile
+                                    .createFile("text/plain", rollName + "_ExifToolCmds.txt");
+                            final OutputStream cmdOutputStream = getActivity()
+                                    .getContentResolver().openOutputStream(cmdDocumentFile.getUri());
                             final String cmdString = Utilities.createExifToolCmdsString(getActivity(), roll);
                             final OutputStreamWriter cmdOutputStreamWriter = new OutputStreamWriter(cmdOutputStream);
                             cmdOutputStreamWriter.write(cmdString);
@@ -865,7 +867,7 @@ public class FramesFragment extends Fragment implements
 
                         Toast.makeText(getActivity(), R.string.ExportedFilesSuccessfully, Toast.LENGTH_SHORT).show();
 
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         e.printStackTrace();
                         Toast.makeText(getActivity(), R.string.ErrorExporting, Toast.LENGTH_SHORT).show();
                     }
@@ -884,7 +886,7 @@ public class FramesFragment extends Fragment implements
      * @param position position of the item in the RecyclerView
      */
     @Override
-    public void onItemClick(int position) {
+    public void onItemClick(final int position) {
         if (frameAdapter.getSelectedItemCount() > 0 || actionMode != null) {
             enableActionMode(position);
         } else {
@@ -898,7 +900,7 @@ public class FramesFragment extends Fragment implements
      * @param position position of the item in FrameAdapter
      */
     @Override
-    public void onItemLongClick(int position) {
+    public void onItemLongClick(final int position) {
         enableActionMode(position);
     }
 
@@ -907,7 +909,7 @@ public class FramesFragment extends Fragment implements
      *
      * @param position position of the item in FrameAdapter
      */
-    private void enableActionMode(int position) {
+    private void enableActionMode(final int position) {
         if (actionMode == null) {
             actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
         }
@@ -934,7 +936,7 @@ public class FramesFragment extends Fragment implements
          * @return {@inheritDoc}
          */
         @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
             // Set the status bar color to be dark grey to complement the grey action mode toolbar.
             Utilities.setStatusBarColor(getActivity(), ContextCompat.getColor(getActivity(), R.color.dark_grey));
             // Hide the floating action button so no new rolls can be added while in action mode.
@@ -951,7 +953,7 @@ public class FramesFragment extends Fragment implements
          * @return {@inheritDoc}
          */
         @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        public boolean onPrepareActionMode(final ActionMode mode, final Menu menu) {
             return false;
         }
 
@@ -963,36 +965,30 @@ public class FramesFragment extends Fragment implements
          * @return {@inheritDoc}
          */
         @Override
-        public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
+        public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
             // Get the positions in the frameList of selected items.
             final List<Integer> selectedItemPositions = frameAdapter.getSelectedItemPositions();
             switch (item.getItemId()) {
 
                 case R.id.menu_item_delete:
 
-                    AlertDialog.Builder deleteConfirmDialog = new AlertDialog.Builder(getActivity());
+                    final AlertDialog.Builder deleteConfirmDialog = new AlertDialog.Builder(getActivity());
                     // Separate confirm titles for one or multiple frames
                     final String title = getResources().getQuantityString(R.plurals.ConfirmFramesDelete, selectedItemPositions.size(), selectedItemPositions.size());
                     deleteConfirmDialog.setTitle(title);
-                    deleteConfirmDialog.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // Do nothing
-                        }
+                    deleteConfirmDialog.setNegativeButton(R.string.Cancel, (dialogInterface, i) -> {
+                        // Do nothing
                     });
-                    deleteConfirmDialog.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            for (int j = selectedItemPositions.size() - 1; j >= 0; j--) {
-                                final int framePosition = selectedItemPositions.get(j);
-                                final Frame frame = frameList.get(framePosition);
-                                database.deleteFrame(frame);
-                                frameList.remove(frame);
-                                frameAdapter.notifyItemRemoved(framePosition);
-                            }
-                            if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
-                            mode.finish();
+                    deleteConfirmDialog.setPositiveButton(R.string.OK, (dialogInterface, i) -> {
+                        for (int j = selectedItemPositions.size() - 1; j >= 0; j--) {
+                            final int framePosition = selectedItemPositions.get(j);
+                            final Frame frame = frameList.get(framePosition);
+                            database.deleteFrame(frame);
+                            frameList.remove(frame);
+                            frameAdapter.notifyItemRemoved(framePosition);
                         }
+                        if (frameList.size() == 0) mainTextView.setVisibility(View.VISIBLE);
+                        mode.finish();
                     });
                     deleteConfirmDialog.create().show();
                     return true;
@@ -1006,32 +1002,26 @@ public class FramesFragment extends Fragment implements
                     }
                     // If multiple frames are selected, show batch edit features.
                     else {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setTitle(String.format(getResources().getString(R.string.BatchEditFramesTitle), frameAdapter.getSelectedItemCount()));
-                        builder.setItems(R.array.FramesBatchEditOptions, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                switch (i) {
-                                    case 0:
-                                        // Edit frame counts
-                                        new FrameCountBatchEditDialogBuilder(getActivity()).create().show();
-                                        break;
-                                    case 1:
-                                        // Edit location
-                                        Intent intent = new Intent(getActivity(), LocationPickActivity.class);
-                                        startActivityForResult(intent, REQUEST_LOCATION_PICK);
-                                        break;
-                                    default:
-                                        break;
-                                }
+                        builder.setItems(R.array.FramesBatchEditOptions, (dialogInterface, i) -> {
+                            switch (i) {
+                                case 0:
+                                    // Edit frame counts
+                                    new FrameCountBatchEditDialogBuilder(getActivity()).create().show();
+                                    break;
+                                case 1:
+                                    // Edit location
+                                    final Intent intent = new Intent(getActivity(), LocationPickActivity.class);
+                                    startActivityForResult(intent, REQUEST_LOCATION_PICK);
+                                    break;
+                                default:
+                                    break;
                             }
                         });
-                        builder.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // Do nothing
-                                dialogInterface.dismiss();
-                            }
+                        builder.setNegativeButton(R.string.Cancel, (dialogInterface, i) -> {
+                            // Do nothing
+                            dialogInterface.dismiss();
                         });
                         builder.create().show();
                     }
@@ -1041,12 +1031,7 @@ public class FramesFragment extends Fragment implements
                 case R.id.menu_item_select_all:
 
                     frameAdapter.toggleSelectionAll();
-                    mainRecyclerView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            frameAdapter.resetAnimateAll();
-                        }
-                    });
+                    mainRecyclerView.post(() -> frameAdapter.resetAnimateAll());
                     mode.setTitle(frameAdapter.getSelectedItemCount() + "/"
                             + frameAdapter.getItemCount());
                     return true;
@@ -1062,10 +1047,10 @@ public class FramesFragment extends Fragment implements
          * @param mode {@inheritDoc}
          */
         @Override
-        public void onDestroyActionMode(ActionMode mode) {
+        public void onDestroyActionMode(final ActionMode mode) {
             frameAdapter.clearSelections();
             actionMode = null;
-            mainRecyclerView.post(() -> { frameAdapter.resetAnimationIndex(); });
+            mainRecyclerView.post(() -> frameAdapter.resetAnimationIndex());
             // Return the status bar to its original color before action mode.
             Utilities.setStatusBarColor(getActivity(), Utilities.getSecondaryUiColor(getActivity()));
             // Make the floating action bar visible again since action mode is exited.
@@ -1078,11 +1063,12 @@ public class FramesFragment extends Fragment implements
          */
         private class FrameCountBatchEditDialogBuilder extends AlertDialog.Builder {
 
-            FrameCountBatchEditDialogBuilder(Context context) {
+            FrameCountBatchEditDialogBuilder(final Context context) {
                 super(context);
                 setTitle(R.string.EditFrameCountsBy);
                 @SuppressLint("InflateParams")
-                View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_single_numberpicker, null);
+                final View view = getActivity().getLayoutInflater()
+                        .inflate(R.layout.dialog_single_numberpicker, null);
                 final NumberPicker numberPicker = view.findViewById(R.id.number_picker);
                 numberPicker.setMaxValue(200);
                 numberPicker.setMinValue(0);
@@ -1098,29 +1084,23 @@ public class FramesFragment extends Fragment implements
                 // Block the NumberPicker from activating the cursor.
                 numberPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
                 setView(view);
-                setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Do nothing
-                    }
+                setNegativeButton(R.string.Cancel, (dialogInterface, i) -> {
+                    // Do nothing
                 });
-                setPositiveButton(R.string.OK, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        final int change = Integer.valueOf(
-                                // Replace the plus sign because on pre L devices this seems to cause a crash
-                                displayedValues.get(numberPicker.getValue()).replace("+", "")
-                        );
-                        final List<Integer> framePositions = frameAdapter.getSelectedItemPositions();
-                        for (int j = framePositions.size() - 1; j >= 0; j--) {
-                            final Frame frame = frameList.get(framePositions.get(j));
-                            frame.setCount(frame.getCount() + change);
-                            database.updateFrame(frame);
-                        }
-                        if (actionMode != null) actionMode.finish();
-                        Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
-                        frameAdapter.notifyDataSetChanged();
+                setPositiveButton(R.string.OK, (dialogInterface, i) -> {
+                    final int change = Integer.valueOf(
+                            // Replace the plus sign because on pre L devices this seems to cause a crash
+                            displayedValues.get(numberPicker.getValue()).replace("+", "")
+                    );
+                    final List<Integer> framePositions = frameAdapter.getSelectedItemPositions();
+                    for (int j = framePositions.size() - 1; j >= 0; j--) {
+                        final Frame frame = frameList.get(framePositions.get(j));
+                        frame.setCount(frame.getCount() + change);
+                        database.updateFrame(frame);
                     }
+                    if (actionMode != null) actionMode.finish();
+                    Utilities.sortFrameList(getActivity(), sortMode, database, frameList);
+                    frameAdapter.notifyDataSetChanged();
                 });
             }
 
@@ -1175,20 +1155,21 @@ public class FramesFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getActivity().getBaseContext());
         //Check if GPSUpdate preference has been changed meanwhile
         requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true);
         //Added check to make sure googleApiClient is not null.
         //Apparently some users were encountering a bug where during onResume
         //googleApiClient was null.
-        if (locationPermissionsGranted && googleApiClient != null && googleApiClient.isConnected() && requestingLocationUpdates) {
+        if (locationPermissionsGranted && googleApiClient != null &&
+                googleApiClient.isConnected() && requestingLocationUpdates) {
             startLocationUpdates();
         } else {
             stopLocationUpdates();
         }
 
-        int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
+        final int secondaryColor = Utilities.getSecondaryUiColor(getActivity());
         floatingActionButton.setBackgroundTintList(ColorStateList.valueOf(secondaryColor));
 
         // If action mode is enabled, color the status bar dark grey.
@@ -1226,7 +1207,7 @@ public class FramesFragment extends Fragment implements
      * @param bundle not used
      */
     @Override
-    public void onConnected(Bundle bundle) {
+    public void onConnected(final Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(),
@@ -1237,12 +1218,9 @@ public class FramesFragment extends Fragment implements
             //googleApiClient was null.
             if (googleApiClient != null) {
                 LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation()
-                        .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) lastLocation = location;
-                    }
-                });
+                        .addOnSuccessListener(location -> {
+                            if (location != null) lastLocation = location;
+                        });
             }
             if (requestingLocationUpdates) {
                 startLocationUpdates();
@@ -1256,7 +1234,7 @@ public class FramesFragment extends Fragment implements
      * @param i not used
      */
     @Override
-    public void onConnectionSuspended(int i) {
+    public void onConnectionSuspended(final int i) {
         //Added check to make sure googleApiClient is not null.
         //Apparently some users were encountering a bug where during onResume
         //googleApiClient was null.
@@ -1286,12 +1264,12 @@ public class FramesFragment extends Fragment implements
      * @param result describes if the connection was successful
      */
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult result) {
+    public void onConnectionFailed(@NonNull final ConnectionResult result) {
         if (result.hasResolution() && !resolvingError) {
             try {
                 resolvingError = true;
                 result.startResolutionForResult(getActivity(), REQUEST_RESOLVE_ERROR);
-            } catch (IntentSender.SendIntentException e) {
+            } catch (final IntentSender.SendIntentException e) {
                 // There was an error with the resolution intent. Try again.
 
                 //Added check to make sure googleApiClient is not null.
@@ -1311,11 +1289,11 @@ public class FramesFragment extends Fragment implements
     /**
      * Creates a dialog for an error message
      */
-    private void showErrorDialog(int errorCode) {
+    private void showErrorDialog(final int errorCode) {
         // Create a fragment for the error dialog
-        ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
+        final ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
         // Pass the error that should be displayed
-        Bundle args = new Bundle();
+        final Bundle args = new Bundle();
         args.putInt(DIALOG_ERROR, errorCode);
         dialogFragment.setArguments(args);
         dialogFragment.setTargetFragment(this, ERROR_DIALOG);
@@ -1355,14 +1333,14 @@ public class FramesFragment extends Fragment implements
          */
         @NonNull
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+        public Dialog onCreateDialog(final Bundle savedInstanceState) {
             if (savedInstanceState != null) {
                 setTargetFragment(
                         getActivity().getSupportFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG),
                         ERROR_DIALOG);
             }
             // Get the error code and retrieve the appropriate dialog
-            int errorCode = this.getArguments().getInt(DIALOG_ERROR);
+            final int errorCode = this.getArguments().getInt(DIALOG_ERROR);
             return GoogleApiAvailability.getInstance().getErrorDialog(
                     this.getActivity(), errorCode, REQUEST_RESOLVE_ERROR);
         }
@@ -1373,10 +1351,10 @@ public class FramesFragment extends Fragment implements
          * @param dialog {@inheritDoc}
          */
         @Override
-        public void onDismiss(DialogInterface dialog) {
-            if (getActivity() == null || getActivity().getSupportFragmentManager() == null) return;
-            FramesFragment framesfragment =
-                    (FramesFragment) getActivity().getSupportFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG);
+        public void onDismiss(@NonNull final DialogInterface dialog) {
+            if (getActivity() == null) return;
+            final FramesFragment framesfragment = (FramesFragment) getActivity()
+                    .getSupportFragmentManager().findFragmentByTag(FRAMES_FRAGMENT_TAG);
             if (framesfragment != null) framesfragment.onDialogDismissed();
             super.onDismiss(dialog);
         }

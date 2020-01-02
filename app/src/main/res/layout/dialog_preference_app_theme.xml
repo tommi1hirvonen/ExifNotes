@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:src="@drawable/circle_white"
         android:contentDescription="@string/Light"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:layout_margin="10dp" />
 
     <ImageView
@@ -35,7 +35,7 @@
         android:layout_toRightOf="@id/app_theme_light"
         android:src="@drawable/circle_grey"
         android:contentDescription="@string/Dark"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:layout_margin="10dp" />
 
     <ImageView
