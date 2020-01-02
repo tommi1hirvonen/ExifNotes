@@ -46,26 +46,6 @@
         <item>BOTH</item>
     </string-array>
 
-    <string-array name="FrameSortOptions">
-        <item>@string/FrameCountNoColon</item>
-        <item>@string/DateNoColon</item>
-        <item>@string/FStop</item>
-        <item>@string/ShutterSpeed</item>
-        <item>@string/LensNoColon</item>
-    </string-array>
-
-    <string-array name="RollSortOptions">
-        <item>@string/DateNoColon</item>
-        <item>@string/NameNoColon</item>
-        <item>@string/CameraNoColon</item>
-    </string-array>
-
-    <string-array name="VisibleRollsOptions">
-        <item>@string/ShowActiveRolls</item>
-        <item>@string/ShowArchivedRolls</item>
-        <item>@string/ShowAllRolls</item>
-    </string-array>
-
     <string-array name="FramesBatchEditOptions">
         <item>@string/EditFrameCounts</item>
         <item>@string/EditLocation</item>

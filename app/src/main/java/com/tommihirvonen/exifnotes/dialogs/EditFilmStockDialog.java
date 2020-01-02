@@ -3,13 +3,10 @@ package com.tommihirvonen.exifnotes.dialogs;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -102,7 +99,7 @@ public class EditFilmStockDialog extends DialogFragment {
             try {
                 int input = Integer.parseInt(dest.toString() + source.toString());
                 if (input >= 0 && input <= 1_000_000) return null;
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
 
             }
             return "";

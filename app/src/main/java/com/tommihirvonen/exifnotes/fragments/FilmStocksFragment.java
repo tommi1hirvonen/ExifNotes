@@ -17,13 +17,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.adapters.GearAdapter;
 import com.tommihirvonen.exifnotes.datastructures.FilmStock;
-import com.tommihirvonen.exifnotes.datastructures.Gear;
 import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;

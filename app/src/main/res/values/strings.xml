@@ -224,12 +224,6 @@
     <string name="EditCamera">Edit camera</string>
     <string name="ConfirmCameraDelete">Delete camera</string>
 
-    <!--DirectoryChooserDialog-->
-    <string name="CurrentDirectory">Current directory:</string>
-    <string name="NewFolderName">New folder name</string>
-    <string name="ExportHere">Export here</string>
-    <string name="CouldNotReadDirectories">Could not read directories in directory:</string>
-
     <!--EditFrameDialog-->
     <string name="UsedLens">Choose used lens</string>
     <string name="OK">OK</string>
@@ -259,7 +253,6 @@
     <string name="ExportToDevice">Export files to storage</string>
     <string name="ErrorExporting">An error occurred while exporting the files.</string>
     <string name="ExportedFilesSuccessfully">Files exported successfully</string>
-    <string name="ExportedFilesTo">Exported file(s) to:</string>
     <string name="Share">Share</string>
 
     <!--GearActivity-->
@@ -301,7 +294,6 @@
     <!--LocationPickActivity-->
     <string name="PickLocation">Choose location</string>
     <string name="TapOnMap">Tap on map to move marker</string>
-    <string name="NoResults">No results!</string>
     <string name="AddressNotFound">Address not found</string>
     <string name="NoLocation">No location was set!</string>
     <string name="Search">Search</string>
@@ -337,10 +329,6 @@
     <!--RollsFragment-->
     <string name="ConfirmRollDelete">Delete roll</string>
     <string name="VisibleRolls">Visible rolls</string>
-    <string name="ChooseVisibleRolls">Choose visible rolls</string>
-    <string name="ShowArchivedRolls">Archived</string>
-    <string name="ShowActiveRolls">Active</string>
-    <string name="ShowAllRolls">All</string>
     <string name="ConfirmRollsDelete">Delete %1$d rolls?</string>
     <string name="RollsArchived">Roll(s) archived</string>
     <string name="RollsActivated">Roll(s) unarchived</string>
@@ -355,9 +343,7 @@
     <string name="NewRoll">Add new roll</string>
     <string name="UsedCamera">Choose used camera</string>
     <string name="NoName">No name was set!</string>
-    <string name="NoCameraWasSet">No camera was set!</string>
     <string name="NoCamera">No camera</string>
-    <string name="NoNameOrCamera">No name or camera was set!</string>
     <string name="ChooseFormat">Choose format</string>
     <string name="SelectManufacturer">Select manufacturer</string>
     <string name="SelectFilmStock">Select film stock</string>
@@ -394,7 +380,6 @@
 
     <!--dialog_roll.xml.xml-->
     <string name="Name">Name</string>
-    <string name="Empty">Empty</string>
     <string name="Camera">Camera</string>
     <string name="ISO">ISO</string>
     <string name="PushPull">Push(+)/pull(-)</string>
@@ -415,9 +400,7 @@
     <string name="FocalLengthSingleLine">Focal length (mm)</string>
     <string name="ExposureCompSingleLine">Exposure compensation</string>
     <string name="DescriptionOrNote">Description/note</string>
-    <string name="EditDescriptionOrNote">Edit description/note</string>
     <string name="FilterOrFilters">Filter(s)</string>
-    <string name="NoFilter">No filter</string>
     <string name="UsedFilter">Choose used filter</string>
     <string name="SelectLensToAddFilters">Select a lens to add filters.</string>
     <string name="ComplementaryPicture">Complementary picture</string>
@@ -430,7 +413,6 @@
     <string name="ErrorAddingPictureToGallery">Error adding picture to gallery</string>
     <string name="PictureAddedToGallery">Picture added to gallery</string>
     <string name="SelectPictureFromGallery">Select from gallery</string>
-    <string name="UpcomingFeatureStayTuned">Upcoming feature, stay tuned!</string>
     <string name="ErrorCompressingComplementaryPicture">Error compressing complementary picture</string>
     <string name="ErrorSavingSelectedPicture">Error saving selected picture</string>
     <string name="ErrorLocatingSelectedPicture">Error locating selected picture</string>
@@ -440,9 +422,7 @@
     <string name="ErrorWhileEditingPicturesExifData">Error while editing picture\'s EXIF data</string>
     <string name="UseCustomValue">Use custom value</string>
     <string name="LightSource">Light source</string>
-
-    <!--frame batch edit-->
-
+    
     <!--No need for plural, because a special dialog is created for one frame-->
     <string name="BatchEditFramesTitle">Batch edit %1$d frames</string>
     <string name="EditFrameCounts">Edit frame counts</string>
@@ -544,8 +524,6 @@
     <string name="ImportDatabaseTitle">Import database</string>
     <string name="ImportDatabaseSummary">Import SQL database from a previously exported .db file</string>
 
-    <string name="ErrorGettingDatabaseFile">Error getting database file</string>
-    <string name="ErrorBuildingOutputFile">Error building output file:\u0020</string>
     <string name="ErrorExportingDatabase">Error exporting database</string>
     <string name="DatabaseCopiedSuccessfully">Database copied successfully</string>
     <string name="ImportDatabaseVerification">
