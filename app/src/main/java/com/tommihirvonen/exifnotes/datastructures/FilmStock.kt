@@ -3,17 +3,9 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.os.Parcel
 import android.os.Parcelable
 
-class FilmStock : Parcelable {
-
-    var id: Long = 0
-
-    var manufacturerName: String? = null
-
-    var stockName: String? = null
+class FilmStock : Gear, Parcelable {
 
     var iso: Int = 0
-
-    fun getName() : String = "$manufacturerName $stockName"
 
     constructor()
 
@@ -24,8 +16,8 @@ class FilmStock : Parcelable {
      */
     private constructor(pc : Parcel) {
         this.id = pc.readLong()
-        this.manufacturerName = pc.readString()
-        this.stockName = pc.readString()
+        this.make = pc.readString()
+        this.model = pc.readString()
         this.iso = pc.readInt()
     }
 
@@ -33,12 +25,12 @@ class FilmStock : Parcelable {
      * Writes this object's members to a Parcel given as argument
      *
      * @param parcel Parcel which should be written with this object's members
-     * @param flags not used
+     * @param i not used
      */
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
+    override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeLong(id)
-        parcel.writeString(manufacturerName)
-        parcel.writeString(stockName)
+        parcel.writeString(make)
+        parcel.writeString(model)
         parcel.writeInt(iso)
     }
 

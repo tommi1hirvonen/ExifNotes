@@ -81,6 +81,7 @@
     <string-array name="LightSource">
         <item>@string/Unknown</item>
         <item>@string/Daylight</item>
+        <item>@string/Sunny</item>
         <item>@string/Cloudy</item>
         <item>@string/Shade</item>
         <item>@string/Fluorescent</item>
@@ -496,7 +497,8 @@
         <item>+3</item>
     </string-array>
 
-
+    <!--Define default film stocks to be added to the database-->
+    <!--Format is (make,model,ISO) where ISO can be left blank-->
     <string-array name="FilmStocks">
         <item>ADOX,CMS 20 II,20</item>
         <item>ADOX,HR-50,50</item>

@@ -1505,8 +1505,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     private FilmStock getFilmStockFromCursor(@NonNull final Cursor cursor, @NonNull final FilmStock filmStock) {
         filmStock.setId(cursor.getLong(cursor.getColumnIndex(KEY_FILM_STOCK_ID)));
-        filmStock.setManufacturerName(cursor.getString(cursor.getColumnIndex(KEY_FILM_MANUFACTURER_NAME)));
-        filmStock.setStockName(cursor.getString(cursor.getColumnIndex(KEY_FILM_STOCK_NAME)));
+        filmStock.setMake(cursor.getString(cursor.getColumnIndex(KEY_FILM_MANUFACTURER_NAME)));
+        filmStock.setModel(cursor.getString(cursor.getColumnIndex(KEY_FILM_STOCK_NAME)));
         filmStock.setIso(cursor.getInt(cursor.getColumnIndex(KEY_FILM_ISO)));
         return filmStock;
     }
@@ -1624,8 +1624,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     private ContentValues buildFilmStockContentValues(@NonNull final FilmStock filmStock) {
         final ContentValues contentValues = new ContentValues();
-        contentValues.put(KEY_FILM_MANUFACTURER_NAME, filmStock.getManufacturerName());
-        contentValues.put(KEY_FILM_STOCK_NAME, filmStock.getStockName());
+        contentValues.put(KEY_FILM_MANUFACTURER_NAME, filmStock.getMake());
+        contentValues.put(KEY_FILM_STOCK_NAME, filmStock.getModel());
         contentValues.put(KEY_FILM_ISO, filmStock.getIso());
         return contentValues;
     }
@@ -1905,15 +1905,15 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             try {
                 final String[] components = s.split(",");
                 final FilmStock filmStock = new FilmStock();
-                filmStock.setManufacturerName(components[0]);
-                filmStock.setStockName(components[1]);
+                filmStock.setMake(components[0]);
+                filmStock.setModel(components[1]);
                 // Check if the ISO of the film stock was defined.
                 if (components.length >= 3) filmStock.setIso(Integer.parseInt(components[2]));
                 final ContentValues values = buildFilmStockContentValues(filmStock);
 
                 // Insert film stocks if they do not already exist.
                 final Cursor cursor = db.query(TABLE_FILM_STOCKS, null, KEY_FILM_MANUFACTURER_NAME + "=? AND " + KEY_FILM_STOCK_NAME + "=?",
-                        new String[]{filmStock.getManufacturerName(), filmStock.getStockName()}, null, null, null);
+                        new String[]{filmStock.getMake(), filmStock.getModel()}, null, null, null);
                 if (cursor.moveToFirst()) {
                     cursor.close();
                 } else {
@@ -1925,7 +1925,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             }
         }
         if (counter > 0) {
-            Toast.makeText(context, "Error adding film stocks to database", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, R.string.ErrorAddingFilmStocks, Toast.LENGTH_LONG).show();
         }
     }
 

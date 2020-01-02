@@ -14,7 +14,7 @@
         Updates in this version:\n
         -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
         -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
-        -Added light source property to frames\n
+        -Added flash used and light source properties to frames\n
         -Added film stock property to rolls\n
     </string>
     <string name="VersionHistory">
@@ -23,7 +23,7 @@
         v1.14.0 2020-01-02:\n
         -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
         -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
-        -Added light source property to frames\n
+        -Added flash used and light source properties to frames\n
         -Added film stock property to rolls\n
         \n
         v1.13.1 2019-10-12:\n
@@ -350,14 +350,16 @@
     <string name="NoCamera">No camera</string>
     <string name="NoNameOrCamera">No name or camera was set!</string>
     <string name="ChooseFormat">Choose format</string>
+    <string name="SelectManufacturer">Select manufacturer</string>
+    <string name="SelectFilmStock">Select film stock</string>
 
 
     <!--FilmDbHelper-->
     <string name="CouldNotReadDatabase">Could not read the new database file. The old one will be used.</string>
     <string name="IntegrityCheckFailed">Database integrity check failed. The old database will be used.</string>
+    <string name="ErrorAddingFilmStocks">Error adding film stocks to database</string>
 
-
-    dialog_double_numberpicker_buttons.xml.xml-->
+    <!--dialog_double_numberpicker_buttons.xml.xml-->
     <string name="Plus50">+50</string>
     <string name="Minus50">-50</string>
 
@@ -587,6 +589,7 @@
     <string name="Fluorescent">Fluorescent</string>
     <string name="Tungsten">Tungsten</string>
     <string name="Flash">Flash</string>
+    <string name="Sunny">Sunny</string>
 
 
     <string name="style_json">

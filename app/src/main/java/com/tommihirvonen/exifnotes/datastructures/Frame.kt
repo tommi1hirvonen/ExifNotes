@@ -81,9 +81,9 @@ class Frame : Parcelable {
     var noOfExposures: Int = 0
 
     /**
-     * NOT YET IN USE
+     * Boolean to represent whether flash was used or not.
      */
-    var flashUsed: Int = 0
+    var flashUsed = false
 
     /**
      * NOT YET IN USE
@@ -116,6 +116,10 @@ class Frame : Parcelable {
      */
     var lightSource: Int = 0
 
+    fun setFlashUsed(input: Int) {
+        this.flashUsed = input > 0
+    }
+
 
     //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
 
@@ -138,7 +142,7 @@ class Frame : Parcelable {
         this.focalLength = pc.readInt()
         this.exposureComp = pc.readString()
         this.noOfExposures = pc.readInt()
-        this.flashUsed = pc.readInt()
+        this.flashUsed = pc.readInt() == 1
         this.flashPower = pc.readString()
         this.flashComp = pc.readString()
         this.meteringMode = pc.readInt()
@@ -181,7 +185,7 @@ class Frame : Parcelable {
         parcel.writeInt(focalLength)
         parcel.writeString(exposureComp)
         parcel.writeInt(noOfExposures)
-        parcel.writeInt(flashUsed)
+        parcel.writeInt(if (flashUsed) 1 else 0)
         parcel.writeString(flashPower)
         parcel.writeString(flashComp)
         parcel.writeInt(meteringMode)

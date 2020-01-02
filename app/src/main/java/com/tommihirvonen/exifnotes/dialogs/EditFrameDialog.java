@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -237,6 +238,11 @@ public class EditFrameDialog extends DialogFragment {
     private int newLightSource;
 
     /**
+     * Currently selected value to whether flash was used or not
+     */
+    private boolean newFlashUsed;
+
+    /**
      * Currently selected filename of the complementary picture
      */
     @Nullable
@@ -279,6 +285,11 @@ public class EditFrameDialog extends DialogFragment {
      * Button used to display the current focal length value
      */
     private TextView focalLengthTextView;
+
+    /**
+     * CheckBox for toggling whether flash was used or not
+     */
+    private CheckBox flashCheckBox;
 
     /**
      * TextView used to display the current light source
@@ -659,12 +670,37 @@ public class EditFrameDialog extends DialogFragment {
         nestedScrollView.setOnScrollChangeListener(new OnScrollChangeListener());
 
 
+        //==========================================================================================
+        //FLASH
+
+        newFlashUsed = frame.getFlashUsed();
+        flashCheckBox = inflatedView.findViewById(R.id.flash_checkbox);
+        flashCheckBox.setChecked(newFlashUsed);
+        final View flashUsedLayout = inflatedView.findViewById(R.id.flash_layout);
+        flashUsedLayout.setOnClickListener((view) -> {
+            if (flashCheckBox.isChecked()) flashCheckBox.setChecked(false);
+            else flashCheckBox.setChecked(true);
+        });
+
+
 
         //==========================================================================================
         //LIGHT SOURCE
 
         newLightSource = frame.getLightSource();
         lightSourceTextView = inflatedView.findViewById(R.id.light_source_text);
+        String lightSource;
+        try {
+            lightSource = getResources().getStringArray(R.array.LightSource)[newLightSource];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            lightSource = getResources().getString(R.string.ClickToSet);
+        }
+        lightSourceTextView.setText(
+                newLightSource == 0 ?
+                        getResources().getString(R.string.ClickToSet) :
+                        lightSource
+        );
         final LinearLayout lightSourceLayout = inflatedView.findViewById(R.id.light_source_layout);
         lightSourceLayout.setOnClickListener(new LightSourceLayoutOnClickListener());
 
@@ -762,6 +798,7 @@ public class EditFrameDialog extends DialogFragment {
         frame.setPictureFilename(newPictureFilename);
         frame.setFilters(newFilters);
         frame.setLightSource(newLightSource);
+        frame.setFlashUsed(flashCheckBox.isChecked());
     }
 
     /**

@@ -33,6 +33,7 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
+import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode;
 import com.tommihirvonen.exifnotes.datastructures.Gear;
@@ -630,6 +631,8 @@ public final class Utilities {
         final String isoTag = "-ISO=";
         final String serialNumberTag = "-SerialNumber=";
         final String lensSerialNumberTag = "-LensSerialNumber=";
+        final String flashTag = "-Flash=";
+        final String lightSourceTag = "-LightSource=";
 
         String fileEnding = prefs.getString("FileEnding", ".jpg");
         //Check that fileEnding begins with a dot.
@@ -745,7 +748,23 @@ public final class Utilities {
             //ISO
             if (roll.getIso() > 0) stringBuilder.append(isoTag).append(quote).append(roll.getIso())
                     .append(quote).append(space);
-
+            // Flash
+            if (frame.getFlashUsed()) stringBuilder.append(flashTag).append(quote)
+                    .append("1").append(quote).append(space);
+            // Light source
+            final int lightSource;
+            switch (frame.getLightSource()) {
+                case 1: lightSource = 1;    break; // Daylight
+                case 2: lightSource = 9;    break; // Sunny
+                case 3: lightSource = 10;   break; // Cloudy
+                case 4: lightSource = 11;   break; // Shade
+                case 5: lightSource = 2;    break; // Fluorescent
+                case 6: lightSource = 3;    break; // Tungsten
+                case 7: lightSource = 4;    break; // Flash
+                case 0: default: lightSource = 0;  // Unknown
+            }
+            stringBuilder.append(lightSourceTag).append(quote)
+                    .append(lightSource).append(quote).append(space);
 
 
             //Artist
@@ -780,6 +799,7 @@ public final class Utilities {
         final FilmDbHelper database = FilmDbHelper.getInstance(context);
         final List<Frame> frameList = database.getAllFramesFromRoll(roll);
         final Camera camera = database.getCamera(roll.getCameraId());
+        final FilmStock filmStock = database.getFilmStock(roll.getFilmStockId());
 
         final String separator = ",";
         final String separatorReplacement = ";";
@@ -792,6 +812,7 @@ public final class Utilities {
         //Roll and camera information
         stringBuilder.append("Roll name: ").append(roll.getName()).append("\n");
         stringBuilder.append("Added: ").append(roll.getDate()).append("\n");
+        stringBuilder.append("Film stock: ").append(filmStock != null ? filmStock.getName() : "").append("\n");
         stringBuilder.append("ISO: ").append(roll.getIso()).append("\n");
         stringBuilder.append("Format: ").append(context.getResources()
                 .getStringArray(R.array.FilmFormats)[roll.getFormat()]).append("\n");
@@ -817,7 +838,10 @@ public final class Utilities {
                 .append("No of exposures").append(separator)
                 .append("Filter").append(separator)
                 .append("Location").append(separator)
-                .append("Address").append("\n");
+                .append("Address").append(separator)
+                .append("Flash").append(separator)
+                .append("Light source")
+                .append("\n");
 
         for (final Frame frame : frameList) {
 
@@ -919,6 +943,20 @@ public final class Utilities {
                 final String formattedAddress = frame.getFormattedAddress();
                 // Replace commas with semicolons, because comma is reserved for separator
                 stringBuilder.append(formattedAddress.replace(separator, separatorReplacement));
+            }
+            stringBuilder.append(separator);
+
+            // Flash
+            stringBuilder.append(frame.getFlashUsed());
+            stringBuilder.append(separator);
+
+            // Light source
+            final String[] lightSources = context.getResources().getStringArray(R.array.LightSource);
+            try {
+                stringBuilder.append(lightSources[frame.getLightSource()]);
+            }
+            catch (ArrayIndexOutOfBoundsException e) {
+                stringBuilder.append("Error");
             }
 
             stringBuilder.append("\n");

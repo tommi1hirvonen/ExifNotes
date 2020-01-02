@@ -72,6 +72,8 @@ public class EditRollDialog extends DialogFragment {
 
     private TextView filmStockTextView;
 
+    private TextView isoTextView;
+
     private ImageView filmStockClearImageView;
 
     private EditText nameEditText;
@@ -299,7 +301,7 @@ public class EditRollDialog extends DialogFragment {
             final int month = Integer.parseInt(dateValue1.get(1));
             final int day = Integer.parseInt(dateValue1.get(2));
             // One month has to be subtracted from the default shown month, otherwise
-// the date picker shows one month forward.
+            // the date picker shows one month forward.
             final DatePickerDialog dialog = new DatePickerDialog(
                     getActivity(), (view, year1, monthOfYear, dayOfMonth) -> {
                 final String newInnerDate = year1 + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
@@ -348,7 +350,7 @@ public class EditRollDialog extends DialogFragment {
 
         //==========================================================================================
         //ISO PICKER
-        final TextView isoTextView = inflatedView.findViewById(R.id.iso_text);
+        isoTextView = inflatedView.findViewById(R.id.iso_text);
         isoTextView.setText(
                  newIso == 0 ? "" : String.valueOf(newIso)
         );
@@ -558,6 +560,7 @@ public class EditRollDialog extends DialogFragment {
             // First show a list of film stock manufacturers.
             final CharSequence[] manufacturers = database.getAllFilmManufacturers().toArray(new CharSequence[0]);
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.SelectManufacturer);
             builder.setItems(manufacturers, (dialog, which) -> {
                 dialog.dismiss();
 
@@ -577,11 +580,17 @@ public class EditRollDialog extends DialogFragment {
                 }
                 final CharSequence[] filmStockNames_ = filmStockNames.toArray(new CharSequence[0]);
                 final AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
+                builder1.setTitle(R.string.SelectFilmStock);
                 builder1.setSingleChoiceItems(filmStockNames_, checkedItem, (dialog12, which12) -> {
                     newFilmStock = filmStocks.get(which12);
                     filmStockTextView.setText(newFilmStock.getName());
                     nameEditText.setHint(newFilmStock.getName());
                     filmStockClearImageView.setVisibility(View.VISIBLE);
+                    // If the film stock ISO is defined, set the ISO
+                    if (newFilmStock.getIso() != 0) {
+                        newIso = newFilmStock.getIso();
+                        isoTextView.setText(newIso == 0 ? "" : String.valueOf(newIso));
+                    }
                     dialog12.dismiss();
                 });
                 builder1.setNegativeButton(R.string.Cancel, (dialog1, which1) -> {
