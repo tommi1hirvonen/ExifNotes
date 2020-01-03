@@ -1,15 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
-    <string name="app_name">Exif Notes</string>
-
-    <!--When updating "eula" also update "about"-->
-    <string name="Eula">Copyright 2019 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
-    <string name="Agree">Agree</string>
-    <string name="Decline">Decline</string>
-
-    <!--When updating "about" also update "eula"-->
     <string name="about">Version 1.14.0\nCopyright 2019 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
-
-    <!--SimpleEula-->
     <string name="Updates">
         Updates in this version:\n
         -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
@@ -157,8 +148,292 @@
         v1.0 2016-03-13 (beta):\n
         -First published version
     </string>
-
-
+    <string name="About">About</string>
+    <string name="ActiveFilmRolls">Active</string>
+    <string name="ActiveRolls">Active rolls</string>
+    <string name="Add">Add</string>
+    <string name="AddNewFilmStock">Add new film stock</string>
+    <string name="AddPictureToGallery">Add current picture to gallery</string>
+    <string name="AddressNotFound">Address not found</string>
+    <string name="Agree">Agree</string>
+    <string name="AllFilmRolls">All</string>
+    <string name="AllFrames">All frames</string>
+    <string name="AllRolls">All rolls</string>
+    <string name="Aperture">Aperture value</string>
+    <string name="ApertureIncrements">Aperture increments</string>
+    <string name="ApertureRange">Aperture range</string>
+    <string name="AppThemeTitle">App theme</string>
+    <string name="Archive">Archive</string>
+    <string name="ArchivedFilmRolls">Archived</string>
+    <string name="ArchivedRolls">Archived rolls</string>
+    <string name="ArtistName">Artist name</string>
+    <string name="ArtistNameSummary">Artist name information to be stored under the artist tag in the file\'s exif</string>
+    <string name="BatchEditFramesTitle">Batch edit %1$d frames</string>
+    <string name="Blue">Blue</string>
+    <string name="Both">Both</string>
+    <string name="Camera">Camera</string>
+    <string name="CameraNoColon">Camera</string>
+    <string name="Cameras">CAMERAS</string>
+    <string name="Cancel">Cancel</string>
+    <string name="ChooseApertureRange">Choose aperture range</string>
+    <string name="ChooseApertureValue">Choose aperture value</string>
+    <string name="ChooseExposureComp">Choose exposure comp</string>
+    <string name="ChooseFocalLength">Choose focal length</string>
+    <string name="ChooseFocalLengthRange">Choose focal length range</string>
+    <string name="ChooseFormat">Choose format</string>
+    <string name="ChooseFrameCount">Choose frame count</string>
+    <string name="ChooseISO">Choose ISO</string>
+    <string name="ChooseIncrements">Choose increments</string>
+    <string name="ChooseNoOfExposures">Choose no of exposures</string>
+    <string name="ChoosePushOrPull">Choose push(+) or pull(-)</string>
+    <string name="ChooseShutterRange">Choose shutter range</string>
+    <string name="ChooseShutterSpeed">Choose shutter speed</string>
+    <string name="Clear">Clear</string>
+    <string name="ClickToAdd">Click to add</string>
+    <string name="ClickToEdit">Click to edit</string>
+    <string name="ClickToSet">Click to set</string>
+    <string name="Close">Close</string>
+    <string name="Cloudy">Cloudy</string>
+    <string name="ComplementaryPicture">Complementary picture</string>
+    <string name="ComplementaryPicturesCap">COMPLEMENTARY PICTURES</string>
+    <plurals name="ComplementaryPicturesExported">
+        <item quantity="one">%d picture exported</item>
+        <item quantity="other">%d pictures exported</item>
+    </plurals>
+    <plurals name="ComplementaryPicturesImported">
+        <item quantity="one">%d picture imported successfully</item>
+        <item quantity="other">%d pictures imported successfully</item>
+    </plurals>
+    <string name="ConfirmCameraDelete">Delete camera</string>
+    <string name="ConfirmFilterDelete">Delete filter</string>
+    <plurals name="ConfirmFramesDelete">
+        <item quantity="one">Delete %d frame?</item>
+        <item quantity="other">Delete %d frames?</item>
+    </plurals>
+    <string name="ConfirmLensDelete">Delete lens</string>
+    <string name="ConfirmRollDelete">Delete roll</string>
+    <string name="ConfirmRollsDelete">Delete %1$d rolls?</string>
+    <string name="Continue">Continue</string>
+    <string name="CopyrightInformationSummary">Copyright information to be stored under the copyright tag in the file\'s exif</string>
+    <string name="CopyrightInformationTitle">Copyright information</string>
+    <string name="CouldNotReadDatabase">Could not read the new database file. The old one will be used.</string>
+    <string name="CsvDescription">Text file with the roll\'s data in csv format</string>
+    <string name="Cyan">Cyan</string>
+    <string name="Dark">Dark</string>
+    <string name="DatabaseCap">DATABASE</string>
+    <string name="DatabaseCopiedSuccessfully">Database copied successfully</string>
+    <string name="DatabaseImported">Database imported successfully</string>
+    <string name="Date">Date</string>
+    <string name="DateNoColon">Date</string>
+    <string name="Daylight">Daylight</string>
+    <string name="Decline">Decline</string>
+    <string name="Delete">Delete</string>
+    <string name="DeleteFilmStock">Delete film stock</string>
+    <string name="DescriptionOrNote">Description/note</string>
+    <string name="DisableInApp">Disable in app</string>
+    <string name="Edit">Edit</string>
+    <string name="EditCamera">Edit camera</string>
+    <string name="EditFilmStock">Edit film stock</string>
+    <string name="EditFilter">Edit filter</string>
+    <string name="EditFrame">Edit frame #</string>
+    <string name="EditFrameCounts">Edit frame counts</string>
+    <string name="EditFrameCountsBy">Edit frame counts by…</string>
+    <string name="EditLens">Edit lens</string>
+    <string name="EditLocation">Edit location</string>
+    <string name="EditRoll">Edit roll info</string>
+    <string name="ErrorAddingFilmStocks">Error adding film stocks to database</string>
+    <string name="ErrorAddingPictureToGallery">Error adding picture to gallery</string>
+    <string name="ErrorCompressingComplementaryPicture">Error compressing complementary picture</string>
+    <string name="ErrorExporting">An error occurred while exporting the files.</string>
+    <string name="ErrorExportingComplementaryPictures">Error exporting complementary pictures</string>
+    <string name="ErrorExportingDatabase">Error exporting database</string>
+    <string name="ErrorImportingComplementaryPictures">Error importing complementary pictures</string>
+    <string name="ErrorImportingDatabaseFrom">Error importing database from:\u0020</string>
+    <string name="ErrorLocatingSelectedPicture">Error locating selected picture</string>
+    <string name="ErrorSavingSelectedPicture">Error saving selected picture</string>
+    <string name="ErrorWhileEditingPicturesExifData">Error while editing picture\'s EXIF data</string>
+    <string name="Eula">Copyright 2019 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="ExifToolCommandsDescription">Text file containing the ExifTool commands</string>
+    <string name="ExiftoolPathSummary">"If you are using the ExifTool stand-alone executable, you can define its path here ending with '/' or '\\' depending on your OS."</string>
+    <string name="ExiftoolPathTitle">ExifTool path</string>
+    <string name="Exiftool_Cap">EXIFTOOL INTEGRATION</string>
+    <string name="ExportComplementaryPicturesSummary">Export complementary pictures as a compressed .zip file</string>
+    <string name="ExportComplementaryPicturesTitle">Export complementary pictures</string>
+    <string name="ExportDatabaseSummary">Export SQL database as a .db file</string>
+    <string name="ExportDatabaseTitle">Export database</string>
+    <string name="ExportDatabaseVerification">
+        NOTE: Exporting the SQL database does not export any complementary pictures attached to frames.
+        \n\nIf you wish to export complementary pictures as well, this needs to be done separately
+        with the \'Export complementary pictures\' option in settings.
+    </string>
+    <string name="ExportOrShare">Export/share files</string>
+    <string name="ExportToDevice">Export files to storage</string>
+    <string name="ExportedFilesSuccessfully">Files exported successfully</string>
+    <string name="ExportingComplementaryPicturesPleaseWait">Exporting complementary pictures, please wait.\n\nDepending on the number of complementary pictures, this can take several minutes.</string>
+    <string name="ExposureCompSingleLine">Exposure compensation</string>
+    <string name="ExposureCompensationIncrements">Exposure compensation increments</string>
+    <string name="FStop">F-stop</string>
+    <string name="FileEndingSummary">File ending of the files you wish to tag (e.g. .jpg or .tiff etc.)</string>
+    <string name="FileEndingTitle">File ending</string>
+    <string name="FilesToExportSummary">Choose which files are exported when exporting/sharing a roll\'s data.</string>
+    <string name="FilesToExportTitle">Files to export</string>
+    <string name="FilmStock">Film stock</string>
+    <string name="FilmStockIsInUseConfirmation">Film stock is in use. Delete anyway?</string>
+    <string name="Films">FILMS</string>
+    <string name="FilterNoColon">Filter</string>
+    <string name="FilterOrFilters">Filter(s)</string>
+    <string name="Filters">FILTERS</string>
+    <string name="Flash">Flash</string>
+    <string name="Fluorescent">Fluorescent</string>
+    <string name="FocalLengthRange">Focal length range (mm)</string>
+    <string name="FocalLengthSingleLine">Focal length (mm)</string>
+    <string name="Format">Format</string>
+    <string name="FrameCount">Frame count</string>
+    <string name="FrameCountNoColon">Frame count</string>
+    <string name="FullStop">1 stop</string>
+    <string name="GPSNotEnabled">You have location updates enabled in the app\'s settings, but GPS is disabled in system settings.\n\nDo you want to go to system settings to enable GPS?</string>
+    <string name="GPSSettings">GPS Settings</string>
+    <string name="GPSUpdateSummary">Keep updating the current location using GPS.</string>
+    <string name="GPSUpdateTitle">Enable location updating</string>
+    <string name="Gear">Gear</string>
+    <string name="General_Cap">GENERAL</string>
+    <string name="GoToSettings">Go to settings</string>
+    <string name="Green">Green</string>
+    <string name="Grey">Grey</string>
+    <string name="HalfStop">½ stop</string>
+    <string name="Help">Help</string>
+    <string name="Hybrid">Hybrid</string>
+    <string name="ISO">ISO</string>
+    <string name="IgnoreWarningsSummary">Adds -m option to the ExifTool commands to ignore minor errors and warnings when writing EXIF information.</string>
+    <string name="IgnoreWarningsTitle">Ignore minor errors and warnings</string>
+    <string name="ImportComplementaryPicturesSummary">Import complementary pictures from a previously exported .zip file</string>
+    <string name="ImportComplementaryPicturesTitle">Import complementary pictures</string>
+    <string name="ImportComplementaryPicturesVerification">
+        NOTE: If you are importing complementary pictures from a previous device for example, you should import the .db database file first.
+        \n\nWhen complementary pictures are imported, Exif Notes looks for matches between the filenames of imported pictures and frames\' details in the current database.
+        \n\nImported pictures, which have no matching frames, are discarded.
+    </string>
+    <string name="ImportDatabaseSummary">Import SQL database from a previously exported .db file</string>
+    <string name="ImportDatabaseTitle">Import database</string>
+    <string name="ImportDatabaseVerification">
+        Are you sure you want to continue importing?
+        \n\nThis will replace the current database with the imported one. Orphaned complementary pictures will also eventually be removed from storage.
+        \n\nIMPORTANT! The imported database file must be in exactly the same format as the exported file.
+        If structural changes have been made to the database file or the file is otherwise corrupted, the import will fail!
+        In this case the old database will be used.
+    </string>
+    <string name="ImportingComplementaryPicturesPleaseWait">Importing complementary pictures, please wait.\n\nDepending on the size of the .zip file, this can take several minutes.</string>
+    <string name="IntegrityCheckFailed">Database integrity check failed. The old database will be used.</string>
+    <string name="IsBeingUsed">is being used!</string>
+    <string name="Lens">Lens</string>
+    <string name="LensNoColon">Lens</string>
+    <string name="Lenses">LENSES</string>
+    <string name="Light">Light</string>
+    <string name="LightSource">Light source</string>
+    <string name="LoadingPicture">Loading picture…</string>
+    <string name="Location">Location</string>
+    <string name="MainActivityTitle">Film rolls</string>
+    <string name="Make">Make</string>
+    <string name="Manufacturer">Manufacturer</string>
+    <string name="ManufacturerOrFilmStockNameCannotBeEmpty">Manufacturer or film stock name cannot be empty</string>
+    <string name="MapType">Map type</string>
+    <string name="Minus50">-50</string>
+    <string name="Model">Model</string>
+    <string name="MountsTo">Mounts to:</string>
+    <string name="Name">Name</string>
+    <string name="NameNoColon">Name</string>
+    <string name="NewCamera">Add new camera</string>
+    <string name="NewFilter">Add new filter</string>
+    <string name="NewFrame">Add new frame</string>
+    <string name="NewLens">Add new lens</string>
+    <string name="NewRoll">Add new roll</string>
+    <string name="No">No</string>
+    <string name="NoActiveOrArchivedRolls">No active/archived rolls</string>
+    <string name="NoActiveRolls">No active rolls</string>
+    <string name="NoArchivedRolls">No archived rolls</string>
+    <string name="NoCamera">No camera</string>
+    <string name="NoCameraFeatureWasFound">No camera feature was found!</string>
+    <string name="NoCameras">No added cameras</string>
+    <string name="NoFilmStocks">No added film stocks</string>
+    <string name="NoFilters">No added filters</string>
+    <string name="NoFrames">No added frames</string>
+    <string name="NoFramesToShow">No frames to show on map</string>
+    <string name="NoLens">No lens</string>
+    <string name="NoLenses">No added lenses</string>
+    <string name="NoLocation">No location was set!</string>
+    <string name="NoMake">No make was set!</string>
+    <string name="NoMakeOrModel">No make or model was set!</string>
+    <string name="NoMinOrMaxAperture">One end of the aperture range was empty!</string>
+    <string name="NoMinOrMaxShutter">One end of the shutter range was empty!</string>
+    <string name="NoModel">No model was set!</string>
+    <string name="NoName">No name was set!</string>
+    <string name="NoOfExposuresSingleLine">No. of exposures</string>
+    <string name="NoPhotos">No photos</string>
+    <string name="NoPicturesExported">No pictures were exported</string>
+    <string name="NoPicturesImported">No pictures were imported</string>
+    <string name="NoRolls">No added rolls</string>
+    <string name="NoValue">&lt;empty&gt;</string>
+    <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
+    <string name="Normal">Normal</string>
+    <string name="OK">OK</string>
+    <string name="Orange">Orange</string>
+    <string name="Photo">photo</string>
+    <string name="Photos">photos</string>
+    <string name="PickLocation">Choose location</string>
+    <string name="PictureAddedToGallery">Picture added to gallery</string>
+    <string name="PictureSetButNotFound">Picture was set but the file could no longer be found</string>
+    <string name="PicturesPathSummary">"If the picture files you want to edit are in a certain folder, you can define its path here ending with '/' or '\\' depending on your OS."</string>
+    <string name="PicturesPathTitle">Path to pictures</string>
+    <string name="Pink">Pink</string>
+    <string name="Plus50">+50</string>
+    <string name="Preferences">Settings</string>
+    <string name="Purple">Purple</string>
+    <string name="PushPull">Push(+)/pull(-)</string>
+    <string name="Red">Red</string>
+    <string name="RollsActivated">Roll(s) unarchived</string>
+    <string name="RollsArchived">Roll(s) archived</string>
+    <string name="RotateLeft90Degrees">Rotate left 90 degrees</string>
+    <string name="RotateRight90Degrees">Rotate right 90 degrees</string>
+    <string name="Satellite">Satellite</string>
+    <string name="Search">Search</string>
+    <string name="SearchWEllipsis">Search…</string>
+    <string name="SelectAll">Select all</string>
+    <string name="SelectFilmStock">Select film stock</string>
+    <string name="SelectLensToAddFilters">Select a lens to add filters.</string>
+    <string name="SelectManufacturer">Select manufacturer</string>
+    <string name="SelectMountableCameras">Select mountable cameras</string>
+    <string name="SelectMountableFilters">Select mountable filters</string>
+    <string name="SelectMountableLenses">Select mountable lenses</string>
+    <string name="SelectPictureFromGallery">Select from gallery</string>
+    <string name="SerialNumber">Serial number</string>
+    <string name="Settings">Settings</string>
+    <string name="Shade">Shade</string>
+    <string name="Share">Share</string>
+    <string name="Sheet">Sheet</string>
+    <string name="ShowOnMap">Show on map</string>
+    <string name="Shutter">Shutter speed</string>
+    <string name="ShutterRange">Shutter speed range</string>
+    <string name="ShutterSpeed">Shutter speed</string>
+    <string name="ShutterSpeedIncrements">Shutter speed increments</string>
+    <string name="SortBy">Sort by</string>
+    <string name="Sunny">Sunny</string>
+    <string name="TakeNewComplementaryPicture">Take new complementary picture</string>
+    <string name="TapOnMap">Tap on map to move marker</string>
+    <string name="Terrain">Terrain</string>
+    <string name="Text">Text</string>
+    <string name="ThirdStop">⅓ stop</string>
+    <string name="Time">Time</string>
+    <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
+    <string name="Tungsten">Tungsten</string>
+    <string name="UIColorTitle">User interface color </string>
+    <string name="Unarchive">Unarchive</string>
+    <string name="Unknown">Unknown</string>
+    <string name="UseCustomValue">Use custom value</string>
+    <string name="UsedCamera">Choose used camera</string>
+    <string name="UsedFilter">Choose used filter</string>
+    <string name="UsedLens">Choose used lens</string>
+    <string name="VisibleRolls">Visible rolls</string>
+    <string name="app_name">Exif Notes</string>
     <string name="main_help">
         This is a quick guide to help you set up Exif Notes so that you can tag your scanned files on your computer using ExifTool. Please visit the homepage of ExifTool by Phil Harvey for more information on how to use ExifTool:\n
         http://www.sno.phy.queensu.ca/~phil/exiftool/
@@ -202,383 +477,10 @@
         -FocalLength\n
         -ISO\n
         -SerialNumber\n
-        -LensSerialNumber
+        -LensSerialNumber\n
+        -Flash\n
+        -LightSource
     </string>
-
-
-
-    <!--AllFramesMapsActivity-->
-    <string name="AllFrames">All frames</string>
-    <string name="ActiveRolls">Active rolls</string>
-    <string name="ArchivedRolls">Archived rolls</string>
-    <string name="AllRolls">All rolls</string>
-
-    <!--CameraNameDialog-->
-    <string name="NewCamera">Add new camera</string>
-
-    <!--CamerasFragment-->
-    <string name="Cameras">CAMERAS</string>
-    <string name="SelectMountableLenses">Select mountable lenses</string>
-    <string name="CameraNoColon">Camera</string>
-    <string name="IsBeingUsed">is being used!</string>
-    <string name="EditCamera">Edit camera</string>
-    <string name="ConfirmCameraDelete">Delete camera</string>
-
-    <!--EditFrameDialog-->
-    <string name="UsedLens">Choose used lens</string>
-    <string name="OK">OK</string>
-    <string name="ChooseFrameCount">Choose frame count</string>
-    <string name="ChooseShutterSpeed">Choose shutter speed</string>
-    <string name="ChooseApertureValue">Choose aperture value</string>
-    <string name="ChooseFocalLength">Choose focal length</string>
-    <string name="ChooseExposureComp">Choose exposure comp</string>
-    <string name="ChooseNoOfExposures">Choose no of exposures</string>
-
-    <!--EditRollDialog-->
-    <string name="EditRoll">Edit roll info</string>
-    <string name="ChooseISO">Choose ISO</string>
-    <string name="ChoosePushOrPull">Choose push(+) or pull(-)</string>
-
-    <!--EditGearInfoDialog-->
-    <string name="NoMakeOrModel">No make or model was set!</string>
-    <string name="NoMake">No make was set!</string>
-    <string name="NoModel">No model was set!</string>
-    <string name="NoMinOrMaxShutter">One end of the shutter range was empty!</string>
-    <string name="NoMinOrMaxAperture">One end of the aperture range was empty!</string>
-    <string name="ChooseShutterRange">Choose shutter range</string>
-    <string name="ClickToSet">Click to set</string>
-
-    <!--FramesFragment-->
-    <string name="ExportOrShare">Export/share files</string>
-    <string name="ExportToDevice">Export files to storage</string>
-    <string name="ErrorExporting">An error occurred while exporting the files.</string>
-    <string name="ExportedFilesSuccessfully">Files exported successfully</string>
-    <string name="Share">Share</string>
-
-    <!--GearActivity-->
-    <string name="Gear">Gear</string>
-
-    <!--LensAdapter-->
-    <string name="MountsTo">Mounts to:</string>
-
-    <!--LensesFragment-->
-    <string name="Lenses">LENSES</string>
-    <string name="SelectMountableCameras">Select mountable cameras</string>
-    <string name="SelectMountableFilters">Select mountable filters</string>
-    <string name="LensNoColon">Lens</string>
-    <string name="EditLens">Edit lens</string>
-    <string name="ChooseApertureRange">Choose aperture range</string>
-    <string name="ConfirmLensDelete">Delete lens</string>
-    <string name="ChooseFocalLengthRange">Choose focal length range</string>
-
-    <!--FiltersFragment-->
-    <string name="NewFilter">Add new filter</string>
-    <string name="EditFilter">Edit filter</string>
-    <string name="FilterNoColon">Filter</string>
-    <string name="Filters">FILTERS</string>
-    <string name="ConfirmFilterDelete">Delete filter</string>
-
-    <!--FilmStocksFragment-->
-    <string name="Films">FILMS</string>
-    <string name="NoFilmStocks">No added film stocks</string>
-    <string name="DeleteFilmStock">Delete film stock</string>
-    <string name="FilmStockIsInUseConfirmation">Film stock is in use. Delete anyway?</string>
-    <string name="Manufacturer">Manufacturer</string>
-    <string name="EditFilmStock">Edit film stock</string>
-    <string name="AddNewFilmStock">Add new film stock</string>
-
-    <!--LensNameDialog-->
-    <string name="NewLens">Add new lens</string>
-    <string name="Add">Add</string>
-
-    <!--LocationPickActivity-->
-    <string name="PickLocation">Choose location</string>
-    <string name="TapOnMap">Tap on map to move marker</string>
-    <string name="AddressNotFound">Address not found</string>
-    <string name="NoLocation">No location was set!</string>
-    <string name="Search">Search</string>
-    <string name="SearchWEllipsis">Search…</string>
-
-    <!--MainActivity-->
-    <string name="MainActivityTitle">Film rolls</string>
-    <string name="ActiveFilmRolls">Active</string>
-    <string name="ArchivedFilmRolls">Archived</string>
-    <string name="AllFilmRolls">All</string>
-    <string name="Delete">Delete</string>
-    <string name="Cancel">Cancel</string>
-    <string name="Close">Close</string>
-    <string name="Help">Help</string>
-
-    <string name="Preferences">Settings</string>
-    <string name="GoToSettings">Go to settings</string>
-    <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
-    <string name="Settings">Settings</string>
-    <string name="GPSSettings">GPS Settings</string>
-    <string name="GPSNotEnabled">You have location updates enabled in the app\'s settings, but GPS is disabled in system settings.\n\nDo you want to go to system settings to enable GPS?</string>
-    <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
-    <string name="DisableInApp">Disable in app</string>
-
-    <!--MapsActivity-->
-    <string name="NoFramesToShow">No frames to show on map</string>
-
-    <!--RollAdapter-->
-    <string name="Photos">photos</string>
-    <string name="Photo">photo</string>
-    <string name="NoPhotos">No photos</string>
-
-    <!--RollsFragment-->
-    <string name="ConfirmRollDelete">Delete roll</string>
-    <string name="VisibleRolls">Visible rolls</string>
-    <string name="ConfirmRollsDelete">Delete %1$d rolls?</string>
-    <string name="RollsArchived">Roll(s) archived</string>
-    <string name="RollsActivated">Roll(s) unarchived</string>
-
-    <string name="EditFrame">Edit frame #</string>
-    <string name="NewFrame">Add new frame</string>
-    <string name="ShowOnMap">Show on map</string>
-    <string name="Edit">Edit</string>
-    <string name="DateNoColon">Date</string>
-
-    <!--RollNameDialog-->
-    <string name="NewRoll">Add new roll</string>
-    <string name="UsedCamera">Choose used camera</string>
-    <string name="NoName">No name was set!</string>
-    <string name="NoCamera">No camera</string>
-    <string name="ChooseFormat">Choose format</string>
-    <string name="SelectManufacturer">Select manufacturer</string>
-    <string name="SelectFilmStock">Select film stock</string>
-
-
-    <!--FilmDbHelper-->
-    <string name="CouldNotReadDatabase">Could not read the new database file. The old one will be used.</string>
-    <string name="IntegrityCheckFailed">Database integrity check failed. The old database will be used.</string>
-    <string name="ErrorAddingFilmStocks">Error adding film stocks to database</string>
-
-    <!--dialog_double_numberpicker_buttons.xml.xml-->
-    <string name="Plus50">+50</string>
-    <string name="Minus50">-50</string>
-
-    fragment_lenses.xml.xml-->
-    <string name="NoLenses">No added lenses</string>
-
-    fragment_rolls.xml.xml-->
-    <string name="NoRolls">No added rolls</string>
-    <string name="NoActiveRolls">No active rolls</string>
-    <string name="NoArchivedRolls">No archived rolls</string>
-    <string name="NoActiveOrArchivedRolls">No active/archived rolls</string>
-    <string name="SelectAll">Select all</string>
-
-
-    <!--activity_roll_info.xml-->
-    <string name="NoFrames">No added frames</string>
-
-    <!--fragment_cameras.xml.xml-->
-    <string name="NoCameras">No added cameras</string>
-
-    <!--fragment_filters.xml.xml-->
-    <string name="NoFilters">No added filters</string>
-
-    <!--dialog_roll.xml.xml-->
-    <string name="Name">Name</string>
-    <string name="Camera">Camera</string>
-    <string name="ISO">ISO</string>
-    <string name="PushPull">Push(+)/pull(-)</string>
-    <string name="Format">Format</string>
-    <string name="FilmStock">Film stock</string>
-
-    <!--dialog_frame.xml-->
-    <string name="Lens">Lens</string>
-    <string name="Date">Date</string>
-    <string name="Time">Time</string>
-    <string name="FrameCount">Frame count</string>
-    <string name="Shutter">Shutter speed</string>
-    <string name="Aperture">Aperture value</string>
-    <string name="NoLens">No lens</string>
-    <string name="NoValue">&#60;empty&#62;</string>
-    <string name="Location">Location</string>
-    <string name="NoOfExposuresSingleLine">No. of exposures</string>
-    <string name="FocalLengthSingleLine">Focal length (mm)</string>
-    <string name="ExposureCompSingleLine">Exposure compensation</string>
-    <string name="DescriptionOrNote">Description/note</string>
-    <string name="FilterOrFilters">Filter(s)</string>
-    <string name="UsedFilter">Choose used filter</string>
-    <string name="SelectLensToAddFilters">Select a lens to add filters.</string>
-    <string name="ComplementaryPicture">Complementary picture</string>
-    <string name="ClickToAdd">Click to add</string>
-    <string name="NoCameraFeatureWasFound">No camera feature was found!</string>
-    <string name="PictureSetButNotFound">Picture was set but the file could no longer be found</string>
-    <string name="Clear">Clear</string>
-    <string name="TakeNewComplementaryPicture">Take new complementary picture</string>
-    <string name="AddPictureToGallery">Add current picture to gallery</string>
-    <string name="ErrorAddingPictureToGallery">Error adding picture to gallery</string>
-    <string name="PictureAddedToGallery">Picture added to gallery</string>
-    <string name="SelectPictureFromGallery">Select from gallery</string>
-    <string name="ErrorCompressingComplementaryPicture">Error compressing complementary picture</string>
-    <string name="ErrorSavingSelectedPicture">Error saving selected picture</string>
-    <string name="ErrorLocatingSelectedPicture">Error locating selected picture</string>
-    <string name="LoadingPicture">Loading picture…</string>
-    <string name="RotateRight90Degrees">Rotate right 90 degrees</string>
-    <string name="RotateLeft90Degrees">Rotate left 90 degrees</string>
-    <string name="ErrorWhileEditingPicturesExifData">Error while editing picture\'s EXIF data</string>
-    <string name="UseCustomValue">Use custom value</string>
-    <string name="LightSource">Light source</string>
-    
-    <!--No need for plural, because a special dialog is created for one frame-->
-    <string name="BatchEditFramesTitle">Batch edit %1$d frames</string>
-    <string name="EditFrameCounts">Edit frame counts</string>
-    <string name="EditFrameCountsBy">Edit frame counts by…</string>
-    <string name="EditLocation">Edit location</string>
-    <plurals name="ConfirmFramesDelete">
-        <item quantity="one">Delete %d frame?</item>
-        <item quantity="other">Delete %d frames?</item>
-    </plurals>
-
-    <!--gear_dialog-->
-    <string name="Make">Make</string>
-    <string name="Model">Model</string>
-    <string name="SerialNumber">Serial number</string>
-    <string name="ShutterRange">Shutter speed range</string>
-    <string name="ApertureRange">Aperture range</string>
-    <string name="FocalLengthRange">Focal length range (mm)</string>
-    <string name="ShutterSpeedIncrements">Shutter speed increments</string>
-    <string name="ChooseIncrements">Choose increments</string>
-    <string name="Sheet">Sheet</string>
-    <string name="ApertureIncrements">Aperture increments</string>
-    <string name="ExposureCompensationIncrements">Exposure compensation increments</string>
-
-
-    <!--item_frame.xml-->
-    <string name="Text">Text</string>
-
-    <!--info_window-->
-    <string name="ClickToEdit">Click to edit</string>
-
-    <!--name_dialog-->
-    <string name="NameNoColon">Name</string>
-
-    <!--menu_context_delete_edit_archive.xml-->
-    <string name="Archive">Archive</string>
-
-    <!--menu_context_delete_edit_activate.xml-->
-    <string name="Unarchive">Unarchive</string>
-
-
-    <string name="About">About</string>
-    <string name="SortBy">Sort by</string>
-    <string name="FrameCountNoColon">Frame count</string>
-    <string name="ShutterSpeed">Shutter speed</string>
-    <string name="FStop">F-stop</string>
-
-    <!--menu_map_types.xml-->
-    <string name="Normal">Normal</string>
-    <string name="Hybrid">Hybrid</string>
-    <string name="Satellite">Satellite</string>
-    <string name="Terrain">Terrain</string>
-
-    <!--menu_maps_activity.xml-->
-    <string name="MapType">Map type</string>
-
-    <!--fragment_preference.xml-->
-    <string name="General_Cap">GENERAL</string>
-    <string name="GPSUpdateTitle">Enable location updating</string>
-    <string name="GPSUpdateSummary">Keep updating the current location using GPS.</string>
-    <string name="ThirdStop">&#8531; stop</string>
-    <string name="HalfStop">&#189; stop</string>
-    <string name="FullStop">1 stop</string>
-    <string name="AppThemeTitle">App theme</string>
-    <string name="UIColorTitle">User interface color </string>
-    <string name="Orange">Orange</string>
-    <string name="Red">Red</string>
-    <string name="Pink">Pink</string>
-    <string name="Blue">Blue</string>
-    <string name="Green">Green</string>
-    <string name="Grey">Grey</string>
-    <string name="Purple">Purple</string>
-    <string name="Cyan">Cyan</string>
-    <string name="Light">Light</string>
-    <string name="Dark">Dark</string>
-
-    <string name="FilesToExportTitle">Files to export</string>
-    <string name="FilesToExportSummary">Choose which files are exported when exporting/sharing a roll\'s data.</string>
-    <string name="CsvDescription">Text file with the roll\'s data in csv format</string>
-    <string name="ExifToolCommandsDescription">Text file containing the ExifTool commands</string>
-    <string name="Both">Both</string>
-
-    <string name="Exiftool_Cap">EXIFTOOL INTEGRATION</string>
-    <string name="ArtistName">Artist name</string>
-    <string name="ArtistNameSummary">Artist name information to be stored under the artist tag in the file\'s exif</string>
-    <string name="CopyrightInformationTitle">Copyright information</string>
-    <string name="CopyrightInformationSummary">Copyright information to be stored under the copyright tag in the file\'s exif</string>
-    <string name="ExiftoolPathTitle">ExifTool path</string>
-    <string name="ExiftoolPathSummary">"If you are using the ExifTool stand-alone executable, you can define its path here ending with '/' or '\\' depending on your OS."</string>
-    <string name="PicturesPathTitle">Path to pictures</string>
-    <string name="PicturesPathSummary">"If the picture files you want to edit are in a certain folder, you can define its path here ending with '/' or '\\' depending on your OS."</string>
-    <string name="FileEndingTitle">File ending</string>
-    <string name="FileEndingSummary">File ending of the files you wish to tag (e.g. .jpg or .tiff etc.)</string>
-    <string name="IgnoreWarningsTitle">Ignore minor errors and warnings</string>
-    <string name="IgnoreWarningsSummary">Adds -m option to the ExifTool commands to ignore minor errors and warnings when writing EXIF information.</string>
-
-    <string name="DatabaseCap">DATABASE</string>
-    <string name="ExportDatabaseTitle">Export database</string>
-    <string name="ExportDatabaseSummary">Export SQL database as a .db file</string>
-    <string name="ImportDatabaseTitle">Import database</string>
-    <string name="ImportDatabaseSummary">Import SQL database from a previously exported .db file</string>
-
-    <string name="ErrorExportingDatabase">Error exporting database</string>
-    <string name="DatabaseCopiedSuccessfully">Database copied successfully</string>
-    <string name="ImportDatabaseVerification">
-        Are you sure you want to continue importing?
-        \n\nThis will replace the current database with the imported one. Orphaned complementary pictures will also eventually be removed from storage.
-        \n\nIMPORTANT! The imported database file must be in exactly the same format as the exported file.
-        If structural changes have been made to the database file or the file is otherwise corrupted, the import will fail!
-        In this case the old database will be used.
-    </string>
-    <string name="ExportDatabaseVerification">
-        NOTE: Exporting the SQL database does not export any complementary pictures attached to frames.
-        \n\nIf you wish to export complementary pictures as well, this needs to be done separately
-        with the \'Export complementary pictures\' option in settings.
-    </string>
-    <string name="Continue">Continue</string>
-    <string name="No">No</string>
-    <string name="ErrorImportingDatabaseFrom">Error importing database from:\u0020</string>
-    <string name="DatabaseImported">Database imported successfully</string>
-
-    <string name="ComplementaryPicturesCap">COMPLEMENTARY PICTURES</string>
-    <string name="ExportComplementaryPicturesTitle">Export complementary pictures</string>
-    <string name="ExportComplementaryPicturesSummary">Export complementary pictures as a compressed .zip file</string>
-    <string name="ImportComplementaryPicturesTitle">Import complementary pictures</string>
-    <string name="ImportComplementaryPicturesSummary">Import complementary pictures from a previously exported .zip file</string>
-
-    <string name="ImportComplementaryPicturesVerification">
-        NOTE: If you are importing complementary pictures from a previous device for example, you should import the .db database file first.
-        \n\nWhen complementary pictures are imported, Exif Notes looks for matches between the filenames of imported pictures and frames\' details in the current database.
-        \n\nImported pictures, which have no matching frames, are discarded.
-    </string>
-    <string name="ExportingComplementaryPicturesPleaseWait">Exporting complementary pictures, please wait.\n\nDepending on the number of complementary pictures, this can take several minutes.</string>
-    <string name="ErrorExportingComplementaryPictures">Error exporting complementary pictures</string>
-    <string name="ErrorImportingComplementaryPictures">Error importing complementary pictures</string>
-    <string name="ImportingComplementaryPicturesPleaseWait">Importing complementary pictures, please wait.\n\nDepending on the size of the .zip file, this can take several minutes.</string>
-    <string name="NoPicturesExported">No pictures were exported</string>
-    <plurals name="ComplementaryPicturesExported">
-        <item quantity="one">%d picture exported</item>
-        <item quantity="other">%d pictures exported</item>
-    </plurals>
-    <string name="NoPicturesImported">No pictures were imported</string>
-    <plurals name="ComplementaryPicturesImported">
-        <item quantity="one">%d picture imported successfully</item>
-        <item quantity="other">%d pictures imported successfully</item>
-    </plurals>
-
-    <string name="Unknown">Unknown</string>
-    <string name="Daylight">Daylight</string>
-    <string name="Cloudy">Cloudy</string>
-    <string name="Shade">Shade</string>
-    <string name="Fluorescent">Fluorescent</string>
-    <string name="Tungsten">Tungsten</string>
-    <string name="Flash">Flash</string>
-    <string name="Sunny">Sunny</string>
-
-
     <string name="style_json">
         [
             {
@@ -772,5 +674,4 @@
             }
         ]
     </string>
-
 </resources>

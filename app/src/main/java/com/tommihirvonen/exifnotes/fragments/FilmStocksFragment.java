@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -53,6 +54,7 @@ public class FilmStocksFragment extends Fragment implements View.OnClickListener
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
+        @SuppressLint("InflateParams")
         final View view = inflater.inflate(R.layout.fragment_films, null);
         final FloatingActionButton floatingActionButton = view.findViewById(R.id.fab_films);
         floatingActionButton.setOnClickListener(this);
