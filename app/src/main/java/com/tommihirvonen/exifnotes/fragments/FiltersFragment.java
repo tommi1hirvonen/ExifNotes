@@ -202,7 +202,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
                     showSelectMountableLensesDialog(position);
                     return true;
 
-                case GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_DELETE:
+                case GearAdapter.MENU_ITEM_DELETE:
 
                     // Check if the filter is being used with one of the rolls.
                     if (database.isFilterBeingUsed(filter)) {
@@ -239,7 +239,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
 
                     return true;
 
-                case GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_EDIT:
+                case GearAdapter.MENU_ITEM_EDIT:
 
                     final EditFilterDialog dialog = new EditFilterDialog();
                     dialog.setTargetFragment(this, EDIT_FILTER);

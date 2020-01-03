@@ -176,7 +176,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener {
                     showSelectMountableLensesDialog(position);
                     return true;
 
-                case GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_DELETE:
+                case GearAdapter.MENU_ITEM_DELETE:
 
                     // Check if the camera is being used with one of the rolls.
                     if (database.isCameraBeingUsed(camera)) {
@@ -213,7 +213,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener {
 
                     return true;
 
-                case GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_EDIT:
+                case GearAdapter.MENU_ITEM_EDIT:
 
                     final EditCameraDialog dialog = new EditCameraDialog();
                     dialog.setTargetFragment(this, EDIT_CAMERA);

@@ -47,8 +47,8 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
     public static final int MENU_ITEM_SELECT_MOUNTABLE_LENSES = 1;
     public static final int MENU_ITEM_SELECT_MOUNTABLE_CAMERAS = 2;
     public static final int MENU_ITEM_SELECT_MOUNTABLE_FILTERS = 3;
-    public static final int MENU_ITEM_SELECT_MOUNTABLE_EDIT = 4;
-    public static final int MENU_ITEM_SELECT_MOUNTABLE_DELETE = 5;
+    public static final int MENU_ITEM_EDIT = 4;
+    public static final int MENU_ITEM_DELETE = 5;
 
     /**
      * Package-private ViewHolder class which can be recycled
@@ -85,9 +85,9 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
                             getAdapterPosition(), R.string.SelectMountableFilters);
                 }
                 // Add the additional menu items common for all types of gear.
-                contextMenu.add(0, MENU_ITEM_SELECT_MOUNTABLE_EDIT,
+                contextMenu.add(0, MENU_ITEM_EDIT,
                         getAdapterPosition(), R.string.Edit);
-                contextMenu.add(0, MENU_ITEM_SELECT_MOUNTABLE_DELETE,
+                contextMenu.add(0, MENU_ITEM_DELETE,
                         getAdapterPosition(), R.string.Delete);
             });
         }
