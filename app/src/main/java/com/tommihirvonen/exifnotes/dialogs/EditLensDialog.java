@@ -400,7 +400,7 @@ public class EditLensDialog extends DialogFragment {
             } else if (make.length() > 0 && model.length() == 0) {
                 // No model was set
                 Toast.makeText(getActivity(), getResources().getString(R.string.NoModel), Toast.LENGTH_SHORT).show();
-            } else if (make.length() == 0 && model.length() > 0) {
+            } else if (make.length() == 0) {
                 // No make was set
                 Toast.makeText(getActivity(), getResources().getString(R.string.NoMake), Toast.LENGTH_SHORT).show();
             } else {

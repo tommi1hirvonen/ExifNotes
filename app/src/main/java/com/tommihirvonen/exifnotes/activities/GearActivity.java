@@ -1,7 +1,6 @@
 package com.tommihirvonen.exifnotes.activities;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import com.google.android.material.tabs.TabLayout;
 
@@ -27,7 +26,6 @@ import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**

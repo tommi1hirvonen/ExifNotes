@@ -185,7 +185,7 @@ public final class ComplementaryPicturesManager {
         // returning null for the bitmap object but setting outWidth, outHeight and outMimeType.
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, options);
-        options.inSampleSize = calculateInSampleSize(options, MAX_SIZE);
+        options.inSampleSize = calculateInSampleSize(options);
         // Set inJustDecodeBounds back to false, so that decoding returns a bitmap object.
         options.inJustDecodeBounds = false;
         // Load the bitmap into memory using the inSampleSize option to reduce the excess resolution
@@ -211,7 +211,7 @@ public final class ComplementaryPicturesManager {
         // returning null for the bitmap object but setting outWidth, outHeight and outMimeType.
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(pictureFile.getAbsolutePath(), options);
-        options.inSampleSize = calculateInSampleSize(options, MAX_SIZE);
+        options.inSampleSize = calculateInSampleSize(options);
         // Set inJustDecodeBounds back to false, so that decoding returns a bitmap object.
         options.inJustDecodeBounds = false;
         // Load the bitmap into memory using the inSampleSize option to reduce the excess resolution
@@ -256,14 +256,13 @@ public final class ComplementaryPicturesManager {
      * any other value will be rounded down to the nearest power of 2.
      *
      * @param options the BitmapFactory options for the bitmap to be decoded
-     * @param maxSize the maximum length of the longer side of the bitmap
      * @return scaling value as integer
      */
-    private static int calculateInSampleSize(final BitmapFactory.Options options, final int maxSize) {
+    private static int calculateInSampleSize(final BitmapFactory.Options options) {
         final int height = options.outHeight;
         final int width = options.outWidth;
-        if (maxSize >= Math.max(height, width)) return 1;
-        else return Math.max(height / maxSize, width / maxSize);
+        if (ComplementaryPicturesManager.MAX_SIZE >= Math.max(height, width)) return 1;
+        else return Math.max(height / ComplementaryPicturesManager.MAX_SIZE, width / ComplementaryPicturesManager.MAX_SIZE);
     }
 
     /**

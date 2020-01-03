@@ -238,11 +238,6 @@ public class EditFrameDialog extends DialogFragment {
     private int newLightSource;
 
     /**
-     * Currently selected value to whether flash was used or not
-     */
-    private boolean newFlashUsed;
-
-    /**
      * Currently selected filename of the complementary picture
      */
     @Nullable
@@ -673,9 +668,8 @@ public class EditFrameDialog extends DialogFragment {
         //==========================================================================================
         //FLASH
 
-        newFlashUsed = frame.getFlashUsed();
         flashCheckBox = inflatedView.findViewById(R.id.flash_checkbox);
-        flashCheckBox.setChecked(newFlashUsed);
+        flashCheckBox.setChecked(frame.getFlashUsed());
         final View flashUsedLayout = inflatedView.findViewById(R.id.flash_layout);
         flashUsedLayout.setOnClickListener((view) -> {
             if (flashCheckBox.isChecked()) flashCheckBox.setChecked(false);
