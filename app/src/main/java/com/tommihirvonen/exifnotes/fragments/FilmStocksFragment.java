@@ -13,6 +13,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +29,8 @@ import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class FilmStocksFragment extends Fragment implements View.OnClickListener {
@@ -40,6 +43,13 @@ public class FilmStocksFragment extends Fragment implements View.OnClickListener
     private GearAdapter filmStockAdapter;
     private static final int ADD_FILM_STOCK = 1;
     private static final int EDIT_FILM_STOCK = 2;
+    public static final int SORT_MODE_NAME = 1;
+    public static final int SORT_MODE_ISO = 2;
+    private int sortMode = SORT_MODE_NAME;
+
+    public int getSortMode() {
+        return sortMode;
+    }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -106,6 +116,7 @@ public class FilmStocksFragment extends Fragment implements View.OnClickListener
         }
     }
 
+
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         if (fragmentVisible) {
@@ -164,7 +175,7 @@ public class FilmStocksFragment extends Fragment implements View.OnClickListener
                     final long rowId = database.addFilmStock(filmStock);
                     filmStock.setId(rowId);
                     filmStocks.add(filmStock);
-                    Utilities.sortGearList(filmStocks);
+                    sortFilmStocks();
                     final int position = filmStocks.indexOf(filmStock);
                     filmStockAdapter.notifyItemInserted(position);
                     filmStocksRecyclerView.scrollToPosition(position);
@@ -178,7 +189,7 @@ public class FilmStocksFragment extends Fragment implements View.OnClickListener
                     final FilmStock filmStock = data.getParcelableExtra(ExtraKeys.FILM_STOCK);
                     database.updateFilmStock(filmStock);
                     final int oldPosition = filmStocks.indexOf(filmStock);
-                    Utilities.sortGearList(filmStocks);
+                    sortFilmStocks();
                     final int newPosition = filmStocks.indexOf(filmStock);
                     filmStockAdapter.notifyItemChanged(oldPosition);
                     filmStockAdapter.notifyItemMoved(oldPosition, newPosition);
@@ -187,6 +198,37 @@ public class FilmStocksFragment extends Fragment implements View.OnClickListener
                 break;
 
         }
+    }
+
+    private void sortFilmStocks() {
+        setSortMode(sortMode, false);
+    }
+
+    public void setSortMode(final int sortMode_, final boolean notifyDataSetChanged) {
+        if (sortMode_ == SORT_MODE_NAME) {
+            sortMode = SORT_MODE_NAME;
+            Collections.sort(filmStocks, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+        } else if (sortMode_ == SORT_MODE_ISO) {
+            sortMode = SORT_MODE_ISO;
+            Collections.sort(filmStocks, (o1, o2) -> Integer.compare(o1.getIso(), o2.getIso()));
+        }
+        if (notifyDataSetChanged) {
+            filmStockAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void filterFilmStocks(@NonNull final List<String> manufacturers) {
+        filmStocks = database.getAllFilmStocks();
+        if (!manufacturers.isEmpty()) {
+            final Iterator<FilmStock> iterator = filmStocks.iterator();
+            while (iterator.hasNext()) {
+                final FilmStock filmStock = iterator.next();
+                if (!manufacturers.contains(filmStock.getMake())) iterator.remove();
+            }
+        }
+        sortFilmStocks();
+        filmStockAdapter.setGearList(filmStocks);
+        filmStockAdapter.notifyDataSetChanged();
     }
 
 }

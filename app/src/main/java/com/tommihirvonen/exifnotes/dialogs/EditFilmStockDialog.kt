@@ -66,7 +66,11 @@ class EditFilmStockDialog : DialogFragment() {
                 } else {
                     filmStock.make = manufacturerName
                     filmStock.model = filmStockName
-                    filmStock.iso = isoEditText.text.toString().toInt()
+                    try {
+                        filmStock.iso = isoEditText.text.toString().toInt()
+                    } catch (ignored: NumberFormatException) {
+                        filmStock.iso = 0
+                    }
                     dialog.dismiss()
                     val intent = Intent()
                     intent.putExtra(ExtraKeys.FILM_STOCK, filmStock)

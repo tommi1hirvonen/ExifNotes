@@ -29,7 +29,7 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
     /**
      * Reference to the main list of gear received from implementing class.
      */
-    private final List<? extends Gear> gearList;
+    private List<? extends Gear> gearList;
 
     /**
      * Reference to Activity's context. Used to get resources.
@@ -160,6 +160,15 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
 
             holder.mountablesTextView.setText(stringBuilder.toString());
         }
+    }
+
+    /**
+     * Public setter to update reference of gearList
+     *
+     * @param newGearList the new list of Gear
+     */
+    public void setGearList(final List<? extends Gear> newGearList) {
+        gearList = newGearList;
     }
 
     /**

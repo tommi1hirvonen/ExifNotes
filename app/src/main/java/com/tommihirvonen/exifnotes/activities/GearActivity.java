@@ -1,5 +1,7 @@
 package com.tommihirvonen.exifnotes.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import com.google.android.material.tabs.TabLayout;
 
@@ -12,6 +14,8 @@ import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.tommihirvonen.exifnotes.fragments.CamerasFragment;
@@ -19,7 +23,12 @@ import com.tommihirvonen.exifnotes.fragments.FilmStocksFragment;
 import com.tommihirvonen.exifnotes.fragments.FiltersFragment;
 import com.tommihirvonen.exifnotes.fragments.LensesFragment;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * GearActivity contains fragments for adding, editing and removing cameras, lenses and filters.
@@ -50,6 +59,13 @@ public class GearActivity extends AppCompatActivity {
      * Tag for the index of the current view to store while the activity is paused
      */
     private static final String POSITION = "POSITION";
+
+    private List<String> manufacturerFilterList = new ArrayList<>();
+
+    private static final int POSITION_CAMERAS = 0;
+    private static final int POSITION_LENSES = 1;
+    private static final int POSITION_FILTERS = 2;
+    private static final int POSITION_FILMS = 3;
 
     /**
      * Inflates the activity, sets the UI, ViewPager and TabLayout.
@@ -86,7 +102,7 @@ public class GearActivity extends AppCompatActivity {
         tabLayout.setBackgroundColor(Utilities.getPrimaryUiColor(getBaseContext()));
 
         //Get the index for the view which was last shown.
-        viewPager.setCurrentItem(prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, 0));
+        viewPager.setCurrentItem(prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, POSITION_CAMERAS));
     }
 
     /**
@@ -106,6 +122,13 @@ public class GearActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.nothing, R.anim.exit_to_right);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_gear_actvity, menu);
+        menu.findItem(R.id.sort_mode_film_stock_name).setChecked(true);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     /**
      * Handle home as up press event.
      *
@@ -114,12 +137,76 @@ public class GearActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
+        // Handle actions here, since the fragment may be paused and cannot handle actions.
+        switch (item.getItemId()) {
 
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+
+            case R.id.sort_mode_film_stock_name:
+                ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
+                        .setSortMode(FilmStocksFragment.SORT_MODE_NAME, true);
+                item.setChecked(true);
+                return true;
+
+            case R.id.sort_mode_film_stock_iso:
+                ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
+                        .setSortMode(FilmStocksFragment.SORT_MODE_ISO, true);
+                item.setChecked(true);
+                return true;
+
+            case R.id.filter_mode_film_manufacturer:
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                final String[] manufacturers = FilmDbHelper.getInstance(this)
+                        .getAllFilmManufacturers().toArray(new String[0]);
+                final boolean[] checkedItems = new boolean[manufacturers.length];
+                for (int i = 0; i < manufacturers.length; ++i) {
+                    if (manufacturerFilterList.contains(manufacturers[i])) checkedItems[i] = true;
+                }
+
+                // Create a temporary list to be updated.
+                // If the user cancel's the dialog, the original list will remain unchanged.
+                final List<String> manufacturerFilterListTemp = new ArrayList<>(manufacturerFilterList);
+                builder.setMultiChoiceItems(manufacturers, checkedItems, (dialog, which, isChecked) -> {
+                    if (isChecked) {
+                        manufacturerFilterListTemp.add(manufacturers[which]);
+                    } else {
+                        manufacturerFilterListTemp.remove(manufacturers[which]);
+                    }
+                });
+                builder.setNegativeButton(R.string.Cancel, (dialog, which) -> { /* Do nothing */ });
+                builder.setPositiveButton(R.string.FilterNoColon, (dialog, which) -> {
+                    manufacturerFilterList = manufacturerFilterListTemp;
+                    ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
+                            .filterFilmStocks(manufacturerFilterList);
+                });
+                builder.setNeutralButton(R.string.Reset, (dialog, which) -> {
+                    manufacturerFilterList.clear();
+                    ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
+                            .filterFilmStocks(manufacturerFilterList);
+                });
+                builder.create().show();
+                return true;
+
         }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // When the options menu is opened, set the correct items to be preselected.
+        final FilmStocksFragment fragment = (FilmStocksFragment) pagerAdapter.getItem(3);
+        switch (fragment.getSortMode()) {
+            case FilmStocksFragment.SORT_MODE_NAME:
+                menu.findItem(R.id.sort_mode_film_stock_name).setChecked(true);
+                break;
+            case FilmStocksFragment.SORT_MODE_ISO:
+                menu.findItem(R.id.sort_mode_film_stock_iso).setChecked(true);
+                break;
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     /**
@@ -155,17 +242,17 @@ public class GearActivity extends AppCompatActivity {
         //to reflect the changes.
 
         //CamerasFragment is active
-        if (activeFragment == 0) {
-            ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
+        if (activeFragment == POSITION_CAMERAS) {
+            ((LensesFragment)pagerAdapter.getItem(POSITION_LENSES)).updateFragment();
         }
         //LensesFragment is active
-        else if (activeFragment == 1) {
-            ((CamerasFragment)pagerAdapter.getItem(0)).updateFragment();
-            ((FiltersFragment)pagerAdapter.getItem(2)).updateFragment();
+        else if (activeFragment == POSITION_LENSES) {
+            ((CamerasFragment)pagerAdapter.getItem(POSITION_CAMERAS)).updateFragment();
+            ((FiltersFragment)pagerAdapter.getItem(POSITION_FILTERS)).updateFragment();
         }
         //FiltersFragment is active
-        else if (activeFragment == 2) {
-            ((LensesFragment)pagerAdapter.getItem(1)).updateFragment();
+        else if (activeFragment == POSITION_FILTERS) {
+            ((LensesFragment)pagerAdapter.getItem(POSITION_LENSES)).updateFragment();
         }
     }
 
@@ -183,19 +270,19 @@ public class GearActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(final int position) {
             switch (position) {
-                case 3:
+                case POSITION_FILMS:
                     if (Films == null)
                         Films = new FilmStocksFragment();
                     return Films;
-                case 2:
+                case POSITION_FILTERS:
                     if(Filters == null)
                         Filters = new FiltersFragment();
                     return Filters;
-                case 1:
+                case POSITION_LENSES:
                     if(Lenses == null)
                         Lenses = new LensesFragment();
                     return Lenses;
-                case 0:
+                case POSITION_CAMERAS:
                     if(Cameras == null)
                         Cameras = new CamerasFragment();
                     return Cameras;
@@ -211,13 +298,13 @@ public class GearActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(final int position) {
             switch (position) {
-                case 3:
-                    return getApplicationContext().getResources().getString(R.string.Films);
-                case 2:
+                case POSITION_FILMS:
+                    return getApplicationContext().getResources().getString(R.string.FilmStocks);
+                case POSITION_FILTERS:
                     return getApplicationContext().getResources().getString(R.string.Filters);
-                case 1:
+                case POSITION_LENSES:
                     return getApplicationContext().getResources().getString(R.string.Lenses);
-                case 0:
+                case POSITION_CAMERAS:
                     return getApplicationContext().getResources().getString(R.string.Cameras);
             }
             return null;

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:title="@string/FilterNoColon"
+        android:id="@+id/menu_item_filter"
+        android:icon="@drawable/ic_filter_list_white_48dp"
+        app:showAsAction="ifRoom">
+
+        <menu>
+
+            <group
+                android:checkableBehavior="none">
+                <item
+                    android:title="@string/FilterFilmStocksBy"
+                    android:enabled="false"
+                    />
+                <item
+                    android:title="@string/Manufacturer"
+                    android:id="@+id/filter_mode_film_manufacturer"
+                    />
+                <item
+                    android:title="@string/ISO"
+                    android:id="@+id/filter_mode_film_iso"
+                    />
+            </group>
+
+        </menu>
+
+    </item>
+
+    <item
+        android:title="@string/Sort"
+        android:id="@+id/menu_item_sort"
+        android:icon="@drawable/ic_sort_white_48dp"
+        app:showAsAction="ifRoom">
+
+        <menu>
+
+            <group
+                android:checkableBehavior="single">
+                <item
+                    android:title="@string/SortFilmStocksBy"
+                    android:enabled="false"
+                    android:checkable="false"
+                    />
+                <item
+                    android:title="@string/NameNoColon"
+                    android:id="@+id/sort_mode_film_stock_name"
+                    />
+                <item
+                    android:title="@string/ISO"
+                    android:id="@+id/sort_mode_film_stock_iso"
+                    />
+            </group>
+
+        </menu>
+
+    </item>
+
+</menu>

@@ -7,9 +7,7 @@
         android:id="@+id/menu_item_filter"
         android:icon="@drawable/ic_filter_list_white_48dp"
         app:showAsAction="ifRoom">
-        <menu
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+        <menu>
             <group
                 android:checkableBehavior="single">
                 <item
@@ -33,9 +31,7 @@
         android:id="@+id/menu_item_sort"
         android:icon="@drawable/ic_sort_white_48dp"
         app:showAsAction="ifRoom">
-        <menu
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+        <menu>
             <group
                 android:checkableBehavior="single">
                 <item
