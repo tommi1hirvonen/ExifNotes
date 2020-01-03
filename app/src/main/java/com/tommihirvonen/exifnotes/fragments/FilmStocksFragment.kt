@@ -103,7 +103,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
             val position = item.order
             val filmStock = filmStocks[position]
             when (item.itemId) {
-                R.id.menu_item_delete -> {
+                GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_DELETE -> {
                     val builder = AlertDialog.Builder(activity)
                     builder.setTitle(
                             resources.getString(R.string.DeleteFilmStock) + " " + filmStock.name
@@ -120,7 +120,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                     builder.create().show()
                     return true
                 }
-                R.id.menu_item_edit -> {
+                GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_EDIT -> {
                     val dialog = EditFilmStockDialog()
                     dialog.setTargetFragment(this, EDIT_FILM_STOCK)
                     val arguments = Bundle()

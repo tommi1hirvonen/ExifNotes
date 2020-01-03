@@ -41,6 +41,15 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
      */
     private final FilmDbHelper database;
 
+    // Since we have to manually add the menu items to the context menus to pass the item position
+    // to the implementing class, menu item ids are declared here instead of a menu resource file.
+    // No menu resource file can be referenced here, so we use public constants instead.
+    public static final int MENU_ITEM_SELECT_MOUNTABLE_LENSES = 1;
+    public static final int MENU_ITEM_SELECT_MOUNTABLE_CAMERAS = 2;
+    public static final int MENU_ITEM_SELECT_MOUNTABLE_FILTERS = 3;
+    public static final int MENU_ITEM_SELECT_MOUNTABLE_EDIT = 4;
+    public static final int MENU_ITEM_SELECT_MOUNTABLE_DELETE = 5;
+
     /**
      * Package-private ViewHolder class which can be recycled
      * for better performance and memory management.
@@ -61,24 +70,25 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
                 final Gear gear = gearList.get(getAdapterPosition());
                 final String gearName = gear.getName();
                 contextMenu.setHeaderTitle(gearName);
-                // If the piece of gear is a camera or a filter, add the same menu item.
 
                 // Use the order parameter (3rd parameter) of the ContextMenu.add() method
                 // to pass the position of the list item which was clicked.
                 // This can be used in the implementing class to retrieve the items position.
                 if (gear instanceof Camera || gear instanceof Filter) {
-                    contextMenu.add(0, R.id.menu_item_select_mountable_lenses,
+                    contextMenu.add(0, MENU_ITEM_SELECT_MOUNTABLE_LENSES,
                             getAdapterPosition(), R.string.SelectMountableLenses);
                 // If the piece of gear is a lens, add two menu items.
                 } else if (gear instanceof Lens) {
-                    contextMenu.add(0, R.id.menu_item_select_mountable_cameras,
+                    contextMenu.add(0, MENU_ITEM_SELECT_MOUNTABLE_CAMERAS,
                             getAdapterPosition(), R.string.SelectMountableCameras);
-                    contextMenu.add(0, R.id.menu_item_select_mountable_filters,
+                    contextMenu.add(0, MENU_ITEM_SELECT_MOUNTABLE_FILTERS,
                             getAdapterPosition(), R.string.SelectMountableFilters);
                 }
                 // Add the additional menu items common for all types of gear.
-                contextMenu.add(0, R.id.menu_item_edit, getAdapterPosition(), R.string.Edit);
-                contextMenu.add(0, R.id.menu_item_delete, getAdapterPosition(), R.string.Delete);
+                contextMenu.add(0, MENU_ITEM_SELECT_MOUNTABLE_EDIT,
+                        getAdapterPosition(), R.string.Edit);
+                contextMenu.add(0, MENU_ITEM_SELECT_MOUNTABLE_DELETE,
+                        getAdapterPosition(), R.string.Delete);
             });
         }
     }

@@ -169,17 +169,17 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
 
             switch (item.getItemId()) {
 
-                case R.id.menu_item_select_mountable_cameras:
+                case GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_CAMERAS:
 
                     showSelectMountableCamerasDialog(position);
                     return true;
 
-                case R.id.menu_item_select_mountable_filters:
+                case GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_FILTERS:
 
                     showSelectMountableFiltersDialog(position);
                     return true;
 
-                case R.id.menu_item_delete:
+                case GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_DELETE:
 
                     // Check if the lens is being used with one of the frames.
                     if (database.isLensInUse(lens)) {
@@ -216,7 +216,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
 
                     return true;
 
-                case R.id.menu_item_edit:
+                case GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_EDIT:
 
                     final EditLensDialog dialog = new EditLensDialog();
                     dialog.setTargetFragment(this, EDIT_LENS);
