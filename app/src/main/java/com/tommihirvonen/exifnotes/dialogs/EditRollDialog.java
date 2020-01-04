@@ -49,6 +49,9 @@ public class EditRollDialog extends DialogFragment {
      */
     public static final String TAG = "EditRollDialog";
 
+    private static final int REQUEST_CODE_ADD_CAMERA = 1;
+    private static final int REQUEST_CODE_SELECT_FILM_STOCK = 2;
+
     /**
      * Holds the information of the edited Roll
      */
@@ -214,7 +217,11 @@ public class EditRollDialog extends DialogFragment {
         });
 
         final LinearLayout filmStockLayout = inflatedView.findViewById(R.id.film_stock_layout);
-        filmStockLayout.setOnClickListener(new FilmStockLayoutOnClickListener());
+        filmStockLayout.setOnClickListener(v -> {
+            final SelectFilmStockDialog dialog = new SelectFilmStockDialog();
+            dialog.setTargetFragment(EditRollDialog.this, REQUEST_CODE_SELECT_FILM_STOCK);
+            dialog.show(getFragmentManager().beginTransaction(), null);
+        });
         //==========================================================================================
 
 
@@ -265,7 +272,7 @@ public class EditRollDialog extends DialogFragment {
             noteEditText.clearFocus();
             nameEditText.clearFocus();
             final EditCameraDialog dialog = new EditCameraDialog();
-            dialog.setTargetFragment(EditRollDialog.this, CamerasFragment.ADD_CAMERA);
+            dialog.setTargetFragment(EditRollDialog.this, REQUEST_CODE_ADD_CAMERA);
             final Bundle arguments = new Bundle();
             arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewCamera));
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
@@ -534,74 +541,36 @@ public class EditRollDialog extends DialogFragment {
      * @param data the extra data attached to the passed intent
      */
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (requestCode == CamerasFragment.ADD_CAMERA) {
-            if (resultCode == Activity.RESULT_OK) {
-                // After Ok code.
+        switch (requestCode) {
 
-                newCamera = data.getParcelableExtra(ExtraKeys.CAMERA);
-                final long rowId = database.addCamera(newCamera);
-                newCamera.setId(rowId);
-                cameraList.add(newCamera);
-                cameraTextView.setText(newCamera.getName());
+            case REQUEST_CODE_ADD_CAMERA:
+                if (resultCode == Activity.RESULT_OK) {
+                    // After Ok code.
+                    newCamera = data.getParcelableExtra(ExtraKeys.CAMERA);
+                    final long rowId = database.addCamera(newCamera);
+                    newCamera.setId(rowId);
+                    cameraList.add(newCamera);
+                    cameraTextView.setText(newCamera.getName());
 
-            }
-        }
-    }
-
-    /**
-     * Private class to listen to clicks on the FilmStock layout.
-     */
-    private class FilmStockLayoutOnClickListener implements View.OnClickListener {
-
-        @Override
-        public void onClick(final View v) {
-
-            // First show a list of film stock manufacturers.
-            final CharSequence[] manufacturers = database.getAllFilmManufacturers().toArray(new CharSequence[0]);
-            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.SelectManufacturer);
-            builder.setItems(manufacturers, (dialog, which) -> {
-                dialog.dismiss();
-
-                // Once the user has selected a manufacturer,
-                // show a list of film stocks by that manufacturer.
-                final String manufacturer = manufacturers[which].toString();
-                final List<FilmStock> filmStocks = database.getAllFilmStocks(manufacturer);
-                final List<String> filmStockNames = new ArrayList<>();
-                int checkedItem = -1;
-                int counter = 0;
-                for (final FilmStock filmStock : filmStocks) {
-                    filmStockNames.add(filmStock.getName());
-                    if (newFilmStock != null && newFilmStock.getId() == filmStock.getId()) {
-                        checkedItem = counter;
-                    }
-                    counter++;
                 }
-                final CharSequence[] filmStockNames_ = filmStockNames.toArray(new CharSequence[0]);
-                final AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
-                builder1.setTitle(R.string.SelectFilmStock);
-                builder1.setSingleChoiceItems(filmStockNames_, checkedItem, (dialog12, which12) -> {
-                    newFilmStock = filmStocks.get(which12);
-                    filmStockTextView.setText(newFilmStock.getName());
-                    nameEditText.setHint(newFilmStock.getName());
-                    filmStockClearImageView.setVisibility(View.VISIBLE);
-                    // If the film stock ISO is defined, set the ISO
-                    if (newFilmStock.getIso() != 0) {
-                        newIso = newFilmStock.getIso();
-                        isoTextView.setText(newIso == 0 ? "" : String.valueOf(newIso));
-                    }
-                    dialog12.dismiss();
-                });
-                builder1.setNegativeButton(R.string.Cancel, (dialog1, which1) -> {
-                    // Do nothing
-                });
-                builder1.create().show();
-            });
-            builder.setNegativeButton(R.string.Cancel, (dialog, which) -> {
-                // Do nothing
-            });
-            builder.create().show();
-        }
+                break;
 
+            case REQUEST_CODE_SELECT_FILM_STOCK:
+
+                if (resultCode != Activity.RESULT_OK) return;
+
+                newFilmStock = data.getParcelableExtra(ExtraKeys.FILM_STOCK);
+                filmStockTextView.setText(newFilmStock.getName());
+                nameEditText.setHint(newFilmStock.getName());
+                filmStockClearImageView.setVisibility(View.VISIBLE);
+                // If the film stock ISO is defined, set the ISO
+                if (newFilmStock.getIso() != 0) {
+                    newIso = newFilmStock.getIso();
+                    isoTextView.setText(newIso == 0 ? "" : String.valueOf(newIso));
+                }
+                break;
+
+        }
     }
+
 }
