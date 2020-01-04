@@ -48,8 +48,8 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
 
     class ViewHolder extends RecyclerView.ViewHolder {
         final TextView manufacturerTextView;
-        final RelativeLayout manufacturerLayout;
-        final LinearLayout expandLayout;
+        final View manufacturerLayout;
+        final View expandLayout;
         final ImageView expandButton;
         final RecyclerView filmStocksRecyclerView;
         ViewHolder(final View itemView) {
@@ -120,10 +120,10 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
         if (animate) currentExpandedIndex = -1;
     }
 
-    private static void toggleLayout(final LinearLayout layout, final boolean isExpanded,
+    private static void toggleLayout(final View view, final boolean isExpanded,
                                      final boolean animate) {
-        if (isExpanded) expand(layout, animate);
-        else collapse(layout, animate);
+        if (isExpanded) expand(view, animate);
+        else collapse(view, animate);
     }
 
     private static void toggleArrow(final View view, final boolean isExpanded, final boolean animate) {

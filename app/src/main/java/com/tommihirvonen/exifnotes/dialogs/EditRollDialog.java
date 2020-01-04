@@ -178,6 +178,8 @@ public class EditRollDialog extends DialogFragment {
             }
             Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.add_camera)).getDrawable().mutate(),
                     ContextCompat.getColor(getActivity(), R.color.white));
+            Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.clear_film_stock)).getDrawable().mutate(),
+                    ContextCompat.getColor(getActivity(), R.color.white));
         }
         //==========================================================================================
 

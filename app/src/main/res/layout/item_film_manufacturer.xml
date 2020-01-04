@@ -19,7 +19,6 @@
             android:id="@+id/text_view_manufacturer_name"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:text="@string/Manufacturer"
-            android:textColor="@color/dark_grey"
             android:textSize="17sp"
             android:layout_margin="10dp"
             android:layout_centerVertical="true"
@@ -38,21 +37,38 @@
 
     </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="visible"
         android:orientation="vertical"
         android:id="@+id/layout_expand"
         android:layout_below="@id/layout_manufacturer"
+        android:background="@color/background_selected"
         >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:alpha="0.6"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/shadow_light" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_film_stocks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
             />
 
-    </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:alpha="0.2"
+            android:rotation="180"
+            android:layout_alignBottom="@id/recycler_view_film_stocks"
+            android:background="@drawable/shadow_light" />
+
+    </RelativeLayout>
 
 </RelativeLayout>

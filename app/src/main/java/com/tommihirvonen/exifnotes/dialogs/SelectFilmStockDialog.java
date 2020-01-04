@@ -34,6 +34,7 @@ public class SelectFilmStockDialog extends DialogFragment{
         @SuppressLint("InflateParams")
         final View view = inflater.inflate(R.layout.dialog_select_film_stock, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.SelectFilmStock);
         builder.setView(view);
         builder.setNegativeButton(R.string.Cancel, (dialog, which) -> dialog.dismiss());
 

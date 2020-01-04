@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/text_view_film_stock"
-        android:textColor="@color/dark_grey"
         android:textSize="16sp"
         android:text="@string/FilmStock"
         android:layout_marginLeft="60dp"
