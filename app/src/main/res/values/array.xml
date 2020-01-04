@@ -477,189 +477,211 @@
         <item>+3</item>
     </string-array>
 
+    <string-array name="FilmProcesses">
+        <item>Unknown</item>
+        <item>B&amp;W negative</item>
+        <item>B&amp;W reversal</item>
+        <item>C-41</item>
+        <item>E-6</item>
+        <item>ECN-2</item>
+        <item>Integral</item>
+    </string-array>
+
+    <string-array name="FilmTypes">
+        <item>Unknown</item>
+        <item>B&amp;W negative</item>
+        <item>B&amp;W reversal</item>
+        <item>B&amp;W instant (integral)</item>
+        <item>Colour negative</item>
+        <item>Colour reversal</item>
+        <item>Colour instant (integral)</item>
+        <item>Motion picture B&amp;W negative</item>
+        <item>Motion picture colour negative</item>
+    </string-array>
+
     <!--Define default film stocks to be added to the database-->
-    <!--Format is (make,model,ISO) where ISO can be left blank-->
+    <!--Format is (make,model,ISO,type,process)-->
     <string-array name="FilmStocks">
-        <item>ADOX,CMS 20 II,20</item>
-        <item>ADOX,HR-50,50</item>
-        <item>ADOX,Scala 160,160</item>
-        <item>ADOX,SILVERMAX 100,100</item>
-        <item>Agfa,Copex Rapid,10</item>
-        <item>Agfaphoto,APX 100,100</item>
-        <item>Agfaphoto,APX 400,400</item>
-        <item>Arista.EDU,ULTRA 100,100</item>
-        <item>Arista.EDU,ULTRA 200,200</item>
-        <item>Arista.EDU,ULTRA 400,400</item>
-        <item>BERGGER,Pancro 400,400</item>
-        <item>CineStill,Xpro C-41 50 (50D),50</item>
-        <item>CineStill,Xpro C-41 800 Tungsten (800T),800</item>
-        <item>CineStill,BWXX,250</item>
-        <item>dubblefilm,BUBBLEGUM,200</item>
-        <item>dubblefilm,MONSOON,200</item>
-        <item>dubblefilm,MOONSTRUCK,200</item>
-        <item>dubblefilm,SUNSTROKE,200</item>
-        <item>FERRANIA,P30 Alpha,80</item>
-        <item>Film Washi,A,12</item>
-        <item>Film Washi,B,125</item>
-        <item>Film Washi,D,500</item>
-        <item>Film Washi,G,80</item>
-        <item>Film Washi,K,100</item>
-        <item>Film Washi,P,100</item>
-        <item>Film Washi,S,50</item>
-        <item>Film Washi,V,100</item>
-        <item>Film Washi,W,25</item>
-        <item>Film Washi,Z,400</item>
-        <item>FOMAPAN,100 Classic,100</item>
-        <item>FOMAPAN,200 Creative,200</item>
-        <item>FOMAPAN,400 Action,400</item>
-        <item>FOMAPAN,R 100,100</item>
-        <item>RETROPAN,320 Soft,320</item>
-        <item>Fujifilm,Fujicolor C200,200</item>
-        <item>Fujifilm,Fujicolor 業務記錄用 ISO 100 / Fujifilm Industrial 100,100</item>
-        <item>Fujifilm,INSTAX Mini Color,800</item>
-        <item>Fujifilm,INSTAX Mini Monochrome,800</item>
-        <item>Fujifilm,INSTAX Square Color,800</item>
-        <item>Fujifilm,INSTAX Wide Color,800</item>
-        <item>Fujifilm,INSTAX Wide Monochrome,800</item>
-        <item>Fujifilm,NEOPAN 400CN Professional,400</item>
-        <item>Fujifilm,NEOPAN ACROS 100,100</item>
-        <item>Fujifilm,Fujicolor Pro 400H,400</item>
-        <item>Fujifilm,PROVIA 100F,100</item>
-        <item>Fujifilm,Fujicolor SUPERIA Premium 400,400</item>
-        <item>Fujifilm,Fujicolor SUPERIA Venus 800,800</item>
-        <item>Fujifilm,SUPERIA X-TRA 400,400</item>
-        <item>Fujifilm,Velvia 50,50</item>
-        <item>Fujifilm,Velvia 100,100</item>
-        <item>Sunny,16,200</item>
-        <item>ILFORD,Delta 100 Professional,100</item>
-        <item>ILFORD,Delta 400 Professional,400</item>
-        <item>ILFORD,Delta 3200 Professional,3200</item>
-        <item>ILFORD,FP4 PLUS,125</item>
-        <item>ILFORD,HP5 PLUS,400</item>
-        <item>ILFORD,Ortho Copy Plus,80</item>
-        <item>ILFORD,Pan 100,100</item>
-        <item>ILFORD,Pan 400,400</item>
-        <item>ILFORD,PAN F PLUS,50</item>
-        <item>ILFORD,SFX 200,200</item>
-        <item>ILFORD,XP2 Super,400</item>
-        <item>Kentmere,100,100</item>
-        <item>Kentmere,400,400</item>
-        <item>Japan,Camera Hunter Street Pan 400,400</item>
-        <item>Kodak,Black and White Print Film 2302,250</item>
-        <item>Kodak,ColorPlus 200,200</item>
-        <item>Kodak,EASTMAN DOUBLE-X 5222,250</item>
-        <item>Kodak,EASTMAN Fine Grain Duplicating Panchromatic Negative Film 5234,6</item>
-        <item>Kodak,EKTACHROME E100,100</item>
-        <item>Kodak,Gold 200,200</item>
-        <item>Kodak,Professional Ektar 100,100</item>
-        <item>Kodak,Professional Portra 160,160</item>
-        <item>Kodak,Professional Portra 400,400</item>
-        <item>Kodak,Professional Portra 800,800</item>
-        <item>Kodak,Professional T-MAX 100,100</item>
-        <item>Kodak,Professional T-MAX 400,400</item>
-        <item>Kodak,Professional T-MAX 3200,3200</item>
-        <item>Kodak,Professional Tri-X 320,320</item>
-        <item>Kodak,Professional Tri-X 400,400</item>
-        <item>Kodak,Pro Image 100,100</item>
-        <item>Kodak,ULTRA MAX 400,400</item>
-        <item>Kodak,VISION3 50D 5203,200</item>
-        <item>Kodak,VISION3 200T 5213,250</item>
-        <item>Kodak,VISION3 250D 5207,50</item>
-        <item>Kodak,VISION3 500T 5219,500</item>
-        <item>KONO!,ALiEN 200,400</item>
-        <item>KONO!,Donau 6,6</item>
-        <item>KONO!,KATZ 200,200</item>
-        <item>KONO!,KOLORIT 400 Tungsten,400</item>
-        <item>KONO!,LIEBE 200,200</item>
-        <item>KONO!,LUFT,200</item>
-        <item>KONO!,Rotwild 400,400</item>
-        <item>KONO!,UFO 200,200</item>
-        <item>KONO!,WINTERMÄRCHEN,200</item>
-        <item>Kosmo,Foto Mono 100,100</item>
-        <item>Leica,SOFORT colour film,800</item>
-        <item>Leica,SOFORT monochrom,800</item>
-        <item>Lomography,Color Negative 100,100</item>
-        <item>Lomography,Color Negative 400,400</item>
-        <item>Lomography,Color Negative 800,800</item>
-        <item>Lomography,Colour Tiger,200</item>
-        <item>Lomography,Earl Grey 100,100</item>
-        <item>Lomography,Lady Grey 400,400</item>
-        <item>Lomography,Lady Grey 400,100</item>
-        <item>Lomography,LomoChrome Purple XR 100–400 (new formula),</item>
-        <item>Lomography,Orca 100,100</item>
-        <item>Lomography,Peacock,200</item>
-        <item>Lomography,Redscale 100,100</item>
-        <item>Lomography,Redscale XR 50–200,</item>
-        <item>Lomography,XPRO Chrome 100,200</item>
-        <item>Lomography,XPRO 200,200</item>
-        <item>Luckyfilm,New SHD100,100</item>
-        <item>MACO,Traffic Surveillance Eagle AQS,400</item>
-        <item>Oriental,Seagull 100,100</item>
-        <item>Oriental,Seagull 400,400</item>
-        <item>ORWO,DN21,25</item>
-        <item>ORWO,DP31,25</item>
-        <item>ORWO,N74 plus,400</item>
-        <item>ORWO,PF2,50</item>
-        <item>ORWO,TF12d,50</item>
-        <item>ORWO,UN54,100</item>
-        <item>Pictoriographica,J. Lane Dry Plates,2</item>
-        <item>ReraChrome,100,100</item>
-        <item>ReraPan,100,100</item>
-        <item>ReraPan,400,400</item>
-        <item>Revolog,460nm,200</item>
-        <item>Revolog,600nm,200</item>
-        <item>Revolog,Kolor,200</item>
-        <item>Revolog,Kosmos,200</item>
-        <item>Revolog,Lazer,200</item>
-        <item>Revolog,Plexus,200</item>
-        <item>Revolog,Rasp,200</item>
-        <item>Revolog,Snovolox,200</item>
-        <item>Revolog,Streak,200</item>
-        <item>Revolog,Tesla 1,200</item>
-        <item>Revolog,Tesla II,200</item>
-        <item>Revolog,Texture,200</item>
-        <item>Revolog,Volvox,200</item>
-        <item>Rollei,ATO 2.1,6</item>
-        <item>Rollei,CN 200,200</item>
-        <item>Rollei,Crossbird,200</item>
-        <item>Rollei,Infrared 400,400</item>
-        <item>Rollei,Ortho 25 plus,25</item>
-        <item>Rollei,Retro 80S,80</item>
-        <item>Rollei,Retro 400S,400</item>
-        <item>Rollei,RPX 100,100</item>
-        <item>Rollei,RPX 25,24</item>
-        <item>Rollei,RPX 400,400</item>
-        <item>Rollei,Superpan 200,200</item>
-        <item>Shanghai,GP3 (上海GP3),100</item>
-        <item>Silberra,PAN100,100</item>
-        <item>Silberra,PAN160,160</item>
-        <item>Silberra,PAN200,200</item>
-        <item>Silberra,ULTIMA 100,200</item>
-        <item>Silberra,U200,200</item>
-        <item>Silberra,U400,400</item>
-        <item>Street,Candy ATM 400,400</item>
-        <item>Svema,Blue Sensitive,6</item>
-        <item>Svema,FN64,64</item>
-        <item>Svema,Foto 100,100</item>
-        <item>Svema,Foto 200,200</item>
-        <item>Svema,Foto 400,500</item>
-        <item>Svema,MZ3,3</item>
-        <item>Svema,Super Positive Film,</item>
-        <item>Tasma,NK2,100</item>
-        <item>Ultrafine,Colouruption,25</item>
-        <item>Ultrafine,High Contrast Ortho Litho Film,6</item>
-        <item>Ultrafine,Continuous Tone Duplicating Film,4</item>
-        <item>Ultrafine,Red Dragon Redscale,25</item>
-        <item>Ultrafine,Ultramax T-Grain 400,400</item>
-        <item>Ultrafine,Xtreme 100,100</item>
-        <item>Ultrafine,Xtreme 400,400</item>
-        <item>Yodica,Andromeda,400</item>
-        <item>Yodica,Antares,400</item>
-        <item>Yodica,Atlas,400</item>
-        <item>Yodica,Pegasus,400</item>
-        <item>Yodica,Polaris,400</item>
-        <item>Yodica,Sirio,400</item>
-        <item>Yodica,Vega,400</item>
+        <item>ADOX,CMS 20 II,20,1,1</item>
+        <item>ADOX,HR-50,50,1,2</item>
+        <item>ADOX,Scala 160,160,2,2</item>
+        <item>ADOX,SILVERMAX 100,100,1,1</item>
+        <item>Agfa,Copex Rapid,10,1,1</item>
+        <item>Agfaphoto,APX 100,100,1,1</item>
+        <item>Agfaphoto,APX 400,400,1,1</item>
+        <item>Arista.EDU,ULTRA 100,100,1,1</item>
+        <item>Arista.EDU,ULTRA 200,200,1,1</item>
+        <item>Arista.EDU,ULTRA 400,400,1,1</item>
+        <item>BERGGER,Pancro 400,400,1,1</item>
+        <item>CineStill,Xpro C-41 50 (50D),50,8,5</item>
+        <item>CineStill,Xpro C-41 800 Tungsten (800T),800,8,5</item>
+        <item>CineStill,BWXX,250,7,1</item>
+        <item>dubblefilm,BUBBLEGUM,200,4,3</item>
+        <item>dubblefilm,MONSOON,200,4,3</item>
+        <item>dubblefilm,MOONSTRUCK,200,4,3</item>
+        <item>dubblefilm,SUNSTROKE,200,4,3</item>
+        <item>FERRANIA,P30 Alpha,80,1,1</item>
+        <item>Film Washi,A,12,1,1</item>
+        <item>Film Washi,B,125,1,1</item>
+        <item>Film Washi,D,500,1,1</item>
+        <item>Film Washi,G,80,1,1</item>
+        <item>Film Washi,K,100,1,1</item>
+        <item>Film Washi,P,100,1,1</item>
+        <item>Film Washi,S,50,1,1</item>
+        <item>Film Washi,V,100,1,1</item>
+        <item>Film Washi,W,25,1,1</item>
+        <item>Film Washi,Z,400,1,1</item>
+        <item>FOMAPAN,100 Classic,100,1,1</item>
+        <item>FOMAPAN,200 Creative,200,1,1</item>
+        <item>FOMAPAN,400 Action,400,1,1</item>
+        <item>FOMAPAN,R 100,100,2,1</item>
+        <item>RETROPAN,320 Soft,320,1,1</item>
+        <item>Fujifilm,Fujicolor C200,200,4,3</item>
+        <item>Fujifilm,Fujicolor 業務記錄用 ISO 100 / Fujifilm Industrial 100,100,4,3</item>
+        <item>Fujifilm,INSTAX Mini Color,800,6,6</item>
+        <item>Fujifilm,INSTAX Mini Monochrome,800,3,6</item>
+        <item>Fujifilm,INSTAX Square Color,800,6,6</item>
+        <item>Fujifilm,INSTAX Wide Color,800,6,6</item>
+        <item>Fujifilm,INSTAX Wide Monochrome,800,3,6</item>
+        <item>Fujifilm,NEOPAN 400CN Professional,400,1,3</item>
+        <item>Fujifilm,NEOPAN ACROS 100,100,1,1</item>
+        <item>Fujifilm,Fujicolor Pro 400H,400,4,3</item>
+        <item>Fujifilm,PROVIA 100F,100,5,4</item>
+        <item>Fujifilm,Fujicolor SUPERIA Premium 400,400,4,3</item>
+        <item>Fujifilm,Fujicolor SUPERIA Venus 800,800,4,3</item>
+        <item>Fujifilm,SUPERIA X-TRA 400,400,4,3</item>
+        <item>Fujifilm,Velvia 50,50,5,4</item>
+        <item>Fujifilm,Velvia 100,100,5,4</item>
+        <item>Sunny,16,200,4,3</item>
+        <item>ILFORD,Delta 100 Professional,100,1,1</item>
+        <item>ILFORD,Delta 400 Professional,400,1,1</item>
+        <item>ILFORD,Delta 3200 Professional,3200,1,1</item>
+        <item>ILFORD,FP4 PLUS,125,1,1</item>
+        <item>ILFORD,HP5 PLUS,400,1,1</item>
+        <item>ILFORD,Ortho Copy Plus,80,1,1</item>
+        <item>ILFORD,Pan 100,100,1,1</item>
+        <item>ILFORD,Pan 400,400,1,1</item>
+        <item>ILFORD,PAN F PLUS,50,1,1</item>
+        <item>ILFORD,SFX 200,200,1,1</item>
+        <item>ILFORD,XP2 Super,400,1,3</item>
+        <item>Kentmere,100,100,1,1</item>
+        <item>Kentmere,400,400,1,1</item>
+        <item>Japan,Camera Hunter Street Pan 400,400,1,1</item>
+        <item>Kodak,Black and White Print Film 2302,250,1,1</item>
+        <item>Kodak,ColorPlus 200,200,4,3</item>
+        <item>Kodak,EASTMAN DOUBLE-X 5222,250,7,1</item>
+        <item>Kodak,EASTMAN Fine Grain Duplicating Panchromatic Negative Film 5234,6,1,1</item>
+        <item>Kodak,EKTACHROME E100,100,5,4</item>
+        <item>Kodak,Gold 200,200,4,3</item>
+        <item>Kodak,Professional Ektar 100,100,4,3</item>
+        <item>Kodak,Professional Portra 160,160,4,3</item>
+        <item>Kodak,Professional Portra 400,400,4,3</item>
+        <item>Kodak,Professional Portra 800,800,4,3</item>
+        <item>Kodak,Professional T-MAX 100,100,1,1</item>
+        <item>Kodak,Professional T-MAX 400,400,1,1</item>
+        <item>Kodak,Professional T-MAX 3200,3200,1,1</item>
+        <item>Kodak,Professional Tri-X 320,320,1,1</item>
+        <item>Kodak,Professional Tri-X 400,400,1,1</item>
+        <item>Kodak,Pro Image 100,100,4,3</item>
+        <item>Kodak,ULTRA MAX 400,400,4,3</item>
+        <item>Kodak,VISION3 50D 5203,200,8,5</item>
+        <item>Kodak,VISION3 200T 5213,250,8,5</item>
+        <item>Kodak,VISION3 250D 5207,50,8,5</item>
+        <item>Kodak,VISION3 500T 5219,500,8,5</item>
+        <item>KONO!,ALiEN 200,400,4,3</item>
+        <item>KONO!,Donau 6,6,4,3</item>
+        <item>KONO!,KATZ 200,200,4,3</item>
+        <item>KONO!,KOLORIT 400 Tungsten,400,4,3</item>
+        <item>KONO!,LIEBE 200,200,4,3</item>
+        <item>KONO!,LUFT,200,4,3</item>
+        <item>KONO!,Rotwild 400,400,4,3</item>
+        <item>KONO!,UFO 200,200,4,3</item>
+        <item>KONO!,WINTERMÄRCHEN,200,4,3</item>
+        <item>Kosmo,Foto Mono 100,100,1,1</item>
+        <item>Leica,SOFORT colour film,800,6,6</item>
+        <item>Leica,SOFORT monochrom,800,3,6</item>
+        <item>Lomography,Color Negative 100,100,4,3</item>
+        <item>Lomography,Color Negative 400,400,4,3</item>
+        <item>Lomography,Color Negative 800,800,4,3</item>
+        <item>Lomography,Colour Tiger,200,4,3</item>
+        <item>Lomography,Earl Grey 100,100,1,1</item>
+        <item>Lomography,Lady Grey 400,400,1,1</item>
+        <item>Lomography,Lady Grey 400,100,4,3</item>
+        <item>Lomography,LomoChrome Purple XR 100-400 (new formula),0,4,3</item>
+        <item>Lomography,Orca 100,100,1,1</item>
+        <item>Lomography,Peacock,200,5,4</item>
+        <item>Lomography,Redscale 100,100,4,3</item>
+        <item>Lomography,Redscale XR 50-200,0,4,3</item>
+        <item>Lomography,XPRO Chrome 100,200,5,4</item>
+        <item>Lomography,XPRO 200,200,5,4</item>
+        <item>Luckyfilm,New SHD100,100,1,1</item>
+        <item>MACO,Traffic Surveillance Eagle AQS,400,1,1</item>
+        <item>Oriental,Seagull 100,100,1,1</item>
+        <item>Oriental,Seagull 400,400,1,1</item>
+        <item>ORWO,DN21,25,7,1</item>
+        <item>ORWO,DP31,25,7,1</item>
+        <item>ORWO,N74 plus,400,7,1</item>
+        <item>ORWO,PF2,50,7,1</item>
+        <item>ORWO,TF12d,50,7,1</item>
+        <item>ORWO,UN54,100,7,1</item>
+        <item>Pictoriographica,J. Lane Dry Plates,2,1,1</item>
+        <item>ReraChrome,100,100,5,4</item>
+        <item>ReraPan,100,100,1,1</item>
+        <item>ReraPan,400,400,1,1</item>
+        <item>Revolog,460nm,200,4,3</item>
+        <item>Revolog,600nm,200,4,3</item>
+        <item>Revolog,Kolor,200,4,3</item>
+        <item>Revolog,Kosmos,200,4,3</item>
+        <item>Revolog,Lazer,200,4,3</item>
+        <item>Revolog,Plexus,200,4,3</item>
+        <item>Revolog,Rasp,200,4,3</item>
+        <item>Revolog,Snovolox,200,4,3</item>
+        <item>Revolog,Streak,200,4,3</item>
+        <item>Revolog,Tesla 1,200,4,3</item>
+        <item>Revolog,Tesla II,200,4,3</item>
+        <item>Revolog,Texture,200,4,3</item>
+        <item>Revolog,Volvox,200,4,3</item>
+        <item>Rollei,ATO 2.1,6,1,1</item>
+        <item>Rollei,CN 200,200,4,3</item>
+        <item>Rollei,Crossbird,200,4,3</item>
+        <item>Rollei,Infrared 400,400,1,1</item>
+        <item>Rollei,Ortho 25 plus,25,1,1</item>
+        <item>Rollei,Retro 80S,80,1,1</item>
+        <item>Rollei,Retro 400S,400,1,1</item>
+        <item>Rollei,RPX 100,100,1,1</item>
+        <item>Rollei,RPX 25,24,1,1</item>
+        <item>Rollei,RPX 400,400,1,1</item>
+        <item>Rollei,Superpan 200,200,1,1</item>
+        <item>Shanghai,GP3 (上海GP3),100,1,1</item>
+        <item>Silberra,PAN100,100,1,1</item>
+        <item>Silberra,PAN160,160,1,1</item>
+        <item>Silberra,PAN200,200,1,1</item>
+        <item>Silberra,ULTIMA 100,200,1,1</item>
+        <item>Silberra,U200,200,1,1</item>
+        <item>Silberra,U400,400,1,1</item>
+        <item>Street,Candy ATM 400,400,1,1</item>
+        <item>Svema,Blue Sensitive,6,1,1</item>
+        <item>Svema,FN64,64,1,1</item>
+        <item>Svema,Foto 100,100,1,1</item>
+        <item>Svema,Foto 200,200,1,1</item>
+        <item>Svema,Foto 400,500,1,1</item>
+        <item>Svema,MZ3,3,1,1</item>
+        <item>Svema,Super Positive Film,0,1,1</item>
+        <item>Tasma,NK2,100,1,1</item>
+        <item>Ultrafine,Colouruption,25,4,3</item>
+        <item>Ultrafine,High Contrast Ortho Litho Film,6,1,1</item>
+        <item>Ultrafine,Continuous Tone Duplicating Film,4,1,1</item>
+        <item>Ultrafine,Red Dragon Redscale,25,4,3</item>
+        <item>Ultrafine,Ultramax T-Grain 400,400,4,3</item>
+        <item>Ultrafine,Xtreme 100,100,1,1</item>
+        <item>Ultrafine,Xtreme 400,400,1,1</item>
+        <item>Yodica,Andromeda,400,4,3</item>
+        <item>Yodica,Antares,400,4,3</item>
+        <item>Yodica,Atlas,400,4,3</item>
+        <item>Yodica,Pegasus,400,4,3</item>
+        <item>Yodica,Polaris,400,4,3</item>
+        <item>Yodica,Sirio,400,4,3</item>
+        <item>Yodica,Vega,400,4,3</item>
     </string-array>
 
 </resources>

@@ -11,6 +11,7 @@ import android.text.InputFilter
 import android.text.Spanned
 import android.view.View
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -38,7 +39,8 @@ class EditFilmStockDialog : DialogFragment() {
             // Color the dividers white if the app's theme is dark
             if (Utilities.isAppThemeDark(activity)) {
                 listOf<View>(
-                        view.findViewById(R.id.divider_view1), view.findViewById(R.id.divider_view2)
+                        view.findViewById(R.id.divider_view1), view.findViewById(R.id.divider_view2),
+                        view.findViewById(R.id.divider_view3), view.findViewById(R.id.divider_view4)
                 ).forEach { it.setBackgroundColor(ContextCompat.getColor(activity, R.color.white)) }
             }
 
@@ -49,6 +51,16 @@ class EditFilmStockDialog : DialogFragment() {
             filmStockEditText.setText(filmStock.model)
             isoEditText.setText(filmStock.iso.toString())
             isoEditText.filters = arrayOf<InputFilter>(IsoInputFilter())
+
+            val filmTypeSpinner = view.findViewById<Spinner>(R.id.spinner_film_type)
+            try {
+                filmTypeSpinner.setSelection(filmStock.type)
+            } catch (ignore: ArrayIndexOutOfBoundsException) {}
+
+            val filmProcessSpinner = view.findViewById<Spinner>(R.id.spinner_film_process)
+            try {
+                filmProcessSpinner.setSelection(filmStock.process)
+            } catch (ignore: ArrayIndexOutOfBoundsException) {}
 
             builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
                 targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, Intent())
@@ -71,6 +83,9 @@ class EditFilmStockDialog : DialogFragment() {
                     } catch (ignored: NumberFormatException) {
                         filmStock.iso = 0
                     }
+                    filmStock.type = filmTypeSpinner.selectedItemPosition
+                    filmStock.process = filmProcessSpinner.selectedItemPosition
+
                     dialog.dismiss()
                     val intent = Intent()
                     intent.putExtra(ExtraKeys.FILM_STOCK, filmStock)

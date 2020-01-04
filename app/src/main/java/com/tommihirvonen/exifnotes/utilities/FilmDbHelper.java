@@ -121,6 +121,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_FILM_MANUFACTURER_NAME = "film_manufacturer_name";
     private static final String KEY_FILM_STOCK_NAME = "film_stock_name";
     private static final String KEY_FILM_ISO = "film_iso";
+    private static final String KEY_FILM_TYPE = "film_type";
+    private static final String KEY_FILM_PROCESS = "film_process";
 
     //=============================================================================================
     //Database information
@@ -141,7 +143,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + "(" + KEY_FILM_STOCK_ID + " integer primary key autoincrement, "
             + KEY_FILM_MANUFACTURER_NAME + " text not null, "
             + KEY_FILM_STOCK_NAME + " text not null, "
-            + KEY_FILM_ISO + " integer"
+            + KEY_FILM_ISO + " integer,"
+            + KEY_FILM_TYPE + " integer,"
+            + KEY_FILM_PROCESS + " integer"
             + ");";
 
     private static final String CREATE_LENS_TABLE = "create table " + TABLE_LENSES
@@ -1511,6 +1515,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         filmStock.setMake(cursor.getString(cursor.getColumnIndex(KEY_FILM_MANUFACTURER_NAME)));
         filmStock.setModel(cursor.getString(cursor.getColumnIndex(KEY_FILM_STOCK_NAME)));
         filmStock.setIso(cursor.getInt(cursor.getColumnIndex(KEY_FILM_ISO)));
+        filmStock.setType(cursor.getInt(cursor.getColumnIndex(KEY_FILM_TYPE)));
+        filmStock.setProcess(cursor.getInt(cursor.getColumnIndex(KEY_FILM_PROCESS)));
         return filmStock;
     }
 
@@ -1630,6 +1636,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_FILM_MANUFACTURER_NAME, filmStock.getMake());
         contentValues.put(KEY_FILM_STOCK_NAME, filmStock.getModel());
         contentValues.put(KEY_FILM_ISO, filmStock.getIso());
+        contentValues.put(KEY_FILM_TYPE, filmStock.getType());
+        contentValues.put(KEY_FILM_PROCESS, filmStock.getProcess());
         return contentValues;
     }
 
@@ -1782,7 +1790,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_STOCK_ID, INTEGER, 0, true, true) &&
                 checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_STOCK_NAME, TEXT, 1) &&
                 checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_MANUFACTURER_NAME, TEXT, 1) &&
-                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_ISO, INTEGER, 0)
+                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_ISO, INTEGER, 0) &&
+                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_TYPE, INTEGER, 0) &&
+                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_PROCESS, INTEGER, 0)
                 ;
 
     }
@@ -1910,8 +1920,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 final FilmStock filmStock = new FilmStock();
                 filmStock.setMake(components[0]);
                 filmStock.setModel(components[1]);
-                // Check if the ISO of the film stock was defined.
-                if (components.length >= 3) filmStock.setIso(Integer.parseInt(components[2]));
+                filmStock.setIso(Integer.parseInt(components[2]));
+                filmStock.setType(Integer.parseInt(components[3]));
+                filmStock.setProcess(Integer.parseInt(components[4]));
+
                 final ContentValues values = buildFilmStockContentValues(filmStock);
 
                 // Insert film stocks if they do not already exist.

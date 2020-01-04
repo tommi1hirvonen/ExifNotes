@@ -150,9 +150,14 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
             }
 
             final StringBuilder stringBuilder = new StringBuilder();
+
             if (gear instanceof FilmStock) {
+
                 final FilmStock filmStock = (FilmStock) gear;
-                stringBuilder.append("ISO ").append(filmStock.getIso());
+                stringBuilder.append("ISO:").append("\t\t\t\t\t\t\t").append(filmStock.getIso()).append("\n")
+                        .append("Type:").append("\t\t\t\t\t\t").append(filmStock.typeName(context)).append("\n")
+                        .append("Process:").append("\t\t\t").append(filmStock.processName(context));
+
             } else {
                 stringBuilder.append(context.getString(R.string.MountsTo));
                 for (final Gear g : mountables1) {

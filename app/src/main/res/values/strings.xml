@@ -132,6 +132,8 @@
     <string name="FilmStock">Film stock</string>
     <string name="FilmStockIsInUseConfirmation">Film stock is in use. Delete anyway?</string>
     <string name="FilmStocks">FILM STOCKS</string>
+    <string name="FilmType">Film type</string>
+    <string name="FilmProcess">Film process</string>
     <string name="FilterFilmStocksBy">Filter film stocks by</string>
     <string name="FilterNoColon">Filter</string>
     <string name="FilterOrFilters">Filter(s)</string>
