@@ -201,7 +201,7 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             final FilmStock filmStock = filmStocks.get(position);
-            holder.filmStockTextView.setText(filmStock.getName());
+            holder.filmStockTextView.setText(filmStock.getModel());
             holder.filmStockLayout.setOnClickListener(v -> listener.onFilmStockSelected(filmStock));
         }
 

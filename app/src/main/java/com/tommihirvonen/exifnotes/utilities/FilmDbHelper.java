@@ -1295,7 +1295,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         final List<FilmStock> filmStocks = new ArrayList<>();
         final SQLiteDatabase db = this.getReadableDatabase();
         final Cursor cursor = db.query(TABLE_FILM_STOCKS, null, KEY_FILM_MANUFACTURER_NAME + "=?",
-                new String[]{manufacturerName}, null, null, null);
+                new String[]{manufacturerName}, null, null, KEY_FILM_STOCK_NAME + " collate nocase");
         while (cursor.moveToNext()) {
             filmStocks.add(getFilmStockFromCursor(cursor, new FilmStock()));
         }
@@ -1307,7 +1307,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         final List<String> manufacturers = new ArrayList<>();
         final SQLiteDatabase db = this.getReadableDatabase();
         final Cursor cursor = db.query(true, TABLE_FILM_STOCKS, new String[]{KEY_FILM_MANUFACTURER_NAME},
-                null, null, null, null, null, null);
+                null, null, null, null, KEY_FILM_MANUFACTURER_NAME + " collate nocase", null);
         while (cursor.moveToNext()) {
             manufacturers.add(cursor.getString(cursor.getColumnIndex(KEY_FILM_MANUFACTURER_NAME)));
         }
