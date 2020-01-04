@@ -180,7 +180,9 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     }
 
     fun filterFilmStocks(manufacturers: List<String?>) {
-        filmStocks = database.allFilmStocks.filter { manufacturers.contains(it.make) }.toMutableList()
+        filmStocks = database.allFilmStocks.filter {
+            manufacturers.contains(it.make) || manufacturers.isEmpty()
+        }.toMutableList()
         sortFilmStocks()
         filmStockAdapter.setGearList(filmStocks)
         filmStockAdapter.notifyDataSetChanged()
