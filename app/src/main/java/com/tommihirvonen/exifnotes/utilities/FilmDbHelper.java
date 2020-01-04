@@ -1608,7 +1608,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_ROLL_PUSH, roll.getPushPull());
         contentValues.put(KEY_ROLL_FORMAT, roll.getFormat());
         contentValues.put(KEY_ROLL_ARCHIVED, roll.getArchived());
-        contentValues.put(KEY_FILM_STOCK_ID, roll.getFilmStockId());
+        if (roll.getFilmStockId() > 0) contentValues.put(KEY_FILM_STOCK_ID, roll.getFilmStockId());
+        else contentValues.putNull(KEY_FILM_STOCK_ID);
         return contentValues;
     }
 
