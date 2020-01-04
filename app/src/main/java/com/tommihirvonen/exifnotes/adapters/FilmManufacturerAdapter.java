@@ -1,6 +1,7 @@
 package com.tommihirvonen.exifnotes.adapters;
 
 import android.content.Context;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +13,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,7 +26,9 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
 
     private Context context;
     private List<String> manufacturers;
-    private boolean[] expandedManufacturers;
+    private final SparseBooleanArray expandedManufacturers = new SparseBooleanArray();
+    private final SparseBooleanArray expandAnimations = new SparseBooleanArray();
+    private int currentExpandedIndex = -1;
     private FilmDbHelper database;
     private OnFilmStockSelectedListener listener;
 
@@ -40,8 +42,8 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
         this.context = context;
         this.manufacturers = manufacturers;
         this.listener = listener;
-        expandedManufacturers = new boolean[manufacturers.size()];
         database = FilmDbHelper.getInstance(context);
+        setHasStableIds(true);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -76,18 +78,13 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
         final FilmStockAdapter adapter = new FilmStockAdapter(filmStocks);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         holder.filmStocksRecyclerView.setLayoutManager(layoutManager);
-        holder.filmStocksRecyclerView.addItemDecoration(new DividerItemDecoration(
-                holder.filmStocksRecyclerView.getContext(), layoutManager.getOrientation()));
         holder.filmStocksRecyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-
         holder.manufacturerTextView.setText(manufacturer);
         holder.manufacturerLayout.setOnClickListener(v -> {
-            final boolean show = !expandedManufacturers[position];
-            toggleArrow(holder.expandButton, show);
-            toggleLayout(holder.expandLayout, show);
-            expandedManufacturers[position] = show;
+            toggleManufacturer(position);
+            expandOrCollapseManufacturer(holder, position);
         });
+        expandOrCollapseManufacturer(holder, position);
     }
 
     @Override
@@ -95,55 +92,95 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
         return manufacturers.size();
     }
 
-    private static void toggleLayout(final LinearLayout layout, final boolean isExpanded) {
-        if (isExpanded) expand(layout);
-        else collapse(layout);
+    @Override
+    public long getItemId(int position) {
+        return manufacturers.get(position).hashCode();
     }
 
-    private static void toggleArrow(final View view, final boolean isExpanded) {
-        if (isExpanded) view.animate().setDuration(200).rotation(180);
-        else view.animate().setDuration(200).rotation(0);
+    private void toggleManufacturer(final int position) {
+        currentExpandedIndex = position;
+        if (expandedManufacturers.get(position, false)) {
+            expandedManufacturers.delete(position);
+            expandAnimations.delete(position);
+        } else {
+            expandedManufacturers.put(position, true);
+            expandAnimations.put(position, true);
+        }
     }
 
-    private static void expand(final View view) {
-        view.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        final int actualHeight = view.getMeasuredHeight();
-        view.getLayoutParams().height = 0;
-        view.setVisibility(View.VISIBLE);
-        final Animation animation = new Animation() {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                view.getLayoutParams().height = interpolatedTime == 1
-                        ? ViewGroup.LayoutParams.WRAP_CONTENT
-                        : (int) (actualHeight * interpolatedTime);
-                view.requestLayout();
-            }
-        };
-        animation.setDuration((long) (actualHeight / view.getContext().getResources().getDisplayMetrics().density));
-        view.startAnimation(animation);
+    private void expandOrCollapseManufacturer(final ViewHolder holder, final int position) {
+        final boolean animate = currentExpandedIndex == position;
+        if (expandedManufacturers.get(position, false)) {
+            toggleArrow(holder.expandButton, true, animate);
+            toggleLayout(holder.expandLayout, true, animate);
+        } else {
+            toggleArrow(holder.expandButton, false, animate);
+            toggleLayout(holder.expandLayout, false, animate);
+        }
+        if (animate) currentExpandedIndex = -1;
     }
 
-    private static void collapse(final View view) {
-        final int actualHeight = view.getMeasuredHeight();
-        final Animation animation = new Animation() {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                if (interpolatedTime == 1) {
-                    view.setVisibility(View.GONE);
-                } else {
-                    view.getLayoutParams().height = actualHeight - (int) (actualHeight * interpolatedTime);
+    private static void toggleLayout(final LinearLayout layout, final boolean isExpanded,
+                                     final boolean animate) {
+        if (isExpanded) expand(layout, animate);
+        else collapse(layout, animate);
+    }
+
+    private static void toggleArrow(final View view, final boolean isExpanded, final boolean animate) {
+        if (isExpanded && animate) view.animate().setDuration(200).rotation(180);
+        else if (isExpanded) view.setRotation(180);
+        else if (animate) view.animate().setDuration(200).rotation(0);
+        else view.setRotation(0);
+    }
+
+    private static void expand(final View view, final boolean animate) {
+        if (animate) {
+            view.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            final int actualHeight = view.getMeasuredHeight();
+            view.getLayoutParams().height = 0;
+            view.setVisibility(View.VISIBLE);
+            final Animation animation = new Animation() {
+                @Override
+                protected void applyTransformation(float interpolatedTime, Transformation t) {
+                    view.getLayoutParams().height = interpolatedTime == 1
+                            ? ViewGroup.LayoutParams.WRAP_CONTENT
+                            : (int) (actualHeight * interpolatedTime);
                     view.requestLayout();
                 }
-            }
-        };
-        animation.setDuration((long) (actualHeight/ view.getContext().getResources().getDisplayMetrics().density));
-        view.startAnimation(animation);
+            };
+            animation.setDuration((long) (actualHeight / view.getContext().getResources().getDisplayMetrics().density));
+            view.startAnimation(animation);
+        } else {
+            view.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private static void collapse(final View view, final boolean animate) {
+        if (animate) {
+            final int actualHeight = view.getMeasuredHeight();
+            final Animation animation = new Animation() {
+                @Override
+                protected void applyTransformation(float interpolatedTime, Transformation t) {
+                    if (interpolatedTime == 1) {
+                        view.setVisibility(View.GONE);
+                    } else {
+                        view.getLayoutParams().height = actualHeight - (int) (actualHeight * interpolatedTime);
+                        view.requestLayout();
+                    }
+                }
+            };
+            animation.setDuration((long) (actualHeight / view.getContext().getResources().getDisplayMetrics().density));
+            view.startAnimation(animation);
+        } else {
+            view.setVisibility(View.GONE);
+        }
     }
 
     private class FilmStockAdapter extends RecyclerView.Adapter<FilmStockAdapter.ViewHolder> {
         private List<FilmStock> filmStocks;
         FilmStockAdapter(@NonNull final List<FilmStock> filmStocks) {
             this.filmStocks = filmStocks;
+            setHasStableIds(true);
         }
         class ViewHolder extends RecyclerView.ViewHolder {
             final TextView filmStockTextView;
@@ -171,6 +208,11 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
         @Override
         public int getItemCount() {
             return filmStocks.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return filmStocks.get(position).getId();
         }
     }
 
