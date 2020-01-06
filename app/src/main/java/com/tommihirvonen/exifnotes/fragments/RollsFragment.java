@@ -32,8 +32,10 @@ import android.widget.Toast;
 import com.tommihirvonen.exifnotes.activities.MainActivity;
 import com.tommihirvonen.exifnotes.adapters.RollAdapter;
 import com.tommihirvonen.exifnotes.activities.AllFramesMapsActivity;
+import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.dialogs.EditRollDialog;
+import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
@@ -63,12 +65,14 @@ public class RollsFragment extends Fragment implements
     /**
      * Constant passed to EditRollDialog for result
      */
-    private static final int ROLL_DIALOG = 1;
+    private static final int REQUEST_CODE_ADD_ROLL = 1;
 
     /**
      * Constant passed to EditRollDialog for result
      */
-    private static final int EDIT_ROLL_DIALOG = 2;
+    private static final int REQUEST_CODE_EDIT_ROLL = 2;
+
+    private static final int REQUEST_CODE_BATCH_EDIT_FILM_STOCK = 3;
 
     /**
      * Reference to the parent activity's OnRollSelectedListener
@@ -513,9 +517,6 @@ public class RollsFragment extends Fragment implements
         if (rollAdapter.getSelectedItemCount() == 0) {
             actionMode.finish();
         } else {
-            // Set the visibility of edit item depending on whether only one roll was selected.
-            final boolean visible = rollAdapter.getSelectedItemCount() == 1;
-            actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(visible);
             // Set the action mode toolbar title to display the number of selected items.
             actionMode.setTitle(rollAdapter.getSelectedItemCount() + "/"
                     + rollAdapter.getItemCount());
@@ -537,7 +538,7 @@ public class RollsFragment extends Fragment implements
         arguments.putString(ExtraKeys.TITLE, getActivity().getResources().getString(R.string.EditRoll));
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getActivity().getResources().getString(R.string.OK));
         dialog.setArguments(arguments);
-        dialog.setTargetFragment(this, EDIT_ROLL_DIALOG);
+        dialog.setTargetFragment(this, REQUEST_CODE_EDIT_ROLL);
         dialog.show(getFragmentManager().beginTransaction(), EditRollDialog.TAG);
     }
 
@@ -552,7 +553,7 @@ public class RollsFragment extends Fragment implements
         arguments.putString(ExtraKeys.TITLE, getActivity().getResources().getString(R.string.NewRoll));
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getActivity().getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.setTargetFragment(this, ROLL_DIALOG);
+        dialog.setTargetFragment(this, REQUEST_CODE_ADD_ROLL);
         dialog.show(getFragmentManager().beginTransaction(), EditRollDialog.TAG);
     }
 
@@ -568,7 +569,7 @@ public class RollsFragment extends Fragment implements
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch(requestCode) {
 
-            case ROLL_DIALOG:
+            case REQUEST_CODE_ADD_ROLL:
 
                 if (resultCode == Activity.RESULT_OK) {
 
@@ -592,7 +593,7 @@ public class RollsFragment extends Fragment implements
                 }
                 break;
 
-            case EDIT_ROLL_DIALOG:
+            case REQUEST_CODE_EDIT_ROLL:
 
                 if (resultCode == Activity.RESULT_OK) {
 
@@ -612,7 +613,55 @@ public class RollsFragment extends Fragment implements
                     return;
                 }
                 break;
+
+            case REQUEST_CODE_BATCH_EDIT_FILM_STOCK:
+
+                if (resultCode != Activity.RESULT_OK) return;
+
+                final FilmStock filmStock = data.getParcelableExtra(ExtraKeys.FILM_STOCK);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage(R.string.BatchEditRollsFilmStockISOConfirmation);
+                builder.setNegativeButton(R.string.No, (dialog, which) ->
+                        batchUpdateRollsFilmStock(filmStock, false));
+                builder.setPositiveButton(R.string.Yes, (dialog, which) ->
+                        batchUpdateRollsFilmStock(filmStock, true));
+                builder.setNeutralButton(R.string.Cancel, (dialog, which) -> {});
+                builder.create().show();
+
+                break;
         }
+    }
+
+    /**
+     * Update all rolls currently selected in rollAdapter.
+     *
+     * @param filmStock The rolls will be updated with this film stock. Pass null if you want to
+     *                  clear the film stock property of edited rolls.
+     * @param updateIso true if the ISO property of edited rolls should be set to that of the passed
+     *                  film stock. If film stock == null and updateIso == true, the ISO will be
+     *                  reset as well.
+     */
+    private void batchUpdateRollsFilmStock(final FilmStock filmStock, final boolean updateIso) {
+        final List<Integer> selectedRollsPositions = rollAdapter.getSelectedItemPositions();
+        for (final int position : selectedRollsPositions) {
+            final Roll roll = rollList.get(position);
+            if (filmStock != null) {
+                roll.setFilmStockId(filmStock.getId());
+                if (updateIso) {
+                    roll.setIso(filmStock.getIso());
+                }
+            } else {
+                roll.setFilmStockId(0);
+                if (updateIso) {
+                    roll.setIso(0);
+                }
+            }
+            database.updateRoll(roll);
+        }
+        if (actionMode != null) {
+            actionMode.finish();
+        }
+        rollAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -730,10 +779,44 @@ public class RollsFragment extends Fragment implements
 
                 case R.id.menu_item_edit:
 
-                    // Get the first of the selected rolls (only one should be selected anyway)
-                    // Finish action mode if the user clicked ok when editing the roll ->
-                    // this is done in onActivityResult().
-                    showEditRollDialog(selectedItemPositions.get(0));
+                    if (rollAdapter.getSelectedItemCount() == 1) {
+                        // Get the first of the selected rolls (only one should be selected anyway)
+                        // Finish action mode if the user clicked ok when editing the roll ->
+                        // this is done in onActivityResult().
+                        showEditRollDialog(selectedItemPositions.get(0));
+                    } else {
+                        // Show batch edit features
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle(String.format(getResources()
+                                .getString(R.string.BatchEditFramesTitle),
+                                rollAdapter.getSelectedItemCount()));
+                        builder.setItems(R.array.RollsBatchEditOptions, (dialog, which) -> {
+                            switch (which) {
+                                case 0:
+                                    // Edit film stock
+                                    final SelectFilmStockDialog filmStockDialog = new SelectFilmStockDialog();
+                                    filmStockDialog.setTargetFragment(RollsFragment.this,
+                                            REQUEST_CODE_BATCH_EDIT_FILM_STOCK);
+                                    filmStockDialog.show(getFragmentManager().beginTransaction(), null);
+                                    break;
+                                case 1:
+                                    // Clear film stock
+                                    final AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
+                                    builder1.setMessage(R.string.BatchEditRollsCLearFilmStockISOConfirmation);
+                                    builder1.setNegativeButton(R.string.No, (dialog1, which1) ->
+                                            batchUpdateRollsFilmStock(null, false));
+                                    builder1.setPositiveButton(R.string.Yes, (dialog1, which1) ->
+                                            batchUpdateRollsFilmStock(null, true));
+                                    builder1.setNeutralButton(R.string.Cancel, (dialog1, which1) -> {});
+                                    builder1.create().show();
+                                    break;
+                            }
+                        });
+                        builder.setNegativeButton(R.string.Cancel, (dialog, which) -> dialog.dismiss());
+                        builder.create().show();
+                    }
+
+
                     return true;
 
                 case R.id.menu_item_archive:

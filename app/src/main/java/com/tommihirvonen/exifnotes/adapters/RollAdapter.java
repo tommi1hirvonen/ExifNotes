@@ -1,8 +1,10 @@
 package com.tommihirvonen.exifnotes.adapters;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,24 +92,26 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
      * All common view elements for all items are initialized here.
      */
     class ViewHolder extends RecyclerView.ViewHolder {
+        final View topLayout;
         final ConstraintLayout layout;
         final TextView nameTextView;
+        final TextView filmStockTextView;
         final TextView dateTextView;
         final TextView noteTextView;
         final TextView photosTextView;
         final TextView cameraTextView;
         final ImageView checkBox;
-        final View selectedBackground;
         ViewHolder(final View itemView) {
             super(itemView);
+            topLayout = itemView.findViewById(R.id.item_roll_top_layout);
             layout = itemView.findViewById(R.id.item_roll_layout);
             nameTextView = itemView.findViewById(R.id.tv_roll_name);
+            filmStockTextView = itemView.findViewById(R.id.tv_film_stock);
             dateTextView = itemView.findViewById(R.id.tv_roll_date);
             noteTextView = itemView.findViewById(R.id.tv_roll_note);
             photosTextView = itemView.findViewById(R.id.tv_photos);
             cameraTextView = itemView.findViewById(R.id.tv_camera);
             checkBox = itemView.findViewById(R.id.checkbox);
-            selectedBackground = itemView.findViewById(R.id.grey_background);
             layout.setOnClickListener(view -> listener.onItemClick(getAdapterPosition()));
             layout.setOnLongClickListener(view -> {
                 listener.onItemLongClick(getAdapterPosition());
@@ -166,6 +171,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             final String date = roll.getDate();
             final String note = roll.getNote();
             final long cameraId = roll.getCameraId();
+            final long filmStockId = roll.getFilmStockId();
             final int numberOfFrames = database.getNumberOfFrames(roll);
 
             // Populate the data into the template view using the data object
@@ -173,15 +179,23 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             holder.dateTextView.setText(date);
             holder.noteTextView.setText(note);
 
-            if (cameraId > 0) holder.cameraTextView.setText(database.getCamera(cameraId).getName());
-            else holder.cameraTextView.setText("No camera");
+            if (filmStockId > 0) {
+                holder.filmStockTextView.setText(database.getFilmStock(filmStockId).getName());
+                holder.filmStockTextView.setVisibility(View.VISIBLE);
+            } else {
+                holder.filmStockTextView.setText("");
+                holder.filmStockTextView.setVisibility(View.GONE);
+            }
 
-            if (numberOfFrames == 1)
-                holder.photosTextView.setText("" + numberOfFrames + " " + context.getString(R.string.Photo));
-            else if (numberOfFrames == 0)
-                holder.photosTextView.setText(context.getString(R.string.NoPhotos));
-            else
-                holder.photosTextView.setText("" + numberOfFrames + " " + context.getString(R.string.Photos));
+            if (cameraId > 0) holder.cameraTextView.setText(database.getCamera(cameraId).getName());
+            else holder.cameraTextView.setText(context.getResources().getString(R.string.NoCamera));
+
+            if (numberOfFrames == 0) {
+                holder.photosTextView.setText(context.getResources().getString(R.string.NoPhotos));
+            } else {
+                holder.photosTextView.setText(context.getResources().getQuantityString(
+                        R.plurals.PhotosAmount, numberOfFrames, numberOfFrames));
+            }
 
             final float noFade = 1.0f;
             final float lightFade = 0.9f;
@@ -191,6 +205,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             // If the roll is archived, fade the text somewhat
             if (roll.getArchived()) {
                 holder.nameTextView.setAlpha(heavyFade);
+                holder.filmStockTextView.setAlpha(heavyFade);
                 holder.dateTextView.setAlpha(moderateFade);
                 holder.noteTextView.setAlpha(moderateFade);
                 holder.photosTextView.setAlpha(moderateFade);
@@ -199,6 +214,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             // If the roll is active, apply the default alphas
             else {
                 holder.nameTextView.setAlpha(lightFade);
+                holder.filmStockTextView.setAlpha(lightFade);
                 holder.dateTextView.setAlpha(noFade);
                 holder.noteTextView.setAlpha(noFade);
                 holder.photosTextView.setAlpha(noFade);
@@ -215,8 +231,9 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
             holder.checkBox.setVisibility(View.VISIBLE);
+
             // Also set a slightly grey background to be visible.
-            holder.selectedBackground.setVisibility(View.VISIBLE);
+            holder.topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.background_selected));
 
             // If the item is selected or all items are being selected and the item was not previously selected
             if (currentSelectedIndex == position || animateAll &&
@@ -224,8 +241,13 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
                 final Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_up);
                 holder.checkBox.startAnimation(animation);
 
-                final Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_in);
-                holder.selectedBackground.startAnimation(animation1);
+                final int fromColor = ContextCompat.getColor(context, R.color.transparent);
+                final int toColor = ContextCompat.getColor(context, R.color.background_selected);
+                final ValueAnimator colorAnimation = ValueAnimator.ofArgb(fromColor, toColor);
+                colorAnimation.setDuration(500);
+                colorAnimation.addUpdateListener(animator ->
+                        holder.topLayout.setBackgroundColor((int) animator.getAnimatedValue()));
+                colorAnimation.start();
 
                 resetCurrentSelectedIndex();
             }
@@ -233,8 +255,9 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
             // First set the check box to be gone. This is the state it will be left in after
             // the animation has finished.
             holder.checkBox.setVisibility(View.GONE);
+
             // Hide the slightly grey background
-            holder.selectedBackground.setVisibility(View.GONE);
+            holder.topLayout.setBackgroundResource(0);
 
             // If the item is deselected or all selections are undone and the item was previously selected
             if (currentSelectedIndex == position || reverseAllAnimations &&
@@ -242,8 +265,13 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
                 final Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_down);
                 holder.checkBox.startAnimation(animation);
 
-                final Animation animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_out);
-                holder.selectedBackground.startAnimation(animation1);
+                final int fromColor = ContextCompat.getColor(context, R.color.background_selected);
+                final int toColor = ContextCompat.getColor(context, R.color.transparent);
+                final ValueAnimator colorAnimation = ValueAnimator.ofArgb(fromColor, toColor);
+                colorAnimation.setDuration(500);
+                colorAnimation.addUpdateListener(animator ->
+                        holder.topLayout.setBackgroundColor((int) animator.getAnimatedValue()));
+                colorAnimation.start();
 
                 resetCurrentSelectedIndex();
             }

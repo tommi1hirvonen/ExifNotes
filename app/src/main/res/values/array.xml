@@ -51,6 +51,11 @@
         <item>@string/EditLocation</item>
     </string-array>
 
+    <string-array name="RollsBatchEditOptions">
+        <item>@string/EditFilmStock</item>
+        <item>@string/ClearFilmStock</item>
+    </string-array>
+
     <string-array name="FilmFormats">
         <item>35 mm</item>
         <item>120</item>

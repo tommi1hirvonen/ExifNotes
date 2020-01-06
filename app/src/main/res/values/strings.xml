@@ -21,6 +21,9 @@
     <string name="ArtistName">Artist name</string>
     <string name="ArtistNameSummary">Artist name information to be stored under the artist tag in the file\'s exif</string>
     <string name="BatchEditFramesTitle">Batch edit %1$d frames</string>
+    <string name="BatchEditRollsTitle">Batch edit %1$d rolls</string>
+    <string name="BatchEditRollsFilmStockISOConfirmation">Do you want to set the ISO of edited rolls to the default ISO of the selected film stock?</string>
+    <string name="BatchEditRollsCLearFilmStockISOConfirmation">Do you want to clear the ISO of edited rolls as well?</string>
     <string name="Blue">Blue</string>
     <string name="Both">Both</string>
     <string name="Camera">Camera</string>
@@ -41,6 +44,7 @@
     <string name="ChooseShutterRange">Choose shutter range</string>
     <string name="ChooseShutterSpeed">Choose shutter speed</string>
     <string name="Clear">Clear</string>
+    <string name="ClearFilmStock">Clear film stock</string>
     <string name="ClickToAdd">Click to add</string>
     <string name="ClickToEdit">Click to edit</string>
     <string name="ClickToSet">Click to set</string>
@@ -232,8 +236,10 @@
     <string name="Normal">Normal</string>
     <string name="OK">OK</string>
     <string name="Orange">Orange</string>
-    <string name="Photo">photo</string>
-    <string name="Photos">photos</string>
+    <plurals name="PhotosAmount">
+        <item quantity="one">%d photo</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
     <string name="PickLocation">Choose location</string>
     <string name="PictureAddedToGallery">Picture added to gallery</string>
     <string name="PictureSetButNotFound">Picture was set but the file could no longer be found</string>
@@ -292,6 +298,8 @@
         -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
         -Added flash used and light source properties to frames\n
         -Added film stock property to rolls\n
+        -Rolls can be batch edited\n
+        -Improved roll UI element presentation\n
     </string>
     <string name="UseCustomValue">Use custom value</string>
     <string name="UsedCamera">Choose used camera</string>
@@ -305,6 +313,8 @@
         -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
         -Added flash used and light source properties to frames\n
         -Added film stock property to rolls\n
+        -Rolls can be batch edited\n
+        -Improved roll UI element presentation\n
         \n
         v1.13.1 2019-10-12:\n
         -Updated deprecated location API calls\n
@@ -438,6 +448,7 @@
         -First published version
     </string>
     <string name="VisibleRolls">Visible rolls</string>
+    <string name="Yes">Yes</string>
     <string name="about">Version 1.14.0\nCopyright 2019 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
     <string name="app_name">Exif Notes</string>
     <string name="main_help">
