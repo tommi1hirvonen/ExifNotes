@@ -16,17 +16,16 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.TextViewCompat;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.InputFilter;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.NumberPicker;
@@ -303,6 +302,56 @@ public final class Utilities {
                 file.delete();
             }
         }
+    }
+
+    /**
+     * Class which manages custom Android Marsmallow type scroll indicators based on a RecyclerView
+     */
+    public static class ScrollIndicatorRecyclerViewListener extends RecyclerView.OnScrollListener {
+
+        @NonNull private final View indicatorUp;
+        @NonNull private final View indicatorDown;
+        @NonNull private final RecyclerView recyclerView;
+
+        public ScrollIndicatorRecyclerViewListener(@NonNull final Context context,
+                                                       @NonNull final RecyclerView recyclerView,
+                                                       @NonNull final View indicatorUp,
+                                                       @NonNull final View indicatorDown) {
+            this.recyclerView = recyclerView;
+            this.indicatorUp = indicatorUp;
+            this.indicatorDown = indicatorDown;
+
+            final int color = isAppThemeDark(context) ?
+                    ContextCompat.getColor(context, R.color.white) :
+                    ContextCompat.getColor(context, R.color.black);
+
+            indicatorUp.setBackgroundColor(color);
+            indicatorDown.setBackgroundColor(color);
+
+            recyclerView.post(this::toggleIndicators);
+        }
+
+        private void toggleIndicators() {
+            // If we can't scroll upwards, hide the up scroll indicator. Otherwise show it.
+            if (!recyclerView.canScrollVertically(-1)) {
+                indicatorUp.setVisibility(View.INVISIBLE);
+            } else {
+                indicatorUp.setVisibility(View.VISIBLE);
+            }
+            // If we can't scroll down, hide the down scroll indicator. Otherwise show it.
+            if (!recyclerView.canScrollVertically(1)) {
+                indicatorDown.setVisibility(View.INVISIBLE);
+            } else {
+                indicatorDown.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            toggleIndicators();
+        }
+
     }
 
     /**

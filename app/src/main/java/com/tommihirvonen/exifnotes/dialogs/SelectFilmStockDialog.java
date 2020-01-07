@@ -20,6 +20,7 @@ import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.adapters.FilmManufacturerAdapter;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
+import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.List;
 
@@ -45,6 +46,12 @@ public class SelectFilmStockDialog extends DialogFragment{
         manufacturersRecyclerView.setLayoutManager(layoutManager);
         manufacturersRecyclerView.addItemDecoration(new DividerItemDecoration(
                 manufacturersRecyclerView.getContext(), layoutManager.getOrientation()));
+
+        manufacturersRecyclerView.addOnScrollListener(
+                new Utilities.ScrollIndicatorRecyclerViewListener(getContext(),
+                        manufacturersRecyclerView,
+                        view.findViewById(R.id.scrollIndicatorUp),
+                        view.findViewById(R.id.scrollIndicatorDown)));
 
         final AlertDialog dialog = builder.create();
 
