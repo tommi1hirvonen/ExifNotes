@@ -11,7 +11,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.DialogFragment;
 
@@ -20,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -29,7 +27,6 @@ import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
-import com.tommihirvonen.exifnotes.fragments.CamerasFragment;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
@@ -151,11 +148,13 @@ public class EditRollDialog extends DialogFragment {
                 R.layout.dialog_roll, null);
         final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        final FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
         final NestedScrollView nestedScrollView = inflatedView.findViewById(
                 R.id.nested_scroll_view);
-        Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
-                ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
+        nestedScrollView.setOnScrollChangeListener(
+                new Utilities.ScrollIndicatorNestedScrollViewListener(getActivity(),
+                        nestedScrollView,
+                        inflatedView.findViewById(R.id.scrollIndicatorUp),
+                        inflatedView.findViewById(R.id.scrollIndicatorDown)));
 
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflatedView);

@@ -306,93 +306,62 @@ public final class Utilities {
     }
 
     /**
-     * Legacy method to imitate the ScrollIndicators introduced in Marshmallow.
-     * This method seems to be more reliable than the native ScrollIndicator methods.
-     * Plus it works across all the targeted Android versions.
-     *
-     * @param root the root view containing the NestedScrollView element
-     * @param context the application's / activity's context to get SharedPreferences
-     * @param content the NestedScrollView element
-     * @param indicators ScrollIndicators in bitwise or format,
-     *                   for example ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM
+     * Class which manages custom Android Marshmallow type scroll indicators inside a NestedScrollView.
      */
-    public static void setScrollIndicators(final Context context, final ViewGroup root,
-                                           final NestedScrollView content, final int indicators) {
+    public static class ScrollIndicatorNestedScrollViewListener implements NestedScrollView.OnScrollChangeListener {
 
-        final int color = isAppThemeDark(context) ?
-                ContextCompat.getColor(context, R.color.white) :
-                ContextCompat.getColor(context, R.color.black);
+        @NonNull private final View indicatorUp;
+        @NonNull private final View indicatorDown;
+        @NonNull private final NestedScrollView nestedScrollView;
 
-        // Set up scroll indicators (if present).
-        View indicatorUp = root.findViewById(R.id.scrollIndicatorUp);
-        View indicatorDown = root.findViewById(R.id.scrollIndicatorDown);
+        public ScrollIndicatorNestedScrollViewListener(@NonNull final Context context,
+                                                @NonNull final NestedScrollView nestedScrollView,
+                                                @NonNull final View indicatorUp,
+                                                @NonNull final View indicatorDown) {
+            this.nestedScrollView = nestedScrollView;
+            this.indicatorUp = indicatorUp;
+            this.indicatorDown = indicatorDown;
 
-        if (indicatorUp != null) indicatorUp.setBackgroundColor(color);
-        if (indicatorDown != null) indicatorDown.setBackgroundColor(color);
+            final int color = isAppThemeDark(context) ?
+                    ContextCompat.getColor(context, R.color.white) :
+                    ContextCompat.getColor(context, R.color.black);
 
-        // First, remove the indicator views if we're not set to use them
-        if (indicatorUp != null && (indicators & ViewCompat.SCROLL_INDICATOR_TOP) == 0) {
-            root.removeView(indicatorUp);
-            indicatorUp = null;
+            indicatorUp.setBackgroundColor(color);
+            indicatorDown.setBackgroundColor(color);
+
+            nestedScrollView.post(this::toggleIndicators);
         }
-        if (indicatorDown != null && (indicators & ViewCompat.SCROLL_INDICATOR_BOTTOM) == 0) {
-            root.removeView(indicatorDown);
-            indicatorDown = null;
-        }
 
-        if (indicatorUp != null || indicatorDown != null) {
-            final View top = indicatorUp;
-            final View bottom = indicatorDown;
+        private void toggleIndicators() {
+            // If we can't scroll upwards, hide the up scroll indicator. Otherwise show it.
 
-            if (content != null) {
-                // We're just showing the ScrollView, set up listener.
-                content.setOnScrollChangeListener(
-                        (NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) ->
-                                manageScrollIndicators(v, top, bottom));
-                // Set up the indicators following layout.
-                content.post(() -> manageScrollIndicators(content, top, bottom));
+            // Using canScrollVertically methods only results in severe depression.
+            // Instead we use getScrollY methods and avoid the headache entirely.
+            // Besides, these methods work the same way on all devices.
+            if (nestedScrollView.getScrollY() == 0) {
+                indicatorUp.setVisibility(View.INVISIBLE);
             } else {
-                // We don't have any content to scroll, remove the indicators.
-                if (top != null) {
-                    root.removeView(top);
-                }
-                if (bottom != null) {
-                    root.removeView(bottom);
-                }
+                indicatorUp.setVisibility(View.VISIBLE);
             }
-        }
-    }
 
-    /**
-     * Sets the ScrollIndicator visibility according to the scroll state of the
-     * passed NestedScrollView.
-     *
-     * @param v View of the NestedScrollView
-     * @param upIndicator View of the top ScrollIndicator
-     * @param downIndicator View of the bottom ScrollIndicator
-     */
-    private static void manageScrollIndicators(final View v, final View upIndicator, final View downIndicator) {
-        // Using canScrollVertically methods only results in severe depression.
-        // Instead we use getScrollY methods and avoid the headache entirely.
-        // Besides, these methods work the same way on all devices.
-        if (upIndicator != null) {
-            if (v.getScrollY() == 0) {
-                upIndicator.setVisibility(View.INVISIBLE);
-            } else {
-                upIndicator.setVisibility(View.VISIBLE);
-            }
-        }
-        if (downIndicator != null) {
+            // If we can't scroll down, hide the down scroll indicator. Otherwise show it.
+
             // To get the actual height of the entire NestedScrollView, we have to do the following.
             // The ScrollView always has one child. Getting its height returns the true height
             // of the ScrollView.
-            final NestedScrollView nestedScrollView = (NestedScrollView) v;
-            if ( v.getScrollY() == nestedScrollView.getChildAt(0).getHeight() - v.getHeight() ) {
-                downIndicator.setVisibility(View.INVISIBLE);
+            if (nestedScrollView.getScrollY() ==
+                    nestedScrollView.getChildAt(0).getHeight() - nestedScrollView.getHeight() ) {
+                indicatorDown.setVisibility(View.INVISIBLE);
             } else {
-                downIndicator.setVisibility(View.VISIBLE);
+                indicatorDown.setVisibility(View.VISIBLE);
             }
         }
+
+        @Override
+        public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+            toggleIndicators();
+        }
+
     }
 
     /**

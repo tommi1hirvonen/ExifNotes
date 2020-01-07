@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -21,7 +22,6 @@ import androidx.annotation.NonNull;
 import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
@@ -35,7 +35,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -314,12 +313,6 @@ public class EditFrameDialog extends DialogFragment {
     private String[] displayedExposureCompValues;
 
     /**
-     * Reference to the nested scroll view inside the dialog. A scroll listener is
-     * attached to this scroll view.
-     */
-    private NestedScrollView nestedScrollView;
-
-    /**
      * Empty constructor
      */
     public EditFrameDialog() {
@@ -368,11 +361,14 @@ public class EditFrameDialog extends DialogFragment {
                 R.layout.dialog_frame, null);
         final AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-        nestedScrollView = inflatedView.findViewById(R.id.nested_scroll_view);
+        final NestedScrollView nestedScrollView = inflatedView.findViewById(R.id.nested_scroll_view);
+        final OnScrollChangeListener listener = new OnScrollChangeListener(getActivity(),
+                        nestedScrollView,
+                        inflatedView.findViewById(R.id.scrollIndicatorUp),
+                        inflatedView.findViewById(R.id.scrollIndicatorDown));
 
-        final FrameLayout rootLayout = inflatedView.findViewById(R.id.root);
-        Utilities.setScrollIndicators(getActivity(), rootLayout, nestedScrollView,
-                ViewCompat.SCROLL_INDICATOR_TOP | ViewCompat.SCROLL_INDICATOR_BOTTOM);
+        nestedScrollView.setOnScrollChangeListener(listener);
+
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(getActivity(), title));
         alert.setView(inflatedView);
 
@@ -659,10 +655,6 @@ public class EditFrameDialog extends DialogFragment {
         pictureImageView = inflatedView.findViewById(R.id.iv_picture);
         pictureTextView = inflatedView.findViewById(R.id.picture_text);
         pictureLayout.setOnClickListener(new PictureLayoutOnClickListener());
-        // Set the scroll change listener AFTER pictureLayout has been assigned with findViewById.
-        // Reference is made to pictureLayout in OnScrollChangeListener, and if the OnScrollChangeListener
-        // class is instantiated before pictureLayout has been set, the reference will be null (probably).
-        nestedScrollView.setOnScrollChangeListener(new OnScrollChangeListener());
 
 
         //==========================================================================================
@@ -1236,13 +1228,21 @@ public class EditFrameDialog extends DialogFragment {
      * Scroll change listener used to detect when the pictureLayout is visible.
      * Only then will the complementary picture be loaded.
      */
-    private class OnScrollChangeListener implements NestedScrollView.OnScrollChangeListener {
+    private class OnScrollChangeListener extends Utilities.ScrollIndicatorNestedScrollViewListener {
         private boolean pictureLoaded = false;
+
+        OnScrollChangeListener(@NonNull Context context, @NonNull NestedScrollView nestedScrollView,
+                               @NonNull View indicatorUp, @NonNull View indicatorDown) {
+            super(context, nestedScrollView, indicatorUp, indicatorDown);
+        }
+
         @Override
         public void onScrollChange(final NestedScrollView v, final int scrollX, final int scrollY,
                                    final int oldScrollX, final int oldScrollY) {
+            super.onScrollChange(v, scrollX, scrollY, oldScrollX, oldScrollY);
+
             final Rect scrollBounds = new Rect();
-            nestedScrollView.getHitRect(scrollBounds);
+            v.getHitRect(scrollBounds);
             if (pictureLayout.getLocalVisibleRect(scrollBounds) && !pictureLoaded) {
                 setComplementaryPicture();
                 pictureLoaded = true;
