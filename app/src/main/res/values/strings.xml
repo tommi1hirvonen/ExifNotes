@@ -87,6 +87,7 @@
     <string name="Delete">Delete</string>
     <string name="DeleteFilmStock">Delete film stock</string>
     <string name="DescriptionOrNote">Description/note</string>
+    <string name="DeselectAll">Deselect all</string>
     <string name="DisableInApp">Disable in app</string>
     <string name="Edit">Edit</string>
     <string name="EditCamera">Edit camera</string>
