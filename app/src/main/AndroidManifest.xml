@@ -76,16 +76,8 @@
                 android:value=".activities.MainActivity"/>
         </activity>
         <activity
-            android:name=".activities.AllFramesMapsActivity"
+            android:name=".activities.MapActivity"
             android:label="AllFramesMapsActivity"
-            android:parentActivityName=".activities.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
-        </activity>
-        <activity
-            android:name=".activities.MapsActivity"
-            android:label="MapsActivity"
             android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

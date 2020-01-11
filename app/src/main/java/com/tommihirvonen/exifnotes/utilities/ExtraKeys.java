@@ -43,6 +43,12 @@ public final class ExtraKeys {
 
     public static final String RESULT_CODE = "RESULT_CODE";
 
+    public static final String ARRAY_LIST_ROLLS = "ARRAY_LIST_ROLLS";
+
+    public static final String MAPS_ACTIVITY_SUBTITLE = "MAPS_ACTIVITY_SUBTITLE";
+
+    public static final String MAPS_ACTIVITY_TITLE = "MAPS_ACTIVITY_TITLE";
+
     /**
      * Limit instantiation, empty private constructor
      */

@@ -30,8 +30,9 @@ import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
+import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
+import com.tommihirvonen.exifnotes.dialogs.EditFrameDialogCallback;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
-import com.tommihirvonen.exifnotes.datastructures.FilterMode;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
@@ -41,9 +42,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * AllFramesMapsActivity displays all the frames in the user's database on a map.
+ * MapActivity displays all the frames in the user's database on a map.
  */
-public class AllFramesMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     /**
      * Reference to the singleton database
@@ -91,34 +92,24 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
         // savedInstanceState is not null if the activity was continued.
         if (savedInstanceState != null) continueActivity = true;
 
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_map);
 
         final SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        final FilterMode filterMode = FilterMode.Companion.fromValue(
-                sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilterMode.ACTIVE.getValue()));
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL);
 
         database = FilmDbHelper.getInstance(this);
-        rollList = database.getRolls(filterMode);
+        rollList = getIntent().getParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS);
 
         Utilities.setUiColor(this, true);
 
-        // Set the ActionBar title and subtitle.
         if (getSupportActionBar() != null) {
-            // Set the subtitle according to which film rolls are shown.
-            switch (filterMode) {
-                case ACTIVE: default:
-                    getSupportActionBar().setSubtitle(R.string.ActiveRolls);
-                    break;
-                case ARCHIVED:
-                    getSupportActionBar().setSubtitle(R.string.ArchivedRolls);
-                    break;
-                case ALL:
-                    getSupportActionBar().setSubtitle(R.string.AllRolls);
-                    break;
-            }
-            getSupportActionBar().setTitle(R.string.AllFrames);
+            getSupportActionBar().setSubtitle(
+                    getIntent().getStringExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE)
+            );
+            getSupportActionBar().setTitle(
+                    getIntent().getStringExtra(ExtraKeys.MAPS_ACTIVITY_TITLE)
+            );
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -200,17 +191,16 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     }
 
     /**
-     * Sets the GoogleMap map type
+     * Puts a dummy boolean in outState so that it is not null.
      *
-     * @param mapType One of the map type constants from class GoogleMap
+     * @param outState used to store the dummy boolean
      */
-    private void setMapType(final int mapType) {
-        this.mapType = mapType;
-        googleMap_.setMapType(mapType);
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        final SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(PreferenceConstants.KEY_MAP_TYPE, mapType);
-        editor.apply();
+    @Override
+    public void onSaveInstanceState(@NonNull final Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Insert dummy boolean so that outState is not null.
+        outState.putBoolean(ExtraKeys.CONTINUE, true);
     }
 
     /**
@@ -304,68 +294,13 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
                 googleMap_.moveCamera(cameraUpdate);
             }
 
-            googleMap_.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-                @Override
-                public View getInfoWindow(final Marker marker) {
-                    return null;
-                }
+            if (rollList.size() == 1) {
+                googleMap_.setInfoWindowAdapter(new InfoWindowAdapterSingleRoll());
+            } else {
+                googleMap_.setInfoWindowAdapter(new InfoWindowAdapterMultipleRolls());
+            }
 
-                @Override
-                public View getInfoContents(final Marker marker) {
-
-                    if (marker.getTag() instanceof Frame) {
-
-                        final Frame frame = (Frame) marker.getTag();
-                        final Roll roll = database.getRoll(frame.getRollId());
-                        if (roll == null) return null;
-
-                        final Camera camera = roll.getCameraId() > 0 ?
-                                database.getCamera(roll.getCameraId()) :
-                                null;
-                        final Lens lens = frame.getLensId() > 0 ?
-                                database.getLens(frame.getLensId()) :
-                                null;
-
-                        @SuppressLint("InflateParams")
-                        final View view = getLayoutInflater().inflate(R.layout.info_window_all_frames, null);
-
-                        final TextView rollTextView = view.findViewById(R.id.roll_name);
-                        final TextView cameraTextView = view.findViewById(R.id.camera);
-                        final TextView frameCountTextView = view.findViewById(R.id.frame_count);
-                        final TextView dateTimeTextView = view.findViewById(R.id.date_time);
-                        final TextView lensTextView = view.findViewById(R.id.lens);
-                        final TextView noteTextView = view.findViewById(R.id.note);
-
-                        rollTextView.setText(roll.getName());
-                        cameraTextView.setText(
-                                camera == null ? getString(R.string.NoCamera) : camera.getName()
-                        );
-
-                        final String frameCountText = "#" + frame.getCount();
-                        frameCountTextView.setText(frameCountText);
-
-                        dateTimeTextView.setText(frame.getDate());
-
-                        lensTextView.setText(
-                                lens == null ? getString(R.string.NoLens) : lens.getName()
-                        );
-
-                        noteTextView.setText(frame.getNote());
-
-                        return view;
-
-                    } else {
-                        return null;
-                    }
-
-                }
-            });
-
-            final AppCompatActivity activity = this;
-
-            googleMap_.setOnInfoWindowClickListener(
-                    MapsActivity.mapsActivityInfoWindowClickListener(activity, database)
-            );
+            googleMap_.setOnInfoWindowClickListener(new OnInfoWindowClickListener());
 
         }
         else {
@@ -374,15 +309,123 @@ public class AllFramesMapsActivity extends AppCompatActivity implements OnMapRea
     }
 
     /**
-     * Puts a dummy boolean in outState so that it is not null.
+     * Sets the GoogleMap map type
      *
-     * @param outState used to store the dummy boolean
+     * @param mapType One of the map type constants from class GoogleMap
      */
-    @Override
-    public void onSaveInstanceState(@NonNull final Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        // Insert dummy boolean so that outState is not null.
-        outState.putBoolean(ExtraKeys.CONTINUE, true);
+    private void setMapType(final int mapType) {
+        this.mapType = mapType;
+        googleMap_.setMapType(mapType);
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(PreferenceConstants.KEY_MAP_TYPE, mapType);
+        editor.apply();
     }
+
+    private class InfoWindowAdapterMultipleRolls implements GoogleMap.InfoWindowAdapter {
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+        @Override
+        public View getInfoContents(Marker marker) {
+            if (marker.getTag() instanceof Frame) {
+                final Frame frame = (Frame) marker.getTag();
+                final Roll roll = database.getRoll(frame.getRollId());
+                final Camera camera = roll.getCameraId() > 0 ?
+                        database.getCamera(roll.getCameraId()) :
+                        null;
+                final Lens lens = frame.getLensId() > 0 ?
+                        database.getLens(frame.getLensId()) :
+                        null;
+                @SuppressLint("InflateParams")
+                final View view = getLayoutInflater().inflate(R.layout.info_window_all_frames, null);
+                final TextView rollTextView = view.findViewById(R.id.roll_name);
+                final TextView cameraTextView = view.findViewById(R.id.camera);
+                final TextView frameCountTextView = view.findViewById(R.id.frame_count);
+                final TextView dateTimeTextView = view.findViewById(R.id.date_time);
+                final TextView lensTextView = view.findViewById(R.id.lens);
+                final TextView noteTextView = view.findViewById(R.id.note);
+                rollTextView.setText(roll.getName());
+                cameraTextView.setText(
+                        camera == null ? getString(R.string.NoCamera) : camera.getName()
+                );
+                final String frameCountText = "#" + frame.getCount();
+                frameCountTextView.setText(frameCountText);
+                dateTimeTextView.setText(frame.getDate());
+                lensTextView.setText(
+                        lens == null ? getString(R.string.NoLens) : lens.getName()
+                );
+                noteTextView.setText(frame.getNote());
+                return view;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    private class InfoWindowAdapterSingleRoll implements GoogleMap.InfoWindowAdapter {
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+        @Override
+        public View getInfoContents(Marker marker) {
+            if (marker.getTag() instanceof Frame) {
+                final Frame frame = (Frame) marker.getTag();
+                final Lens lens = frame.getLensId() > 0 ?
+                        database.getLens(frame.getLensId()) :
+                        null;
+                @SuppressLint("InflateParams")
+                final View view = getLayoutInflater().inflate(R.layout.info_window, null);
+                final TextView frameCountTextView = view.findViewById(R.id.frame_count);
+                final TextView dateTimeTextView = view.findViewById(R.id.date_time);
+                final TextView lensTextView = view.findViewById(R.id.lens);
+                final TextView noteTextView = view.findViewById(R.id.note);
+                final String frameCountText = "#" + frame.getCount();
+                frameCountTextView.setText(frameCountText);
+                dateTimeTextView.setText(frame.getDate());
+
+                lensTextView.setText(
+                        lens == null ? getString(R.string.NoLens) : lens.getName()
+                );
+                noteTextView.setText(frame.getNote());
+                return view;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    private class OnInfoWindowClickListener implements GoogleMap.OnInfoWindowClickListener {
+        @Override
+        public void onInfoWindowClick(Marker marker) {
+            if (marker.getTag() instanceof Frame) {
+                final Frame frame = (Frame) marker.getTag();
+                if (frame != null) {
+                    final Bundle arguments = new Bundle();
+                    final String title = "" + getResources().getString(R.string.EditFrame) + frame.getCount();
+                    final String positiveButton = getResources().getString(R.string.OK);
+                    arguments.putString(ExtraKeys.TITLE, title);
+                    arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton);
+                    arguments.putParcelable(ExtraKeys.FRAME, frame);
+
+                    final EditFrameDialogCallback dialog = new EditFrameDialogCallback();
+                    dialog.setArguments(arguments);
+                    dialog.setOnPositiveButtonClickedListener(data -> {
+                                final Frame editedFrame = data.getParcelableExtra(ExtraKeys.FRAME);
+                                if (editedFrame != null) {
+                                    database.updateFrame(editedFrame);
+                                    marker.setTag(editedFrame);
+                                    marker.hideInfoWindow();
+                                    marker.showInfoWindow();
+                                    setResult(AppCompatActivity.RESULT_OK);
+                                }
+                            });
+                    dialog.show(getSupportFragmentManager().beginTransaction(), EditFrameDialog.TAG);
+                }
+            }
+        }
+    }
+
 }

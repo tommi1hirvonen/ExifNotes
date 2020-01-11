@@ -32,6 +32,7 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,6 +50,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.tommihirvonen.exifnotes.activities.MapActivity;
 import com.tommihirvonen.exifnotes.activities.FramesActivity;
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity;
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter;
@@ -59,7 +61,6 @@ import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.GearActivity;
-import com.tommihirvonen.exifnotes.activities.MapsActivity;
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode;
@@ -84,11 +85,6 @@ public class FramesFragment extends Fragment implements
         GoogleApiClient.OnConnectionFailedListener {
 
     /**
-     * Public constant to tag a message in intent to MapsActivity
-     */
-    public final static String ROLL_ID_EXTRA_MESSAGE = "ROLL_ID";
-
-    /**
      * Public constant to tag this fragment when it is created.
      */
     public static final String FRAMES_FRAGMENT_TAG = "FRAMES_FRAGMENT";
@@ -108,9 +104,6 @@ public class FramesFragment extends Fragment implements
      */
     private static final int ERROR_DIALOG = 3;
 
-    /**
-     * Constant passed to MapsActivity
-     */
     private static final int SHOW_ON_MAP = 4;
 
     /**
@@ -438,9 +431,15 @@ public class FramesFragment extends Fragment implements
 
             case R.id.menu_item_show_on_map:
 
-                final Intent mapsActivityIntent = new Intent(getActivity(), MapsActivity.class);
-                mapsActivityIntent.putExtra(ROLL_ID_EXTRA_MESSAGE, roll.getId());
-                startActivityForResult(mapsActivityIntent, SHOW_ON_MAP);
+                final Intent mapIntent = new Intent(getActivity(), MapActivity.class);
+                final ArrayList<Roll> list = new ArrayList<>();
+                list.add(roll);
+                mapIntent.putParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS, list);
+                mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, roll.getName());
+                if (camera != null) {
+                    mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE, camera.getName());
+                }
+                startActivityForResult(mapIntent, SHOW_ON_MAP);
                 break;
 
             // Share

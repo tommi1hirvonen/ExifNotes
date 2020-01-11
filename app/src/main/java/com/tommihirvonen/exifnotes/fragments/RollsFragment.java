@@ -20,6 +20,8 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,8 +32,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.activities.MainActivity;
+import com.tommihirvonen.exifnotes.activities.MapActivity;
 import com.tommihirvonen.exifnotes.adapters.RollAdapter;
-import com.tommihirvonen.exifnotes.activities.AllFramesMapsActivity;
 import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.dialogs.EditRollDialog;
@@ -396,8 +398,25 @@ public class RollsFragment extends Fragment implements
             case R.id.menu_item_show_on_map:
 
                 // Show all frames from all rolls on a map
-                final Intent allFramesMapsActivityIntent = new Intent(getActivity(), AllFramesMapsActivity.class);
-                startActivity(allFramesMapsActivityIntent);
+                final Intent mapIntent = new Intent(getActivity(), MapActivity.class);
+                mapIntent.putParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS,
+                        (ArrayList<? extends Parcelable>) rollList);
+                mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, getString(R.string.AllRolls));
+                switch (filterMode) {
+                    case ACTIVE: default:
+                        mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
+                                getString(R.string.ActiveRolls));
+                        break;
+                    case ARCHIVED:
+                        mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
+                                getString(R.string.ArchivedRolls));
+                        break;
+                    case ALL:
+                        mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
+                                getString(R.string.AllRolls));
+                        break;
+                }
+                startActivity(mapIntent);
                 break;
 
             case R.id.active_rolls_filter:
