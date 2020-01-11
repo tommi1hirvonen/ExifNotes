@@ -13,21 +13,27 @@ class FilmStock : Gear, Parcelable {
 
     var process: Int = 0
 
+    var isPreadded: Boolean = false
+
     constructor()
 
-    fun typeName(context: Context) =
+    fun getTypeName(context: Context): String =
             try {
                 context.resources.getStringArray(R.array.FilmTypes)[this.type]
             } catch (ignore: IndexOutOfBoundsException) {
                 context.resources.getString(R.string.Unknown)
             }
 
-    fun processName(context: Context) =
+    fun getProcessName(context: Context): String =
             try {
                 context.resources.getStringArray(R.array.FilmProcesses)[this.process]
             } catch (ignore: IndexOutOfBoundsException) {
                 context.resources.getString(R.string.Unknown)
             }
+
+    fun setPreadded(input: Int) {
+        isPreadded = input == 1
+    }
 
     /**
      * Constructs object from Parcel
@@ -41,6 +47,7 @@ class FilmStock : Gear, Parcelable {
         this.iso = pc.readInt()
         this.type = pc.readInt()
         this.process = pc.readInt()
+        this.isPreadded = pc.readInt() == 1
     }
 
     /**
@@ -56,6 +63,7 @@ class FilmStock : Gear, Parcelable {
         parcel.writeInt(iso)
         parcel.writeInt(type)
         parcel.writeInt(process)
+        parcel.writeInt(if (isPreadded) 1 else 0)
     }
 
     /**

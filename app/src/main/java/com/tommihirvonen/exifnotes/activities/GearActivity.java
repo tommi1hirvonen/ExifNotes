@@ -60,6 +60,8 @@ public class GearActivity extends AppCompatActivity {
 
     private List<String> manufacturerFilterList = new ArrayList<>();
 
+    private int filterModeAddedBy = FilmStocksFragment.FILTER_MODE_ALL;
+
     private static final int POSITION_CAMERAS = 0;
     private static final int POSITION_LENSES = 1;
     private static final int POSITION_FILTERS = 2;
@@ -177,14 +179,44 @@ public class GearActivity extends AppCompatActivity {
                 builder.setPositiveButton(R.string.FilterNoColon, (dialog, which) -> {
                     manufacturerFilterList = manufacturerFilterListTemp;
                     ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
-                            .filterFilmStocks(manufacturerFilterList);
+                            .filterFilmStocks(manufacturerFilterList, filterModeAddedBy);
                 });
                 builder.setNeutralButton(R.string.Reset, (dialog, which) -> {
                     manufacturerFilterList.clear();
                     ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
-                            .filterFilmStocks(manufacturerFilterList);
+                            .filterFilmStocks(manufacturerFilterList, filterModeAddedBy);
                 });
                 builder.create().show();
+                return true;
+
+            case R.id.filter_mode_added_by:
+                final AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+                final int checkedItem;
+                if (filterModeAddedBy == FilmStocksFragment.FILTER_MODE_PREADDED) {
+                    checkedItem = 1;
+                } else if (filterModeAddedBy == FilmStocksFragment.FILTER_MODE_ADDED_BY_USER) {
+                    checkedItem = 2;
+                } else {
+                    checkedItem = 0;
+                }
+                builder1.setSingleChoiceItems(R.array.FilmStocksFilterMode, checkedItem, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            filterModeAddedBy = FilmStocksFragment.FILTER_MODE_ALL;
+                            break;
+                        case 1:
+                            filterModeAddedBy = FilmStocksFragment.FILTER_MODE_PREADDED;
+                            break;
+                        case 2:
+                            filterModeAddedBy = FilmStocksFragment.FILTER_MODE_ADDED_BY_USER;
+                            break;
+                    }
+                    ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
+                            .filterFilmStocks(manufacturerFilterList, filterModeAddedBy);
+                    dialog.dismiss();
+                });
+                builder1.setNegativeButton(R.string.Cancel, (dialog, which) -> {});
+                builder1.create().show();
                 return true;
 
         }

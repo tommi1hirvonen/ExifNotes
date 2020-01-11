@@ -24,6 +24,10 @@
                     android:title="@string/ISO"
                     android:id="@+id/filter_mode_film_iso"
                     />
+                <item
+                    android:title="@string/AddedBy"
+                    android:id="@+id/filter_mode_added_by"
+                    />
             </group>
 
         </menu>

@@ -32,6 +32,9 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         private const val EDIT_FILM_STOCK = 2
         const val SORT_MODE_NAME = 1
         const val SORT_MODE_ISO = 2
+        const val FILTER_MODE_ALL = 0
+        const val FILTER_MODE_ADDED_BY_USER = 1
+        const val FILTER_MODE_PREADDED = 2
     }
 
     private lateinit var database: FilmDbHelper
@@ -179,11 +182,25 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         if (notifyDataSetChanged) filmStockAdapter.notifyDataSetChanged()
     }
 
-    fun filterFilmStocks(manufacturers: List<String?>) {
+    fun filterFilmStocks(manufacturers: List<String?>, filterModeAddedBy: Int) {
+        // First filter the list based on manufacturer. No filtering is done if manufacturers is null.
         filmStocks = database.allFilmStocks.filter {
             manufacturers.contains(it.make) || manufacturers.isEmpty()
         }.toMutableList()
         sortFilmStocks()
+
+        // Then filter based on filter mode.
+        when {
+            filterModeAddedBy == FILTER_MODE_PREADDED -> {
+                filmStocks = filmStocks.filter { it.isPreadded }.toMutableList()
+            }
+            filterModeAddedBy == FILTER_MODE_ADDED_BY_USER -> {
+                filmStocks = filmStocks.filter { !it.isPreadded }.toMutableList()
+            }
+            filterModeAddedBy != FILTER_MODE_ALL ->
+                throw IllegalArgumentException("Illegal argument filterModeAddedBy: $filterModeAddedBy")
+        }
+
         filmStockAdapter.setGearList(filmStocks)
         filmStockAdapter.notifyDataSetChanged()
     }

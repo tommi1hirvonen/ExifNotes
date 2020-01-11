@@ -4,6 +4,7 @@
     <string name="ActiveFilmRolls">Active</string>
     <string name="ActiveRolls">Active rolls</string>
     <string name="Add">Add</string>
+    <string name="AddedBy">Added by</string>
     <string name="AddNewFilmStock">Add new film stock</string>
     <string name="AddPictureToGallery">Add current picture to gallery</string>
     <string name="AddressNotFound">Address not found</string>
@@ -247,6 +248,7 @@
     <string name="PicturesPathTitle">Path to pictures</string>
     <string name="Pink">Pink</string>
     <string name="Plus50">+50</string>
+    <string name="Preadded">Preadded</string>
     <string name="Preferences">Settings</string>
     <string name="Purple">Purple</string>
     <string name="PushPull">Push(+)/pull(-)</string>
@@ -294,27 +296,28 @@
     <string name="Unknown">Unknown</string>
     <string name="Updates">
         Updates in this version:\n
-        -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
-        -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
         -Added flash used and light source properties to frames\n
         -Added film stock property to rolls\n
         -Rolls can be batch edited\n
         -Improved roll UI element presentation\n
+        -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
+        -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
     </string>
     <string name="UseCustomValue">Use custom value</string>
     <string name="UsedCamera">Choose used camera</string>
     <string name="UsedFilter">Choose used filter</string>
     <string name="UsedLens">Choose used lens</string>
+    <string name="UserAdded">User added</string>
     <string name="VersionHistory">
         Version history\n
         \n
         v1.14.0 2020-01-02:\n
-        -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
-        -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
         -Added flash used and light source properties to frames\n
         -Added film stock property to rolls\n
         -Rolls can be batch edited\n
         -Improved roll UI element presentation\n
+        -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
+        -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
         \n
         v1.13.1 2019-10-12:\n
         -Updated deprecated location API calls\n

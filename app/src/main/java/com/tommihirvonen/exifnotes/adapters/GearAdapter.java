@@ -155,8 +155,8 @@ public class GearAdapter extends RecyclerView.Adapter<GearAdapter.ViewHolder> {
 
                 final FilmStock filmStock = (FilmStock) gear;
                 stringBuilder.append("ISO:").append("\t\t\t\t\t\t\t").append(filmStock.getIso()).append("\n")
-                        .append("Type:").append("\t\t\t\t\t\t").append(filmStock.typeName(context)).append("\n")
-                        .append("Process:").append("\t\t\t").append(filmStock.processName(context));
+                        .append("Type:").append("\t\t\t\t\t\t").append(filmStock.getTypeName(context)).append("\n")
+                        .append("Process:").append("\t\t\t").append(filmStock.getProcessName(context));
 
             } else {
                 stringBuilder.append(context.getString(R.string.MountsTo));

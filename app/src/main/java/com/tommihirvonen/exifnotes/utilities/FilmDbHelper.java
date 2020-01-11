@@ -123,6 +123,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_FILM_ISO = "film_iso";
     private static final String KEY_FILM_TYPE = "film_type";
     private static final String KEY_FILM_PROCESS = "film_process";
+    private static final String KEY_FILM_IS_PREADDED = "film_is_preadded";
 
     //=============================================================================================
     //Database information
@@ -145,7 +146,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_FILM_STOCK_NAME + " text not null, "
             + KEY_FILM_ISO + " integer,"
             + KEY_FILM_TYPE + " integer,"
-            + KEY_FILM_PROCESS + " integer"
+            + KEY_FILM_PROCESS + " integer,"
+            + KEY_FILM_IS_PREADDED + " integer"
             + ");";
 
     private static final String CREATE_LENS_TABLE = "create table " + TABLE_LENSES
@@ -1517,6 +1519,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         filmStock.setIso(cursor.getInt(cursor.getColumnIndex(KEY_FILM_ISO)));
         filmStock.setType(cursor.getInt(cursor.getColumnIndex(KEY_FILM_TYPE)));
         filmStock.setProcess(cursor.getInt(cursor.getColumnIndex(KEY_FILM_PROCESS)));
+        filmStock.setPreadded(cursor.getInt(cursor.getColumnIndex(KEY_FILM_IS_PREADDED)));
         return filmStock;
     }
 
@@ -1639,6 +1642,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_FILM_ISO, filmStock.getIso());
         contentValues.put(KEY_FILM_TYPE, filmStock.getType());
         contentValues.put(KEY_FILM_PROCESS, filmStock.getProcess());
+        contentValues.put(KEY_FILM_IS_PREADDED, filmStock.isPreadded());
         return contentValues;
     }
 
@@ -1793,7 +1797,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_MANUFACTURER_NAME, TEXT, 1) &&
                 checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_ISO, INTEGER, 0) &&
                 checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_TYPE, INTEGER, 0) &&
-                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_PROCESS, INTEGER, 0)
+                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_PROCESS, INTEGER, 0) &&
+                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_IS_PREADDED, INTEGER, 0)
                 ;
 
     }
@@ -1924,6 +1929,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 filmStock.setIso(Integer.parseInt(components[2]));
                 filmStock.setType(Integer.parseInt(components[3]));
                 filmStock.setProcess(Integer.parseInt(components[4]));
+                filmStock.setPreadded(true);
 
                 final ContentValues values = buildFilmStockContentValues(filmStock);
 
