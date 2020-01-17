@@ -5,8 +5,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.view.View;
 import android.widget.Chronometer;
 import android.widget.ProgressBar;
@@ -264,6 +266,19 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                     try {
                         // Copy the content from the Uri to a cached File so it can be read as a File.
                         final Uri databaseUri = data.getData();
+
+                        // Check the extension of the given file.
+                        final Cursor cursor = getContext().getContentResolver().query(databaseUri,
+                                null, null, null, null);
+                        cursor.moveToFirst();
+                        final String name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                        if (!FilenameUtils.getExtension(name).equals("db")) {
+                            Toast.makeText(getContext(), "Not a valid .db file!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        cursor.close();
+
+                        // Copy file for database import.
                         final InputStream inputStream = getContext().getContentResolver()
                                 .openInputStream(databaseUri);
                         final File outputDir = getContext().getExternalCacheDir();

@@ -1685,19 +1685,36 @@ public class FilmDbHelper extends SQLiteOpenHelper {
 
             //Replace the old database file with the new one.
             Utilities.copyFile(newDb, oldDb);
+
             // Access the copied database so SQLiteHelper will cache it and mark
             // it as created.
-            final SQLiteDatabase db;
-            try {
-                db = this.getWritableDatabase();
 
+            final SQLiteDatabase db;
+            final boolean[] success = {true};
+            try {
+                db = SQLiteDatabase.openDatabase(getDatabaseFile(context).getAbsolutePath(), null,
+                        SQLiteDatabase.OPEN_READWRITE, dbObj -> {
+                    // If the database was corrupt, try to replace with the old backup.
+                    try {
+                        Utilities.copyFile(oldDbBackup, oldDb);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    success[0] = false;
+                });
             } catch (final SQLiteException e) {
-                //If the new database file couldn't be accesses, replace it with the backup.
-                Utilities.copyFile(oldDbBackup, oldDb);
                 Toast.makeText(context, context.getResources().getString(R.string.CouldNotReadDatabase),
                         Toast.LENGTH_LONG).show();
                 return false;
             }
+
+            if (!success[0]) {
+                // If the new database file was corrupt, let the user know.
+                Toast.makeText(context, context.getResources().getString(R.string.CouldNotReadDatabase),
+                        Toast.LENGTH_LONG).show();
+                return false;
+            }
+
             if (!runIntegrityCheck()) {
                 //If the new database file failed the integrity check, replace it with the backup.
                 db.close();
@@ -1706,6 +1723,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                         Toast.LENGTH_LONG).show();
                 return false;
             }
+
             return true;
         }
         return false;
