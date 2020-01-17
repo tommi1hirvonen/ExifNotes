@@ -1,6 +1,7 @@
 package com.tommihirvonen.exifnotes.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +10,6 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -122,29 +122,41 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
 
     private static void toggleLayout(final View view, final boolean isExpanded,
                                      final boolean animate) {
-        if (isExpanded) expand(view, animate);
-        else collapse(view, animate);
+        if (isExpanded) {
+            expand(view, animate);
+        } else {
+            collapse(view, animate);
+        }
     }
 
     private static void toggleArrow(final View view, final boolean isExpanded, final boolean animate) {
-        if (isExpanded && animate) view.animate().setDuration(200).rotation(180);
-        else if (isExpanded) view.setRotation(180);
-        else if (animate) view.animate().setDuration(200).rotation(0);
-        else view.setRotation(0);
+        if (isExpanded && animate) {
+            view.animate().setDuration(200).rotation(180);
+        } else if (isExpanded) {
+            view.setRotation(180);
+        } else if (animate) {
+            view.animate().setDuration(200).rotation(0);
+        } else {
+            view.setRotation(0);
+        }
     }
 
     private static void expand(final View view, final boolean animate) {
         if (animate) {
+            // Call view.measure() before calling view.getMeasuredHeight()
             view.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             final int actualHeight = view.getMeasuredHeight();
-            view.getLayoutParams().height = 0;
+            final int currentHeight = view.getLayoutParams().height;
             view.setVisibility(View.VISIBLE);
             final Animation animation = new Animation() {
                 @Override
                 protected void applyTransformation(float interpolatedTime, Transformation t) {
-                    view.getLayoutParams().height = interpolatedTime == 1
-                            ? ViewGroup.LayoutParams.WRAP_CONTENT
-                            : (int) (actualHeight * interpolatedTime);
+                    // interpolatedTime == 1 => the animation has reached its end
+                    if (interpolatedTime == 1) {
+                        view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    } else {
+                        view.getLayoutParams().height = (int) (currentHeight + (actualHeight - currentHeight) * interpolatedTime);
+                    }
                     view.requestLayout();
                 }
             };
@@ -161,6 +173,7 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
             final Animation animation = new Animation() {
                 @Override
                 protected void applyTransformation(float interpolatedTime, Transformation t) {
+                    // interpolatedTime == 1 => the animation has reached its end
                     if (interpolatedTime == 1) {
                         view.setVisibility(View.GONE);
                     } else {
@@ -173,6 +186,7 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
             view.startAnimation(animation);
         } else {
             view.setVisibility(View.GONE);
+            view.getLayoutParams().height = 0;
         }
     }
 
