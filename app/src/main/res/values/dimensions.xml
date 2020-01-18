@@ -4,4 +4,5 @@
     <dimen name="ComplementaryPictureImageViewHeight">300dp</dimen>
     <dimen name="ItemRollLeftRightPadding">15dp</dimen>
     <dimen name="ItemGearLeftRightPadding">15dp</dimen>
+    <dimen name="MapActivityBottomSheetPeekHeight">40dp</dimen>
 </resources>

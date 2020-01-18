@@ -13,12 +13,15 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +38,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
@@ -86,6 +90,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private final List<Marker> markerList = new ArrayList<>();
 
+    private BottomSheetBehavior bottomSheetBehavior;
+
     /**
      * Sets up the activity's layout and view and reads all the rolls from the database.
      *
@@ -135,6 +141,40 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        final View bottomSheet = findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        final float peekHeightOffset = getResources().getDimensionPixelSize(R.dimen.MapActivityBottomSheetPeekHeight);
+        bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View view, int i) {
+
+            }
+            @Override
+            public void onSlide(@NonNull View view, float v) {
+                final float offset = bottomSheet.getHeight() * v + peekHeightOffset - peekHeightOffset * v;
+                switch (bottomSheetBehavior.getState()) {
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                    case BottomSheetBehavior.STATE_SETTLING:
+                        googleMap_.setPadding(0, 0, 0, Math.round(offset));
+                        break;
+                    case BottomSheetBehavior.STATE_COLLAPSED:
+                    case BottomSheetBehavior.STATE_EXPANDED:
+                    case BottomSheetBehavior.STATE_HALF_EXPANDED:
+                    case BottomSheetBehavior.STATE_HIDDEN:
+                        break;
+                }
+            }
+        });
+
+        final ListView listView = findViewById(R.id.rolls_list_view);
+        final String[] rollNamesArray = new String[rollList.size()];
+        for (int i = 0; i < rollList.size(); i++) {
+            rollNamesArray[i] = rollList.get(i).getName();
+        }
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1, android.R.id.text1, rollNamesArray);
+        listView.setAdapter(adapter);
     }
 
     @Override
@@ -269,6 +309,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         googleMap_ = googleMap;
+        final int peekHeightOffset = getResources().getDimensionPixelSize(R.dimen.MapActivityBottomSheetPeekHeight);
+        googleMap_.setPadding(0, 0, 0, peekHeightOffset);
 
         // If the app's theme is dark, stylize the map with the custom night mode
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
