@@ -11,17 +11,19 @@ import android.os.Bundle;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
-import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,12 +67,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     private FilmDbHelper database;
 
+    private List<Pair<Roll, Boolean>> allRolls = new ArrayList<>();
+
     /**
      * List to hold all the rolls from the database
      */
-    private List<Roll> rollList;
-
-    private boolean[] selectedRolls;
+    private List<Pair<Roll, Bitmap>> selectedRolls = new ArrayList<>();
 
     /**
      * GoogleMap object to show the map and to hold all the markers for all frames
@@ -90,7 +92,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private final List<Marker> markerList = new ArrayList<>();
 
+    private List<Bitmap> markerBitmaps;
+
     private BottomSheetBehavior bottomSheetBehavior;
+
+    private RollMarkerAdapter adapter;
 
     /**
      * Sets up the activity's layout and view and reads all the rolls from the database.
@@ -112,19 +118,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // savedInstanceState is not null if the activity was continued.
         if (savedInstanceState != null) continueActivity = true;
 
+        // Set the UI
         setContentView(R.layout.activity_map);
-
-        final SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL);
-
-        database = FilmDbHelper.getInstance(this);
-        rollList = getIntent().getParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS);
-        if (rollList == null) {
-            rollList = new ArrayList<>();
-        }
-        selectedRolls = new boolean[rollList.size()];
-        Arrays.fill(selectedRolls, true);
 
         Utilities.setUiColor(this, true);
 
@@ -137,11 +132,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             );
         }
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
+        // Set the bottom sheet
         final View bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         final float peekHeightOffset = getResources().getDimensionPixelSize(R.dimen.MapActivityBottomSheetPeekHeight);
@@ -167,14 +158,40 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        final ListView listView = findViewById(R.id.rolls_list_view);
-        final String[] rollNamesArray = new String[rollList.size()];
-        for (int i = 0; i < rollList.size(); i++) {
-            rollNamesArray[i] = rollList.get(i).getName();
+        // Get map type from preferences
+        final SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL);
+
+        // Set the roll list and other arrays
+        database = FilmDbHelper.getInstance(this);
+        List<Roll> rollListTemp = getIntent().getParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS);
+        if (rollListTemp == null) {
+            rollListTemp = new ArrayList<>();
         }
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, rollNamesArray);
+        for (Roll roll : rollListTemp) {
+            allRolls.add(new Pair<>(roll, true));
+        }
+        // If only one roll can be displayed, hide the bottom sheet.
+        if (allRolls.size() == 1) {
+            bottomSheetBehavior.setHideable(true);
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+
+        markerBitmaps = getMarkerBitmapList();
+
+        // Set the list view and adapter
+        final ListView listView = findViewById(R.id.rolls_list_view);
+        adapter = new RollMarkerAdapter(this, selectedRolls);
         listView.setAdapter(adapter);
+        updateSelectedRolls();
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
     }
 
     @Override
@@ -194,7 +211,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_map_activity, menu);
         // If only one roll is displayed, hide the filter icon.
-        if (rollList.size() == 1) {
+        if (allRolls.size() == 1) {
             menu.findItem(R.id.menu_item_filter).setVisible(false);
         }
         return super.onCreateOptionsMenu(menu);
@@ -251,17 +268,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 return true;
 
             case R.id.menu_item_filter:
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                final String[] rollNames = new String[rollList.size()];
-                for (int i = 0; i < rollList.size(); ++i) {
-                    rollNames[i] = rollList.get(i).getName();
+                final String[] rollNames = new String[allRolls.size()];
+                for (int i = 0; i < allRolls.size(); ++i) {
+                    rollNames[i] = allRolls.get(i).first.getName();
                 }
-                final boolean[] selectedRollsTemp = Arrays.copyOf(selectedRolls, selectedRolls.length);
+                final boolean[] selectedRollsTemp = new boolean[allRolls.size()];
+                for (int i = 0; i < selectedRollsTemp.length; i++) {
+                    selectedRollsTemp[i] = allRolls.get(i).second;
+                }
                 builder.setMultiChoiceItems(rollNames, selectedRollsTemp, (dialog, which, isChecked) ->
                         selectedRollsTemp[which] = isChecked);
                 builder.setNegativeButton(R.string.Cancel, (dialog, which) -> {});
                 builder.setPositiveButton(R.string.FilterNoColon, (dialog, which) -> {
-                    selectedRolls = selectedRollsTemp;
+                    for (int i = 0; i < selectedRollsTemp.length; i++) {
+                        allRolls.get(i).second = selectedRollsTemp[i];
+                    }
+                    updateSelectedRolls();
                     updateMarkers();
                 });
                 builder.setNeutralButton(R.string.DeselectAll, null);
@@ -309,8 +333,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         googleMap_ = googleMap;
-        final int peekHeightOffset = getResources().getDimensionPixelSize(R.dimen.MapActivityBottomSheetPeekHeight);
-        googleMap_.setPadding(0, 0, 0, peekHeightOffset);
+
+        // If only one roll can be displayed, the bottom sheet will be hidden.
+        // Therefore there is no need to add the bottom padding to the map.
+        if (allRolls.size() > 1) {
+            final int peekHeightOffset = getResources().getDimensionPixelSize(R.dimen.MapActivityBottomSheetPeekHeight);
+            googleMap_.setPadding(0, 0, 0, peekHeightOffset);
+        }
 
         // If the app's theme is dark, stylize the map with the custom night mode
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -322,7 +351,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         googleMap_.setMapType(prefs.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL));
         updateMarkers();
 
-        if (rollList.size() == 1) {
+        if (allRolls.size() == 1) {
             googleMap_.setInfoWindowAdapter(new InfoWindowAdapterSingleRoll());
         } else {
             googleMap_.setInfoWindowAdapter(new InfoWindowAdapterMultipleRolls());
@@ -331,54 +360,37 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    private void updateMarkers() {
-        // Iterator to change marker color
+    private void updateSelectedRolls() {
+        selectedRolls.clear();
         int i = 0;
-        final ArrayList<BitmapDescriptor> markerStyles = new ArrayList<>();
+        for (Pair<Roll, Boolean> pair : allRolls) {
+            // If the the roll is not selected, continue.
+            if (!pair.second) {
+                continue;
+            }
+            selectedRolls.add(new Pair<>(pair.first, markerBitmaps.get(i)));
+            i++;
+            if (i >= markerBitmaps.size()) {
+                i = 0;
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
 
-        markerStyles.add(0, BitmapDescriptorFactory.fromBitmap(
-                getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red)));
-        markerStyles.add(1, BitmapDescriptorFactory.fromBitmap(
-                setBitmapHue(getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red),
-                        BitmapDescriptorFactory.HUE_AZURE)));
-        markerStyles.add(2, BitmapDescriptorFactory.fromBitmap(
-                setBitmapHue(getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red),
-                        BitmapDescriptorFactory.HUE_GREEN)));
-        markerStyles.add(3, BitmapDescriptorFactory.fromBitmap(
-                setBitmapHue(getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red),
-                        BitmapDescriptorFactory.HUE_ORANGE)));
-        markerStyles.add(4, BitmapDescriptorFactory.fromBitmap(
-                setBitmapHue(getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red),
-                        BitmapDescriptorFactory.HUE_YELLOW)));
-        markerStyles.add(5, BitmapDescriptorFactory.fromBitmap(
-                setBitmapHue(getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red),
-                        BitmapDescriptorFactory.HUE_BLUE)));
-        markerStyles.add(6, BitmapDescriptorFactory.fromBitmap(
-                setBitmapHue(getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red),
-                        BitmapDescriptorFactory.HUE_ROSE)));
-        markerStyles.add(7, BitmapDescriptorFactory.fromBitmap(
-                setBitmapHue(getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red),
-                        BitmapDescriptorFactory.HUE_CYAN)));
-        markerStyles.add(8, BitmapDescriptorFactory.fromBitmap(
-                setBitmapHue(getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red),
-                        BitmapDescriptorFactory.HUE_VIOLET)));
-        markerStyles.add(9, BitmapDescriptorFactory.fromBitmap(
-                setBitmapHue(getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red),
-                        BitmapDescriptorFactory.HUE_MAGENTA)));
-
+    private void updateMarkers() {
         for (Marker marker : markerList) {
             marker.remove();
         }
         markerList.clear();
 
-        for (int rollIterator = 0; rollIterator < rollList.size(); ++rollIterator) {
+        for (int rollIterator = 0; rollIterator < selectedRolls.size(); ++rollIterator) {
 
-            if (!selectedRolls[rollIterator]) {
-                continue;
-            }
+            final Pair<Roll, Bitmap> pair = selectedRolls.get(rollIterator);
 
-            final Roll roll = rollList.get(rollIterator);
+            final Roll roll = pair.first;
             final List<Frame> frameList = database.getAllFramesFromRoll(roll);
+            final Bitmap markerBitmap = pair.second;
+            final BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(markerBitmap);
 
             for (final Frame frame : frameList) {
 
@@ -393,7 +405,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     final String title = "" + roll.getName();
                     final String snippet = "#" + frame.getCount();
                     final Marker marker = googleMap_.addMarker(new MarkerOptions()
-                            .icon(markerStyles.get(i))
+                            .icon(bitmapDescriptor)
                             .position(position)
                             .title(title)
                             .snippet(snippet)
@@ -403,8 +415,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     markerList.add(marker);
                 }
             }
-            ++i;
-            if (i > 9) i = 0;
         }
 
         if (markerList.size() > 0 && !continueActivity) {
@@ -573,6 +583,83 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
         return bitmap;
+    }
+
+    private static class RollMarkerAdapter extends ArrayAdapter<Pair<Roll, Bitmap>> {
+
+        private List<Pair<Roll, Bitmap>> rollList;
+
+        RollMarkerAdapter(final Context context, final List<Pair<Roll, Bitmap>> rollList) {
+            super(context, android.R.layout.simple_list_item_1, rollList);
+            this.rollList = rollList;
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            final Pair<Roll, Bitmap> pair = rollList.get(position);
+            final Roll roll = pair.first;
+            final Bitmap markerBitmap = pair.second;
+            ViewHolder holder;
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext())
+                        .inflate(R.layout.item_roll_map_activity, parent, false);
+                holder = new ViewHolder();
+                holder.rollNameTextView = convertView.findViewById(R.id.roll_text_view);
+                holder.markerImageView = convertView.findViewById(R.id.marker_image_view);
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+            holder.rollNameTextView.setText(roll.getName());
+            holder.markerImageView.setImageBitmap(markerBitmap);
+            return convertView;
+        }
+
+        @Override
+        public boolean isEnabled(int position) {
+            // Disable onClick events for the adapter. We only display the visible rolls.
+            return false;
+        }
+
+        private static class ViewHolder {
+            TextView rollNameTextView;
+            ImageView markerImageView;
+        }
+
+    }
+    
+    private List<Bitmap> getMarkerBitmapList() {
+        final List<Bitmap> bitmaps = new ArrayList<>();
+        bitmaps.add(0, getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red));
+        bitmaps.add(1, setBitmapHue(getBitmapFromVectorDrawable(this,
+                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_AZURE));
+        bitmaps.add(2, setBitmapHue(getBitmapFromVectorDrawable(this,
+                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_GREEN));
+        bitmaps.add(3, setBitmapHue(getBitmapFromVectorDrawable(this,
+                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_ORANGE));
+        bitmaps.add(4, setBitmapHue(getBitmapFromVectorDrawable(this,
+                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_YELLOW));
+        bitmaps.add(5, setBitmapHue(getBitmapFromVectorDrawable(this,
+                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_BLUE));
+        bitmaps.add(6, setBitmapHue(getBitmapFromVectorDrawable(this,
+                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_ROSE));
+        bitmaps.add(7, setBitmapHue(getBitmapFromVectorDrawable(this,
+                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_CYAN));
+        bitmaps.add(8, setBitmapHue(getBitmapFromVectorDrawable(this,
+                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_VIOLET));
+        bitmaps.add(9, setBitmapHue(getBitmapFromVectorDrawable(this,
+                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_MAGENTA));
+        return bitmaps;
+    }
+
+    private static class Pair<T, U> {
+        T first;
+        U second;
+        Pair(T first, U second) {
+            this.first = first;
+            this.second = second;
+        }
     }
 
 }
