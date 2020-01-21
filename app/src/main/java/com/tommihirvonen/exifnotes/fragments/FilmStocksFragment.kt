@@ -38,18 +38,23 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     }
 
     private lateinit var database: FilmDbHelper
+    private lateinit var allFilmStocks: List<FilmStock>
     private lateinit var filmStocks: MutableList<FilmStock>
     private var fragmentVisible = false
     private lateinit var filmStocksRecyclerView: RecyclerView
     private lateinit var filmStockAdapter: GearAdapter
     var sortMode = SORT_MODE_NAME
         private set
+    var manufacturerFilterList = emptyList<String>().toMutableList()
+    var isoFilterList = emptyList<Int>().toMutableList()
+    var addedByFilterMode = FILTER_MODE_ALL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         database = FilmDbHelper.getInstance(activity)
-        filmStocks = database.allFilmStocks
+        allFilmStocks = database.allFilmStocks
+        filmStocks = allFilmStocks.toMutableList()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -182,27 +187,43 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         if (notifyDataSetChanged) filmStockAdapter.notifyDataSetChanged()
     }
 
-    fun filterFilmStocks(manufacturers: List<String?>, filterModeAddedBy: Int) {
+    fun resetFilters() {
+        manufacturerFilterList.clear()
+        isoFilterList.clear()
+        addedByFilterMode = FILTER_MODE_ALL
+        filterFilmStocks()
+    }
+
+    fun filterFilmStocks() {
         // First filter the list based on manufacturer. No filtering is done if manufacturers is null.
-        filmStocks = database.allFilmStocks.filter {
-            manufacturers.contains(it.make) || manufacturers.isEmpty()
+        filmStocks = allFilmStocks.filter {
+            // Filter based on manufacturers
+            (manufacturerFilterList.contains(it.make) || manufacturerFilterList.isEmpty()) &&
+                    //Then filter based on filter mode.
+                    when (addedByFilterMode) {
+                        FILTER_MODE_PREADDED -> it.isPreadded
+                        FILTER_MODE_ADDED_BY_USER -> !it.isPreadded
+                        FILTER_MODE_ALL -> true
+                        else -> throw IllegalArgumentException("Illegal argument filterModeAddedBy: $addedByFilterMode")
+                    }
+                    // Finally filter based on ISO values.
+                    && (isoFilterList.contains(it.iso) || isoFilterList.isEmpty())
         }.toMutableList()
         sortFilmStocks()
-
-        // Then filter based on filter mode.
-        when {
-            filterModeAddedBy == FILTER_MODE_PREADDED -> {
-                filmStocks = filmStocks.filter { it.isPreadded }.toMutableList()
-            }
-            filterModeAddedBy == FILTER_MODE_ADDED_BY_USER -> {
-                filmStocks = filmStocks.filter { !it.isPreadded }.toMutableList()
-            }
-            filterModeAddedBy != FILTER_MODE_ALL ->
-                throw IllegalArgumentException("Illegal argument filterModeAddedBy: $filterModeAddedBy")
-        }
 
         filmStockAdapter.setGearList(filmStocks)
         filmStockAdapter.notifyDataSetChanged()
     }
+
+    // Possible ISO values are filtered based on currently selected manufacturers and filter mode.
+    fun possibleIsoValues() = allFilmStocks.filter {
+            (manufacturerFilterList.contains(it.make) || manufacturerFilterList.isEmpty()) &&
+            when (addedByFilterMode) {
+                FILTER_MODE_PREADDED -> it.isPreadded
+                FILTER_MODE_ADDED_BY_USER -> !it.isPreadded
+                FILTER_MODE_ALL -> true
+                else -> throw IllegalArgumentException("Illegal argument filterModeAddedBy: $addedByFilterMode")
+            }
+    }.map { it.iso }.distinct().sorted()
 
 }

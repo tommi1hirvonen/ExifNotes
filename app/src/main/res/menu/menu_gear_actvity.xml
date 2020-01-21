@@ -28,6 +28,10 @@
                     android:title="@string/AddedBy"
                     android:id="@+id/filter_mode_added_by"
                     />
+                <item
+                    android:title="@string/Reset"
+                    android:id="@+id/filter_mode_reset"
+                    />
             </group>
 
         </menu>

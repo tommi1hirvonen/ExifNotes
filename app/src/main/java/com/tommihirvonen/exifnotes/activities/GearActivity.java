@@ -58,9 +58,11 @@ public class GearActivity extends AppCompatActivity {
      */
     private static final String POSITION = "POSITION";
 
-    private List<String> manufacturerFilterList = new ArrayList<>();
-
-    private int filterModeAddedBy = FilmStocksFragment.FILTER_MODE_ALL;
+//    private List<String> manufacturerFilterList = new ArrayList<>();
+//
+//    private int filterModeAddedBy = FilmStocksFragment.FILTER_MODE_ALL;
+//
+//    private List<Integer> isoFilterList = new ArrayList<>();
 
     private static final int POSITION_CAMERAS = 0;
     private static final int POSITION_LENSES = 1;
@@ -137,6 +139,9 @@ public class GearActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
+
+        final FilmStocksFragment filmStocksFragment = (FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS);
+
         // Handle actions here, since the fragment may be paused and cannot handle actions.
         switch (item.getItemId()) {
 
@@ -145,14 +150,12 @@ public class GearActivity extends AppCompatActivity {
                 return true;
 
             case R.id.sort_mode_film_stock_name:
-                ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
-                        .setSortMode(FilmStocksFragment.SORT_MODE_NAME, true);
+                filmStocksFragment.setSortMode(FilmStocksFragment.SORT_MODE_NAME, true);
                 item.setChecked(true);
                 return true;
 
             case R.id.sort_mode_film_stock_iso:
-                ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
-                        .setSortMode(FilmStocksFragment.SORT_MODE_ISO, true);
+                filmStocksFragment.setSortMode(FilmStocksFragment.SORT_MODE_ISO, true);
                 item.setChecked(true);
                 return true;
 
@@ -160,13 +163,14 @@ public class GearActivity extends AppCompatActivity {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 final String[] manufacturers = FilmDbHelper.getInstance(this)
                         .getAllFilmManufacturers().toArray(new String[0]);
+                final List<String> manufacturerFilterList = filmStocksFragment.getManufacturerFilterList();
                 final boolean[] checkedItems = new boolean[manufacturers.length];
                 for (int i = 0; i < manufacturers.length; ++i) {
                     if (manufacturerFilterList.contains(manufacturers[i])) checkedItems[i] = true;
                 }
 
                 // Create a temporary list to be updated.
-                // If the user cancel's the dialog, the original list will remain unchanged.
+                // If the user cancels the dialog, the original list will remain unchanged.
                 final List<String> manufacturerFilterListTemp = new ArrayList<>(manufacturerFilterList);
                 builder.setMultiChoiceItems(manufacturers, checkedItems, (dialog, which, isChecked) -> {
                     if (isChecked) {
@@ -177,14 +181,12 @@ public class GearActivity extends AppCompatActivity {
                 });
                 builder.setNegativeButton(R.string.Cancel, (dialog, which) -> { /* Do nothing */ });
                 builder.setPositiveButton(R.string.FilterNoColon, (dialog, which) -> {
-                    manufacturerFilterList = manufacturerFilterListTemp;
-                    ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
-                            .filterFilmStocks(manufacturerFilterList, filterModeAddedBy);
+                    filmStocksFragment.setManufacturerFilterList(manufacturerFilterListTemp);
+                    filmStocksFragment.filterFilmStocks();
                 });
                 builder.setNeutralButton(R.string.Reset, (dialog, which) -> {
-                    manufacturerFilterList.clear();
-                    ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
-                            .filterFilmStocks(manufacturerFilterList, filterModeAddedBy);
+                    filmStocksFragment.getManufacturerFilterList().clear();
+                    filmStocksFragment.filterFilmStocks();
                 });
                 builder.create().show();
                 return true;
@@ -192,6 +194,7 @@ public class GearActivity extends AppCompatActivity {
             case R.id.filter_mode_added_by:
                 final AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
                 final int checkedItem;
+                final int filterModeAddedBy = filmStocksFragment.getAddedByFilterMode();
                 if (filterModeAddedBy == FilmStocksFragment.FILTER_MODE_PREADDED) {
                     checkedItem = 1;
                 } else if (filterModeAddedBy == FilmStocksFragment.FILTER_MODE_ADDED_BY_USER) {
@@ -202,21 +205,59 @@ public class GearActivity extends AppCompatActivity {
                 builder1.setSingleChoiceItems(R.array.FilmStocksFilterMode, checkedItem, (dialog, which) -> {
                     switch (which) {
                         case 0:
-                            filterModeAddedBy = FilmStocksFragment.FILTER_MODE_ALL;
+                            filmStocksFragment.setAddedByFilterMode(FilmStocksFragment.FILTER_MODE_ALL);
                             break;
                         case 1:
-                            filterModeAddedBy = FilmStocksFragment.FILTER_MODE_PREADDED;
+                            filmStocksFragment.setAddedByFilterMode(FilmStocksFragment.FILTER_MODE_PREADDED);
                             break;
                         case 2:
-                            filterModeAddedBy = FilmStocksFragment.FILTER_MODE_ADDED_BY_USER;
+                            filmStocksFragment.setAddedByFilterMode(FilmStocksFragment.FILTER_MODE_ADDED_BY_USER);
                             break;
                     }
-                    ((FilmStocksFragment) pagerAdapter.getItem(POSITION_FILMS))
-                            .filterFilmStocks(manufacturerFilterList, filterModeAddedBy);
+                    filmStocksFragment.filterFilmStocks();
                     dialog.dismiss();
                 });
                 builder1.setNegativeButton(R.string.Cancel, (dialog, which) -> {});
                 builder1.create().show();
+                return true;
+
+            case R.id.filter_mode_film_iso:
+                final AlertDialog.Builder builder2 = new AlertDialog.Builder(this);
+                final List<Integer> isoValues = filmStocksFragment.possibleIsoValues();
+                final List<Integer> isoFilterList = filmStocksFragment.getIsoFilterList();
+                final String[] isoValueStrings = new String[isoValues.size()];
+                final boolean[] checkedItems2 = new boolean[isoValues.size()];
+                for (int i = 0; i < isoValues.size(); i++) {
+                    isoValueStrings[i] = isoValues.get(i).toString();
+                    if (isoFilterList.contains(isoValues.get(i))) {
+                        checkedItems2[i] = true;
+                    }
+                }
+
+                // Create a temporary list to be updated.
+                // If the user cancels the dialog, the original list will remain unchanged.
+                final List<Integer> isoFilterListTemp = new ArrayList<>(isoFilterList);
+                builder2.setMultiChoiceItems(isoValueStrings, checkedItems2, (dialog, which, isChecked) -> {
+                    if (isChecked) {
+                        isoFilterListTemp.add(isoValues.get(which));
+                    } else {
+                        isoFilterListTemp.remove(isoValues.get(which));
+                    }
+                });
+                builder2.setNegativeButton(R.string.Cancel, (dialog, which) -> {/*Do nothing*/});
+                builder2.setPositiveButton(R.string.FilterNoColon, (dialog, which) -> {
+                    filmStocksFragment.setIsoFilterList(isoFilterListTemp);
+                    filmStocksFragment.filterFilmStocks();
+                });
+                builder2.setNeutralButton(R.string.Reset, (dialog, which) -> {
+                    filmStocksFragment.getIsoFilterList().clear();
+                    filmStocksFragment.filterFilmStocks();
+                });
+                builder2.create().show();
+                return true;
+
+            case R.id.filter_mode_reset:
+                filmStocksFragment.resetFilters();
                 return true;
 
         }

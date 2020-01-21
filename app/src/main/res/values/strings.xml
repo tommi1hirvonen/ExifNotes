@@ -298,11 +298,12 @@
     <string name="Updates">
         Updates in this version:\n
         -Added flash used and light source properties to frames\n
-        -Added film stock property to rolls\n
+        -Added film stock property to rolls and a database of preadded film stocks\n
         -Rolls can be batch edited\n
         -Improved roll UI element presentation\n
+        -Visible rolls can be filtered when displaying all rolls on map\n
         -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
-        -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
+        -Replaced deprecated API calls and improved compatibility with Android 10 (Q)\n
     </string>
     <string name="UseCustomValue">Use custom value</string>
     <string name="UsedCamera">Choose used camera</string>
@@ -314,11 +315,12 @@
         \n
         v1.14.0 2020-01-02:\n
         -Added flash used and light source properties to frames\n
-        -Added film stock property to rolls\n
+        -Added film stock property to rolls and a database of preadded film stocks\n
         -Rolls can be batch edited\n
         -Improved roll UI element presentation\n
+        -Visible rolls can be filtered when displaying all rolls on map\n
         -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
-        -Replaced deprecated API calls (improved compatibility with Android 10 (Q))\n
+        -Replaced deprecated API calls and improved compatibility with Android 10 (Q)\n
         \n
         v1.13.1 2019-10-12:\n
         -Updated deprecated location API calls\n
