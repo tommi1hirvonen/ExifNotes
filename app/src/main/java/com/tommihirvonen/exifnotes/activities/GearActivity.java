@@ -58,12 +58,6 @@ public class GearActivity extends AppCompatActivity {
      */
     private static final String POSITION = "POSITION";
 
-//    private List<String> manufacturerFilterList = new ArrayList<>();
-//
-//    private int filterModeAddedBy = FilmStocksFragment.FILTER_MODE_ALL;
-//
-//    private List<Integer> isoFilterList = new ArrayList<>();
-
     private static final int POSITION_CAMERAS = 0;
     private static final int POSITION_LENSES = 1;
     private static final int POSITION_FILTERS = 2;
@@ -267,15 +261,28 @@ public class GearActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        // When the options menu is opened, set the correct items to be preselected.
-        final FilmStocksFragment fragment = (FilmStocksFragment) pagerAdapter.getItem(3);
-        switch (fragment.getSortMode()) {
-            case FilmStocksFragment.SORT_MODE_NAME:
-                menu.findItem(R.id.sort_mode_film_stock_name).setChecked(true);
-                break;
-            case FilmStocksFragment.SORT_MODE_ISO:
-                menu.findItem(R.id.sort_mode_film_stock_iso).setChecked(true);
-                break;
+        // If a fragment other than FilmStocksFragment is being shown, disable the film stock
+        // filtering and sorting options. This is also done so that the filter and sort methods
+        // of FilmStocksFragment aren't called when its late init members are not initialized because
+        // its onCreate() hasn't yet been called.
+        if (viewPager.getCurrentItem() != POSITION_FILMS) {
+            menu.findItem(R.id.sort_mode_film_stock_name).setEnabled(false);
+            menu.findItem(R.id.sort_mode_film_stock_iso).setEnabled(false);
+            menu.findItem(R.id.filter_mode_film_manufacturer).setEnabled(false);
+            menu.findItem(R.id.filter_mode_added_by).setEnabled(false);
+            menu.findItem(R.id.filter_mode_film_iso).setEnabled(false);
+            menu.findItem(R.id.filter_mode_reset).setEnabled(false);
+        } else {
+            // When the options menu is opened, set the correct items to be preselected.
+            final FilmStocksFragment fragment = (FilmStocksFragment) pagerAdapter.getItem(3);
+            switch (fragment.getSortMode()) {
+                case FilmStocksFragment.SORT_MODE_NAME:
+                    menu.findItem(R.id.sort_mode_film_stock_name).setChecked(true);
+                    break;
+                case FilmStocksFragment.SORT_MODE_ISO:
+                    menu.findItem(R.id.sort_mode_film_stock_iso).setChecked(true);
+                    break;
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }

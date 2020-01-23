@@ -313,7 +313,7 @@
     <string name="VersionHistory">
         Version history\n
         \n
-        v1.14.0 2020-01-02:\n
+        v1.14.0 2020-01-23:\n
         -Added flash used and light source properties to frames\n
         -Added film stock property to rolls and a database of preadded film stocks\n
         -Rolls can be batch edited\n

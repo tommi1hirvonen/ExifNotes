@@ -219,6 +219,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
+        // If the GoogleMap was not initialized, disable map type menu items.
+        // This can happen when Play services are not installed on the device.
+        if (googleMap_ == null) {
+            menu.findItem(R.id.menu_item_normal).setEnabled(false);
+            menu.findItem(R.id.menu_item_hybrid).setEnabled(false);
+            menu.findItem(R.id.menu_item_satellite).setEnabled(false);
+            menu.findItem(R.id.menu_item_terrain).setEnabled(false);
+        }
         switch (mapType) {
             case GoogleMap.MAP_TYPE_NORMAL: default:
                 menu.findItem(R.id.menu_item_normal).setChecked(true);
@@ -447,7 +455,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     private void setMapType(final int mapType) {
         this.mapType = mapType;
-        googleMap_.setMapType(mapType);
+        if (googleMap_ != null) {
+            googleMap_.setMapType(mapType);
+        }
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         final SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(PreferenceConstants.KEY_MAP_TYPE, mapType);
