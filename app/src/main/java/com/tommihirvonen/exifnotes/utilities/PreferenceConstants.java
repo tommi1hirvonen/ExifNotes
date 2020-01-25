@@ -7,11 +7,7 @@ package com.tommihirvonen.exifnotes.utilities;
  */
 public final class PreferenceConstants {
 
-    static final String VALUE_APP_THEME_LIGHT = "LIGHT";
-
-    static final String VALUE_APP_THEME_DARK = "DARK";
-
-    public static final String KEY_APP_THEME = "AppTheme";
+    public static final String KEY_DARK_THEME = "DarkTheme";
 
     public static final String KEY_MAP_TYPE = "MAP_TYPE";
 

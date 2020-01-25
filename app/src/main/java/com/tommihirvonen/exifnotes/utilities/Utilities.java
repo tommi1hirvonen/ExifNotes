@@ -178,8 +178,7 @@ public final class Utilities {
      */
     public static boolean isAppThemeDark(final Context context) {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getString(PreferenceConstants.KEY_APP_THEME, PreferenceConstants.VALUE_APP_THEME_LIGHT)
-                        .equals(PreferenceConstants.VALUE_APP_THEME_DARK);
+        return preferences.getBoolean(PreferenceConstants.KEY_DARK_THEME, false);
     }
 
     /**

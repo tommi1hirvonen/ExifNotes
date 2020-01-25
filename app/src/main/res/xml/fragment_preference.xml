@@ -10,7 +10,7 @@
         app:iconSpaceReserved="false"
         >
 
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="GPSUpdate"
             android:title="@string/GPSUpdateTitle"
             android:summary="@string/GPSUpdateSummary"
@@ -18,10 +18,10 @@
             app:iconSpaceReserved="false"
             />
 
-        <com.tommihirvonen.exifnotes.utilities.AppThemeDialogPreference
-            android:key="AppTheme"
-            android:title="@string/AppThemeTitle"
-            android:defaultValue="LIGHT"
+        <SwitchPreference
+            android:key="DarkTheme"
+            android:title="@string/DarkTheme"
+            android:defaultValue="false"
             app:iconSpaceReserved="false"
             />
 

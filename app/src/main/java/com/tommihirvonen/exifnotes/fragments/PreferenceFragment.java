@@ -22,8 +22,6 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
 import com.tommihirvonen.exifnotes.R;
-import com.tommihirvonen.exifnotes.utilities.AppThemeDialogPreference;
-import com.tommihirvonen.exifnotes.utilities.AppThemePreferenceDialogFragment;
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
@@ -72,10 +70,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
         // and also saving the values for you.
         addPreferencesFromResource(R.xml.fragment_preference);
 
-        // Set summaries for the list preferences
-        final AppThemeDialogPreference appTheme = findPreference(PreferenceConstants.KEY_APP_THEME);
-        appTheme.setSummary(appTheme.getAppTheme());
-
+        // Set summaries
         final UIColorDialogPreference UIColor = findPreference(PreferenceConstants.KEY_UI_COLOR);
         UIColor.setSummary(UIColor.getSelectedColorName());
 
@@ -167,9 +162,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
     @Override
     public void onDisplayPreferenceDialog(final Preference preference) {
         DialogFragment dialogFragment = null;
-        if (preference instanceof AppThemeDialogPreference) {
-            dialogFragment = AppThemePreferenceDialogFragment.newInstance(preference.getKey());
-        } else if (preference instanceof UIColorDialogPreference) {
+        if (preference instanceof UIColorDialogPreference) {
             dialogFragment = UIColorPreferenceDialogFragment.newInstance(preference.getKey());
         }
         if (dialogFragment != null) {
@@ -471,7 +464,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
      */
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
-        if (key.equals(PreferenceConstants.KEY_APP_THEME)) {
+        if (key.equals(PreferenceConstants.KEY_DARK_THEME)) {
             getActivity().recreate();
             final PreferenceActivity preferenceActivity = (PreferenceActivity) getActivity();
             int resultCode = preferenceActivity.getResultCode();

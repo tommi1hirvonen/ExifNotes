@@ -77,6 +77,7 @@
     <string name="CsvDescription">Text file with the roll\'s data in csv format</string>
     <string name="Cyan">Cyan</string>
     <string name="Dark">Dark</string>
+    <string name="DarkTheme">Dark theme</string>
     <string name="DatabaseCap">DATABASE</string>
     <string name="DatabaseCopiedSuccessfully">Database copied successfully</string>
     <string name="DatabaseImported">Database imported successfully</string>
@@ -155,7 +156,7 @@
     <string name="GPSNotEnabled">You have location updates enabled in the app\'s settings, but GPS is disabled in system settings.\n\nDo you want to go to system settings to enable GPS?</string>
     <string name="GPSSettings">GPS Settings</string>
     <string name="GPSUpdateSummary">Keep updating the current location using GPS.</string>
-    <string name="GPSUpdateTitle">Enable location updating</string>
+    <string name="GPSUpdateTitle">Location updates</string>
     <string name="Gear">Gear</string>
     <string name="General_Cap">GENERAL</string>
     <string name="GoToSettings">Go to settings</string>
