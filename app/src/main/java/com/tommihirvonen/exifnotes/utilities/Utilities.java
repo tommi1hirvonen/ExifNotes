@@ -41,6 +41,8 @@ import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.datastructures.RollSortMode;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -821,8 +823,7 @@ public final class Utilities {
         final FilmStock filmStock = database.getFilmStock(roll.getFilmStockId());
 
         final String separator = ",";
-        final String separatorReplacement = ";";
-        final StringBuilder stringBuilder = new StringBuilder();
+        final StringEscapeUtils.Builder stringBuilder = StringEscapeUtils.builder(StringEscapeUtils.ESCAPE_CSV);
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         final String artistName = prefs.getString("ArtistName", "");
@@ -832,7 +833,7 @@ public final class Utilities {
         stringBuilder.append("Roll name: ").append(roll.getName()).append("\n");
         stringBuilder.append("Added: ").append(roll.getDate()).append("\n");
         stringBuilder.append("Film stock: ").append(filmStock != null ? filmStock.getName() : "").append("\n");
-        stringBuilder.append("ISO: ").append(roll.getIso()).append("\n");
+        stringBuilder.append("ISO: ").append(String.valueOf(roll.getIso())).append("\n");
         stringBuilder.append("Format: ").append(context.getResources()
                 .getStringArray(R.array.FilmFormats)[roll.getFormat()]).append("\n");
         stringBuilder.append("Push/pull: ").append(roll.getPushPull()).append("\n");
@@ -865,10 +866,12 @@ public final class Utilities {
         for (final Frame frame : frameList) {
 
             Lens lens = null;
-            if (frame.getLensId() > 0) lens = database.getLens(frame.getLensId());
+            if (frame.getLensId() > 0) {
+                lens = database.getLens(frame.getLensId());
+            }
 
             //FrameCount
-            stringBuilder.append(frame.getCount());
+            stringBuilder.append(String.valueOf(frame.getCount()));
             stringBuilder.append(separator);
 
             //Date
@@ -876,40 +879,51 @@ public final class Utilities {
             stringBuilder.append(separator);
 
             //Lens make and model
-            if (lens != null) stringBuilder.append(lens.getMake()).append(" ").append(lens.getModel());
+            if (lens != null) {
+                stringBuilder.escape(lens.getMake()).append(" ").escape(lens.getModel());
+            }
             stringBuilder.append(separator);
 
             //Lens serial number
-            if (lens != null && lens.getSerialNumber() != null && lens.getSerialNumber().length() > 0)
-                stringBuilder.append(lens.getSerialNumber());
+            if (lens != null && lens.getSerialNumber() != null && lens.getSerialNumber().length() > 0) {
+                stringBuilder.escape(lens.getSerialNumber());
+            }
             stringBuilder.append(separator);
 
             // /Shutter speed
-            if (frame.getShutter() != null) stringBuilder.append(frame.getShutter());
+            if (frame.getShutter() != null) {
+                stringBuilder.append(frame.getShutter());
+            }
             stringBuilder.append(separator);
 
             //Aperture
-            if (frame.getAperture() != null)
+            if (frame.getAperture() != null) {
                 stringBuilder.append("f").append(frame.getAperture());
+            }
             stringBuilder.append(separator);
 
             //Focal length
-            if (frame.getFocalLength() > 0) stringBuilder.append(frame.getFocalLength());
+            if (frame.getFocalLength() > 0) {
+                stringBuilder.append(String.valueOf(frame.getFocalLength()));
+            }
             stringBuilder.append(separator);
 
             //Exposure compensation
-            if (frame.getExposureComp() != null && frame.getExposureComp().length() > 1)
+            if (frame.getExposureComp() != null && frame.getExposureComp().length() > 1) {
                 stringBuilder.append(frame.getExposureComp());
+            }
             stringBuilder.append(separator);
 
             //Note
-            if (frame.getNote() != null && frame.getNote().length() > 0) stringBuilder.append(frame.getNote());
+            if (frame.getNote() != null && frame.getNote().length() > 0) {
+                stringBuilder.escape(frame.getNote());
+            }
             stringBuilder.append(separator);
 
             //Number of exposures
-            stringBuilder.append(frame.getNoOfExposures());
+            stringBuilder.append(String.valueOf(frame.getNoOfExposures()));
             stringBuilder.append(separator);
-            
+
             //Filters
             if (frame.getFilters().size() > 0) {
                 final StringBuilder filterBuilder = new StringBuilder();
@@ -917,8 +931,9 @@ public final class Utilities {
                     filterBuilder.append(frame.getFilters().get(i).getName());
                     if (i < frame.getFilters().size() - 1) filterBuilder.append("|");
                 }
-                stringBuilder.append(filterBuilder.toString());
+                stringBuilder.escape(filterBuilder.toString());
             }
+            stringBuilder.append(separator);
 
             //Location
             if (frame.getLocation() != null && frame.getLocation().length() > 0) {
@@ -941,38 +956,33 @@ public final class Utilities {
 
                 final String space = " ";
 
-                stringBuilder.append(latStringList.get(0)).append("°").append(space)
-                        .append(latStringList.get(1)).append("\'").append(space)
-                        .append(latStringList.get(2).replace(',', '.'))
-                        .append("\"").append(space);
+                final String location =
+                        // Latitude
+                        latStringList.get(0) + "°" + space + latStringList.get(1) + "\'" + space +
+                                latStringList.get(2).replace(',', '.') + "\"" + space + latRef +
+                                space +
+                                // Longitude
+                                lngStringList.get(0) + "°" + space + lngStringList.get(1) + "\'" + space +
+                                lngStringList.get(2).replace(',', '.') + "\"" + space + lngRef;
 
-                stringBuilder.append(latRef).append(space);
-
-                stringBuilder.append(lngStringList.get(0)).append("°").append(space)
-                        .append(lngStringList.get(1)).append("\'").append(space)
-                        .append(lngStringList.get(2).replace(',', '.'))
-                        .append("\"").append(space);
-
-                stringBuilder.append(lngRef);
+                stringBuilder.escape(location);
             }
             stringBuilder.append(separator);
 
             //Address
             if (frame.getFormattedAddress() != null && frame.getFormattedAddress().length() > 0) {
-                final String formattedAddress = frame.getFormattedAddress();
-                // Replace commas with semicolons, because comma is reserved for separator
-                stringBuilder.append(formattedAddress.replace(separator, separatorReplacement));
+                stringBuilder.escape(frame.getFormattedAddress());
             }
             stringBuilder.append(separator);
 
             // Flash
-            stringBuilder.append(frame.getFlashUsed());
+            stringBuilder.append(String.valueOf(frame.getFlashUsed()));
             stringBuilder.append(separator);
 
             // Light source
             final String[] lightSources = context.getResources().getStringArray(R.array.LightSource);
             try {
-                stringBuilder.append(lightSources[frame.getLightSource()]);
+                stringBuilder.escape(lightSources[frame.getLightSource()]);
             }
             catch (ArrayIndexOutOfBoundsException e) {
                 stringBuilder.append("Error");
@@ -983,6 +993,7 @@ public final class Utilities {
 
         return stringBuilder.toString();
     }
+
 
     /**
      * Creates a location string in human readable format from a location string in decimal format.

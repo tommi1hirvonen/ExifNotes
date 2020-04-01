@@ -298,13 +298,7 @@
     <string name="Unknown">Unknown</string>
     <string name="Updates">
         Updates in this version:\n
-        -Added flash used and light source properties to frames\n
-        -Added film stock property to rolls and a database of preadded film stocks\n
-        -Rolls can be batch edited\n
-        -Improved roll UI element presentation\n
-        -Visible rolls can be filtered when displaying all rolls on map\n
-        -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
-        -Replaced deprecated API calls and improved compatibility with Android 10 (Q)\n
+        -Reserved characters are now escaped appropriately when exporting a csv file\n
     </string>
     <string name="UseCustomValue">Use custom value</string>
     <string name="UsedCamera">Choose used camera</string>
@@ -313,6 +307,9 @@
     <string name="UserAdded">User added</string>
     <string name="VersionHistory">
         Version history\n
+        \n
+        v1.14.1 2020-04-01:\n
+        -Reserved characters are now escaped appropriately when exporting a csv file\n
         \n
         v1.14.0 2020-01-23:\n
         -Added flash used and light source properties to frames\n
