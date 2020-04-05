@@ -82,19 +82,14 @@
     <string name="DatabaseCopiedSuccessfully">Database copied successfully</string>
     <string name="DatabaseImported">Database imported successfully</string>
     <string name="Date">Date</string>
-    <string name="DateAndTimeLoaded">Date &amp; time loaded</string>
-    <string name="DateAndTimeDeveloped">Date &amp; time developed</string>
-    <string name="DateAndTimeUnloaded">Date &amp; time unloaded</string>
-    <string name="DateDeveloped">Date developed</string>
-    <string name="DateLoaded">Date loaded</string>
     <string name="DateNoColon">Date</string>
-    <string name="DateUnloaded">Date unloaded</string>
     <string name="Daylight">Daylight</string>
     <string name="Decline">Decline</string>
     <string name="Delete">Delete</string>
     <string name="DeleteFilmStock">Delete film stock</string>
     <string name="DescriptionOrNote">Description/note</string>
     <string name="DeselectAll">Deselect all</string>
+    <string name="DevelopedOn">Developed on</string>
     <string name="DisableInApp">Disable in app</string>
     <string name="Edit">Edit</string>
     <string name="EditCamera">Edit camera</string>
@@ -198,6 +193,7 @@
     <string name="Lenses">LENSES</string>
     <string name="Light">Light</string>
     <string name="LightSource">Light source</string>
+    <string name="LoadedOn">Loaded on</string>
     <string name="LoadingPicture">Loading picture…</string>
     <string name="Location">Location</string>
     <string name="MainActivityTitle">Film rolls</string>
@@ -305,6 +301,7 @@
     <string name="UIColorTitle">User interface color </string>
     <string name="Unarchive">Unarchive</string>
     <string name="Unknown">Unknown</string>
+    <string name="UnloadedOn">Unloaded on</string>
     <string name="Updates">
         Updates in this version:\n
         -Reserved characters are now escaped appropriately when exporting a csv file\n

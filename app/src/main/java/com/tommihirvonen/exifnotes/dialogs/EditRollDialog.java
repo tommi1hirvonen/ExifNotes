@@ -177,12 +177,19 @@ public class EditRollDialog extends DialogFragment {
             dividerList.add(inflatedView.findViewById(R.id.divider_view5));
             dividerList.add(inflatedView.findViewById(R.id.divider_view6));
             dividerList.add(inflatedView.findViewById(R.id.divider_view7));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view8));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view9));
+            dividerList.add(inflatedView.findViewById(R.id.divider_view10));
             for (final View v : dividerList) {
                 v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
             }
             Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.add_camera)).getDrawable().mutate(),
                     ContextCompat.getColor(getActivity(), R.color.white));
             Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.clear_film_stock)).getDrawable().mutate(),
+                    ContextCompat.getColor(getActivity(), R.color.white));
+            Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.clear_date_unloaded)).getDrawable().mutate(),
+                    ContextCompat.getColor(getActivity(), R.color.white));
+            Utilities.setColorFilter(((ImageView) inflatedView.findViewById(R.id.clear_date_developed)).getDrawable().mutate(),
                     ContextCompat.getColor(getActivity(), R.color.white));
         }
         //==========================================================================================
@@ -340,6 +347,12 @@ public class EditRollDialog extends DialogFragment {
             dateUnloadedTextView.setText(dateTime.getDateAsText());
             timeUnloadedTextView.setText(dateTime.getTimeAsText());
         }));
+        final ImageView clearDateUnloaded = inflatedView.findViewById(R.id.clear_date_unloaded);
+        clearDateUnloaded.setOnClickListener(v -> {
+            newDateUnloaded = null;
+            dateUnloadedTextView.setText(R.string.ClickToSet);
+            timeUnloadedTextView.setText("");
+        });
 
         //==========================================================================================
 
@@ -367,6 +380,12 @@ public class EditRollDialog extends DialogFragment {
             dateDevelopedTextView.setText(dateTime.getDateAsText());
             timeDevelopedTextView.setText(dateTime.getTimeAsText());
         }));
+        final ImageView clearDateDeveloped = inflatedView.findViewById(R.id.clear_date_developed);
+        clearDateDeveloped.setOnClickListener(v -> {
+            newDateDeveloped = null;
+            dateDevelopedTextView.setText(R.string.ClickToSet);
+            timeDevelopedTextView.setText("");
+        });
 
         //==========================================================================================
 
