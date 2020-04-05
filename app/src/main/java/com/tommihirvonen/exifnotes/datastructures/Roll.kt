@@ -65,6 +65,16 @@ class Roll : Parcelable {
     var filmStockId: Long = 0
 
     /**
+     * Date to store when the roll was unloaded from the camera
+     */
+    var unloaded: String? = null
+
+    /**
+     * Date to store when the roll was developed
+     */
+    var developed: String? = null
+
+    /**
      *
      * @param input greater than zero if true, zero or smaller if false
      */
@@ -90,6 +100,8 @@ class Roll : Parcelable {
         this.format = pc.readInt()
         this.archived = pc.readInt() == 1
         this.filmStockId = pc.readLong()
+        this.unloaded = pc.readString()
+        this.developed = pc.readString()
     }
 
     /**
@@ -118,6 +130,8 @@ class Roll : Parcelable {
         parcel.writeInt(format)
         parcel.writeInt(if (archived) 1 else 0)
         parcel.writeLong(filmStockId)
+        parcel.writeString(unloaded)
+        parcel.writeString(developed)
     }
 
         companion object CREATOR : Parcelable.Creator<Roll> {

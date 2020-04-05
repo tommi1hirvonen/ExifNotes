@@ -25,6 +25,7 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tommihirvonen.exifnotes.datastructures.DateTime;
 import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
@@ -90,7 +91,11 @@ public class EditRollDialog extends DialogFragment {
     /**
      * Currently selected datetime in format 'YYYY-M-D H:MM'
      */
-    private String newDate;
+    private String newDateLoaded;
+
+    private String newDateUnloaded;
+
+    private String newDateDeveloped;
 
     /**
      * Currently selected film format, corresponding values defined in res/values/array.xml
@@ -284,73 +289,85 @@ public class EditRollDialog extends DialogFragment {
 
 
         //==========================================================================================
-        // DATE PICK DIALOG
+        // DATE & TIME LOADED PICK DIALOG
+
+        // DATE
         final TextView dateTextView = inflatedView.findViewById(R.id.date_text);
-
-        // Declare timeTextView here, so that we can use it inside the date listener
         final TextView timeTextView = inflatedView.findViewById(R.id.time_text);
-
-        if (roll.getDate() == null) roll.setDate(Utilities.getCurrentTime());
-        final List<String> dateValue = Utilities
-                .splitDate(roll.getDate() != null ? roll.getDate() : Utilities.getCurrentTime());
-        final int tempYear = Integer.parseInt(dateValue.get(0));
-        final int tempMonth = Integer.parseInt(dateValue.get(1));
-        final int tempDay = Integer.parseInt(dateValue.get(2));
-        dateTextView.setText(tempYear + "-" + tempMonth + "-" + tempDay);
-
-        newDate = roll.getDate();
+        if (roll.getDate() == null) {
+            roll.setDate(Utilities.getCurrentTime());
+        }
+        newDateLoaded = roll.getDate();
+        final DateTime dateTimeLoaded = new DateTime(newDateLoaded);
+        dateTextView.setText(dateTimeLoaded.getDateAsText());
+        timeTextView.setText(dateTimeLoaded.getTimeAsText());
 
         final LinearLayout dateLayout = inflatedView.findViewById(R.id.date_layout);
-        dateLayout.setOnClickListener(v -> {
-            // DATE PICKER DIALOG IMPLEMENTATION HERE
-            final List<String> dateValue1 = Utilities.splitDate(newDate);
-            final int year = Integer.parseInt(dateValue1.get(0));
-            final int month = Integer.parseInt(dateValue1.get(1));
-            final int day = Integer.parseInt(dateValue1.get(2));
-            // One month has to be subtracted from the default shown month, otherwise
-            // the date picker shows one month forward.
-            final DatePickerDialog dialog = new DatePickerDialog(
-                    getActivity(), (view, year1, monthOfYear, dayOfMonth) -> {
-                final String newInnerDate = year1 + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
-                dateTextView.setText(newInnerDate);
-                newDate = newInnerDate + " " + timeTextView.getText().toString();
-            }, year, (month - 1), day);
-
-            dialog.show();
-
-        });
-        //==========================================================================================
-
-
-
-        //==========================================================================================
-        // TIME PICK DIALOG
-
-        final List<String> timeValue = Utilities.splitTime(roll.getDate());
-        final int tempHours = Integer.parseInt(timeValue.get(0));
-        final int tempMinutes = Integer.parseInt(timeValue.get(1));
-        if (tempMinutes < 10) timeTextView.setText(tempHours + ":0" + tempMinutes);
-        else timeTextView.setText(tempHours + ":" + tempMinutes);
-
+        dateLayout.setOnClickListener(new DateLayoutOnClickListener(getActivity(), newDateLoaded, dateTime -> {
+            newDateLoaded = dateTime.getDateTimeAsText();
+            dateTextView.setText(dateTime.getDateAsText());
+        }));
         final LinearLayout timeLayout = inflatedView.findViewById(R.id.time_layout);
-        timeLayout.setOnClickListener(v -> {
-            // TIME PICKER DIALOG IMPLEMENTATION HERE
-            final List<String> timeValue1 = Utilities.splitTime(newDate);
-            final int hours = Integer.parseInt(timeValue1.get(0));
-            final int minutes = Integer.parseInt(timeValue1.get(1));
-            final TimePickerDialog dialog = new TimePickerDialog(
-                    getActivity(), (view, hourOfDay, minute) -> {
-                final String newTime;
-                if (minute < 10) {
-                    newTime = hourOfDay + ":0" + minute;
-                } else newTime = hourOfDay + ":" + minute;
-                timeTextView.setText(newTime);
-                newDate = dateTextView.getText().toString() + " " + newTime;
-            }, hours, minutes, true);
+        timeLayout.setOnClickListener(new TimeLayoutOnClickListener(getActivity(), newDateLoaded, dateTime -> {
+            newDateLoaded = dateTime.getDateTimeAsText();
+            timeTextView.setText(dateTime.getTimeAsText());
+        }));
 
-            dialog.show();
+        //==========================================================================================
 
-        });
+
+        //==========================================================================================
+        // DATE & TIME UNLOADED PICK DIALOG
+
+        // DATE
+        final TextView dateUnloadedTextView = inflatedView.findViewById(R.id.date_unloaded_text);
+        final TextView timeUnloadedTextView = inflatedView.findViewById(R.id.time_unloaded_text);
+        newDateUnloaded = roll.getUnloaded();
+        if (newDateUnloaded != null) {
+            final DateTime dateTimeUnloaded = new DateTime(newDateUnloaded);
+            dateUnloadedTextView.setText(dateTimeUnloaded.getDateAsText());
+            timeUnloadedTextView.setText(dateTimeUnloaded.getTimeAsText());
+        }
+        final LinearLayout dateUnloadedLayout = inflatedView.findViewById(R.id.date_unloaded_layout);
+        dateUnloadedLayout.setOnClickListener(new DateLayoutOnClickListener(getActivity(), newDateUnloaded, dateTime -> {
+            newDateUnloaded = dateTime.getDateTimeAsText();
+            timeUnloadedTextView.setText(dateTime.getTimeAsText());
+            dateUnloadedTextView.setText(dateTime.getDateAsText());
+        }));
+        final LinearLayout timeUnloadedLayout = inflatedView.findViewById(R.id.time_unloaded_layout);
+        timeUnloadedLayout.setOnClickListener(new TimeLayoutOnClickListener(getActivity(), newDateUnloaded, dateTime -> {
+            newDateUnloaded = dateTime.getDateTimeAsText();
+            dateUnloadedTextView.setText(dateTime.getDateAsText());
+            timeUnloadedTextView.setText(dateTime.getTimeAsText());
+        }));
+
+        //==========================================================================================
+
+
+        //==========================================================================================
+        // DATE & TIME DEVELOPED PICK DIALOG
+
+        final TextView dateDevelopedTextView = inflatedView.findViewById(R.id.date_developed_text);
+        final TextView timeDevelopedTextView = inflatedView.findViewById(R.id.time_developed_text);
+        newDateDeveloped = roll.getDeveloped();
+        if (newDateDeveloped != null) {
+            final DateTime dateTimeDeveloped = new DateTime(newDateDeveloped);
+            dateDevelopedTextView.setText(dateTimeDeveloped.getDateAsText());
+            timeDevelopedTextView.setText(dateTimeDeveloped.getTimeAsText());
+        }
+        final LinearLayout dateDevelopedLayout = inflatedView.findViewById(R.id.date_developed_layout);
+        dateDevelopedLayout.setOnClickListener(new DateLayoutOnClickListener(getActivity(), newDateDeveloped, dateTime -> {
+            newDateDeveloped = dateTime.getDateTimeAsText();
+            dateDevelopedTextView.setText(dateTime.getDateAsText());
+            timeDevelopedTextView.setText(dateTime.getTimeAsText());
+        }));
+        final LinearLayout timeDevelopedLayout = inflatedView.findViewById(R.id.time_developed_layout);
+        timeDevelopedLayout.setOnClickListener(new TimeLayoutOnClickListener(getActivity(), newDateDeveloped, dateTime -> {
+            newDateDeveloped = dateTime.getDateTimeAsText();
+            dateDevelopedTextView.setText(dateTime.getDateAsText());
+            timeDevelopedTextView.setText(dateTime.getTimeAsText());
+        }));
+
         //==========================================================================================
 
 
@@ -511,7 +528,9 @@ public class EditRollDialog extends DialogFragment {
                 roll.setName(name);
                 roll.setNote(noteEditText.getText().toString());
                 roll.setCameraId(newCamera != null ? newCamera.getId() : 0);
-                roll.setDate(newDate);
+                roll.setDate(newDateLoaded);
+                roll.setUnloaded(newDateUnloaded);
+                roll.setDeveloped(newDateDeveloped);
                 roll.setIso(newIso);
                 roll.setPushPull(newPushPull);
                 roll.setFormat(newFormat);
@@ -573,5 +592,60 @@ public class EditRollDialog extends DialogFragment {
 
         }
     }
+
+    private static class DateLayoutOnClickListener implements View.OnClickListener {
+        public interface DateChangedListener {
+            void onDateChanged(DateTime dateTime);
+        }
+        String date;
+        DateChangedListener listener;
+        Activity activity;
+        DateLayoutOnClickListener(@NonNull Activity activity, @Nullable String date,
+                                  @NonNull DateChangedListener listener) {
+            this.activity = activity;
+            this.date = date;
+            this.listener = listener;
+        }
+        @Override
+        public void onClick(View v) {
+            final DateTime dateTime = date != null ? new DateTime(date) : DateTime.Companion.fromCurrentTime();
+            final DatePickerDialog dialog = new DatePickerDialog(
+                    activity, (view, year1, monthOfYear, dayOfMonth) -> {
+                final DateTime newDateTime = new DateTime(year1, monthOfYear + 1, dayOfMonth,
+                        dateTime.getHour(), dateTime.getMinute());
+                listener.onDateChanged(newDateTime);
+            }, dateTime.getYear(), (dateTime.getMonth() - 1), dateTime.getDay());
+            dialog.show();
+        }
+    }
+
+    private static class TimeLayoutOnClickListener implements View.OnClickListener {
+        public interface DateChangedListener {
+            void onDateChanged(DateTime dateTime);
+        }
+        String date;
+        DateChangedListener listener;
+        Activity activity;
+        TimeLayoutOnClickListener(@NonNull Activity activity, @Nullable String date,
+                                  @NonNull DateChangedListener listener) {
+            this.activity = activity;
+            this.date = date;
+            this.listener = listener;
+        }
+        @Override
+        public void onClick(View v) {
+            final DateTime dateTime = date != null ? new DateTime(date) : DateTime.Companion.fromCurrentTime();
+            final TimePickerDialog dialog = new TimePickerDialog(
+                    activity, (view, hourOfDay, minute) -> {
+                final DateTime newDateTime = new DateTime(dateTime.getYear(), dateTime.getMonth(),
+                        dateTime.getDay(), hourOfDay, minute);
+                listener.onDateChanged(newDateTime);
+            }, dateTime.getHour(), dateTime.getMinute(), true);
+
+            dialog.show();
+        }
+    }
+
+
 
 }

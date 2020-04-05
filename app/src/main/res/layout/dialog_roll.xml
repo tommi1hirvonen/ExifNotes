@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:id="@+id/root"
     android:descendantFocusability="beforeDescendants"
@@ -131,90 +132,111 @@
 
             </RelativeLayout>
 
-
-            <!--DATE-->
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:id="@+id/date_layout"
-                android:background="?android:attr/selectableItemBackground"
-                tools:ignore="KeyboardInaccessibleWidget">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:id="@+id/divider_view1"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
-                    android:text="@string/Date"
+                    android:text="@string/DateAndTimeLoaded"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
                     />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!--DATE-->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="7dp"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="15sp"
-                    android:id="@+id/date_text"
-                    android:text="@string/ClickToSet"
-                    />
+                    android:orientation="vertical"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/time_layout"
+                    android:clickable="true"
+                    android:id="@+id/date_layout"
+                    android:background="?android:attr/selectableItemBackground"
+                    tools:ignore="KeyboardInaccessibleWidget">
 
-            </LinearLayout>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:id="@+id/divider_view1"
+                        android:background="@color/black"
+                        android:alpha="0.15"
+                        />
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="7dp"
+                        android:paddingLeft="10dp"
+                        android:text=""
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textSize="17sp"
+                        />
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="7dp"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="5dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="15sp"
+                        android:id="@+id/date_text"
+                        android:text="@string/ClickToSet"
+                        />
 
-            <!--TIME-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:id="@+id/time_layout"
-                android:background="?android:attr/selectableItemBackground"
-                tools:ignore="KeyboardInaccessibleWidget">
+                </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:id="@+id/divider_view2"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <!--TIME-->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/Time"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    android:textSize="17sp"
-                    />
+                    android:orientation="vertical"
+                    android:clickable="true"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toRightOf="@+id/date_layout"
+                    android:id="@+id/time_layout"
+                    android:background="?android:attr/selectableItemBackground"
+                    tools:ignore="KeyboardInaccessibleWidget">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="7dp"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="15sp"
-                    android:id="@+id/time_text"
-                    android:text="@string/ClickToSet"
-                    />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:id="@+id/divider_view2"
+                        android:background="@color/black"
+                        android:alpha="0.15"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="7dp"
+                        android:paddingLeft="10dp"
+                        android:text=""
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textSize="17sp"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="7dp"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="5dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="15sp"
+                        android:id="@+id/time_text"
+                        android:text="@string/ClickToSet"
+                        />
+
+                </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
@@ -222,10 +244,218 @@
                     android:id="@+id/divider_view3"
                     android:background="@color/black"
                     android:alpha="0.15"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/DateAndTimeUnloaded"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <!--DATE-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/time_unloaded_layout"
+                    android:clickable="true"
+                    android:id="@+id/date_unloaded_layout"
+                    android:background="?android:attr/selectableItemBackground"
+                    tools:ignore="KeyboardInaccessibleWidget">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="7dp"
+                        android:paddingLeft="10dp"
+                        android:text=""
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textSize="17sp"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="7dp"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="5dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="15sp"
+                        android:id="@+id/date_unloaded_text"
+                        android:text="@string/ClickToSet"
+                        />
+
+                </LinearLayout>
+
+                <!--TIME-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:clickable="true"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toRightOf="@+id/date_unloaded_layout"
+                    android:id="@+id/time_unloaded_layout"
+                    android:background="?android:attr/selectableItemBackground"
+                    tools:ignore="KeyboardInaccessibleWidget">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="7dp"
+                        android:paddingLeft="10dp"
+                        android:text=""
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textSize="17sp"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="7dp"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="5dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="15sp"
+                        android:id="@+id/time_unloaded_text"
+                        android:text="@string/ClickToSet"
+                        />
+
+
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view9"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:paddingTop="7dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/DateAndTimeDeveloped"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="17sp"
+                    />
+
+                <!--DATE-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/time_developed_layout"
+                    android:clickable="true"
+                    android:id="@+id/date_developed_layout"
+                    android:background="?android:attr/selectableItemBackground"
+                    tools:ignore="KeyboardInaccessibleWidget">
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="7dp"
+                        android:paddingLeft="10dp"
+                        android:text=""
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textSize="17sp"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="7dp"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="5dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="15sp"
+                        android:id="@+id/date_developed_text"
+                        android:text="@string/ClickToSet"
+                        />
+
+                </LinearLayout>
+
+                <!--TIME-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:clickable="true"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toRightOf="@+id/date_developed_layout"
+                    android:id="@+id/time_developed_layout"
+                    android:background="?android:attr/selectableItemBackground"
+                    tools:ignore="KeyboardInaccessibleWidget">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="7dp"
+                        android:paddingLeft="10dp"
+                        android:text=""
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textSize="17sp"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="7dp"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="5dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="15sp"
+                        android:id="@+id/time_developed_text"
+                        android:text="@string/ClickToSet"
+                        />
+
+
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:id="@+id/divider_view10"
+                    android:background="@color/black"
+                    android:alpha="0.15"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
             <RelativeLayout

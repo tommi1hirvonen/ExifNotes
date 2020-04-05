@@ -108,6 +108,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private static final String KEY_ROLL_FORMAT = "roll_format";
     //Added in database version 16
     private static final String KEY_ROLL_ARCHIVED = "roll_archived";
+    //Added in database version 21
+    private static final String KEY_ROLL_UNLOADED = "roll_unloaded";
+    private static final String KEY_ROLL_DEVELOPED = "roll_developed";
 
     //Filter
     //Added in database version 14
@@ -135,7 +138,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     //Updated version from 16 to 17 - 2018-03-26 - v1.11.0
     //Updated version from 17 to 18 - 2018-07-08 - v1.12.0
     //Updated version from 18 to 19 - 2018-07-17 - awaiting
-    private static final int DATABASE_VERSION = 20;
+    private static final int DATABASE_VERSION = 21;
 
     //=============================================================================================
     //onCreate strings
@@ -189,7 +192,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + KEY_ROLL_PUSH + " text, "
             + KEY_ROLL_FORMAT + " integer, "
             + KEY_ROLL_ARCHIVED + " integer not null default 0,"
-            + KEY_FILM_STOCK_ID + " integer references " + TABLE_FILM_STOCKS + " on delete set null"
+            + KEY_FILM_STOCK_ID + " integer references " + TABLE_FILM_STOCKS + " on delete set null, "
+            + KEY_ROLL_UNLOADED + " text, "
+            + KEY_ROLL_DEVELOPED + " text"
             + ");";
 
     private static final String CREATE_FRAME_TABLE = "create table " + TABLE_FRAMES
@@ -311,6 +316,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             + " ADD COLUMN " + KEY_ROLL_ARCHIVED + " integer not null default 0;";
     private static final String ALTER_TABLE_ROLLS_5 = "ALTER TABLE " + TABLE_ROLLS
             + " ADD COLUMN " + KEY_FILM_STOCK_ID + " integer references " + TABLE_FILM_STOCKS + " on delete set null;";
+    private static final String ALTER_TABLE_ROLLS_6 = "ALTER TABLE " + TABLE_ROLLS
+            + " ADD COLUMN " + KEY_ROLL_UNLOADED + " text;";
+    private static final String ALTER_TABLE_ROLLS_7 = "ALTER TABLE " + TABLE_ROLLS
+            + " ADD COLUMN " + KEY_ROLL_DEVELOPED + " text;";
 
 
     @SuppressWarnings("SyntaxError")
@@ -597,6 +606,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
             db.execSQL(ALTER_TABLE_FRAMES_12);
             db.execSQL(ALTER_TABLE_ROLLS_5);
             populateFilmStocks(db);
+        }
+        if (oldVersion < 21) {
+            db.execSQL(ALTER_TABLE_ROLLS_6);
+            db.execSQL(ALTER_TABLE_ROLLS_7);
         }
     }
 
@@ -1416,6 +1429,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         roll.setFormat(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_FORMAT)));
         roll.setArchived(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ARCHIVED)));
         roll.setFilmStockId(cursor.getInt(cursor.getColumnIndex(KEY_FILM_STOCK_ID)));
+        roll.setUnloaded(cursor.getString(cursor.getColumnIndex(KEY_ROLL_UNLOADED)));
+        roll.setDeveloped(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DEVELOPED)));
         return roll;
     }
 
@@ -1613,6 +1628,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_ROLL_ARCHIVED, roll.getArchived());
         if (roll.getFilmStockId() > 0) contentValues.put(KEY_FILM_STOCK_ID, roll.getFilmStockId());
         else contentValues.putNull(KEY_FILM_STOCK_ID);
+        contentValues.put(KEY_ROLL_UNLOADED, roll.getUnloaded());
+        contentValues.put(KEY_ROLL_DEVELOPED, roll.getDeveloped());
         return contentValues;
     }
 
@@ -1788,6 +1805,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_FORMAT, INTEGER, 0) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ARCHIVED, INTEGER, 1) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_FILM_STOCK_ID, INTEGER, 0) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_UNLOADED, TEXT, 0) &&
+                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_DEVELOPED, TEXT, 0) &&
 
                 checkColumnProperties(TABLE_FRAMES, KEY_FRAME_ID, INTEGER, 0, true, true) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_ROLL_ID, INTEGER, 1, false, false, true, TABLE_ROLLS, CASCADE) &&
