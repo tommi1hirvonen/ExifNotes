@@ -1,6 +1,7 @@
 package com.tommihirvonen.exifnotes.activities;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import com.google.android.material.tabs.TabLayout;
 
@@ -250,6 +251,68 @@ public class GearActivity extends AppCompatActivity {
                 builder2.create().show();
                 return true;
 
+            case R.id.filter_mode_film_type:
+                final AlertDialog.Builder filmTypeBuilder = new AlertDialog.Builder(this);
+                final String[] filmTypes = getResources().getStringArray(R.array.FilmTypes);
+                final List<Integer> filmTypeFilterList = filmStocksFragment.getFilmTypeFilterList();
+                final boolean[] filmTypeCheckedItems = new boolean[filmTypes.length];
+                for (int i = 0; i < filmTypes.length; ++i) {
+                    if (filmTypeFilterList.contains(i)) filmTypeCheckedItems[i] = true;
+                }
+
+                // Create a temporary list to be updated.
+                // If the user cancels the dialog, the original list will remain unchanged.
+                final List<Integer> filmTypeFilterListTemp = new ArrayList<>(filmTypeFilterList);
+                filmTypeBuilder.setMultiChoiceItems(filmTypes, filmTypeCheckedItems, (dialog, which, isChecked) -> {
+                    if (isChecked) {
+                        filmTypeFilterListTemp.add(which);
+                    } else {
+                        filmTypeFilterListTemp.remove(which);
+                    }
+                });
+                filmTypeBuilder.setNegativeButton(R.string.Cancel, (dialog, which) -> { /* Do nothing */ });
+                filmTypeBuilder.setPositiveButton(R.string.FilterNoColon, (dialog, which) -> {
+                    filmStocksFragment.setFilmTypeFilterList(filmTypeFilterListTemp);
+                    filmStocksFragment.filterFilmStocks();
+                });
+                filmTypeBuilder.setNeutralButton(R.string.Reset, (dialog, which) -> {
+                    filmStocksFragment.getFilmTypeFilterList().clear();
+                    filmStocksFragment.filterFilmStocks();
+                });
+                filmTypeBuilder.create().show();
+                return true;
+                
+            case R.id.filter_mode_film_process:
+                final AlertDialog.Builder filmProcessBuilder = new AlertDialog.Builder(this);
+                final String[] filmProcess = getResources().getStringArray(R.array.FilmProcesses);
+                final List<Integer> filmProcessFilterList = filmStocksFragment.getFilmProcessFilterList();
+                final boolean[] filmProcessCheckedItems = new boolean[filmProcess.length];
+                for (int i = 0; i < filmProcess.length; ++i) {
+                    if (filmProcessFilterList.contains(i)) filmProcessCheckedItems[i] = true;
+                }
+
+                // Create a temporary list to be updated.
+                // If the user cancels the dialog, the original list will remain unchanged.
+                final List<Integer> filmProcessFilterListTemp = new ArrayList<>(filmProcessFilterList);
+                filmProcessBuilder.setMultiChoiceItems(filmProcess, filmProcessCheckedItems, (dialog, which, isChecked) -> {
+                    if (isChecked) {
+                        filmProcessFilterListTemp.add(which);
+                    } else {
+                        filmProcessFilterListTemp.remove(which);
+                    }
+                });
+                filmProcessBuilder.setNegativeButton(R.string.Cancel, (dialog, which) -> { /* Do nothing */ });
+                filmProcessBuilder.setPositiveButton(R.string.FilterNoColon, (dialog, which) -> {
+                    filmStocksFragment.setFilmProcessFilterList(filmProcessFilterListTemp);
+                    filmStocksFragment.filterFilmStocks();
+                });
+                filmProcessBuilder.setNeutralButton(R.string.Reset, (dialog, which) -> {
+                    filmStocksFragment.getFilmProcessFilterList().clear();
+                    filmStocksFragment.filterFilmStocks();
+                });
+                filmProcessBuilder.create().show();
+                return true;
+                
             case R.id.filter_mode_reset:
                 filmStocksFragment.resetFilters();
                 return true;
@@ -271,6 +334,8 @@ public class GearActivity extends AppCompatActivity {
             menu.findItem(R.id.filter_mode_film_manufacturer).setEnabled(false);
             menu.findItem(R.id.filter_mode_added_by).setEnabled(false);
             menu.findItem(R.id.filter_mode_film_iso).setEnabled(false);
+            menu.findItem(R.id.filter_mode_film_type).setEnabled(false);
+            menu.findItem(R.id.filter_mode_film_process).setEnabled(false);
             menu.findItem(R.id.filter_mode_reset).setEnabled(false);
         } else {
             // When the options menu is opened, set the correct items to be preselected.

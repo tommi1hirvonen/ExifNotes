@@ -47,6 +47,8 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         private set
     var manufacturerFilterList = emptyList<String>().toMutableList()
     var isoFilterList = emptyList<Int>().toMutableList()
+    var filmTypeFilterList = emptyList<Int>().toMutableList()
+    var filmProcessFilterList = emptyList<Int>().toMutableList()
     var addedByFilterMode = FILTER_MODE_ALL
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -190,6 +192,8 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     fun resetFilters() {
         manufacturerFilterList.clear()
         isoFilterList.clear()
+        filmTypeFilterList.clear()
+        filmProcessFilterList.clear()
         addedByFilterMode = FILTER_MODE_ALL
         filterFilmStocks()
     }
@@ -199,15 +203,19 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         filmStocks = allFilmStocks.filter {
             // Filter based on manufacturers
             (manufacturerFilterList.contains(it.make) || manufacturerFilterList.isEmpty()) &&
-                    //Then filter based on filter mode.
-                    when (addedByFilterMode) {
-                        FILTER_MODE_PREADDED -> it.isPreadded
-                        FILTER_MODE_ADDED_BY_USER -> !it.isPreadded
-                        FILTER_MODE_ALL -> true
-                        else -> throw IllegalArgumentException("Illegal argument filterModeAddedBy: $addedByFilterMode")
-                    }
-                    // Finally filter based on ISO values.
-                    && (isoFilterList.contains(it.iso) || isoFilterList.isEmpty())
+            // Filter based on type
+            (filmTypeFilterList.contains(it.type) || filmTypeFilterList.isEmpty()) &&
+            // Filter based on process
+            (filmProcessFilterList.contains(it.process) || filmProcessFilterList.isEmpty()) &&
+            //Then filter based on filter mode.
+            when (addedByFilterMode) {
+                FILTER_MODE_PREADDED -> it.isPreadded
+                FILTER_MODE_ADDED_BY_USER -> !it.isPreadded
+                FILTER_MODE_ALL -> true
+                else -> throw IllegalArgumentException("Illegal argument filterModeAddedBy: $addedByFilterMode")
+            }
+            // Finally filter based on ISO values.
+            && (isoFilterList.contains(it.iso) || isoFilterList.isEmpty())
         }.toMutableList()
         sortFilmStocks()
 
@@ -218,6 +226,8 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     // Possible ISO values are filtered based on currently selected manufacturers and filter mode.
     fun possibleIsoValues() = allFilmStocks.filter {
             (manufacturerFilterList.contains(it.make) || manufacturerFilterList.isEmpty()) &&
+            (filmTypeFilterList.contains(it.type) || filmTypeFilterList.isEmpty()) &&
+            (filmProcessFilterList.contains(it.process) || filmProcessFilterList.isEmpty()) &&
             when (addedByFilterMode) {
                 FILTER_MODE_PREADDED -> it.isPreadded
                 FILTER_MODE_ADDED_BY_USER -> !it.isPreadded

@@ -25,6 +25,14 @@
                     android:id="@+id/filter_mode_film_iso"
                     />
                 <item
+                    android:title="@string/FilmType"
+                    android:id="@+id/filter_mode_film_type"
+                    />
+                <item
+                    android:title="@string/FilmProcess"
+                    android:id="@+id/filter_mode_film_process"
+                    />
+                <item
                     android:title="@string/AddedBy"
                     android:id="@+id/filter_mode_added_by"
                     />
