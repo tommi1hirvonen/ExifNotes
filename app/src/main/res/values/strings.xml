@@ -304,7 +304,9 @@
     <string name="UnloadedOn">Unloaded on</string>
     <string name="Updates">
         Updates in this version:\n
+        -Rolls can be marked as unloaded and developed with date and time\n
         -Reserved characters are now escaped appropriately when exporting a csv file\n
+        -When editing a frame\'s location, the marker can be moved to the current location with a press of a button\n
         -Bug fix: Filter and Location data are now separated with a comma in cvs files\n
     </string>
     <string name="UseCustomValue">Use custom value</string>
@@ -316,7 +318,9 @@
         Version history\n
         \n
         v1.14.1 2020-04-01:\n
+        -Rolls can be marked as unloaded and developed with date and time\n
         -Reserved characters are now escaped appropriately when exporting a csv file\n
+        -When editing a frame\'s location, the marker can be moved to the current location with a press of a button\n
         -Bug fix: Filter and Location data are now separated with a comma in cvs files\n
         \n
         v1.14.0 2020-01-23:\n

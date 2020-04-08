@@ -5,10 +5,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+
+import android.location.Location;
 import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
@@ -94,6 +100,8 @@ public class LocationPickActivity extends AppCompatActivity implements
      */
     private int mapType;
 
+    private FusedLocationProviderClient fusedLocationClient;
+
     /**
      * Inflate the activity, set the UI and get the initial location.
      *
@@ -114,6 +122,9 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         final FloatingActionButton confirmFab = findViewById(R.id.fab);
         confirmFab.setOnClickListener(this);
+
+        final FloatingActionButton currentLocationFab = findViewById(R.id.fab_current_location);
+        currentLocationFab.setOnClickListener(this);
 
         Utilities.setUiColor(this, true);
         if (getSupportActionBar() != null) {
@@ -186,6 +197,9 @@ public class LocationPickActivity extends AppCompatActivity implements
                 }
             }
         }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
     }
 
     /**
@@ -433,6 +447,14 @@ public class LocationPickActivity extends AppCompatActivity implements
                 setResult(RESULT_OK, intent);
                 finish();
             }
+        } else if (v.getId() == R.id.fab_current_location) {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                if (location != null) {
+                    final LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
+                    onMapClick(position);
+                    googleMap_.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                }
+            });
         }
     }
 

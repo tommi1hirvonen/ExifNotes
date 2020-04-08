@@ -76,4 +76,17 @@
         app:backgroundTint="@color/secondary_color"
         android:src="@drawable/ic_done_white_48dp" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_current_location"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_above="@+id/fab"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp"
+        app:backgroundTint="@color/light_grey"
+        android:src="@drawable/ic_my_location_white_48dp" />
+
 </RelativeLayout>
