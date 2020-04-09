@@ -831,7 +831,11 @@ public final class Utilities {
 
         //Roll and camera information
         stringBuilder.append("Roll name: ").append(roll.getName()).append("\n");
-        stringBuilder.append("Added: ").append(roll.getDate()).append("\n");
+        stringBuilder.append("Loaded on: ").append(roll.getDate()).append("\n");
+        stringBuilder.append("Unloaded on: ")
+                .append(roll.getUnloaded() != null ? roll.getUnloaded() : "").append("\n");
+        stringBuilder.append("Developed on: ")
+                .append(roll.getDeveloped() != null ? roll.getDeveloped() : "").append("\n");
         stringBuilder.append("Film stock: ").append(filmStock != null ? filmStock.getName() : "").append("\n");
         stringBuilder.append("ISO: ").append(String.valueOf(roll.getIso())).append("\n");
         stringBuilder.append("Format: ").append(context.getResources()
