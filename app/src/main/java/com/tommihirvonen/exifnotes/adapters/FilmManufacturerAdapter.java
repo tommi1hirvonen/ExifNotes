@@ -1,7 +1,6 @@
 package com.tommihirvonen.exifnotes.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,7 +45,7 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
         setHasStableIds(true);
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView manufacturerTextView;
         final View manufacturerLayout;
         final View expandLayout;
@@ -163,6 +162,7 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
             animation.setDuration((long) (actualHeight / view.getContext().getResources().getDisplayMetrics().density));
             view.startAnimation(animation);
         } else {
+            view.getLayoutParams().height = view.getMeasuredHeight();
             view.setVisibility(View.VISIBLE);
         }
     }
