@@ -267,7 +267,7 @@ public class GearActivity extends AppCompatActivity {
                     if (isChecked) {
                         filmTypeFilterListTemp.add(which);
                     } else {
-                        filmTypeFilterListTemp.remove(which);
+                        filmTypeFilterListTemp.remove(Integer.valueOf(which));
                     }
                 });
                 filmTypeBuilder.setNegativeButton(R.string.Cancel, (dialog, which) -> { /* Do nothing */ });
@@ -298,7 +298,7 @@ public class GearActivity extends AppCompatActivity {
                     if (isChecked) {
                         filmProcessFilterListTemp.add(which);
                     } else {
-                        filmProcessFilterListTemp.remove(which);
+                        filmProcessFilterListTemp.remove(Integer.valueOf(which));
                     }
                 });
                 filmProcessBuilder.setNegativeButton(R.string.Cancel, (dialog, which) -> { /* Do nothing */ });
