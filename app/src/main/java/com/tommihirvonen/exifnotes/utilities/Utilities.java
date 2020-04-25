@@ -727,10 +727,12 @@ public final class Utilities {
             if (frame.getNote() != null && frame.getNote().length() > 0) {
                 stringBuilder.append(commentTag).append(quote)
                         .append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFC)
-                                .replace("\"", "'")).append(quote).append(space);
+                                .replace("\"", "'")
+                                .replace("\n", " ")).append(quote).append(space);
                 stringBuilder.append(imageDescriptionTag).append(quote)
                         .append(Normalizer.normalize(frame.getNote(), Normalizer.Form.NFC)
-                                .replace("\"", "'")).append(quote).append(space);
+                                .replace("\"", "'")
+                                .replace("\n", " ")).append(quote).append(space);
             }
             //GPSLatitude & GPSLongitude & GPSLatitudeRef & GPSLongitudeRef
             if (frame.getLocation() != null && frame.getLocation().length() > 0) {
@@ -771,18 +773,18 @@ public final class Utilities {
                     .append(quote).append(space);
             // Flash
             if (frame.getFlashUsed()) stringBuilder.append(flashTag).append(quote)
-                    .append("1").append(quote).append(space);
+                    .append("Fired").append(quote).append(space);
             // Light source
-            final int lightSource;
+            final String lightSource;
             switch (frame.getLightSource()) {
-                case 1: lightSource = 1;    break; // Daylight
-                case 2: lightSource = 9;    break; // Sunny
-                case 3: lightSource = 10;   break; // Cloudy
-                case 4: lightSource = 11;   break; // Shade
-                case 5: lightSource = 2;    break; // Fluorescent
-                case 6: lightSource = 3;    break; // Tungsten
-                case 7: lightSource = 4;    break; // Flash
-                case 0: default: lightSource = 0;  // Unknown
+                case 1: lightSource = "Daylight";    break; // Daylight
+                case 2: lightSource = "Fine Weather";    break; // Sunny
+                case 3: lightSource = "Cloudy";   break; // Cloudy
+                case 4: lightSource = "Shade";   break; // Shade
+                case 5: lightSource = "Fluorescent";    break; // Fluorescent
+                case 6: lightSource = "Tungsten";    break; // Tungsten
+                case 7: lightSource = "Flash";    break; // Flash
+                case 0: default: lightSource = "Unknown";  // Unknown
             }
             stringBuilder.append(lightSourceTag).append(quote)
                     .append(lightSource).append(quote).append(space);

@@ -309,6 +309,7 @@
         -When editing a frame\'s location, the marker can be moved to the current location with a press of a button\n
         -Film stocks can be filtered based on their type or developing process\n
         -Bug fix: Filter and Location data are now separated with a comma in cvs files\n
+        -Bug fix: Flash and LightSource tags are now written using text values instead of integers\n
     </string>
     <string name="UseCustomValue">Use custom value</string>
     <string name="UsedCamera">Choose used camera</string>
@@ -318,12 +319,13 @@
     <string name="VersionHistory">
         Version history\n
         \n
-        v1.14.1 2020-04-01:\n
+        v1.14.1 2020-04-25:\n
         -Rolls can be marked as unloaded and developed with date and time\n
         -Reserved characters are now escaped appropriately when exporting a csv file\n
         -When editing a frame\'s location, the marker can be moved to the current location with a press of a button\n
         -Film stocks can be filtered based on their type or developing process\n
         -Bug fix: Filter and Location data are now separated with a comma in cvs files\n
+        -Bug fix: Flash and LightSource tags are now written using text values instead of integers\n
         \n
         v1.14.0 2020-01-23:\n
         -Added flash used and light source properties to frames\n
