@@ -792,8 +792,6 @@ public class RollsFragment extends Fragment implements
                     mainRecyclerView.post(() -> rollAdapter.resetAnimateAll());
                     actionMode.setTitle(rollAdapter.getSelectedItemCount() + "/"
                             + rollAdapter.getItemCount());
-                    // Set the edit item visibility to false because all rolls are selected.
-                    actionMode.getMenu().findItem(R.id.menu_item_edit).setVisible(false);
                     return true;
 
                 case R.id.menu_item_edit:
