@@ -167,7 +167,7 @@ public class RollAdapter extends RecyclerView.Adapter<RollAdapter.ViewHolder> {
         final Roll roll = rollList.get(position);
         if (roll != null) {
             final String rollName = roll.getName();
-            final String date = roll.getDate();
+            final String date = roll.getDate() != null ? roll.getDate().toString() : "";
             final String note = roll.getNote();
             final long cameraId = roll.getCameraId();
             final long filmStockId = roll.getFilmStockId();

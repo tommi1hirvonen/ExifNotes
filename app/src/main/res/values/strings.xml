@@ -304,6 +304,8 @@
     <string name="UnloadedOn">Unloaded on</string>
     <string name="Updates">
         Updates in this version:\n
+        -Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance\n
+        -Replaced deprecated API calls\n
         -Bug fix: Edit icon would disappear when the user selects all rolls by pressing the "select all" icon\n
     </string>
     <string name="UseCustomValue">Use custom value</string>
@@ -315,11 +317,11 @@
         Version history\n
         \n
         v1.14.2 2020-05-01:\n
+        -Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance\n
         -Replaced deprecated API calls\n
         -Bug fix: Edit icon would disappear when the user selects all rolls by pressing the "select all" icon\n
         \n
         v1.14.1 2020-04-25:\n
-        -Replaced deprecated API calls\n
         -Rolls can be marked as unloaded and developed with date and time\n
         -Reserved characters are now escaped appropriately when exporting a csv file\n
         -When editing a frame\'s location, the marker can be moved to the current location with a press of a button\n

@@ -27,7 +27,7 @@ class Roll : Parcelable {
      * datetime when the film roll was loaded, for example
      * in format 'YYYY-M-D H:MM'
      */
-    var date: String? = null
+    var date: DateTime? = null
 
     /**
      * custom note
@@ -67,12 +67,12 @@ class Roll : Parcelable {
     /**
      * Date to store when the roll was unloaded from the camera
      */
-    var unloaded: String? = null
+    var unloaded: DateTime? = null
 
     /**
      * Date to store when the roll was developed
      */
-    var developed: String? = null
+    var developed: DateTime? = null
 
     /**
      *
@@ -92,7 +92,7 @@ class Roll : Parcelable {
     private constructor(pc: Parcel) {
         this.id = pc.readLong()
         this.name = pc.readString()
-        this.date = pc.readString()
+        this.date = pc.readString()?.let { DateTime(it) }
         this.note = pc.readString()
         this.cameraId = pc.readLong()
         this.iso = pc.readInt()
@@ -100,8 +100,8 @@ class Roll : Parcelable {
         this.format = pc.readInt()
         this.archived = pc.readInt() == 1
         this.filmStockId = pc.readLong()
-        this.unloaded = pc.readString()
-        this.developed = pc.readString()
+        this.unloaded = pc.readString()?.let { DateTime(it) }
+        this.developed = pc.readString()?.let { DateTime(it) }
     }
 
     /**
@@ -122,7 +122,7 @@ class Roll : Parcelable {
     override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeLong(id)
         parcel.writeString(name)
-        parcel.writeString(date)
+        parcel.writeString(date.toString())
         parcel.writeString(note)
         parcel.writeLong(cameraId)
         parcel.writeInt(iso)
@@ -130,8 +130,8 @@ class Roll : Parcelable {
         parcel.writeInt(format)
         parcel.writeInt(if (archived) 1 else 0)
         parcel.writeLong(filmStockId)
-        parcel.writeString(unloaded)
-        parcel.writeString(developed)
+        parcel.writeString(unloaded.toString())
+        parcel.writeString(developed.toString())
     }
 
         companion object CREATOR : Parcelable.Creator<Roll> {

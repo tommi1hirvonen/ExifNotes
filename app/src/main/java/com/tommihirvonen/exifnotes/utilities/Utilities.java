@@ -32,6 +32,7 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
+import com.tommihirvonen.exifnotes.datastructures.DateTime;
 import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode;
@@ -52,12 +53,9 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.nio.channels.FileChannel;
 import java.text.Normalizer;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -424,28 +422,13 @@ public final class Utilities {
 
             case DATE:
                 Collections.sort(listToSort, (frame1, frame2) -> {
-                    final String date1 = frame1.getDate();
-                    final String date2 = frame2.getDate();
-                    @SuppressLint("SimpleDateFormat") final SimpleDateFormat format =
-                            new SimpleDateFormat("yyyy-M-d H:m");
-                    Date d1 = null;
-                    Date d2 = null;
-                    try {
-                        d1 = format.parse(date1);
-                        d2 = format.parse(date2);
-                    } catch (final ParseException e) {
-                        e.printStackTrace();
+                    final DateTime dt1 = frame1.getDate();
+                    final DateTime dt2 = frame2.getDate();
+                    if (dt1 != null && dt2 != null) {
+                        return dt1.compareTo(dt2);
+                    } else {
+                        return 0;
                     }
-
-                    final int result;
-                    long diff = 0;
-                    //Handle possible NullPointerException
-                    if (d1 != null && d2 != null) diff = d1.getTime() - d2.getTime();
-                    if (diff < 0 ) result = -1;
-                    else if (diff > 0) result = 1;
-                    else result = 0;
-
-                    return result;
                 });
                 break;
 
@@ -515,28 +498,15 @@ public final class Utilities {
 
             case DATE: default:
                 Collections.sort(listToSort, (roll1, roll2) -> {
-                    final String date1 = roll1.getDate();
-                    final String date2 = roll2.getDate();
-                    @SuppressLint("SimpleDateFormat") final SimpleDateFormat format =
-                            new SimpleDateFormat("yyyy-M-d H:m");
-                    Date d1 = null;
-                    Date d2 = null;
-                    try {
-                        d1 = format.parse(date1);
-                        d2 = format.parse(date2);
-                    } catch (final ParseException e) {
-                        e.printStackTrace();
+                    final DateTime dt1 = roll1.getDate();
+                    final DateTime dt2 = roll2.getDate();
+                    if (dt1 != null & dt2 != null) {
+                        // Change the sign to make the order descending.
+                        // This is used for rolls.
+                        return -dt1.compareTo(dt2);
+                    } else {
+                        return 0;
                     }
-
-                    final int result;
-                    long diff = 0;
-                    //Handle possible NullPointerException
-                    if (d1 != null && d2 != null) diff = d1.getTime() - d2.getTime();
-                    if (diff < 0 ) result = 1;
-                    else if (diff > 0) result = -1;
-                    else result = 0;
-
-                    return result;
                 });
                 break;
 
@@ -670,10 +640,10 @@ public final class Utilities {
             }
             if (frame.getDate() != null) {
                 //DateTime
-                stringBuilder.append(dateTag).append(quote).append(frame.getDate()
+                stringBuilder.append(dateTag).append(quote).append(frame.getDate().getDateTimeAsText()
                         .replace("-", ":")).append(quote).append(space);
                 //DateTimeOriginal
-                stringBuilder.append(dateTimeOriginalTag).append(quote).append(frame.getDate()
+                stringBuilder.append(dateTimeOriginalTag).append(quote).append(frame.getDate().getDateTimeAsText()
                         .replace("-", ":")).append(quote).append(space);
             }
             //ShutterSpeedValue & ExposureTime
@@ -799,11 +769,11 @@ public final class Utilities {
 
         //Roll and camera information
         stringBuilder.append("Roll name: ").append(roll.getName()).append("\n");
-        stringBuilder.append("Loaded on: ").append(roll.getDate()).append("\n");
+        stringBuilder.append("Loaded on: ").append(roll.getDate() != null ? roll.getDate().getDateTimeAsText() : "").append("\n");
         stringBuilder.append("Unloaded on: ")
-                .append(roll.getUnloaded() != null ? roll.getUnloaded() : "").append("\n");
+                .append(roll.getUnloaded() != null ? roll.getUnloaded().getDateTimeAsText() : "").append("\n");
         stringBuilder.append("Developed on: ")
-                .append(roll.getDeveloped() != null ? roll.getDeveloped() : "").append("\n");
+                .append(roll.getDeveloped() != null ? roll.getDeveloped().getDateTimeAsText() : "").append("\n");
         stringBuilder.append("Film stock: ").append(filmStock != null ? filmStock.getName() : "").append("\n");
         stringBuilder.append("ISO: ").append(String.valueOf(roll.getIso())).append("\n");
         stringBuilder.append("Format: ").append(context.getResources()
@@ -847,7 +817,7 @@ public final class Utilities {
             stringBuilder.append(separator);
 
             //Date
-            stringBuilder.append(frame.getDate());
+            stringBuilder.append(frame.getDate() != null ? frame.getDate().getDateTimeAsText() : "");
             stringBuilder.append(separator);
 
             //Lens make and model

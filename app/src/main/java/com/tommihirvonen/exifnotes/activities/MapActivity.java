@@ -494,7 +494,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 );
                 final String frameCountText = "#" + frame.getCount();
                 frameCountTextView.setText(frameCountText);
-                dateTimeTextView.setText(frame.getDate());
+                dateTimeTextView.setText(frame.getDate()!= null ? frame.getDate().getDateTimeAsText() : "");
                 lensTextView.setText(
                         lens == null ? getString(R.string.NoLens) : lens.getName()
                 );
@@ -526,7 +526,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 final TextView noteTextView = view.findViewById(R.id.note);
                 final String frameCountText = "#" + frame.getCount();
                 frameCountTextView.setText(frameCountText);
-                dateTimeTextView.setText(frame.getDate());
+                dateTimeTextView.setText(frame.getDate() != null ? frame.getDate().getDateTimeAsText() : "");
 
                 lensTextView.setText(
                         lens == null ? getString(R.string.NoLens) : lens.getName()

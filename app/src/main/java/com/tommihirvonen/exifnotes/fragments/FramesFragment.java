@@ -648,7 +648,7 @@ public class FramesFragment extends Fragment implements
         final String positiveButton = getActivity().getResources().getString(R.string.Add);
 
         final Frame frame = new Frame();
-        frame.setDate(DateTime.Companion.fromCurrentTime().toString());
+        frame.setDate(DateTime.Companion.fromCurrentTime());
         frame.setCount(0);
         frame.setRollId(roll.getId());
 

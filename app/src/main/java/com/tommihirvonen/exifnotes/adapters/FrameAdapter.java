@@ -188,7 +188,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Frame frame = frameList.get(position);
         if (frame != null) {
-            holder.frameTextView.setText(frame.getDate());
+            holder.frameTextView.setText(frame.getDate() != null ? frame.getDate().getDateTimeAsText() : "");
             holder.countTextView.setText("" + frame.getCount());
 
             if (frame.getLensId() > 0) {

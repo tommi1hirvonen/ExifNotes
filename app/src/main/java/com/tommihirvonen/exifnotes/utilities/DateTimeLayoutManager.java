@@ -22,13 +22,8 @@ public class DateTimeLayoutManager {
 
     private DateTime dateTime;
 
-    public String getDateTimeString() {
-        if (dateTime != null) {
-            return dateTime.getDateTimeAsText();
-        }
-        else {
-            return null;
-        }
+    public DateTime getDateTime() {
+        return dateTime;
     }
 
     public DateTimeLayoutManager(@NonNull final Activity activity, @NonNull final View dateLayout,

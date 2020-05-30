@@ -33,7 +33,7 @@ class Frame : Parcelable {
     /**
      * datetime of exposure in format 'YYYY-M-D H:MM'
      */
-    var date: String? = null
+    var date: DateTime? = null
 
     /**
      * database id of the lens used
@@ -132,7 +132,7 @@ class Frame : Parcelable {
         this.id = pc.readLong()
         this.rollId = pc.readLong()
         this.count = pc.readInt()
-        this.date = pc.readString()
+        this.date = pc.readString()?.let { DateTime(it) }
         this.lensId = pc.readLong()
         this.shutter = pc.readString()
         this.aperture = pc.readString()
@@ -175,7 +175,7 @@ class Frame : Parcelable {
         parcel.writeLong(id)
         parcel.writeLong(rollId)
         parcel.writeInt(count)
-        parcel.writeString(date)
+        parcel.writeString(date.toString())
         parcel.writeLong(lensId)
         parcel.writeString(shutter)
         parcel.writeString(aperture)

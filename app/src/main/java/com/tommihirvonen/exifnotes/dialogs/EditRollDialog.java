@@ -292,9 +292,9 @@ public class EditRollDialog extends DialogFragment {
         // DATE
 
         if (roll.getDate() == null) {
-            roll.setDate(DateTime.Companion.fromCurrentTime().toString());
+            roll.setDate(DateTime.Companion.fromCurrentTime());
         }
-        final DateTime dateTimeLoaded = new DateTime(roll.getDate());
+        final DateTime dateTimeLoaded = roll.getDate();
         final TextView dateTextView = inflatedView.findViewById(R.id.date_text);
         final TextView timeTextView = inflatedView.findViewById(R.id.time_text);
         dateTextView.setText(dateTimeLoaded.getDateAsText());
@@ -315,7 +315,7 @@ public class EditRollDialog extends DialogFragment {
         final TextView timeUnloadedTextView = inflatedView.findViewById(R.id.time_unloaded_text);
         DateTime dateTimeUnloaded = null;
         if (roll.getUnloaded() != null) {
-            dateTimeUnloaded = new DateTime(roll.getUnloaded());
+            dateTimeUnloaded = roll.getUnloaded();
             dateUnloadedTextView.setText(dateTimeUnloaded.getDateAsText());
             timeUnloadedTextView.setText(dateTimeUnloaded.getTimeAsText());
         }
@@ -336,7 +336,7 @@ public class EditRollDialog extends DialogFragment {
         final TextView timeDevelopedTextView = inflatedView.findViewById(R.id.time_developed_text);
         DateTime dateTimeDeveloped = null;
         if (roll.getDeveloped() != null) {
-            dateTimeDeveloped = new DateTime(roll.getDeveloped());
+            dateTimeDeveloped = roll.getDeveloped();
             dateDevelopedTextView.setText(dateTimeDeveloped.getDateAsText());
             timeDevelopedTextView.setText(dateTimeDeveloped.getTimeAsText());
         }
@@ -507,9 +507,9 @@ public class EditRollDialog extends DialogFragment {
                 roll.setName(name);
                 roll.setNote(noteEditText.getText().toString());
                 roll.setCameraId(newCamera != null ? newCamera.getId() : 0);
-                roll.setDate(dateLoadedManager.getDateTimeString());
-                roll.setUnloaded(dateUnloadedManager.getDateTimeString());
-                roll.setDeveloped(dateDevelopedManager.getDateTimeString());
+                roll.setDate(dateLoadedManager.getDateTime());
+                roll.setUnloaded(dateUnloadedManager.getDateTime());
+                roll.setDeveloped(dateDevelopedManager.getDateTime());
                 roll.setIso(newIso);
                 roll.setPushPull(newPushPull);
                 roll.setFormat(newFormat);

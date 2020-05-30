@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
+import com.tommihirvonen.exifnotes.datastructures.DateTime;
 import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.FilterMode;
@@ -1380,7 +1381,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setId(cursor.getLong(cursor.getColumnIndex(KEY_FRAME_ID)));
         frame.setRollId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
         frame.setCount(cursor.getInt(cursor.getColumnIndex(KEY_COUNT)));
-        frame.setDate(cursor.getString(cursor.getColumnIndex(KEY_DATE)));
+
+        final String date = cursor.getString(cursor.getColumnIndex(KEY_DATE));
+        if (date != null) frame.setDate(new DateTime(date));
+
         frame.setLensId(cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID)));
         frame.setShutter(cursor.getString(cursor.getColumnIndex(KEY_SHUTTER)));
         frame.setAperture(cursor.getString(cursor.getColumnIndex(KEY_APERTURE)));
@@ -1421,7 +1425,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private Roll getRollFromCursor (@NonNull final Cursor cursor, @NonNull final Roll roll) {
         roll.setId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
         roll.setName(cursor.getString(cursor.getColumnIndex(KEY_ROLLNAME)));
-        roll.setDate(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE)));
+
+        final String date = cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE));
+        if (date != null) roll.setDate(new DateTime(date));
+
         roll.setNote(cursor.getString(cursor.getColumnIndex(KEY_ROLL_NOTE)));
         roll.setCameraId(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
         roll.setIso(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ISO)));
@@ -1429,8 +1436,13 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         roll.setFormat(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_FORMAT)));
         roll.setArchived(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ARCHIVED)));
         roll.setFilmStockId(cursor.getInt(cursor.getColumnIndex(KEY_FILM_STOCK_ID)));
-        roll.setUnloaded(cursor.getString(cursor.getColumnIndex(KEY_ROLL_UNLOADED)));
-        roll.setDeveloped(cursor.getString(cursor.getColumnIndex(KEY_ROLL_DEVELOPED)));
+
+        final String unloaded = cursor.getString(cursor.getColumnIndex(KEY_ROLL_UNLOADED));
+        if (unloaded != null) roll.setUnloaded(new DateTime(unloaded));
+
+        final String developed = cursor.getString(cursor.getColumnIndex(KEY_ROLL_DEVELOPED));
+        if (developed != null) roll.setDeveloped(new DateTime(developed));
+
         return roll;
     }
 
@@ -1552,9 +1564,11 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         final ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_ROLL_ID, frame.getRollId());
         contentValues.put(KEY_COUNT, frame.getCount());
-        contentValues.put(KEY_DATE, frame.getDate());
+        contentValues.put(KEY_DATE, frame.getDate() != null ? frame.getDate().toString() : null);
+
         if (frame.getLensId() > 0) contentValues.put(KEY_LENS_ID, frame.getLensId());
         else contentValues.putNull(KEY_LENS_ID);
+
         contentValues.put(KEY_SHUTTER, frame.getShutter());
         contentValues.put(KEY_APERTURE, frame.getAperture());
         contentValues.put(KEY_FRAME_NOTE, frame.getNote());
@@ -1618,7 +1632,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
     private ContentValues buildRollContentValues(@NonNull final Roll roll){
         final ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_ROLLNAME, roll.getName());
-        contentValues.put(KEY_ROLL_DATE, roll.getDate());
+        contentValues.put(KEY_ROLL_DATE, roll.getDate() != null ? roll.getDate().toString() : null);
         contentValues.put(KEY_ROLL_NOTE, roll.getNote());
         if (roll.getCameraId() > 0) contentValues.put(KEY_CAMERA_ID, roll.getCameraId());
         else contentValues.putNull(KEY_CAMERA_ID);
@@ -1628,8 +1642,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_ROLL_ARCHIVED, roll.getArchived());
         if (roll.getFilmStockId() > 0) contentValues.put(KEY_FILM_STOCK_ID, roll.getFilmStockId());
         else contentValues.putNull(KEY_FILM_STOCK_ID);
-        contentValues.put(KEY_ROLL_UNLOADED, roll.getUnloaded());
-        contentValues.put(KEY_ROLL_DEVELOPED, roll.getDeveloped());
+        contentValues.put(KEY_ROLL_UNLOADED, roll.getUnloaded() != null ? roll.getUnloaded().toString() : null);
+        contentValues.put(KEY_ROLL_DEVELOPED, roll.getDeveloped() != null ? roll.getDeveloped().toString() : null);
         return contentValues;
     }
 

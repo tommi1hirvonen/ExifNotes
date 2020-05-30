@@ -438,10 +438,10 @@ public class EditFrameDialog extends DialogFragment {
         final TextView timeTextView = inflatedView.findViewById(R.id.time_text);
 
         if (frame.getDate() == null) {
-            frame.setDate(DateTime.Companion.fromCurrentTime().toString());
+            frame.setDate(DateTime.Companion.fromCurrentTime());
         }
 
-        final DateTime dateTime = new DateTime(frame.getDate());
+        final DateTime dateTime = frame.getDate();
         dateTextView.setText(dateTime.getDateAsText());
         timeTextView.setText(dateTime.getTimeAsText());
 
@@ -722,7 +722,7 @@ public class EditFrameDialog extends DialogFragment {
         frame.setAperture(newAperture);
         frame.setCount(newFrameCount);
         frame.setNote(noteEditText.getText().toString());
-        frame.setDate(dateTimeLayoutManager.getDateTimeString());
+        frame.setDate(dateTimeLayoutManager.getDateTime());
         frame.setLensId(newLens == null ? 0 : newLens.getId());
         frame.setLocation(newLocation);
         frame.setFormattedAddress(newFormattedAddress);
