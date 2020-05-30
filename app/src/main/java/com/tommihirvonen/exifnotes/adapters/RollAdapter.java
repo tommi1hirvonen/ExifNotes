@@ -18,7 +18,6 @@ import android.widget.TextView;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
-import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.List;

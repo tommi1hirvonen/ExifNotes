@@ -136,7 +136,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         final View bottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         final float peekHeightOffset = getResources().getDimensionPixelSize(R.dimen.MapActivityBottomSheetPeekHeight);
-        bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View view, int i) {
 

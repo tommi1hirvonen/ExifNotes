@@ -55,6 +55,7 @@ import com.tommihirvonen.exifnotes.activities.FramesActivity;
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity;
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
+import com.tommihirvonen.exifnotes.datastructures.DateTime;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog;
@@ -623,7 +624,7 @@ public class FramesFragment extends Fragment implements
         final EditFrameDialog dialog = new EditFrameDialog();
         dialog.setTargetFragment(this, EDIT_FRAME_DIALOG);
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditFrameDialog.TAG);
+        dialog.show(getParentFragmentManager().beginTransaction(), EditFrameDialog.TAG);
     }
 
     /**
@@ -647,7 +648,7 @@ public class FramesFragment extends Fragment implements
         final String positiveButton = getActivity().getResources().getString(R.string.Add);
 
         final Frame frame = new Frame();
-        frame.setDate(Utilities.getCurrentTime());
+        frame.setDate(DateTime.Companion.fromCurrentTime().toString());
         frame.setCount(0);
         frame.setRollId(roll.getId());
 
@@ -697,7 +698,7 @@ public class FramesFragment extends Fragment implements
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton);
         arguments.putParcelable(ExtraKeys.FRAME, frame);
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager(), EditFrameDialog.TAG);
+        dialog.show(getParentFragmentManager(), EditFrameDialog.TAG);
     }
 
     /**
@@ -1296,7 +1297,7 @@ public class FramesFragment extends Fragment implements
         args.putInt(DIALOG_ERROR, errorCode);
         dialogFragment.setArguments(args);
         dialogFragment.setTargetFragment(this, ERROR_DIALOG);
-        dialogFragment.show(getFragmentManager(), "errordialog");
+        dialogFragment.show(getParentFragmentManager(), "errordialog");
     }
 
     /**

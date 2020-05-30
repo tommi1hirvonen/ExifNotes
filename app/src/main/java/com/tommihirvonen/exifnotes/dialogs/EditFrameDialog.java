@@ -3,9 +3,7 @@ package com.tommihirvonen.exifnotes.dialogs;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -44,11 +42,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
+import com.tommihirvonen.exifnotes.datastructures.DateTime;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
+import com.tommihirvonen.exifnotes.utilities.DateTimeLayoutManager;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity;
@@ -123,6 +123,8 @@ public class EditFrameDialog extends DialogFragment {
      */
     private FilmDbHelper database;
 
+    private DateTimeLayoutManager dateTimeLayoutManager;
+
     /**
      * Button used to display the currently selected location
      */
@@ -159,11 +161,6 @@ public class EditFrameDialog extends DialogFragment {
      */
     @Nullable
     private Lens newLens;
-
-    /**
-     * Currently selected datetime in format 'YYYY-M-D H:MM'
-     */
-    private String newDate;
 
     /**
      * Currently selected latitude longitude location in format '12,3456... 12,3456...'
@@ -427,79 +424,30 @@ public class EditFrameDialog extends DialogFragment {
             arguments.putString(ExtraKeys.TITLE, getResources().getString(R.string.NewLens));
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
             dialog.setArguments(arguments);
-            dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
+            dialog.show(getParentFragmentManager().beginTransaction(), EditLensDialog.TAG);
         });
 
 
 
         //==========================================================================================
-        // DATE PICK DIALOG
-        final TextView dateTextView = inflatedView.findViewById(R.id.date_text);
-        final TextView timeTextView = inflatedView.findViewById(R.id.time_text);
-        if (frame.getDate() != null) {
-            final List<String> dateValue = Utilities.splitDate(frame.getDate());
-            final int tempYear = Integer.parseInt(dateValue.get(0));
-            final int tempMonth = Integer.parseInt(dateValue.get(1));
-            final int tempDay = Integer.parseInt(dateValue.get(2));
-            final String dateText = tempYear + "-" + tempMonth + "-" + tempDay;
-            dateTextView.setText(dateText);
-        }
-
-        newDate = frame.getDate();
+        // DATE & TIME PICK DIALOG
 
         final LinearLayout dateLayout = inflatedView.findViewById(R.id.date_layout);
-        dateLayout.setOnClickListener(v -> {
-            // DATE PICKER DIALOG IMPLEMENTATION HERE
-            final List<String> dateValue = Utilities.splitDate(newDate);
-            final int year = Integer.parseInt(dateValue.get(0));
-            final int month = Integer.parseInt(dateValue.get(1));
-            final int day = Integer.parseInt(dateValue.get(2));
-            // One month has to be subtracted from the default shown month, otherwise
-// the date picker shows one month forward.
-            final DatePickerDialog dialog = new DatePickerDialog(
-                    getActivity(), (view, year1, monthOfYear, dayOfMonth) -> {
-                final String newInnerDate = year1 + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
-                dateTextView.setText(newInnerDate);
-                newDate = newInnerDate + " " + timeTextView.getText().toString();
-            }, year, (month - 1), day);
+        final LinearLayout timeLayout = inflatedView.findViewById(R.id.time_layout);
+        final TextView dateTextView = inflatedView.findViewById(R.id.date_text);
+        final TextView timeTextView = inflatedView.findViewById(R.id.time_text);
 
-            dialog.show();
-
-        });
-
-
-
-        //==========================================================================================
-        // TIME PICK DIALOG
-        if (frame.getDate() != null) {
-            final List<String> timeValue = Utilities.splitTime(frame.getDate());
-            final int tempHours = Integer.parseInt(timeValue.get(0));
-            final int tempMinutes = Integer.parseInt(timeValue.get(1));
-            final String timeText;
-            if (tempMinutes < 10) timeText = tempHours + ":0" + tempMinutes;
-            else timeText = tempHours + ":" + tempMinutes;
-            timeTextView.setText(timeText);
+        if (frame.getDate() == null) {
+            frame.setDate(DateTime.Companion.fromCurrentTime().toString());
         }
 
-        final LinearLayout timeLayout = inflatedView.findViewById(R.id.time_layout);
-        timeLayout.setOnClickListener(v -> {
-            // TIME PICKER DIALOG IMPLEMENTATION HERE
-            final List<String> timeValue = Utilities.splitTime(newDate);
-            final int hours = Integer.parseInt(timeValue.get(0));
-            final int minutes = Integer.parseInt(timeValue.get(1));
-            final TimePickerDialog dialog = new TimePickerDialog(
-                    getActivity(), (view, hourOfDay, minute) -> {
-                final String newTime;
-                if (minute < 10) {
-                    newTime = hourOfDay + ":0" + minute;
-                } else newTime = hourOfDay + ":" + minute;
-                timeTextView.setText(newTime);
-                newDate = dateTextView.getText().toString() + " " + newTime;
-            }, hours, minutes, true);
+        final DateTime dateTime = new DateTime(frame.getDate());
+        dateTextView.setText(dateTime.getDateAsText());
+        timeTextView.setText(dateTime.getTimeAsText());
 
-            dialog.show();
-
-        });
+        dateTimeLayoutManager = new DateTimeLayoutManager(
+                getActivity(), dateLayout, timeLayout, dateTextView, timeTextView, dateTime, null
+        );
 
 
 
@@ -642,7 +590,7 @@ public class EditFrameDialog extends DialogFragment {
             arguments.putString(ExtraKeys.TITLE, getResources().getString(R.string.NewFilter));
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
             dialog.setArguments(arguments);
-            dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
+            dialog.show(getParentFragmentManager().beginTransaction(), EditFilterDialog.TAG);
         });
 
 
@@ -774,7 +722,7 @@ public class EditFrameDialog extends DialogFragment {
         frame.setAperture(newAperture);
         frame.setCount(newFrameCount);
         frame.setNote(noteEditText.getText().toString());
-        frame.setDate(newDate);
+        frame.setDate(dateTimeLayoutManager.getDateTimeString());
         frame.setLensId(newLens == null ? 0 : newLens.getId());
         frame.setLocation(newLocation);
         frame.setFormattedAddress(newFormattedAddress);
@@ -1869,7 +1817,7 @@ public class EditFrameDialog extends DialogFragment {
          */
         private void startPictureActivity() {
             // Check if the camera feature is available
-            if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
                 Toast.makeText(getActivity(), R.string.NoCameraFeatureWasFound, Toast.LENGTH_SHORT).show();
                 return;
             }

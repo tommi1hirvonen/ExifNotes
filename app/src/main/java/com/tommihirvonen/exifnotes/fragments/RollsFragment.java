@@ -558,7 +558,7 @@ public class RollsFragment extends Fragment implements
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getActivity().getResources().getString(R.string.OK));
         dialog.setArguments(arguments);
         dialog.setTargetFragment(this, REQUEST_CODE_EDIT_ROLL);
-        dialog.show(getFragmentManager().beginTransaction(), EditRollDialog.TAG);
+        dialog.show(getParentFragmentManager().beginTransaction(), EditRollDialog.TAG);
     }
 
     /**
@@ -573,7 +573,7 @@ public class RollsFragment extends Fragment implements
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getActivity().getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
         dialog.setTargetFragment(this, REQUEST_CODE_ADD_ROLL);
-        dialog.show(getFragmentManager().beginTransaction(), EditRollDialog.TAG);
+        dialog.show(getParentFragmentManager().beginTransaction(), EditRollDialog.TAG);
     }
 
     /**
@@ -814,7 +814,7 @@ public class RollsFragment extends Fragment implements
                                     final SelectFilmStockDialog filmStockDialog = new SelectFilmStockDialog();
                                     filmStockDialog.setTargetFragment(RollsFragment.this,
                                             REQUEST_CODE_BATCH_EDIT_FILM_STOCK);
-                                    filmStockDialog.show(getFragmentManager().beginTransaction(), null);
+                                    filmStockDialog.show(getParentFragmentManager().beginTransaction(), null);
                                     break;
                                 case 1:
                                     // Clear film stock

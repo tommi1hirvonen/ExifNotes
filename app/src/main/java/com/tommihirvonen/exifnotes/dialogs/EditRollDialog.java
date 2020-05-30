@@ -3,9 +3,7 @@ package com.tommihirvonen.exifnotes.dialogs;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -29,6 +27,7 @@ import com.tommihirvonen.exifnotes.datastructures.DateTime;
 import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.datastructures.Camera;
+import com.tommihirvonen.exifnotes.utilities.DateTimeLayoutManager;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.R;
@@ -225,7 +224,7 @@ public class EditRollDialog extends DialogFragment {
         filmStockLayout.setOnClickListener(v -> {
             final SelectFilmStockDialog dialog = new SelectFilmStockDialog();
             dialog.setTargetFragment(EditRollDialog.this, REQUEST_CODE_SELECT_FILM_STOCK);
-            dialog.show(getFragmentManager().beginTransaction(), null);
+            dialog.show(getParentFragmentManager().beginTransaction(), null);
         });
         //==========================================================================================
 
@@ -282,7 +281,7 @@ public class EditRollDialog extends DialogFragment {
             arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewCamera));
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
             dialog.setArguments(arguments);
-            dialog.show(getFragmentManager().beginTransaction(), EditCameraDialog.TAG);
+            dialog.show(getParentFragmentManager().beginTransaction(), EditCameraDialog.TAG);
         });
         //==========================================================================================
 
@@ -293,7 +292,7 @@ public class EditRollDialog extends DialogFragment {
         // DATE
 
         if (roll.getDate() == null) {
-            roll.setDate(Utilities.getCurrentTime());
+            roll.setDate(DateTime.Companion.fromCurrentTime().toString());
         }
         final DateTime dateTimeLoaded = new DateTime(roll.getDate());
         final TextView dateTextView = inflatedView.findViewById(R.id.date_text);
@@ -302,7 +301,7 @@ public class EditRollDialog extends DialogFragment {
         timeTextView.setText(dateTimeLoaded.getTimeAsText());
         final LinearLayout dateLayout = inflatedView.findViewById(R.id.date_layout);
         final LinearLayout timeLayout = inflatedView.findViewById(R.id.time_layout);
-        final DateLayoutManager dateLoadedManager = new DateLayoutManager(getActivity(), dateLayout,
+        final DateTimeLayoutManager dateLoadedManager = new DateTimeLayoutManager(getActivity(), dateLayout,
                 timeLayout, dateTextView, timeTextView, dateTimeLoaded, null);
 
         //==========================================================================================
@@ -323,7 +322,7 @@ public class EditRollDialog extends DialogFragment {
         final LinearLayout dateUnloadedLayout = inflatedView.findViewById(R.id.date_unloaded_layout);
         final LinearLayout timeUnloadedLayout = inflatedView.findViewById(R.id.time_unloaded_layout);
         final ImageView clearDateUnloaded = inflatedView.findViewById(R.id.clear_date_unloaded);
-        final DateLayoutManager dateUnloadedManager = new DateLayoutManager(getActivity(), dateUnloadedLayout,
+        final DateTimeLayoutManager dateUnloadedManager = new DateTimeLayoutManager(getActivity(), dateUnloadedLayout,
                 timeUnloadedLayout, dateUnloadedTextView, timeUnloadedTextView, dateTimeUnloaded,
                 clearDateUnloaded);
 
@@ -344,7 +343,7 @@ public class EditRollDialog extends DialogFragment {
         final LinearLayout dateDevelopedLayout = inflatedView.findViewById(R.id.date_developed_layout);
         final LinearLayout timeDevelopedLayout = inflatedView.findViewById(R.id.time_developed_layout);
         final ImageView clearDateDeveloped = inflatedView.findViewById(R.id.clear_date_developed);
-        final DateLayoutManager dateDevelopedManager = new DateLayoutManager(getActivity(), dateDevelopedLayout,
+        final DateTimeLayoutManager dateDevelopedManager = new DateTimeLayoutManager(getActivity(), dateDevelopedLayout,
                 timeDevelopedLayout, dateDevelopedTextView, timeDevelopedTextView, dateTimeDeveloped,
                 clearDateDeveloped);
 
@@ -571,59 +570,6 @@ public class EditRollDialog extends DialogFragment {
                 break;
 
         }
-    }
-
-    /**
-     * Helper class to manage the date and time layout onClick events.
-     * When the date layout is clicked, a date picker dialog is shown.
-     * When the time layout is clicked, a time picker dialog is shown.
-     * The DateTime member is managed inside the class.
-     */
-    private static class DateLayoutManager {
-
-        private DateTime dateTime;
-
-        String getDateTimeString() {
-            if (dateTime != null) {
-                return dateTime.getDateTimeAsText();
-            }
-            else {
-                return null;
-            }
-        }
-
-        DateLayoutManager(@NonNull final Activity activity, @NonNull final View dateLayout,
-                          @NonNull final View timeLayout, @NonNull final TextView dateTextView,
-                          @NonNull final TextView timeTextView, @Nullable final DateTime dateTimeParam,
-                          @Nullable final View clearLayout) {
-            dateTime = dateTimeParam;
-            dateLayout.setOnClickListener(v -> {
-                final DateTime dateTimeTemp = dateTime != null ? dateTime : DateTime.Companion.fromCurrentTime();
-                final DatePickerDialog dialog = new DatePickerDialog(activity, (view, year, month, dayOfMonth) -> {
-                    dateTime = new DateTime(year, month + 1, dayOfMonth, dateTimeTemp.getHour(), dateTimeTemp.getMinute());
-                    dateTextView.setText(dateTime.getDateAsText());
-                    timeTextView.setText(dateTime.getTimeAsText());
-                }, dateTimeTemp.getYear(), (dateTimeTemp.getMonth() - 1), dateTimeTemp.getDay());
-                dialog.show();
-            });
-            timeLayout.setOnClickListener(v -> {
-                final DateTime dateTimeTemp = dateTime != null ? dateTime : DateTime.Companion.fromCurrentTime();
-                final TimePickerDialog dialog = new TimePickerDialog(activity, (view, hourOfDay, minute) -> {
-                    dateTime = new DateTime(dateTimeTemp.getYear(), dateTimeTemp.getMonth(), dateTimeTemp.getDay(), hourOfDay, minute);
-                    dateTextView.setText(dateTime.getDateAsText());
-                    timeTextView.setText(dateTime.getTimeAsText());
-                }, dateTimeTemp.getHour(), dateTimeTemp.getMinute(), true);
-                dialog.show();
-            });
-            if (clearLayout != null) {
-                clearLayout.setOnClickListener(v -> {
-                    dateTime = null;
-                    dateTextView.setText(R.string.ClickToSet);
-                    timeTextView.setText("");
-                });
-            }
-        }
-
     }
 
 }

@@ -174,7 +174,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
         arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewFilter));
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
+        dialog.show(getParentFragmentManager().beginTransaction(), EditFilterDialog.TAG);
     }
 
     /**
@@ -248,7 +248,7 @@ public class FiltersFragment extends Fragment implements View.OnClickListener {
                     arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.OK));
                     arguments.putParcelable(ExtraKeys.FILTER, filter);
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), EditFilterDialog.TAG);
+                    dialog.show(getParentFragmentManager().beginTransaction(), EditFilterDialog.TAG);
 
                     return true;
             }

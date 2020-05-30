@@ -226,7 +226,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
                     arguments.putParcelable(ExtraKeys.LENS, lens);
                     arguments.putInt(ExtraKeys.POSITION, position);
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
+                    dialog.show(getParentFragmentManager().beginTransaction(), EditLensDialog.TAG);
 
                     return true;
             }
@@ -245,7 +245,7 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewLens));
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditLensDialog.TAG);
+        dialog.show(getParentFragmentManager().beginTransaction(), EditLensDialog.TAG);
     }
 
     /**

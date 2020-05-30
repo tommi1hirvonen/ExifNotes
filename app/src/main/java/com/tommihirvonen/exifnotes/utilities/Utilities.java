@@ -54,9 +54,7 @@ import java.nio.channels.FileChannel;
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -254,38 +252,6 @@ public final class Utilities {
      */
     public static String replaceIllegalChars(final String input){
         return input.replaceAll("[|\\\\?*<\":>/]", "_");
-    }
-
-    /**
-     * Splits a datetime into an ArrayList with date.
-     *
-     * @param input Datetime string in format YYYY-M-D HH:MM
-     * @return ArrayList with three members: { YYYY, M, D }
-     */
-    public static List<String> splitDate(final String input) {
-        final String[] items = input.split(" ");
-        List<String> itemList = new ArrayList<>(Arrays.asList(items));
-        // { YYYY-M-D, HH:MM }
-        final String[] items2 = itemList.get(0).split("-");
-        itemList = new ArrayList<>(Arrays.asList(items2));
-        // { YYYY, M, D }
-        return itemList;
-    }
-
-    /**
-     * Splits a datetime into an ArrayList with time.
-     *
-     * @param input Datetime string in format YYYY-M-D HH:MM
-     * @return ArrayList with two members: { HH, MM }
-     */
-    public static List<String> splitTime(final String input) {
-        final String[] items = input.split(" ");
-        List<String> itemList = new ArrayList<>(Arrays.asList(items));
-        // { YYYY-M-D, HH:MM }
-        final String[] items2 = itemList.get(1).split(":");
-        itemList = new ArrayList<>(Arrays.asList(items2));
-        // { HH, MM }
-        return itemList;
     }
 
     /**
@@ -1065,25 +1031,6 @@ public final class Utilities {
     }
 
     /**
-     * Gets the current date and time.
-     *
-     * @return Date and time as a string in format YYYY-M-D H:MM
-     */
-    public static String getCurrentTime() {
-        final Calendar c = Calendar.getInstance();
-        final int year = c.get(Calendar.YEAR);
-        final int month = c.get(Calendar.MONTH) + 1;
-        final int day = c.get(Calendar.DAY_OF_MONTH);
-        final int hour = c.get(Calendar.HOUR_OF_DAY);
-        final int minute = c.get(Calendar.MINUTE);
-        final String currentTime;
-        if (minute < 10) {
-            currentTime = year + "-" + month + "-" + day + " " + hour + ":0" + minute;
-        } else currentTime = year + "-" + month + "-" + day + " " + hour + ":" + minute;
-        return currentTime;
-    }
-
-    /**
      * Creates the specified toFile as a byte for byte copy of the
      * fromFile. If toFile already exists, then it
      * will be replaced with a copy of fromFile. The name and path
@@ -1092,7 +1039,7 @@ public final class Utilities {
      * @param fromFile the file to copy from
      * @param toFile the file to copy to
      */
-    public static void copyFile(final File fromFile, final File toFile) throws IOException {
+    static void copyFile(final File fromFile, final File toFile) throws IOException {
         // Check that the destination folder exists. Create if not.
         if (!toFile.getParentFile().exists()) {
             //noinspection ResultOfMethodCallIgnored

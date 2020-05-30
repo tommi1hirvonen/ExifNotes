@@ -1,7 +1,6 @@
 package com.tommihirvonen.exifnotes.activities;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import com.google.android.material.tabs.TabLayout;
 

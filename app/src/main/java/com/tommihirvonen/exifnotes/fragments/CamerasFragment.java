@@ -223,7 +223,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener {
                     arguments.putParcelable(ExtraKeys.CAMERA, camera);
 
                     dialog.setArguments(arguments);
-                    dialog.show(getFragmentManager().beginTransaction(), EditCameraDialog.TAG);
+                    dialog.show(getParentFragmentManager().beginTransaction(), EditCameraDialog.TAG);
 
                     return true;
             }
@@ -242,7 +242,7 @@ public class CamerasFragment extends Fragment implements View.OnClickListener {
         arguments.putString(ExtraKeys.TITLE, getResources().getString( R.string.NewCamera));
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, getResources().getString(R.string.Add));
         dialog.setArguments(arguments);
-        dialog.show(getFragmentManager().beginTransaction(), EditCameraDialog.TAG);
+        dialog.show(getParentFragmentManager().beginTransaction(), EditCameraDialog.TAG);
     }
 
     /**

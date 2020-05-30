@@ -22,12 +22,12 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity;
 import com.tommihirvonen.exifnotes.R;
+import com.tommihirvonen.exifnotes.datastructures.DateTime;
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference;
 import com.tommihirvonen.exifnotes.utilities.UIColorPreferenceDialogFragment;
-import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -81,7 +81,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
             intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("application/zip");
-            final String date = Utilities.getCurrentTime().split("\\s+")[0];
+            final String date = DateTime.Companion.fromCurrentTime().getDateAsText();
             final String title = "Exif_Notes_Complementary_Pictures_" + date + ".zip";
             intent.putExtra(Intent.EXTRA_TITLE, title);
             startActivityForResult(intent, REQUEST_EXPORT_COMPLEMENTARY_PICTURES);
@@ -124,7 +124,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
                 intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("*/*");
-                final String date = Utilities.getCurrentTime().split("\\s+")[0];
+                final String date = DateTime.Companion.fromCurrentTime().getDateAsText();
                 final String filename = "Exif_Notes_Database_" + date + ".db";
                 intent.putExtra(Intent.EXTRA_TITLE, filename);
                 startActivityForResult(intent, REQUEST_EXPORT_DATABASE);
@@ -167,7 +167,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
         }
         if (dialogFragment != null) {
             dialogFragment.setTargetFragment(this, 0);
-            dialogFragment.show(getFragmentManager(), null);
+            dialogFragment.show(getParentFragmentManager(), null);
         } else {
             super.onDisplayPreferenceDialog(preference);
         }
