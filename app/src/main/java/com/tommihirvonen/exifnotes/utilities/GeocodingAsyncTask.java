@@ -43,17 +43,18 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
     }
 
     /**
-     * Executed on a background thread after onPreExecute.
-     *
-     * Get the JSON array from the Google Maps geocode api.
+     * {@inheritDoc}
      *
      * @param params String array with two elements: first one either coordinates or address and
      *               the second one the Google API key of this application.
      * @return String array with one element which contains the JSON array.
-     * If the connection was unsuccessful, the element is an empty string.
+     *         If the connection was unsuccessful, the element is an empty string.
      */
     @Override
     protected String[] doInBackground(final String... params) {
+
+        // Get the JSON array from the Google Maps geocode API.
+
         final String response;
         try {
             final String queryUrl = new Uri.Builder()
@@ -78,16 +79,16 @@ public class GeocodingAsyncTask extends AsyncTask<String, Void, String[]> {
     }
 
     /**
-     * Executed when doInBackground has finished. The return value from doInBackground
-     * is passed as the argument to onPostExecute.
-     *
-     * Parse the JSON array to get the latitude, longitude and formatted address.
+     * {@inheritDoc}
      *
      * @param result String array with one element containing the latitude longitude location
      *               and formatted address in JSON format
      */
     @Override
     protected void onPostExecute(final String... result) {
+
+        // Parse the JSON array to get the latitude, longitude and formatted address.
+
         try {
             final JSONObject jsonObject = new JSONObject(result[0]);
 

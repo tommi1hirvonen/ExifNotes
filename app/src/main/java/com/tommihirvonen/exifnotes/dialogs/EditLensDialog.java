@@ -101,15 +101,6 @@ public class EditLensDialog extends DialogFragment {
 
     }
 
-    /**
-     * Called when the DialogFragment is ready to create the dialog.
-     * Inflate the fragment. Get the edited lens.
-     * Initialize the UI objects and display lens's information.
-     * Add listeners to buttons to open new dialogs to change the lens's setting.
-     *
-     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
-     * @return inflated dialog ready to be shown
-     */
     @NonNull
     @Override
     public Dialog onCreateDialog (final Bundle SavedInstanceState) {

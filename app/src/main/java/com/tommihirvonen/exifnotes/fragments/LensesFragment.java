@@ -77,13 +77,6 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
 
     private boolean fragmentVisible = false;
 
-    /**
-     * Called when the fragment is created.
-     * Tell the fragment that it has an options menu so that we can handle
-     * OptionsItemSelected events.
-     *
-     * @param savedInstanceState {@inheritDoc}
-     */
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,15 +95,6 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         fragmentVisible = false;
     }
 
-    /**
-     * Inflate the fragment. Get all lenses from the database. Set the UI objects
-     * and display all lenses in the ListView.
-     *
-     * @param inflater {@inheritDoc}
-     * @param container {@inheritDoc}
-     * @param savedInstanceState {@inheritDoc}
-     * @return the inflated view ready to be shown
-     */
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
@@ -149,12 +133,6 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
-    /**
-     * Called when the user long presses on a lens AND selects a context menu item.
-     *
-     * @param item the context menu item that was selected
-     * @return true if LensesFragment is in front, false if not
-     */
     @SuppressLint("CommitTransaction")
     @Override
     public boolean onContextItemSelected(@NonNull final MenuItem item) {
@@ -248,14 +226,6 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         dialog.show(getParentFragmentManager().beginTransaction(), EditLensDialog.TAG);
     }
 
-    /**
-     * Called when the user is done editing or adding a lens and closes the dialog.
-     * Handle lens addition and edit differently.
-     *
-     * @param requestCode the request code that was set for the intent
-     * @param resultCode the result code to tell whether the user picked ok or cancel
-     * @param data the extra data attached to the passed Intent
-     */
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch(requestCode) {
@@ -326,11 +296,6 @@ public class LensesFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    /**
-     * Called when the FloatingActionButton is pressed.
-     *
-     * @param v view which was clicked
-     */
     @Override
     public void onClick(final View v) {
         if (v.getId() == R.id.fab_lenses) {

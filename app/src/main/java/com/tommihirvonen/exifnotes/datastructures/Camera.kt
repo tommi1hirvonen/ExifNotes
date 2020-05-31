@@ -94,13 +94,6 @@ class Camera : Gear {
         return this.exposureCompIncrements
     }
 
-    //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
-
-    /**
-     * Constructs object from Parcel
-     *
-     * @param pc parcel object containing Camera's information
-     */
     private constructor(pc: Parcel) : super(pc) {
         this.serialNumber = pc.readString()
         this.minShutter = pc.readString()
@@ -109,12 +102,6 @@ class Camera : Gear {
         this.exposureCompIncrements = pc.readInt()
     }
 
-    /**
-     * Writes this object's members to a Parcel given as argument
-     *
-     * @param parcel Parcel which should be written with this object's members
-     * @param i not used
-     */
     override fun writeToParcel(parcel: Parcel, i: Int) {
         super.writeToParcel(parcel, i)
         parcel.writeString(serialNumber)
@@ -128,9 +115,6 @@ class Camera : Gear {
         return 0
     }
 
-    /**
-     * used to regenerate object, individually or as arrays
-     */
     companion object CREATOR : Parcelable.Creator<Camera> {
         override fun createFromParcel(parcel: Parcel): Camera {
             return Camera(parcel)

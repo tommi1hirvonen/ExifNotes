@@ -86,17 +86,9 @@ public class FramesActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.nothing, R.anim.exit_to_right);
     }
 
-    /**
-     * The PreferenceActivity is started for result and the result is captured here.
-     *
-     * The result code is compared using bitwise operators to determine
-     * whether a new database was imported, the app theme was changed or both.
-     *
-     * @param requestCode passed to the activity when it is launched
-     * @param resultCode integer to be compared using bitwise operators to determine the action(s)
-     *                   that were taken in PreferenceActivity
-     * @param data not used
-     */
+    // The PreferenceActivity is started for result and the result is captured here.
+    // The result code is compared using bitwise operators to determine
+    // whether a new database was imported, the app theme was changed or both.
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         // If a new database was imported, use setResult() to notify MainActivity as well.

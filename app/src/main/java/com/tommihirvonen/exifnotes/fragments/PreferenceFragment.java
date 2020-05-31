@@ -54,12 +54,6 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
 
     private static final int REQUEST_EXPORT_DATABASE = 4;
 
-    /**
-     * Get the preferences from resources. Set the UI and add listeners
-     * for database export and import options.
-     *
-     * @param savedInstanceState {@inheritDoc}
-     */
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -435,18 +429,12 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
 
     }
 
-    /**
-     * Register OnSharedPreferenceChangeListener
-     */
     @Override
     public void onResume() {
         super.onResume();
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
-    /**
-     * Unregister OnSharedPreferenceChangeListener
-     */
     @Override
     public void onPause() {
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
@@ -455,13 +443,6 @@ public class PreferenceFragment extends PreferenceFragmentCompat implements
 
     // TODO: Check that the exiftool and photos path end with a slash.
 
-    /**
-     * When the UIColor preference is changed, update the summary.
-     * Also set the parent activity's result code, if the app's theme was changed.
-     *
-     * @param sharedPreferences {@inheritDoc}
-     * @param key {@inheritDoc}
-     */
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         if (key.equals(PreferenceConstants.KEY_DARK_THEME)) {

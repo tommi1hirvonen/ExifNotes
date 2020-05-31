@@ -120,14 +120,6 @@ class Frame : Parcelable {
         this.flashUsed = input > 0
     }
 
-
-    //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
-
-    /**
-     * Constructs object from Parcel
-     *
-     * @param pc parcel object containing Camera's information
-     */
     private constructor(pc: Parcel) {
         this.id = pc.readLong()
         this.rollId = pc.readLong()
@@ -156,21 +148,10 @@ class Frame : Parcelable {
         this.filters = filters
     }
 
-    /**
-     * Not used
-     *
-     * @return not used
-     */
     override fun describeContents(): Int {
         return 0
     }
 
-    /**
-     * Writes this object's members to a Parcel given as argument
-     *
-     * @param parcel Parcel which should be written with this object's members
-     * @param i not used
-     */
     override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeLong(id)
         parcel.writeLong(rollId)

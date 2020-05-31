@@ -180,9 +180,8 @@ public final class Utilities {
     }
 
     /**
-     * This function is used to fix a bug which Google hasn't been able to fix in five years
-     * (at the time of writing).
-     * https://code.google.com/p/android/issues/detail?id=35482
+     * This function is used to fix a bug which Google hasn't been able to fix since 2012.
+     * https://issuetracker.google.com/issues/36952035
      *
      * Initially the NumberPicker shows the wrong value, but when the Picker is first scrolled,
      * the displayed value changes to the correct one. This function fixes this and shows
@@ -262,7 +261,9 @@ public final class Utilities {
         // Return if the given File is null
         // (for example no read/write access or storage is not mounted).
         if (directory == null) return;
-        for(final File file: directory.listFiles()) {
+        final File[] files = directory.listFiles();
+        if (files == null) return;
+        for (final File file : files) {
             if (!file.isDirectory()) {
                 file.delete();
             }
@@ -270,7 +271,7 @@ public final class Utilities {
     }
 
     /**
-     * Class which manages custom Android Marsmallow type scroll indicators based on a RecyclerView
+     * Class which manages custom Android Marshmallow type scroll indicators based on a RecyclerView
      */
     public static class ScrollIndicatorRecyclerViewListener extends RecyclerView.OnScrollListener {
 
@@ -398,8 +399,8 @@ public final class Utilities {
     }
 
     /**
-     * This function is called when the user has selected a sorting criteria.
-     * Sort the frame list depending on the sorting criteria defined in SharedPreferences.
+     * Sorts a list of Frame objects based on sortMode.
+     * This method is called when the user has selected a sorting criteria.
      *
      * @param context reference to the parent activity
      * @param sortMode enum type referencing the frame sort mode
@@ -487,6 +488,7 @@ public final class Utilities {
     }
 
     /**
+     * Sorts a list of Roll objects based on sortMode.
      * Called when the user has selected a sorting criteria.
      *
      * @param sortMode SortMode enum type
@@ -531,7 +533,7 @@ public final class Utilities {
     }
 
     /**
-     * Utility function to sort a list of Gear by name.
+     * Sorts a list of Gear by name.
      *
      * @param gearList reference to the List that should be sorted.
      */
@@ -542,8 +544,7 @@ public final class Utilities {
     }
 
     /**
-     * This function creates a string containing the ExifTool commands for the frames
-     * of the specified roll.
+     * Creates a string containing the ExifTool commands for the frames of the specified roll.
      *
      * @param context application's context
      * @param roll Roll object of which the commands should be created
@@ -747,7 +748,7 @@ public final class Utilities {
     }
 
     /**
-     * This function creates a string which contains csv information about the roll.
+     * Creates a string which contains csv information about the roll.
      *
      * @param context application's context
      * @param roll Roll object from which the csv information should be created
@@ -936,7 +937,6 @@ public final class Utilities {
         return stringBuilder.toString();
     }
 
-
     /**
      * Creates a location string in human readable format from a location string in decimal format.
      *
@@ -988,7 +988,7 @@ public final class Utilities {
     }
 
     /**
-     * This function is used to convert a Location to a string.
+     * Converts a Location object to String.
      *
      * @param location Location to be converted
      * @return the converted string
@@ -1011,7 +1011,7 @@ public final class Utilities {
      */
     static void copyFile(final File fromFile, final File toFile) throws IOException {
         // Check that the destination folder exists. Create if not.
-        if (!toFile.getParentFile().exists()) {
+        if (toFile.getParentFile() != null && !toFile.getParentFile().exists()) {
             //noinspection ResultOfMethodCallIgnored
             toFile.getParentFile().mkdirs();
         }
@@ -1036,6 +1036,12 @@ public final class Utilities {
         }
     }
 
+    /**
+     * Applies a color filter to a Drawable object.
+     *
+     * @param drawable the object that should be colored
+     * @param color the color that should be used in the form 0xAARRGGBB
+     */
     public static void setColorFilter(@NonNull final Drawable drawable, final int color) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             drawable.setColorFilter(new BlendModeColorFilter(color, BlendMode.SRC_IN));

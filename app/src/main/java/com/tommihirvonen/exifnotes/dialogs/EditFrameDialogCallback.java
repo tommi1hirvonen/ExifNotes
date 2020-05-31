@@ -15,10 +15,11 @@ import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
  */
 public class EditFrameDialogCallback extends EditFrameDialog {
 
-    /**
-     * Interface implemented by the calling class
-     */
     public interface OnPositiveButtonClickedListener {
+        /**
+         * Called when the user has clicked the dialog's positive button.
+         * @param data contains the edited Frame's data
+         */
         void onPositiveButtonClicked(Intent data);
     }
 
@@ -42,16 +43,12 @@ public class EditFrameDialogCallback extends EditFrameDialog {
         callback = listener;
     }
 
-    /**
-     * Get the dialog from parent class, but edit its positive and negative button listeners.
-     * Pass the result to the calling class through its interface.
-     *
-     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
-     * @return dialog with edited positive and negative button click listeners
-     */
     @NonNull
     @Override
     public Dialog onCreateDialog (final Bundle SavedInstanceState) {
+
+        // Get the dialog from parent class, but edit its positive and negative button listeners.
+        // Pass the result to the calling class through its interface.
 
         final AlertDialog dialog = (AlertDialog) super.onCreateDialog(SavedInstanceState);
 

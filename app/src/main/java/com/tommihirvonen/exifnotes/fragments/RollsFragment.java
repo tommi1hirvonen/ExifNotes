@@ -133,18 +133,16 @@ public class RollsFragment extends Fragment implements
      */
     private RollSortMode sortMode;
 
-    /**
-     * This interface is implemented in MainActivity.
-     */
     public interface OnRollSelectedListener{
+        /**
+         * Called when a use has selected a Roll.
+         *
+         * @param rollId database id of the selected roll
+         */
         void onRollSelected(long rollId);
     }
 
-    /**
-     * This on attach is called before API 23
-     *
-     * @param a Activity to which the onRollSelectedListener is attached.
-     */
+    // This onAttach() is called before API 23
     @SuppressWarnings("deprecation")
     @Override
     public void onAttach(@NonNull final Activity a) {
@@ -152,40 +150,19 @@ public class RollsFragment extends Fragment implements
         callback = (OnRollSelectedListener) a;
     }
 
-    /**
-     * This on attach is called after API 23
-     *
-     * @param c Context to which the onRollSelectedListener is attached.
-     */
+    // This onAttach() is called after API 23
     @Override
     public void onAttach(@NonNull final Context c) {
         super.onAttach(c);
         callback = (OnRollSelectedListener) c;
     }
 
-    /**
-     * Called when the fragment is created.
-     * Tell the fragment that it has an options menu so that we can handle
-     * OptionsItemSelected events.
-     *
-     * @param savedInstanceState passed to super.onCreate to execute necessary code to properly
-     *                           create the fragment
-     */
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
 
-    /**
-     * Inflate the fragment. Get all rolls from the database. Set the UI objects
-     * and display all the rolls in the ListView.
-     *
-     * @param inflater {@inheritDoc}
-     * @param container {@inheritDoc}
-     * @param savedInstanceState possible saved state in case the fragment was resumed
-     * @return The inflated view
-     */
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
@@ -289,10 +266,6 @@ public class RollsFragment extends Fragment implements
         else mainTextViewAnimateVisible();
     }
 
-    /**
-     * When resuming RollsFragment we have to color the FloatingActionButton and
-     * notify the array adapter that the displayed amount of frames has changed for some roll.
-     */
     @Override
     public void onResume(){
         super.onResume();
@@ -305,24 +278,12 @@ public class RollsFragment extends Fragment implements
         }
     }
 
-    /**
-     * Inflate the action bar many layout for RollsFragment.
-     *
-     * @param menu the menu to be inflated
-     * @param inflater the MenuInflater from Activity
-     */
     @Override
     public void onCreateOptionsMenu(@NonNull final Menu menu, final MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.menu_rolls_fragment, menu);
     }
 
-    /**
-     * Called after onCreateOptionsMenu() to prepare the menu.
-     * Check the correct filter and sort options.
-     *
-     * @param menu reference to the menu that is to be prepared
-     */
     @Override
     public void onPrepareOptionsMenu(@NonNull final Menu menu) {
 
@@ -356,12 +317,6 @@ public class RollsFragment extends Fragment implements
         super.onPrepareOptionsMenu(menu);
     }
 
-    /**
-     * Handle events when the user selects an action from the options menu.
-     *
-     * @param item selected menu item.
-     * @return true because the item selection was consumed/handled.
-     */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item){
         switch (item.getItemId()) {
@@ -481,12 +436,6 @@ public class RollsFragment extends Fragment implements
         rollAdapter.notifyDataSetChanged();
     }
 
-    /**
-     * Called when FloatingActionButton is pressed.
-     * Show the user the RollNameDialog to add a new roll.
-     *
-     * @param v view which was clicked.
-     */
     @Override
     public void onClick(final View v) {
         if (v.getId() == R.id.fab) {
@@ -494,13 +443,6 @@ public class RollsFragment extends Fragment implements
         }
     }
 
-    /**
-     * Called when a roll is pressed.
-     * If the action mode is enabled, add the pressed item to the selected items.
-     * Otherwise forward the press to the callback interface in MainActivity.
-     *
-     * @param position position of the item in RollAdapter
-     */
     @Override
     public void onItemClick(final int position) {
         if (rollAdapter.getSelectedItemCount() > 0 || actionMode != null) {
@@ -511,11 +453,6 @@ public class RollsFragment extends Fragment implements
         }
     }
 
-    /**
-     * When an item is long pressed, always add the pressed item to selected items.
-     *
-     * @param position position of the item in RollAdapter
-     */
     @Override
     public void onItemLongClick(final int position) {
         enableActionMode(position);
@@ -576,14 +513,6 @@ public class RollsFragment extends Fragment implements
         dialog.show(getParentFragmentManager().beginTransaction(), EditRollDialog.TAG);
     }
 
-    /**
-     * Called when the user is done editing or adding a roll and
-     * closes the dialog. Handle roll addition and edit differently.
-     *
-     * @param requestCode the request code that was set for the intent
-     * @param resultCode the result code to tell whether the user picked ok or cancel
-     * @param data the extra data attached to the passed Intent
-     */
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch(requestCode) {
@@ -703,14 +632,6 @@ public class RollsFragment extends Fragment implements
      */
     private class ActionModeCallback implements ActionMode.Callback {
 
-        /**
-         * Called when the ActionMode is started.
-         * Inflate the menu and set the visibility of some menu items.
-         *
-         * @param actionMode {@inheritDoc}
-         * @param menu {@inheritDoc}
-         * @return {@inheritDoc}
-         */
         @Override
         public boolean onCreateActionMode(final ActionMode actionMode, final Menu menu) {
 
@@ -731,25 +652,11 @@ public class RollsFragment extends Fragment implements
             return true;
         }
 
-        /**
-         * Called to refresh the ActionMode menu whenever it is invalidated.
-         *
-         * @param actionMode {@inheritDoc}
-         * @param menu {@inheritDoc}
-         * @return {@inheritDoc}
-         */
         @Override
         public boolean onPrepareActionMode(final ActionMode actionMode, final Menu menu) {
             return false;
         }
 
-        /**
-         * Called when the user presses on an action menu item.
-         *
-         * @param actionMode {@inheritDoc}
-         * @param menuItem {@inheritDoc}
-         * @return {@inheritDoc}
-         */
         @Override
         public boolean onActionItemClicked(final ActionMode actionMode, final MenuItem menuItem) {
             // Get the positions in the rollList of selected items
@@ -875,11 +782,6 @@ public class RollsFragment extends Fragment implements
             }
         }
 
-        /**
-         * Called when an action mode is about to be exited and destroyed.
-         *
-         * @param mode {@inheritDoc}
-         */
         @Override
         public void onDestroyActionMode(final ActionMode mode) {
             rollAdapter.clearSelections();

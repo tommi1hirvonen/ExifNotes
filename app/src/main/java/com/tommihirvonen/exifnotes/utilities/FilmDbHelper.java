@@ -491,10 +491,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         }
     }
 
-    /**
-     * When the database is first created, the required tables are created.
-     * @param database the SQLite database to be populated.
-     */
     @Override
     public void onCreate(final SQLiteDatabase database) {
         // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
@@ -511,19 +507,12 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         populateFilmStocks(database);
     }
 
-    /**
-     * When the database version is changed to a newer one, this method is called.
-     *
-     * Run all the required upgrade scripts consecutively.
-     * New if blocks should be added whenever the database version is raised and new
-     * columns and/or tables are added.
-     *
-     * @param db the database to be updated
-     * @param oldVersion the old version number of the database
-     * @param newVersion the new version number of the database
-     */
     @Override
     public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
+        // Run all the required upgrade scripts consecutively.
+        // New if blocks should be added whenever the database version is raised and new
+        // columns and/or tables are added.
+
         if (oldVersion < 14) {
             //TABLE_FRAMES
             db.execSQL(ALTER_TABLE_FRAMES_1);

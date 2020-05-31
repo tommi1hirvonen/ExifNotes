@@ -85,18 +85,13 @@ public class EditCameraDialog extends DialogFragment {
 
     }
 
-    /**
-     * Called when the DialogFragment is ready to create the dialog.
-     * Inflate the fragment. Get the edited camera.
-     * Initialize the UI objects and display the camera's information.
-     * Add listeners to Buttons to open new dialogs to change the camera's settings.
-     *
-     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
-     * @return inflated dialog ready to be shown
-     */
     @NonNull
     @Override
     public Dialog onCreateDialog (final Bundle SavedInstanceState) {
+
+        // Inflate the fragment. Get the edited camera.
+        // Initialize the UI objects and display the camera's information.
+        // Add listeners to Buttons to open new dialogs to change the camera's settings.
 
         final LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         // Here we can safely pass null, because we are inflating a layout for use in a dialog

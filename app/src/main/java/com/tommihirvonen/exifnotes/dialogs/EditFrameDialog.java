@@ -316,20 +316,13 @@ public class EditFrameDialog extends DialogFragment {
         // Empty constructor required for DialogFragment
     }
 
-
-
-    /**
-     * Called when the DialogFragment is ready to create the dialog.
-     * Inflate the fragment. Get the edited frame and used camera.
-     * Initialize UI objects and display the frame's information.
-     * Add listeners to buttons to open new dialogs to change the frame's information.
-     *
-     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
-     * @return inflated dialog ready to be shown
-     */
     @NonNull
     @Override
     public Dialog onCreateDialog (final Bundle SavedInstanceState) {
+
+        // Inflate the fragment. Get the edited frame and used camera.
+        // Initialize UI objects and display the frame's information.
+        // Add listeners to buttons to open new dialogs to change the frame's information.
 
         final String title = getArguments().getString(ExtraKeys.TITLE);
         final String positiveButton = getArguments().getString(ExtraKeys.POSITIVE_BUTTON);
@@ -675,8 +668,6 @@ public class EditFrameDialog extends DialogFragment {
         return dialog;
     }
 
-
-
     /**
      * Calculates progress as integer ranging from 0 to 100
      * from current focal length, minimum focal length and maximum focal length.
@@ -735,16 +726,7 @@ public class EditFrameDialog extends DialogFragment {
         frame.setFlashUsed(flashCheckBox.isChecked());
     }
 
-    /**
-     * Executed when an activity or fragment, which is started for result, sends an onActivityResult
-     * signal to this fragment.
-     *
-     * Handle LocationPickActivity, EditLensDialog or EditFilterDialog's result.
-     *
-     * @param requestCode the request code that was set for the intent
-     * @param resultCode the result code to tell whether the user picked ok or cancel
-     * @param data the extra data attached to the passed intent
-     */
+    @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
@@ -1152,9 +1134,6 @@ public class EditFrameDialog extends DialogFragment {
             updateApertureTextView();
         }
     }
-
-
-
 
     /**
      * Class used by this class AlertDialog class and its subclasses. Implemented for positive button

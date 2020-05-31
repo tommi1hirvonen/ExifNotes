@@ -10,11 +10,6 @@ class Filter : Gear, Parcelable {
 
     constructor() : super()
 
-    /**
-     * Constructs object from Parcel
-     *
-     * @param pc parcel object containing Filter's information
-     */
     private constructor(pc: Parcel) : super(pc)
 
     override fun writeToParcel(parcel: Parcel, i: Int) {
@@ -25,9 +20,6 @@ class Filter : Gear, Parcelable {
         return 0
     }
 
-    /**
-     * used to regenerate object, individually or as arrays
-     */
     companion object CREATOR : Parcelable.Creator<Filter> {
         override fun createFromParcel(parcel: Parcel): Filter {
             return Filter(parcel)

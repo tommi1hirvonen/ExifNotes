@@ -53,12 +53,6 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
 
     private boolean darkThemeEnabled = false;
 
-    /**
-     * Create the layout and activate location services.
-     *
-     * @param savedInstanceState passed to super.onCreate to execute necessary code to properly
-     *                           create the fragment
-     */
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
 
@@ -161,12 +155,10 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         }
     }
 
-    /**
-     * When resuming we have to change the UI colours again.
-     */
     @Override
     public void onResume(){
         super.onResume();
+        // When resuming we have to change the UI colours again.
         if (Utilities.isAppThemeDark(getBaseContext()) && !darkThemeEnabled ||
                 !Utilities.isAppThemeDark(getBaseContext()) && darkThemeEnabled) {
             recreate();
@@ -178,30 +170,22 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         Utilities.setStatusBarColor(this, secondaryColor);
     }
 
-    /**
-     * This function is called when MainActivity is started, in other words when the
-     * application is started. All the files created in FramesFragment.setShareIntentExportRoll
-     * in the application's external storage directory are deleted. This way we can keep
-     * the number of files stored to a minimum.
-     */
     @Override
     public void onStart(){
+        // This method is called when MainActivity is started, in other words when the
+        // application is started. All the files created in FramesFragment.setShareIntentExportRoll
+        // in the application's external storage directory are deleted. This way we can keep
+        // the number of files stored to a minimum.
+
         //Delete all the files created in FramesFragment.setShareIntentExportRoll
         final File externalStorageDir = getExternalFilesDir(null);
         Utilities.purgeDirectory(externalStorageDir);
         final File externalCacheDir = getExternalCacheDir();
         Utilities.purgeDirectory(externalCacheDir);
+
         super.onStart();
     }
 
-    /**
-     * This function is called when the user presses a roll in the RollsFragment.
-     * Create a new FramesFragment, pass the roll id and locationPermissionsGranted to it and bring it to the
-     * front of the stack.
-     * Also bring the shadow under the action bar to front.
-     *
-     * @param rollId The id of the roll that was pressed.
-     */
     @Override
     public void onRollSelected(final long rollId){
         final Intent framesActivityIntent = new Intent(this, FramesActivity.class);
@@ -211,9 +195,8 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         startActivityForResult(framesActivityIntent, FRAMES_ACTIVITY_REQUEST);
     }
 
-
     /**
-     * This function is called if GPS is not enabled.
+     * This method is called if GPS is not enabled.
      * Prompt the user to jump to settings to enable GPS.
      */
     private void showSettingsAlert(){
@@ -247,13 +230,6 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         alertDialog.show();
     }
 
-    /**
-     * When the user is asked for permission to use location services, handle the request result.
-     *
-     * @param requestCode The code of the request that was made.
-     * @param permissions not used
-     * @param grantResults An array which is empty if the request was cancelled.
-     */
     @Override
     public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions,
                                            @NonNull final int[] grantResults) {
@@ -275,20 +251,14 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         }
     }
 
-    /**
-     * PreferenceActivity and FramesActivity are started for result
-     * and the possible result is captured here.
-     *
-     * The result code is compared using bitwise operators to determine
-     * whether a new database was imported, the app theme was changed or both.
-     *
-     * @param requestCode passed to the activity when it is launched
-     * @param resultCode integer to be compared using bitwise operators to determine the action(s)
-     *                   that were taken in PreferenceActivity
-     * @param data not used
-     */
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        // PreferenceActivity and FramesActivity are started for result
+        // and the possible result is captured here.
+
+        // The result code is compared using bitwise operators to determine
+        // whether a new database was imported, the app theme was changed or both.
+
         switch (requestCode) {
 
             // Intentional fallthrough
@@ -314,5 +284,6 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
         // Call super in case the result was not handled here
         super.onActivityResult(requestCode, resultCode, data);
     }
+
 }
 

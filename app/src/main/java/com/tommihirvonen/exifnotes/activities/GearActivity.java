@@ -63,11 +63,7 @@ public class GearActivity extends AppCompatActivity {
     private static final int POSITION_FILTERS = 2;
     private static final int POSITION_FILMS = 3;
 
-    /**
-     * Inflates the activity, sets the UI, ViewPager and TabLayout.
-     *
-     * @param savedInstanceState {@inheritDoc}
-     */
+    // Inflate the activity, set the UI, ViewPager and TabLayout.
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
 
@@ -101,7 +97,7 @@ public class GearActivity extends AppCompatActivity {
         viewPager.setCurrentItem(prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, POSITION_CAMERAS));
     }
 
-    /**
+    /*
      * Saves the index of the current fragment so that when returning to this activity,
      * it will resume from the same fragment.
      */
@@ -125,12 +121,6 @@ public class GearActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    /**
-     * Handle home as up press event.
-     *
-     * @param item {@inheritDoc}
-     * @return call to super
-     */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
 
@@ -351,22 +341,13 @@ public class GearActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-    /**
-     * Puts the current ViewPager's index to outState.
-     *
-     * @param outState used to store the current index of ViewPager
-     */
     @Override
     public void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(POSITION, tabLayout.getSelectedTabPosition());
     }
 
-    /**
-     * Gets the displayed fragment's index from savedInstanceState
-     *
-     * @param savedInstanceState used to store the current index of ViewPager
-     */
+    // Gets the displayed fragment's index from savedInstanceState
     @Override
     protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -398,6 +379,10 @@ public class GearActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Manages the fragments inside GearActivity.
+     * This class is also attached to the TabLayout used to switch between the fragments.
+     */
     private class PagerAdapter extends FragmentPagerAdapter {
 
         private static final int PAGE_COUNT = 4;

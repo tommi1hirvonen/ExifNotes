@@ -68,14 +68,6 @@ public class UIColorDialogPreference extends DialogPreference {
         this.index = index;
     }
 
-    /**
-     * Called before the constructor to get the default value from XML
-     * if the preference hasn't been set.
-     *
-     * @param a array of attributes
-     * @param index_ index to the default value in the array
-     * @return string containing the default value
-     */
     @Override
     protected Object onGetDefaultValue(final TypedArray a, final int index_) {
         return a.getString(index_);

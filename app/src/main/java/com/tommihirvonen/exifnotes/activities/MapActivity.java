@@ -58,7 +58,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * MapActivity displays all the frames in the user's database on a map.
+ * Activity to display all the frames from a list of rolls on a map.
  */
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -98,11 +98,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private RollMarkerAdapter adapter;
 
-    /**
-     * Sets up the activity's layout and view and reads all the rolls from the database.
-     *
-     * @param savedInstanceState if not null, then the activity is continued
-     */
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
 
@@ -200,12 +195,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         overridePendingTransition(R.anim.nothing, R.anim.exit_to_right);
     }
 
-    /**
-     * Inflate the menu
-     *
-     * @param menu the menu to be inflated
-     * @return super class to execute code for the menu to work properly.
-     */
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -244,12 +233,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return super.onPrepareOptionsMenu(menu);
     }
 
-    /**
-     * Handles the home as up press event.
-     *
-     * @param item {@inheritDoc}
-     * @return call to super
-     */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
@@ -313,11 +296,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Puts a dummy boolean in outState so that it is not null.
-     *
-     * @param outState used to store the dummy boolean
-     */
     @Override
     public void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -326,18 +304,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         outState.putBoolean(ExtraKeys.CONTINUE, true);
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     *
-     * In this case, draw markers for all the frames in the user's database.
-     *
-     * @param googleMap {@inheritDoc}
-     */
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         googleMap_ = googleMap;
@@ -368,6 +334,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
+    /**
+     * TODO: Add JavaDoc
+     */
     private void updateSelectedRolls() {
         selectedRolls.clear();
         int i = 0;
@@ -385,6 +354,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         adapter.notifyDataSetChanged();
     }
 
+    /**
+     * TODO: Add JavaDoc
+     */
     private void updateMarkers() {
         for (Marker marker : markerList) {
             marker.remove();
@@ -464,6 +436,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         editor.apply();
     }
 
+    /**
+     * TODO: Add JavaDoc
+     */
     private class InfoWindowAdapterMultipleRolls implements GoogleMap.InfoWindowAdapter {
         @Override
         public View getInfoWindow(Marker marker) {
@@ -506,6 +481,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * TODO: Add JavaDoc
+     */
     private class InfoWindowAdapterSingleRoll implements GoogleMap.InfoWindowAdapter {
         @Override
         public View getInfoWindow(Marker marker) {
@@ -539,6 +517,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * TODO: Add JavaDoc
+     */
     private class OnInfoWindowClickListener implements GoogleMap.OnInfoWindowClickListener {
         @Override
         public void onInfoWindowClick(Marker marker) {
@@ -570,6 +551,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * TODO: Add JavaDoc
+     *
+     * @param context TODO: Add JavaDoc
+     * @param id TODO: Add JavaDoc
+     * @return TODO: Add JavaDoc
+     */
     private Bitmap getBitmapFromVectorDrawable(final Context context, @DrawableRes final int id) {
         final Drawable drawable = ContextCompat.getDrawable(context, id);
         final Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
@@ -580,6 +568,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return bitmap;
     }
 
+    /**
+     * TODO: Add JavaDoc
+     *
+     * @param bitmap TODO: Add JavaDoc
+     * @param hue TODO: Add JavaDoc
+     * @return TODO: Add JavaDoc
+     */
     private Bitmap setBitmapHue(final Bitmap bitmap, final float hue){
         final int width = bitmap.getWidth();
         final int height = bitmap.getHeight();
@@ -595,6 +590,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return bitmap;
     }
 
+    /**
+     * TODO: Add JavaDoc
+     */
     private static class RollMarkerAdapter extends ArrayAdapter<Pair<Roll, Bitmap>> {
 
         private List<Pair<Roll, Bitmap>> rollList;
@@ -638,7 +636,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
     }
-    
+
+    /**
+     * TODO: Add JavaDoc
+     *
+     * @return TODO: Add JavaDoc
+     */
     private List<Bitmap> getMarkerBitmapList() {
         final List<Bitmap> bitmaps = new ArrayList<>();
         bitmaps.add(0, getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red));
@@ -663,6 +666,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return bitmaps;
     }
 
+    /**
+     * TODO: Add JavaDoc
+     *
+     * @param <T>
+     * @param <U>
+     */
     private static class Pair<T, U> {
         T first;
         U second;

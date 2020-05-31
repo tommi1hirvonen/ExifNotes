@@ -82,13 +82,6 @@ class Roll : Parcelable {
         this.archived = input > 0
     }
 
-    //METHODS TO IMPLEMENT THE PARCELABLE CLASS TO PASS OBJECT INSIDE INTENTS
-
-    /**
-     * Constructs object from Parcel
-     *
-     * @param pc parcel object containing Camera's information
-     */
     private constructor(pc: Parcel) {
         this.id = pc.readLong()
         this.name = pc.readString()
@@ -104,21 +97,10 @@ class Roll : Parcelable {
         this.developed = pc.readString()?.let { DateTime(it) }
     }
 
-    /**
-     * Not used
-     *
-     * @return not used
-     */
     override fun describeContents(): Int {
         return 0
     }
 
-    /**
-     * Writes this object's members to a Parcel given as argument
-     *
-     * @param parcel Parcel which should be written with this object's members
-     * @param i not used
-     */
     override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeLong(id)
         parcel.writeString(name)
@@ -134,7 +116,7 @@ class Roll : Parcelable {
         parcel.writeString(developed.toString())
     }
 
-        companion object CREATOR : Parcelable.Creator<Roll> {
+    companion object CREATOR : Parcelable.Creator<Roll> {
         override fun createFromParcel(parcel: Parcel): Roll {
             return Roll(parcel)
         }
@@ -143,4 +125,5 @@ class Roll : Parcelable {
             return arrayOfNulls(size)
         }
     }
+
 }

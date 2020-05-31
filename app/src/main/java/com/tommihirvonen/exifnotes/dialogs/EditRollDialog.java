@@ -112,15 +112,6 @@ public class EditRollDialog extends DialogFragment {
 
     }
 
-    /**
-     * Called when the DialogFragment is ready to create the dialog.
-     * Inflate the fragment. Get the edited roll and list of cameras.
-     * Initialize the UI objects and display the roll's information.
-     * Add listeners to buttons to open new dialogs to change the roll's information.
-     *
-     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
-     * @return inflated dialog ready to be shown
-     */
     @NonNull
     @Override
     public Dialog onCreateDialog (final Bundle SavedInstanceState) {
@@ -529,16 +520,7 @@ public class EditRollDialog extends DialogFragment {
         return dialog;
     }
 
-    /**
-     * Executed when an activity or fragment, which is started for result, sends an onActivityResult
-     * signal to this fragment.
-     *
-     * Handle EditCameraDialog's result.
-     *
-     * @param requestCode the request code that was set for the intent
-     * @param resultCode the result code to tell whether the user picked ok or cancel
-     * @param data the extra data attached to the passed intent
-     */
+    @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
 

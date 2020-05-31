@@ -46,13 +46,6 @@ public class EditFilterDialog extends DialogFragment {
 
     }
 
-    /**
-     * Called when the DialogFragment is ready to create the Dialog.
-     * Inflate the dialog. Set the EditText fields and buttons.
-     *
-     * @param SavedInstanceState possible saved state in case the DialogFragment was resumed
-     * @return inflated dialog ready to be shown
-     */
     @NonNull
     @Override
     public Dialog onCreateDialog (final Bundle SavedInstanceState) {

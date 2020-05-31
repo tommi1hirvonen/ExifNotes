@@ -417,9 +417,23 @@ public final class ComplementaryPicturesManager {
          * when the AsyncTask has finished.
          */
         public interface ProgressListener {
+            /**
+             *  TODO: Add JavaDoc
+             * @param progressPercentage TODO: Add JavaDoc
+             * @param completed TODO: Add JavaDoc
+             * @param total TODO: Add JavaDoc
+             */
             void onProgressChanged(int progressPercentage, int completed, int total);
+
+            /**
+             * TODO: Add JavaDoc
+             * @param success TODO: Add JavaDoc
+             * @param completedEntries TODO: Add JavaDoc
+             * @param zipFile TODO: Add JavaDoc
+             */
             void onCompleted(boolean success, int completedEntries, File zipFile);
         }
+
         /**
          * Constructor
          *
@@ -432,10 +446,11 @@ public final class ComplementaryPicturesManager {
             this.zipFile = zipFile;
             this.delegate = delegate;
         }
+
         /**
-         * Run on a background thread. Zip the files.
+         * {@inheritDoc}
          *
-         * @param voids ignore
+         * @param voids ignored
          * @return true if the zipping was successful, false if not
          */
         @Override
@@ -472,23 +487,22 @@ public final class ComplementaryPicturesManager {
             }
             return true;
         }
-        /**
-         * Run on the UI thread. Pass the progress percentage to the implementing class's interface.
-         *
-         * @param values ignore
-         */
+
         @Override
         protected void onProgressUpdate(final Void... values) {
+            // Pass the progress percentage to the implementing class's interface.
             delegate.onProgressChanged((int) ((float) completedEntries / (float) files.length * 100f),
                     completedEntries, files.length);
         }
+
         /**
-         * Run on the UI thread. Tell the implementing class, that the task has been finished.
+         * {@inheritDoc}
          *
          * @param bool true if the unzipping was successful, false if not
          */
         @Override
         protected void onPostExecute(final Boolean bool) {
+            // Tell the implementing class, that the task has been finished.
             delegate.onCompleted(bool, completedEntries, zipFile);
         }
     }
@@ -526,9 +540,22 @@ public final class ComplementaryPicturesManager {
          * when the AsyncTask has finished.
          */
         public interface ProgressListener {
+            /**
+             *  TODO: Add JavaDoc
+             * @param progressPercentage TODO: Add JavaDoc
+             * @param completed TODO: Add JavaDoc
+             * @param total TODO: Add JavaDoc
+             */
             void onProgressChanged(int progressPercentage, int completed, int total);
+
+            /**
+             *  TODO: Add JavaDoc
+             * @param success TODO: Add JavaDoc
+             * @param completedEntries TODO: Add JavaDoc
+             */
             void onCompleted(boolean success, int completedEntries);
         }
+
         /**
          * Constructor
          *
@@ -541,8 +568,9 @@ public final class ComplementaryPicturesManager {
             this.targetDirectory = targetDirectory;
             this.delegate = delegate;
         }
+
         /**
-         * Run on a background thread. Unzip the zip file.
+         * {@inheritDoc}
          *
          * @param voids ignore
          * @return true if the unzipping was successful, false if not
@@ -588,23 +616,22 @@ public final class ComplementaryPicturesManager {
             }
             return true;
         }
-        /**
-         * Run on the UI thread. Pass the progress percentage to the implementing class's interface.
-         *
-         * @param voids ignore
-         */
+
         @Override
         protected void onProgressUpdate(final Void... voids) {
+            // Pass the progress percentage to the implementing class's interface.
             delegate.onProgressChanged((int) ((float) completedEntries / (float) totalEntries * 100f),
                     completedEntries, totalEntries);
         }
+
         /**
-         * Run on the UI thread. Tell the implementing class, that the task has been finished.
+         * {@inheritDoc}
          *
          * @param bool true if the unzipping was successful, false if not
          */
         @Override
         protected void onPostExecute(final Boolean bool) {
+            // Tell the implementing class, that the task has been finished.
             delegate.onCompleted(bool, completedEntries);
         }
     }

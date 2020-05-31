@@ -35,11 +35,6 @@ class FilmStock : Gear, Parcelable {
         isPreadded = input == 1
     }
 
-    /**
-     * Constructs object from Parcel
-     *
-     * @param pc parcel object containing film stock's information
-     */
     private constructor(pc : Parcel) {
         this.id = pc.readLong()
         this.make = pc.readString()
@@ -50,12 +45,6 @@ class FilmStock : Gear, Parcelable {
         this.isPreadded = pc.readInt() == 1
     }
 
-    /**
-     * Writes this object's members to a Parcel given as argument
-     *
-     * @param parcel Parcel which should be written with this object's members
-     * @param i not used
-     */
     override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeLong(id)
         parcel.writeString(make)
@@ -66,9 +55,6 @@ class FilmStock : Gear, Parcelable {
         parcel.writeInt(if (isPreadded) 1 else 0)
     }
 
-    /**
-     * Not used
-     */
     override fun describeContents(): Int {
         return 0
     }
@@ -82,6 +68,5 @@ class FilmStock : Gear, Parcelable {
             return arrayOfNulls(size)
         }
     }
-
 
 }

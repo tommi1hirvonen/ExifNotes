@@ -66,13 +66,10 @@ public class PreferenceActivity extends AppCompatActivity implements
         return resultCode;
     }
 
-    /**
-     * Set the UI, add listeners.
-     *
-     * @param savedInstanceState {@inheritDoc}
-     */
     @Override
     protected void onPostCreate(final Bundle savedInstanceState) {
+
+        // Set the UI and add listeners.
 
         overridePendingTransition(R.anim.enter_from_right, R.anim.hold);
 
@@ -92,7 +89,7 @@ public class PreferenceActivity extends AppCompatActivity implements
         final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());
         final int secondaryColor = Utilities.getSecondaryUiColor(getBaseContext());
 
-        getSupportActionBar().hide();
+        if (getSupportActionBar() != null) getSupportActionBar().hide();
 
         prefs.registerOnSharedPreferenceChangeListener(this);
 
@@ -133,13 +130,6 @@ public class PreferenceActivity extends AppCompatActivity implements
         outState.putInt(ExtraKeys.RESULT_CODE, resultCode);
     }
 
-
-    /**
-     * Update the UI color when SharedPreferences are changed.
-     *
-     * @param sharedPreferences {@inheritDoc}
-     * @param key {@inheritDoc}
-     */
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         final int primaryColor = Utilities.getPrimaryUiColor(getBaseContext());

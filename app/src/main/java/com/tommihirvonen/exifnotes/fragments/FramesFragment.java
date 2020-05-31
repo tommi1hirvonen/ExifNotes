@@ -200,13 +200,6 @@ public class FramesFragment extends Fragment implements
      */
     private ActionMode actionMode;
 
-    /**
-     * Called when the fragment is created.
-     * Get the frames from the roll and enable location updating. Tell the fragment
-     * that it has an options menu so that we can handle OptionsItemSelected events.
-     *
-     * @param savedInstanceState saved state of the Fragment
-     */
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -264,14 +257,6 @@ public class FramesFragment extends Fragment implements
         requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true);
     }
 
-    /**
-     * Inflate the fragment. Set the UI objects and display all the frames in RecyclerView.
-     *
-     * @param inflater not used
-     * @param container not used
-     * @param savedInstanceState not used
-     * @return The inflated view
-     */
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
@@ -319,24 +304,12 @@ public class FramesFragment extends Fragment implements
         return view;
     }
 
-    /**
-     * Inflate the action bar many layout for FramesFragment.
-     *
-     * @param menu the menu to be inflated
-     * @param inflater the MenuInflater from Activity
-     */
     @Override
     public void onCreateOptionsMenu(@NonNull final Menu menu, final MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.menu_frames_fragment, menu);
     }
 
-    /**
-     * Called after onCreateOptionsMenu() to prepare the menu.
-     * Check the correct sort option.
-     *
-     * @param menu reference to the menu that is to be prepared
-     */
     @Override
     public void onPrepareOptionsMenu(@NonNull final Menu menu) {
         switch (sortMode) {
@@ -359,12 +332,6 @@ public class FramesFragment extends Fragment implements
         super.onPrepareOptionsMenu(menu);
     }
 
-    /**
-     * Handle events when the user selects an action from the options menu.
-     *
-     * @param item selected menu item.
-     * @return true because the item selection was consumed/handled.
-     */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item){
         switch (item.getItemId()) {
@@ -591,13 +558,6 @@ public class FramesFragment extends Fragment implements
         return shareIntent;
     }
 
-
-    /**
-     * Called when FloatingActionButton is pressed.
-     * Show the user the FrameInfoDialog to add a new frame.
-     *
-     * @param v The view which was clicked.
-     */
     @Override
     public void onClick(final View v) {
         if (v.getId() == R.id.fab) {
@@ -701,13 +661,6 @@ public class FramesFragment extends Fragment implements
         dialog.show(getParentFragmentManager(), EditFrameDialog.TAG);
     }
 
-    /**
-     * Called when the user is done editing or adding a frame and closes the dialog.
-     *
-     * @param requestCode the request code that was set for the intent.
-     * @param resultCode the result code to tell whether the user picked ok or cancel
-     * @param data the extra data attached to the passed Intent
-     */
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
@@ -878,13 +831,6 @@ public class FramesFragment extends Fragment implements
         }
     }
 
-    /**
-     * Called when a frame is pressed.
-     * if action mode is enabled, add the pressed item to selected items.
-     * Otherwise show the EditFrameDialog.
-     *
-     * @param position position of the item in the RecyclerView
-     */
     @Override
     public void onItemClick(final int position) {
         if (frameAdapter.getSelectedItemCount() > 0 || actionMode != null) {
@@ -894,11 +840,6 @@ public class FramesFragment extends Fragment implements
         }
     }
 
-    /**
-     * When an item is long pressed, always add the pressed item to selected items.
-     *
-     * @param position position of the item in FrameAdapter
-     */
     @Override
     public void onItemLongClick(final int position) {
         enableActionMode(position);
@@ -927,14 +868,6 @@ public class FramesFragment extends Fragment implements
      */
     private class ActionModeCallback implements ActionMode.Callback {
 
-        /**
-         * Called when the ActionMode is started.
-         * Inflate the menu and set the visibility of some menu items.
-         *
-         * @param mode {@inheritDoc}
-         * @param menu {@inheritDoc}
-         * @return {@inheritDoc}
-         */
         @Override
         public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
             // Set the status bar color to be dark grey to complement the grey action mode toolbar.
@@ -945,25 +878,11 @@ public class FramesFragment extends Fragment implements
             return true;
         }
 
-        /**
-         * Called to refresh the ActionMode menu whenever it is invalidated.
-         *
-         * @param mode {@inheritDoc}
-         * @param menu {@inheritDoc}
-         * @return {@inheritDoc}
-         */
         @Override
         public boolean onPrepareActionMode(final ActionMode mode, final Menu menu) {
             return false;
         }
 
-        /**
-         * Called when the user presses on an action menu item.
-         *
-         * @param mode {@inheritDoc}
-         * @param item {@inheritDoc}
-         * @return {@inheritDoc}
-         */
         @Override
         public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
             // Get the positions in the frameList of selected items.
@@ -1041,11 +960,6 @@ public class FramesFragment extends Fragment implements
             }
         }
 
-        /**
-         * Called when an action mode is about to be exited and destroyed.
-         *
-         * @param mode {@inheritDoc}
-         */
         @Override
         public void onDestroyActionMode(final ActionMode mode) {
             frameAdapter.clearSelections();
@@ -1088,7 +1002,7 @@ public class FramesFragment extends Fragment implements
                     // Do nothing
                 });
                 setPositiveButton(R.string.OK, (dialogInterface, i) -> {
-                    final int change = Integer.valueOf(
+                    final int change = Integer.parseInt(
                             // Replace the plus sign because on pre L devices this seems to cause a crash
                             displayedValues.get(numberPicker.getValue()).replace("+", "")
                     );
@@ -1129,9 +1043,6 @@ public class FramesFragment extends Fragment implements
         super.onStop();
     }
 
-    /**
-     * When the fragment is paused also pause location updates.
-     */
     @Override
     public void onPause() {
         super.onPause();
@@ -1149,9 +1060,6 @@ public class FramesFragment extends Fragment implements
             LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(locationCallback);
     }
 
-    /**
-     * When the fragment is resumed continue location updates and recolour the FloatingActionButton.
-     */
     @Override
     public void onResume() {
         super.onResume();
@@ -1201,11 +1109,6 @@ public class FramesFragment extends Fragment implements
         }
     }
 
-    /**
-     * Called when the Google API is connected.
-     *
-     * @param bundle not used
-     */
     @Override
     public void onConnected(final Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(getActivity(),
@@ -1228,11 +1131,6 @@ public class FramesFragment extends Fragment implements
         }
     }
 
-    /**
-     * Called when the connection to the Google API is suspended
-     *
-     * @param i not used
-     */
     @Override
     public void onConnectionSuspended(final int i) {
         //Added check to make sure googleApiClient is not null.
@@ -1258,11 +1156,6 @@ public class FramesFragment extends Fragment implements
      */
     private boolean resolvingError = false;
 
-    /**
-     * Called if the connection to the Google API has failed. Try to resolve the error.
-     *
-     * @param result describes if the connection was successful
-     */
     @Override
     public void onConnectionFailed(@NonNull final ConnectionResult result) {
         if (result.hasResolution() && !resolvingError) {
@@ -1317,20 +1210,11 @@ public class FramesFragment extends Fragment implements
          */
         public ErrorDialogFragment() { }
 
-        /**
-         * {@inheritDoc}
-         * @param outState
-         */
         @Override
         public void onSaveInstanceState(@NonNull final Bundle outState){
             setTargetFragment(null, -1);
         }
 
-        /**
-         * {@inheritDoc}
-         * @param savedInstanceState
-         * @return
-         */
         @NonNull
         @Override
         public Dialog onCreateDialog(final Bundle savedInstanceState) {
@@ -1345,11 +1229,6 @@ public class FramesFragment extends Fragment implements
                     this.getActivity(), errorCode, REQUEST_RESOLVE_ERROR);
         }
 
-        /**
-         * Pass the onDismiss message to the FramesFragment
-         *
-         * @param dialog {@inheritDoc}
-         */
         @Override
         public void onDismiss(@NonNull final DialogInterface dialog) {
             if (getActivity() == null) return;

@@ -161,13 +161,6 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
         setHasStableIds(true);
     }
 
-    /**
-     * Invoked by LayoutManager to create new Views.
-     *
-     * @param parent view's parent ViewGroup
-     * @param viewType not used
-     * @return inflated view
-     */
     @NonNull
     @Override
     public FrameAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
@@ -176,14 +169,6 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
         return new ViewHolder(view);
     }
 
-    /**
-     * Invoked by LayoutManager to replace the contents of a View.
-     * Here we get the element from our dataset at the specified position
-     * and set the ViewHolder views to display said elements data.
-     *
-     * @param holder reference to the recyclable ViewHolder
-     * @param position position of the current item
-     */
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Frame frame = frameList.get(position);
@@ -256,11 +241,6 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
         }
     }
 
-    /**
-     * Method to get the item count of the FrameAdapter.
-     *
-     * @return the size of the main frameList
-     */
     @Override
     public int getItemCount() {
         return frameList.size();
@@ -350,12 +330,7 @@ public class FrameAdapter extends RecyclerView.Adapter<FrameAdapter.ViewHolder> 
         return items;
     }
 
-    /**
-     * Implemented because hasStableIds has been set to true.
-     *
-     * @param position position of the item
-     * @return stable id
-     */
+    // Implemented because hasStableIds has been set to true.
     @Override
     public long getItemId(final int position) {
         return frameList.get(position).getId();

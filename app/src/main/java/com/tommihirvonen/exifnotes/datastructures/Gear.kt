@@ -33,13 +33,6 @@ abstract class Gear : Parcelable {
     val name: String
         get() = this.make + " " + this.model
 
-    /**
-     * Method used to compare two instances of Gear.
-     * Used when a collection of Gears is being sorted.
-     *
-     * @param other object that is an instance of Gear
-     * @return true if the two instances are copies of each other
-     */
     override fun equals(other: Any?): Boolean {
         val gear: Gear
         if (other is Gear)
@@ -49,32 +42,16 @@ abstract class Gear : Parcelable {
         return gear.id == this.id && gear.make == this.make && gear.model == this.model
     }
 
-    /**
-     * Constructs Gear from Parcel
-     *
-     * @param pc Parcel object containing Gear's information
-     */
     protected constructor(pc: Parcel) {
         this.id = pc.readLong()
         this.make = pc.readString()
         this.model = pc.readString()
     }
 
-    /**
-     * Required by the Parcelable interface. Not used.
-     *
-     * @return 0
-     */
     override fun describeContents(): Int {
         return 0
     }
 
-    /**
-     * Writes this object's members to a Parcel given as argument
-     *
-     * @param parcel Parcel which should be written with this object's members
-     * @param i not used
-     */
     override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeLong(id)
         parcel.writeString(make)

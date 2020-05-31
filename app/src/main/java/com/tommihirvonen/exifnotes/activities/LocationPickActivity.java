@@ -42,7 +42,7 @@ import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.Utilities;
 
 /**
- * LocationPickActivity allows the user to select a location for a frame on a map.
+ * Allows the user to select a location for a frame on a map.
  */
 public class LocationPickActivity extends AppCompatActivity implements
         OnMapReadyCallback,
@@ -100,11 +100,6 @@ public class LocationPickActivity extends AppCompatActivity implements
 
     private FusedLocationProviderClient fusedLocationClient;
 
-    /**
-     * Inflate the activity, set the UI and get the initial location.
-     *
-     * @param savedInstanceState if not null then the activity is continued
-     */
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
 
@@ -150,7 +145,7 @@ public class LocationPickActivity extends AppCompatActivity implements
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        if (mapFragment != null) mapFragment.getMapAsync(this);
 
         googleMapsApiKey = getResources().getString(R.string.google_maps_key);
 
@@ -200,12 +195,6 @@ public class LocationPickActivity extends AppCompatActivity implements
 
     }
 
-    /**
-     * Inflate the options menu with a search bar for location search functionality.
-     *
-     * @param menu {@inheritDoc}
-     * @return call to super
-     */
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_location_pick, menu);
@@ -237,12 +226,6 @@ public class LocationPickActivity extends AppCompatActivity implements
         return super.onPrepareOptionsMenu(menu);
     }
 
-    /**
-     * Handle home as up press event.
-     *
-     * @param item {@inheritDoc}
-     * @return call to super
-     */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
 
@@ -290,18 +273,6 @@ public class LocationPickActivity extends AppCompatActivity implements
         editor.apply();
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     *
-     * In this case, add marker to display the currently selected location.
-     *
-     * @param googleMap {@inheritDoc}
-     */
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         googleMap_ = googleMap;
@@ -341,11 +312,6 @@ public class LocationPickActivity extends AppCompatActivity implements
         }
     }
 
-    /**
-     * When the user presses on the map, move or add marker to the selected location.
-     *
-     * @param latLng {@inheritDoc}
-     */
     @Override
     public void onMapClick(final LatLng latLng) {
 
@@ -373,15 +339,11 @@ public class LocationPickActivity extends AppCompatActivity implements
         latLngLocation = latLng;
     }
 
-    /**
-     * When the user enters the search string, use GeocodingAsyncTask to get
-     * the formatted address and coordinates. Also move the marker if the result was valid.
-     *
-     * @param query the string the user wrote to the search field
-     * @return always false
-     */
     @Override
     public boolean onQueryTextSubmit(final String query) {
+        // When the user enters the search string, use GeocodingAsyncTask to get
+        // the formatted address and coordinates. Also move the marker if the result was valid.
+
         formattedAddressTextView.setText("");
         progressBar.setVisibility(View.VISIBLE);
         new GeocodingAsyncTask((output, formatted_address) -> {
@@ -412,24 +374,12 @@ public class LocationPickActivity extends AppCompatActivity implements
         return false;
     }
 
-    /**
-     * Not used
-     *
-     * @param newText {@inheritDoc}
-     * @return always false
-     */
     @Override
     public boolean onQueryTextChange(final String newText) {
         // Do nothing
         return false;
     }
 
-    /**
-     * Handle the FloatingActionButton press event, confirm the location.
-     * Break, if no location was set.
-     *
-     * @param v {@inheritDoc}
-     */
     @Override
     public void onClick(final View v) {
         if (v.getId() == R.id.fab) {
@@ -456,14 +406,10 @@ public class LocationPickActivity extends AppCompatActivity implements
         }
     }
 
-    /**
-     * Store the currently set location to outState.
-     *
-     * @param outState used to store the currently set location
-     */
     @Override
     public void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
+        // Store the currently set location to outState.
         if (latLngLocation != null) {
             final String latitude = "" + latLngLocation.latitude;
             final String longitude = "" + latLngLocation.longitude;
