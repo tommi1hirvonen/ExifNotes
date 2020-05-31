@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -334,9 +333,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    /**
-     * TODO: Add JavaDoc
-     */
     private void updateSelectedRolls() {
         selectedRolls.clear();
         int i = 0;
@@ -354,9 +350,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         adapter.notifyDataSetChanged();
     }
 
-    /**
-     * TODO: Add JavaDoc
-     */
     private void updateMarkers() {
         for (Marker marker : markerList) {
             marker.remove();
@@ -436,9 +429,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         editor.apply();
     }
 
-    /**
-     * TODO: Add JavaDoc
-     */
     private class InfoWindowAdapterMultipleRolls implements GoogleMap.InfoWindowAdapter {
         @Override
         public View getInfoWindow(Marker marker) {
@@ -449,7 +439,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (marker.getTag() instanceof Frame) {
                 final Frame frame = (Frame) marker.getTag();
                 final Roll roll = database.getRoll(frame.getRollId());
-                final Camera camera = roll.getCameraId() > 0 ?
+                final Camera camera = roll != null && roll.getCameraId() > 0 ?
                         database.getCamera(roll.getCameraId()) :
                         null;
                 final Lens lens = frame.getLensId() > 0 ?
@@ -463,7 +453,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 final TextView dateTimeTextView = view.findViewById(R.id.date_time);
                 final TextView lensTextView = view.findViewById(R.id.lens);
                 final TextView noteTextView = view.findViewById(R.id.note);
-                rollTextView.setText(roll.getName());
+                rollTextView.setText(roll != null ? roll.getName() : "");
                 cameraTextView.setText(
                         camera == null ? getString(R.string.NoCamera) : camera.getName()
                 );
@@ -481,9 +471,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    /**
-     * TODO: Add JavaDoc
-     */
     private class InfoWindowAdapterSingleRoll implements GoogleMap.InfoWindowAdapter {
         @Override
         public View getInfoWindow(Marker marker) {
@@ -517,9 +504,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    /**
-     * TODO: Add JavaDoc
-     */
     private class OnInfoWindowClickListener implements GoogleMap.OnInfoWindowClickListener {
         @Override
         public void onInfoWindowClick(Marker marker) {
@@ -551,15 +535,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    /**
-     * TODO: Add JavaDoc
-     *
-     * @param context TODO: Add JavaDoc
-     * @param id TODO: Add JavaDoc
-     * @return TODO: Add JavaDoc
-     */
-    private Bitmap getBitmapFromVectorDrawable(final Context context, @DrawableRes final int id) {
-        final Drawable drawable = ContextCompat.getDrawable(context, id);
+    private @Nullable Bitmap getMarkerBitmap(final Context context) {
+        final Drawable drawable = ContextCompat.getDrawable(context, R.drawable.ic_marker_red);
+        if (drawable == null) return null;
         final Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
                 drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(bitmap);
@@ -568,13 +546,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return bitmap;
     }
 
-    /**
-     * TODO: Add JavaDoc
-     *
-     * @param bitmap TODO: Add JavaDoc
-     * @param hue TODO: Add JavaDoc
-     * @return TODO: Add JavaDoc
-     */
+    private @Nullable Bitmap getMarkerBitmap(final Context context, final float hue) {
+        final Bitmap bitmap = getMarkerBitmap(context);
+        if (bitmap != null) {
+            return setBitmapHue(bitmap, hue);
+        } else {
+            return null;
+        }
+    }
+
     private Bitmap setBitmapHue(final Bitmap bitmap, final float hue){
         final int width = bitmap.getWidth();
         final int height = bitmap.getHeight();
@@ -590,9 +570,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return bitmap;
     }
 
-    /**
-     * TODO: Add JavaDoc
-     */
     private static class RollMarkerAdapter extends ArrayAdapter<Pair<Roll, Bitmap>> {
 
         private List<Pair<Roll, Bitmap>> rollList;
@@ -637,40 +614,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    /**
-     * TODO: Add JavaDoc
-     *
-     * @return TODO: Add JavaDoc
-     */
     private List<Bitmap> getMarkerBitmapList() {
         final List<Bitmap> bitmaps = new ArrayList<>();
-        bitmaps.add(0, getBitmapFromVectorDrawable(this, R.drawable.ic_marker_red));
-        bitmaps.add(1, setBitmapHue(getBitmapFromVectorDrawable(this,
-                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_AZURE));
-        bitmaps.add(2, setBitmapHue(getBitmapFromVectorDrawable(this,
-                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_GREEN));
-        bitmaps.add(3, setBitmapHue(getBitmapFromVectorDrawable(this,
-                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_ORANGE));
-        bitmaps.add(4, setBitmapHue(getBitmapFromVectorDrawable(this,
-                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_YELLOW));
-        bitmaps.add(5, setBitmapHue(getBitmapFromVectorDrawable(this,
-                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_BLUE));
-        bitmaps.add(6, setBitmapHue(getBitmapFromVectorDrawable(this,
-                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_ROSE));
-        bitmaps.add(7, setBitmapHue(getBitmapFromVectorDrawable(this,
-                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_CYAN));
-        bitmaps.add(8, setBitmapHue(getBitmapFromVectorDrawable(this,
-                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_VIOLET));
-        bitmaps.add(9, setBitmapHue(getBitmapFromVectorDrawable(this,
-                R.drawable.ic_marker_red), BitmapDescriptorFactory.HUE_MAGENTA));
+        bitmaps.add(0, getMarkerBitmap(this));
+        bitmaps.add(1, getMarkerBitmap(this, BitmapDescriptorFactory.HUE_AZURE));
+        bitmaps.add(2, getMarkerBitmap(this, BitmapDescriptorFactory.HUE_GREEN));
+        bitmaps.add(3, getMarkerBitmap(this, BitmapDescriptorFactory.HUE_ORANGE));
+        bitmaps.add(4, getMarkerBitmap(this, BitmapDescriptorFactory.HUE_YELLOW));
+        bitmaps.add(5, getMarkerBitmap(this, BitmapDescriptorFactory.HUE_BLUE));
+        bitmaps.add(6, getMarkerBitmap(this, BitmapDescriptorFactory.HUE_ROSE));
+        bitmaps.add(7, getMarkerBitmap(this, BitmapDescriptorFactory.HUE_CYAN));
+        bitmaps.add(8, getMarkerBitmap(this, BitmapDescriptorFactory.HUE_VIOLET));
+        bitmaps.add(9, getMarkerBitmap(this, BitmapDescriptorFactory.HUE_MAGENTA));
         return bitmaps;
     }
 
     /**
-     * TODO: Add JavaDoc
+     * Helper class utilizing Java Generics to represent a pair of objects.
      *
-     * @param <T>
-     * @param <U>
+     * @param <T> object of type T placed in the first member of Pair
+     * @param <U> object of type U placed in the second member of Pair
      */
     private static class Pair<T, U> {
         T first;
