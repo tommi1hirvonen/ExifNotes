@@ -5,7 +5,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.tommihirvonen.exifnotes.R
 
-class FilmStock : Gear, Parcelable {
+class FilmStock : Gear, Parcelable, Comparable<Gear> {
 
     var iso: Int = 0
 

@@ -6,7 +6,7 @@ import android.os.Parcelable
 /**
  * The camera class holds the information of a camera.
  */
-class Camera : Gear {
+class Camera : Gear, Comparable<Gear> {
 
     constructor() : super()
 

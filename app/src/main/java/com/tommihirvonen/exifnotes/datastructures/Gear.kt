@@ -8,7 +8,7 @@ import android.os.Parcelable
  * Defines all common member variables and methods
  * as well as mandatory interfaces to implement.
  */
-abstract class Gear : Parcelable {
+abstract class Gear : Parcelable, Comparable<Gear> {
 
     constructor()
 
@@ -30,8 +30,7 @@ abstract class Gear : Parcelable {
     /**
      * @return make and model of the Gear concatenated
      */
-    val name: String
-        get() = this.make + " " + this.model
+    val name: String get() = this.make + " " + this.model
 
     override fun equals(other: Any?): Boolean {
         val gear: Gear
@@ -63,6 +62,10 @@ abstract class Gear : Parcelable {
         result = 31 * result + (make?.hashCode() ?: 0)
         result = 31 * result + (model?.hashCode() ?: 0)
         return result
+    }
+
+    override fun compareTo(other: Gear): Int {
+        return name.compareTo(other.name)
     }
 
 }

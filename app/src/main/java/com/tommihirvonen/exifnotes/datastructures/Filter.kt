@@ -6,7 +6,7 @@ import android.os.Parcelable
 /**
  * Filter class holds the information of a photographic filter.
  */
-class Filter : Gear, Parcelable {
+class Filter : Gear, Parcelable, Comparable<Gear> {
 
     constructor() : super()
 

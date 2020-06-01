@@ -104,7 +104,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
-            dialog.show(fragmentManager!!.beginTransaction(), null)
+            dialog.show(parentFragmentManager.beginTransaction(), null)
         }
     }
 
@@ -138,7 +138,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                     arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
                     arguments.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
                     dialog.arguments = arguments
-                    dialog.show(fragmentManager!!.beginTransaction(), null)
+                    dialog.show(parentFragmentManager.beginTransaction(), null)
                     return true
                 }
             }

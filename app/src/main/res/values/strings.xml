@@ -307,6 +307,7 @@
         -Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance\n
         -Replaced deprecated API calls\n
         -Bug fix: Edit icon would disappear when the user selects all rolls by pressing the "select all" icon\n
+        -Migrated code from Java to Kotlin\n
     </string>
     <string name="UseCustomValue">Use custom value</string>
     <string name="UsedCamera">Choose used camera</string>
@@ -320,6 +321,7 @@
         -Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance\n
         -Replaced deprecated API calls\n
         -Bug fix: Edit icon would disappear when the user selects all rolls by pressing the "select all" icon\n
+        -Migrated code from Java to Kotlin\n
         \n
         v1.14.1 2020-04-25:\n
         -Rolls can be marked as unloaded and developed with date and time\n

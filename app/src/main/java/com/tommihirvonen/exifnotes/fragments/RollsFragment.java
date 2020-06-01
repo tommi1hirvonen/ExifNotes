@@ -255,13 +255,12 @@ public class RollsFragment extends Fragment implements
             // Set the ListView to use the ArrayAdapter.
             mainRecyclerView.setAdapter(rollAdapter);
             // Notify the adapter to update itself.
-            rollAdapter.notifyDataSetChanged();
         } else {
             // rollAdapter still references the old rollList. Update its reference.
             rollAdapter.setRollList(rollList);
             // Notify the adapter to update itself
-            rollAdapter.notifyDataSetChanged();
         }
+        rollAdapter.notifyDataSetChanged();
         if (rollList.size() > 0) mainTextViewAnimateInvisible();
         else mainTextViewAnimateVisible();
     }

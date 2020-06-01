@@ -6,7 +6,7 @@ import android.os.Parcelable
 /**
  * Lens class holds the information of one lens.
  */
-class Lens : Gear, Parcelable {
+class Lens : Gear, Parcelable, Comparable<Gear> {
 
     constructor() : super()
 
