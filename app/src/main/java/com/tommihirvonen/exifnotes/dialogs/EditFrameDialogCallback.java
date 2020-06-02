@@ -55,7 +55,7 @@ public class EditFrameDialogCallback extends EditFrameDialog {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(new OnPositiveButtonClickListener(dialog) {
             @Override
-            public void onClick(final View v) {
+            public void onClick(@NonNull final View v) {
                 super.onClick(v);
                 // Return the new entered name to the calling activity
                 final Intent intent = new Intent();
