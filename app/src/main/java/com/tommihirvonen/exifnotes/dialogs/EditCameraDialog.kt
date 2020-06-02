@@ -239,9 +239,8 @@ class EditCameraDialog : DialogFragment() {
         // SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
         // so it doesn't need to deal with resizing
         // but just panned by the framework to ensure the current input focus is visible
-        if (dialog.window != null) {
-            dialog.window!!.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        }
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
         dialog.show()
 
         // We override the positive button onClick so that we can dismiss the dialog
@@ -304,18 +303,10 @@ class EditCameraDialog : DialogFragment() {
         maxShutterPicker.displayedValues = displayedShutterValues
         minShutterPicker.value = displayedShutterValues.size - 1
         maxShutterPicker.value = displayedShutterValues.size - 1
-        for (i in displayedShutterValues.indices) {
-            if (displayedShutterValues[i] == newMinShutter) {
-                minShutterPicker.value = i
-                break
-            }
-        }
-        for (i in displayedShutterValues.indices) {
-            if (displayedShutterValues[i] == newMaxShutter) {
-                maxShutterPicker.value = i
-                break
-            }
-        }
+        val initialMinValue = displayedShutterValues.indexOfFirst { it == newMinShutter }
+        if (initialMinValue != -1) minShutterPicker.value = initialMinValue
+        val initialMaxValue = displayedShutterValues.indexOfFirst { it == newMaxShutter }
+        if (initialMaxValue != -1) maxShutterPicker.value = initialMaxValue
     }
 
     /**

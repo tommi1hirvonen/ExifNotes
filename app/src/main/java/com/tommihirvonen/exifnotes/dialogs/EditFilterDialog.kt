@@ -60,9 +60,12 @@ class EditFilterDialog : DialogFragment() {
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, intent)
         }
         val dialog = alert.create()
-        if (dialog.window != null) {
-            dialog.window!!.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        }
+
+        // SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
+        // so it doesn't need to deal with resizing
+        // but just panned by the framework to ensure the current input focus is visible
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
         dialog.show()
 
         // We override the positive button onClick so that we can dismiss the dialog

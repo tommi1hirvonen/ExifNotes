@@ -127,28 +127,21 @@ class EditLensDialog : DialogFragment() {
             val checkedItem = newApertureIncrements
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(resources.getString(R.string.ChooseIncrements))
-            builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem
-            ) { dialogInterface: DialogInterface, i: Int ->
+            builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem) { dialogInterface: DialogInterface, i: Int ->
                 newApertureIncrements = i
                 apertureIncrementsTextView.text = resources.getStringArray(R.array.StopIncrements)[i]
 
-                //Shutter speed increments were changed, make update
                 //Check if the new increments include both min and max values.
                 //Otherwise reset them to null
-                var minFound = false
-                var maxFound = false
                 displayedApertureValues = when (newApertureIncrements) {
                     1 -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
                     2 -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
                     0 -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
                     else -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
                 }
-                for (string in displayedApertureValues) {
-                    if (!minFound && string == newMinAperture) minFound = true
-                    if (!maxFound && string == newMaxAperture) maxFound = true
-                    if (minFound && maxFound) break
-                }
-                //If either one wasn't found in the new values array, null them.
+                val minFound = displayedApertureValues.contains(newMinAperture)
+                val maxFound = displayedApertureValues.contains(newMaxAperture)
+                // If either one wasn't found in the new values array, null them.
                 if (!minFound || !maxFound) {
                     newMinAperture = null
                     newMaxAperture = null
@@ -288,12 +281,12 @@ class EditLensDialog : DialogFragment() {
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, intent)
         }
         val dialog = alert.create()
+
         // SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
         // so it doesn't need to deal with resizing
         // but just panned by the framework to ensure the current input focus is visible
-        if (dialog.window != null) {
-            dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        }
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
         dialog.show()
 
         // Override the positive button onClick so that we can dismiss the dialog
@@ -327,9 +320,7 @@ class EditLensDialog : DialogFragment() {
                 val intent = Intent()
                 intent.putExtra(ExtraKeys.LENS, lens)
                 dialog.dismiss()
-                targetFragment!!.onActivityResult(
-                        targetRequestCode, Activity.RESULT_OK, intent
-                )
+                targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
             }
         }
         return dialog
@@ -361,18 +352,10 @@ class EditLensDialog : DialogFragment() {
         maxAperturePicker.displayedValues = displayedApertureValues
         minAperturePicker.value = displayedApertureValues.size - 1
         maxAperturePicker.value = displayedApertureValues.size - 1
-        for (i in displayedApertureValues.indices) {
-            if (displayedApertureValues[i] == newMinAperture) {
-                minAperturePicker.value = i
-                break
-            }
-        }
-        for (i in displayedApertureValues.indices) {
-            if (displayedApertureValues[i] == newMaxAperture) {
-                maxAperturePicker.value = i
-                break
-            }
-        }
+        val initialMinValue = displayedApertureValues.indexOfFirst { it == newMinAperture }
+        if (initialMinValue != -1) minAperturePicker.value = initialMinValue
+        val initialMaxValue = displayedApertureValues.indexOfFirst { it == newMaxAperture }
+        if (initialMaxValue != -1) maxAperturePicker.value = initialMaxValue
     }
 
     /**
@@ -390,18 +373,11 @@ class EditLensDialog : DialogFragment() {
         maxFocalLengthPicker.maxValue = MAX_FOCAL_LENGTH
         minFocalLengthPicker.value = 50
         maxFocalLengthPicker.value = 50
-        for (i in 0..MAX_FOCAL_LENGTH) {
-            if (i == newMinFocalLength) {
-                minFocalLengthPicker.value = i
-                break
-            }
-        }
-        for (i in 0..MAX_FOCAL_LENGTH) {
-            if (i == newMaxFocalLength) {
-                maxFocalLengthPicker.value = i
-                break
-            }
-        }
+        val range = 0..MAX_FOCAL_LENGTH
+        val initialMinValue = range.indexOfFirst { it == newMinFocalLength }
+        if (initialMinValue != -1) minFocalLengthPicker.value = initialMinValue
+        val initialMaxValue = range.indexOfFirst { it == newMaxFocalLength }
+        if (initialMaxValue != -1) maxFocalLengthPicker.value = initialMaxValue
     }
 
     /**
