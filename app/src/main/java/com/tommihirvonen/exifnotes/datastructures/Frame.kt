@@ -156,7 +156,7 @@ class Frame : Parcelable {
         parcel.writeLong(id)
         parcel.writeLong(rollId)
         parcel.writeInt(count)
-        parcel.writeString(date.toString())
+        parcel.writeString(date?.toString()) // avoid passing "null" as string by using the safe call operator ?
         parcel.writeLong(lensId)
         parcel.writeString(shutter)
         parcel.writeString(aperture)

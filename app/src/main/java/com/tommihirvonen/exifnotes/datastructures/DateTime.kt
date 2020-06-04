@@ -47,7 +47,7 @@ class DateTime : Comparable<DateTime> {
             this.hour = hour.toInt()
             this.minute = minute.toInt()
         } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid dateTimeString argument. DateTime object parsing failed.")
+            throw IllegalArgumentException("Invalid dateTimeString argument: $dateTimeString")
         }
     }
 

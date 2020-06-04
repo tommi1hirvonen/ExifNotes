@@ -93,7 +93,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private List<Bitmap> markerBitmaps;
 
-    private BottomSheetBehavior bottomSheetBehavior;
+    private BottomSheetBehavior<View> bottomSheetBehavior;
 
     private RollMarkerAdapter adapter;
 

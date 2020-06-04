@@ -104,7 +104,7 @@ class Roll : Parcelable {
     override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeLong(id)
         parcel.writeString(name)
-        parcel.writeString(date.toString())
+        parcel.writeString(date?.toString()) // avoid passing "null" as string by using the safe call operator ?
         parcel.writeString(note)
         parcel.writeLong(cameraId)
         parcel.writeInt(iso)
@@ -112,8 +112,8 @@ class Roll : Parcelable {
         parcel.writeInt(format)
         parcel.writeInt(if (archived) 1 else 0)
         parcel.writeLong(filmStockId)
-        parcel.writeString(unloaded.toString())
-        parcel.writeString(developed.toString())
+        parcel.writeString(unloaded?.toString()) // avoid passing "null" as string by using the safe call operator ?
+        parcel.writeString(developed?.toString()) // avoid passing "null" as string by using the safe call operator ?
     }
 
     companion object CREATOR : Parcelable.Creator<Roll> {
