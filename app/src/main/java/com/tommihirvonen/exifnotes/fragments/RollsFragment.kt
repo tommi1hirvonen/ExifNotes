@@ -38,7 +38,6 @@ import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.Utilities
-import java.util.*
 
 /**
  * RollsFragment is the fragment that is displayed first in MainActivity. It contains
