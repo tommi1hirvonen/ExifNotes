@@ -1,17 +1,12 @@
 package com.tommihirvonen.exifnotes.fragments
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.IntentSender.SendIntentException
-import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -21,25 +16,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
-import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.common.SupportErrorDialogFragment
-import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
@@ -59,13 +42,12 @@ import com.tommihirvonen.exifnotes.utilities.Utilities
 import java.io.File
 import java.io.IOException
 import java.io.OutputStreamWriter
-import java.util.*
 
 /**
  * FramesFragment is the fragment which is called when the user presses on a roll
  * on the ListView in RollsFragment. It displays all the frames from that roll.
  */
-class FramesFragment : Fragment(), View.OnClickListener, FrameAdapterListener, ConnectionCallbacks, OnConnectionFailedListener {
+class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAdapterListener {
 
     companion object {
         /**
@@ -86,7 +68,6 @@ class FramesFragment : Fragment(), View.OnClickListener, FrameAdapterListener, C
         /**
          * Constant passed to ErrorDialogFragment
          */
-        private const val ERROR_DIALOG = 3
         private const val SHOW_ON_MAP = 4
 
         /**
@@ -94,16 +75,6 @@ class FramesFragment : Fragment(), View.OnClickListener, FrameAdapterListener, C
          */
         private const val REQUEST_LOCATION_PICK = 5
         private const val REQUEST_EXPORT_FILES = 6
-
-        /**
-         * Request code to use when launching the resolution activity
-         */
-        private const val REQUEST_RESOLVE_ERROR = 1001
-
-        /**
-         * Unique tag for the error dialog fragment
-         */
-        private const val DIALOG_ERROR = "dialog_error"
     }
 
     /**
@@ -150,36 +121,6 @@ class FramesFragment : Fragment(), View.OnClickListener, FrameAdapterListener, C
      * Holds the frame sort mode.
      */
     private lateinit var sortMode: FrameSortMode
-    // Google client to interact with Google API
-    /**
-     * Boolean to specify whether the user has granted the app location permissions
-     */
-    private var locationPermissionsGranted = false
-
-    /**
-     * Reference to the GoogleApiClient providing location services
-     */
-    private var googleApiClient: GoogleApiClient? = null
-
-    /**
-     * Member to hold the last received location
-     */
-    private var lastLocation: Location? = null
-
-    /**
-     * Member to specify what kind of location requests the app needs (time interval, accuracy)
-     */
-    private var locationRequest: LocationRequest? = null
-
-    /**
-     * Member to specify the callback implementation for the location services.
-     */
-    private var locationCallback: LocationCallback? = null
-
-    /**
-     * True if the user has enabled location updates in the app's settings, false if not
-     */
-    private var requestingLocationUpdates = false
 
     /**
      * Private callback class which is given as an argument when the SupportActionMode is started.
@@ -197,7 +138,6 @@ class FramesFragment : Fragment(), View.OnClickListener, FrameAdapterListener, C
         val rollId = requireArguments().getLong(ExtraKeys.ROLL_ID)
         roll = database.getRoll(rollId)!! // Roll must be defined for every Frame
         camera = database.getCamera(roll.cameraId)
-        locationPermissionsGranted = requireArguments().getBoolean(ExtraKeys.LOCATION_ENABLED)
         frameList = database.getAllFramesFromRoll(roll)
 
         //getActivity().getPreferences() returns a preferences file related to the
@@ -210,35 +150,6 @@ class FramesFragment : Fragment(), View.OnClickListener, FrameAdapterListener, C
 
         //Sort the list according to preferences
         Utilities.sortFrameList(activity, sortMode, database, frameList)
-
-        // Activate GPS locating if the user has granted permission.
-        if (locationPermissionsGranted) {
-
-            // Create an instance of GoogleAPIClient for latlng_location services.
-            if (googleApiClient == null) {
-                googleApiClient = GoogleApiClient.Builder(requireActivity())
-                        .addConnectionCallbacks(this)
-                        .addOnConnectionFailedListener(this)
-                        .addApi(LocationServices.API)
-                        .build()
-            }
-            // Create locationRequest to update the current latlng_location.
-            locationRequest = LocationRequest()
-            // 10 seconds
-            locationRequest?.interval = 10 * 1000.toLong()
-            // 1 second
-            locationRequest?.fastestInterval = 1000
-            locationRequest?.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
-
-        // This can be done anyway. It only has effect if locationPermissionsGranted is true.
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                lastLocation = locationResult.lastLocation
-            }
-        }
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
-        requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -365,6 +276,21 @@ class FramesFragment : Fragment(), View.OnClickListener, FrameAdapterListener, C
             }
         }
         return true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val secondaryColor = Utilities.getSecondaryUiColor(activity)
+        floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+
+        // If action mode is enabled, color the status bar dark grey.
+        if (frameAdapter.selectedItemCount > 0 || actionMode != null) {
+            Utilities.setStatusBarColor(activity, ContextCompat.getColor(requireActivity(), R.color.dark_grey))
+        } else {
+            // Otherwise we can update the frame adapter in case the user has changed the UI color.
+            // This way the frame count text color will be updated according to the changed settings.
+            frameAdapter.notifyDataSetChanged()
+        }
     }
 
     /**
@@ -531,9 +457,7 @@ class FramesFragment : Fragment(), View.OnClickListener, FrameAdapterListener, C
 
         //Get the location only if the app has location permission (locationPermissionsGranted) and
         //the user has enabled GPS updates in the app's settings.
-        if (locationPermissionsGranted &&
-                PreferenceManager.getDefaultSharedPreferences(
-                        requireActivity().baseContext).getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true))
+        if (locationPermissionsGranted && requestingLocationUpdates)
             frame.location = Utilities.locationStringFromLocation(lastLocation)
         if (frameList.isNotEmpty()) {
 
@@ -601,15 +525,6 @@ class FramesFragment : Fragment(), View.OnClickListener, FrameAdapterListener, C
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // After cancel do nothing
                 return
-            }
-            REQUEST_RESOLVE_ERROR -> {
-                resolvingError = false
-                if (resultCode == Activity.RESULT_OK) {
-                    // Make sure the app is not already connected or attempting to connect
-                    googleApiClient?.let {
-                        if (!it.isConnecting && !it.isConnected) it.connect()
-                    }
-                }
             }
             SHOW_ON_MAP -> if (resultCode == Activity.RESULT_OK) {
                 // Update the frame list in case updates were made in MapsActivity.
@@ -831,190 +746,6 @@ class FramesFragment : Fragment(), View.OnClickListener, FrameAdapterListener, C
                     frameAdapter.notifyDataSetChanged()
                 }
             }
-        }
-    }
-
-    /**
-     * When the fragment is started connect to Google Play services to get accurate location.
-     */
-    override fun onStart() {
-        //Added check to make sure googleApiClient is not null.
-        //Apparently some users were encountering a bug where during onResume
-        //googleApiClient was null.
-        if (locationPermissionsGranted) googleApiClient?.connect()
-        super.onStart()
-    }
-
-    /**
-     * When the fragment is stopped disconnect from the Google Play services.
-     */
-    override fun onStop() {
-        //Added check to make sure googleApiClient is not null.
-        //Apparently some users were encountering a bug where during onResume
-        //googleApiClient was null.
-        if (locationPermissionsGranted) googleApiClient?.disconnect()
-        super.onStop()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (locationPermissionsGranted) stopLocationUpdates()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
-        //Check if GPSUpdate preference has been changed meanwhile
-        requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true)
-        //Added check to make sure googleApiClient is not null.
-        //Apparently some users were encountering a bug where during onResume
-        //googleApiClient was null.
-        if (locationPermissionsGranted && googleApiClient?.isConnected == true && requestingLocationUpdates) {
-            startLocationUpdates()
-        } else {
-            stopLocationUpdates()
-        }
-        val secondaryColor = Utilities.getSecondaryUiColor(activity)
-        floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
-
-        // If action mode is enabled, color the status bar dark grey.
-        if (frameAdapter.selectedItemCount > 0 || actionMode != null) {
-            Utilities.setStatusBarColor(activity, ContextCompat.getColor(requireActivity(), R.color.dark_grey))
-        } else {
-            // Otherwise we can update the frame adapter in case the user has changed the UI color.
-            // This way the frame count text color will be updated according to the changed settings.
-            frameAdapter.notifyDataSetChanged()
-        }
-    }
-
-    /**
-     * Called when the fragment is resumed. Start location updates.
-     */
-    private fun startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(requireActivity(),
-                        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(requireActivity(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
-            //Added check to make sure googleApiClient is not null.
-            //Apparently some users were encountering a bug where during onResume
-            //googleApiClient was null.
-            if (googleApiClient != null) {
-                LocationServices.getFusedLocationProviderClient(requireActivity())
-                        .requestLocationUpdates(locationRequest, locationCallback, null)
-            }
-        }
-    }
-
-    /**
-     * Called when the fragment is paused. Stop location updates.
-     */
-    private fun stopLocationUpdates() {
-        //Added check to make sure googleApiClient is not null.
-        //Apparently some users were encountering a bug where during onResume
-        //googleApiClient was null.
-        if (googleApiClient?.isConnected == true) {
-            LocationServices.getFusedLocationProviderClient(requireActivity()).removeLocationUpdates(locationCallback)
-        }
-    }
-
-    override fun onConnected(bundle: Bundle?) {
-        if (ActivityCompat.checkSelfPermission(requireActivity(),
-                        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(requireActivity(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
-            //Added check to make sure googleApiClient is not null.
-            //Apparently some users were encountering a bug where during onResume
-            //googleApiClient was null.
-            if (googleApiClient != null) {
-                LocationServices.getFusedLocationProviderClient(requireActivity()).lastLocation
-                        .addOnSuccessListener { location: Location? -> if (location != null) lastLocation = location }
-            }
-            if (requestingLocationUpdates) {
-                startLocationUpdates()
-            }
-        }
-    }
-
-    override fun onConnectionSuspended(i: Int) {
-        //Added check to make sure googleApiClient is not null.
-        //Apparently some users were encountering a bug where during onResume
-        //googleApiClient was null.
-        if (locationPermissionsGranted) googleApiClient?.connect()
-    }
-
-    /**
-     * Boolean to track whether the app is already resolving an error
-     */
-    private var resolvingError = false
-    override fun onConnectionFailed(result: ConnectionResult) {
-        if (result.hasResolution() && !resolvingError) {
-            try {
-                resolvingError = true
-                result.startResolutionForResult(activity, REQUEST_RESOLVE_ERROR)
-            } catch (e: SendIntentException) {
-                // There was an error with the resolution intent. Try again.
-
-                //Added check to make sure googleApiClient is not null.
-                //Apparently some users were encountering a bug where during onResume
-                //googleApiClient was null.
-                googleApiClient?.connect()
-            }
-        } else {
-            // Show dialog using GoogleApiAvailability.getErrorDialog()
-            showErrorDialog(result.errorCode)
-            resolvingError = true
-        }
-    }
-
-    /**
-     * Creates a dialog for an error message
-     */
-    private fun showErrorDialog(errorCode: Int) {
-        // Create a fragment for the error dialog
-        val dialogFragment = ErrorDialogFragment()
-        // Pass the error that should be displayed
-        val args = Bundle()
-        args.putInt(DIALOG_ERROR, errorCode)
-        dialogFragment.arguments = args
-        dialogFragment.setTargetFragment(this, ERROR_DIALOG)
-        dialogFragment.show(parentFragmentManager, "errordialog")
-    }
-
-    /**
-     * Called from ErrorDialogFragment when the dialog is dismissed.
-     */
-    private fun onDialogDismissed() {
-        resolvingError = false
-    }
-
-    /**
-     * A fragment to display an error dialog
-     */
-    internal class ErrorDialogFragment : SupportErrorDialogFragment() {
-        override fun onSaveInstanceState(outState: Bundle) {
-            setTargetFragment(null, -1)
-        }
-
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            if (savedInstanceState != null) {
-                setTargetFragment(
-                        requireActivity().supportFragmentManager.findFragmentByTag(FRAMES_FRAGMENT_TAG),
-                        ERROR_DIALOG)
-            }
-            // Get the error code and retrieve the appropriate dialog
-            val errorCode = this.requireArguments().getInt(DIALOG_ERROR)
-            return GoogleApiAvailability.getInstance().getErrorDialog(
-                    this.activity, errorCode, REQUEST_RESOLVE_ERROR)
-        }
-
-        override fun onDismiss(dialog: DialogInterface) {
-            if (activity == null) return
-            val framesFragment = requireActivity()
-                    .supportFragmentManager.findFragmentByTag(FRAMES_FRAGMENT_TAG) as FramesFragment?
-            framesFragment?.onDialogDismissed()
-            super.onDismiss(dialog)
         }
     }
 
