@@ -901,11 +901,11 @@ public final class Utilities {
 
                 final String location =
                         // Latitude
-                        latStringList.get(0) + "°" + space + latStringList.get(1) + "\'" + space +
+                        latStringList.get(0) + "°" + space + latStringList.get(1) + "'" + space +
                                 latStringList.get(2).replace(',', '.') + "\"" + space + latRef +
                                 space +
                                 // Longitude
-                                lngStringList.get(0) + "°" + space + lngStringList.get(1) + "\'" + space +
+                                lngStringList.get(0) + "°" + space + lngStringList.get(1) + "'" + space +
                                 lngStringList.get(2).replace(',', '.') + "\"" + space + lngRef;
 
                 stringBuilder.escape(location);
@@ -974,12 +974,12 @@ public final class Utilities {
         final String space = " ";
 
         stringBuilder.append(latStringList.get(0)).append("°").append(space)
-                .append(latStringList.get(1)).append("\'").append(space)
+                .append(latStringList.get(1)).append("'").append(space)
                 .append(latStringList.get(2).replace(',', '.'))
                 .append("\"").append(space);
         stringBuilder.append(latRef).append(space);
         stringBuilder.append(lngStringList.get(0)).append("°").append(space)
-                .append(lngStringList.get(1)).append("\'").append(space)
+                .append(lngStringList.get(1)).append("'").append(space)
                 .append(lngStringList.get(2).replace(',', '.'))
                 .append("\"").append(space);
         stringBuilder.append(lngRef);

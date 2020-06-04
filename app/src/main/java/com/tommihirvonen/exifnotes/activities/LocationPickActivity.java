@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import android.os.Bundle;
+
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -179,7 +180,7 @@ public class LocationPickActivity extends AppCompatActivity implements
                     progressBar.setVisibility(View.VISIBLE);
                     new GeocodingAsyncTask((output, formatted_address) -> {
                         progressBar.setVisibility(View.INVISIBLE);
-                        if (formatted_address.length() != 0 ) {
+                        if (formatted_address.length() != 0) {
                             formattedAddressTextView.setText(formatted_address);
                             formattedAddress = formatted_address;
                         } else {
@@ -210,7 +211,8 @@ public class LocationPickActivity extends AppCompatActivity implements
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
         switch (mapType) {
-            case GoogleMap.MAP_TYPE_NORMAL: default:
+            case GoogleMap.MAP_TYPE_NORMAL:
+            default:
                 menu.findItem(R.id.menu_item_normal).setChecked(true);
                 break;
             case GoogleMap.MAP_TYPE_HYBRID:
@@ -323,7 +325,7 @@ public class LocationPickActivity extends AppCompatActivity implements
         final String query = latitude + " " + longitude;
         new GeocodingAsyncTask((output, formatted_address) -> {
             progressBar.setVisibility(View.INVISIBLE);
-            if (formatted_address.length() != 0 ) {
+            if (formatted_address.length() != 0) {
                 formattedAddressTextView.setText(formatted_address);
                 formattedAddress = formatted_address;
             } else {
@@ -334,7 +336,7 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         // if the location was cleared before editing -> add marker to selected location
         if (marker == null) marker = googleMap_.addMarker(new MarkerOptions().position(latLng));
-        // otherwise set the position
+            // otherwise set the position
         else marker.setPosition(latLng);
         latLngLocation = latLng;
     }
@@ -348,8 +350,7 @@ public class LocationPickActivity extends AppCompatActivity implements
         progressBar.setVisibility(View.VISIBLE);
         new GeocodingAsyncTask((output, formatted_address) -> {
             progressBar.setVisibility(View.INVISIBLE);
-            if (output.length() != 0 ) {
-
+            if (output.length() != 0) {
                 String latString = output.substring(0, output.indexOf(" "));
                 String lngString = output.substring(output.indexOf(" ") + 1, output.length() - 1);
                 double lat = Double.parseDouble(latString.replace(",", "."));
@@ -358,13 +359,11 @@ public class LocationPickActivity extends AppCompatActivity implements
                 // marker is null, if the search was made before the marker has been added
                 // -> add marker to selected location
                 if (marker == null) marker = googleMap_.addMarker(new MarkerOptions().position(position));
-                // otherwise just set the location
-                else marker.setPosition(position);
+                else marker.setPosition(position); // otherwise just set the location
                 latLngLocation = position;
                 googleMap_.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
                 formattedAddressTextView.setText(formatted_address);
                 formattedAddress = formatted_address;
-
             } else {
                 formattedAddressTextView.setText(R.string.AddressNotFound);
                 formattedAddress = null;
@@ -396,6 +395,16 @@ public class LocationPickActivity extends AppCompatActivity implements
                 finish();
             }
         } else if (v.getId() == R.id.fab_current_location) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
                 if (location != null) {
                     final LatLng position = new LatLng(location.getLatitude(), location.getLongitude());

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
+import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -70,7 +72,7 @@ public final class ComplementaryPicturesManager {
         // Get reference to the destination folder by the file's parent
         final File pictureStorageDirectory = picture.getParentFile();
         // If the destination folder does not exist, create it
-        if (!pictureStorageDirectory.exists()) {
+        if (pictureStorageDirectory!= null && !pictureStorageDirectory.exists()) {
             //noinspection ResultOfMethodCallIgnored
             pictureStorageDirectory.mkdirs(); // also create possible non-existing parent directories -> mkdirs()
         }
@@ -178,7 +180,7 @@ public final class ComplementaryPicturesManager {
      * @return compressed bitmap
      * @throws FileNotFoundException if no file was found using the given Uri
      */
-    public static Bitmap getCompressedBitmap(final Context context, final Uri uri) throws FileNotFoundException {
+    public static @Nullable Bitmap getCompressedBitmap(final Context context, final Uri uri) throws FileNotFoundException {
         // Get the dimensions of the picture
         final BitmapFactory.Options options = new BitmapFactory.Options();
         // Setting the inJustDecodeBounds property to true while decoding avoids memory allocation,
@@ -193,7 +195,8 @@ public final class ComplementaryPicturesManager {
         final Bitmap decodedBitmap = BitmapFactory
                 .decodeStream(context.getContentResolver().openInputStream(uri), null, options);
         // Then resize the bitmap to the exact dimensions specified by MAX_SIZE.
-        return getResizedBitmap(decodedBitmap);
+        if (decodedBitmap != null) return getResizedBitmap(decodedBitmap);
+        else return null;
     }
 
     /**
@@ -286,8 +289,6 @@ public final class ComplementaryPicturesManager {
             newOrientation = ExifInterface.ORIENTATION_ROTATE_180;
         else if (orientation == ExifInterface.ORIENTATION_ROTATE_180)
             newOrientation = ExifInterface.ORIENTATION_ROTATE_270;
-        else if (orientation == ExifInterface.ORIENTATION_ROTATE_270)
-            newOrientation = ExifInterface.ORIENTATION_NORMAL;
 
         exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(newOrientation));
         exifInterface.saveAttributes();
@@ -310,8 +311,6 @@ public final class ComplementaryPicturesManager {
         if (orientation == ExifInterface.ORIENTATION_NORMAL ||
                 orientation == ExifInterface.ORIENTATION_UNDEFINED)
             newOrientation = ExifInterface.ORIENTATION_ROTATE_270;
-        else if (orientation == ExifInterface.ORIENTATION_ROTATE_90)
-            newOrientation = ExifInterface.ORIENTATION_NORMAL;
         else if (orientation == ExifInterface.ORIENTATION_ROTATE_180)
             newOrientation = ExifInterface.ORIENTATION_ROTATE_90;
         else if (orientation == ExifInterface.ORIENTATION_ROTATE_270)
@@ -339,9 +338,12 @@ public final class ComplementaryPicturesManager {
         };
         // Delete all files, that are not filtered
         if (picturesDirectory != null) {
-            for (final File pictureFile : picturesDirectory.listFiles(filter)) {
-                //noinspection ResultOfMethodCallIgnored
-                pictureFile.delete();
+            final File[] files = picturesDirectory.listFiles(filter);
+            if (files != null) {
+                for (final File pictureFile : files) {
+                    //noinspection ResultOfMethodCallIgnored
+                    pictureFile.delete();
+                }
             }
         }
     }

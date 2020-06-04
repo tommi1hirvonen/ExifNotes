@@ -23,13 +23,13 @@ import java.util.List;
 
 public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufacturerAdapter.ViewHolder> {
 
-    private Context context;
-    private List<String> manufacturers;
+    private final Context context;
+    private final List<String> manufacturers;
     private final SparseBooleanArray expandedManufacturers = new SparseBooleanArray();
     private final SparseBooleanArray expandAnimations = new SparseBooleanArray();
     private int currentExpandedIndex = -1;
-    private FilmDbHelper database;
-    private OnFilmStockSelectedListener listener;
+    private final FilmDbHelper database;
+    private final OnFilmStockSelectedListener listener;
 
     public interface OnFilmStockSelectedListener {
         void onFilmStockSelected(FilmStock filmStock);
@@ -191,7 +191,7 @@ public class FilmManufacturerAdapter extends RecyclerView.Adapter<FilmManufactur
     }
 
     private class FilmStockAdapter extends RecyclerView.Adapter<FilmStockAdapter.ViewHolder> {
-        private List<FilmStock> filmStocks;
+        private final List<FilmStock> filmStocks;
         FilmStockAdapter(@NonNull final List<FilmStock> filmStocks) {
             this.filmStocks = filmStocks;
             setHasStableIds(true);

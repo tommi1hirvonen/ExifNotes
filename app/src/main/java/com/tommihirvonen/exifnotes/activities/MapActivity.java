@@ -66,12 +66,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     private FilmDbHelper database;
 
-    private List<Pair<Roll, Boolean>> allRolls = new ArrayList<>();
+    private final List<Pair<Roll, Boolean>> allRolls = new ArrayList<>();
 
     /**
      * List to hold all the rolls from the database
      */
-    private List<Pair<Roll, Bitmap>> selectedRolls = new ArrayList<>();
+    private final List<Pair<Roll, Bitmap>> selectedRolls = new ArrayList<>();
 
     /**
      * GoogleMap object to show the map and to hold all the markers for all frames
@@ -572,7 +572,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private static class RollMarkerAdapter extends ArrayAdapter<Pair<Roll, Bitmap>> {
 
-        private List<Pair<Roll, Bitmap>> rollList;
+        private final List<Pair<Roll, Bitmap>> rollList;
 
         RollMarkerAdapter(final Context context, final List<Pair<Roll, Bitmap>> rollList) {
             super(context, android.R.layout.simple_list_item_1, rollList);
@@ -636,7 +636,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * @param <U> object of type U placed in the second member of Pair
      */
     private static class Pair<T, U> {
-        T first;
+        final T first;
         U second;
         Pair(T first, U second) {
             this.first = first;
