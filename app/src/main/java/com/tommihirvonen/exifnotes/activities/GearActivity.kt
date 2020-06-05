@@ -1,7 +1,5 @@
 package com.tommihirvonen.exifnotes.activities
 
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -18,7 +16,6 @@ import com.tommihirvonen.exifnotes.fragments.CamerasFragment
 import com.tommihirvonen.exifnotes.fragments.FilmStocksFragment
 import com.tommihirvonen.exifnotes.fragments.FiltersFragment
 import com.tommihirvonen.exifnotes.fragments.LensesFragment
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
 import com.tommihirvonen.exifnotes.utilities.Utilities
 
 /**
@@ -122,122 +119,23 @@ class GearActivity : AppCompatActivity() {
                 return true
             }
             R.id.filter_mode_film_manufacturer -> {
-                val builder = AlertDialog.Builder(this)
-                // Get all filter items.
-                val items = FilmDbHelper.getInstance(this).allFilmManufacturers.toTypedArray()
-                // Create a boolean array of same size with selected items marked true.
-                val checkedItems = items.map { filmStocksFragment.manufacturerFilterList.contains(it) }.toBooleanArray()
-                builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
-                    checkedItems[which] = isChecked
-                }
-                builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
-                    // Get the indices of items that were marked true and their corresponding strings.
-                    filmStocksFragment.manufacturerFilterList = checkedItems
-                            .mapIndexed { index, selected -> Pair(index, selected) }
-                            .filter { it.second }.map { it.first }.map { items[it] }.toMutableList()
-                    filmStocksFragment.filterFilmStocks()
-                }
-                builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
-                    filmStocksFragment.manufacturerFilterList.clear()
-                    filmStocksFragment.filterFilmStocks()
-                }
-                builder.create().show()
+                filmStocksFragment.showManufacturerFilterDialog()
                 return true
             }
             R.id.filter_mode_added_by -> {
-                val builder = AlertDialog.Builder(this)
-                val checkedItem: Int
-                val filterModeAddedBy = filmStocksFragment.addedByFilterMode
-                checkedItem = when (filterModeAddedBy) {
-                    FilmStocksFragment.FILTER_MODE_PREADDED -> 1
-                    FilmStocksFragment.FILTER_MODE_ADDED_BY_USER -> 2
-                    else -> 0
-                }
-                builder.setSingleChoiceItems(R.array.FilmStocksFilterMode, checkedItem) { dialog: DialogInterface, which: Int ->
-                    when (which) {
-                        0 -> filmStocksFragment.addedByFilterMode = FilmStocksFragment.FILTER_MODE_ALL
-                        1 -> filmStocksFragment.addedByFilterMode = FilmStocksFragment.FILTER_MODE_PREADDED
-                        2 -> filmStocksFragment.addedByFilterMode = FilmStocksFragment.FILTER_MODE_ADDED_BY_USER
-                    }
-                    filmStocksFragment.filterFilmStocks()
-                    dialog.dismiss()
-                }
-                builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                builder.create().show()
+                filmStocksFragment.showAddedByFilterDialog()
                 return true
             }
             R.id.filter_mode_film_iso -> {
-                val builder = AlertDialog.Builder(this)
-                // Get all filter items.
-                val items = filmStocksFragment.possibleIsoValues.toTypedArray()
-                val itemStrings = items.map { it.toString() }.toTypedArray()
-                // Create a boolean array of same size with selected items marked true.
-                val checkedItems = items.map { filmStocksFragment.isoFilterList.contains(it) }.toBooleanArray()
-                builder.setMultiChoiceItems(itemStrings, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
-                    checkedItems[which] = isChecked
-                }
-                builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
-                    // Get the indices of items that were marked true and their corresponding int values.
-                    filmStocksFragment.isoFilterList = checkedItems
-                            .mapIndexed { index, selected -> Pair(index, selected) }
-                            .filter { it.second }.map { it.first }.map { items[it] }.toMutableList()
-                    filmStocksFragment.filterFilmStocks()
-                }
-                builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
-                    filmStocksFragment.isoFilterList.clear()
-                    filmStocksFragment.filterFilmStocks()
-                }
-                builder.create().show()
+                filmStocksFragment.showIsoValuesFilterDialog()
                 return true
             }
             R.id.filter_mode_film_type -> {
-                val builder = AlertDialog.Builder(this)
-                // Get all filter items.
-                val items = resources.getStringArray(R.array.FilmTypes)
-                // Create a boolean array of same size with selected items marked true.
-                val checkedItems = items.indices.map { filmStocksFragment.filmTypeFilterList.contains(it) }.toBooleanArray()
-                builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
-                    checkedItems[which] = isChecked
-                }
-                builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
-                    // Get the indices of items that were marked true.
-                    filmStocksFragment.filmTypeFilterList = checkedItems
-                            .mapIndexed { index, selected -> Pair(index, selected) }
-                            .filter { it.second }.map { it.first }.toMutableList()
-                    filmStocksFragment.filterFilmStocks()
-                }
-                builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
-                    filmStocksFragment.filmTypeFilterList.clear()
-                    filmStocksFragment.filterFilmStocks()
-                }
-                builder.create().show()
+                filmStocksFragment.showFilmTypeFilterDialog()
                 return true
             }
             R.id.filter_mode_film_process -> {
-                val builder = AlertDialog.Builder(this)
-                // Get all filter items.
-                val items = resources.getStringArray(R.array.FilmProcesses)
-                // Create a boolean array of same size with selected items marked true.
-                val checkedItems = items.indices.map { filmStocksFragment.filmProcessFilterList.contains(it) }.toBooleanArray()
-                builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
-                    checkedItems[which] = isChecked
-                }
-                builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
-                    // Get the indices of items that were marked true.
-                    filmStocksFragment.filmProcessFilterList = checkedItems
-                            .mapIndexed { index, selected -> Pair(index, selected) }
-                            .filter { it.second }.map { it.first }.toMutableList()
-                    filmStocksFragment.filterFilmStocks()
-                }
-                builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
-                    filmStocksFragment.filmProcessFilterList.clear()
-                    filmStocksFragment.filterFilmStocks()
-                }
-                builder.create().show()
+                filmStocksFragment.showFilmProcessFilterDialog()
                 return true
             }
             R.id.filter_mode_reset -> {

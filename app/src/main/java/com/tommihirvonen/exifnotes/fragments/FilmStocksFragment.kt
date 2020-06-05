@@ -45,11 +45,11 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     private lateinit var filmStockAdapter: GearAdapter
     var sortMode = SORT_MODE_NAME
         private set
-    var manufacturerFilterList = emptyList<String>().toMutableList()
-    var isoFilterList = emptyList<Int>().toMutableList()
-    var filmTypeFilterList = emptyList<Int>().toMutableList()
-    var filmProcessFilterList = emptyList<Int>().toMutableList()
-    var addedByFilterMode = FILTER_MODE_ALL
+    private var manufacturerFilterList = emptyList<String>().toMutableList()
+    private var isoFilterList = emptyList<Int>().toMutableList()
+    private var filmTypeFilterList = emptyList<Int>().toMutableList()
+    private var filmProcessFilterList = emptyList<Int>().toMutableList()
+    private var addedByFilterMode = FILTER_MODE_ALL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -198,7 +198,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         filterFilmStocks()
     }
 
-    fun filterFilmStocks() {
+    private fun filterFilmStocks() {
         // First filter the list based on manufacturer. No filtering is done if manufacturers is null.
         filmStocks = allFilmStocks.filter {
             // Filter based on manufacturers
@@ -224,7 +224,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     }
 
     // Possible ISO values are filtered based on currently selected manufacturers and filter mode.
-    val possibleIsoValues get() = allFilmStocks.filter {
+    private val possibleIsoValues get() = allFilmStocks.filter {
             (manufacturerFilterList.contains(it.make) || manufacturerFilterList.isEmpty()) &&
             (filmTypeFilterList.contains(it.type) || filmTypeFilterList.isEmpty()) &&
             (filmProcessFilterList.contains(it.process) || filmProcessFilterList.isEmpty()) &&
@@ -235,5 +235,124 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                 else -> throw IllegalArgumentException("Illegal argument filterModeAddedBy: $addedByFilterMode")
             }
     }.map { it.iso }.distinct().sorted()
+
+    fun showManufacturerFilterDialog() {
+        val builder = AlertDialog.Builder(requireActivity())
+        // Get all filter items.
+        val items = FilmDbHelper.getInstance(requireActivity()).allFilmManufacturers.toTypedArray()
+        // Create a boolean array of same size with selected items marked true.
+        val checkedItems = items.map { manufacturerFilterList.contains(it) }.toBooleanArray()
+        builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+            checkedItems[which] = isChecked
+        }
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
+            // Get the indices of items that were marked true and their corresponding strings.
+            manufacturerFilterList = checkedItems
+                    .mapIndexed { index, selected -> Pair(index, selected) }
+                    .filter { it.second }.map { it.first }.map { items[it] }.toMutableList()
+            filterFilmStocks()
+        }
+        builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
+            manufacturerFilterList.clear()
+            filterFilmStocks()
+        }
+        builder.create().show()
+    }
+
+    fun showIsoValuesFilterDialog() {
+        val builder = AlertDialog.Builder(requireActivity())
+        // Get all filter items.
+        val items = possibleIsoValues.toTypedArray()
+        val itemStrings = items.map { it.toString() }.toTypedArray()
+        // Create a boolean array of same size with selected items marked true.
+        val checkedItems = items.map { isoFilterList.contains(it) }.toBooleanArray()
+        builder.setMultiChoiceItems(itemStrings, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+            checkedItems[which] = isChecked
+        }
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
+            // Get the indices of items that were marked true and their corresponding int values.
+            isoFilterList = checkedItems
+                    .mapIndexed { index, selected -> Pair(index, selected) }
+                    .filter { it.second }.map { it.first }.map { items[it] }.toMutableList()
+            filterFilmStocks()
+        }
+        builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
+            isoFilterList.clear()
+            filterFilmStocks()
+        }
+        builder.create().show()
+    }
+
+    fun showFilmTypeFilterDialog() {
+        val builder = AlertDialog.Builder(requireActivity())
+        // Get all filter items.
+        val items = resources.getStringArray(R.array.FilmTypes)
+        // Create a boolean array of same size with selected items marked true.
+        val checkedItems = items.indices.map { filmTypeFilterList.contains(it) }.toBooleanArray()
+        builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+            checkedItems[which] = isChecked
+        }
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
+            // Get the indices of items that were marked true.
+            filmTypeFilterList = checkedItems
+                    .mapIndexed { index, selected -> Pair(index, selected) }
+                    .filter { it.second }.map { it.first }.toMutableList()
+            filterFilmStocks()
+        }
+        builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
+            filmTypeFilterList.clear()
+            filterFilmStocks()
+        }
+        builder.create().show()
+    }
+
+    fun showFilmProcessFilterDialog() {
+        val builder = AlertDialog.Builder(requireActivity())
+        // Get all filter items.
+        val items = resources.getStringArray(R.array.FilmProcesses)
+        // Create a boolean array of same size with selected items marked true.
+        val checkedItems = items.indices.map { filmProcessFilterList.contains(it) }.toBooleanArray()
+        builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+            checkedItems[which] = isChecked
+        }
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
+            // Get the indices of items that were marked true.
+            filmProcessFilterList = checkedItems
+                    .mapIndexed { index, selected -> Pair(index, selected) }
+                    .filter { it.second }.map { it.first }.toMutableList()
+            filterFilmStocks()
+        }
+        builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
+            filmProcessFilterList.clear()
+            filterFilmStocks()
+        }
+        builder.create().show()
+    }
+
+    fun showAddedByFilterDialog() {
+        val builder = AlertDialog.Builder(requireActivity())
+        val checkedItem: Int
+        val filterModeAddedBy = addedByFilterMode
+        checkedItem = when (filterModeAddedBy) {
+            FILTER_MODE_PREADDED -> 1
+            FILTER_MODE_ADDED_BY_USER -> 2
+            else -> 0
+        }
+        builder.setSingleChoiceItems(R.array.FilmStocksFilterMode, checkedItem) { dialog: DialogInterface, which: Int ->
+            when (which) {
+                0 -> addedByFilterMode = FILTER_MODE_ALL
+                1 -> addedByFilterMode = FILTER_MODE_PREADDED
+                2 -> addedByFilterMode = FILTER_MODE_ADDED_BY_USER
+            }
+            filterFilmStocks()
+            dialog.dismiss()
+        }
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.create().show()
+    }
 
 }
