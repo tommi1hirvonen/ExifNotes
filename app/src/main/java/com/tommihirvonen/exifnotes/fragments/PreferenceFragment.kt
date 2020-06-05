@@ -159,7 +159,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         }
     }
 
-    override fun onCreatePreferences(savedInstanceState: Bundle, rootKey: String) {}
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {}
 
     override fun onResume() {
         super.onResume()
