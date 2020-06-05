@@ -224,7 +224,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     }
 
     // Possible ISO values are filtered based on currently selected manufacturers and filter mode.
-    fun possibleIsoValues() = allFilmStocks.filter {
+    val possibleIsoValues get() = allFilmStocks.filter {
             (manufacturerFilterList.contains(it.make) || manufacturerFilterList.isEmpty()) &&
             (filmTypeFilterList.contains(it.type) || filmTypeFilterList.isEmpty()) &&
             (filmProcessFilterList.contains(it.process) || filmProcessFilterList.isEmpty()) &&
