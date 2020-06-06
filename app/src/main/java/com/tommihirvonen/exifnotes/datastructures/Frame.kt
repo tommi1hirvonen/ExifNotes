@@ -58,7 +58,7 @@ class Frame : Parcelable {
     /**
      * latitude and longitude in format '12,3456... 12,3456...'
      */
-    var location: String? = null
+    var location: Location? = null
 
     /**
      * formatted address
@@ -129,7 +129,7 @@ class Frame : Parcelable {
         this.shutter = pc.readString()
         this.aperture = pc.readString()
         this.note = pc.readString()
-        this.location = pc.readString()
+        this.location = pc.readParcelable(Location::class.java.classLoader)
         this.formattedAddress = pc.readString()
         this.focalLength = pc.readInt()
         this.exposureComp = pc.readString()
@@ -161,7 +161,7 @@ class Frame : Parcelable {
         parcel.writeString(shutter)
         parcel.writeString(aperture)
         parcel.writeString(note)
-        parcel.writeString(location)
+        parcel.writeParcelable(location, 0)
         parcel.writeString(formattedAddress)
         parcel.writeInt(focalLength)
         parcel.writeString(exposureComp)

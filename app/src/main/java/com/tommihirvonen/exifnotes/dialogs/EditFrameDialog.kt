@@ -134,7 +134,7 @@ open class EditFrameDialog : DialogFragment() {
     /**
      * Currently selected latitude longitude location in format '12,3456... 12,3456...'
      */
-    private var newLocation: String? = null
+    private var newLocation: Location? = null
 
     /**
      * Currently set formatted address for location
@@ -451,17 +451,17 @@ open class EditFrameDialog : DialogFragment() {
         val locationProgressBar = inflatedView.findViewById<ProgressBar>(R.id.location_progress_bar)
 
         // If location is set but the formatted address is empty, try to find it
-        if (newLocation?.isNotEmpty() == true &&
-                (newFormattedAddress == null || newFormattedAddress?.isEmpty() == true)) {
+        newLocation?.let { location ->
+            if (newFormattedAddress == null || newFormattedAddress?.isEmpty() == true) {
+                // Make the ProgressBar visible to indicate that a query is being executed
+                locationProgressBar.visibility = View.VISIBLE
+                GeocodingAsyncTask(AsyncResponse { _: String?, formatted_address: String ->
+                    locationProgressBar.visibility = View.INVISIBLE
+                    newFormattedAddress = if (formatted_address.isNotEmpty()) formatted_address else null
+                    updateLocationTextView()
+                }).execute(location.decimalLocation, resources.getString(R.string.google_maps_key))
 
-            // Make the ProgressBar visible to indicate that a query is being executed
-            locationProgressBar.visibility = View.VISIBLE
-            GeocodingAsyncTask(AsyncResponse { _: String?, formatted_address: String ->
-                locationProgressBar.visibility = View.INVISIBLE
-                newFormattedAddress = if (formatted_address.isNotEmpty()) formatted_address else null
-                updateLocationTextView()
-            }).execute(newLocation, resources.getString(R.string.google_maps_key))
-
+            }
         }
         val clearLocation = inflatedView.findViewById<ImageView>(R.id.clear_location)
         clearLocation.setOnClickListener {
@@ -625,8 +625,8 @@ open class EditFrameDialog : DialogFragment() {
 
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
             // Set the location
-            if (data?.hasExtra(ExtraKeys.LATITUDE) == true && data.hasExtra(ExtraKeys.LONGITUDE)) {
-                newLocation = "${data.getStringExtra(ExtraKeys.LATITUDE)} ${data.getStringExtra(ExtraKeys.LONGITUDE)}"
+            if (data?.hasExtra(ExtraKeys.LOCATION) == true) {
+                newLocation = data.getParcelableExtra(ExtraKeys.LOCATION)
             }
             // Set the formatted address
             if (data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
@@ -910,9 +910,9 @@ open class EditFrameDialog : DialogFragment() {
     private fun updateLocationTextView() {
         when {
             newFormattedAddress?.isNotEmpty() == true -> locationTextView.text = newFormattedAddress
-            newLocation?.isNotEmpty() == true -> {
-                locationTextView.text = Utilities.getReadableLocationFromString(newLocation)
-                        .replace("N ", "N\n").replace("S ", "S\n")
+            newLocation != null -> {
+                locationTextView.text = newLocation?.readableLocation
+                        ?.replace("N ", "N\n")?.replace("S ", "S\n")
             }
             else -> {
                 @SuppressLint("SetTextI18n")

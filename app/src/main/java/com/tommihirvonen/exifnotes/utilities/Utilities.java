@@ -11,7 +11,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -580,10 +579,6 @@ public final class Utilities {
         final String fNumberTag = "-FNumber=";
         final String commentTag = "-UserComment=";
         final String imageDescriptionTag = "-ImageDescription=";
-        final String gpsLatTag = "-GPSLatitude=";
-        final String gpsLatRefTag = "-GPSLatitudeRef=";
-        final String gpsLngTag = "-GPSLongitude=";
-        final String gpsLngRefTag = "-GPSLongitudeRef=";
         final String exposureCompTag = "-ExposureCompensation=";
         final String focalLengthTag = "-FocalLength=";
         final String isoTag = "-ISO=";
@@ -672,32 +667,8 @@ public final class Utilities {
                                 .replace("\n", " ")).append(quote).append(space);
             }
             //GPSLatitude & GPSLongitude & GPSLatitudeRef & GPSLongitudeRef
-            if (frame.getLocation() != null && frame.getLocation().length() > 0) {
-                String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
-                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1);
-                final String latRef;
-                if (latString.substring(0, 1).equals("-")) {
-                    latRef = "S";
-                    latString = latString.substring(1);
-                } else latRef = "N";
-                final String lngRef;
-                if (lngString.substring(0, 1).equals("-")) {
-                    lngRef = "W";
-                    lngString = lngString.substring(1);
-                } else lngRef = "E";
-                latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
-                final List<String> latStringList = Arrays.asList(latString.split(":"));
-                lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
-                final List<String> lngStringList = Arrays.asList(lngString.split(":"));
-
-                stringBuilder.append(gpsLatTag).append(quote).append(latStringList.get(0))
-                        .append(space).append(latStringList.get(1)).append(space)
-                        .append(latStringList.get(2)).append(quote).append(space);
-                stringBuilder.append(gpsLatRefTag).append(quote).append(latRef).append(quote).append(space);
-                stringBuilder.append(gpsLngTag).append(quote).append(lngStringList.get(0))
-                        .append(space).append(lngStringList.get(1)).append(space)
-                        .append(lngStringList.get(2)).append(quote).append(space);
-                stringBuilder.append(gpsLngRefTag).append(quote).append(lngRef).append(quote).append(space);
+            if (frame.getLocation() != null && frame.getLocation().getExifToolLocation() != null) {
+                stringBuilder.append(frame.getLocation().getExifToolLocation());
             }
             //ExposureCompensation
             if (frame.getExposureComp() != null) stringBuilder.append(exposureCompTag)
@@ -879,36 +850,9 @@ public final class Utilities {
             stringBuilder.append(separator);
 
             //Location
-            if (frame.getLocation() != null && frame.getLocation().length() > 0) {
-                String latString = frame.getLocation().substring(0, frame.getLocation().indexOf(" "));
-                String lngString = frame.getLocation().substring(frame.getLocation().indexOf(" ") + 1);
-                final String latRef;
-                if (latString.substring(0, 1).equals("-")) {
-                    latRef = "S";
-                    latString = latString.substring(1);
-                } else latRef = "N";
-                final String lngRef;
-                if (lngString.substring(0, 1).equals("-")) {
-                    lngRef = "W";
-                    lngString = lngString.substring(1);
-                } else lngRef = "E";
-                latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
-                final List<String> latStringList = Arrays.asList(latString.split(":"));
-                lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
-                final List<String> lngStringList = Arrays.asList(lngString.split(":"));
-
-                final String space = " ";
-
-                final String location =
-                        // Latitude
-                        latStringList.get(0) + "°" + space + latStringList.get(1) + "'" + space +
-                                latStringList.get(2).replace(',', '.') + "\"" + space + latRef +
-                                space +
-                                // Longitude
-                                lngStringList.get(0) + "°" + space + lngStringList.get(1) + "'" + space +
-                                lngStringList.get(2).replace(',', '.') + "\"" + space + lngRef;
-
-                stringBuilder.escape(location);
+            if (frame.getLocation() != null) {
+                final String location = frame.getLocation().getReadableLocation();
+                if (location != null) stringBuilder.escape(location);
             }
             stringBuilder.append(separator);
 
@@ -935,69 +879,6 @@ public final class Utilities {
         }
 
         return stringBuilder.toString();
-    }
-
-    /**
-     * Creates a location string in human readable format from a location string in decimal format.
-     *
-     * @param location location string in decimal format
-     * @return location string in human readable degrees format
-     */
-    public static String getReadableLocationFromString(final String location) {
-
-        //If the location is empty, return null
-        if (location == null || location.length() == 0) return null;
-
-        final StringBuilder stringBuilder = new StringBuilder();
-
-        String latString = location.substring(0, location.indexOf(" "));
-        String lngString = location.substring(location.indexOf(" ") + 1);
-
-        final String latRef;
-        if (latString.substring(0, 1).equals("-")) {
-            latRef = "S";
-            latString = latString.substring(1);
-        } else latRef = "N";
-
-        final String lngRef;
-        if (lngString.substring(0, 1).equals("-")) {
-            lngRef = "W";
-            lngString = lngString.substring(1);
-        } else lngRef = "E";
-
-        latString = Location.convert(Double.parseDouble(latString), Location.FORMAT_SECONDS);
-        final List<String> latStringList = Arrays.asList(latString.split(":"));
-
-        lngString = Location.convert(Double.parseDouble(lngString), Location.FORMAT_SECONDS);
-        final List<String> lngStringList = Arrays.asList(lngString.split(":"));
-
-        final String space = " ";
-
-        stringBuilder.append(latStringList.get(0)).append("°").append(space)
-                .append(latStringList.get(1)).append("'").append(space)
-                .append(latStringList.get(2).replace(',', '.'))
-                .append("\"").append(space);
-        stringBuilder.append(latRef).append(space);
-        stringBuilder.append(lngStringList.get(0)).append("°").append(space)
-                .append(lngStringList.get(1)).append("'").append(space)
-                .append(lngStringList.get(2).replace(',', '.'))
-                .append("\"").append(space);
-        stringBuilder.append(lngRef);
-
-        return stringBuilder.toString();
-    }
-
-    /**
-     * Converts a Location object to String.
-     *
-     * @param location Location to be converted
-     * @return the converted string
-     */
-    public static String locationStringFromLocation(final Location location) {
-        if (location != null)
-            return (Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + " " +
-                    Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)).replace(",", ".");
-        else return "";
     }
 
     /**

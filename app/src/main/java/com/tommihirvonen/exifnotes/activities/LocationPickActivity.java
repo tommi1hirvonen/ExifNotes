@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.tommihirvonen.exifnotes.datastructures.Location;
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys;
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants;
 import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask;
@@ -80,11 +81,6 @@ public class LocationPickActivity extends AppCompatActivity implements
      * Holds the current location.
      */
     private LatLng latLngLocation;
-
-    /**
-     * Stores the location which is received when the activity is started or resumed.
-     */
-    private String location = "";
 
     private String googleMapsApiKey;
 
@@ -152,44 +148,38 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         // If the activity is continued, then savedInstanceState is not null.
         // Get the location from there.
+
+        final Location location;
         if (savedInstanceState != null) {
-            location = savedInstanceState.getString(ExtraKeys.LOCATION);
+            location = savedInstanceState.getParcelable(ExtraKeys.LOCATION);
             formattedAddress = savedInstanceState.getString(ExtraKeys.FORMATTED_ADDRESS);
         } else {
             // Else get the location from Intent.
             final Intent intent = getIntent();
-            location = intent.getStringExtra(ExtraKeys.LOCATION);
+            location = intent.getParcelableExtra(ExtraKeys.LOCATION);
             formattedAddress = intent.getStringExtra(ExtraKeys.FORMATTED_ADDRESS);
         }
         if (location != null) {
-            if (location.length() > 0 && !location.equals("null")) {
-
-                // Parse the location
-                final String latString = location.substring(0, location.indexOf(" "));
-                final String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
-                final double lat = Double.parseDouble(latString.replace(",", "."));
-                final double lng = Double.parseDouble(lngString.replace(",", "."));
-                latLngLocation = new LatLng(lat, lng);
-
-                // If the formatted address is set, display it
-                if (formattedAddress != null && formattedAddress.length() > 0) {
-                    formattedAddressTextView.setText(formattedAddress);
-                }
-                // The formatted address was not set, try to query it
-                else {
-                    progressBar.setVisibility(View.VISIBLE);
-                    new GeocodingAsyncTask((output, formatted_address) -> {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        if (formatted_address.length() != 0) {
-                            formattedAddressTextView.setText(formatted_address);
-                            formattedAddress = formatted_address;
-                        } else {
-                            formattedAddressTextView.setText(R.string.AddressNotFound);
-                            formattedAddress = null;
-                        }
-                    }).execute(location, googleMapsApiKey);
-                }
+            latLngLocation = location.getLatLng();
+            // If the formatted address is set, display it
+            if (formattedAddress != null && formattedAddress.length() > 0) {
+                formattedAddressTextView.setText(formattedAddress);
             }
+            // The formatted address was not set, try to query it
+            else {
+                progressBar.setVisibility(View.VISIBLE);
+                new GeocodingAsyncTask((output, formatted_address) -> {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    if (formatted_address.length() != 0) {
+                        formattedAddressTextView.setText(formatted_address);
+                        formattedAddress = formatted_address;
+                    } else {
+                        formattedAddressTextView.setText(R.string.AddressNotFound);
+                        formattedAddress = null;
+                    }
+                }).execute(location.getDecimalLocation(), googleMapsApiKey);
+            }
+
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -295,23 +285,15 @@ public class LocationPickActivity extends AppCompatActivity implements
             googleMap_.setMyLocationEnabled(true);
         }
 
-        // If the latLngLocation is not empty
-        if (location != null) {
-            if (location.length() > 0 && !location.equals("null")) {
-                final String latString = location.substring(0, location.indexOf(" "));
-                final String lngString = location.substring(location.indexOf(" ") + 1, location.length() - 1);
-                final double lat = Double.parseDouble(latString.replace(",", "."));
-                final double lng = Double.parseDouble(lngString.replace(",", "."));
-                final LatLng position = new LatLng(lat, lng);
-                marker = googleMap_.addMarker(new MarkerOptions().position(position));
-
-                if (!continueActivity) {
-                    LocationPickActivity.this.googleMap_.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
-                    Toast.makeText(getBaseContext(), getResources().getString(R.string.TapOnMap), Toast.LENGTH_SHORT).show();
-                }
-
+        if (latLngLocation != null) {
+            marker = googleMap_.addMarker(new MarkerOptions().position(latLngLocation));
+            if (!continueActivity) {
+                LocationPickActivity.this.googleMap_.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngLocation, 15));
+                Toast.makeText(getBaseContext(), getResources().getString(R.string.TapOnMap), Toast.LENGTH_SHORT).show();
             }
+
         }
+
     }
 
     @Override
@@ -351,19 +333,20 @@ public class LocationPickActivity extends AppCompatActivity implements
         new GeocodingAsyncTask((output, formatted_address) -> {
             progressBar.setVisibility(View.INVISIBLE);
             if (output.length() != 0) {
-                String latString = output.substring(0, output.indexOf(" "));
-                String lngString = output.substring(output.indexOf(" ") + 1, output.length() - 1);
-                double lat = Double.parseDouble(latString.replace(",", "."));
-                double lng = Double.parseDouble(lngString.replace(",", "."));
-                final LatLng position = new LatLng(lat, lng);
-                // marker is null, if the search was made before the marker has been added
-                // -> add marker to selected location
-                if (marker == null) marker = googleMap_.addMarker(new MarkerOptions().position(position));
-                else marker.setPosition(position); // otherwise just set the location
-                latLngLocation = position;
-                googleMap_.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                final Location location = new Location(output);
+                final LatLng position = location.getLatLng();
+                if (position != null) {
+                    // marker is null, if the search was made before the marker has been added
+                    // -> add marker to selected location
+                    if (marker == null)
+                        marker = googleMap_.addMarker(new MarkerOptions().position(position));
+                    else marker.setPosition(position); // otherwise just set the location
+                    latLngLocation = position;
+                    googleMap_.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                }
                 formattedAddressTextView.setText(formatted_address);
                 formattedAddress = formatted_address;
+
             } else {
                 formattedAddressTextView.setText(R.string.AddressNotFound);
                 formattedAddress = null;
@@ -385,11 +368,8 @@ public class LocationPickActivity extends AppCompatActivity implements
             if (latLngLocation == null) {
                 Toast.makeText(getBaseContext(), R.string.NoLocation, Toast.LENGTH_SHORT).show();
             } else {
-                final String latitude = "" + latLngLocation.latitude;
-                final String longitude = "" + latLngLocation.longitude;
                 final Intent intent = new Intent();
-                intent.putExtra(ExtraKeys.LATITUDE, latitude);
-                intent.putExtra(ExtraKeys.LONGITUDE, longitude);
+                intent.putExtra(ExtraKeys.LOCATION, new Location(latLngLocation));
                 intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, formattedAddress);
                 setResult(RESULT_OK, intent);
                 finish();

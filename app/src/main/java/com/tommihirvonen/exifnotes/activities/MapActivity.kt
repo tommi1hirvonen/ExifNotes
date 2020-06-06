@@ -24,7 +24,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Frame
-import com.tommihirvonen.exifnotes.datastructures.Location
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialogCallback
@@ -276,22 +275,20 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         selectedRolls.forEach { pair ->
             val frames = database.getAllFramesFromRoll(pair.first)
             frames.forEach frames@ { frame ->
-                val locationString = frame.location ?: return@frames
-                if (locationString.isNotEmpty() && locationString != "null") {
-                    val position = Location(locationString).latLng ?: return@frames
-                    val rollName = pair.first.name
-                    val frameCount = "#" + frame.count
-                    val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(pair.second)
-                    val marker = googleMap?.addMarker(MarkerOptions()
-                            .icon(bitmapDescriptor)
-                            .position(position)
-                            .title(rollName)
-                            .snippet(frameCount)
-                            .anchor(0.5f, 1.0f)) // Since we use a custom marker icon, set offset.
-                            ?: return@frames
-                    marker.tag = frame
-                    markerList.add(marker)
-                }
+                val location = frame.location ?: return@frames
+                val position = location.latLng ?: return@frames
+                val rollName = pair.first.name
+                val frameCount = "#" + frame.count
+                val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(pair.second)
+                val marker = googleMap?.addMarker(MarkerOptions()
+                        .icon(bitmapDescriptor)
+                        .position(position)
+                        .title(rollName)
+                        .snippet(frameCount)
+                        .anchor(0.5f, 1.0f)) // Since we use a custom marker icon, set offset.
+                        ?: return@frames
+                marker.tag = frame
+                markerList.add(marker)
             }
         }
         if (markerList.isNotEmpty() && !continueActivity) {

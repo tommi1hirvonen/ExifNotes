@@ -17,6 +17,7 @@ import com.tommihirvonen.exifnotes.datastructures.Filter;
 import com.tommihirvonen.exifnotes.datastructures.FilterMode;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
+import com.tommihirvonen.exifnotes.datastructures.Location;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.R;
 
@@ -1378,7 +1379,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setShutter(cursor.getString(cursor.getColumnIndex(KEY_SHUTTER)));
         frame.setAperture(cursor.getString(cursor.getColumnIndex(KEY_APERTURE)));
         frame.setNote(cursor.getString(cursor.getColumnIndex(KEY_FRAME_NOTE)));
-        frame.setLocation(cursor.getString(cursor.getColumnIndex(KEY_LOCATION)));
+
+        final String location = cursor.getString(cursor.getColumnIndex(KEY_LOCATION));
+        if (location != null) frame.setLocation(new Location(location));
+
         frame.setFocalLength(cursor.getInt(cursor.getColumnIndex(KEY_FOCAL_LENGTH)));
         frame.setExposureComp(cursor.getString(cursor.getColumnIndex(KEY_EXPOSURE_COMP)));
         frame.setNoOfExposures(cursor.getInt(cursor.getColumnIndex(KEY_NO_OF_EXPOSURES)));
@@ -1561,7 +1565,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_SHUTTER, frame.getShutter());
         contentValues.put(KEY_APERTURE, frame.getAperture());
         contentValues.put(KEY_FRAME_NOTE, frame.getNote());
-        contentValues.put(KEY_LOCATION, frame.getLocation());
+        contentValues.put(KEY_LOCATION, frame.getLocation() != null ? frame.getLocation().toString() : null);
         contentValues.put(KEY_FOCAL_LENGTH, frame.getFocalLength());
         contentValues.put(KEY_EXPOSURE_COMP, frame.getExposureComp());
         contentValues.put(KEY_NO_OF_EXPOSURES, frame.getNoOfExposures());

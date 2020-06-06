@@ -28,12 +28,9 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter.FrameAdapterListener
-import com.tommihirvonen.exifnotes.datastructures.Camera
+import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.DateTime.Companion.fromCurrentTime
-import com.tommihirvonen.exifnotes.datastructures.Frame
-import com.tommihirvonen.exifnotes.datastructures.FrameSortMode
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode.Companion.fromValue
-import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
@@ -458,9 +455,10 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         //Get the location only if the app has location permission (locationPermissionsGranted) and
         //the user has enabled GPS updates in the app's settings.
         if (locationPermissionsGranted && requestingLocationUpdates)
-            frame.location = Utilities.locationStringFromLocation(lastLocation)
+            lastLocation?.let { frame.location = Location(it) }
         if (frameList.isNotEmpty()) {
 
+            // TODO Make this code prettier
             //Get the information for the last added frame.
             //The last added frame has the highest id number (database autoincrement).
             var previousFrame = frameList[frameList.size - 1]
@@ -538,9 +536,9 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 // Consume the case when the user has edited
                 // the location of several frames in action mode.
                 if (resultCode == Activity.RESULT_OK) {
-                    val location: String? =
-                            if (data?.hasExtra(ExtraKeys.LATITUDE) == true && data.hasExtra(ExtraKeys.LONGITUDE)) {
-                                "${data.getStringExtra(ExtraKeys.LATITUDE)} ${data.getStringExtra(ExtraKeys.LONGITUDE)}"
+                    val location: Location? =
+                            if (data?.hasExtra(ExtraKeys.LOCATION) == true) {
+                                data.getParcelableExtra(ExtraKeys.LOCATION)
                             } else null
                     val formattedAddress: String? =
                             if (data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
