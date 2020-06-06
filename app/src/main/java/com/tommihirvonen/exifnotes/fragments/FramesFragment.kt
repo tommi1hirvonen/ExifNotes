@@ -673,12 +673,28 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                         builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), frameAdapter.selectedItemCount))
                         builder.setItems(R.array.FramesBatchEditOptions) { _: DialogInterface?, i: Int ->
                             when (i) {
-                                0 ->                                     // Edit frame counts
-                                    FrameCountBatchEditDialogBuilder(requireActivity()).create().show()
+                                // Edit frame counts
+                                0 -> FrameCountBatchEditDialogBuilder(requireActivity()).create().show()
+                                // Edit location
                                 1 -> {
-                                    // Edit location
                                     val intent = Intent(activity, LocationPickActivity::class.java)
                                     startActivityForResult(intent, REQUEST_LOCATION_PICK)
+                                }
+                                // Reverse frame counts
+                                2 -> {
+                                    // Get the selected frames and sort them based on frame count
+                                    val selectedFrames = frameAdapter.selectedItemPositions.map { frameList[it] }.sortedBy { it.count }
+                                    // Create a list of frame counts in reversed order
+                                    val frameCountsReversed = selectedFrames.map { it.count }.reversed()
+                                    selectedFrames.forEachIndexed { index, frame ->
+                                        frame.count = frameCountsReversed[index]
+                                        database.updateFrame(frame)
+                                    }
+                                    if (sortMode == FrameSortMode.FRAME_COUNT) {
+                                        Utilities.sortFrameList(requireContext(), sortMode, database, frameList)
+                                    }
+                                    frameAdapter.notifyDataSetChanged()
+                                    actionMode?.finish()
                                 }
                                 else -> {
                                 }

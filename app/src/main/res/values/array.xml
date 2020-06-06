@@ -49,6 +49,7 @@
     <string-array name="FramesBatchEditOptions">
         <item>@string/EditFrameCounts</item>
         <item>@string/EditLocation</item>
+        <item>@string/ReverseFrameCounts</item>
     </string-array>
 
     <string-array name="RollsBatchEditOptions">

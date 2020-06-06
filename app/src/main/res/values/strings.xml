@@ -258,6 +258,7 @@
     <string name="PushPull">Push(+)/pull(-)</string>
     <string name="Red">Red</string>
     <string name="Reset">Reset</string>
+    <string name="ReverseFrameCounts">Reverse frame counts</string>
     <string name="RollsActivated">Roll(s) unarchived</string>
     <string name="RollsArchived">Roll(s) archived</string>
     <string name="RotateLeft90Degrees">Rotate left 90 degrees</string>
@@ -305,6 +306,7 @@
     <string name="Updates">
         Updates in this version:\n
         -Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance\n
+        -Frame counts can be reversed when batch editing frames (useful for prewind cameras)\n
         -Replaced deprecated API calls\n
         -Bug fix: Edit icon would disappear when the user selects all rolls by pressing the "select all" icon\n
         -Migrated code from Java to Kotlin\n
@@ -319,6 +321,7 @@
         \n
         v1.14.2 2020-05-01:\n
         -Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance\n
+        -Frame counts can be reversed when batch editing frames (useful for prewind cameras)\n
         -Replaced deprecated API calls\n
         -Bug fix: Edit icon would disappear when the user selects all rolls by pressing the "select all" icon\n
         -Migrated code from Java to Kotlin\n
