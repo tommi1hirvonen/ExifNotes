@@ -18,7 +18,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
-import com.tommihirvonen.exifnotes.datastructures.DateTime.Companion.fromCurrentTime
+import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager.ZipFileCreatorAsyncTask
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager.ZipFileReaderAsyncTask
@@ -59,7 +59,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             intent.action = Intent.ACTION_CREATE_DOCUMENT
             intent.addCategory(Intent.CATEGORY_OPENABLE)
             intent.type = "application/zip"
-            val date = fromCurrentTime().dateAsText
+            val date = DateTime.fromCurrentTime().dateAsText
             val title = "Exif_Notes_Complementary_Pictures_$date.zip"
             intent.putExtra(Intent.EXTRA_TITLE, title)
             startActivityForResult(intent, REQUEST_EXPORT_COMPLEMENTARY_PICTURES)
@@ -99,7 +99,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
                 intent.action = Intent.ACTION_CREATE_DOCUMENT
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
                 intent.type = "*/*"
-                val date = fromCurrentTime().dateAsText
+                val date = DateTime.fromCurrentTime().dateAsText
                 val filename = "Exif_Notes_Database_$date.db"
                 intent.putExtra(Intent.EXTRA_TITLE, filename)
                 startActivityForResult(intent, REQUEST_EXPORT_DATABASE)

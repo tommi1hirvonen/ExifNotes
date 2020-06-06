@@ -85,7 +85,7 @@ class Roll : Parcelable {
     private constructor(pc: Parcel) {
         this.id = pc.readLong()
         this.name = pc.readString()
-        this.date = pc.readString()?.let { DateTime(it) }
+        this.date = pc.readParcelable(DateTime::class.java.classLoader)
         this.note = pc.readString()
         this.cameraId = pc.readLong()
         this.iso = pc.readInt()
@@ -93,8 +93,8 @@ class Roll : Parcelable {
         this.format = pc.readInt()
         this.archived = pc.readInt() == 1
         this.filmStockId = pc.readLong()
-        this.unloaded = pc.readString()?.let { DateTime(it) }
-        this.developed = pc.readString()?.let { DateTime(it) }
+        this.unloaded = pc.readParcelable(DateTime::class.java.classLoader)
+        this.developed = pc.readParcelable(DateTime::class.java.classLoader)
     }
 
     override fun describeContents(): Int {
@@ -104,7 +104,7 @@ class Roll : Parcelable {
     override fun writeToParcel(parcel: Parcel, i: Int) {
         parcel.writeLong(id)
         parcel.writeString(name)
-        parcel.writeString(date?.toString()) // avoid passing "null" as string by using the safe call operator ?
+        parcel.writeParcelable(date, 0)
         parcel.writeString(note)
         parcel.writeLong(cameraId)
         parcel.writeInt(iso)
@@ -112,8 +112,8 @@ class Roll : Parcelable {
         parcel.writeInt(format)
         parcel.writeInt(if (archived) 1 else 0)
         parcel.writeLong(filmStockId)
-        parcel.writeString(unloaded?.toString()) // avoid passing "null" as string by using the safe call operator ?
-        parcel.writeString(developed?.toString()) // avoid passing "null" as string by using the safe call operator ?
+        parcel.writeParcelable(unloaded, 0)
+        parcel.writeParcelable(developed, 0)
     }
 
     companion object CREATOR : Parcelable.Creator<Roll> {

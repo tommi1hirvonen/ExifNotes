@@ -29,7 +29,6 @@ import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
 import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.datastructures.DateTime.Companion.fromCurrentTime
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask.AsyncResponse
@@ -369,7 +368,7 @@ open class EditFrameDialog : DialogFragment() {
         val timeLayout = inflatedView.findViewById<LinearLayout>(R.id.time_layout)
         val dateTextView = inflatedView.findViewById<TextView>(R.id.date_text)
         val timeTextView = inflatedView.findViewById<TextView>(R.id.time_text)
-        if (frame.date == null) frame.date = fromCurrentTime()
+        if (frame.date == null) frame.date = DateTime.fromCurrentTime()
         val dateTime = frame.date
         dateTextView.text = dateTime?.dateAsText
         timeTextView.text = dateTime?.timeAsText

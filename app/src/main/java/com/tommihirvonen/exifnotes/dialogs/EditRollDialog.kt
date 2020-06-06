@@ -17,7 +17,6 @@ import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.DateTime
-import com.tommihirvonen.exifnotes.datastructures.DateTime.Companion.fromCurrentTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.DateTimeLayoutManager
@@ -233,7 +232,7 @@ class EditRollDialog : DialogFragment() {
 
         // DATE
         if (roll.date == null) {
-            roll.date = fromCurrentTime()
+            roll.date = DateTime.fromCurrentTime()
         }
         val dateTimeLoaded = roll.date
         val dateTextView = inflatedView.findViewById<TextView>(R.id.date_text)

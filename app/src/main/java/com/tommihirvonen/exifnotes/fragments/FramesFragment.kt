@@ -29,7 +29,6 @@ import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter.FrameAdapterListener
 import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.datastructures.DateTime.Companion.fromCurrentTime
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode.Companion.fromValue
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
@@ -448,7 +447,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         val title = requireActivity().resources.getString(R.string.NewFrame)
         val positiveButton = requireActivity().resources.getString(R.string.Add)
         val frame = Frame()
-        frame.date = fromCurrentTime()
+        frame.date = DateTime.fromCurrentTime()
         frame.count = 0
         frame.rollId = roll.id
 

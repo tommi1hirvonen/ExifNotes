@@ -32,7 +32,7 @@ public class DateTimeLayoutManager {
                       @Nullable final View clearLayout) {
         dateTime = dateTimeParam;
         dateLayout.setOnClickListener(v -> {
-            final DateTime dateTimeTemp = dateTime != null ? dateTime : DateTime.Companion.fromCurrentTime();
+            final DateTime dateTimeTemp = dateTime != null ? dateTime : DateTime.CREATOR.fromCurrentTime();
             final DatePickerDialog dialog = new DatePickerDialog(activity, (view, year, month, dayOfMonth) -> {
                 dateTime = new DateTime(year, month + 1, dayOfMonth, dateTimeTemp.getHour(), dateTimeTemp.getMinute());
                 dateTextView.setText(dateTime.getDateAsText());
@@ -41,7 +41,7 @@ public class DateTimeLayoutManager {
             dialog.show();
         });
         timeLayout.setOnClickListener(v -> {
-            final DateTime dateTimeTemp = dateTime != null ? dateTime : DateTime.Companion.fromCurrentTime();
+            final DateTime dateTimeTemp = dateTime != null ? dateTime : DateTime.CREATOR.fromCurrentTime();
             final TimePickerDialog dialog = new TimePickerDialog(activity, (view, hourOfDay, minute) -> {
                 dateTime = new DateTime(dateTimeTemp.getYear(), dateTimeTemp.getMonth(), dateTimeTemp.getDay(), hourOfDay, minute);
                 dateTextView.setText(dateTime.getDateAsText());

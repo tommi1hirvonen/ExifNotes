@@ -124,7 +124,7 @@ class Frame : Parcelable {
         this.id = pc.readLong()
         this.rollId = pc.readLong()
         this.count = pc.readInt()
-        this.date = pc.readString()?.let { DateTime(it) }
+        this.date = pc.readParcelable(DateTime::class.java.classLoader)
         this.lensId = pc.readLong()
         this.shutter = pc.readString()
         this.aperture = pc.readString()
@@ -156,7 +156,7 @@ class Frame : Parcelable {
         parcel.writeLong(id)
         parcel.writeLong(rollId)
         parcel.writeInt(count)
-        parcel.writeString(date?.toString()) // avoid passing "null" as string by using the safe call operator ?
+        parcel.writeParcelable(date, 0)
         parcel.writeLong(lensId)
         parcel.writeString(shutter)
         parcel.writeString(aperture)
