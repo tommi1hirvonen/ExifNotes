@@ -423,11 +423,6 @@ open class EditFrameDialog : DialogFragment() {
         val addFilterImageView = inflatedView.findViewById<ImageView>(R.id.add_filter)
         addFilterImageView.isClickable = true
         addFilterImageView.setOnClickListener {
-            if (newFrame.lens == null) {
-                Toast.makeText(activity, resources.getString(R.string.SelectLensToAddFilters),
-                        Toast.LENGTH_LONG).show()
-                return@setOnClickListener
-            }
             noteEditText.clearFocus()
             val dialog = EditFilterDialog()
             dialog.setTargetFragment(this@EditFrameDialog, ADD_FILTER)
@@ -458,14 +453,14 @@ open class EditFrameDialog : DialogFragment() {
         //==========================================================================================
         //LIGHT SOURCE
         lightSourceTextView = inflatedView.findViewById(R.id.light_source_text)
-        val lightSource: String?
+        val lightSource: String
         lightSource = try {
             resources.getStringArray(R.array.LightSource)[newFrame.lightSource]
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
-            resources.getString(R.string.ClickToSet)
+            ""
         }
-        lightSourceTextView.text = if (newFrame.lightSource == 0) resources.getString(R.string.ClickToSet) else lightSource
+        lightSourceTextView.text = if (newFrame.lightSource == 0) "" else lightSource
         val lightSourceLayout = inflatedView.findViewById<LinearLayout>(R.id.light_source_layout)
         lightSourceLayout.setOnClickListener(LightSourceLayoutOnClickListener())
 
@@ -1462,7 +1457,7 @@ open class EditFrameDialog : DialogFragment() {
             builder.setSingleChoiceItems(R.array.LightSource, checkedItem) { dialog: DialogInterface, which: Int ->
                 newFrame.lightSource = which
                 lightSourceTextView.text =
-                        if (newFrame.lightSource == 0) resources.getString(R.string.ClickToSet)
+                        if (newFrame.lightSource == 0) ""
                         else resources.getStringArray(R.array.LightSource)[which]
                 dialog.dismiss()
             }

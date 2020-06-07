@@ -9,7 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.datastructures.DateTime;
 
 /**
@@ -52,7 +51,7 @@ public class DateTimeLayoutManager {
         if (clearLayout != null) {
             clearLayout.setOnClickListener(v -> {
                 dateTime = null;
-                dateTextView.setText(R.string.ClickToSet);
+                dateTextView.setText("");
                 timeTextView.setText("");
             });
         }
