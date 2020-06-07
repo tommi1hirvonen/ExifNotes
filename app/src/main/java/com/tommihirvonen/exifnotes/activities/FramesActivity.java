@@ -1,7 +1,11 @@
 package com.tommihirvonen.exifnotes.activities;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -46,6 +50,19 @@ public class FramesActivity extends AppCompatActivity {
         // Calling it at the end of the method resulted in the back button not appearing
         // when action mode was enabled.
         super.onCreate(savedInstanceState);
+
+        // If the device is locked, this activity can be shown regardless.
+        // This way the user doesn't have to unlock the device with authentication
+        // just to access this activity.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true);
+            setTurnScreenOn(true);
+        } else {
+            final Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+            window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+            window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        }
 
         // Use the same activity layout as in MainActivity.
         setContentView(R.layout.activity_main);
