@@ -610,7 +610,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                         // Show batch edit features
                         val builder = AlertDialog.Builder(activity)
                         builder.setTitle(String.format(resources
-                                .getString(R.string.BatchEditFramesTitle),
+                                .getString(R.string.BatchEditRollsTitle),
                                 rollAdapter.selectedItemCount))
                         builder.setItems(R.array.RollsBatchEditOptions) { _: DialogInterface?, which: Int ->
                             when (which) {

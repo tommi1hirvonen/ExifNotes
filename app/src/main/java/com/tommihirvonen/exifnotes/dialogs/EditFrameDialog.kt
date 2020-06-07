@@ -316,17 +316,18 @@ open class EditFrameDialog : DialogFragment() {
         if (Utilities.isAppThemeDark(activity)) {
             listOf<View>(
                     inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view1)
+                    inflatedView.findViewById(R.id.divider_view2),
+                    inflatedView.findViewById(R.id.divider_view3),
+                    inflatedView.findViewById(R.id.divider_view5),
+                    inflatedView.findViewById(R.id.divider_view6),
+                    inflatedView.findViewById(R.id.divider_view7),
+                    inflatedView.findViewById(R.id.divider_view8),
+                    inflatedView.findViewById(R.id.divider_view9),
+                    inflatedView.findViewById(R.id.divider_view10),
+                    inflatedView.findViewById(R.id.divider_view11),
+                    inflatedView.findViewById(R.id.divider_view12),
+                    inflatedView.findViewById(R.id.divider_view13),
+                    inflatedView.findViewById(R.id.divider_view14)
             ).forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
             Utilities.setColorFilter((inflatedView.findViewById<ImageView>(R.id.add_lens)).drawable.mutate(),
                     ContextCompat.getColor(requireActivity(), R.color.white))

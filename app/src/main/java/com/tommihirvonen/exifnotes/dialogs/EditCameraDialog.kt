@@ -99,7 +99,8 @@ class EditCameraDialog : DialogFragment() {
                     inflatedView.findViewById(R.id.divider_view1),
                     inflatedView.findViewById(R.id.divider_view2),
                     inflatedView.findViewById(R.id.divider_view3),
-                    inflatedView.findViewById(R.id.divider_view4)
+                    inflatedView.findViewById(R.id.divider_view4),
+                    inflatedView.findViewById(R.id.divider_view5)
             ).forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
         }
 
