@@ -28,8 +28,7 @@ data class Location(val decimalLocation: String) : Parcelable {
 
     val latLng: LatLng? get() = decimalLocation.let {
         try {
-            val latString = decimalLocation.substring(0, decimalLocation.indexOf(" "))
-            val lngString = decimalLocation.substring(decimalLocation.indexOf(" ") + 1, decimalLocation.length - 1)
+            val (latString, lngString) = decimalLocation.split(" ")
             val lat = latString.replace(",", ".").toDouble()
             val lng = lngString.replace(",", ".").toDouble()
             LatLng(lat, lng)
@@ -89,25 +88,22 @@ data class Location(val decimalLocation: String) : Parcelable {
 
     private val components: Components? get() = decimalLocation.let { location ->
         try {
-            var latString = location.substring(0, location.indexOf(" "))
-            var lngString = location.substring(location.indexOf(" ") + 1)
-            val latRef: String
-            if (latString.substring(0, 1) == "-") {
-                latRef = "S"
-                latString = latString.substring(1)
-            } else latRef = "N"
-            val lngRef: String
-            if (lngString.substring(0, 1) == "-") {
-                lngRef = "W"
-                lngString = lngString.substring(1)
-            } else lngRef = "E"
-            latString = Location.convert(latString.toDouble(), Location.FORMAT_SECONDS)
-            val latStringList = latString.split(":".toRegex())
-            lngString = Location.convert(lngString.toDouble(), Location.FORMAT_SECONDS)
-            val lngStringList = lngString.split(":".toRegex())
+            var (latString, lngString) = location.split(" ")
+            val latRef = if (latString.firstOrNull() == '-') {
+                latString = latString.removePrefix("-")
+                "S"
+            } else "N"
+            val lngRef = if (lngString.firstOrNull() == '-') {
+                lngString = lngString.removePrefix("-")
+                "W"
+            } else "E"
+            val latStringDegrees = Location.convert(latString.toDouble(), Location.FORMAT_SECONDS)
+            val lngStringDegrees = Location.convert(lngString.toDouble(), Location.FORMAT_SECONDS)
+            val latList = latStringDegrees.split(":")
+            val lngList = lngStringDegrees.split(":")
             return Components(
-                    latRef, latStringList[0], latStringList[1], latStringList[2],
-                    lngRef, lngStringList[0], lngStringList[1], lngStringList[2]
+                    latRef, latList[0], latList[1], latList[2],
+                    lngRef, lngList[0], lngList[1], lngList[2]
             )
         } catch (e: Exception) {
             e.printStackTrace()

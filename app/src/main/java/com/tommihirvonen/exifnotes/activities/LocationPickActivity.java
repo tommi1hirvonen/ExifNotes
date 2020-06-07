@@ -85,7 +85,7 @@ public class LocationPickActivity extends AppCompatActivity implements
     private String googleMapsApiKey;
 
     /**
-     * Member to indicate whether this acitivty was continued or not.
+     * Member to indicate whether this activity was continued or not.
      * Some animations will only be activated if this value is false.
      */
     private boolean continueActivity = false;
@@ -148,7 +148,6 @@ public class LocationPickActivity extends AppCompatActivity implements
 
         // If the activity is continued, then savedInstanceState is not null.
         // Get the location from there.
-
         final Location location;
         if (savedInstanceState != null) {
             location = savedInstanceState.getParcelable(ExtraKeys.LOCATION);
@@ -179,11 +178,8 @@ public class LocationPickActivity extends AppCompatActivity implements
                     }
                 }).execute(location.getDecimalLocation(), googleMapsApiKey);
             }
-
         }
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
     }
 
     @Override
@@ -220,7 +216,6 @@ public class LocationPickActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -375,14 +370,11 @@ public class LocationPickActivity extends AppCompatActivity implements
                 finish();
             }
         } else if (v.getId() == R.id.fab_current_location) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling ActivityCompat.requestPermissions()
                 return;
             }
             fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
@@ -400,10 +392,8 @@ public class LocationPickActivity extends AppCompatActivity implements
         super.onSaveInstanceState(outState);
         // Store the currently set location to outState.
         if (latLngLocation != null) {
-            final String latitude = "" + latLngLocation.latitude;
-            final String longitude = "" + latLngLocation.longitude;
-            outState.putBoolean(ExtraKeys.CONTINUE, true);
-            outState.putString(ExtraKeys.LOCATION, latitude + " " + longitude);
+            outState.putParcelable(ExtraKeys.LOCATION, new Location(latLngLocation));
+            outState.putString(ExtraKeys.FORMATTED_ADDRESS, formattedAddress);
         }
     }
 
