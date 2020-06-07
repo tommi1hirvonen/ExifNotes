@@ -45,11 +45,6 @@ class FrameAdapter(private val context: Context,
     }
 
     /**
-     * Reference to the singleton database.
-     */
-    private val database: FilmDbHelper = FilmDbHelper.getInstance(context)
-
-    /**
      * The color of the frame ImageView depending on the current app theme (light or dark).
      */
     private val backgroundFrameColor: Int =
@@ -124,11 +119,7 @@ class FrameAdapter(private val context: Context,
         val frame = frameList[position]
         holder.frameTextView.text = frame.date?.dateTimeAsText
         holder.countTextView.text = "${frame.count}"
-        if (frame.lensId > 0) {
-            holder.frameTextView2.text = database.getLens(frame.lensId)?.name
-        } else {
-            holder.frameTextView2.text = context.resources.getString(R.string.NoLens)
-        }
+        holder.frameTextView2.text = frame.lens?.name ?: context.resources.getString(R.string.NoLens)
         holder.noteTextView.text = frame.note
         holder.apertureTextView.text = frame.aperture?.let { "f/$it" } ?: ""
         holder.shutterTextView.text = frame.shutter

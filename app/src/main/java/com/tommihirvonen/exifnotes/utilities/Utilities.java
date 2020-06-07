@@ -403,11 +403,10 @@ public final class Utilities {
      *
      * @param context reference to the parent activity
      * @param sortMode enum type referencing the frame sort mode
-     * @param database reference to the application's database
      * @param listToSort reference to the frame list that is to be sorted
      */
     public static void sortFrameList(final Context context, final FrameSortMode sortMode,
-                                     final FilmDbHelper database, final List<Frame> listToSort) {
+                                     final List<Frame> listToSort) {
         switch (sortMode){
             case FRAME_COUNT:
                 Collections.sort(listToSort, (frame1, frame2) -> {
@@ -476,8 +475,8 @@ public final class Utilities {
 
             case LENS:
                 Collections.sort(listToSort, (frame1, frame2) -> {
-                    final Lens lens1 = database.getLens(frame1.getLensId());
-                    final Lens lens2 = database.getLens(frame2.getLensId());
+                    final Lens lens1 = frame1.getLens();
+                    final Lens lens2 = frame2.getLens();
                     final String name1 = lens1 != null ? lens1.getName() : "";
                     final String name2 = lens2 != null ? lens2.getName() : "";
                     return name1.compareTo(name2);
@@ -600,9 +599,6 @@ public final class Utilities {
 
         for (final Frame frame : frameList) {
 
-            Lens lens = null;
-            if (frame.getLensId() > 0) lens = database.getLens(frame.getLensId());
-
             //ExifTool path
             if (exiftoolPath.length() > 0) stringBuilder.append(exiftoolPath);
             //ExifTool command
@@ -621,6 +617,7 @@ public final class Utilities {
                     stringBuilder.append(serialNumberTag).append(quote).append(camera.getSerialNumber())
                             .append(quote).append(space);
             }
+            final Lens lens = frame.getLens();
             if (lens != null) {
                 //LensMakeTag
                 stringBuilder.append(lensMakeTag).append(quote).append(lens.getMake()).append(quote).append(space);
@@ -779,11 +776,6 @@ public final class Utilities {
 
         for (final Frame frame : frameList) {
 
-            Lens lens = null;
-            if (frame.getLensId() > 0) {
-                lens = database.getLens(frame.getLensId());
-            }
-
             //FrameCount
             stringBuilder.append(String.valueOf(frame.getCount()));
             stringBuilder.append(separator);
@@ -793,6 +785,7 @@ public final class Utilities {
             stringBuilder.append(separator);
 
             //Lens make and model
+            final Lens lens = frame.getLens();
             if (lens != null) {
                 stringBuilder.escape(lens.getMake()).append(" ").escape(lens.getModel());
             }

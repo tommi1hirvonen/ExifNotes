@@ -1375,7 +1375,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         final String date = cursor.getString(cursor.getColumnIndex(KEY_DATE));
         if (date != null) frame.setDate(new DateTime(date));
 
-        frame.setLensId(cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID)));
+        final long lensId = cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID));
+        if (lensId > 0) frame.setLens(getLens(lensId));
+
         frame.setShutter(cursor.getString(cursor.getColumnIndex(KEY_SHUTTER)));
         frame.setAperture(cursor.getString(cursor.getColumnIndex(KEY_APERTURE)));
         frame.setNote(cursor.getString(cursor.getColumnIndex(KEY_FRAME_NOTE)));
@@ -1386,7 +1388,10 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         frame.setFocalLength(cursor.getInt(cursor.getColumnIndex(KEY_FOCAL_LENGTH)));
         frame.setExposureComp(cursor.getString(cursor.getColumnIndex(KEY_EXPOSURE_COMP)));
         frame.setNoOfExposures(cursor.getInt(cursor.getColumnIndex(KEY_NO_OF_EXPOSURES)));
-        frame.setFlashUsed(cursor.getInt(cursor.getColumnIndex(KEY_FLASH_USED)));
+
+        final int flashUsed = cursor.getInt(cursor.getColumnIndex(KEY_FLASH_USED));
+        frame.setFlashUsed(flashUsed > 0);
+
         frame.setFlashPower(cursor.getString(cursor.getColumnIndex(KEY_FLASH_POWER)));
         frame.setFlashComp(cursor.getString(cursor.getColumnIndex(KEY_FLASH_COMP)));
         frame.setMeteringMode(cursor.getInt(cursor.getColumnIndex(KEY_METERING_MODE)));
@@ -1561,7 +1566,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_COUNT, frame.getCount());
         contentValues.put(KEY_DATE, frame.getDate() != null ? frame.getDate().toString() : null);
 
-        if (frame.getLensId() > 0) contentValues.put(KEY_LENS_ID, frame.getLensId());
+        if (frame.getLens() != null) contentValues.put(KEY_LENS_ID, frame.getLens().getId());
         else contentValues.putNull(KEY_LENS_ID);
 
         contentValues.put(KEY_SHUTTER, frame.getShutter());

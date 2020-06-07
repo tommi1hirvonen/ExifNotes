@@ -332,7 +332,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 val frame = marker.tag as Frame? ?: return null
                 val roll = database.getRoll(frame.rollId) ?: return null
                 val camera = if (roll.cameraId > 0) database.getCamera(roll.cameraId) else null
-                val lens = if (frame.lensId > 0) database.getLens(frame.lensId) else null
                 @SuppressLint("InflateParams")
                 val view = layoutInflater.inflate(R.layout.info_window_all_frames, null)
                 val rollTextView = view.findViewById<TextView>(R.id.roll_name)
@@ -346,7 +345,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 val frameCountText = "#" + frame.count
                 frameCountTextView.text = frameCountText
                 dateTimeTextView.text = frame.date?.dateTimeAsText ?: ""
-                lensTextView.text = lens?.name ?: getString(R.string.NoLens)
+                lensTextView.text = frame.lens?.name ?: getString(R.string.NoLens)
                 noteTextView.text = frame.note
                 view
             } else {
@@ -363,7 +362,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         override fun getInfoContents(marker: Marker): View? {
             return if (marker.tag is Frame) {
                 val frame = marker.tag as Frame? ?: return null
-                val lens = if (frame.lensId > 0) database.getLens(frame.lensId) else null
                 @SuppressLint("InflateParams")
                 val view = layoutInflater.inflate(R.layout.info_window, null)
                 val frameCountTextView = view.findViewById<TextView>(R.id.frame_count)
@@ -373,7 +371,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 val frameCountText = "#" + frame.count
                 frameCountTextView.text = frameCountText
                 dateTimeTextView.text = if (frame.date != null) frame.date!!.dateTimeAsText else ""
-                lensTextView.text = lens?.name ?: getString(R.string.NoLens)
+                lensTextView.text = frame.lens?.name ?: getString(R.string.NoLens)
                 noteTextView.text = frame.note
                 view
             } else {
