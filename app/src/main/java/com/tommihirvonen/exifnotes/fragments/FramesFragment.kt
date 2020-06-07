@@ -239,12 +239,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             }
             R.id.menu_item_about -> {
                 val aboutTitle = resources.getString(R.string.app_name)
-                val aboutMessage = """
-                    ${resources.getString(R.string.about)}
-
-
-                    ${resources.getString(R.string.VersionHistory)}
-                    """.trimIndent()
+                val aboutMessage = "${resources.getString(R.string.about)}\n\n\n${resources.getString(R.string.VersionHistory)}"
                 Utilities.showGeneralDialog(activity, aboutTitle, aboutMessage)
             }
             android.R.id.home -> requireActivity().finish()
@@ -456,28 +451,19 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         if (locationPermissionsGranted && requestingLocationUpdates)
             lastLocation?.let { frame.location = Location(it) }
         if (frameList.isNotEmpty()) {
-
-            // TODO Make this code prettier
             //Get the information for the last added frame.
             //The last added frame has the highest id number (database autoincrement).
-            var previousFrame = frameList[frameList.size - 1]
-            var i: Long = 0
-            for (frameIterator in frameList) {
-                if (frameIterator.id > i) {
-                    i = frameIterator.id
-                    previousFrame = frameIterator
-                }
-                //Set the frame count to one higher than the highest frame count
-                if (frameIterator.count >= frame.count) frame.count = frameIterator.count + 1
-            }
-
+            val previousFrame = frameList.maxBy { it.id }
             // Here we can list the properties we want to bring from the previous frame
-            frame.lensId = previousFrame.lensId
-            frame.shutter = previousFrame.shutter
-            frame.aperture = previousFrame.aperture
-            frame.filters = previousFrame.filters
-            frame.focalLength = previousFrame.focalLength
-            frame.lightSource = previousFrame.lightSource
+            previousFrame?.let {
+                frame.count = previousFrame.count + 1
+                frame.lensId = previousFrame.lensId
+                frame.shutter = previousFrame.shutter
+                frame.aperture = previousFrame.aperture
+                frame.filters = previousFrame.filters
+                frame.focalLength = previousFrame.focalLength
+                frame.lightSource = previousFrame.lightSource
+            }
         } else {
             frame.count = 1
             frame.shutter = null

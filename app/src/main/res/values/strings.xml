@@ -476,7 +476,7 @@
     </string>
     <string name="VisibleRolls">Visible rolls</string>
     <string name="Yes">Yes</string>
-    <string name="about">Version 1.14.0\nCopyright 2019 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
+    <string name="about">Version 1.14.2\nCopyright 2020 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
     <string name="app_name">Exif Notes</string>
     <string name="main_help">
         This is a quick guide to help you set up Exif Notes so that you can tag your scanned files on your computer using ExifTool. Please visit the homepage of ExifTool by Phil Harvey for more information on how to use ExifTool:\n

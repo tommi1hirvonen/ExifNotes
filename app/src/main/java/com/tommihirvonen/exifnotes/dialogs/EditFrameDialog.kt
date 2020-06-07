@@ -318,6 +318,7 @@ open class EditFrameDialog : DialogFragment() {
                     inflatedView.findViewById(R.id.divider_view1),
                     inflatedView.findViewById(R.id.divider_view2),
                     inflatedView.findViewById(R.id.divider_view3),
+                    inflatedView.findViewById(R.id.divider_view4),
                     inflatedView.findViewById(R.id.divider_view5),
                     inflatedView.findViewById(R.id.divider_view6),
                     inflatedView.findViewById(R.id.divider_view7),
