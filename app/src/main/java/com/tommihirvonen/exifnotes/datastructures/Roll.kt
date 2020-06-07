@@ -13,7 +13,17 @@ class Roll(var id: Long = 0,
            var cameraId: Long = 0,
            var iso: Int = 0,
            var pushPull: String? = null,
-           var format: Int = 0,
+           private var format_: Int = 0,
            var archived: Boolean = false,
            var filmStockId: Long = 0
-           ) : Parcelable
+           ) : Parcelable {
+
+    init {
+        if (format_ !in 0..3) format_ = 0
+    }
+
+    var format: Int
+        get() = if (format_ in 0..3) format_ else 0
+        set(value) { if (value in 0..3) format_ = value }
+
+}

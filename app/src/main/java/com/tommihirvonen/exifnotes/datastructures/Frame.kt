@@ -20,11 +20,21 @@ data class Frame(
         var exposureComp: String? = null,
         var noOfExposures: Int = 1,
         var flashUsed: Boolean = false,
-        var flashPower: String? = null,
-        var flashComp: String? = null,
-        var meteringMode: Int = 0,
+        var flashPower: String? = null, // not used
+        var flashComp: String? = null, // not used
+        var meteringMode: Int = 0, // not used
         var pictureFilename: String? = null,
-        var lightSource: Int = 0,
+        private var lightSource_: Int = 0,
         var lens: Lens? = null,
         var filters: MutableList<Filter> = ArrayList()
-) : Parcelable
+) : Parcelable {
+
+    init {
+        if (lightSource_ !in 0..7) lightSource_ = 0
+    }
+
+    var lightSource: Int
+        get() = if (lightSource_ in 0..7) lightSource_ else 0
+        set(value) { if (value in 0..7) lightSource_ = value }
+
+}
