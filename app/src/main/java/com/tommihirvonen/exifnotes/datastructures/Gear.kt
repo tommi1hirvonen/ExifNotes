@@ -1,6 +1,5 @@
 package com.tommihirvonen.exifnotes.datastructures
 
-import android.os.Parcel
 import android.os.Parcelable
 
 /**
@@ -8,24 +7,7 @@ import android.os.Parcelable
  * Defines all common member variables and methods
  * as well as mandatory interfaces to implement.
  */
-abstract class Gear : Parcelable, Comparable<Gear> {
-
-    constructor()
-
-    /**
-     * unique database id
-     */
-    var id: Long = 0
-
-    /**
-     * make of the Gear
-     */
-    var make: String? = null
-
-    /**
-     *  model of the Gear
-     */
-    var model: String? = null
+abstract class Gear(open var id: Long, open var make: String?, open var model: String?) : Parcelable, Comparable<Gear> {
 
     /**
      * @return make and model of the Gear concatenated
@@ -39,22 +21,6 @@ abstract class Gear : Parcelable, Comparable<Gear> {
         else
             return false
         return gear.id == this.id && gear.make == this.make && gear.model == this.model
-    }
-
-    protected constructor(pc: Parcel) {
-        this.id = pc.readLong()
-        this.make = pc.readString()
-        this.model = pc.readString()
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        parcel.writeLong(id)
-        parcel.writeString(make)
-        parcel.writeString(model)
     }
 
     override fun hashCode(): Int {

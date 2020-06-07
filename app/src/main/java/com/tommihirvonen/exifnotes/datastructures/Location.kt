@@ -6,7 +6,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class Location(val decimalLocation: String) : Parcelable {
+class Location(val decimalLocation: String) : Parcelable {
 
     companion object {
         private fun Location.customString(): String = this.let {
@@ -111,7 +111,7 @@ data class Location(val decimalLocation: String) : Parcelable {
         }
     }
 
-    private data class Components(
+    private class Components(
             val latitudeRef: String,
             val latitudeDegrees: String,
             val latitudeMinutes: String,

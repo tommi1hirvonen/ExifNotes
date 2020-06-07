@@ -285,8 +285,8 @@ open class EditFrameDialog : DialogFragment() {
             val camera = database.getCamera(roll.cameraId)
             if (camera != null) {
                 mountableLenses = database.getLinkedLenses(camera)
-                shutterIncrements = camera.getShutterIncrements()
-                exposureCompIncrements = camera.getExposureCompIncrements()
+                shutterIncrements = camera.shutterIncrements
+                exposureCompIncrements = camera.exposureCompIncrements
                 this.camera = camera
             } else {
                 mountableLenses = database.allLenses
@@ -294,7 +294,7 @@ open class EditFrameDialog : DialogFragment() {
         }
 
         val lens = database.getLens(frame.lensId)
-        if (lens != null) apertureIncrements = lens.getApertureIncrements()
+        if (lens != null) apertureIncrements = lens.apertureIncrements
 
         val layoutInflater = requireActivity().layoutInflater
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
@@ -645,7 +645,7 @@ open class EditFrameDialog : DialogFragment() {
                 mountableLenses?.add(lens)
             }
             lensTextView.text = lens.name
-            apertureIncrements = lens.getApertureIncrements()
+            apertureIncrements = lens.apertureIncrements
             checkApertureValueValidity()
             if (newFocalLength > lens.maxFocalLength) newFocalLength = lens.maxFocalLength
             else if (newFocalLength < lens.minFocalLength) newFocalLength = lens.minFocalLength
@@ -1191,7 +1191,7 @@ open class EditFrameDialog : DialogFragment() {
                         newFocalLength = lens.minFocalLength
                     }
                     focalLengthTextView.text = if (newFocalLength == 0) "" else newFocalLength.toString()
-                    apertureIncrements = lens.getApertureIncrements()
+                    apertureIncrements = lens.apertureIncrements
 
                     //Check the aperture value's validity against the new lens' properties.
                     checkApertureValueValidity()

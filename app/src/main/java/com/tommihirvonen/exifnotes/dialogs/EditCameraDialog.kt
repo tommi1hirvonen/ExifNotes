@@ -32,15 +32,7 @@ class EditCameraDialog : DialogFragment() {
         const val TAG = "EditCameraDialog"
     }
 
-    /**
-     * Stores the currently selected shutter speed value increment setting
-     */
-    private var newShutterIncrements = 0
-
-    /**
-     * Stores the currently selected exposure compensation increment setting
-     */
-    private var newExposureCompIncrements = 0
+    private lateinit var newCamera: Camera
 
     /**
      * Stores the currently displayed shutter speed values.
@@ -52,16 +44,6 @@ class EditCameraDialog : DialogFragment() {
      * Reference to the TextView to display the shutter speed range
      */
     private lateinit var shutterRangeTextView: TextView
-
-    /**
-     * Currently selected minimum shutter speed (shortest duration)
-     */
-    private var newMinShutter: String? = null
-
-    /**
-     * Currently selected maximum shutter speed (longest duration)
-     */
-    private var newMaxShutter: String? = null
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
 
@@ -79,8 +61,7 @@ class EditCameraDialog : DialogFragment() {
         val title = requireArguments().getString(ExtraKeys.TITLE)
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         val camera = requireArguments().getParcelable(ExtraKeys.CAMERA) ?: Camera()
-        newMinShutter = camera.minShutter
-        newMaxShutter = camera.maxShutter
+        newCamera = camera.copy()
 
         val nestedScrollView: NestedScrollView = inflatedView.findViewById(R.id.nested_scroll_view)
         nestedScrollView.setOnScrollChangeListener(
@@ -113,17 +94,16 @@ class EditCameraDialog : DialogFragment() {
         serialNumberEditText.setText(camera.serialNumber)
 
         // SHUTTER SPEED INCREMENTS BUTTON
-        newShutterIncrements = camera.getShutterIncrements()
         val shutterSpeedIncrementsTextView = inflatedView.findViewById<TextView>(R.id.increment_text)
-        shutterSpeedIncrementsTextView.text = resources.getStringArray(R.array.StopIncrements)[camera.getShutterIncrements()]
+        shutterSpeedIncrementsTextView.text = resources.getStringArray(R.array.StopIncrements)[camera.shutterIncrements]
         val shutterSpeedIncrementLayout = inflatedView.findViewById<LinearLayout>(R.id.increment_layout)
 
         shutterSpeedIncrementLayout.setOnClickListener {
-            val checkedItem = newShutterIncrements
+            val checkedItem = newCamera.shutterIncrements
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(resources.getString(R.string.ChooseIncrements))
             builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem) { dialogInterface: DialogInterface, i: Int ->
-                newShutterIncrements = i
+                newCamera.shutterIncrements = i
                 shutterSpeedIncrementsTextView.text = resources.getStringArray(R.array.StopIncrements)[i]
 
                 //Shutter speed increments were changed, make update
@@ -131,21 +111,21 @@ class EditCameraDialog : DialogFragment() {
                 //Otherwise reset them to null
                 var minFound = false
                 var maxFound = false
-                displayedShutterValues = when (newShutterIncrements) {
+                displayedShutterValues = when (newCamera.shutterIncrements) {
                     1 -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
                     2 -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
                     0 -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
                     else -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
                 }
                 for (string in displayedShutterValues) {
-                    if (!minFound && string == newMinShutter) minFound = true
-                    if (!maxFound && string == newMaxShutter) maxFound = true
+                    if (!minFound && string == newCamera.minShutter) minFound = true
+                    if (!maxFound && string == newCamera.maxShutter) maxFound = true
                     if (minFound && maxFound) break
                 }
                 //If either one wasn't found in the new values array, null them.
                 if (!minFound || !maxFound) {
-                    newMinShutter = null
-                    newMaxShutter = null
+                    newCamera.minShutter = null
+                    newCamera.maxShutter = null
                     updateShutterRangeTextView()
                 }
                 dialogInterface.dismiss()
@@ -194,14 +174,14 @@ class EditCameraDialog : DialogFragment() {
                 } else {
                     if (minShutterPicker.value == displayedShutterValues.size - 1 &&
                             maxShutterPicker.value == displayedShutterValues.size - 1) {
-                        newMinShutter = null
-                        newMaxShutter = null
+                        newCamera.minShutter = null
+                        newCamera.maxShutter = null
                     } else if (minShutterPicker.value < maxShutterPicker.value) {
-                        newMinShutter = displayedShutterValues[minShutterPicker.value]
-                        newMaxShutter = displayedShutterValues[maxShutterPicker.value]
+                        newCamera.minShutter = displayedShutterValues[minShutterPicker.value]
+                        newCamera.maxShutter = displayedShutterValues[maxShutterPicker.value]
                     } else {
-                        newMinShutter = displayedShutterValues[maxShutterPicker.value]
-                        newMaxShutter = displayedShutterValues[minShutterPicker.value]
+                        newCamera.minShutter = displayedShutterValues[maxShutterPicker.value]
+                        newCamera.maxShutter = displayedShutterValues[minShutterPicker.value]
                     }
                     updateShutterRangeTextView()
                 }
@@ -211,16 +191,15 @@ class EditCameraDialog : DialogFragment() {
 
 
         // EXPOSURE COMPENSATION INCREMENTS BUTTON
-        newExposureCompIncrements = camera.getExposureCompIncrements()
         val exposureCompIncrementsTextView = inflatedView.findViewById<TextView>(R.id.exposure_comp_increment_text)
-        exposureCompIncrementsTextView.text = resources.getStringArray(R.array.ExposureCompIncrements)[camera.getExposureCompIncrements()]
+        exposureCompIncrementsTextView.text = resources.getStringArray(R.array.ExposureCompIncrements)[camera.exposureCompIncrements]
         val exposureCompIncrementLayout = inflatedView.findViewById<LinearLayout>(R.id.exposure_comp_increment_layout)
         exposureCompIncrementLayout.setOnClickListener {
-            val checkedItem = newExposureCompIncrements
+            val checkedItem = newCamera.exposureCompIncrements
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(resources.getString(R.string.ChooseIncrements))
             builder.setSingleChoiceItems(R.array.ExposureCompIncrements, checkedItem) { dialogInterface: DialogInterface, i: Int ->
-                newExposureCompIncrements = i
+                newCamera.exposureCompIncrements = i
                 exposureCompIncrementsTextView.text = resources.getStringArray(R.array.ExposureCompIncrements)[i]
                 dialogInterface.dismiss()
             }
@@ -260,13 +239,14 @@ class EditCameraDialog : DialogFragment() {
                 // No make was set
                 Toast.makeText(activity, resources.getString(R.string.NoMake), Toast.LENGTH_SHORT).show()
             } else {
+
                 camera.make = make
                 camera.model = model
                 camera.serialNumber = serialNumber
-                camera.setShutterIncrements(newShutterIncrements)
-                camera.minShutter = newMinShutter
-                camera.maxShutter = newMaxShutter
-                camera.setExposureCompIncrements(newExposureCompIncrements)
+                camera.shutterIncrements = newCamera.shutterIncrements
+                camera.minShutter = newCamera.minShutter
+                camera.maxShutter = newCamera.maxShutter
+                camera.exposureCompIncrements = newCamera.exposureCompIncrements
 
                 // Return the new entered name to the calling activity
                 val intent = Intent()
@@ -287,7 +267,7 @@ class EditCameraDialog : DialogFragment() {
      */
     private fun initialiseShutterRangePickers(minShutterPicker: NumberPicker,
                                               maxShutterPicker: NumberPicker) {
-        displayedShutterValues = when (newShutterIncrements) {
+        displayedShutterValues = when (newCamera.shutterIncrements) {
             1 -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
             2 -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
             0 -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
@@ -304,9 +284,9 @@ class EditCameraDialog : DialogFragment() {
         maxShutterPicker.displayedValues = displayedShutterValues
         minShutterPicker.value = displayedShutterValues.size - 1
         maxShutterPicker.value = displayedShutterValues.size - 1
-        val initialMinValue = displayedShutterValues.indexOfFirst { it == newMinShutter }
+        val initialMinValue = displayedShutterValues.indexOfFirst { it == newCamera.minShutter }
         if (initialMinValue != -1) minShutterPicker.value = initialMinValue
-        val initialMaxValue = displayedShutterValues.indexOfFirst { it == newMaxShutter }
+        val initialMaxValue = displayedShutterValues.indexOfFirst { it == newCamera.maxShutter }
         if (initialMaxValue != -1) maxShutterPicker.value = initialMaxValue
     }
 
@@ -315,8 +295,8 @@ class EditCameraDialog : DialogFragment() {
      */
     private fun updateShutterRangeTextView() {
         shutterRangeTextView.text =
-                if (newMinShutter == null || newMaxShutter == null) resources.getString(R.string.ClickToSet)
-                else "$newMinShutter - $newMaxShutter"
+                if (newCamera.minShutter == null || newCamera.maxShutter == null) resources.getString(R.string.ClickToSet)
+                else "${newCamera.minShutter} - ${newCamera.maxShutter}"
     }
 
 }

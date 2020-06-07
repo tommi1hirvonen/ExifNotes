@@ -1,29 +1,13 @@
 package com.tommihirvonen.exifnotes.datastructures
 
-import android.os.Parcel
 import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import java.util.Calendar
 
-class DateTime() : Comparable<DateTime>, Parcelable {
-
-    var year: Int = 0
-        private set
-    var month: Int = 0
-        private set
-    var day: Int = 0
-        private set
-    var hour: Int = 0
-        private set
-    var minute: Int = 0
-        private set
-
-    constructor(year: Int, month: Int, day: Int, hour: Int, minute: Int) : this() {
-        this.year = year
-        this.month = month
-        this.day = day
-        this.hour = hour
-        this.minute = minute
-    }
+@Parcelize
+class DateTime(
+        var year: Int = 0, var month: Int = 0, var day: Int = 0,
+        var hour: Int = 0, var minute: Int = 0) : Comparable<DateTime>, Parcelable {
 
     constructor(dateTimeString: String) : this() {
         try {
@@ -64,27 +48,7 @@ class DateTime() : Comparable<DateTime>, Parcelable {
                 else -> minute - other.minute
             }
 
-    constructor(parcel: Parcel) : this() {
-        year = parcel.readInt()
-        month = parcel.readInt()
-        day = parcel.readInt()
-        hour = parcel.readInt()
-        minute = parcel.readInt()
-    }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(year)
-        parcel.writeInt(month)
-        parcel.writeInt(day)
-        parcel.writeInt(hour)
-        parcel.writeInt(minute)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<DateTime> {
+    companion object {
         fun fromCurrentTime(): DateTime {
             val c = Calendar.getInstance()
             val year = c[Calendar.YEAR]
@@ -93,14 +57,6 @@ class DateTime() : Comparable<DateTime>, Parcelable {
             val hour = c[Calendar.HOUR_OF_DAY]
             val minute = c[Calendar.MINUTE]
             return DateTime(year, month, day, hour, minute)
-        }
-
-        override fun createFromParcel(parcel: Parcel): DateTime {
-            return DateTime(parcel)
-        }
-
-        override fun newArray(size: Int): Array<DateTime?> {
-            return arrayOfNulls(size)
         }
     }
 

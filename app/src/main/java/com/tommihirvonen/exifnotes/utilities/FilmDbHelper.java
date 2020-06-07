@@ -1427,7 +1427,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         roll.setIso(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ISO)));
         roll.setPushPull(cursor.getString(cursor.getColumnIndex(KEY_ROLL_PUSH)));
         roll.setFormat(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_FORMAT)));
-        roll.setArchived(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ARCHIVED)));
+        final int archived = cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ARCHIVED));
+        roll.setArchived(archived > 0);
         roll.setFilmStockId(cursor.getInt(cursor.getColumnIndex(KEY_FILM_STOCK_ID)));
 
         final String unloaded = cursor.getString(cursor.getColumnIndex(KEY_ROLL_UNLOADED));
@@ -1539,7 +1540,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         filmStock.setIso(cursor.getInt(cursor.getColumnIndex(KEY_FILM_ISO)));
         filmStock.setType(cursor.getInt(cursor.getColumnIndex(KEY_FILM_TYPE)));
         filmStock.setProcess(cursor.getInt(cursor.getColumnIndex(KEY_FILM_PROCESS)));
-        filmStock.setPreadded(cursor.getInt(cursor.getColumnIndex(KEY_FILM_IS_PREADDED)));
+        final int preadded = cursor.getInt(cursor.getColumnIndex(KEY_FILM_IS_PREADDED));
+        filmStock.setPreadded(preadded > 0);
         return filmStock;
     }
 
