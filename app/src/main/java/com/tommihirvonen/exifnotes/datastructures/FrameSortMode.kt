@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes.datastructures
 
-/**
- * Enum class to describe frame sort modes.
- */
 enum class FrameSortMode constructor(value: Int) {
     FRAME_COUNT(0),
     DATE(1),

@@ -1,9 +1,6 @@
 package com.tommihirvonen.exifnotes.datastructures
 
-/**
- * Enum class to describe roll filter modes.
- */
-enum class FilterMode(value: Int) {
+enum class RollFilterMode(value: Int) {
     ACTIVE(0),
     ARCHIVED(1),
     ALL(2);
@@ -17,7 +14,7 @@ enum class FilterMode(value: Int) {
 
     companion object {
 
-        fun fromValue(value: Int): FilterMode {
+        fun fromValue(value: Int): RollFilterMode {
             return when (value) {
                 0 -> ACTIVE
                 1 -> ARCHIVED

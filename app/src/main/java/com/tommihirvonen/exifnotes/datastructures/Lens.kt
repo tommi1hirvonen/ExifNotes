@@ -2,9 +2,6 @@ package com.tommihirvonen.exifnotes.datastructures
 
 import kotlinx.android.parcel.Parcelize
 
-/**
- * Lens class holds the information of one lens.
- */
 @Parcelize
 data class Lens(
         override var id: Long = 0,

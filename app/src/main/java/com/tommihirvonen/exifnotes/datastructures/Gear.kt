@@ -4,8 +4,11 @@ import android.os.Parcelable
 
 /**
  * Abstract super class for different types of gear.
- * Defines all common member variables and methods
- * as well as mandatory interfaces to implement.
+ * Defines all common member variables and methods as well as mandatory interfaces to implement.
+ *
+ * @property id database id of object
+ * @property make make of manufacturer of the piece of gear
+ * @property model model name of the piece of gear
  */
 abstract class Gear(open var id: Long, open var make: String?, open var model: String?) : Parcelable, Comparable<Gear> {
 

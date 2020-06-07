@@ -14,7 +14,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera;
 import com.tommihirvonen.exifnotes.datastructures.DateTime;
 import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Filter;
-import com.tommihirvonen.exifnotes.datastructures.FilterMode;
+import com.tommihirvonen.exifnotes.datastructures.RollFilterMode;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Location;
@@ -963,7 +963,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * Gets all the rolls in the database
      * @return a List of all the rolls in the database
      */
-    public List<Roll> getRolls(final FilterMode filterMode){
+    public List<Roll> getRolls(final RollFilterMode filterMode){
         final String selectionArg;
         switch (filterMode) {
             case ACTIVE: default:

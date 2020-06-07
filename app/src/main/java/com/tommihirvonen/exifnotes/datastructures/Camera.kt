@@ -2,9 +2,6 @@ package com.tommihirvonen.exifnotes.datastructures
 
 import kotlinx.android.parcel.Parcelize
 
-/**
- * The camera class holds the information of a camera.
- */
 @Parcelize
 data class Camera(
         override var id: Long = 0,

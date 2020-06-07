@@ -3,9 +3,6 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
-/**
- * Roll class holds the information of one roll of film.
- */
 @Parcelize
 class Roll(var id: Long = 0,
            var name: String? = null,

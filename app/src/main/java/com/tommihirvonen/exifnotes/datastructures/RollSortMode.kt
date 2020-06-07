@@ -1,8 +1,5 @@
 package com.tommihirvonen.exifnotes.datastructures
 
-/**
- * Enum class to describe roll sort modes.
- */
 enum class RollSortMode constructor(value: Int) {
     DATE(0),
     NAME(1),

@@ -29,7 +29,7 @@ import com.tommihirvonen.exifnotes.activities.PreferenceActivity
 import com.tommihirvonen.exifnotes.adapters.RollAdapter
 import com.tommihirvonen.exifnotes.adapters.RollAdapter.RollAdapterListener
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
-import com.tommihirvonen.exifnotes.datastructures.FilterMode
+import com.tommihirvonen.exifnotes.datastructures.RollFilterMode
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.datastructures.RollSortMode
 import com.tommihirvonen.exifnotes.dialogs.EditRollDialog
@@ -112,7 +112,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
      * Holds the roll filter status (archived, active or all rolls).
      * This way we don't always have to query the value from SharedPreferences.
      */
-    private var filterMode: FilterMode? = null
+    private var filterMode: RollFilterMode? = null
 
     /**
      * Holds the roll sort mode (date, name or camera).
@@ -194,8 +194,8 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         val sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(requireActivity().baseContext)
         // Get from preferences which rolls to load from the database.
-        filterMode = FilterMode.fromValue(
-                sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, FilterMode.ACTIVE.value))
+        filterMode = RollFilterMode.fromValue(
+                sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, RollFilterMode.ACTIVE.value))
         sortMode = RollSortMode.fromValue(
                 sharedPreferences.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, RollSortMode.DATE.value))
 
@@ -204,17 +204,17 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         val subtitleText: String
         val mainTextViewText: String
         when (filterMode) {
-            FilterMode.ACTIVE -> {
+            RollFilterMode.ACTIVE -> {
                 subtitleText = resources.getString(R.string.ActiveFilmRolls)
                 mainTextViewText = resources.getString(R.string.NoActiveRolls)
                 floatingActionButton.show()
             }
-            FilterMode.ARCHIVED -> {
+            RollFilterMode.ARCHIVED -> {
                 subtitleText = resources.getString(R.string.ArchivedFilmRolls)
                 mainTextViewText = resources.getString(R.string.NoArchivedRolls)
                 floatingActionButton.hide()
             }
-            FilterMode.ALL -> {
+            RollFilterMode.ALL -> {
                 subtitleText = resources.getString(R.string.AllFilmRolls)
                 mainTextViewText = resources.getString(R.string.NoActiveOrArchivedRolls)
                 floatingActionButton.show()
@@ -269,9 +269,9 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         when (filterMode) {
-            FilterMode.ACTIVE -> menu.findItem(R.id.active_rolls_filter).isChecked = true
-            FilterMode.ARCHIVED -> menu.findItem(R.id.archived_rolls_filter).isChecked = true
-            FilterMode.ALL -> menu.findItem(R.id.all_rolls_filter).isChecked = true
+            RollFilterMode.ACTIVE -> menu.findItem(R.id.active_rolls_filter).isChecked = true
+            RollFilterMode.ARCHIVED -> menu.findItem(R.id.archived_rolls_filter).isChecked = true
+            RollFilterMode.ALL -> menu.findItem(R.id.all_rolls_filter).isChecked = true
             else -> menu.findItem(R.id.active_rolls_filter).isChecked = true
         }
         when (sortMode) {
@@ -318,11 +318,11 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                         rollList as ArrayList<out Parcelable?>)
                 mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, getString(R.string.AllRolls))
                 when (filterMode) {
-                    FilterMode.ACTIVE -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
+                    RollFilterMode.ACTIVE -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
                             getString(R.string.ActiveRolls))
-                    FilterMode.ARCHIVED -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
+                    RollFilterMode.ARCHIVED -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
                             getString(R.string.ArchivedRolls))
-                    FilterMode.ALL -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
+                    RollFilterMode.ALL -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
                             getString(R.string.AllRolls))
                     else -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
                             getString(R.string.ActiveRolls))
@@ -331,15 +331,15 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
             }
             R.id.active_rolls_filter -> {
                 item.isChecked = true
-                setFilterMode(FilterMode.ACTIVE)
+                setFilterMode(RollFilterMode.ACTIVE)
             }
             R.id.archived_rolls_filter -> {
                 item.isChecked = true
-                setFilterMode(FilterMode.ARCHIVED)
+                setFilterMode(RollFilterMode.ARCHIVED)
             }
             R.id.all_rolls_filter -> {
                 item.isChecked = true
-                setFilterMode(FilterMode.ALL)
+                setFilterMode(RollFilterMode.ALL)
             }
             R.id.date_sort_mode -> {
                 item.isChecked = true
@@ -362,7 +362,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
      *
      * @param filterMode enum type referencing the filtering mode
      */
-    private fun setFilterMode(filterMode: FilterMode) {
+    private fun setFilterMode(filterMode: RollFilterMode) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
         val editor = sharedPreferences.edit()
         editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, filterMode.value)
@@ -554,8 +554,8 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
 
             // Use different action mode menu layouts depending on which rolls are shown.
             when {
-                filterMode === FilterMode.ACTIVE -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_active, menu)
-                filterMode === FilterMode.ARCHIVED -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_archived, menu)
+                filterMode === RollFilterMode.ACTIVE -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_active, menu)
+                filterMode === RollFilterMode.ARCHIVED -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_archived, menu)
                 else -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_all, menu)
             }
             return true
@@ -645,7 +645,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                         val roll = rollList[position]
                         roll.archived = true
                         database.updateRoll(roll)
-                        if (filterMode === FilterMode.ACTIVE) {
+                        if (filterMode === RollFilterMode.ACTIVE) {
                             rollList.removeAt(position)
                             rollAdapter.notifyItemRemoved(position)
                         }
@@ -663,7 +663,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                         val roll = rollList[position]
                         roll.archived = false
                         database.updateRoll(roll)
-                        if (filterMode === FilterMode.ARCHIVED) {
+                        if (filterMode === RollFilterMode.ARCHIVED) {
                             rollList.removeAt(position)
                             rollAdapter.notifyItemRemoved(position)
                         }

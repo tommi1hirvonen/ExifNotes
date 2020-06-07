@@ -5,9 +5,6 @@ import kotlinx.android.parcel.Parcelize
 
 import java.util.ArrayList
 
-/**
- * The frame class holds the information of one frame.
- */
 @Parcelize
 data class Frame(
         var id: Long = 0,

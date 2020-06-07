@@ -2,9 +2,6 @@ package com.tommihirvonen.exifnotes.datastructures
 
 import kotlinx.android.parcel.Parcelize
 
-/**
- * Filter class holds the information of a photographic filter.
- */
 @Parcelize
 class Filter(
         override var id: Long = 0,
