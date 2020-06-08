@@ -370,7 +370,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 val noteTextView = view.findViewById<TextView>(R.id.note)
                 val frameCountText = "#" + frame.count
                 frameCountTextView.text = frameCountText
-                dateTimeTextView.text = if (frame.date != null) frame.date!!.dateTimeAsText else ""
+                dateTimeTextView.text = frame.date?.dateTimeAsText ?: ""
                 lensTextView.text = frame.lens?.name ?: getString(R.string.NoLens)
                 noteTextView.text = frame.note
                 view

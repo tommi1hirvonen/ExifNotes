@@ -175,7 +175,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                     builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
                         database.deleteFilter(filter)
 
-                        // Remove the filter from the filterList. Do this last!!!
+                        // Remove the filter from the filterList. Do this last!
                         filterList.removeAt(position)
                         if (filterList.size == 0) mainTextView.visibility = View.VISIBLE
                         filterAdapter.notifyItemRemoved(position)
@@ -228,7 +228,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
 
             EDIT_FILTER -> if (resultCode == Activity.RESULT_OK) {
                 val filter: Filter = data?.getParcelableExtra(ExtraKeys.FILTER) ?: return
-                if (filter.make!!.isNotEmpty() && filter.model!!.isNotEmpty() && filter.id > 0) {
+                if (filter.make?.isNotEmpty() == true && filter.model?.isNotEmpty() == true && filter.id > 0) {
                     database.updateFilter(filter)
                     val oldPos = filterList.indexOf(filter)
                     filterList.sort()
@@ -290,8 +290,8 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                     filterAdapter.notifyItemChanged(position)
 
                     // Update the LensesFragment through the parent activity.
-                    val myActivity = activity as GearActivity?
-                    myActivity!!.updateFragments()
+                    val myActivity = requireActivity() as GearActivity
+                    myActivity.updateFragments()
                 }
                 .setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
         val alert = builder.create()

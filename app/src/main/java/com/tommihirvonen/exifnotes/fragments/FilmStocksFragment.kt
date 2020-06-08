@@ -249,7 +249,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
             // Get the indices of items that were marked true and their corresponding strings.
             manufacturerFilterList = checkedItems
-                    .mapIndexed { index, selected -> Pair(index, selected) }
+                    .mapIndexed { index, selected -> index to selected }
                     .filter { it.second }.map { it.first }.map { items[it] }.toMutableList()
             filterFilmStocks()
         }
@@ -274,7 +274,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
             // Get the indices of items that were marked true and their corresponding int values.
             isoFilterList = checkedItems
-                    .mapIndexed { index, selected -> Pair(index, selected) }
+                    .mapIndexed { index, selected -> index to selected }
                     .filter { it.second }.map { it.first }.map { items[it] }.toMutableList()
             filterFilmStocks()
         }
@@ -298,7 +298,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
             // Get the indices of items that were marked true.
             filmTypeFilterList = checkedItems
-                    .mapIndexed { index, selected -> Pair(index, selected) }
+                    .mapIndexed { index, selected -> index to selected }
                     .filter { it.second }.map { it.first }.toMutableList()
             filterFilmStocks()
         }
@@ -322,7 +322,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
             // Get the indices of items that were marked true.
             filmProcessFilterList = checkedItems
-                    .mapIndexed { index, selected -> Pair(index, selected) }
+                    .mapIndexed { index, selected -> index to selected }
                     .filter { it.second }.map { it.first }.toMutableList()
             filterFilmStocks()
         }

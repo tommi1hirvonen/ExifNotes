@@ -153,7 +153,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
                     builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
                         database.deleteLens(lens)
 
-                        // Remove the lens from the lensList. Do this last!!!
+                        // Remove the lens from the lensList. Do this last!
                         lensList.removeAt(position)
                         if (lensList.size == 0) mainTextView.visibility = View.VISIBLE
                         lensAdapter.notifyItemRemoved(position)

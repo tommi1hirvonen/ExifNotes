@@ -443,8 +443,9 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         val positiveButton = requireActivity().resources.getString(R.string.Add)
         val frame = Frame()
         frame.date = DateTime.fromCurrentTime()
-        frame.count = 0
+        frame.count = frameList.maxBy { it.count }?.count ?: 1
         frame.rollId = roll.id
+        frame.noOfExposures = 1
 
         //Get the location only if the app has location permission (locationPermissionsGranted) and
         //the user has enabled GPS updates in the app's settings.
@@ -456,7 +457,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             val previousFrame = frameList.maxBy { it.id }
             // Here we can list the properties we want to bring from the previous frame
             previousFrame?.let {
-                frame.count = previousFrame.count + 1
                 frame.lens = previousFrame.lens
                 frame.shutter = previousFrame.shutter
                 frame.aperture = previousFrame.aperture
@@ -464,12 +464,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 frame.focalLength = previousFrame.focalLength
                 frame.lightSource = previousFrame.lightSource
             }
-        } else {
-            frame.count = 1
-            frame.shutter = null
-            frame.aperture = null
         }
-        frame.noOfExposures = 1
+
         val dialog = EditFrameDialog()
         dialog.setTargetFragment(this, FRAME_DIALOG)
         val arguments = Bundle()

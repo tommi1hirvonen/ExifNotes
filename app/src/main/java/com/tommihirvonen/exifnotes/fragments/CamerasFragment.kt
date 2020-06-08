@@ -152,14 +152,14 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                     builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
                         database.deleteCamera(camera)
 
-                        // Remove the camera from the cameraList. Do this last!!!
+                        // Remove the camera from the cameraList. Do this last!
                         cameraList.removeAt(position)
                         if (cameraList.size == 0) mainTextView.visibility = View.VISIBLE
                         cameraAdapter.notifyItemRemoved(position)
 
                         // Update the LensesFragment through the parent activity.
-                        val gearActivity = activity as GearActivity?
-                        gearActivity!!.updateFragments()
+                        val gearActivity = requireActivity() as GearActivity
+                        gearActivity.updateFragments()
                     }
                     builder.create().show()
                     return true

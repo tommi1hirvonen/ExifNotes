@@ -584,7 +584,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                             // Delete the roll. Database foreign key rules make sure,
                             // that any linked frames are deleted as well.
                             database.deleteRoll(roll)
-                            // Remove the roll from the rollList. Do this last!!!
+                            // Remove the roll from the rollList. Do this last!
                             rollList.removeAt(position)
                             if (rollList.isEmpty()) mainTextViewAnimateVisible()
                             rollAdapter.notifyItemRemoved(position)
