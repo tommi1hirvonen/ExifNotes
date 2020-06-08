@@ -430,20 +430,16 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     private fun showFrameInfoDialog() {
 
         // If the frame count is greater than 100, then don't add a new frame.
-        if (frameList.isNotEmpty()) {
-            val countCheck = frameList[frameList.size - 1].count + 1
-            if (countCheck > 100) {
-                val toast = Toast.makeText(activity,
-                        resources.getString(R.string.TooManyFrames), Toast.LENGTH_LONG)
-                toast.show()
-                return
-            }
+        val nextFrameCount = frameList.maxBy { it.count }?.count?.plus(1) ?: 1
+        if (nextFrameCount > 100) {
+            Toast.makeText(activity, resources.getString(R.string.TooManyFrames), Toast.LENGTH_LONG).show()
+            return
         }
         val title = requireActivity().resources.getString(R.string.NewFrame)
         val positiveButton = requireActivity().resources.getString(R.string.Add)
         val frame = Frame()
         frame.date = DateTime.fromCurrentTime()
-        frame.count = frameList.maxBy { it.count }?.count ?: 1
+        frame.count = nextFrameCount
         frame.rollId = roll.id
         frame.noOfExposures = 1
 
