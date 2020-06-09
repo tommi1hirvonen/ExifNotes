@@ -6,15 +6,20 @@ apply plugin: 'kotlin-android-extensions'
 android {
     signingConfigs {
         config {
-            keyAlias '***REMOVED***'
-            keyPassword '***REMOVED***'
-            if (Os.isFamily(Os.FAMILY_MAC)) {
-                storeFile file('***REMOVED***')
+            def propsFile = rootProject.file('keystore.properties')
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(propsFile))
+                if (Os.isFamily(Os.FAMILY_MAC)) {
+                    storeFile file(props['storeFileMac'])
+                }
+                if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                    storeFile file(props['storeFileWin'])
+                }
+                storePassword = props['storePassword']
+                keyAlias = props['keyAlias']
+                keyPassword = props['keyPassword']
             }
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                storeFile file('***REMOVED***')
-            }
-            storePassword '***REMOVED***'
         }
     }
 
@@ -32,14 +37,29 @@ android {
     }
 
     buildTypes {
+        def propsFile = rootProject.file('keystore.properties')
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(propsFile))
+                resValue "string", "google_maps_key", props['googleMapsKey']
+            } else {
+                resValue "string", "google_maps_key", ''
+            }
         }
         debug {
             signingConfig signingConfigs.config
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(propsFile))
+                resValue "string", "google_maps_key", props['googleMapsKey']
+            } else {
+                resValue "string", "google_maps_key", ''
+            }
         }
     }
     compileOptions {

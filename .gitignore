@@ -36,3 +36,6 @@ build/
 app/debug/
 app/release/
 
+# Keystore file
+keystore.properties
+
