@@ -320,7 +320,7 @@
     <string name="VersionHistory">
         Version history\n
         \n
-        v1.14.2 2020-06-07:\n
+        v1.14.2 2020-06-09:\n
         -Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance\n
         -Frame counts can be reversed when batch editing frames (useful for prewind cameras)\n
         -If the frames activity is being resumed, the user does not need to unlock the device with authentication\n

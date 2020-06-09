@@ -302,12 +302,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
             }
             R.id.menu_item_about -> {
                 val aboutTitle = resources.getString(R.string.app_name)
-                val aboutMessage = """
-                    ${resources.getString(R.string.about)}
-
-
-                    ${resources.getString(R.string.VersionHistory)}
-                    """.trimIndent()
+                val aboutMessage = "${resources.getString(R.string.about)}\n\n\n${resources.getString(R.string.VersionHistory)}"
                 Utilities.showGeneralDialog(activity, aboutTitle, aboutMessage)
             }
             R.id.menu_item_show_on_map -> {
