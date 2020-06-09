@@ -38,8 +38,8 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     }
 
     private lateinit var database: FilmDbHelper
-    private lateinit var allFilmStocks: List<FilmStock>
-    private lateinit var filmStocks: MutableList<FilmStock>
+    private lateinit var allFilmStocks: MutableList<FilmStock>
+    private lateinit var filteredFilmStocks: MutableList<FilmStock>
     private var fragmentVisible = false
     private lateinit var filmStocksRecyclerView: RecyclerView
     private lateinit var filmStockAdapter: GearAdapter
@@ -56,7 +56,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         setHasOptionsMenu(true)
         database = FilmDbHelper.getInstance(activity)
         allFilmStocks = database.allFilmStocks
-        filmStocks = allFilmStocks.toMutableList()
+        filteredFilmStocks = allFilmStocks.toMutableList()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -79,7 +79,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                         filmStocksRecyclerView.context, layoutManager.orientation
                 )
         )
-        filmStockAdapter = GearAdapter(activity, filmStocks)
+        filmStockAdapter = GearAdapter(activity, filteredFilmStocks)
         filmStocksRecyclerView.adapter = filmStockAdapter
         filmStockAdapter.notifyDataSetChanged()
 
@@ -111,7 +111,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     override fun onContextItemSelected(item: MenuItem): Boolean {
         if (fragmentVisible) {
             val position = item.order
-            val filmStock = filmStocks[position]
+            val filmStock = filteredFilmStocks[position]
             when (item.itemId) {
                 GearAdapter.MENU_ITEM_DELETE -> {
                     val builder = AlertDialog.Builder(activity)
@@ -124,7 +124,8 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                     builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
                     builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
                         database.deleteFilmStock(filmStock)
-                        filmStocks.removeAt(position)
+                        filteredFilmStocks.remove(filmStock)
+                        allFilmStocks.remove(filmStock)
                         filmStockAdapter.notifyDataSetChanged()
                     }
                     builder.create().show()
@@ -152,18 +153,20 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                 val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
                 val rowId = database.addFilmStock(filmStock)
                 filmStock.id = rowId
-                filmStocks.add(filmStock)
+                // Add the new film stock to both lists.
+                filteredFilmStocks.add(filmStock) // The new film stock is shown immediately regardless of filters.
+                allFilmStocks.add(filmStock) // The new film stock is shown after new filters are applied and they match.
                 sortFilmStocks()
-                val position = filmStocks.indexOf(filmStock)
+                val position = filteredFilmStocks.indexOf(filmStock)
                 filmStockAdapter.notifyItemInserted(position)
                 filmStocksRecyclerView.scrollToPosition(position)
             }
             EDIT_FILM_STOCK -> if (resultCode == Activity.RESULT_OK) {
                 val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
                 database.updateFilmStock(filmStock)
-                val oldPosition = filmStocks.indexOf(filmStock)
+                val oldPosition = filteredFilmStocks.indexOf(filmStock)
                 sortFilmStocks()
-                val newPosition = filmStocks.indexOf(filmStock)
+                val newPosition = filteredFilmStocks.indexOf(filmStock)
                 filmStockAdapter.notifyItemChanged(oldPosition)
                 filmStockAdapter.notifyItemMoved(oldPosition, newPosition)
             }
@@ -178,11 +181,11 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         when (sortMode_) {
             SORT_MODE_NAME -> {
                 sortMode = SORT_MODE_NAME
-                filmStocks.sortWith(Comparator { o1, o2 -> o1.name.compareTo(o2.name, ignoreCase = true) })
+                filteredFilmStocks.sortWith(Comparator { o1, o2 -> o1.name.compareTo(o2.name, ignoreCase = true) })
             }
             SORT_MODE_ISO -> {
                 sortMode = SORT_MODE_ISO
-                filmStocks.sortWith(Comparator { o1, o2 -> o1.iso.compareTo(o2.iso) })
+                filteredFilmStocks.sortWith(Comparator { o1, o2 -> o1.iso.compareTo(o2.iso) })
             }
         }
 
@@ -200,7 +203,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
 
     private fun filterFilmStocks() {
         // First filter the list based on manufacturer. No filtering is done if manufacturers is null.
-        filmStocks = allFilmStocks.filter {
+        filteredFilmStocks = allFilmStocks.filter {
             // Filter based on manufacturers
             (manufacturerFilterList.contains(it.make) || manufacturerFilterList.isEmpty()) &&
             // Filter based on type
@@ -219,7 +222,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         }.toMutableList()
         sortFilmStocks()
 
-        filmStockAdapter.setGearList(filmStocks)
+        filmStockAdapter.setGearList(filteredFilmStocks)
         filmStockAdapter.notifyDataSetChanged()
     }
 
