@@ -37,7 +37,7 @@ android {
     }
 
     buildTypes {
-        def propsFile = rootProject.file('keystore.properties')
+        def propsFile = rootProject.file('googlemapsapi.properties')
         release {
             minifyEnabled true
             shrinkResources true

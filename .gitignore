@@ -36,6 +36,7 @@ build/
 app/debug/
 app/release/
 
-# Keystore file
+# Key files
 keystore.properties
+googlemapsapi.properties
 
