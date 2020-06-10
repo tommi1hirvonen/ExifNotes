@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
 import android.graphics.Color;
@@ -14,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.appcompat.app.ActionBar;
@@ -23,6 +26,9 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -75,10 +81,13 @@ public final class Utilities {
      * @param title the title of the dialog
      * @param message the message of the dialog
      */
-    public static void showGeneralDialog(final Activity activity, final String title, final String message){
+    private static void showGeneralDialog(final Activity activity, final String title, final String message){
         final AlertDialog.Builder generalDialogBuilder = new AlertDialog.Builder(activity);
         generalDialogBuilder.setTitle(title);
-        generalDialogBuilder.setMessage(message);
+
+        final SpannableString spannableString = new SpannableString(message);
+        Linkify.addLinks(spannableString, Linkify.WEB_URLS);
+        generalDialogBuilder.setMessage(spannableString);
 
         generalDialogBuilder.setNegativeButton(R.string.Close, (dialog, which) -> {
             //Do nothing
@@ -89,6 +98,34 @@ public final class Utilities {
         //The dialog needs to be shown first. Otherwise textView will be null.
         final TextView textView = generalDialog.findViewById(android.R.id.message);
         textView.setTextSize(14);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    public static void showAboutDialog(final Activity activity) {
+        final String title = activity.getResources().getString(R.string.app_name);
+        final PackageInfo versionInfo = getPackageInfo(activity);
+        final String versionName = versionInfo != null ? versionInfo.versionName : "";
+        final String about = activity.getResources().getString(R.string.AboutAndTermsOfUse, versionName);
+        final String versionHistory = activity.getResources().getString(R.string.VersionHistory);
+        final String message = about + "\n\n\n" + versionHistory;
+        showGeneralDialog(activity, title, message);
+    }
+
+    public static void showHelpDialog(final Activity activity) {
+        final String title = activity.getResources().getString(R.string.Help);
+        final String message = activity.getResources().getString(R.string.main_help);
+        showGeneralDialog(activity, title, message);
+    }
+
+    public static @Nullable PackageInfo getPackageInfo(final Activity activity) {
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = activity.getPackageManager().getPackageInfo(
+                    activity.getPackageName(), PackageManager.GET_ACTIVITIES);
+        } catch (final PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return packageInfo;
     }
 
     /**

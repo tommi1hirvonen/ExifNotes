@@ -296,14 +296,10 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                 requireActivity().startActivityForResult(preferenceActivityIntent, MainActivity.PREFERENCE_ACTIVITY_REQUEST)
             }
             R.id.menu_item_help -> {
-                val helpTitle = resources.getString(R.string.Help)
-                val helpMessage = resources.getString(R.string.main_help)
-                Utilities.showGeneralDialog(activity, helpTitle, helpMessage)
+                Utilities.showHelpDialog(activity)
             }
             R.id.menu_item_about -> {
-                val aboutTitle = resources.getString(R.string.app_name)
-                val aboutMessage = "${resources.getString(R.string.about)}\n\n\n${resources.getString(R.string.VersionHistory)}"
-                Utilities.showGeneralDialog(activity, aboutTitle, aboutMessage)
+                Utilities.showAboutDialog(activity)
             }
             R.id.menu_item_show_on_map -> {
 

@@ -112,7 +112,6 @@
     <string name="ErrorLocatingSelectedPicture">Error locating selected picture</string>
     <string name="ErrorSavingSelectedPicture">Error saving selected picture</string>
     <string name="ErrorWhileEditingPicturesExifData">Error while editing picture\'s EXIF data</string>
-    <string name="Eula">Copyright 2019 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
     <string name="ExifToolCommandsDescription">Text file containing the ExifTool commands</string>
     <string name="ExiftoolPathSummary">"If you are using the ExifTool stand-alone executable, you can define its path here ending with '/' or '\\' depending on your OS."</string>
     <string name="ExiftoolPathTitle">ExifTool path</string>
@@ -303,229 +302,192 @@
     <string name="Unarchive">Unarchive</string>
     <string name="Unknown">Unknown</string>
     <string name="UnloadedOn">Unloaded on</string>
-    <string name="Updates">
-        Updates in this version:\n
-        -Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance\n
-        -Frame counts can be reversed when batch editing frames (useful for prewind cameras)\n
-        -If the frames activity is being resumed, the user does not need to unlock the device with authentication\n
-        -Replaced deprecated API calls\n
-        -Bug fixes\n
-        -Migrated large portions of source code from Java to Kotlin\n
-    </string>
     <string name="UseCustomValue">Use custom value</string>
     <string name="UsedCamera">Choose used camera</string>
     <string name="UsedFilter">Choose used filter</string>
     <string name="UsedLens">Choose used lens</string>
     <string name="UserAdded">User added</string>
-    <string name="VersionHistory">
-        Version history\n
-        \n
-        v1.14.2 2020-06-09:\n
-        -Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance\n
-        -Frame counts can be reversed when batch editing frames (useful for prewind cameras)\n
-        -If the frames activity is being resumed, the user does not need to unlock the device with authentication\n
-        -Replaced deprecated API calls\n
-        -Bug fixes\n
-        -Migrated large portions of source code from Java to Kotlin\n
-        \n
-        v1.14.1 2020-04-25:\n
-        -Rolls can be marked as unloaded and developed with date and time\n
-        -Reserved characters are now escaped appropriately when exporting a csv file\n
-        -When editing a frame\'s location, the marker can be moved to the current location with a press of a button\n
-        -Film stocks can be filtered based on their type or developing process\n
-        -Bug fix: Filter and Location data are now separated with a comma in cvs files\n
-        -Bug fix: Flash and LightSource tags are now written using text values instead of integers\n
-        \n
-        v1.14.0 2020-01-23:\n
-        -Added flash used and light source properties to frames\n
-        -Added film stock property to rolls and a database of preadded film stocks\n
-        -Rolls can be batch edited\n
-        -Improved roll UI element presentation\n
-        -Visible rolls can be filtered when displaying all rolls on map\n
-        -Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)\n
-        -Replaced deprecated API calls and improved compatibility with Android 10 (Q)\n
-        \n
-        v1.13.1 2019-10-12:\n
-        -Updated deprecated location API calls\n
-        -Targeting Android 10 (Q)\n
-        -Migrated from Android Support Library to AndroidX\n
-        -Data structure classes migrated from Java to Kotlin\n
-        \n
-        v1.13.0 2018-10-21:\n
-        -Database overhaul: added foreign key references and removed some not-null constraints\n
-        -Frames can have multiple filters\n
-        -Rolls can be added without specifying a camera\n
-        -Fixed deprecated Google Maps Geocode API calls\n
-        \n
-        v1.12.0 2018-07-16:\n
-        -Bug fixes\n
-        -UI improvements\n
-        -Frame\'s aperture value can now be manually overridden for custom aperture values (e.g. f/0.95 and f/1.7)\n
-        -Exposure compensation increments are now camera specific (third stop or full stop)\n
-        \n
-        v1.11.0 2018-04-08:\n
-        -You can now add a complementary picture to a frame using the phone\'s camera or the gallery application. Pictures are saved in a compressed format (max 1024px on longest side) and can be exported/imported in the app\'s settings. Individual pictures can also be added to the gallery application in the frame edit window.\n
-        -Bug fixes\n
-        \n
-        v1.10.1 2018-03-20:\n
-        -UI improvements\n
-        -Fixed bug which prevented from batch editing frames\' locations.\n
-        -Fixed bug which caused app to crash on pre L devices when batch editing frame counts upwards.\n
-        \n
-        v1.10.0 2018-03-17:\n
-        -Select multiple frames or rolls by long pressing on a frame or roll.\n
-        -Batch edit frames by selecting multiple frames and then pressing the edit icon. Batch edit options so far are frame count and location.\n
-        -UI improvements\n
-        -Performance improvements\n
-        -Bug fixes\n
-        \n
-        v1.9.5 2018-02-18:\n
-        -Added ability to archive film rolls by long pressing on rolls and marking them as archived (or active to return them to an active state). Visible rolls can be filtered in the film roll view by pressing on the filter icon (only active/archived rolls or all rolls).\n
-        -Dialog prompting to go to settings to enable GPS is only shown, if location updates are enabled in the app\'s settings.\n
-        \n
-        v1.9.4 2017-11-18:\n
-        -In ExifTool commands, the frame count is now preceded by *_ to ensure, that only correct frames are being updated by ExifTool. Make sure you use underscore as the delimiter before the frame count in your filenames.\n
-        -Ensured compatibility with Android O.\n
-        -Moved the aperture and shutter speed properties higher up in the frame edit dialog because these properties are changed frequently.\n
-        -Added option to app\'s settings to ignore minor errors and warnings when writing EXIF information with ExifTool.\n
-        \n
-        v1.9.3 2017-05-15:\n
-        -Focal length is now selected using a seek bar instead of a scroll wheel\n
-        \n
-        v1.9.2 2017-05-01:\n
-        -Bug fix: \'Show on map\' caused app to crash on some phones\n
-        \n
-        v1.9.1 2017-04-30:\n
-        -Bug fix: formatted address is now added to a frame automatically\n
-        \n
-        v1.9.0 2017-04-30:\n
-        -Frame can now have a formatted address. If no address is found, coordinates are displayed instead.\n
-        -Support for diacritics in ExifTool commands\n
-        -Map type (normal, satellite etc.) can be changed whenever map is shown\n
-        \n
-        v1.8.1 2017-04-20:\n
-        -Bug fixes\n
-        \n
-        v1.8.0 2017-04-18:\n
-        -Bug fixes\n
-        -UI updates\n
-        -Frames can be edited from the map\n
-        -Map displays more information about frames\n
-        \n
-        v1.7.3 2017-04-14:\n
-        -Bug fixes\n
-        -Added a dark theme option\n
-        -Added new tags:\n
-        \t\t\t-ImageDescription\n
-        \t\t\t-DateTimeOriginal\n
-        \n
-        v1.7.2 2017-03-30:\n
-        -Fixed a bug which rejected valid database imports\n
-        \n
-        v1.7.1 2017-03-27:\n
-        -No app relaunch needed after database import\n
-        -Bug fixes\n
-        \n
-        v1.7.0 2017-03-25:\n
-        -Bug fixes\n
-        -Special characters are now allowed when entering text anywhere in the app.\n
-        -Filters can now be added to the database and frame\'s information.\n
-        -Shutter speed and aperture increment are now camera and lens specific respectively instead of global settings.\n
-        -Lenses now have an aperture range, focal length range and aperture increment setting.\n
-        -Cameras now have a shutter speed range and a shutter speed increment setting.\n
-        -Rolls now have ISO, push/pull and format attributes.\n
-        -Frames now have focal length, exposure comp, no. of exposures and filter attributes.\n
-        -The user can now export and import the entire database as a .db file. This is useful when you want to transfer all your data to a new phone for example.\n
-        -Changes to ExifTool commands: file names can now have a prefix before the frame number and the user can now choose in the settings which file ending should be used.\n
-        \n
-        v1.6.0 2016-10-13:\n
-        -The app now requires write permissions to the phone\'s external storage (see third bullet point)\n
-        -The app can now share two text files when exporting a roll\'s data: one contains the data in csv format and the other contains the ExifTool commands. The user can choose which files to export in the app\'s settings\n
-        -Added the possibility to export the csv file and/or ExifTool commands using an inbuilt folder browser (Export files to storage). This feature requires write permissions to the phone\'s external storage.\n
-        -Location info is added to a frame only if the user has enabled location updating in the app\'s settings\n
-        -Added a help/quick guide to the app to set up Exif Notes to work with ExifTool\n
-        -Added version history to the About dialog\n
-        \n
-        v1.5.1 2016-09-13:\n
-        -Fixed bug: the app no longer crashes when picking a location for a frame when the location is empty and the device is rotated\n
-        \n
-        v1.5.0 2016-08-17:\n
-        -Added sorting functionality to both the rolls list and frames list\n
-        \n
-        v1.4.1 2016-08-14:\n
-        -Fixed bug: the keyboard no longer blocks the Notes field when editing a roll\'s or frame\'s information\n
-        \n
-        v1.4 2016-05-30:\n
-        -Fixed broken ExifTool command export. However, exporting a .csv is currently disabled\n
-        \n
-        v1.3 2016-05-18:\n
-        -Bug fixes\n
-        \n
-        v1.2 2016-05-18:\n
-        -UI improvements\n
-        -Ability to export frames as a .csv file\n
-        -Ability to add cameras and lenses when adding new rolls and frames\n
-        -Performance improvements\n
-        -Bug fixes\n
-        \n
-        v1.1 2016-03-20 (beta):\n
-        -ExifTool command creation\n
-        -Camera and lens now contain make and model\n
-        -Minor improvements\n
-        \n
-        v1.0 2016-03-13 (beta):\n
-        -First published version
+    <string name="AboutAndTermsOfUse">Version %s
+        \nCopyright 2020 Tommi Hirvonen
+        \nAll rights reserved.
+        \n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.
+        \n\nThis application uses the Apache Commons IO (<a href="http://commons.apache.org/proper/commons-io">http://commons.apache.org/proper/commons-io</a>) and Apache Commons Text (<a href="https://commons.apache.org/proper/commons-text">https://commons.apache.org/proper/commons-text</a>) libraries available under the Apache 2.0 license, which can be obtained from <a href="https://www.apache.org/licenses/LICENSE-2.0">https://www.apache.org/licenses/LICENSE-2.0</a>.
+    </string>
+    <string name="Updates">Updates in this version:
+        \n\n-Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance
+        \n-Frame counts can be reversed when batch editing frames (useful for prewind cameras)
+        \n-If the frames activity is being resumed, the user does not need to unlock the device with authentication
+        \n-Replaced deprecated API calls
+        \n-Bug fixes
+        \n-Migrated large portions of source code from Java to Kotlin\n
+    </string>
+    <string name="VersionHistory">Version history
+        \n\nv1.14.2 2020-06-09:
+        \n-Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance
+        \n-Frame counts can be reversed when batch editing frames (useful for prewind cameras)
+        \n-If the frames activity is being resumed, the user does not need to unlock the device with authentication
+        \n-Replaced deprecated API calls
+        \n-Bug fixes
+        \n-Migrated large portions of source code from Java to Kotlin
+        \n\nv1.14.1 2020-04-25:
+        \n-Rolls can be marked as unloaded and developed with date and time
+        \n-Reserved characters are now escaped appropriately when exporting a csv file
+        \n-When editing a frame\'s location, the marker can be moved to the current location with a press of a button
+        \n-Film stocks can be filtered based on their type or developing process
+        \n-Bug fix: Filter and Location data are now separated with a comma in cvs files
+        \n-Bug fix: Flash and LightSource tags are now written using text values instead of integers
+        \n\nv1.14.0 2020-01-23:
+        \n-Added flash used and light source properties to frames
+        \n-Added film stock property to rolls and a database of preadded film stocks
+        \n-Rolls can be batch edited
+        \n-Improved roll UI element presentation
+        \n-Visible rolls can be filtered when displaying all rolls on map
+        \n-Minimum supported Android version raised from 4.0.3 (Ice Cream Sandwich) to 5.0 (Lollipop)
+        \n-Replaced deprecated API calls and improved compatibility with Android 10 (Q)
+        \n\nv1.13.1 2019-10-12:
+        \n-Updated deprecated location API calls
+        \n-Targeting Android 10 (Q)
+        \n-Migrated from Android Support Library to AndroidX
+        \n-Data structure classes migrated from Java to Kotlin
+        \n\nv1.13.0 2018-10-21:
+        \n-Database overhaul: added foreign key references and removed some not-null constraints
+        \n-Frames can have multiple filters
+        \n-Rolls can be added without specifying a camera
+        \n-Fixed deprecated Google Maps Geocode API calls
+        \n\nv1.12.0 2018-07-16:
+        \n-Bug fixes
+        \n-UI improvements
+        \n-Frame\'s aperture value can now be manually overridden for custom aperture values (e.g. f/0.95 and f/1.7)
+        \n-Exposure compensation increments are now camera specific (third stop or full stop)
+        \n\nv1.11.0 2018-04-08:
+        \n-You can now add a complementary picture to a frame using the phone\'s camera or the gallery application. Pictures are saved in a compressed format (max 1024px on longest side) and can be exported/imported in the app\'s settings. Individual pictures can also be added to the gallery application in the frame edit window.
+        \n-Bug fixes
+        \n\nv1.10.1 2018-03-20:
+        \n-UI improvements
+        \n-Fixed bug which prevented from batch editing frames\' locations.
+        \n-Fixed bug which caused app to crash on pre L devices when batch editing frame counts upwards.
+        \n\nv1.10.0 2018-03-17:
+        \n-Select multiple frames or rolls by long pressing on a frame or roll.
+        \n-Batch edit frames by selecting multiple frames and then pressing the edit icon. Batch edit options so far are frame count and location.
+        \n-UI improvements
+        \n-Performance improvements
+        \n-Bug fixes
+        \n\nv1.9.5 2018-02-18:
+        \n-Added ability to archive film rolls by long pressing on rolls and marking them as archived (or active to return them to an active state). Visible rolls can be filtered in the film roll view by pressing on the filter icon (only active/archived rolls or all rolls).
+        \n-Dialog prompting to go to settings to enable GPS is only shown, if location updates are enabled in the app\'s settings.
+        \n\nv1.9.4 2017-11-18:
+        \n-In ExifTool commands, the frame count is now preceded by *_ to ensure, that only correct frames are being updated by ExifTool. Make sure you use underscore as the delimiter before the frame count in your filenames.
+        \n-Ensured compatibility with Android O.
+        \n-Moved the aperture and shutter speed properties higher up in the frame edit dialog because these properties are changed frequently.
+        \n-Added option to app\'s settings to ignore minor errors and warnings when writing EXIF information with ExifTool.
+        \n\nv1.9.3 2017-05-15:
+        \n-Focal length is now selected using a seek bar instead of a scroll wheel
+        \n\nv1.9.2 2017-05-01:
+        \n-Bug fix: \'Show on map\' caused app to crash on some phones
+        \n\nv1.9.1 2017-04-30:
+        \n-Bug fix: formatted address is now added to a frame automatically
+        \n\nv1.9.0 2017-04-30:
+        \n-Frame can now have a formatted address. If no address is found, coordinates are displayed instead.
+        \n-Support for diacritics in ExifTool commands
+        \n-Map type (normal, satellite etc.) can be changed whenever map is shown
+        \n\nv1.8.1 2017-04-20:
+        \n-Bug fixes
+        \n\nv1.8.0 2017-04-18:
+        \n-Bug fixes
+        \n-UI updates
+        \n-Frames can be edited from the map
+        \n-Map displays more information about frames
+        \n\nv1.7.3 2017-04-14:
+        \n-Bug fixes
+        \n-Added a dark theme option
+        \n-Added new tags:
+        \n\t\t\t-ImageDescription
+        \n\t\t\t-DateTimeOriginal
+        \n\nv1.7.2 2017-03-30:
+        \n-Fixed a bug which rejected valid database imports
+        \n\nv1.7.1 2017-03-27:
+        \n-No app relaunch needed after database import
+        \n-Bug fixes
+        \n\nv1.7.0 2017-03-25:
+        \n-Bug fixes
+        \n-Special characters are now allowed when entering text anywhere in the app.
+        \n-Filters can now be added to the database and frame\'s information.
+        \n-Shutter speed and aperture increment are now camera and lens specific respectively instead of global settings.
+        \n-Lenses now have an aperture range, focal length range and aperture increment setting.
+        \n-Cameras now have a shutter speed range and a shutter speed increment setting.
+        \n-Rolls now have ISO, push/pull and format attributes.
+        \n-Frames now have focal length, exposure comp, no. of exposures and filter attributes.
+        \n-The user can now export and import the entire database as a .db file. This is useful when you want to transfer all your data to a new phone for example.
+        \n-Changes to ExifTool commands: file names can now have a prefix before the frame number and the user can now choose in the settings which file ending should be used.
+        \n\nv1.6.0 2016-10-13:
+        \n-The app now requires write permissions to the phone\'s external storage (see third bullet point)
+        \n-The app can now share two text files when exporting a roll\'s data: one contains the data in csv format and the other contains the ExifTool commands. The user can choose which files to export in the app\'s settings
+        \n-Added the possibility to export the csv file and/or ExifTool commands using an inbuilt folder browser (Export files to storage). This feature requires write permissions to the phone\'s external storage.
+        \n-Location info is added to a frame only if the user has enabled location updating in the app\'s settings
+        \n-Added a help/quick guide to the app to set up Exif Notes to work with ExifTool
+        \n-Added version history to the About dialog
+        \n\nv1.5.1 2016-09-13:
+        \n-Fixed bug: the app no longer crashes when picking a location for a frame when the location is empty and the device is rotated
+        \n\nv1.5.0 2016-08-17:
+        \n-Added sorting functionality to both the rolls list and frames list
+        \n\nv1.4.1 2016-08-14:
+        \n-Fixed bug: the keyboard no longer blocks the Notes field when editing a roll\'s or frame\'s information
+        \n\nv1.4 2016-05-30:
+        \n-Fixed broken ExifTool command export. However, exporting a .csv is currently disabled
+        \n\nv1.3 2016-05-18:
+        \n-Bug fixes
+        \n\nv1.2 2016-05-18:
+        \n-UI improvements
+        \n-Ability to export frames as a .csv file
+        \n-Ability to add cameras and lenses when adding new rolls and frames
+        \n-Performance improvements
+        \n-Bug fixes
+        \n\nv1.1 2016-03-20 (beta):
+        \n-ExifTool command creation
+        \n-Camera and lens now contain make and model
+        \n-Minor improvements
+        \n\nv1.0 2016-03-13 (beta):
+        \n-First published version
     </string>
     <string name="VisibleRolls">Visible rolls</string>
     <string name="Yes">Yes</string>
-    <string name="about">Version 1.14.2\nCopyright 2020 Tommi Hirvonen\nAll rights reserved.\n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.</string>
     <string name="app_name">Exif Notes</string>
-    <string name="main_help">
-        This is a quick guide to help you set up Exif Notes so that you can tag your scanned files on your computer using ExifTool. Please visit the homepage of ExifTool by Phil Harvey for more information on how to use ExifTool:\n
-        http://www.sno.phy.queensu.ca/~phil/exiftool/
-        \n\n
-        1. First you should define the artist name and copyright information in the app\'s settings. These can be anything, name, company, year etc.
-        \n\n
-        2. You should define the \’ExifTool path\’ in the app\'s settings if you haven\’t placed it in your PATH file. For example, \’~UserName/Documents/Image-ExifTool-10.13/\’ (without the apostrophes). That is to say the ExifTool executable is in a folder called Image-ExifTool-10.13 in the user\'s Documents folder.
-        \n\n
-        3. Then you should define the \’Path to pictures\’ in the app\'s settings, for example \’~UserName/Desktop/\’ (without the apostrophes). That is to say the scanned files are on the user\'s desktop.
-        \n\n
-        4. By default the image file ending used when creating the ExifTool commands is .jpg. You can change this to any possible file ending in the \'File ending\' setting.
-        \n\n
-        5. Name the scanned files in such a way, that the name ends with an underscore and the frame\'s number. The number in the file name should correspond to the frame count in the app. The file\'s ending should be the one you specified in the previous step. These examples are all valid file names: 2016-02-03_1.jpg (frame #1), Example_10.tiff (frame #10), FileName_15.PNG (frame #15)
-        \n\n
-        6. Export the roll\’s data by clicking the ellipsis when viewing the frames of a roll and then click \’Export/share files\’ to share them via another app (Dropbox or Gmail for example) or alternatively click \'Export files to storage\' to export the files using an inbuilt folder browser. This exports one or two text files (depending on which files the user has chosen to export in the app\'s settings), one containing the rolls data in csv format and the other containing the ExifTool commands.
-        \n\n
-        7. Open the text file containing the ExifTool commands on your computer. Copy the commands for the files you wish to tag and paste them on your terminal. Make sure you run all the commands, you may have to press enter to run the last command.
-        \n\n
-        8. ExifTool will run and update the exif tags of your scanned files. The updated tags are listed below:
-        \n
-        -Artist\n
-        -Copyright\n
-        -Make\n
-        -Model\n
-        -LensMake\n
-        -LensModel\n
-        -Lens\n
-        -DateTime\n
-        -DateTimeOriginal\n
-        -ShutterSpeedValue\n
-        -ExposureTime\n
-        -ApertureValue\n
-        -FNumber\n
-        -UserComment\n
-        -ImageDescription\n
-        -GPSLatitude\n
-        -GPSLatitudeRef\n
-        -GPSLongitude\n
-        -GPSLongitudeRef\n
-        -ExposureCompensation\n
-        -FocalLength\n
-        -ISO\n
-        -SerialNumber\n
-        -LensSerialNumber\n
-        -Flash\n
-        -LightSource
+    <string name="main_help">This is a quick guide to help you set up Exif Notes so that you can tag your scanned files on your computer using ExifTool. Please visit the homepage of ExifTool by Phil Harvey for more information on how to use ExifTool:
+        \n<a href="http://exiftool.org">http://exiftool.org</a>
+        \n\n1. First you should define the artist name and copyright information in the app\'s settings. These can be anything, name, company, year etc.
+        \n\n2. You should define the \’ExifTool path\’ in the app\'s settings if you haven\’t placed it in your PATH file. For example, \’~UserName/Documents/Image-ExifTool-10.13/\’ (without the apostrophes). That is to say the ExifTool executable is in a folder called Image-ExifTool-10.13 in the user\'s Documents folder.
+        \n\n3. Then you should define the \’Path to pictures\’ in the app\'s settings, for example \’~UserName/Desktop/\’ (without the apostrophes). That is to say the scanned files are on the user\'s desktop.
+        \n\n4. By default the image file ending used when creating the ExifTool commands is .jpg. You can change this to any possible file ending in the \'File ending\' setting.
+        \n\n5. Name the scanned files in such a way, that the name ends with an underscore and the frame\'s number. The number in the file name should correspond to the frame count in the app. The file\'s ending should be the one you specified in the previous step. These examples are all valid file names: 2016-02-03_1.jpg (frame #1), Example_10.tiff (frame #10), FileName_15.PNG (frame #15)
+        \n\n6. Export the roll\’s data by clicking the ellipsis when viewing the frames of a roll and then click \’Export/share files\’ to share them via another app (Dropbox or Gmail for example) or alternatively click \'Export files to storage\' to export the files using an inbuilt folder browser. This exports one or two text files (depending on which files the user has chosen to export in the app\'s settings), one containing the rolls data in csv format and the other containing the ExifTool commands.
+        \n\n7. Open the text file containing the ExifTool commands on your computer. Copy the commands for the files you wish to tag and paste them on your terminal. Make sure you run all the commands, you may have to press enter to run the last command.
+        \n\n8. ExifTool will run and update the exif tags of your scanned files. The updated tags are listed below:
+        \n-Artist
+        \n-Copyright
+        \n-Make
+        \n-Model
+        \n-LensMake
+        \n-LensModel
+        \n-Lens
+        \n-DateTime
+        \n-DateTimeOriginal
+        \n-ShutterSpeedValue
+        \n-ExposureTime
+        \n-ApertureValue
+        \n-FNumber
+        \n-UserComment
+        \n-ImageDescription
+        \n-GPSLatitude
+        \n-GPSLatitudeRef
+        \n-GPSLongitude
+        \n-GPSLongitudeRef
+        \n-ExposureCompensation
+        \n-FocalLength
+        \n-ISO
+        \n-SerialNumber
+        \n-LensSerialNumber
+        \n-Flash
+        \n-LightSource
     </string>
     <string name="style_json">
         [

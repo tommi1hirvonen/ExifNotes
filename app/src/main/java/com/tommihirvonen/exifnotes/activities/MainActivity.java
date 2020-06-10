@@ -16,7 +16,7 @@ import androidx.preference.PreferenceManager;
 
 import android.widget.Toast;
 
-import com.tommihirvonen.exifnotes.dialogs.SimpleEula;
+import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog;
 import com.tommihirvonen.exifnotes.fragments.RollsFragment;
 import com.tommihirvonen.exifnotes.R;
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager;
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements RollsFragment.OnR
 
         setContentView(R.layout.activity_main);
 
-        new SimpleEula(this).show();
+        new TermsOfUseDialog(this).show();
 
         Utilities.setUiColor(this, false);
         if (getSupportActionBar() != null) getSupportActionBar().setTitle(
