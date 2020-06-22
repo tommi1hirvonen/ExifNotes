@@ -31,7 +31,6 @@ import com.tommihirvonen.exifnotes.activities.LocationPickActivity
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.*
-import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask.AsyncResponse
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -387,11 +386,12 @@ open class EditFrameDialog : DialogFragment() {
             if (newFrame.formattedAddress == null || newFrame.formattedAddress?.isEmpty() == true) {
                 // Make the ProgressBar visible to indicate that a query is being executed
                 locationProgressBar.visibility = View.VISIBLE
-                GeocodingAsyncTask(AsyncResponse { _: String?, formatted_address: String ->
+
+                GeocodingAsyncTask { _, formattedAddress ->
                     locationProgressBar.visibility = View.INVISIBLE
-                    newFrame.formattedAddress = if (formatted_address.isNotEmpty()) formatted_address else null
+                    newFrame.formattedAddress = if (formattedAddress.isNotEmpty()) formattedAddress else null
                     updateLocationTextView()
-                }).execute(location.decimalLocation, resources.getString(R.string.google_maps_key))
+                }.execute(location.decimalLocation, resources.getString(R.string.google_maps_key))
 
             }
         }

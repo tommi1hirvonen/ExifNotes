@@ -36,7 +36,6 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Location
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask
-import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask.AsyncResponse
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.Utilities
 
@@ -155,16 +154,16 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                 formattedAddressTextView.text = formattedAddress
             } else {
                 progressBar.visibility = View.VISIBLE
-                GeocodingAsyncTask(AsyncResponse { _: String?, formatted_address: String ->
+                GeocodingAsyncTask { _, formattedAddress_ ->
                     progressBar.visibility = View.INVISIBLE
-                    formattedAddress = if (formatted_address.isNotEmpty()) {
-                        formattedAddressTextView.text = formatted_address
-                        formatted_address
+                    formattedAddress = if (formattedAddress_.isNotEmpty()) {
+                        formattedAddressTextView.text = formattedAddress_
+                        formattedAddress_
                     } else {
                         formattedAddressTextView.setText(R.string.AddressNotFound)
                         null
                     }
-                }).execute(location.decimalLocation, googleMapsApiKey)
+                }.execute(location.decimalLocation, googleMapsApiKey)
             }
         }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -271,16 +270,16 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         val latitude = "" + latLng.latitude
         val longitude = "" + latLng.longitude
         val query = "$latitude $longitude"
-        GeocodingAsyncTask(AsyncResponse { _: String?, formatted_address: String ->
+        GeocodingAsyncTask { _: String?, formattedAddress_: String ->
             progressBar.visibility = View.INVISIBLE
-            if (formatted_address.isNotEmpty()) {
-                formattedAddressTextView.text = formatted_address
-                formattedAddress = formatted_address
+            if (formattedAddress_.isNotEmpty()) {
+                formattedAddressTextView.text = formattedAddress_
+                formattedAddress = formattedAddress_
             } else {
                 formattedAddressTextView.setText(R.string.AddressNotFound)
                 formattedAddress = null
             }
-        }).execute(query, googleMapsApiKey)
+        }.execute(query, googleMapsApiKey)
 
         // if the location was cleared before editing -> add marker to selected location
         if (marker == null) {
@@ -296,7 +295,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         // the formatted address and coordinates. Also move the marker if the result was valid.
         formattedAddressTextView.text = ""
         progressBar.visibility = View.VISIBLE
-        GeocodingAsyncTask(AsyncResponse { output: String, formatted_address: String? ->
+        GeocodingAsyncTask { output: String, formattedAddress_: String? ->
             progressBar.visibility = View.INVISIBLE
             if (output.isNotEmpty()) {
                 val location = Location(output)
@@ -313,13 +312,13 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                     latLngLocation = position
                     googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
                 }
-                formattedAddressTextView.text = formatted_address
-                formattedAddress = formatted_address
+                formattedAddressTextView.text = formattedAddress_
+                formattedAddress = formattedAddress_
             } else {
                 formattedAddressTextView.setText(R.string.AddressNotFound)
                 formattedAddress = null
             }
-        }).execute(query, googleMapsApiKey)
+        }.execute(query, googleMapsApiKey)
         return false
     }
 
