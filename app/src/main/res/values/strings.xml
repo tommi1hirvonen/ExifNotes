@@ -111,6 +111,7 @@
     <string name="ErrorImportingDatabaseFrom">Error importing database from:\u0020</string>
     <string name="ErrorLocatingSelectedPicture">Error locating selected picture</string>
     <string name="ErrorSavingSelectedPicture">Error saving selected picture</string>
+    <string name="ErrorSharedStorageNotAvailable">Error: shared storage not available</string>
     <string name="ErrorWhileEditingPicturesExifData">Error while editing picture\'s EXIF data</string>
     <string name="ExifToolCommandsDescription">Text file containing the ExifTool commands</string>
     <string name="ExiftoolPathSummary">"If you are using the ExifTool stand-alone executable, you can define its path here ending with '/' or '\\' depending on your OS."</string>

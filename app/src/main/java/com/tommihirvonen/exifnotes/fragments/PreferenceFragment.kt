@@ -217,14 +217,14 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         dialog.setCancelable(false)
         dialog.show()
         chronometer.start()
-        ComplementaryPicturesManager.importComplementaryPictures(activity, File(filePath), object : ZipFileReaderAsyncTask.ProgressListener {
+        ComplementaryPicturesManager.importComplementaryPictures(requireActivity(), File(filePath),
+                object : ZipFileReaderAsyncTask.ProgressListener {
             override fun onProgressChanged(progressPercentage: Int,
                                            completed: Int, total: Int) {
                 progressBar.progress = progressPercentage
                 val progressText = "$completed/$total"
                 progressTextView.text = progressText
             }
-
             override fun onCompleted(success: Boolean, completedEntries: Int) {
                 dialog.dismiss()
                 if (success) {
@@ -326,7 +326,8 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             dialog.setCancelable(false)
             dialog.show()
             chronometer.start()
-            ComplementaryPicturesManager.exportComplementaryPictures(activity, inputFile, object : ZipFileCreatorAsyncTask.ProgressListener {
+            ComplementaryPicturesManager.exportComplementaryPictures(requireActivity(), inputFile,
+                    object : ZipFileCreatorAsyncTask.ProgressListener {
                 override fun onProgressChanged(progressPercentage: Int, completed: Int, total: Int) {
                     progressBar.progress = progressPercentage
                     val progressText = "$completed/$total"

@@ -595,11 +595,11 @@ open class EditFrameDialog : DialogFragment() {
 
                 // The user has taken a new complementary picture. Update the possible new filename,
                 // notify gallery app and set the complementary picture bitmap.
+                val filename = tempPictureFilename ?: return@Runnable
                 newFrame.pictureFilename = tempPictureFilename
-
                 // Compress the picture file
                 try {
-                    ComplementaryPicturesManager.compressPictureFile(activity, newFrame.pictureFilename)
+                    ComplementaryPicturesManager.compressPictureFile(requireActivity(), filename)
                 } catch (e: IOException) {
                     Toast.makeText(activity, R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show()
                 }
@@ -617,11 +617,11 @@ open class EditFrameDialog : DialogFragment() {
             Thread(Runnable {
 
                 // Create the placeholder file in the complementary pictures directory.
-                val pictureFile = ComplementaryPicturesManager.createNewPictureFile(activity)
+                val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
                 try {
                     // Get the compressed bitmap from the Uri.
                     val pictureBitmap = ComplementaryPicturesManager
-                            .getCompressedBitmap(activity, selectedPictureUri)
+                            .getCompressedBitmap(requireActivity(), selectedPictureUri) ?: return@Runnable
                     try {
                         // Save the compressed bitmap to the placeholder file.
                         ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile)
@@ -646,11 +646,12 @@ open class EditFrameDialog : DialogFragment() {
     private fun setComplementaryPicture() {
 
         // If the picture filename was not set, set text and return. Otherwise continue
-        if (newFrame.pictureFilename == null) {
+        val filename = newFrame.pictureFilename
+        if (filename == null) {
             pictureTextView.setText(R.string.ClickToAdd)
             return
         }
-        val pictureFile = ComplementaryPicturesManager.getPictureFile(activity, newFrame.pictureFilename)
+        val pictureFile = ComplementaryPicturesManager.getPictureFile(requireActivity(), filename)
 
         // If the picture file exists, set the picture ImageView.
         if (pictureFile.exists()) {
@@ -1363,7 +1364,7 @@ open class EditFrameDialog : DialogFragment() {
                     }
                     2 -> {
                         try {
-                            ComplementaryPicturesManager.addPictureToGallery(activity, newFrame.pictureFilename)
+                            ComplementaryPicturesManager.addPictureToGallery(requireActivity(), newFrame.pictureFilename)
                             Toast.makeText(activity, R.string.PictureAddedToGallery, Toast.LENGTH_SHORT).show()
                         } catch (e: IOException) {
                             Toast.makeText(activity, R.string.ErrorAddingPictureToGallery, Toast.LENGTH_LONG).show()
@@ -1400,7 +1401,7 @@ open class EditFrameDialog : DialogFragment() {
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (takePictureIntent.resolveActivity(requireActivity().packageManager) != null) {
                 // Create the file where the photo should go
-                val pictureFile = ComplementaryPicturesManager.createNewPictureFile(activity)
+                val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
                 tempPictureFilename = pictureFile.name
                 val photoURI: Uri
                 //Android Nougat requires that the file is given via FileProvider
@@ -1420,8 +1421,9 @@ open class EditFrameDialog : DialogFragment() {
          * set the complementary picture orientation with ComplementaryPicturesManager.
          */
         private fun rotateComplementaryPictureRight() {
+            val filename = newFrame.pictureFilename ?: return
             try {
-                ComplementaryPicturesManager.rotatePictureRight(activity, newFrame.pictureFilename)
+                ComplementaryPicturesManager.rotatePictureRight(requireActivity(), filename)
                 pictureImageView.rotation = pictureImageView.rotation + 90
                 val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_right)
                 pictureImageView.startAnimation(animation)
@@ -1435,8 +1437,9 @@ open class EditFrameDialog : DialogFragment() {
          * the complementary picture orientation with ComplementaryPicturesManager.
          */
         private fun rotateComplementaryPictureLeft() {
+            val filename = newFrame.pictureFilename ?: return
             try {
-                ComplementaryPicturesManager.rotatePictureLeft(activity, newFrame.pictureFilename)
+                ComplementaryPicturesManager.rotatePictureLeft(requireActivity(), filename)
                 pictureImageView.rotation = pictureImageView.rotation - 90
                 val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_left)
                 pictureImageView.startAnimation(animation)
