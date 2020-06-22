@@ -112,7 +112,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                 layoutManager.orientation))
 
         // Create an ArrayAdapter for the ListView
-        filterAdapter = GearAdapter(activity, filterList)
+        filterAdapter = GearAdapter(requireActivity(), filterList)
 
         // Set the ListView to use the ArrayAdapter
         mainRecyclerView.adapter = filterAdapter

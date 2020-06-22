@@ -111,7 +111,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                 layoutManager.orientation))
 
         // Create an ArrayAdapter for the ListView
-        cameraAdapter = GearAdapter(activity, cameraList)
+        cameraAdapter = GearAdapter(requireActivity(), cameraList)
 
         // Set the ListView to use the ArrayAdapter
         mainRecyclerView.adapter = cameraAdapter

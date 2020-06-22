@@ -79,7 +79,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                         filmStocksRecyclerView.context, layoutManager.orientation
                 )
         )
-        filmStockAdapter = GearAdapter(activity, filteredFilmStocks)
+        filmStockAdapter = GearAdapter(requireActivity(), filteredFilmStocks)
         filmStocksRecyclerView.adapter = filmStockAdapter
         filmStockAdapter.notifyDataSetChanged()
 
@@ -222,7 +222,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         }.toMutableList()
         sortFilmStocks()
 
-        filmStockAdapter.setGearList(filteredFilmStocks)
+        filmStockAdapter.gearList = filteredFilmStocks
         filmStockAdapter.notifyDataSetChanged()
     }
 

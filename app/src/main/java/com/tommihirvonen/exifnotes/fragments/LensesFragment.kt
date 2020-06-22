@@ -110,7 +110,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
         mainRecyclerView.layoutManager = layoutManager
         mainRecyclerView.addItemDecoration(DividerItemDecoration(mainRecyclerView.context,
                 layoutManager.orientation))
-        lensAdapter = GearAdapter(activity, lensList)
+        lensAdapter = GearAdapter(requireActivity(), lensList)
         mainRecyclerView.adapter = lensAdapter
         if (lensList.size >= 1) mainTextView.visibility = View.GONE
         lensAdapter.notifyDataSetChanged()
