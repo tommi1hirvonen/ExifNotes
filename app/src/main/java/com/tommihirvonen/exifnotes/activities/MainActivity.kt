@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
          * Tag for database import request. Used when the PreferenceActivity is launched.
          */
         const val PREFERENCE_ACTIVITY_REQUEST = 8
-        
+
         private const val FRAMES_ACTIVITY_REQUEST = 10
     }
 
