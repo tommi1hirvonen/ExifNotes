@@ -37,16 +37,15 @@ import kotlin.math.roundToInt
  * Activity to display all the frames from a list of rolls on a map.
  */
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
+
+    private class Triple<T, U, V> internal constructor(val first: T, var second: U, val third: V)
+
     /**
      * Reference to the singleton database
      */
     private lateinit var database: FilmDbHelper
-    private lateinit var allRolls: List<Pair<Roll, Boolean>>
-
-    /**
-     * List to hold all the rolls from the database
-     */
-    private val selectedRolls = mutableListOf<Pair<Roll, Bitmap?>>()
+    private lateinit var allRolls: List<Triple<Roll, Boolean, List<Frame>>>
+    private val selectedRolls = mutableListOf<Triple<Roll, Bitmap?, List<Frame>>>()
 
     /**
      * GoogleMap object to show the map and to hold all the markers for all frames
@@ -110,7 +109,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         // Set the roll list and other arrays
         database = FilmDbHelper.getInstance(this)
         val rolls = intent.getParcelableArrayListExtra<Roll>(ExtraKeys.ARRAY_LIST_ROLLS)
-        allRolls = rolls?.map { Pair(it, true) } ?: emptyList()
+        allRolls = rolls?.map { Triple(it, true, database.getAllFramesFromRoll(it)) } ?: emptyList()
 
         // If only one roll can be displayed, hide the bottom sheet.
         if (allRolls.size == 1) {
@@ -261,8 +260,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun updateSelectedRolls() {
         selectedRolls.clear()
         var bitmapIndex = 0
-        allRolls.filter { it.second }.forEach { pair ->
-            selectedRolls.add(Pair(pair.first, markerBitmaps[bitmapIndex]))
+        allRolls.filter { it.second }.forEach { triple ->
+            selectedRolls.add(Triple(triple.first, markerBitmaps[bitmapIndex], triple.third))
             bitmapIndex++
             bitmapIndex %= markerBitmaps.size
         }
@@ -272,14 +271,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun updateMarkers() {
         markerList.forEach { it.remove() }
         markerList.clear()
-        selectedRolls.forEach { pair ->
-            val frames = database.getAllFramesFromRoll(pair.first)
+        selectedRolls.forEach { triple ->
+            val frames = triple.third
             frames.forEach frames@ { frame ->
                 val location = frame.location ?: return@frames
                 val position = location.latLng ?: return@frames
-                val rollName = pair.first.name
+                val rollName = triple.first.name
                 val frameCount = "#" + frame.count
-                val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(pair.second)
+                val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(triple.second)
                 val marker = googleMap?.addMarker(MarkerOptions()
                         .icon(bitmapDescriptor)
                         .position(position)
@@ -435,8 +434,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private class RollMarkerAdapter internal constructor(
             context: Context,
-            private val rollList: List<Pair<Roll, Bitmap?>>)
-        : ArrayAdapter<Pair<Roll, Bitmap?>>(context, android.R.layout.simple_list_item_1, rollList) {
+            private val rollList: List<Triple<Roll, Bitmap?, List<Frame>>>)
+        : ArrayAdapter<Triple<Roll, Bitmap?, List<Frame>>>(context, android.R.layout.simple_list_item_1, rollList) {
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val pair = rollList[position]
@@ -483,13 +482,5 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             getMarkerBitmap(this, BitmapDescriptorFactory.HUE_VIOLET),
             getMarkerBitmap(this, BitmapDescriptorFactory.HUE_MAGENTA)
     )
-
-    /**
-     * Helper class utilizing Java Generics to represent a pair of objects.
-     *
-     * @param <T> object of type T placed in the first member of Pair
-     * @param <U> object of type U placed in the second member of Pair
-    </U></T> */
-    private class Pair<T, U> internal constructor(val first: T, var second: U)
 
 }
