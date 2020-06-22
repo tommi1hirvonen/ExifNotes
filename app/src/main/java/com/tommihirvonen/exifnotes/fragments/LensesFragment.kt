@@ -205,7 +205,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
                     mainTextView.visibility = View.GONE
                     lens.id = database.addLens(lens)
                     lensList.add(lens)
-                    Utilities.sortGearList(lensList)
+                    lensList.sort()
                     val listPos = lensList.indexOf(lens)
                     lensAdapter.notifyItemInserted(listPos)
 

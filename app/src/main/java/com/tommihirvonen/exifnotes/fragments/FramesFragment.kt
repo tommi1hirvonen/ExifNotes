@@ -31,10 +31,7 @@ import com.tommihirvonen.exifnotes.adapters.FrameAdapter.FrameAdapterListener
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode.Companion.fromValue
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
-import com.tommihirvonen.exifnotes.utilities.PreferenceConstants
-import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.*
 import java.io.File
 import java.io.IOException
 import java.io.OutputStreamWriter
@@ -145,7 +142,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         sortMode = fromValue(sharedPreferences.getInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, FrameSortMode.FRAME_COUNT.value))
 
         //Sort the list according to preferences
-        Utilities.sortFrameList(activity, sortMode, frameList)
+        Frame.sortFrameList(requireActivity(), sortMode, frameList)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -291,7 +288,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         val editor = sharedPref.edit()
         editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, sortMode.value)
         editor.apply()
-        Utilities.sortFrameList(activity, sortMode, frameList)
+        Frame.sortFrameList(requireActivity(), sortMode, frameList)
         frameAdapter.notifyDataSetChanged()
     }
 
@@ -474,7 +471,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 val frame: Frame = data?.getParcelableExtra(ExtraKeys.FRAME) ?: return
                 database.addFrame(frame)
                 frameList.add(frame)
-                Utilities.sortFrameList(activity, sortMode, frameList)
+                Frame.sortFrameList(requireActivity(), sortMode, frameList)
                 frameAdapter.notifyItemInserted(frameList.indexOf(frame))
                 mainTextView.visibility = View.GONE
                 // When the new frame is added jump to view the added entry
@@ -489,7 +486,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 val frame: Frame = data?.getParcelableExtra(ExtraKeys.FRAME) ?: return
                 database.updateFrame(frame)
                 val oldPosition = frameList.indexOf(frame)
-                Utilities.sortFrameList(activity, sortMode, frameList)
+                Frame.sortFrameList(requireActivity(), sortMode, frameList)
                 val newPosition = frameList.indexOf(frame)
                 frameAdapter.notifyItemChanged(oldPosition)
                 frameAdapter.notifyItemMoved(oldPosition, newPosition)
@@ -500,7 +497,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             SHOW_ON_MAP -> if (resultCode == Activity.RESULT_OK) {
                 // Update the frame list in case updates were made in MapsActivity.
                 frameList = database.getAllFramesFromRoll(roll)
-                Utilities.sortFrameList(activity, sortMode, frameList)
+                Frame.sortFrameList(requireActivity(), sortMode, frameList)
                 frameAdapter = FrameAdapter(requireActivity(), frameList, this)
                 mainRecyclerView.adapter = frameAdapter
                 frameAdapter.notifyDataSetChanged()
@@ -662,7 +659,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                         database.updateFrame(frame)
                                     }
                                     if (sortMode == FrameSortMode.FRAME_COUNT) {
-                                        Utilities.sortFrameList(requireContext(), sortMode, frameList)
+                                        Frame.sortFrameList(requireActivity(), sortMode, frameList)
                                     }
                                     frameAdapter.notifyDataSetChanged()
                                     actionMode?.finish()
@@ -729,7 +726,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                         database.updateFrame(frame)
                     }
                     actionMode?.finish()
-                    Utilities.sortFrameList(activity, sortMode, frameList)
+                    Frame.sortFrameList(requireActivity(), sortMode, frameList)
                     frameAdapter.notifyDataSetChanged()
                 }
             }

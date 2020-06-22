@@ -34,10 +34,7 @@ import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.datastructures.RollSortMode
 import com.tommihirvonen.exifnotes.dialogs.EditRollDialog
 import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
-import com.tommihirvonen.exifnotes.utilities.PreferenceConstants
-import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.*
 
 /**
  * RollsFragment is the fragment that is displayed first in MainActivity. It contains
@@ -118,7 +115,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
      * Holds the roll sort mode (date, name or camera).
      * This way we don't always have to query the value from SharedPreferences.
      */
-    private var sortMode: RollSortMode? = null
+    private var sortMode: RollSortMode = RollSortMode.DATE
 
     interface OnRollSelectedListener {
         /**
@@ -235,7 +232,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         // Load the rolls from the database.
         rollList = database.getRolls(filterMode)
         //Order the roll list according to preferences.
-        Utilities.sortRollList(sortMode, database, rollList)
+        Roll.sortRollList(sortMode, database, rollList)
         if (recreateRollAdapter) {
             // Create an ArrayAdapter for the ListView.
             rollAdapter = RollAdapter(requireActivity(), rollList, this)
@@ -278,7 +275,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
             RollSortMode.DATE -> menu.findItem(R.id.date_sort_mode).isChecked = true
             RollSortMode.NAME -> menu.findItem(R.id.name_sort_mode).isChecked = true
             RollSortMode.CAMERA -> menu.findItem(R.id.camera_sort_mode).isChecked = true
-            else -> menu.findItem(R.id.date_sort_mode).isChecked = true
         }
         super.onPrepareOptionsMenu(menu)
     }
@@ -371,7 +367,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         val editor = sharedPreferences.edit()
         editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, sortMode.value)
         editor.apply()
-        Utilities.sortRollList(sortMode, database, rollList)
+        Roll.sortRollList(sortMode, database, rollList)
         rollAdapter.notifyDataSetChanged()
     }
 
@@ -456,7 +452,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                 mainTextViewAnimateInvisible()
                 // Add new roll to the top of the list
                 rollList.add(0, roll)
-                Utilities.sortRollList(sortMode, database, rollList)
+                Roll.sortRollList(sortMode, database, rollList)
                 rollAdapter.notifyItemInserted(rollList.indexOf(roll))
 
                 // When the new roll is added jump to view the added entry
@@ -472,7 +468,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                 database.updateRoll(roll)
                 // Notify array adapter that the data set has to be updated
                 val oldPosition = rollList.indexOf(roll)
-                Utilities.sortRollList(sortMode, database, rollList)
+                Roll.sortRollList(sortMode, database, rollList)
                 val newPosition = rollList.indexOf(roll)
                 rollAdapter.notifyItemChanged(oldPosition)
                 rollAdapter.notifyItemMoved(oldPosition, newPosition)

@@ -209,7 +209,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                     mainTextView.visibility = View.GONE
                     camera.id = database.addCamera(camera)
                     cameraList.add(camera)
-                    Utilities.sortGearList(cameraList)
+                    cameraList.sort()
                     val listPos = cameraList.indexOf(camera)
                     cameraAdapter.notifyItemInserted(listPos)
 

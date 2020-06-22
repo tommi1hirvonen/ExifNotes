@@ -37,15 +37,11 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.tommihirvonen.exifnotes.datastructures.Camera;
-import com.tommihirvonen.exifnotes.datastructures.DateTime;
 import com.tommihirvonen.exifnotes.datastructures.FilmStock;
 import com.tommihirvonen.exifnotes.datastructures.Frame;
-import com.tommihirvonen.exifnotes.datastructures.FrameSortMode;
-import com.tommihirvonen.exifnotes.datastructures.Gear;
 import com.tommihirvonen.exifnotes.datastructures.Lens;
 import com.tommihirvonen.exifnotes.datastructures.Roll;
 import com.tommihirvonen.exifnotes.R;
-import com.tommihirvonen.exifnotes.datastructures.RollSortMode;
 
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -59,8 +55,6 @@ import java.lang.reflect.Field;
 import java.nio.channels.FileChannel;
 import java.text.Normalizer;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -432,150 +426,6 @@ public final class Utilities {
         titleTextView.setText(titleText);
         titleTextView.setGravity(Gravity.LEFT);
         return titleTextView;
-    }
-
-    /**
-     * Sorts a list of Frame objects based on sortMode.
-     * This method is called when the user has selected a sorting criteria.
-     *
-     * @param context reference to the parent activity
-     * @param sortMode enum type referencing the frame sort mode
-     * @param listToSort reference to the frame list that is to be sorted
-     */
-    public static void sortFrameList(final Context context, final FrameSortMode sortMode,
-                                     final List<Frame> listToSort) {
-        switch (sortMode){
-            case FRAME_COUNT:
-                Collections.sort(listToSort, (frame1, frame2) -> {
-                    // Negative to reverse the sorting order
-                    final int count1 = frame1.getCount();
-                    final int count2 = frame2.getCount();
-                    final int result;
-                    result = Integer.compare(count1, count2);
-                    return result;
-                });
-                break;
-
-            case DATE:
-                Collections.sort(listToSort, (frame1, frame2) -> {
-                    final DateTime dt1 = frame1.getDate();
-                    final DateTime dt2 = frame2.getDate();
-                    if (dt1 != null && dt2 != null) {
-                        return dt1.compareTo(dt2);
-                    } else {
-                        return 0;
-                    }
-                });
-                break;
-
-            case F_STOP:
-                Collections.sort(listToSort, (frame1, frame2) -> {
-
-                    final String[] allApertureValues = context.getResources().getStringArray(R.array.AllApertureValues);
-                    String aperture1 = frame1.getAperture();
-                    aperture1 = aperture1 != null ? aperture1 : "";
-                    String aperture2 = frame2.getAperture();
-                    aperture2 = aperture2 != null ? aperture2 : "";
-                    int pos1 = 0;
-                    int pos2 = 0;
-                    for (int i = 0; i < allApertureValues.length; ++i){
-                        if (aperture1.equals(allApertureValues[i])) pos1 = i;
-                        if (aperture2.equals(allApertureValues[i])) pos2 = i;
-                    }
-                    final int result;
-                    result = Integer.compare(pos1, pos2);
-                    return result;
-                });
-                break;
-
-            case SHUTTER_SPEED:
-                Collections.sort(listToSort, (frame1, frame2) -> {
-
-                    final String[] allShutterValues = context.getResources().getStringArray(R.array.AllShutterValues);
-                    //Shutter speed strings need to be modified so that the sorting
-                    //works properly.
-                    String shutter1 = frame1.getShutter();
-                    shutter1 = shutter1 != null ? shutter1.replace("\"", "") : "";
-                    String shutter2 = frame2.getShutter();
-                    shutter2 = shutter2 != null ? shutter2.replace("\"", "") : "";
-                    int pos1 = 0;
-                    int pos2 = 0;
-                    for (int i = 0; i < allShutterValues.length; ++i){
-                        if (shutter1.equals(allShutterValues[i])) pos1 = i;
-                        if (shutter2.equals(allShutterValues[i])) pos2 = i;
-                    }
-                    final int result;
-                    result = Integer.compare(pos1, pos2);
-                    return result;
-                });
-                break;
-
-            case LENS:
-                Collections.sort(listToSort, (frame1, frame2) -> {
-                    final Lens lens1 = frame1.getLens();
-                    final Lens lens2 = frame2.getLens();
-                    final String name1 = lens1 != null ? lens1.getName() : "";
-                    final String name2 = lens2 != null ? lens2.getName() : "";
-                    return name1.compareTo(name2);
-                });
-                break;
-        }
-    }
-
-    /**
-     * Sorts a list of Roll objects based on sortMode.
-     * Called when the user has selected a sorting criteria.
-     *
-     * @param sortMode SortMode enum type
-     * @param database reference to the application's database
-     * @param listToSort reference to the List that should be sorted
-     */
-    public static void sortRollList(final RollSortMode sortMode, final FilmDbHelper database, final List<Roll> listToSort) {
-        switch (sortMode){
-
-            case DATE: default:
-                Collections.sort(listToSort, (roll1, roll2) -> {
-                    final DateTime dt1 = roll1.getDate();
-                    final DateTime dt2 = roll2.getDate();
-                    if (dt1 != null & dt2 != null) {
-                        // Change the sign to make the order descending.
-                        // This is used for rolls.
-                        return -dt1.compareTo(dt2);
-                    } else {
-                        return 0;
-                    }
-                });
-                break;
-
-            case NAME:
-                Collections.sort(listToSort, (roll1, roll2) -> {
-                    final String name1 = roll1.getName() != null ? roll1.getName() : "";
-                    final String name2 = roll2.getName() != null ? roll2.getName() : "";
-                    return name1.compareTo(name2);
-                });
-                break;
-
-            case CAMERA:
-                Collections.sort(listToSort, (roll1, roll2) -> {
-                    final Camera camera1 = database.getCamera(roll1.getCameraId());
-                    final Camera camera2 = database.getCamera(roll2.getCameraId());
-                    final String name1 = camera1 != null ? camera1.getName() : "";
-                    final String name2 = camera2 != null ? camera2.getName() : "";
-                    return name1.compareTo(name2);
-                });
-                break;
-        }
-    }
-
-    /**
-     * Sorts a list of Gear by name.
-     *
-     * @param gearList reference to the List that should be sorted.
-     */
-    public static void sortGearList(final List<? extends Gear> gearList) {
-        Collections.sort(gearList, (Comparator<Gear>) (g1, g2) ->
-                g1.getName().compareToIgnoreCase(g2.getName())
-        );
     }
 
     /**
