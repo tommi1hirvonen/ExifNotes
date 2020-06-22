@@ -644,10 +644,9 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         final Cursor cursor = db.query(
                 TABLE_FRAMES, null, KEY_ROLL_ID + "=?",
                 new String[]{Long.toString(roll.getId())}, null, null, KEY_COUNT);
-        Frame frame;
         // Go over each row, build list
         while (cursor.moveToNext()) {
-            frame = getFrameFromCursor(cursor);
+            final Frame frame = getFrameFromCursor(cursor, roll);
             frames.add(frame);
         }
         cursor.close();
@@ -1355,8 +1354,8 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      * @param cursor Cursor object containing the attributes for a Frame object
      * @return Frame object generated from cursor
      */
-    private Frame getFrameFromCursor (@NonNull final Cursor cursor) {
-        final Frame frame = new Frame();
+    private Frame getFrameFromCursor (@NonNull final Cursor cursor, @NonNull final Roll roll) {
+        final Frame frame = new Frame(roll);
         return getFrameFromCursor(cursor, frame);
     }
 
@@ -1369,7 +1368,6 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     private Frame getFrameFromCursor (@NonNull final Cursor cursor, @NonNull final Frame frame) {
         frame.setId(cursor.getLong(cursor.getColumnIndex(KEY_FRAME_ID)));
-        frame.setRollId(cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID)));
         frame.setCount(cursor.getInt(cursor.getColumnIndex(KEY_COUNT)));
 
         final String date = cursor.getString(cursor.getColumnIndex(KEY_DATE));
@@ -1567,7 +1565,7 @@ public class FilmDbHelper extends SQLiteOpenHelper {
      */
     private ContentValues buildFrameContentValues(@NonNull final Frame frame){
         final ContentValues contentValues = new ContentValues();
-        contentValues.put(KEY_ROLL_ID, frame.getRollId());
+        contentValues.put(KEY_ROLL_ID, frame.getRoll().getId());
         contentValues.put(KEY_COUNT, frame.getCount());
         contentValues.put(KEY_DATE, frame.getDate() != null ? frame.getDate().toString() : null);
 

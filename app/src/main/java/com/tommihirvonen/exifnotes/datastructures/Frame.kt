@@ -10,7 +10,7 @@ import java.util.ArrayList
 @Parcelize
 data class Frame(
         var id: Long = 0,
-        var rollId: Long = 0,
+        var roll: Roll,
         var count: Int = 0,
         var date: DateTime? = null,
         var shutter: String? = null,
@@ -30,6 +30,8 @@ data class Frame(
         var lens: Lens? = null,
         var filters: MutableList<Filter> = ArrayList()
 ) : Parcelable {
+
+    constructor(roll_: Roll) : this(roll = roll_)
 
     init {
         if (lightSource_ !in 0..7) lightSource_ = 0

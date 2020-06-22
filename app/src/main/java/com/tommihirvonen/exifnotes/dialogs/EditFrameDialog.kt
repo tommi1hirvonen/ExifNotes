@@ -74,8 +74,6 @@ open class EditFrameDialog : DialogFragment() {
         private const val SELECT_PICTURE_REQUEST = 5
     }
 
-    private lateinit var roll: Roll
-
     internal lateinit var frame: Frame
 
     private lateinit var newFrame: Frame
@@ -215,12 +213,16 @@ open class EditFrameDialog : DialogFragment() {
         // Add listeners to buttons to open new dialogs to change the frame's information.
         val title = requireArguments().getString(ExtraKeys.TITLE)
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
-        frame = requireArguments().getParcelable(ExtraKeys.FRAME) ?: Frame()
+        val frame1: Frame? = requireArguments().getParcelable(ExtraKeys.FRAME)
+        if (frame1 == null) {
+            showsDialog = false
+            dismiss()
+            return Dialog(requireActivity())
+        }
+        frame = frame1
         newFrame = frame.copy()
         database = FilmDbHelper.getInstance(activity)
-
-        roll = database.getRoll(frame.rollId) ?: Roll()
-        roll.camera?.let {
+        frame.roll.camera?.let {
             mountableLenses = database.getLinkedLenses(it)
             shutterIncrements = it.shutterIncrements
             exposureCompIncrements = it.exposureCompIncrements
@@ -556,7 +558,7 @@ open class EditFrameDialog : DialogFragment() {
             // After Ok code.
             val lens: Lens = data?.getParcelableExtra(ExtraKeys.LENS) ?: return
             lens.id = database.addLens(lens)
-            roll.camera?.let {
+            frame.roll.camera?.let {
                 database.addCameraLensLink(it, lens)
                 mountableLenses?.add(lens)
             }
@@ -768,7 +770,7 @@ open class EditFrameDialog : DialogFragment() {
         // Set the min and max values only if a lens is selected and they are set for the lens.
         // Otherwise the displayedShutterValues array will be left alone
         // (all shutter values available, since min and max were not defined).
-        roll.camera?.let { camera ->
+        frame.roll.camera?.let { camera ->
             val minIndex = displayedShutterValues.indexOfFirst { it == camera.minShutter }
             val maxIndex = displayedShutterValues.indexOfFirst { it == camera.maxShutter }
             displayedShutterValues = if (minIndex != -1 && maxIndex != -1) {

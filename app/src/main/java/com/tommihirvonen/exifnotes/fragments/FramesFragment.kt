@@ -424,10 +424,9 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         }
         val title = requireActivity().resources.getString(R.string.NewFrame)
         val positiveButton = requireActivity().resources.getString(R.string.Add)
-        val frame = Frame()
+        val frame = Frame(roll)
         frame.date = DateTime.fromCurrentTime()
         frame.count = nextFrameCount
-        frame.rollId = roll.id
         frame.noOfExposures = 1
 
         //Get the location only if the app has location permission (locationPermissionsGranted) and

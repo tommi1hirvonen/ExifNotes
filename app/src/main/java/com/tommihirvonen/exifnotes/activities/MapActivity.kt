@@ -330,7 +330,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         override fun getInfoContents(marker: Marker): View? {
             return if (marker.tag is Frame) {
                 val frame = marker.tag as Frame? ?: return null
-                val roll = database.getRoll(frame.rollId) ?: return null
                 @SuppressLint("InflateParams")
                 val view = layoutInflater.inflate(R.layout.info_window_all_frames, null)
                 val rollTextView = view.findViewById<TextView>(R.id.roll_name)
@@ -339,8 +338,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 val dateTimeTextView = view.findViewById<TextView>(R.id.date_time)
                 val lensTextView = view.findViewById<TextView>(R.id.lens)
                 val noteTextView = view.findViewById<TextView>(R.id.note)
-                rollTextView.text = roll.name
-                cameraTextView.text = roll.camera?.name ?: getString(R.string.NoCamera)
+                rollTextView.text = frame.roll.name
+                cameraTextView.text = frame.roll.camera?.name ?: getString(R.string.NoCamera)
                 val frameCountText = "#" + frame.count
                 frameCountTextView.text = frameCountText
                 dateTimeTextView.text = frame.date?.dateTimeAsText ?: ""
