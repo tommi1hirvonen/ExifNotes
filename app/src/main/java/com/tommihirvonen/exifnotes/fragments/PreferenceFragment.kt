@@ -175,8 +175,8 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         if (key == PreferenceConstants.KEY_DARK_THEME) {
             requireActivity().recreate()
-            val preferenceActivity = activity as PreferenceActivity?
-            var resultCode = preferenceActivity!!.resultCode
+            val preferenceActivity = requireActivity() as PreferenceActivity
+            var resultCode = preferenceActivity.resultCode
             // Preserve previously put result code(s)
             resultCode = resultCode or PreferenceActivity.RESULT_THEME_CHANGED
             preferenceActivity.resultCode = resultCode
