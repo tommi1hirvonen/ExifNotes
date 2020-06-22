@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.fragments.RollsFragment
 import com.tommihirvonen.exifnotes.fragments.RollsFragment.OnRollSelectedListener
@@ -153,9 +154,9 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
         super.onStart()
     }
 
-    override fun onRollSelected(rollId: Long) {
+    override fun onRollSelected(roll: Roll) {
         val framesActivityIntent = Intent(this, FramesActivity::class.java)
-        framesActivityIntent.putExtra(ExtraKeys.ROLL_ID, rollId)
+        framesActivityIntent.putExtra(ExtraKeys.ROLL, roll)
         framesActivityIntent.putExtra(ExtraKeys.LOCATION_ENABLED, locationPermissionsGranted)
         framesActivityIntent.putExtra(ExtraKeys.OVERRIDE_PENDING_TRANSITION, true)
         startActivityForResult(framesActivityIntent, FRAMES_ACTIVITY_REQUEST)

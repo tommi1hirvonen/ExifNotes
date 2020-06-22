@@ -121,9 +121,9 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         /**
          * Called when a use has selected a Roll.
          *
-         * @param rollId database id of the selected roll
+         * @param roll selected roll object
          */
-        fun onRollSelected(rollId: Long)
+        fun onRollSelected(roll: Roll)
     }
 
     // This onAttach() is called before API 23
@@ -381,8 +381,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         if (rollAdapter.selectedItemCount > 0 || actionMode != null) {
             enableActionMode(position)
         } else {
-            val rollId = rollList[position].id
-            callback.onRollSelected(rollId)
+            callback.onRollSelected(rollList[position])
         }
     }
 

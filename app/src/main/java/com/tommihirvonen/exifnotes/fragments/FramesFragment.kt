@@ -123,8 +123,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         database = FilmDbHelper.getInstance(activity)
-        val rollId = requireArguments().getLong(ExtraKeys.ROLL_ID)
-        roll = database.getRoll(rollId)!! // Roll must be defined for every Frame
+        roll = requireArguments().getParcelable(ExtraKeys.ROLL)!! // Roll must be defined for every Frame
         frameList = database.getAllFramesFromRoll(roll)
 
         //getActivity().getPreferences() returns a preferences file related to the

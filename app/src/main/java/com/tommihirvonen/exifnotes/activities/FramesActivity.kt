@@ -7,6 +7,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.fragments.FramesFragment
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
@@ -27,10 +28,10 @@ class FramesActivity : AppCompatActivity() {
 
         // Get the arguments from the intent from MainActivity.
         val intent = intent
-        val rollId = intent.getLongExtra(ExtraKeys.ROLL_ID, -1)
+        val roll = intent.getParcelableExtra<Roll>(ExtraKeys.ROLL)
         val locationEnabled = intent.getBooleanExtra(ExtraKeys.LOCATION_ENABLED, false)
         val overridePendingTransition = intent.getBooleanExtra(ExtraKeys.OVERRIDE_PENDING_TRANSITION, false)
-        if (rollId == -1L) finish()
+        if (roll == null) finish()
 
         // If the activity was launched from MainActivity, enable custom transition animations.
         // If the activity was recreated, then custom animations are not enabled during onCreate().
@@ -69,7 +70,7 @@ class FramesActivity : AppCompatActivity() {
             // Pass the arguments from MainActivity on to FramesFragment.
             val framesFragment = FramesFragment()
             val arguments = Bundle()
-            arguments.putLong(ExtraKeys.ROLL_ID, rollId)
+            arguments.putParcelable(ExtraKeys.ROLL, roll)
             arguments.putBoolean(ExtraKeys.LOCATION_ENABLED, locationEnabled)
             framesFragment.arguments = arguments
             supportFragmentManager.beginTransaction().add(R.id.fragment_container,

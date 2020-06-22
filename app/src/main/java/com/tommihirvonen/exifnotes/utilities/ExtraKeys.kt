@@ -9,7 +9,6 @@ object ExtraKeys {
     const val CONTINUE = "CONTINUE"
     const val LOCATION = "LOCATION"
     const val FORMATTED_ADDRESS = "FORMATTED_ADDRESS"
-    const val ROLL_ID = "ROLL_ID"
     const val LOCATION_ENABLED = "LOCATION_ENABLED"
     const val OVERRIDE_PENDING_TRANSITION = "OVERRIDE_PENDING_TRANSITION"
     const val TITLE = "TITLE"
