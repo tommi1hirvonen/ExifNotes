@@ -1,22 +1,21 @@
 package com.tommihirvonen.exifnotes.datastructures
 
 import android.os.Parcelable
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-class Roll(var id: Long = 0,
+data class Roll(var id: Long = 0,
            var name: String? = null,
            var date: DateTime? = null,
            var unloaded: DateTime? = null,
            var developed: DateTime? = null,
            var note: String? = null,
-           var cameraId: Long = 0,
+           var camera: Camera? = null,
            var iso: Int = 0,
            var pushPull: String? = null,
            private var format_: Int = 0,
            var archived: Boolean = false,
-           var filmStockId: Long = 0
+           var filmStock: FilmStock? = null
            ) : Parcelable {
 
     init {
@@ -33,14 +32,13 @@ class Roll(var id: Long = 0,
          * Called when the user has selected a sorting criteria.
          *
          * @param sortMode SortMode enum type
-         * @param database reference to the application's database
          * @param list reference to the List that should be sorted
          */
-        fun sortRollList(sortMode: RollSortMode, database: FilmDbHelper, list: MutableList<Roll>) {
+        fun sortRollList(sortMode: RollSortMode, list: MutableList<Roll>) {
             when (sortMode) {
                 RollSortMode.DATE -> list.sortWith(compareByDescending { it.date })
-                RollSortMode.NAME -> list.sortWith(compareBy { it.name })
-                RollSortMode.CAMERA -> list.sortWith(compareBy { database.getCamera(it.cameraId) }) }
+                RollSortMode.NAME -> list.sortWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name ?: "" })
+                RollSortMode.CAMERA -> list.sortWith(compareBy { it.camera }) }
         }
     }
 

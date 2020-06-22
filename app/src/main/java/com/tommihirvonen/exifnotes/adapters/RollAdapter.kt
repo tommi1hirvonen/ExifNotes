@@ -123,8 +123,6 @@ class RollAdapter(private val context: Context,
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val roll = rollList[position]
-        val cameraId = roll.cameraId
-        val filmStockId = roll.filmStockId
         val numberOfFrames = database.getNumberOfFrames(roll)
 
         // Populate the data into the template view using the data object
@@ -132,19 +130,15 @@ class RollAdapter(private val context: Context,
         holder.dateTextView.text = roll.date?.dateTimeAsText
         holder.noteTextView.text = roll.note
 
-        if (filmStockId > 0) {
-            holder.filmStockTextView.text = database.getFilmStock(filmStockId).name
+        roll.filmStock?.let {
+            holder.filmStockTextView.text = it.name
             holder.filmStockTextView.visibility = View.VISIBLE
-        } else {
+        } ?: run {
             holder.filmStockTextView.text = ""
             holder.filmStockTextView.visibility = View.GONE
         }
 
-        if (cameraId > 0) {
-            holder.cameraTextView.text = database.getCamera(cameraId)?.name
-        } else {
-            holder.cameraTextView.text = context.resources.getString(R.string.NoCamera)
-        }
+        holder.cameraTextView.text = roll.camera?.name ?: context.resources.getString(R.string.NoCamera)
 
         if (numberOfFrames == 0) {
             holder.photosTextView.text = context.resources.getString(R.string.NoPhotos)

@@ -1428,13 +1428,18 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         if (date != null) roll.setDate(new DateTime(date));
 
         roll.setNote(cursor.getString(cursor.getColumnIndex(KEY_ROLL_NOTE)));
-        roll.setCameraId(cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID)));
+
+        final long cameraId = cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID));
+        if (cameraId > 0) roll.setCamera(getCamera(cameraId));
+
         roll.setIso(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ISO)));
         roll.setPushPull(cursor.getString(cursor.getColumnIndex(KEY_ROLL_PUSH)));
         roll.setFormat(cursor.getInt(cursor.getColumnIndex(KEY_ROLL_FORMAT)));
         final int archived = cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ARCHIVED));
         roll.setArchived(archived > 0);
-        roll.setFilmStockId(cursor.getInt(cursor.getColumnIndex(KEY_FILM_STOCK_ID)));
+
+        final long filmStockId = cursor.getInt(cursor.getColumnIndex(KEY_FILM_STOCK_ID));
+        if (filmStockId > 0) roll.setFilmStock(getFilmStock(filmStockId));
 
         final String unloaded = cursor.getString(cursor.getColumnIndex(KEY_ROLL_UNLOADED));
         if (unloaded != null) roll.setUnloaded(new DateTime(unloaded));
@@ -1634,14 +1639,18 @@ public class FilmDbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_ROLLNAME, roll.getName());
         contentValues.put(KEY_ROLL_DATE, roll.getDate() != null ? roll.getDate().toString() : null);
         contentValues.put(KEY_ROLL_NOTE, roll.getNote());
-        if (roll.getCameraId() > 0) contentValues.put(KEY_CAMERA_ID, roll.getCameraId());
+
+        if (roll.getCamera() != null) contentValues.put(KEY_CAMERA_ID, roll.getCamera().getId());
         else contentValues.putNull(KEY_CAMERA_ID);
+
         contentValues.put(KEY_ROLL_ISO, roll.getIso());
         contentValues.put(KEY_ROLL_PUSH, roll.getPushPull());
         contentValues.put(KEY_ROLL_FORMAT, roll.getFormat());
         contentValues.put(KEY_ROLL_ARCHIVED, roll.getArchived());
-        if (roll.getFilmStockId() > 0) contentValues.put(KEY_FILM_STOCK_ID, roll.getFilmStockId());
+
+        if (roll.getFilmStock() != null) contentValues.put(KEY_FILM_STOCK_ID, roll.getFilmStock().getId());
         else contentValues.putNull(KEY_FILM_STOCK_ID);
+
         contentValues.put(KEY_ROLL_UNLOADED, roll.getUnloaded() != null ? roll.getUnloaded().toString() : null);
         contentValues.put(KEY_ROLL_DEVELOPED, roll.getDeveloped() != null ? roll.getDeveloped().toString() : null);
         return contentValues;

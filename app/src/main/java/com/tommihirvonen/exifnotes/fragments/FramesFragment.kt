@@ -101,11 +101,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     private lateinit var roll: Roll
 
     /**
-     * Currently used camera
-     */
-    private var camera: Camera? = null
-
-    /**
      * Reference to the FloatingActionButton
      */
     private lateinit var floatingActionButton: FloatingActionButton
@@ -130,7 +125,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         database = FilmDbHelper.getInstance(activity)
         val rollId = requireArguments().getLong(ExtraKeys.ROLL_ID)
         roll = database.getRoll(rollId)!! // Roll must be defined for every Frame
-        camera = database.getCamera(roll.cameraId)
         frameList = database.getAllFramesFromRoll(roll)
 
         //getActivity().getPreferences() returns a preferences file related to the
@@ -151,7 +145,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         val view = layoutInflater.inflate(R.layout.fragment_frames, container, false)
         val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
         actionBar?.title = roll.name
-        camera?.let { actionBar?.subtitle = it.name }
+        roll.camera?.let { actionBar?.subtitle = it.name }
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
         floatingActionButton = view.findViewById(R.id.fab)
@@ -242,7 +236,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 list.add(roll)
                 mapIntent.putParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS, list)
                 mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, roll.name)
-                camera?.let { mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE, it.name) }
+                roll.camera?.let { mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE, it.name) }
                 startActivityForResult(mapIntent, SHOW_ON_MAP)
             }
             R.id.menu_item_share ->

@@ -482,7 +482,7 @@ public final class Utilities {
         final String lineSep = "\r\n";
 
         final List<Frame> frameList = database.getAllFramesFromRoll(roll);
-        final Camera camera = database.getCamera(roll.getCameraId());
+        final Camera camera = roll.getCamera();
 
         for (final Frame frame : frameList) {
 
@@ -613,8 +613,8 @@ public final class Utilities {
 
         final FilmDbHelper database = FilmDbHelper.getInstance(context);
         final List<Frame> frameList = database.getAllFramesFromRoll(roll);
-        final Camera camera = database.getCamera(roll.getCameraId());
-        final FilmStock filmStock = database.getFilmStock(roll.getFilmStockId());
+        final Camera camera = roll.getCamera();
+        final FilmStock filmStock = roll.getFilmStock();
 
         final String separator = ",";
         final StringEscapeUtils.Builder stringBuilder = StringEscapeUtils.builder(StringEscapeUtils.ESCAPE_CSV);

@@ -34,7 +34,7 @@ abstract class Gear(open var id: Long, open var make: String?, open var model: S
     }
 
     override fun compareTo(other: Gear): Int {
-        return name.compareTo(other.name)
+        return name.compareTo(other.name, ignoreCase = true)
     }
 
 }

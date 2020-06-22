@@ -60,38 +60,16 @@ class EditRollDialog : DialogFragment() {
 
     //These variables are used so that the object itself is not updated
     //unless the user presses ok.
-    /**
-     * Currently selected camera
-     */
-    private var newCamera: Camera? = null
 
-    /**
-     * Currently selected film format, corresponding values defined in res/values/array.xml
-     */
-    private var newFormat = 0
-
-    /**
-     * Currently selected ISO
-     */
-    private var newIso = 0
-
-    /**
-     * Currently selected push or pull value in format 0, +/-X or +/-Y/Z where X, Y and Z are numbers
-     */
-    private var newPushPull: String? = null
-
-    private var newFilmStock: FilmStock? = null
+    private lateinit var newRoll: Roll
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
         database = FilmDbHelper.getInstance(activity)
         val title = requireArguments().getString(ExtraKeys.TITLE)
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         val roll = requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll()
-        newCamera = database.getCamera(roll.cameraId)
-        newIso = roll.iso
-        newPushPull = roll.pushPull
+        newRoll = roll.copy()
         cameraList = database.allCameras
-        newFilmStock = database.getFilmStock(roll.filmStockId)
         val layoutInflater = requireActivity().layoutInflater
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams")
@@ -154,15 +132,15 @@ class EditRollDialog : DialogFragment() {
         // FILM STOCK PICK DIALOG
         filmStockTextView = inflatedView.findViewById(R.id.film_stock_text)
         filmStockClearImageView = inflatedView.findViewById(R.id.clear_film_stock)
-        if (newFilmStock != null) {
-            filmStockTextView.text = newFilmStock?.name
-            nameEditText.hint = newFilmStock?.name
-        } else {
+        roll.filmStock?.let {
+            filmStockTextView.text = it.name
+            nameEditText.hint = it.name
+        } ?: run {
             filmStockTextView.text = ""
             filmStockClearImageView.visibility = View.GONE
         }
         filmStockClearImageView.setOnClickListener {
-            newFilmStock = null
+            newRoll.filmStock = null
             nameEditText.hint = ""
             filmStockTextView.text = ""
             filmStockClearImageView.visibility = View.GONE
@@ -179,21 +157,21 @@ class EditRollDialog : DialogFragment() {
         //==========================================================================================
         // CAMERA PICK DIALOG
         cameraTextView = inflatedView.findViewById(R.id.camera_text)
-        cameraTextView.text = newCamera?.name ?: ""
+        cameraTextView.text = roll.camera?.name ?: ""
 
         val cameraLayout = inflatedView.findViewById<LinearLayout>(R.id.camera_layout)
         cameraLayout.setOnClickListener {
             val listItems = listOf(resources.getString(R.string.NoCamera))
                             .plus(cameraList.map { it.name }).toTypedArray()
 
-            val index = cameraList.indexOfFirst { it == newCamera }
+            val index = cameraList.indexOfFirst { it == newRoll.camera }
             val checkedItem = if (index == -1) 0 else index + 1
 
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(R.string.UsedCamera)
             builder.setSingleChoiceItems(listItems, checkedItem) { dialogInterface: DialogInterface, which: Int ->
                 // listItems also contains the No camera option
-                newCamera = if (which > 0) {
+                newRoll.camera = if (which > 0) {
                     cameraTextView.text = listItems[which]
                     cameraList[which - 1]
                 } else {
@@ -284,7 +262,7 @@ class EditRollDialog : DialogFragment() {
         //==========================================================================================
         //ISO PICKER
         isoTextView = inflatedView.findViewById(R.id.iso_text)
-        isoTextView.text = if (newIso == 0) "" else newIso.toString()
+        isoTextView.text = if (roll.iso == 0) "" else roll.iso.toString()
         val isoLayout = inflatedView.findViewById<LinearLayout>(R.id.iso_layout)
         isoLayout.setOnClickListener {
             val builder = AlertDialog.Builder(activity)
@@ -297,7 +275,7 @@ class EditRollDialog : DialogFragment() {
             isoPicker.maxValue = isoValues.size - 1
             isoPicker.displayedValues = isoValues
             isoPicker.value = 0
-            val initialValue = isoValues.indexOfFirst { it.toInt() == newIso }
+            val initialValue = isoValues.indexOfFirst { it.toInt() == newRoll.iso }
             if (initialValue != -1) isoPicker.value = initialValue
 
             //To prevent text edit
@@ -305,8 +283,8 @@ class EditRollDialog : DialogFragment() {
             builder.setView(dialogView)
             builder.setTitle(resources.getString(R.string.ChooseISO))
             builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                newIso = isoValues[isoPicker.value].toInt()
-                isoTextView.text = if (newIso == 0) "" else newIso.toString()
+                newRoll.iso = isoValues[isoPicker.value].toInt()
+                isoTextView.text = if (newRoll.iso == 0) "" else newRoll.iso.toString()
             }
             builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
             val dialog = builder.create()
@@ -318,7 +296,7 @@ class EditRollDialog : DialogFragment() {
         //==========================================================================================
         //PUSH PULL PICKER
         val pushPullTextView = inflatedView.findViewById<TextView>(R.id.push_pull_text)
-        pushPullTextView.text = if (newPushPull == null || newPushPull == "0") "" else newPushPull
+        pushPullTextView.text = if (roll.pushPull == null || roll.pushPull == "0") "" else roll.pushPull
         val pushPullLayout = inflatedView.findViewById<LinearLayout>(R.id.push_pull_layout)
         pushPullLayout.setOnClickListener {
             val builder = AlertDialog.Builder(activity)
@@ -331,7 +309,7 @@ class EditRollDialog : DialogFragment() {
             pushPullPicker.maxValue = compValues.size - 1
             pushPullPicker.displayedValues = compValues
             pushPullPicker.value = 9
-            val initialValue = compValues.indexOfFirst { it == newPushPull }
+            val initialValue = compValues.indexOfFirst { it == newRoll.pushPull }
             if (initialValue != -1) pushPullPicker.value = initialValue
 
             //To prevent text edit
@@ -339,8 +317,8 @@ class EditRollDialog : DialogFragment() {
             builder.setView(dialogView)
             builder.setTitle(resources.getString(R.string.ChoosePushOrPull))
             builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                newPushPull = compValues[pushPullPicker.value]
-                pushPullTextView.text = if (newPushPull == "0") "" else newPushPull
+                newRoll.pushPull = compValues[pushPullPicker.value]
+                pushPullTextView.text = if (newRoll.pushPull == "0") "" else newRoll.pushPull
             }
             builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
             val dialog = builder.create()
@@ -353,14 +331,13 @@ class EditRollDialog : DialogFragment() {
         //FORMAT PICK DIALOG
         val formatTextView = inflatedView.findViewById<TextView>(R.id.format_text)
         formatTextView.text = resources.getStringArray(R.array.FilmFormats)[roll.format]
-        newFormat = roll.format
         val formatLayout = inflatedView.findViewById<LinearLayout>(R.id.format_layout)
         formatLayout.setOnClickListener {
-            val checkedItem = newFormat
+            val checkedItem = newRoll.format
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(resources.getString(R.string.ChooseFormat))
             builder.setSingleChoiceItems(R.array.FilmFormats, checkedItem) { dialogInterface: DialogInterface, i: Int ->
-                newFormat = i
+                newRoll.format = i
                 formatTextView.text = resources.getStringArray(R.array.FilmFormats)[i]
                 dialogInterface.dismiss()
             }
@@ -392,20 +369,20 @@ class EditRollDialog : DialogFragment() {
             var name = nameEditText.text.toString()
 
             // Check if name is not set and if name can be replaced with the film stock's name.
-            if (name.isEmpty()) name = newFilmStock?.name ?: ""
+            if (name.isEmpty()) name = newRoll.filmStock?.name ?: ""
 
             // Check the length again.
             if (name.isNotEmpty()) {
                 roll.name = name
                 roll.note = noteEditText.text.toString()
-                roll.cameraId = newCamera?.id ?: 0
+                roll.camera = newRoll.camera
                 roll.date = dateLoadedManager.dateTime
                 roll.unloaded = dateUnloadedManager.dateTime
                 roll.developed = dateDevelopedManager.dateTime
-                roll.iso = newIso
-                roll.pushPull = newPushPull
-                roll.format = newFormat
-                roll.filmStockId = newFilmStock?.id ?: 0
+                roll.iso = newRoll.iso
+                roll.pushPull = newRoll.pushPull
+                roll.format = newRoll.format
+                roll.filmStock = newRoll.filmStock
                 val intent = Intent()
                 intent.putExtra(ExtraKeys.ROLL, roll)
                 dialog.dismiss()
@@ -426,18 +403,18 @@ class EditRollDialog : DialogFragment() {
                 camera.id = database.addCamera(camera)
                 cameraList.add(camera)
                 cameraTextView.text = camera.name
-                newCamera = camera
+                newRoll.camera = camera
             }
             REQUEST_CODE_SELECT_FILM_STOCK ->  if (resultCode == Activity.RESULT_OK) {
                 val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
                 filmStockTextView.text = filmStock.name
                 nameEditText.hint = filmStock.name
-                newFilmStock = filmStock
+                newRoll.filmStock = filmStock
                 filmStockClearImageView.visibility = View.VISIBLE
                 // If the film stock ISO is defined, set the ISO
                 if (filmStock.iso != 0) {
-                    newIso = filmStock.iso
-                    isoTextView.text = if (newIso == 0) "" else newIso.toString()
+                    newRoll.iso = filmStock.iso
+                    isoTextView.text = if (newRoll.iso == 0) "" else newRoll.iso.toString()
                 }
             }
         }

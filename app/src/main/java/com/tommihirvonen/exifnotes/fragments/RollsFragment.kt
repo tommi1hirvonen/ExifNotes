@@ -232,7 +232,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         // Load the rolls from the database.
         rollList = database.getRolls(filterMode)
         //Order the roll list according to preferences.
-        Roll.sortRollList(sortMode, database, rollList)
+        Roll.sortRollList(sortMode, rollList)
         if (recreateRollAdapter) {
             // Create an ArrayAdapter for the ListView.
             rollAdapter = RollAdapter(requireActivity(), rollList, this)
@@ -367,7 +367,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         val editor = sharedPreferences.edit()
         editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, sortMode.value)
         editor.apply()
-        Roll.sortRollList(sortMode, database, rollList)
+        Roll.sortRollList(sortMode, rollList)
         rollAdapter.notifyDataSetChanged()
     }
 
@@ -452,7 +452,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                 mainTextViewAnimateInvisible()
                 // Add new roll to the top of the list
                 rollList.add(0, roll)
-                Roll.sortRollList(sortMode, database, rollList)
+                Roll.sortRollList(sortMode, rollList)
                 rollAdapter.notifyItemInserted(rollList.indexOf(roll))
 
                 // When the new roll is added jump to view the added entry
@@ -468,7 +468,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                 database.updateRoll(roll)
                 // Notify array adapter that the data set has to be updated
                 val oldPosition = rollList.indexOf(roll)
-                Roll.sortRollList(sortMode, database, rollList)
+                Roll.sortRollList(sortMode, rollList)
                 val newPosition = rollList.indexOf(roll)
                 rollAdapter.notifyItemChanged(oldPosition)
                 rollAdapter.notifyItemMoved(oldPosition, newPosition)
@@ -502,7 +502,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         val selectedRollsPositions = rollAdapter.selectedItemPositions
         for (position in selectedRollsPositions) {
             val roll = rollList[position]
-            roll.filmStockId = filmStock?.id ?: 0
+            roll.filmStock = filmStock
             if (updateIso) roll.iso = filmStock?.iso ?: 0
             database.updateRoll(roll)
         }
