@@ -3,7 +3,6 @@ package com.tommihirvonen.exifnotes.activities
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -387,16 +386,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 arguments.putString(ExtraKeys.TITLE, title)
                 arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
                 arguments.putParcelable(ExtraKeys.FRAME, frame)
-                val dialog = EditFrameDialogCallback()
-                dialog.arguments = arguments
-                dialog.setOnPositiveButtonClickedListener { data: Intent ->
-                    val editedFrame: Frame = data.getParcelableExtra(ExtraKeys.FRAME) ?: return@setOnPositiveButtonClickedListener
+                val dialog = EditFrameDialogCallback { intent ->
+                    val editedFrame: Frame = intent.getParcelableExtra(ExtraKeys.FRAME) ?: return@EditFrameDialogCallback
                     database.updateFrame(editedFrame)
                     marker.tag = editedFrame
                     marker.hideInfoWindow()
                     marker.showInfoWindow()
                     setResult(RESULT_OK)
                 }
+                dialog.arguments = arguments
                 dialog.show(supportFragmentManager.beginTransaction(), EditFrameDialog.TAG)
             }
         }
