@@ -413,27 +413,28 @@ object ComplementaryPicturesManager {
                 // Publish empty progress to tell the interface, that the process has begun.
                 publishProgress()
                 // Set the ZipOutputStream beginning with FileOutputStream then ZipOutputStream.
-                val outputStream = ZipOutputStream(FileOutputStream(zipFile))
-                // byte array where the bytes read from input stream should be stored.
-                val buffer = ByteArray(BUFFER)
-                // Iterate the files from the files array
-                for (file in files) {
-                    // Set the BufferedInputStream using FileInputStream
-                    BufferedInputStream(FileInputStream(file), BUFFER).use { inputStream ->
-                        val entry = ZipEntry(file.name)
-                        // Begin writing a new zip file entry.
-                        outputStream.putNextEntry(entry)
-                        var count: Int
-                        // BufferedInputStream.read() returns the number of bytes read
-                        // or -1 if the end of stream was reached.
-                        while (inputStream.read(buffer, 0, BUFFER).also { count = it } != -1) {
-                            outputStream.write(buffer, 0, count)
+                ZipOutputStream(FileOutputStream(zipFile)).use { outputStream ->
+                    // byte array where the bytes read from input stream should be stored.
+                    val buffer = ByteArray(BUFFER)
+                    // Iterate the files from the files array
+                    for (file in files) {
+                        // Set the BufferedInputStream using FileInputStream
+                        BufferedInputStream(FileInputStream(file), BUFFER).use { inputStream ->
+                            val entry = ZipEntry(file.name)
+                            // Begin writing a new zip file entry.
+                            outputStream.putNextEntry(entry)
+                            // BufferedInputStream.read() returns the number of bytes read
+                            // or -1 if the end of stream was reached.
+                            while (true) {
+                                val count = inputStream.read(buffer, 0, BUFFER)
+                                if (count == -1) break
+                                else outputStream.write(buffer, 0, count)
+                            }
                         }
+                        ++completedEntries
+                        publishProgress()
                     }
-                    ++completedEntries
-                    publishProgress()
                 }
-                outputStream.close()
             } catch (e: IOException) {
                 return false
             }
