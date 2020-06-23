@@ -419,17 +419,17 @@ object ComplementaryPicturesManager {
                 // Iterate the files from the files array
                 for (file in files) {
                     // Set the BufferedInputStream using FileInputStream
-                    val inputStream = BufferedInputStream(FileInputStream(file), BUFFER)
-                    val entry = ZipEntry(file.name)
-                    // Begin writing a new zip file entry.
-                    outputStream.putNextEntry(entry)
-                    var count: Int
-                    // BufferedInputStream.read() returns the number of bytes read
-                    // or -1 if the end of stream was reached.
-                    while (inputStream.read(buffer, 0, BUFFER).also { count = it } != -1) {
-                        outputStream.write(buffer, 0, count)
+                    BufferedInputStream(FileInputStream(file), BUFFER).use { inputStream ->
+                        val entry = ZipEntry(file.name)
+                        // Begin writing a new zip file entry.
+                        outputStream.putNextEntry(entry)
+                        var count: Int
+                        // BufferedInputStream.read() returns the number of bytes read
+                        // or -1 if the end of stream was reached.
+                        while (inputStream.read(buffer, 0, BUFFER).also { count = it } != -1) {
+                            outputStream.write(buffer, 0, count)
+                        }
                     }
-                    inputStream.close()
                     ++completedEntries
                     publishProgress()
                 }
@@ -507,31 +507,32 @@ object ComplementaryPicturesManager {
                 publishProgress()
                 // Create target directory if it does not exists
                 directoryChecker(targetDirectory)
-                val zipInputStream = ZipInputStream(FileInputStream(zipFile))
-                var zipEntry: ZipEntry
-                val buffer = ByteArray(BUFFER)
-                while (zipInputStream.nextEntry.also { zipEntry = it } != null) {
-                    // Create directory if required while unzipping
-                    if (zipEntry.isDirectory) {
-                        directoryChecker(File(targetDirectory, zipEntry.name))
-                    } else {
-                        // Set the FileOutputStream using File
-                        val targetFile = File(targetDirectory, zipEntry.name)
-                        if (targetFile.exists()) targetFile.delete()
-                        val outputStream = FileOutputStream(targetFile)
-                        var count: Int
-                        // ZipInputStream.read() returns the number of bytes read
-                        // or -1 if the end of stream was reached.
-                        while (zipInputStream.read(buffer, 0, BUFFER).also { count = it } != -1) {
-                            outputStream.write(buffer, 0, count)
+                ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
+                    val buffer = ByteArray(BUFFER)
+                    while (true) {
+                        // nextEntry returns null if the end was reached -> break loop
+                        val zipEntry = zipInputStream.nextEntry ?: break
+                        if (zipEntry.isDirectory) {
+                            directoryChecker(File(targetDirectory, zipEntry.name))
+                        } else {
+                            // Set the FileOutputStream using File
+                            val targetFile = File(targetDirectory, zipEntry.name)
+                            if (targetFile.exists()) targetFile.delete()
+                            FileOutputStream(targetFile).use { outputStream ->
+                                while (true) {
+                                    // ZipInputStream.read() returns the number of bytes read
+                                    // or -1 if the end of stream was reached -> break loop.
+                                    val count = zipInputStream.read(buffer, 0, BUFFER)
+                                    if (count == -1) break
+                                    else outputStream.write(buffer, 0, count)
+                                }
+                            }
+                            zipInputStream.closeEntry()
+                            ++completedEntries
+                            publishProgress()
                         }
-                        zipInputStream.closeEntry()
-                        outputStream.close()
-                        ++completedEntries
-                        publishProgress()
                     }
                 }
-                zipInputStream.close()
             } catch (e: IOException) {
                 return false
             }
