@@ -84,7 +84,6 @@ object ComplementaryPicturesManager {
      * @param filename the name of the complementary picture
      * @throws IOException thrown if the file copying failed
      */
-    @Throws(IOException::class)
     fun addPictureToGallery(context: Context, filename: String?) {
         if (filename == null) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -110,7 +109,7 @@ object ComplementaryPicturesManager {
                     .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), context.getString(R.string.app_name))
             val copyFromFile = getPictureFile(context, filename)
             val copyToFile = File(publicPictureDirectory, filename)
-            Utilities.copyFile(copyFromFile, copyToFile)
+            copyFromFile.copyTo(target = copyToFile, overwrite = true)
             @Suppress("DEPRECATION")
             val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
             val contentUri = Uri.fromFile(copyToFile)

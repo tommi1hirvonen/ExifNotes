@@ -242,7 +242,7 @@ open class EditFrameDialog : DialogFragment() {
                 inflatedView.findViewById(R.id.scrollIndicatorUp),
                 inflatedView.findViewById(R.id.scrollIndicatorDown))
         nestedScrollView.setOnScrollChangeListener(listener)
-        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(activity, title))
+        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
         alert.setView(inflatedView)
 
 
@@ -1361,7 +1361,7 @@ open class EditFrameDialog : DialogFragment() {
                         try {
                             ComplementaryPicturesManager.addPictureToGallery(requireActivity(), newFrame.pictureFilename)
                             Toast.makeText(activity, R.string.PictureAddedToGallery, Toast.LENGTH_SHORT).show()
-                        } catch (e: IOException) {
+                        } catch (e: Exception) {
                             Toast.makeText(activity, R.string.ErrorAddingPictureToGallery, Toast.LENGTH_LONG).show()
                         }
                         dialogInterface.dismiss()

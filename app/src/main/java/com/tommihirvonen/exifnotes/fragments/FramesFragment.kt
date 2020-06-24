@@ -149,7 +149,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
 
         floatingActionButton = view.findViewById(R.id.fab)
         floatingActionButton.setOnClickListener(this)
-        val secondaryColor = Utilities.getSecondaryUiColor(activity)
+        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
@@ -223,10 +223,10 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 requireActivity().startActivityForResult(preferenceActivityIntent, FramesActivity.PREFERENCE_ACTIVITY_REQUEST)
             }
             R.id.menu_item_help -> {
-                Utilities.showHelpDialog(activity)
+                Utilities.showHelpDialog(requireActivity())
             }
             R.id.menu_item_about -> {
-                Utilities.showAboutDialog(activity)
+                Utilities.showAboutDialog(requireActivity())
             }
             android.R.id.home -> requireActivity().finish()
             R.id.menu_item_show_on_map -> {
@@ -244,7 +244,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 // -> Run the code on a new thread, which lets the UI thread to finish menu animations.
                 Thread(Runnable {
                     val shareIntent = shareRollIntent
-                    startActivity(Intent.createChooser(shareIntent, resources.getString(R.string.Share)))
+                    shareIntent?.let { startActivity(Intent.createChooser(it, resources.getString(R.string.Share))) }
                 }).start()
             R.id.menu_item_export -> {
                 val intent = Intent()
@@ -257,12 +257,12 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
 
     override fun onResume() {
         super.onResume()
-        val secondaryColor = Utilities.getSecondaryUiColor(activity)
+        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
         floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
 
         // If action mode is enabled, color the status bar dark grey.
         if (frameAdapter.selectedItemCount > 0 || actionMode != null) {
-            Utilities.setStatusBarColor(activity, ContextCompat.getColor(requireActivity(), R.color.dark_grey))
+            Utilities.setStatusBarColor(requireActivity(), ContextCompat.getColor(requireActivity(), R.color.dark_grey))
         } else {
             // Otherwise we can update the frame adapter in case the user has changed the UI color.
             // This way the frame count text color will be updated according to the changed settings.
@@ -291,96 +291,102 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
      *
      * @return The intent to be shared.
      */
-    private val shareRollIntent: Intent get() {
+    private val shareRollIntent: Intent? get() {
 
-            //Replace illegal characters from the roll name to make it a valid file name.
-            val rollName = Utilities.replaceIllegalChars(roll.name)
+        //Replace illegal characters from the roll name to make it a valid file name.
+        val rollName = Utilities.replaceIllegalChars(roll.name)
 
-            //Get the user setting about which files to export. By default, share only ExifTool.
-            val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
-            val filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT, PreferenceConstants.VALUE_BOTH)
+        //Get the user setting about which files to export. By default, share only ExifTool.
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
+        val filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT, PreferenceConstants.VALUE_BOTH)
 
-            //Create the Intent to be shared, no initialization yet
-            val shareIntent: Intent
+        //Create the Intent to be shared, no initialization yet
+        val shareIntent: Intent
 
-            //Create the files
+        //Create the files
 
-            //Get the external storage path (not the same as SD card)
-            val externalStorageDir = requireActivity().getExternalFilesDir(null)
+        //Get the external storage path (not the same as SD card)
+        val externalStorageDir = requireActivity().getExternalFilesDir(null)
 
-            //Create the file names for the two files to be put in that intent
-            val fileNameCsv = rollName + "_csv" + ".txt"
-            val fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt"
+        //Create the file names for the two files to be put in that intent
+        val fileNameCsv = rollName + "_csv" + ".txt"
+        val fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt"
 
-            //Create the strings to be written on those two files
-            val csvString = Utilities.createCsvString(activity, roll)
-            val exifToolCmds = Utilities.createExifToolCmdsString(activity, roll)
+        //Create the strings to be written on those two files
+        val csvString = Utilities.createCsvString(requireActivity(), roll)
+        val exifToolCmds = Utilities.createExifToolCmdsString(requireActivity(), roll)
 
-            //Create the files in external storage
-            val fileCsv = File(externalStorageDir, fileNameCsv)
-            val fileExifToolCmds = File(externalStorageDir, fileNameExifToolCmds)
+        //Create the files in external storage
+        val fileCsv = File(externalStorageDir, fileNameCsv)
+        val fileExifToolCmds = File(externalStorageDir, fileNameExifToolCmds)
 
+        try {
             //Write the csv file
-            Utilities.writeTextFile(fileCsv, csvString)
+            fileCsv.writeText(csvString)
 
             //Write the ExifTool commands file
-            Utilities.writeTextFile(fileExifToolCmds, exifToolCmds)
-
-            //If the user has chosen to export both files
-            if (filesToExport == PreferenceConstants.VALUE_BOTH) {
-                //Create the intent to be shared
-                shareIntent = Intent(Intent.ACTION_SEND_MULTIPLE)
-                shareIntent.type = "text/plain"
-
-                //Create an array with the file names
-                val filesToSend: MutableList<String> = ArrayList()
-                filesToSend.add(externalStorageDir.toString() + "/" + fileNameCsv)
-                filesToSend.add(externalStorageDir.toString() + "/" + fileNameExifToolCmds)
-
-                //Create an ArrayList of files.
-                //NOTE: putParcelableArrayListExtra requires an ArrayList as its argument
-                val files = ArrayList<Uri>()
-                for (path in filesToSend) {
-                    val file = File(path)
-                    val uri: Uri
-                    //Android Nougat requires that the file is given via FileProvider
-                    uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
-                                .packageName + ".provider", file)
-                    } else {
-                        Uri.fromFile(file)
-                    }
-                    files.add(uri)
-                }
-
-                //Add the two files to the Intent as extras
-                shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
-            } else {
-                shareIntent = Intent(Intent.ACTION_SEND)
-                shareIntent.type = "text/plain"
-                //The user has chosen to export only the csv
-                if (filesToExport == PreferenceConstants.VALUE_CSV) {
-                    //Android Nougat requires that the file is given via FileProvider
-                    val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
-                                .packageName + ".provider", fileCsv)
-                    } else {
-                        Uri.fromFile(fileCsv)
-                    }
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-                } else if (filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
-                    //Android Nougat requires that the file is given via FileProvider
-                    val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
-                                .packageName + ".provider", fileExifToolCmds)
-                    } else {
-                        Uri.fromFile(fileExifToolCmds)
-                    }
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-                }
-            }
-            return shareIntent
+            fileExifToolCmds.writeText(exifToolCmds)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(activity, "Error creating text files", Toast.LENGTH_SHORT).show()
+            return null
         }
+
+        //If the user has chosen to export both files
+        if (filesToExport == PreferenceConstants.VALUE_BOTH) {
+            //Create the intent to be shared
+            shareIntent = Intent(Intent.ACTION_SEND_MULTIPLE)
+            shareIntent.type = "text/plain"
+
+            //Create an array with the file names
+            val filesToSend: MutableList<String> = ArrayList()
+            filesToSend.add(externalStorageDir.toString() + "/" + fileNameCsv)
+            filesToSend.add(externalStorageDir.toString() + "/" + fileNameExifToolCmds)
+
+            //Create an ArrayList of files.
+            //NOTE: putParcelableArrayListExtra requires an ArrayList as its argument
+            val files = ArrayList<Uri>()
+            for (path in filesToSend) {
+                val file = File(path)
+                val uri: Uri
+                //Android Nougat requires that the file is given via FileProvider
+                uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
+                            .packageName + ".provider", file)
+                } else {
+                    Uri.fromFile(file)
+                }
+                files.add(uri)
+            }
+
+            //Add the two files to the Intent as extras
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
+        } else {
+            shareIntent = Intent(Intent.ACTION_SEND)
+            shareIntent.type = "text/plain"
+            //The user has chosen to export only the csv
+            if (filesToExport == PreferenceConstants.VALUE_CSV) {
+                //Android Nougat requires that the file is given via FileProvider
+                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
+                            .packageName + ".provider", fileCsv)
+                } else {
+                    Uri.fromFile(fileCsv)
+                }
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            } else if (filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
+                //Android Nougat requires that the file is given via FileProvider
+                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
+                            .packageName + ".provider", fileExifToolCmds)
+                } else {
+                    Uri.fromFile(fileExifToolCmds)
+                }
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            }
+        }
+        return shareIntent
+    }
 
     override fun onClick(v: View) {
         if (v.id == R.id.fab) {
@@ -528,7 +534,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                     if (filesToExport == PreferenceConstants.VALUE_BOTH || filesToExport == PreferenceConstants.VALUE_CSV) {
                         val csvDocumentFile = directoryDocumentFile.createFile("text/plain", rollName + "_csv.txt") ?: return
                         val csvOutputStream = requireActivity().contentResolver.openOutputStream(csvDocumentFile.uri) ?: return
-                        val csvString = Utilities.createCsvString(activity, roll)
+                        val csvString = Utilities.createCsvString(requireActivity(), roll)
                         val csvOutputStreamWriter = OutputStreamWriter(csvOutputStream)
                         csvOutputStreamWriter.write(csvString)
                         csvOutputStreamWriter.flush()
@@ -538,7 +544,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                     if (filesToExport == PreferenceConstants.VALUE_BOTH || filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
                         val cmdDocumentFile = directoryDocumentFile.createFile("text/plain", rollName + "_ExifToolCmds.txt") ?: return
                         val cmdOutputStream = requireActivity().contentResolver.openOutputStream(cmdDocumentFile.uri) ?: return
-                        val cmdString = Utilities.createExifToolCmdsString(activity, roll)
+                        val cmdString = Utilities.createExifToolCmdsString(requireActivity(), roll)
                         val cmdOutputStreamWriter = OutputStreamWriter(cmdOutputStream)
                         cmdOutputStreamWriter.write(cmdString)
                         cmdOutputStreamWriter.flush()
@@ -588,7 +594,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     private inner class ActionModeCallback : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             // Set the status bar color to be dark grey to complement the grey action mode toolbar.
-            Utilities.setStatusBarColor(activity, ContextCompat.getColor(requireActivity(), R.color.dark_grey))
+            Utilities.setStatusBarColor(requireActivity(), ContextCompat.getColor(requireActivity(), R.color.dark_grey))
             // Hide the floating action button so no new rolls can be added while in action mode.
             floatingActionButton.hide()
             mode.menuInflater.inflate(R.menu.menu_action_mode_frames, menu)
@@ -683,7 +689,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             actionMode = null
             mainRecyclerView.post { frameAdapter.resetAnimationIndex() }
             // Return the status bar to its original color before action mode.
-            Utilities.setStatusBarColor(activity, Utilities.getSecondaryUiColor(activity))
+            Utilities.setStatusBarColor(requireActivity(), Utilities.getSecondaryUiColor(requireActivity()))
             // Make the floating action bar visible again since action mode is exited.
             floatingActionButton.show()
         }

@@ -68,7 +68,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         val floatingActionButton: FloatingActionButton = view.findViewById(R.id.fab_films)
         floatingActionButton.setOnClickListener(this)
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        val secondaryColor = Utilities.getSecondaryUiColor(activity)
+        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
         floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
 
         filmStocksRecyclerView = view.findViewById(R.id.films_recycler_view)

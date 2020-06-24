@@ -97,7 +97,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
         val view = layoutInflater.inflate(R.layout.fragment_cameras, container, false)
         val floatingActionButton: FloatingActionButton = view.findViewById(R.id.fab_cameras)
         floatingActionButton.setOnClickListener(this)
-        val secondaryColor = Utilities.getSecondaryUiColor(activity)
+        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)

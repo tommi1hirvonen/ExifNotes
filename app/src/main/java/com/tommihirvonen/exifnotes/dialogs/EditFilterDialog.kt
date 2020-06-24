@@ -41,7 +41,7 @@ class EditFilterDialog : DialogFragment() {
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         val filter = requireArguments().getParcelable(ExtraKeys.FILTER) ?: Filter()
 
-        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(activity, title))
+        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
         alert.setView(inflatedView)
 
         // Color the dividers white if the app's theme is dark

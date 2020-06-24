@@ -98,7 +98,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
         val view = layoutInflater.inflate(R.layout.fragment_lenses, container, false)
         val fab: FloatingActionButton = view.findViewById(R.id.fab_lenses)
         fab.setOnClickListener(this)
-        val secondaryColor = Utilities.getSecondaryUiColor(activity)
+        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         fab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
