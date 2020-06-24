@@ -28,6 +28,7 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
+import com.tommihirvonen.exifnotes.databinding.DialogFrameBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.*
@@ -73,6 +74,8 @@ open class EditFrameDialog : DialogFragment() {
          */
         private const val SELECT_PICTURE_REQUEST = 5
     }
+    
+    private lateinit var binding: DialogFrameBinding
 
     internal lateinit var frame: Frame
 
@@ -85,37 +88,6 @@ open class EditFrameDialog : DialogFragment() {
     private var mountableLenses: MutableList<Lens>? = null
 
     private lateinit var dateTimeLayoutManager: DateTimeLayoutManager
-
-    /**
-     * Button used to display the currently selected location
-     */
-    private lateinit var locationTextView: TextView
-
-    /**
-     * Button used to display the currently selected lens
-     */
-    private lateinit var lensTextView: TextView
-
-    /**
-     * Button used to display the currently selected filter
-     */
-    private lateinit var filtersTextView: TextView
-
-    /**
-     * Reference to the complementary picture's layout. If this view becomes visible,
-     * load the complementary picture.
-     */
-    private lateinit var pictureLayout: LinearLayout
-
-    /**
-     * ImageView used to display complementary image taken with the phone's camera
-     */
-    private lateinit var pictureImageView: ImageView
-
-    /**
-     * TextView used to display text related to the complementary picture
-     */
-    private lateinit var pictureTextView: TextView
 
     /**
      * Currently selected lens's aperture increment setting
@@ -140,51 +112,6 @@ open class EditFrameDialog : DialogFragment() {
     private var tempPictureFilename: String? = null
 
     /**
-     * TextView used to display the current aperture value
-     */
-    private lateinit var apertureTextView: TextView
-
-    /**
-     * TextView used to display the current shutter speed value
-     */
-    private lateinit var shutterTextView: TextView
-
-    /**
-     * TextView used to display the current frame count
-     */
-    private lateinit var frameCountTextView: TextView
-
-    /**
-     * TextView used to display the current exposure compensation value
-     */
-    private lateinit var exposureCompTextView: TextView
-
-    /**
-     * TextView used to display the current number of exposures value
-     */
-    private lateinit var noOfExposuresTextView: TextView
-
-    /**
-     * Button used to display the current focal length value
-     */
-    private lateinit var focalLengthTextView: TextView
-
-    /**
-     * CheckBox for toggling whether flash was used or not
-     */
-    private lateinit var flashCheckBox: CheckBox
-
-    /**
-     * TextView used to display the current light source
-     */
-    private lateinit var lightSourceTextView: TextView
-
-    /**
-     * Reference to the EditText used to edit notes
-     */
-    private lateinit var noteEditText: EditText
-
-    /**
      * Stores the currently displayed shutter speed values.
      */
     private lateinit var displayedShutterValues: Array<String>
@@ -202,7 +129,9 @@ open class EditFrameDialog : DialogFragment() {
     private lateinit var displayedExposureCompValues: Array<String>
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
-
+        val layoutInflater = requireActivity().layoutInflater
+        binding = DialogFrameBinding.inflate(layoutInflater)
+        
         // Inflate the fragment. Get the edited frame and used camera.
         // Initialize UI objects and display the frame's information.
         // Add listeners to buttons to open new dialogs to change the frame's information.
@@ -224,63 +153,46 @@ open class EditFrameDialog : DialogFragment() {
             mountableLenses = database.allLenses.toMutableList()
         }
 
-        val layoutInflater = requireActivity().layoutInflater
-        // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams")
-        val inflatedView = layoutInflater.inflate(R.layout.dialog_frame, null)
-        val alert = AlertDialog.Builder(activity)
-        val nestedScrollView: NestedScrollView = inflatedView.findViewById(R.id.nested_scroll_view)
+        val builder = AlertDialog.Builder(activity)
         val listener = OnScrollChangeListener(
                 requireActivity(),
-                nestedScrollView,
-                inflatedView.findViewById(R.id.scrollIndicatorUp),
-                inflatedView.findViewById(R.id.scrollIndicatorDown))
-        nestedScrollView.setOnScrollChangeListener(listener)
-        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
-        alert.setView(inflatedView)
+                binding.nestedScrollView,
+                binding.scrollIndicatorUp,
+                binding.scrollIndicatorDown)
+        binding.nestedScrollView.setOnScrollChangeListener(listener)
+        builder.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
+        builder.setView(binding.root)
 
 
         // Color the dividers white if the app's theme is dark
         if (Utilities.isAppThemeDark(activity)) {
-            listOf<View>(
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view2),
-                    inflatedView.findViewById(R.id.divider_view3),
-                    inflatedView.findViewById(R.id.divider_view4),
-                    inflatedView.findViewById(R.id.divider_view5),
-                    inflatedView.findViewById(R.id.divider_view6),
-                    inflatedView.findViewById(R.id.divider_view7),
-                    inflatedView.findViewById(R.id.divider_view8),
-                    inflatedView.findViewById(R.id.divider_view9),
-                    inflatedView.findViewById(R.id.divider_view10),
-                    inflatedView.findViewById(R.id.divider_view11),
-                    inflatedView.findViewById(R.id.divider_view12),
-                    inflatedView.findViewById(R.id.divider_view13),
-                    inflatedView.findViewById(R.id.divider_view14)
-            ).forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
-            Utilities.setColorFilter((inflatedView.findViewById<ImageView>(R.id.add_lens)).drawable.mutate(),
+            listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3,
+                    binding.dividerView4, binding.dividerView5, binding.dividerView6,
+                    binding.dividerView7, binding.dividerView8, binding.dividerView9,
+                    binding.dividerView10, binding.dividerView11, binding.dividerView12,
+                    binding.dividerView13, binding.dividerView14)
+                    .forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
+            
+            Utilities.setColorFilter(binding.addLens.drawable.mutate(),
                     ContextCompat.getColor(requireActivity(), R.color.white))
-            Utilities.setColorFilter((inflatedView.findViewById<ImageView>(R.id.add_filter)).drawable.mutate(),
+            Utilities.setColorFilter(binding.addLens.drawable.mutate(),
                     ContextCompat.getColor(requireActivity(), R.color.white))
-            Utilities.setColorFilter((inflatedView.findViewById<ImageView>(R.id.clear_location)).drawable.mutate(),
+            Utilities.setColorFilter(binding.addLens.drawable.mutate(),
                     ContextCompat.getColor(requireActivity(), R.color.white))
         }
 
 
         //==========================================================================================
         //LENS TEXT
-        lensTextView = inflatedView.findViewById(R.id.lens_text)
-        lensTextView.text = frame.lens?.name ?: ""
+        binding.lensText.text = frame.lens?.name ?: ""
 
         // LENS PICK DIALOG
-        val lensLayout = inflatedView.findViewById<LinearLayout>(R.id.lens_layout)
-        lensLayout.setOnClickListener(LensLayoutOnClickListener())
+        binding.lensLayout.setOnClickListener(LensLayoutOnClickListener())
 
         // LENS ADD DIALOG
-        val addLensImageView = inflatedView.findViewById<ImageView>(R.id.add_lens)
-        addLensImageView.isClickable = true
-        addLensImageView.setOnClickListener {
-            noteEditText.clearFocus()
+        binding.addLens.isClickable = true
+        binding.addLens.setOnClickListener {
+            binding.noteEditText.clearFocus()
             val dialog = EditLensDialog()
             dialog.setTargetFragment(this@EditFrameDialog, ADD_LENS)
             val arguments = Bundle()
@@ -293,105 +205,83 @@ open class EditFrameDialog : DialogFragment() {
 
         //==========================================================================================
         // DATE & TIME PICK DIALOG
-        val dateLayout = inflatedView.findViewById<LinearLayout>(R.id.date_layout)
-        val timeLayout = inflatedView.findViewById<LinearLayout>(R.id.time_layout)
-        val dateTextView = inflatedView.findViewById<TextView>(R.id.date_text)
-        val timeTextView = inflatedView.findViewById<TextView>(R.id.time_text)
         if (frame.date == null) frame.date = DateTime.fromCurrentTime()
         val dateTime = frame.date
-        dateTextView.text = dateTime?.dateAsText
-        timeTextView.text = dateTime?.timeAsText
+        binding.dateText.text = dateTime?.dateAsText
+        binding.timeText.text = dateTime?.timeAsText
         dateTimeLayoutManager = DateTimeLayoutManager(
-                requireActivity(), dateLayout, timeLayout, dateTextView, timeTextView, dateTime, null
+                requireActivity(), binding.dateLayout, binding.timeLayout, binding.dateText, binding.timeText, dateTime, null
         )
 
 
         //==========================================================================================
         //NOTES FIELD
-        noteEditText = inflatedView.findViewById(R.id.note_editText)
-        noteEditText.isSingleLine = false
-        noteEditText.setText(frame.note)
-        noteEditText.setSelection(noteEditText.text.length)
+        binding.noteEditText.isSingleLine = false
+        binding.noteEditText.setText(frame.note)
+        binding.noteEditText.setSelection(binding.noteEditText.text.length)
 
 
         //==========================================================================================
         //COUNT BUTTON
-        frameCountTextView = inflatedView.findViewById(R.id.frame_count_text)
-        frameCountTextView.text = newFrame.count.toString()
-        val frameCountLayout = inflatedView.findViewById<LinearLayout>(R.id.frame_count_layout)
-        frameCountLayout.setOnClickListener(FrameCountLayoutOnClickListener())
+        binding.frameCountText.text = newFrame.count.toString()
+        binding.frameCountLayout.setOnClickListener(FrameCountLayoutOnClickListener())
 
 
         //==========================================================================================
         //SHUTTER SPEED BUTTON
-        shutterTextView = inflatedView.findViewById(R.id.shutter_text)
         updateShutterTextView()
-        val shutterLayout = inflatedView.findViewById<LinearLayout>(R.id.shutter_layout)
-        shutterLayout.setOnClickListener(ShutterLayoutOnClickListener())
+        binding.shutterLayout.setOnClickListener(ShutterLayoutOnClickListener())
 
 
         //==========================================================================================
         //APERTURE BUTTON
-        apertureTextView = inflatedView.findViewById(R.id.aperture_text)
         updateApertureTextView()
-        val apertureLayout = inflatedView.findViewById<LinearLayout>(R.id.aperture_layout)
-        apertureLayout.setOnClickListener(ApertureLayoutOnClickListener())
+        binding.apertureLayout.setOnClickListener(ApertureLayoutOnClickListener())
 
 
         //==========================================================================================
         //FOCAL LENGTH BUTTON
-        focalLengthTextView = inflatedView.findViewById(R.id.focal_length_text)
         updateFocalLengthTextView()
-        val focalLengthLayout = inflatedView.findViewById<LinearLayout>(R.id.focal_length_layout)
-        focalLengthLayout.setOnClickListener(FocalLengthLayoutOnClickListener())
+        binding.focalLengthLayout.setOnClickListener(FocalLengthLayoutOnClickListener())
 
 
         //==========================================================================================
         //EXPOSURE COMP BUTTON
-        exposureCompTextView = inflatedView.findViewById(R.id.exposure_comp_text)
-        exposureCompTextView.text = if (newFrame.exposureComp == null || newFrame.exposureComp == "0") "" else newFrame.exposureComp
-        val exposureCompLayout = inflatedView.findViewById<LinearLayout>(R.id.exposure_comp_layout)
-        exposureCompLayout.setOnClickListener(ExposureCompLayoutOnClickListener())
+        binding.exposureCompText.text = if (newFrame.exposureComp == null || newFrame.exposureComp == "0") "" else newFrame.exposureComp
+        binding.exposureCompLayout.setOnClickListener(ExposureCompLayoutOnClickListener())
 
 
         //==========================================================================================
         //NO OF EXPOSURES BUTTON
 
         //Check that the number is bigger than zero.
-        noOfExposuresTextView = inflatedView.findViewById(R.id.no_of_exposures_text)
-        noOfExposuresTextView.text = newFrame.noOfExposures.toString()
-        val noOfExposuresLayout = inflatedView.findViewById<LinearLayout>(R.id.no_of_exposures_layout)
-        noOfExposuresLayout.setOnClickListener(NoOfExposuresLayoutOnClickListener())
+        binding.noOfExposuresText.text = newFrame.noOfExposures.toString()
+        binding.noOfExposuresLayout.setOnClickListener(NoOfExposuresLayoutOnClickListener())
 
 
         //==========================================================================================
         // LOCATION PICK DIALOG
-        locationTextView = inflatedView.findViewById(R.id.location_text)
         updateLocationTextView()
-        val locationProgressBar = inflatedView.findViewById<ProgressBar>(R.id.location_progress_bar)
-
         // If location is set but the formatted address is empty, try to find it
         newFrame.location?.let { location ->
             if (newFrame.formattedAddress == null || newFrame.formattedAddress?.isEmpty() == true) {
                 // Make the ProgressBar visible to indicate that a query is being executed
-                locationProgressBar.visibility = View.VISIBLE
+                binding.locationProgressBar.visibility = View.VISIBLE
 
                 GeocodingAsyncTask { _, formattedAddress ->
-                    locationProgressBar.visibility = View.INVISIBLE
+                    binding.locationProgressBar.visibility = View.INVISIBLE
                     newFrame.formattedAddress = if (formattedAddress.isNotEmpty()) formattedAddress else null
                     updateLocationTextView()
                 }.execute(location.decimalLocation, resources.getString(R.string.google_maps_key))
 
             }
         }
-        val clearLocation = inflatedView.findViewById<ImageView>(R.id.clear_location)
-        clearLocation.setOnClickListener {
+        binding.clearLocation.setOnClickListener {
             newFrame.location = null
             newFrame.formattedAddress = null
             updateLocationTextView()
         }
-        val locationLayout = inflatedView.findViewById<LinearLayout>(R.id.location_layout)
-        locationLayout.setOnClickListener {
+        binding.locationLayout.setOnClickListener {
             val intent = Intent(activity, LocationPickActivity::class.java)
             intent.putExtra(ExtraKeys.LOCATION, newFrame.location)
             intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, newFrame.formattedAddress)
@@ -401,18 +291,14 @@ open class EditFrameDialog : DialogFragment() {
 
         //==========================================================================================
         //FILTER BUTTON
-        filtersTextView = inflatedView.findViewById(R.id.filter_text)
         updateFiltersTextView()
-
         // FILTER PICK DIALOG
-        val filterLayout = inflatedView.findViewById<LinearLayout>(R.id.filter_layout)
-        filterLayout.setOnClickListener(FilterLayoutOnClickListener())
+        binding.filterLayout.setOnClickListener(FilterLayoutOnClickListener())
 
         // FILTER ADD DIALOG
-        val addFilterImageView = inflatedView.findViewById<ImageView>(R.id.add_filter)
-        addFilterImageView.isClickable = true
-        addFilterImageView.setOnClickListener {
-            noteEditText.clearFocus()
+        binding.addFilter.isClickable = true
+        binding.addFilter.setOnClickListener {
+            binding.noteEditText.clearFocus()
             val dialog = EditFilterDialog()
             dialog.setTargetFragment(this@EditFrameDialog, ADD_FILTER)
             val arguments = Bundle()
@@ -425,23 +311,17 @@ open class EditFrameDialog : DialogFragment() {
 
         //==========================================================================================
         //COMPLEMENTARY PICTURE
-        pictureLayout = inflatedView.findViewById(R.id.picture_layout)
-        pictureImageView = inflatedView.findViewById(R.id.iv_picture)
-        pictureTextView = inflatedView.findViewById(R.id.picture_text)
-        pictureLayout.setOnClickListener(PictureLayoutOnClickListener())
+        binding.pictureLayout.setOnClickListener(PictureLayoutOnClickListener())
 
 
         //==========================================================================================
         //FLASH
-        flashCheckBox = inflatedView.findViewById(R.id.flash_checkbox)
-        flashCheckBox.isChecked = frame.flashUsed
-        val flashUsedLayout = inflatedView.findViewById<View>(R.id.flash_layout)
-        flashUsedLayout.setOnClickListener { flashCheckBox.isChecked = !flashCheckBox.isChecked }
+        binding.flashCheckbox.isChecked = frame.flashUsed
+        binding.flashLayout.setOnClickListener { binding.flashCheckbox.isChecked = !binding.flashCheckbox.isChecked }
 
 
         //==========================================================================================
         //LIGHT SOURCE
-        lightSourceTextView = inflatedView.findViewById(R.id.light_source_text)
         val lightSource: String
         lightSource = try {
             resources.getStringArray(R.array.LightSource)[newFrame.lightSource]
@@ -449,19 +329,18 @@ open class EditFrameDialog : DialogFragment() {
             e.printStackTrace()
             ""
         }
-        lightSourceTextView.text = if (newFrame.lightSource == 0) "" else lightSource
-        val lightSourceLayout = inflatedView.findViewById<LinearLayout>(R.id.light_source_layout)
-        lightSourceLayout.setOnClickListener(LightSourceLayoutOnClickListener())
+        binding.lightSourceText.text = if (newFrame.lightSource == 0) "" else lightSource
+        binding.lightSourceLayout.setOnClickListener(LightSourceLayoutOnClickListener())
 
 
         //==========================================================================================
         //FINALISE BUILDING THE DIALOG
-        alert.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
             val intent = Intent()
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, intent)
         }
-        alert.setPositiveButton(positiveButton, null)
-        val dialog = alert.create()
+        builder.setPositiveButton(positiveButton, null)
+        val dialog = builder.create()
 
         //SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
         // so it doesn't need to deal with resizing
@@ -509,7 +388,7 @@ open class EditFrameDialog : DialogFragment() {
      * Updates the filters TextView
      */
     private fun updateFiltersTextView() {
-        filtersTextView.text = newFrame.filters.joinToString(separator = "\n") { "-${it.name}" }
+        binding.filterText.text = newFrame.filters.joinToString(separator = "\n") { "-${it.name}" }
     }
 
     /**
@@ -520,7 +399,7 @@ open class EditFrameDialog : DialogFragment() {
         frame.shutter = newFrame.shutter
         frame.aperture = newFrame.aperture
         frame.count = newFrame.count
-        frame.note = noteEditText.text.toString()
+        frame.note = binding.noteEditText.text.toString()
         frame.date = dateTimeLayoutManager.dateTime
         frame.lens = newFrame.lens
         frame.location = newFrame.location
@@ -531,7 +410,7 @@ open class EditFrameDialog : DialogFragment() {
         frame.pictureFilename = newFrame.pictureFilename
         frame.filters = newFrame.filters
         frame.lightSource = newFrame.lightSource
-        frame.flashUsed = flashCheckBox.isChecked
+        frame.flashUsed = binding.flashCheckbox.isChecked
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -556,7 +435,7 @@ open class EditFrameDialog : DialogFragment() {
                 database.addCameraLensLink(it, lens)
                 mountableLenses?.add(lens)
             }
-            lensTextView.text = lens.name
+            binding.lensText.text = lens.name
             apertureIncrements = lens.apertureIncrements
             checkApertureValueValidity()
             if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
@@ -577,8 +456,8 @@ open class EditFrameDialog : DialogFragment() {
 
         if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
             // In case the picture decoding takes a long time, show the user, that the picture is being loaded.
-            pictureTextView.setText(R.string.LoadingPicture)
-            pictureTextView.visibility = View.VISIBLE
+            binding.pictureText.setText(R.string.LoadingPicture)
+            binding.pictureText.visibility = View.VISIBLE
             // Decode and compress the picture on a background thread.
             Thread(Runnable {
 
@@ -600,8 +479,8 @@ open class EditFrameDialog : DialogFragment() {
         if (requestCode == SELECT_PICTURE_REQUEST && resultCode == Activity.RESULT_OK) {
             val selectedPictureUri = data?.data ?: return
             // In case the picture decoding takes a long time, show the user, that the picture is being loaded.
-            pictureTextView.setText(R.string.LoadingPicture)
-            pictureTextView.visibility = View.VISIBLE
+            binding.pictureText.setText(R.string.LoadingPicture)
+            binding.pictureText.visibility = View.VISIBLE
             // Decode and compress the selected file on a background thread.
             Thread(Runnable {
 
@@ -637,7 +516,7 @@ open class EditFrameDialog : DialogFragment() {
         // If the picture filename was not set, set text and return. Otherwise continue
         val filename = newFrame.pictureFilename
         if (filename == null) {
-            pictureTextView.setText(R.string.ClickToAdd)
+            binding.pictureText.setText(R.string.ClickToAdd)
             return
         }
         val pictureFile = ComplementaryPicturesManager.getPictureFile(requireActivity(), filename)
@@ -647,8 +526,8 @@ open class EditFrameDialog : DialogFragment() {
 
             // Set the visibilities first, so that the views in general are displayed
             // when the user scrolls down.
-            pictureTextView.visibility = View.GONE
-            pictureImageView.visibility = View.VISIBLE
+            binding.pictureText.visibility = View.GONE
+            binding.ivPicture.visibility = View.VISIBLE
 
             // Load the bitmap on a background thread
             Thread(Runnable {
@@ -695,14 +574,14 @@ open class EditFrameDialog : DialogFragment() {
 
                 // Do UI changes on the UI thread.
                 requireActivity().runOnUiThread {
-                    pictureImageView.rotation = rotation.toFloat()
-                    pictureImageView.setImageBitmap(bitmap)
+                    binding.ivPicture.rotation = rotation.toFloat()
+                    binding.ivPicture.setImageBitmap(bitmap)
                     val animation = AnimationUtils.loadAnimation(activity, R.anim.fade_in_fast)
-                    pictureImageView.startAnimation(animation)
+                    binding.ivPicture.startAnimation(animation)
                 }
             }).start()
         } else {
-            pictureTextView.setText(R.string.PictureSetButNotFound)
+            binding.pictureText.setText(R.string.PictureSetButNotFound)
         }
     }
 
@@ -792,7 +671,7 @@ open class EditFrameDialog : DialogFragment() {
      */
     private fun resetFilters() {
         newFrame.filters.clear()
-        filtersTextView.text = ""
+        binding.filterText.text = ""
     }
 
     /**
@@ -800,9 +679,9 @@ open class EditFrameDialog : DialogFragment() {
      */
     private fun updateShutterTextView() {
         if (newFrame.shutter == null) {
-            shutterTextView.text = ""
+            binding.shutterText.text = ""
         } else {
-            shutterTextView.text = newFrame.shutter
+            binding.shutterText.text = newFrame.shutter
         }
     }
 
@@ -811,10 +690,10 @@ open class EditFrameDialog : DialogFragment() {
      */
     private fun updateApertureTextView() {
         if (newFrame.aperture == null) {
-            apertureTextView.text = ""
+            binding.apertureText.text = ""
         } else {
             val newText = "f/${newFrame.aperture}"
-            apertureTextView.text = newText
+            binding.apertureText.text = newText
         }
     }
 
@@ -823,14 +702,14 @@ open class EditFrameDialog : DialogFragment() {
      */
     private fun updateLocationTextView() {
         when {
-            newFrame.formattedAddress?.isNotEmpty() == true -> locationTextView.text = newFrame.formattedAddress
+            newFrame.formattedAddress?.isNotEmpty() == true -> binding.locationText.text = newFrame.formattedAddress
             newFrame.location != null -> {
-                locationTextView.text = newFrame.location?.readableLocation
+                binding.locationText.text = newFrame.location?.readableLocation
                         ?.replace("N ", "N\n")?.replace("S ", "S\n")
             }
             else -> {
                 @SuppressLint("SetTextI18n")
-                locationTextView.text = " \n "
+                binding.locationText.text = " \n "
             }
         }
     }
@@ -839,7 +718,7 @@ open class EditFrameDialog : DialogFragment() {
      * Updates the focal length TextView
      */
     private fun updateFocalLengthTextView() {
-        focalLengthTextView.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
+        binding.focalLengthText.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
     }
 
     /**
@@ -874,7 +753,7 @@ open class EditFrameDialog : DialogFragment() {
     }
 
     /**
-     * Scroll change listener used to detect when the pictureLayout is visible.
+     * Scroll change listener used to detect when the binding.pictureLayout is visible.
      * Only then will the complementary picture be loaded.
      */
     private inner class OnScrollChangeListener internal constructor(context: Context, nestedScrollView: NestedScrollView,
@@ -885,7 +764,7 @@ open class EditFrameDialog : DialogFragment() {
             super.onScrollChange(v, scrollX, scrollY, oldScrollX, oldScrollY)
             val scrollBounds = Rect()
             v.getHitRect(scrollBounds)
-            if (pictureLayout.getLocalVisibleRect(scrollBounds) && !pictureLoaded) {
+            if (binding.pictureLayout.getLocalVisibleRect(scrollBounds) && !pictureLoaded) {
                 setComplementaryPicture()
                 pictureLoaded = true
             }
@@ -1068,7 +947,7 @@ open class EditFrameDialog : DialogFragment() {
             builder.setTitle(resources.getString(R.string.ChooseFrameCount))
             builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
                 newFrame.count = frameCountPicker.value
-                frameCountTextView.text = newFrame.count.toString()
+                binding.frameCountText.text = newFrame.count.toString()
             }
             builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
             val dialog = builder.create()
@@ -1096,14 +975,14 @@ open class EditFrameDialog : DialogFragment() {
                 if (which > 0) {
                     // Get the new lens, also account for the 'No lens' option (which - 1).
                     val lens = mountableLenses?.get(which - 1) ?: return@setSingleChoiceItems
-                    lensTextView.text = lens.name
+                    binding.lensText.text = lens.name
                     newFrame.lens = lens
                     if (newFrame.focalLength > lens.maxFocalLength) {
                         newFrame.focalLength = lens.maxFocalLength
                     } else if (newFrame.focalLength < lens.minFocalLength) {
                         newFrame.focalLength = lens.minFocalLength
                     }
-                    focalLengthTextView.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
+                    binding.focalLengthText.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
                     apertureIncrements = lens.apertureIncrements
 
                     //Check the aperture value's validity against the new lens' properties.
@@ -1111,7 +990,7 @@ open class EditFrameDialog : DialogFragment() {
                     // The lens was changed, reset filters
                     resetFilters()
                 } else {
-                    lensTextView.text = ""
+                    binding.lensText.text = ""
                     newFrame.lens = null
                     newFrame.focalLength = 0
                     updateFocalLengthTextView()
@@ -1173,7 +1052,7 @@ open class EditFrameDialog : DialogFragment() {
             @SuppressLint("InflateParams")
             val dialogView = inflater.inflate(R.layout.dialog_seek_bar, null)
             val focalLengthSeekBar = dialogView.findViewById<SeekBar>(R.id.seek_bar)
-            val focalLengthTextView = dialogView.findViewById<TextView>(R.id.value_text_view)
+            val focalLengthText = dialogView.findViewById<TextView>(R.id.value_text_view)
 
             // Get the min and max focal lengths
             val minValue: Int = newFrame.lens?.minFocalLength ?: 0
@@ -1183,19 +1062,19 @@ open class EditFrameDialog : DialogFragment() {
             when {
                 newFrame.focalLength > maxValue -> {
                     focalLengthSeekBar.progress = 100
-                    focalLengthTextView.text = maxValue.toString()
+                    focalLengthText.text = maxValue.toString()
                 }
                 newFrame.focalLength < minValue -> {
                     focalLengthSeekBar.progress = 0
-                    focalLengthTextView.text = minValue.toString()
+                    focalLengthText.text = minValue.toString()
                 }
                 minValue == maxValue -> {
                     focalLengthSeekBar.progress = 50
-                    focalLengthTextView.text = minValue.toString()
+                    focalLengthText.text = minValue.toString()
                 }
                 else -> {
                     focalLengthSeekBar.progress = calculateProgress(newFrame.focalLength, minValue, maxValue)
-                    focalLengthTextView.text = newFrame.focalLength.toString()
+                    focalLengthText.text = newFrame.focalLength.toString()
                 }
             }
 
@@ -1204,7 +1083,7 @@ open class EditFrameDialog : DialogFragment() {
             focalLengthSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
                     val focalLength = minValue + (maxValue - minValue) * i / 100
-                    focalLengthTextView.text = focalLength.toString()
+                    focalLengthText.text = focalLength.toString()
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -1218,25 +1097,25 @@ open class EditFrameDialog : DialogFragment() {
             val increaseFocalLength = dialogView.findViewById<TextView>(R.id.increase_focal_length)
             val decreaseFocalLength = dialogView.findViewById<TextView>(R.id.decrease_focal_length)
             increaseFocalLength.setOnClickListener {
-                var focalLength = focalLengthTextView.text.toString().toInt()
+                var focalLength = focalLengthText.text.toString().toInt()
                 if (focalLength < maxValue) {
                     ++focalLength
                     focalLengthSeekBar.progress = calculateProgress(focalLength, minValue, maxValue)
-                    focalLengthTextView.text = focalLength.toString()
+                    focalLengthText.text = focalLength.toString()
                 }
             }
             decreaseFocalLength.setOnClickListener {
-                var focalLength = focalLengthTextView.text.toString().toInt()
+                var focalLength = focalLengthText.text.toString().toInt()
                 if (focalLength > minValue) {
                     --focalLength
                     focalLengthSeekBar.progress = calculateProgress(focalLength, minValue, maxValue)
-                    focalLengthTextView.text = focalLength.toString()
+                    focalLengthText.text = focalLength.toString()
                 }
             }
             builder.setView(dialogView)
             builder.setTitle(resources.getString(R.string.ChooseFocalLength))
             builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                newFrame.focalLength = focalLengthTextView.text.toString().toInt()
+                newFrame.focalLength = focalLengthText.text.toString().toInt()
                 updateFocalLengthTextView()
             }
             builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
@@ -1273,7 +1152,7 @@ open class EditFrameDialog : DialogFragment() {
             builder.setTitle(resources.getString(R.string.ChooseExposureComp))
             builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
                 newFrame.exposureComp = displayedExposureCompValues[exposureCompPicker.value]
-                exposureCompTextView.text =
+                binding.exposureCompText.text =
                         if (newFrame.exposureComp == null || newFrame.exposureComp == "0") ""
                         else newFrame.exposureComp
             }
@@ -1305,7 +1184,7 @@ open class EditFrameDialog : DialogFragment() {
             builder.setTitle(resources.getString(R.string.ChooseNoOfExposures))
             builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
                 newFrame.noOfExposures = noOfExposuresPicker.value
-                noOfExposuresTextView.text = newFrame.noOfExposures.toString()
+                binding.noOfExposuresText.text = newFrame.noOfExposures.toString()
             }
             builder.setNegativeButton(resources.getString(R.string.Cancel)
             ) { _: DialogInterface?, _: Int -> }
@@ -1364,9 +1243,9 @@ open class EditFrameDialog : DialogFragment() {
                     4 -> rotateComplementaryPictureLeft()
                     5 -> {
                         newFrame.pictureFilename = null
-                        pictureImageView.visibility = View.GONE
-                        pictureTextView.visibility = View.VISIBLE
-                        pictureTextView.setText(R.string.ClickToAdd)
+                        binding.ivPicture.visibility = View.GONE
+                        binding.pictureText.visibility = View.VISIBLE
+                        binding.pictureText.setText(R.string.ClickToAdd)
                         dialogInterface.dismiss()
                     }
                 }
@@ -1413,9 +1292,9 @@ open class EditFrameDialog : DialogFragment() {
             val filename = newFrame.pictureFilename ?: return
             try {
                 ComplementaryPicturesManager.rotatePictureRight(requireActivity(), filename)
-                pictureImageView.rotation = pictureImageView.rotation + 90
+                binding.ivPicture.rotation = binding.ivPicture.rotation + 90
                 val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_right)
-                pictureImageView.startAnimation(animation)
+                binding.ivPicture.startAnimation(animation)
             } catch (e: IOException) {
                 Toast.makeText(activity, R.string.ErrorWhileEditingPicturesExifData, Toast.LENGTH_SHORT).show()
             }
@@ -1429,9 +1308,9 @@ open class EditFrameDialog : DialogFragment() {
             val filename = newFrame.pictureFilename ?: return
             try {
                 ComplementaryPicturesManager.rotatePictureLeft(requireActivity(), filename)
-                pictureImageView.rotation = pictureImageView.rotation - 90
+                binding.ivPicture.rotation = binding.ivPicture.rotation - 90
                 val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_left)
-                pictureImageView.startAnimation(animation)
+                binding.ivPicture.startAnimation(animation)
             } catch (e: IOException) {
                 Toast.makeText(activity, R.string.ErrorWhileEditingPicturesExifData, Toast.LENGTH_SHORT).show()
             }
@@ -1448,7 +1327,7 @@ open class EditFrameDialog : DialogFragment() {
             val checkedItem = newFrame.lightSource
             builder.setSingleChoiceItems(R.array.LightSource, checkedItem) { dialog: DialogInterface, which: Int ->
                 newFrame.lightSource = which
-                lightSourceTextView.text =
+                binding.lightSourceText.text =
                         if (newFrame.lightSource == 0) ""
                         else resources.getStringArray(R.array.LightSource)[which]
                 dialog.dismiss()

@@ -7,14 +7,13 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.core.content.ContextCompat
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.DialogCameraBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
@@ -32,6 +31,8 @@ class EditCameraDialog : DialogFragment() {
         const val TAG = "EditCameraDialog"
     }
 
+    private lateinit var binding: DialogCameraBinding
+
     private lateinit var newCamera: Camera
 
     /**
@@ -40,22 +41,9 @@ class EditCameraDialog : DialogFragment() {
      */
     private lateinit var displayedShutterValues: Array<String>
 
-    /**
-     * Reference to the TextView to display the shutter speed range
-     */
-    private lateinit var shutterRangeTextView: TextView
-
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
-
-        // Inflate the fragment. Get the edited camera.
-        // Initialize the UI objects and display the camera's information.
-        // Add listeners to Buttons to open new dialogs to change the camera's settings.
-
         val layoutInflater = requireActivity().layoutInflater
-
-        // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams")
-        val inflatedView = layoutInflater.inflate(R.layout.dialog_camera, null)
+        binding = DialogCameraBinding.inflate(layoutInflater)
 
         val alert = AlertDialog.Builder(activity)
         val title = requireArguments().getString(ExtraKeys.TITLE)
@@ -63,48 +51,37 @@ class EditCameraDialog : DialogFragment() {
         val camera = requireArguments().getParcelable(ExtraKeys.CAMERA) ?: Camera()
         newCamera = camera.copy()
 
-        val nestedScrollView: NestedScrollView = inflatedView.findViewById(R.id.nested_scroll_view)
+        val nestedScrollView = binding.nestedScrollView
         nestedScrollView.setOnScrollChangeListener(
                 ScrollIndicatorNestedScrollViewListener(
                         requireActivity(),
                         nestedScrollView,
-                        inflatedView.findViewById(R.id.scrollIndicatorUp),
-                        inflatedView.findViewById(R.id.scrollIndicatorDown)))
+                        binding.scrollIndicatorUp,
+                        binding.scrollIndicatorDown))
 
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
-        alert.setView(inflatedView)
+        alert.setView(binding.root)
 
         // Color the dividers white if the app's theme is dark
         if (Utilities.isAppThemeDark(requireActivity().applicationContext)) {
-            arrayOf<View>(
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view2),
-                    inflatedView.findViewById(R.id.divider_view3),
-                    inflatedView.findViewById(R.id.divider_view4),
-                    inflatedView.findViewById(R.id.divider_view5)
-            ).forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
+            arrayOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4, binding.dividerView5)
+                    .forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
         }
 
         // EDIT TEXT FIELDS
-        val makeEditText = inflatedView.findViewById<EditText>(R.id.make_editText)
-        makeEditText.setText(camera.make)
-        val modelEditText = inflatedView.findViewById<EditText>(R.id.model_editText)
-        modelEditText.setText(camera.model)
-        val serialNumberEditText = inflatedView.findViewById<EditText>(R.id.serialNumber_editText)
-        serialNumberEditText.setText(camera.serialNumber)
+        binding.makeEditText.setText(camera.make)
+        binding.modelEditText.setText(camera.model)
+        binding.serialNumberEditText.setText(camera.serialNumber)
 
         // SHUTTER SPEED INCREMENTS BUTTON
-        val shutterSpeedIncrementsTextView = inflatedView.findViewById<TextView>(R.id.increment_text)
-        shutterSpeedIncrementsTextView.text = resources.getStringArray(R.array.StopIncrements)[camera.shutterIncrements]
-        val shutterSpeedIncrementLayout = inflatedView.findViewById<LinearLayout>(R.id.increment_layout)
-
-        shutterSpeedIncrementLayout.setOnClickListener {
+        binding.incrementText.text = resources.getStringArray(R.array.StopIncrements)[camera.shutterIncrements]
+        binding.incrementLayout.setOnClickListener {
             val checkedItem = newCamera.shutterIncrements
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(resources.getString(R.string.ChooseIncrements))
             builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem) { dialogInterface: DialogInterface, i: Int ->
                 newCamera.shutterIncrements = i
-                shutterSpeedIncrementsTextView.text = resources.getStringArray(R.array.StopIncrements)[i]
+                binding.incrementText.text = resources.getStringArray(R.array.StopIncrements)[i]
 
                 //Shutter speed increments were changed, make update
                 //Check if the new increments include both min and max values.
@@ -135,10 +112,8 @@ class EditCameraDialog : DialogFragment() {
         }
 
         // SHUTTER RANGE BUTTON
-        shutterRangeTextView = inflatedView.findViewById(R.id.shutter_range_text)
         updateShutterRangeTextView()
-        val shutterRangeLayout = inflatedView.findViewById<LinearLayout>(R.id.shutter_range_layout)
-        shutterRangeLayout.setOnClickListener {
+        binding.shutterRangeLayout.setOnClickListener {
             val builder = AlertDialog.Builder(activity)
             val inflater = requireActivity().layoutInflater
             @SuppressLint("InflateParams")
@@ -191,16 +166,14 @@ class EditCameraDialog : DialogFragment() {
 
 
         // EXPOSURE COMPENSATION INCREMENTS BUTTON
-        val exposureCompIncrementsTextView = inflatedView.findViewById<TextView>(R.id.exposure_comp_increment_text)
-        exposureCompIncrementsTextView.text = resources.getStringArray(R.array.ExposureCompIncrements)[camera.exposureCompIncrements]
-        val exposureCompIncrementLayout = inflatedView.findViewById<LinearLayout>(R.id.exposure_comp_increment_layout)
-        exposureCompIncrementLayout.setOnClickListener {
+        binding.exposureCompIncrementText.text = resources.getStringArray(R.array.ExposureCompIncrements)[camera.exposureCompIncrements]
+        binding.exposureCompIncrementLayout.setOnClickListener {
             val checkedItem = newCamera.exposureCompIncrements
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(resources.getString(R.string.ChooseIncrements))
             builder.setSingleChoiceItems(R.array.ExposureCompIncrements, checkedItem) { dialogInterface: DialogInterface, i: Int ->
                 newCamera.exposureCompIncrements = i
-                exposureCompIncrementsTextView.text = resources.getStringArray(R.array.ExposureCompIncrements)[i]
+                binding.exposureCompIncrementText.text = resources.getStringArray(R.array.ExposureCompIncrements)[i]
                 dialogInterface.dismiss()
             }
             builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
@@ -226,9 +199,9 @@ class EditCameraDialog : DialogFragment() {
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val make = makeEditText.text.toString()
-            val model = modelEditText.text.toString()
-            val serialNumber = serialNumberEditText.text.toString()
+            val make = binding.makeEditText.text.toString()
+            val model = binding.modelEditText.text.toString()
+            val serialNumber = binding.serialNumberEditText.text.toString()
             if (make.isEmpty() && model.isEmpty()) {
                 // No make or model was set
                 Toast.makeText(activity, resources.getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show()
@@ -294,7 +267,7 @@ class EditCameraDialog : DialogFragment() {
      * Update the shutter speed range Button to display the currently selected shutter speed range.
      */
     private fun updateShutterRangeTextView() {
-        shutterRangeTextView.text =
+        binding.shutterRangeText.text =
                 if (newCamera.minShutter == null || newCamera.maxShutter == null) resources.getString(R.string.ClickToSet)
                 else "${newCamera.minShutter} - ${newCamera.maxShutter}"
     }

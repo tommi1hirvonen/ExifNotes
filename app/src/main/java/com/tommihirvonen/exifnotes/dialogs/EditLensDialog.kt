@@ -1,20 +1,20 @@
 package com.tommihirvonen.exifnotes.dialogs
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.core.content.ContextCompat
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerBinding
+import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerButtonsBinding
+import com.tommihirvonen.exifnotes.databinding.DialogLensBinding
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
@@ -38,12 +38,9 @@ class EditLensDialog : DialogFragment() {
         private const val MAX_FOCAL_LENGTH = 1500
     }
 
-    private lateinit var newLens: Lens
+    private lateinit var binding: DialogLensBinding
 
-    /**
-     * Reference to the TextView to display the aperture value range
-     */
-    private lateinit var apertureRangeTextView: TextView
+    private lateinit var newLens: Lens
 
     /**
      * Stores the currently displayed aperture values.
@@ -51,62 +48,46 @@ class EditLensDialog : DialogFragment() {
      */
     private lateinit var displayedApertureValues: Array<String>
 
-    /**
-     * Reference to the TextView to display the focal length range
-     */
-    private lateinit var focalLengthRangeTextView: TextView
-
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
         val layoutInflater = requireActivity().layoutInflater
-        // Here we can safely pass null, because we are inflating a layout for use in a dialog
-        @SuppressLint("InflateParams")
-        val inflatedView = layoutInflater.inflate(R.layout.dialog_lens, null)
+        binding = DialogLensBinding.inflate(layoutInflater)
+
         val alert = AlertDialog.Builder(activity)
         val title = requireArguments().getString(ExtraKeys.TITLE)
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         val lens = requireArguments().getParcelable(ExtraKeys.LENS) ?: Lens()
         newLens = lens.copy()
-        val nestedScrollView: NestedScrollView = inflatedView.findViewById(R.id.nested_scroll_view)
-        nestedScrollView.setOnScrollChangeListener(
+
+        binding.nestedScrollView.setOnScrollChangeListener(
                 ScrollIndicatorNestedScrollViewListener(
                         requireActivity(),
-                        nestedScrollView,
-                        inflatedView.findViewById(R.id.scrollIndicatorUp),
-                        inflatedView.findViewById(R.id.scrollIndicatorDown)))
+                        binding.nestedScrollView,
+                        binding.scrollIndicatorUp,
+                        binding.scrollIndicatorDown))
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
-        alert.setView(inflatedView)
+        alert.setView(binding.root)
 
         // Color the dividers white if the app's theme is dark
         if (Utilities.isAppThemeDark(activity)) {
-            listOf<View>(
-                    inflatedView.findViewById(R.id.divider_view1),
-                    inflatedView.findViewById(R.id.divider_view2),
-                    inflatedView.findViewById(R.id.divider_view3),
-                    inflatedView.findViewById(R.id.divider_view4),
-                    inflatedView.findViewById(R.id.divider_view5)
-            ).forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
+            listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4, binding.dividerView5)
+                    .forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
         }
 
         // EDIT TEXT FIELDS
-        val makeEditText = inflatedView.findViewById<EditText>(R.id.make_editText)
-        makeEditText.setText(lens.make)
-        val modelEditText = inflatedView.findViewById<EditText>(R.id.model_editText)
-        modelEditText.setText(lens.model)
-        val serialNumberEditText = inflatedView.findViewById<EditText>(R.id.serialNumber_editText)
-        serialNumberEditText.setText(lens.serialNumber)
+        binding.makeEditText.setText(lens.make)
+        binding.modelEditText.setText(lens.model)
+        binding.serialNumberEditText.setText(lens.serialNumber)
 
 
         // APERTURE INCREMENTS BUTTON
-        val apertureIncrementsTextView = inflatedView.findViewById<TextView>(R.id.increment_text)
-        apertureIncrementsTextView.text = resources.getStringArray(R.array.StopIncrements)[lens.apertureIncrements]
-        val apertureIncrementLayout = inflatedView.findViewById<LinearLayout>(R.id.increment_layout)
-        apertureIncrementLayout.setOnClickListener {
+        binding.incrementText.text = resources.getStringArray(R.array.StopIncrements)[lens.apertureIncrements]
+        binding.incrementLayout.setOnClickListener {
             val checkedItem = newLens.apertureIncrements
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(resources.getString(R.string.ChooseIncrements))
             builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem) { dialogInterface: DialogInterface, i: Int ->
                 newLens.apertureIncrements = i
-                apertureIncrementsTextView.text = resources.getStringArray(R.array.StopIncrements)[i]
+                binding.incrementText.text = resources.getStringArray(R.array.StopIncrements)[i]
 
                 //Check if the new increments include both min and max values.
                 //Otherwise reset them to null
@@ -133,27 +114,23 @@ class EditLensDialog : DialogFragment() {
         // APERTURE RANGE BUTTON
         newLens.minAperture = lens.minAperture
         newLens.maxAperture = lens.maxAperture
-        apertureRangeTextView = inflatedView.findViewById(R.id.aperture_range_text)
         updateApertureRangeTextView()
-        val apertureRangeLayout = inflatedView.findViewById<LinearLayout>(R.id.aperture_range_layout)
-        apertureRangeLayout.setOnClickListener {
+        binding.apertureRangeLayout.setOnClickListener {
             val builder = AlertDialog.Builder(activity)
             val inflater = requireActivity().layoutInflater
-            @SuppressLint("InflateParams")
-            val dialogView = inflater.inflate(R.layout.dialog_double_numberpicker, null)
-            val maxAperturePicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_one)
-            val minAperturePicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_two)
+            val binding1 = DialogDoubleNumberpickerBinding.inflate(inflater)
+            val maxAperturePicker = binding1.numberPickerOne
+            val minAperturePicker = binding1.numberPickerTwo
             val color =
                     if (Utilities.isAppThemeDark(activity)) ContextCompat.getColor(requireActivity(), R.color.light_grey)
                     else ContextCompat.getColor(requireActivity(), R.color.grey)
-            val dash = dialogView.findViewById<ImageView>(R.id.dash)
-            Utilities.setColorFilter(dash.drawable.mutate(), color)
+            Utilities.setColorFilter(binding1.dash.drawable.mutate(), color)
 
             //To prevent text edit
             minAperturePicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
             maxAperturePicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
             initialiseApertureRangePickers(minAperturePicker, maxAperturePicker)
-            builder.setView(dialogView)
+            builder.setView(binding1.root)
             builder.setTitle(resources.getString(R.string.ChooseApertureRange))
             builder.setPositiveButton(resources.getString(R.string.OK), null)
             builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
@@ -187,32 +164,24 @@ class EditLensDialog : DialogFragment() {
             }
         }
 
-
         // FOCAL LENGTH RANGE BUTTON
-        focalLengthRangeTextView = inflatedView.findViewById(R.id.focal_length_range_text)
         updateFocalLengthRangeTextView()
-        val focalLengthRangeLayout = inflatedView.findViewById<LinearLayout>(R.id.focal_length_range_layout)
-        focalLengthRangeLayout.setOnClickListener {
+        binding.focalLengthRangeLayout.setOnClickListener {
             val builder = AlertDialog.Builder(activity)
             val inflater = requireActivity().layoutInflater
-            @SuppressLint("InflateParams")
-            val dialogView = inflater.inflate(R.layout.dialog_double_numberpicker_buttons, null)
-            val minFocalLengthPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_one)
-            val maxFocalLengthPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_two)
+            val binding1 = DialogDoubleNumberpickerButtonsBinding.inflate(inflater)
+            val minFocalLengthPicker = binding1.numberPickerOne
+            val maxFocalLengthPicker = binding1.numberPickerTwo
             val jumpAmount = 50
-            val minFocalLengthFastRewind = dialogView.findViewById<LinearLayout>(R.id.picker_one_fast_rewind)
-            val minFocalLengthFastForward = dialogView.findViewById<LinearLayout>(R.id.picker_one_fast_forward)
-            val maxFocalLengthFastRewind = dialogView.findViewById<LinearLayout>(R.id.picker_two_fast_rewind)
-            val maxFocalLengthFastForward = dialogView.findViewById<LinearLayout>(R.id.picker_two_fast_forward)
+            val minFocalLengthFastRewind = binding1.pickerOneFastRewind
+            val minFocalLengthFastForward = binding1.pickerOneFastForward
+            val maxFocalLengthFastRewind = binding1.pickerTwoFastRewind
+            val maxFocalLengthFastForward = binding1.pickerTwoFastForward
             val color =
                     if (Utilities.isAppThemeDark(activity)) ContextCompat.getColor(requireActivity(), R.color.light_grey)
                     else ContextCompat.getColor(requireActivity(), R.color.grey)
-            listOf<ImageView>(
-                    dialogView.findViewById(R.id.picker_one_fast_rewind_image),
-                    dialogView.findViewById(R.id.picker_one_fast_forward_image),
-                    dialogView.findViewById(R.id.picker_two_fast_rewind_image),
-                    dialogView.findViewById(R.id.picker_two_fast_forward_image),
-                    dialogView.findViewById(R.id.dash)
+            listOf(binding1.pickerOneFastForwardImage, binding1.pickerOneFastRewindImage,
+                    binding1.pickerTwoFastForwardImage, binding1.pickerTwoFastRewindImage, binding1.dash
             ).forEach { Utilities.setColorFilter(it.drawable.mutate(), color) }
 
             // To prevent text edit
@@ -223,7 +192,7 @@ class EditLensDialog : DialogFragment() {
             minFocalLengthFastForward.setOnClickListener { minFocalLengthPicker.value = minFocalLengthPicker.value + jumpAmount }
             maxFocalLengthFastRewind.setOnClickListener { maxFocalLengthPicker.value = maxFocalLengthPicker.value - jumpAmount }
             maxFocalLengthFastForward.setOnClickListener { maxFocalLengthPicker.value = maxFocalLengthPicker.value + jumpAmount }
-            builder.setView(dialogView)
+            builder.setView(binding1.root)
             builder.setTitle(resources.getString(R.string.ChooseFocalLengthRange))
             builder.setPositiveButton(resources.getString(R.string.OK), null)
             builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
@@ -267,9 +236,9 @@ class EditLensDialog : DialogFragment() {
         // Override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val make = makeEditText.text.toString()
-            val model = modelEditText.text.toString()
-            val serialNumber = serialNumberEditText.text.toString()
+            val make = binding.makeEditText.text.toString()
+            val model = binding.modelEditText.text.toString()
+            val serialNumber = binding.serialNumberEditText.text.toString()
             if (make.isEmpty() && model.isEmpty()) {
                 // No make or model was set
                 Toast.makeText(activity, resources.getString(R.string.NoMakeOrModel),
@@ -359,7 +328,7 @@ class EditLensDialog : DialogFragment() {
      * Update the aperture range button's text
      */
     private fun updateApertureRangeTextView() {
-        apertureRangeTextView.text =
+        binding.apertureRangeText.text =
                 if (newLens.minAperture == null || newLens.maxAperture == null) resources.getString(R.string.ClickToSet)
                 else "f/${newLens.maxAperture} - f/${newLens.minAperture}"
     }
@@ -376,7 +345,7 @@ class EditLensDialog : DialogFragment() {
                 } else {
                     "${newLens.minFocalLength} - ${newLens.maxFocalLength}"
                 }
-        focalLengthRangeTextView.text = text
+        binding.focalLengthRangeText.text = text
     }
 
 }
