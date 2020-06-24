@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.utilities.Utilities
-import java.util.*
 
 /**
  * FrameAdapter acts as an adapter to link an ArrayList of Frames and a RecyclerView together.

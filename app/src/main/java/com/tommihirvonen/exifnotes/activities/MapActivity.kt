@@ -27,9 +27,9 @@ import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialogCallback
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
 import com.tommihirvonen.exifnotes.utilities.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.database
 import kotlin.math.roundToInt
 
 /**
@@ -39,10 +39,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private class Triple<T, U, V> internal constructor(val first: T, var second: U, val third: V)
 
-    /**
-     * Reference to the singleton database
-     */
-    private lateinit var database: FilmDbHelper
     private lateinit var allRolls: List<Triple<Roll, Boolean, List<Frame>>>
     private val selectedRolls = mutableListOf<Triple<Roll, Bitmap?, List<Frame>>>()
 
@@ -106,7 +102,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
 
         // Set the roll list and other arrays
-        database = FilmDbHelper.getInstance(this)
         val rolls = intent.getParcelableArrayListExtra<Roll>(ExtraKeys.ARRAY_LIST_ROLLS)
         allRolls = rolls?.map { Triple(it, true, database.getAllFramesFromRoll(it)) } ?: emptyList()
 

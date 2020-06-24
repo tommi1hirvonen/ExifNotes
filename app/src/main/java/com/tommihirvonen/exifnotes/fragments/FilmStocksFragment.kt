@@ -21,9 +21,8 @@ import com.tommihirvonen.exifnotes.adapters.GearAdapter
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
 import com.tommihirvonen.exifnotes.utilities.Utilities
-import java.util.*
+import com.tommihirvonen.exifnotes.utilities.database
 
 class FilmStocksFragment : Fragment(), View.OnClickListener {
 
@@ -37,7 +36,6 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         const val FILTER_MODE_PREADDED = 2
     }
 
-    private lateinit var database: FilmDbHelper
     private lateinit var allFilmStocks: MutableList<FilmStock>
     private lateinit var filteredFilmStocks: MutableList<FilmStock>
     private var fragmentVisible = false
@@ -54,8 +52,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        database = FilmDbHelper.getInstance(activity)
-        allFilmStocks = database.allFilmStocks
+        allFilmStocks = database.allFilmStocks.toMutableList()
         filteredFilmStocks = allFilmStocks.toMutableList()
     }
 
@@ -242,7 +239,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     fun showManufacturerFilterDialog() {
         val builder = AlertDialog.Builder(requireActivity())
         // Get all filter items.
-        val items = FilmDbHelper.getInstance(requireActivity()).allFilmManufacturers.toTypedArray()
+        val items = database.allFilmManufacturers.toTypedArray()
         // Create a boolean array of same size with selected items marked true.
         val checkedItems = items.map { manufacturerFilterList.contains(it) }.toBooleanArray()
         builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->

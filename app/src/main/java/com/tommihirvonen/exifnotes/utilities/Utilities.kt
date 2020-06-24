@@ -263,7 +263,7 @@ object Utilities {
      * @return String containing the ExifTool commands
      */
     fun createExifToolCmdsString(context: Context, roll: Roll): String {
-        val database = FilmDbHelper.getInstance(context)
+        val database = context.database
         val stringBuilder = StringBuilder()
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         val artistName = prefs.getString("ArtistName", "") ?: ""
@@ -434,7 +434,7 @@ object Utilities {
      * @return String containing the csv information
      */
     fun createCsvString(context: Context, roll: Roll): String {
-        val database = FilmDbHelper.getInstance(context)
+        val database = context.database
         val frameList = database.getAllFramesFromRoll(roll)
         val camera = roll.camera
         val filmStock = roll.filmStock

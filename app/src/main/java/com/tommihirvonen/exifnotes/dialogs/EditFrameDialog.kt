@@ -84,11 +84,6 @@ open class EditFrameDialog : DialogFragment() {
      */
     private var mountableLenses: MutableList<Lens>? = null
 
-    /**
-     * Reference to the singleton database
-     */
-    private lateinit var database: FilmDbHelper
-
     private lateinit var dateTimeLayoutManager: DateTimeLayoutManager
 
     /**
@@ -221,13 +216,12 @@ open class EditFrameDialog : DialogFragment() {
         }
         frame = frame1
         newFrame = frame.copy()
-        database = FilmDbHelper.getInstance(activity)
         frame.roll.camera?.let {
-            mountableLenses = database.getLinkedLenses(it)
+            mountableLenses = database.getLinkedLenses(it).toMutableList()
             shutterIncrements = it.shutterIncrements
             exposureCompIncrements = it.exposureCompIncrements
         } ?: run {
-            mountableLenses = database.allLenses
+            mountableLenses = database.allLenses.toMutableList()
         }
 
         val layoutInflater = requireActivity().layoutInflater

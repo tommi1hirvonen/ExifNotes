@@ -27,8 +27,8 @@ import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
 import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.database
 
 /**
  * Fragment to display all lenses from the database along with details
@@ -67,11 +67,6 @@ class LensesFragment : Fragment(), View.OnClickListener {
      */
     private lateinit var lensList: MutableList<Lens>
 
-    /**
-     * Reference to the singleton database
-     */
-    private lateinit var database: FilmDbHelper
-
     private var fragmentVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,8 +87,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val layoutInflater = requireActivity().layoutInflater
-        database = FilmDbHelper.getInstance(activity)
-        lensList = database.allLenses
+        lensList = database.allLenses.toMutableList()
         lensList.sort()
         val view = layoutInflater.inflate(R.layout.fragment_lenses, container, false)
         val fab: FloatingActionButton = view.findViewById(R.id.fab_lenses)

@@ -26,8 +26,8 @@ import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
 import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.database
 
 /**
  * Fragment to display all filters from the database along with details
@@ -66,11 +66,6 @@ class FiltersFragment : Fragment(), View.OnClickListener {
      */
     private lateinit var filterList: MutableList<Filter>
 
-    /**
-     * Reference to the singleton database
-     */
-    private lateinit var database: FilmDbHelper
-
     private var fragmentVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,8 +87,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                               savedInstanceState: Bundle?): View? {
 
         val layoutInflater = requireActivity().layoutInflater
-        database = FilmDbHelper.getInstance(activity)
-        filterList = database.allFilters
+        filterList = database.allFilters.toMutableList()
         filterList.sort()
         val view = layoutInflater.inflate(R.layout.fragment_filters, container, false)
         val floatingActionButton: FloatingActionButton = view.findViewById(R.id.fab_filters)

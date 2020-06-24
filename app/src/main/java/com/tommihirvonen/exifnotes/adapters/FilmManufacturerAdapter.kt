@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
+import com.tommihirvonen.exifnotes.utilities.database
 import java.util.*
 
 class FilmManufacturerAdapter(
@@ -29,7 +29,7 @@ class FilmManufacturerAdapter(
     private val manufacturers: List<String?>
 
     init {
-        val database = FilmDbHelper.getInstance(context)
+        val database = context.database
         filmStocksMap = database.allFilmStocks.groupBy { it.make }
         manufacturers = filmStocksMap.map { it.key }.sortedBy { it?.toLowerCase(Locale.ROOT) }
         setHasStableIds(true)

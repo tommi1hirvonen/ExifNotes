@@ -305,7 +305,7 @@ object ComplementaryPicturesManager {
      */
     fun deleteUnusedPictures(context: Context) {
         // List of all filenames that are being used in the database
-        val complementaryPictureFilenames = FilmDbHelper.getInstance(context).allComplementaryPictureFilenames
+        val complementaryPictureFilenames = context.database.allComplementaryPictureFilenames
         // The application private external storage directory, where complementary pictures are stored
         val picturesDirectory = getComplementaryPicturesDirectory(context)
         // Create a FileNameFilter using the filenames
@@ -329,8 +329,7 @@ object ComplementaryPicturesManager {
      */
     fun exportComplementaryPictures(context: Context, targetFile: File,
                                     progressListener: ZipFileCreatorAsyncTask.ProgressListener) {
-        val complementaryPictureFilenames = FilmDbHelper.getInstance(context)
-                .allComplementaryPictureFilenames
+        val complementaryPictureFilenames = context.database.allComplementaryPictureFilenames
         val picturesDirectory = getComplementaryPicturesDirectory(context)
         if (picturesDirectory == null) {
             Toast.makeText(context, context.resources.getString(R.string.ErrorSharedStorageNotAvailable), Toast.LENGTH_SHORT).show()

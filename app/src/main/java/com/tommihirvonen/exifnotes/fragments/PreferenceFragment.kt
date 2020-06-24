@@ -270,10 +270,10 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
 
             //If the length of filePath is 0, then the user canceled the import.
             if (filePath.isNotEmpty() && extension == "db") {
-                val database = FilmDbHelper.getInstance(activity)
+                val database = database
                 val importSuccess: Boolean
                 importSuccess = try {
-                    database.importDatabase(activity, filePath)
+                    database.importDatabase(requireActivity(), filePath)
                 } catch (e: IOException) {
                     Toast.makeText(activity,
                             resources.getString(R.string.ErrorImportingDatabaseFrom) +
@@ -373,7 +373,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         try {
             val destinationUri = data.data
             val outputStream = requireContext().contentResolver.openOutputStream(destinationUri!!)
-            val databaseFile = FilmDbHelper.getDatabaseFile(activity)
+            val databaseFile = Database.getDatabaseFile(requireActivity())
             val inputStream: InputStream = FileInputStream(databaseFile)
             IOUtils.copy(inputStream, outputStream)
             inputStream.close()

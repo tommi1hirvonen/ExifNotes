@@ -71,11 +71,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     }
 
     /**
-     * Reference to the singleton database
-     */
-    private lateinit var database: FilmDbHelper
-
-    /**
      * TextView to show that no frames have been added to this roll
      */
     private lateinit var mainTextView: TextView
@@ -122,9 +117,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        database = FilmDbHelper.getInstance(activity)
         roll = requireArguments().getParcelable(ExtraKeys.ROLL)!! // Roll must be defined for every Frame
-        frameList = database.getAllFramesFromRoll(roll)
+        frameList = database.getAllFramesFromRoll(roll).toMutableList()
 
         //getActivity().getPreferences() returns a preferences file related to the
         //activity it is opened from. getDefaultSharedPreferences() returns the
@@ -494,7 +488,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             }
             SHOW_ON_MAP -> if (resultCode == Activity.RESULT_OK) {
                 // Update the frame list in case updates were made in MapsActivity.
-                frameList = database.getAllFramesFromRoll(roll)
+                frameList = database.getAllFramesFromRoll(roll).toMutableList()
                 Frame.sortFrameList(requireActivity(), sortMode, frameList)
                 frameAdapter = FrameAdapter(requireActivity(), frameList, this)
                 mainRecyclerView.adapter = frameAdapter

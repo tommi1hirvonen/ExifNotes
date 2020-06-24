@@ -11,7 +11,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
+import com.tommihirvonen.exifnotes.utilities.database
 
 /**
  * GearAdapter acts as an adapter between a List of gear and a RecyclerView.
@@ -41,7 +41,7 @@ class GearAdapter(
     /**
      * Reference to the singleton database.
      */
-    private val database: FilmDbHelper = FilmDbHelper.getInstance(context)
+    private val database = context.database
 
     /**
      * Package-private ViewHolder class which can be recycled

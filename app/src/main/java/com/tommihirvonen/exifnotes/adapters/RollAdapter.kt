@@ -14,8 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
-import java.util.*
+import com.tommihirvonen.exifnotes.utilities.database
 
 /**
  * RollAdapter acts as an adapter between a List of rolls and a RecyclerView.
@@ -47,7 +46,7 @@ class RollAdapter(private val context: Context,
     /**
      * Reference to the singleton database.
      */
-    private val database: FilmDbHelper = FilmDbHelper.getInstance(context)
+    private val database = context.database
 
     /**
      * Used to hold the positions of selected items in the RecyclerView.

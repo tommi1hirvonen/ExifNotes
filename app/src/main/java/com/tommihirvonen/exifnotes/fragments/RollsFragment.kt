@@ -91,11 +91,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
     private var rollList = mutableListOf<Roll>()
 
     /**
-     * Reference to the singleton database
-     */
-    private lateinit var database: FilmDbHelper
-
-    /**
      * Private callback class which is given as an argument when the SupportActionMode is started.
      */
     private val actionModeCallback = ActionModeCallback()
@@ -150,9 +145,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
         actionBar?.title = "  " + resources.getString(R.string.MainActivityTitle)
         actionBar?.setDisplayHomeAsUpEnabled(false)
-
-        // Assign the database.
-        database = FilmDbHelper.getInstance(activity)
 
         // Inflate the layout view.
         val layoutInflater = requireActivity().layoutInflater
@@ -230,7 +222,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         mainTextView.text = mainTextViewText
 
         // Load the rolls from the database.
-        rollList = database.getRolls(filterMode)
+        rollList = database.getRolls(filterMode).toMutableList()
         //Order the roll list according to preferences.
         Roll.sortRollList(sortMode, rollList)
         if (recreateRollAdapter) {

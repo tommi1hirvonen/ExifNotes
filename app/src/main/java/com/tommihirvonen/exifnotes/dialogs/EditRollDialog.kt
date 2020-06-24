@@ -19,10 +19,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.utilities.DateTimeLayoutManager
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.FilmDbHelper
-import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
 
 /**
@@ -38,11 +35,6 @@ class EditRollDialog : DialogFragment() {
         private const val REQUEST_CODE_ADD_CAMERA = 1
         private const val REQUEST_CODE_SELECT_FILM_STOCK = 2
     }
-
-    /**
-     * Reference to the singleton database
-     */
-    private lateinit var database: FilmDbHelper
 
     /**
      * Holds all the cameras in the database
@@ -64,12 +56,11 @@ class EditRollDialog : DialogFragment() {
     private lateinit var newRoll: Roll
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
-        database = FilmDbHelper.getInstance(activity)
         val title = requireArguments().getString(ExtraKeys.TITLE)
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         val roll = requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll()
         newRoll = roll.copy()
-        cameraList = database.allCameras
+        cameraList = database.allCameras.toMutableList()
         val layoutInflater = requireActivity().layoutInflater
         // Here we can safely pass null, because we are inflating a layout for use in a dialog
         @SuppressLint("InflateParams")
