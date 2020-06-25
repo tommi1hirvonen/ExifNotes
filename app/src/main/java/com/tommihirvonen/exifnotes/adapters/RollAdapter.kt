@@ -7,12 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.ItemRollConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.database
 
@@ -42,11 +40,6 @@ class RollAdapter(private val context: Context,
         fun onItemClick(position: Int)
         fun onItemLongClick(position: Int)
     }
-
-    /**
-     * Reference to the singleton database.
-     */
-    private val database = context.database
 
     /**
      * Used to hold the positions of selected items in the RecyclerView.
@@ -79,70 +72,44 @@ class RollAdapter(private val context: Context,
      * for better performance and memory management.
      * All common view elements for all items are initialized here.
      */
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val topLayout: View = itemView.findViewById(R.id.item_roll_top_layout)
-        val layout: ConstraintLayout = itemView.findViewById(R.id.item_roll_layout)
-        val nameTextView: TextView = itemView.findViewById(R.id.tv_roll_name)
-        val filmStockTextView: TextView = itemView.findViewById(R.id.tv_film_stock)
-        val dateTextView: TextView = itemView.findViewById(R.id.tv_roll_date)
-        val noteTextView: TextView = itemView.findViewById(R.id.tv_roll_note)
-        val photosTextView: TextView = itemView.findViewById(R.id.tv_photos)
-        val cameraTextView: TextView = itemView.findViewById(R.id.tv_camera)
-        val checkBox: ImageView = itemView.findViewById(R.id.checkbox)
-
+    inner class ViewHolder(val binding: ItemRollConstraintBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            layout.setOnClickListener { listener.onItemClick(adapterPosition) }
-            layout.setOnLongClickListener {
+            binding.itemRollLayout.setOnClickListener { listener.onItemClick(adapterPosition) }
+            binding.itemRollLayout.setOnLongClickListener {
                 listener.onItemLongClick(adapterPosition)
                 true
             }
         }
     }
 
-    /**
-     * Invoked by LayoutManager to create new Views.
-     *
-     * @param parent view's parent ViewGroup
-     * @param viewType not used
-     * @return inflated view
-     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_roll_constraint, parent, false)
-        return ViewHolder(view)
+        val inflater = LayoutInflater.from(context)
+        return ViewHolder(ItemRollConstraintBinding.inflate(inflater, parent, false))
     }
 
-    /**
-     * Invoked by LayoutManager to replace the contents of a View.
-     * Here we get the element from our dataset at the specified position
-     * and set the ViewHolder views to display said elements data.
-     *
-     * @param holder reference to the recyclable ViewHolder
-     * @param position position of the current item
-     */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val roll = rollList[position]
-        val numberOfFrames = database.getNumberOfFrames(roll)
+        val numberOfFrames = context.database.getNumberOfFrames(roll)
 
         // Populate the data into the template view using the data object
-        holder.nameTextView.text = roll.name
-        holder.dateTextView.text = roll.date?.dateTimeAsText
-        holder.noteTextView.text = roll.note
+        holder.binding.tvRollName.text = roll.name
+        holder.binding.tvRollDate.text = roll.date?.dateTimeAsText
+        holder.binding.tvRollNote.text = roll.note
 
         roll.filmStock?.let {
-            holder.filmStockTextView.text = it.name
-            holder.filmStockTextView.visibility = View.VISIBLE
+            holder.binding.tvFilmStock.text = it.name
+            holder.binding.tvFilmStock.visibility = View.VISIBLE
         } ?: run {
-            holder.filmStockTextView.text = ""
-            holder.filmStockTextView.visibility = View.GONE
+            holder.binding.tvFilmStock.text = ""
+            holder.binding.tvFilmStock.visibility = View.GONE
         }
 
-        holder.cameraTextView.text = roll.camera?.name ?: context.resources.getString(R.string.NoCamera)
+        holder.binding.tvCamera.text = roll.camera?.name ?: context.resources.getString(R.string.NoCamera)
 
         if (numberOfFrames == 0) {
-            holder.photosTextView.text = context.resources.getString(R.string.NoPhotos)
+            holder.binding.tvPhotos.text = context.resources.getString(R.string.NoPhotos)
         } else {
-            holder.photosTextView.text = context.resources.getQuantityString(
+            holder.binding.tvPhotos.text = context.resources.getQuantityString(
                     R.plurals.PhotosAmount, numberOfFrames, numberOfFrames)
         }
 
@@ -153,19 +120,19 @@ class RollAdapter(private val context: Context,
 
         // If the roll is archived, fade the text somewhat
         if (roll.archived) {
-            holder.nameTextView.alpha = heavyFade
-            holder.filmStockTextView.alpha = heavyFade
-            holder.dateTextView.alpha = moderateFade
-            holder.noteTextView.alpha = moderateFade
-            holder.photosTextView.alpha = moderateFade
-            holder.cameraTextView.alpha = moderateFade
+            holder.binding.tvRollName.alpha = heavyFade
+            holder.binding.tvFilmStock.alpha = heavyFade
+            holder.binding.tvRollDate.alpha = moderateFade
+            holder.binding.tvRollNote.alpha = moderateFade
+            holder.binding.tvPhotos.alpha = moderateFade
+            holder.binding.tvCamera.alpha = moderateFade
         } else {
-            holder.nameTextView.alpha = lightFade
-            holder.filmStockTextView.alpha = lightFade
-            holder.dateTextView.alpha = noFade
-            holder.noteTextView.alpha = noFade
-            holder.photosTextView.alpha = noFade
-            holder.cameraTextView.alpha = noFade
+            holder.binding.tvRollName.alpha = lightFade
+            holder.binding.tvFilmStock.alpha = lightFade
+            holder.binding.tvRollDate.alpha = noFade
+            holder.binding.tvRollNote.alpha = noFade
+            holder.binding.tvPhotos.alpha = noFade
+            holder.binding.tvCamera.alpha = noFade
         }
         holder.itemView.isActivated = selectedItems[position, false]
         applyCheckBoxAnimation(holder, position)
@@ -175,21 +142,21 @@ class RollAdapter(private val context: Context,
         if (selectedItems[position, false]) {
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
-            holder.checkBox.visibility = View.VISIBLE
+            holder.binding.checkbox.visibility = View.VISIBLE
 
             // Also set a slightly grey background to be visible.
-            holder.topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.background_selected))
+            holder.binding.itemRollTopLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.background_selected))
 
             // If the item is selected or all items are being selected and the item was not previously selected
             if (currentSelectedIndex == position || animateAll && !animationItemsIndex[position, false]) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_up)
-                holder.checkBox.startAnimation(animation)
+                holder.binding.checkbox.startAnimation(animation)
                 val fromColor = ContextCompat.getColor(context, R.color.transparent)
                 val toColor = ContextCompat.getColor(context, R.color.background_selected)
                 val colorAnimation = ValueAnimator.ofArgb(fromColor, toColor)
                 colorAnimation.duration = 500
                 colorAnimation.addUpdateListener { animator: ValueAnimator ->
-                    holder.topLayout.setBackgroundColor(animator.animatedValue as Int)
+                    holder.binding.itemRollTopLayout.setBackgroundColor(animator.animatedValue as Int)
                 }
                 colorAnimation.start()
                 resetCurrentSelectedIndex()
@@ -197,21 +164,21 @@ class RollAdapter(private val context: Context,
         } else {
             // First set the check box to be gone. This is the state it will be left in after
             // the animation has finished.
-            holder.checkBox.visibility = View.GONE
+            holder.binding.checkbox.visibility = View.GONE
 
             // Hide the slightly grey background
-            holder.topLayout.setBackgroundResource(0)
+            holder.binding.itemRollTopLayout.setBackgroundResource(0)
 
             // If the item is deselected or all selections are undone and the item was previously selected
             if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex[position, false]) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_down)
-                holder.checkBox.startAnimation(animation)
+                holder.binding.checkbox.startAnimation(animation)
                 val fromColor = ContextCompat.getColor(context, R.color.background_selected)
                 val toColor = ContextCompat.getColor(context, R.color.transparent)
                 val colorAnimation = ValueAnimator.ofArgb(fromColor, toColor)
                 colorAnimation.duration = 500
                 colorAnimation.addUpdateListener { animator: ValueAnimator ->
-                    holder.topLayout.setBackgroundColor(animator.animatedValue as Int)
+                    holder.binding.itemRollTopLayout.setBackgroundColor(animator.animatedValue as Int)
                 }
                 colorAnimation.start()
                 resetCurrentSelectedIndex()
@@ -228,14 +195,9 @@ class RollAdapter(private val context: Context,
         rollList = newRollList
     }
 
-    /**
-     * Method to get the item count of the FrameAdapter.
-     *
-     * @return the size of the main frameList
-     */
-    override fun getItemCount(): Int {
-        return rollList.size
-    }
+    override fun getItemCount(): Int = rollList.size
+
+    override fun getItemId(position: Int): Long = rollList[position].id
 
     /**
      * Sets an items selection status.
@@ -312,19 +274,9 @@ class RollAdapter(private val context: Context,
      * @return List containing the positions of selected items.
      */
     val selectedItemPositions: List<Int> get() {
-            val items: MutableList<Int> = ArrayList()
-            for (i in 0 until selectedItems.size()) items.add(selectedItems.keyAt(i))
-            return items
-        }
-
-    /**
-     * Implemented because hasStableIds has been set to true.
-     *
-     * @param position position of the item
-     * @return stable id
-     */
-    override fun getItemId(position: Int): Long {
-        return rollList[position].id
+        val items: MutableList<Int> = ArrayList()
+        for (i in 0 until selectedItems.size()) items.add(selectedItems.keyAt(i))
+        return items
     }
 
 }

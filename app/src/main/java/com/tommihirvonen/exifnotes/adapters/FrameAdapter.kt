@@ -6,12 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.ItemFrameConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.utilities.Utilities
 
@@ -80,47 +78,34 @@ class FrameAdapter(private val context: Context,
      * for better performance and memory management.
      * All common view elements for all items are initialized here.
      */
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val constraintLayout: ConstraintLayout = itemView.findViewById(R.id.item_frame_layout)
-        val countTextView: TextView = itemView.findViewById(R.id.tvCount)
-        val frameTextView: TextView = itemView.findViewById(R.id.tvFrameText)
-        val frameTextView2: TextView = itemView.findViewById(R.id.tvFrameText2)
-        val shutterTextView: TextView = itemView.findViewById(R.id.tvShutter)
-        val apertureTextView: TextView = itemView.findViewById(R.id.tvAperture)
-        val noteTextView: TextView = itemView.findViewById(R.id.tv_frame_note)
-        private val frameImageView: ImageView = itemView.findViewById(R.id.background_frame)
-        private val clockImageView: ImageView = itemView.findViewById(R.id.drawable_clock)
-        private val apertureImageView: ImageView = itemView.findViewById(R.id.drawable_aperture)
-        val checkBox: ImageView = itemView.findViewById(R.id.checkbox)
-        val selectedBackground: View = itemView.findViewById(R.id.grey_background)
-
+    inner class ViewHolder(val binding: ItemFrameConstraintBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            constraintLayout.setOnClickListener { listener.onItemClick(adapterPosition) }
-            constraintLayout.setOnLongClickListener {
+            binding.itemFrameLayout.setOnClickListener { listener.onItemClick(adapterPosition) }
+            binding.itemFrameLayout.setOnLongClickListener {
                 listener.onItemLongClick(adapterPosition)
                 true
             }
             // Color the png drawables grey.
-            Utilities.setColorFilter(frameImageView.drawable.mutate(), backgroundFrameColor)
-            Utilities.setColorFilter(clockImageView.drawable.mutate(), ContextCompat.getColor(context, R.color.grey))
-            Utilities.setColorFilter(apertureImageView.drawable.mutate(), ContextCompat.getColor(context, R.color.grey))
+            Utilities.setColorFilter(binding.backgroundFrame.drawable.mutate(), backgroundFrameColor)
+            Utilities.setColorFilter(binding.drawableClock.drawable.mutate(), ContextCompat.getColor(context, R.color.grey))
+            Utilities.setColorFilter(binding.drawableAperture.drawable.mutate(), ContextCompat.getColor(context, R.color.grey))
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_frame_constraint, parent, false)
-        return ViewHolder(view)
+        val inflater = LayoutInflater.from(parent.context)
+        return ViewHolder(ItemFrameConstraintBinding.inflate(inflater, parent, false))
+
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val frame = frameList[position]
-        holder.frameTextView.text = frame.date?.dateTimeAsText
-        holder.countTextView.text = "${frame.count}"
-        holder.frameTextView2.text = frame.lens?.name ?: context.resources.getString(R.string.NoLens)
-        holder.noteTextView.text = frame.note
-        holder.apertureTextView.text = frame.aperture?.let { "f/$it" } ?: ""
-        holder.shutterTextView.text = frame.shutter
+        holder.binding.tvFrameText.text = frame.date?.dateTimeAsText
+        holder.binding.tvCount.text = "${frame.count}"
+        holder.binding.tvFrameText2.text = frame.lens?.name ?: context.resources.getString(R.string.NoLens)
+        holder.binding.tvFrameNote.text = frame.note
+        holder.binding.tvAperture.text = frame.aperture?.let { "f/$it" } ?: ""
+        holder.binding.tvShutter.text = frame.shutter
         holder.itemView.isActivated = selectedItems[position, false]
         applyCheckBoxAnimation(holder, position)
     }
@@ -135,39 +120,37 @@ class FrameAdapter(private val context: Context,
         if (selectedItems[position, false]) {
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
-            holder.checkBox.visibility = View.VISIBLE
+            holder.binding.checkbox.visibility = View.VISIBLE
             // Also set a slightly grey background to be visible.
-            holder.selectedBackground.visibility = View.VISIBLE
+            holder.binding.greyBackground.visibility = View.VISIBLE
 
             // If the item is selected or all items are being selected and the item was not previously selected
             if (currentSelectedIndex == position || animateAll && !animationItemsIndex[position, false]) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_up)
-                holder.checkBox.startAnimation(animation)
+                holder.binding.checkbox.startAnimation(animation)
                 val animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_in)
-                holder.selectedBackground.startAnimation(animation1)
+                holder.binding.greyBackground.startAnimation(animation1)
                 resetCurrentSelectedIndex()
             }
         } else {
             // First set the check box to be gone. This is the state it will be left in after
             // the animation has finished.
-            holder.checkBox.visibility = View.GONE
+            holder.binding.checkbox.visibility = View.GONE
             // Hide the slightly grey background
-            holder.selectedBackground.visibility = View.GONE
+            holder.binding.greyBackground.visibility = View.GONE
 
             // If the item is deselected or all selections are undone and the item was previously selected
             if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex[position, false]) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_down)
-                holder.checkBox.startAnimation(animation)
+                holder.binding.checkbox.startAnimation(animation)
                 val animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_out)
-                holder.selectedBackground.startAnimation(animation1)
+                holder.binding.greyBackground.startAnimation(animation1)
                 resetCurrentSelectedIndex()
             }
         }
     }
 
-    override fun getItemCount(): Int {
-        return frameList.size
-    }
+    override fun getItemCount(): Int = frameList.size
 
     /**
      * Sets an items selection status.
@@ -239,8 +222,7 @@ class FrameAdapter(private val context: Context,
      *
      * @return the number of selected items
      */
-    val selectedItemCount: Int
-        get() = selectedItems.size()
+    val selectedItemCount: Int get() = selectedItems.size()
 
     /**
      *
@@ -254,8 +236,6 @@ class FrameAdapter(private val context: Context,
         }
 
     // Implemented because hasStableIds has been set to true.
-    override fun getItemId(position: Int): Long {
-        return frameList[position].id
-    }
+    override fun getItemId(position: Int): Long = frameList[position].id
 
 }

@@ -7,12 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.Transformation
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.ItemFilmManufacturerBinding
+import com.tommihirvonen.exifnotes.databinding.ItemFilmStockBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.database
 import java.util.*
@@ -25,27 +23,16 @@ class FilmManufacturerAdapter(
     private val expandedManufacturers = SparseBooleanArray()
     private val expandAnimations = SparseBooleanArray()
     private var currentExpandedIndex = -1
-    private val filmStocksMap: Map<String?, List<FilmStock>>
-    private val manufacturers: List<String?>
+    private val filmStocksMap: Map<String?, List<FilmStock>> = context.database.allFilmStocks.groupBy { it.make }
+    private val manufacturers: List<String?> = filmStocksMap.map { it.key }.sortedBy { it?.toLowerCase(Locale.ROOT) }
 
-    init {
-        val database = context.database
-        filmStocksMap = database.allFilmStocks.groupBy { it.make }
-        manufacturers = filmStocksMap.map { it.key }.sortedBy { it?.toLowerCase(Locale.ROOT) }
-        setHasStableIds(true)
-    }
+    init { setHasStableIds(true) }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val manufacturerTextView: TextView = itemView.findViewById(R.id.text_view_manufacturer_name)
-        val manufacturerLayout: View = itemView.findViewById(R.id.layout_manufacturer)
-        val expandLayout: View = itemView.findViewById(R.id.layout_expand)
-        val expandButton: ImageView = itemView.findViewById(R.id.image_view_expand)
-        val filmStocksRecyclerView: RecyclerView = itemView.findViewById(R.id.recycler_view_film_stocks)
-    }
+    inner class ViewHolder(val binding: ItemFilmManufacturerBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_film_manufacturer, parent, false)
-        return ViewHolder(view)
+        val inflater = LayoutInflater.from(context)
+        return ViewHolder(ItemFilmManufacturerBinding.inflate(inflater, parent, false))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -53,10 +40,10 @@ class FilmManufacturerAdapter(
         val filmStocks = filmStocksMap[manufacturer] ?: return
         val adapter = FilmStockAdapter(filmStocks)
         val layoutManager = LinearLayoutManager(context)
-        holder.filmStocksRecyclerView.layoutManager = layoutManager
-        holder.filmStocksRecyclerView.adapter = adapter
-        holder.manufacturerTextView.text = manufacturer
-        holder.manufacturerLayout.setOnClickListener {
+        holder.binding.recyclerViewFilmStocks.layoutManager = layoutManager
+        holder.binding.recyclerViewFilmStocks.adapter = adapter
+        holder.binding.textViewManufacturerName.text = manufacturer
+        holder.binding.layoutManufacturer.setOnClickListener {
             toggleManufacturer(position)
             expandOrCollapseManufacturer(holder, position)
         }
@@ -85,11 +72,11 @@ class FilmManufacturerAdapter(
     private fun expandOrCollapseManufacturer(holder: ViewHolder, position: Int) {
         val animate = currentExpandedIndex == position
         if (expandedManufacturers[position, false]) {
-            toggleArrow(holder.expandButton, true, animate)
-            toggleLayout(holder.expandLayout, true, animate)
+            toggleArrow(holder.binding.imageViewExpand, true, animate)
+            toggleLayout(holder.binding.layoutExpand, true, animate)
         } else {
-            toggleArrow(holder.expandButton, false, animate)
-            toggleLayout(holder.expandLayout, false, animate)
+            toggleArrow(holder.binding.imageViewExpand, false, animate)
+            toggleLayout(holder.binding.layoutExpand, false, animate)
         }
         if (animate) currentExpandedIndex = -1
     }
@@ -97,24 +84,19 @@ class FilmManufacturerAdapter(
     private inner class FilmStockAdapter internal constructor(private val filmStocks: List<FilmStock>)
         : RecyclerView.Adapter<FilmStockAdapter.ViewHolder>() {
 
-        init {
-            setHasStableIds(true)
-        }
+        init { setHasStableIds(true) }
 
-        internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val filmStockTextView: TextView = itemView.findViewById(R.id.text_view_film_stock)
-            val filmStockLayout: LinearLayout = itemView.findViewById(R.id.layout_film_stock)
-        }
+        internal inner class ViewHolder(val binding: ItemFilmStockBinding) : RecyclerView.ViewHolder(binding.root)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(context).inflate(R.layout.item_film_stock, parent, false)
-            return ViewHolder(view)
+            val inflater = LayoutInflater.from(context)
+            return ViewHolder(ItemFilmStockBinding.inflate(inflater, parent, false))
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val filmStock = filmStocks[position]
-            holder.filmStockTextView.text = filmStock.model
-            holder.filmStockLayout.setOnClickListener { listener(filmStock) }
+            holder.binding.textViewFilmStock.text = filmStock.model
+            holder.binding.layoutFilmStock.setOnClickListener { listener(filmStock) }
         }
 
         override fun getItemCount(): Int {
