@@ -86,7 +86,6 @@ class AddGearTest {
                                         2),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(R.id.title), withText("Gear"),
                         childAtPosition(
@@ -95,9 +94,6 @@ class AddGearTest {
                                         0),
                                 0),
                         isDisplayed())).perform(click())
-
-
-
 
         // Add cameras
         onView(
@@ -109,7 +105,6 @@ class AddGearTest {
                                 0),
                         isDisplayed())).perform(click())
 
-
         // Camera 1
         onView(
                 allOf(withId(R.id.fab_cameras),
@@ -117,9 +112,7 @@ class AddGearTest {
                                 withParent(withId(R.id.viewpager)),
                                 2),
                         isDisplayed())).perform(click())
-
         pauseTestFor(100)
-
         onView(
                 allOf(withId(R.id.make_editText),
                         childAtPosition(
@@ -128,7 +121,6 @@ class AddGearTest {
                                         0),
                                 1),
                         isDisplayed())).perform(replaceText("Canon"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.model_editText),
                         childAtPosition(
@@ -137,7 +129,6 @@ class AddGearTest {
                                         1),
                                 2),
                         isDisplayed())).perform(replaceText("A-1"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.serialNumber_editText),
                         childAtPosition(
@@ -146,7 +137,6 @@ class AddGearTest {
                                         2),
                                 2),
                         isDisplayed())).perform(replaceText("123456ABC"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.serialNumber_editText), withText("123456ABC"),
                         childAtPosition(
@@ -155,7 +145,6 @@ class AddGearTest {
                                         2),
                                 2),
                         isDisplayed())).perform(pressImeActionButton())
-
         onView(
                 allOf(withId(R.id.increment_layout),
                         childAtPosition(
@@ -164,14 +153,12 @@ class AddGearTest {
                                         0),
                                 3),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withClassName(`is`("com.android.internal.app.AlertController\$RecycleListView")),
                         childAtPosition(
                                 withClassName(`is`("android.widget.FrameLayout")),
                                 0)))
                 .atPosition(1).perform(click())
-
         onView(
                 allOf(withId(R.id.shutter_range_layout),
                         childAtPosition(
@@ -180,10 +167,8 @@ class AddGearTest {
                                         0),
                                 4),
                         isDisplayed())).perform(click())
-
         setNumberPickerValue(R.id.number_picker_one, 6)
         setNumberPickerValue(R.id.number_picker_two, 36)
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -191,7 +176,6 @@ class AddGearTest {
                                         withClassName(`is`("android.widget.ScrollView")),
                                         0),
                                 3))).perform(scrollTo(), click())
-
 
         // Check the text in the shutter speed range TextView is correct
         onView(allOf(withId(R.id.shutter_range_text), isDisplayed()))
@@ -205,14 +189,12 @@ class AddGearTest {
                                         0),
                                 5),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withClassName(`is`("com.android.internal.app.AlertController\$RecycleListView")),
                         childAtPosition(
                                 withClassName(`is`("android.widget.FrameLayout")),
                                 0)))
                 .atPosition(1).perform(click())
-
         onView(
                 allOf(withId(android.R.id.button1), withText("Add"),
                         childAtPosition(
@@ -222,8 +204,6 @@ class AddGearTest {
                                 3))).perform(scrollTo(), click())
 
 
-
-
         // Camera 2
         onView(
                 allOf(withId(R.id.fab_cameras),
@@ -231,7 +211,6 @@ class AddGearTest {
                                 withParent(withId(R.id.viewpager)),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(R.id.make_editText),
                         childAtPosition(
@@ -240,7 +219,6 @@ class AddGearTest {
                                         0),
                                 1),
                         isDisplayed())).perform(replaceText("Nikon"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.model_editText),
                         childAtPosition(
@@ -249,7 +227,6 @@ class AddGearTest {
                                         1),
                                 2),
                         isDisplayed())).perform(replaceText("FM2"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.serialNumber_editText),
                         childAtPosition(
@@ -258,7 +235,6 @@ class AddGearTest {
                                         2),
                                 2),
                         isDisplayed())).perform(replaceText("CBA321"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.serialNumber_editText), withText("CBA321"),
                         childAtPosition(
@@ -267,7 +243,6 @@ class AddGearTest {
                                         2),
                                 2),
                         isDisplayed())).perform(pressImeActionButton())
-
         onView(
                 allOf(withId(R.id.increment_layout),
                         childAtPosition(
@@ -276,15 +251,12 @@ class AddGearTest {
                                         0),
                                 3),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withClassName(`is`("com.android.internal.app.AlertController\$RecycleListView")),
                         childAtPosition(
                                 withClassName(`is`("android.widget.FrameLayout")),
                                 0)))
                 .atPosition(1).perform(click())
-
-
         onView(
                 allOf(withId(R.id.shutter_range_layout),
                         childAtPosition(
@@ -293,10 +265,8 @@ class AddGearTest {
                                         0),
                                 4),
                         isDisplayed())).perform(click())
-
         setNumberPickerValue(R.id.number_picker_one, 6)
         setNumberPickerValue(R.id.number_picker_two, 26)
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -304,7 +274,6 @@ class AddGearTest {
                                         withClassName(`is`("android.widget.ScrollView")),
                                         0),
                                 3))).perform(scrollTo(), click())
-
 
         // Check the text in the shutter speed range TextView is correct
         onView(allOf(withId(R.id.shutter_range_text), isDisplayed()))
@@ -319,8 +288,6 @@ class AddGearTest {
                                 3))).perform(scrollTo(), click())
 
 
-
-
         // Add lenses
         onView(
                 allOf(withContentDescription("LENSES"),
@@ -331,7 +298,6 @@ class AddGearTest {
                                 1),
                         isDisplayed())).perform(click())
 
-
         // Lens 1
         onView(
                 allOf(withId(R.id.fab_lenses),
@@ -339,7 +305,6 @@ class AddGearTest {
                                 withParent(withId(R.id.viewpager)),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(R.id.make_editText),
                         childAtPosition(
@@ -348,7 +313,6 @@ class AddGearTest {
                                         0),
                                 1),
                         isDisplayed())).perform(replaceText("Canon"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.model_editText),
                         childAtPosition(
@@ -357,7 +321,6 @@ class AddGearTest {
                                         1),
                                 2),
                         isDisplayed())).perform(replaceText("FD 28mm f/2.8"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.increment_layout),
                         childAtPosition(
@@ -366,14 +329,12 @@ class AddGearTest {
                                         0),
                                 3),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withClassName(`is`("com.android.internal.app.AlertController\$RecycleListView")),
                         childAtPosition(
                                 withClassName(`is`("android.widget.FrameLayout")),
                                 0)))
                 .atPosition(1).perform(click())
-
         onView(
                 allOf(withId(R.id.serialNumber_editText),
                         childAtPosition(
@@ -382,7 +343,6 @@ class AddGearTest {
                                         2),
                                 2),
                         isDisplayed())).perform(pressImeActionButton())
-
         onView(
                 allOf(withId(R.id.aperture_range_layout),
                         childAtPosition(
@@ -391,10 +351,8 @@ class AddGearTest {
                                         0),
                                 4),
                         isDisplayed())).perform(click())
-
         setNumberPickerValue(R.id.number_picker_one, 17)
         setNumberPickerValue(R.id.number_picker_two, 5)
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -402,7 +360,6 @@ class AddGearTest {
                                         withClassName(`is`("android.widget.ScrollView")),
                                         0),
                                 3))).perform(scrollTo(), click())
-
 
         // Check the text in the aperture range TextView
         onView(allOf(withId(R.id.aperture_range_text), isDisplayed()))
@@ -416,10 +373,8 @@ class AddGearTest {
                                         0),
                                 5),
                         isDisplayed())).perform(click())
-
         setNumberPickerValue(R.id.number_picker_one, 28)
         setNumberPickerValue(R.id.number_picker_two, 28)
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -427,10 +382,8 @@ class AddGearTest {
                                         withClassName(`is`("android.widget.ScrollView")),
                                         0),
                                 3))).perform(scrollTo(), click())
-
         onView(allOf(withId(R.id.focal_length_range_text), isDisplayed()))
                 .check(ViewAssertions.matches(withText("28")))
-
         onView(
                 allOf(withId(android.R.id.button1), withText("Add"),
                         childAtPosition(
@@ -439,8 +392,6 @@ class AddGearTest {
                                         0),
                                 3))).perform(scrollTo(), click())
 
-
-
         // Lens 2
         onView(
                 allOf(withId(R.id.fab_lenses),
@@ -448,7 +399,6 @@ class AddGearTest {
                                 withParent(withId(R.id.viewpager)),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(R.id.make_editText),
                         childAtPosition(
@@ -457,7 +407,6 @@ class AddGearTest {
                                         0),
                                 1),
                         isDisplayed())).perform(replaceText("Canon"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.model_editText),
                         childAtPosition(
@@ -466,7 +415,6 @@ class AddGearTest {
                                         1),
                                 2),
                         isDisplayed())).perform(replaceText("FD 50mm f/1.8"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.model_editText), withText("FD 50mm f/1.8"),
                         childAtPosition(
@@ -475,7 +423,6 @@ class AddGearTest {
                                         1),
                                 2),
                         isDisplayed())).perform(pressImeActionButton())
-
         onView(
                 allOf(withId(R.id.serialNumber_editText),
                         childAtPosition(
@@ -484,7 +431,6 @@ class AddGearTest {
                                         2),
                                 2),
                         isDisplayed())).perform(pressImeActionButton())
-
         onView(
                 allOf(withId(R.id.increment_layout),
                         childAtPosition(
@@ -493,14 +439,12 @@ class AddGearTest {
                                         0),
                                 3),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withClassName(`is`("com.android.internal.app.AlertController\$RecycleListView")),
                         childAtPosition(
                                 withClassName(`is`("android.widget.FrameLayout")),
                                 0)))
                 .atPosition(1).perform(click())
-
         onView(
                 allOf(withId(R.id.aperture_range_layout),
                         childAtPosition(
@@ -509,10 +453,8 @@ class AddGearTest {
                                         0),
                                 4),
                         isDisplayed())).perform(click())
-
         setNumberPickerValue(R.id.number_picker_one, 20)
         setNumberPickerValue(R.id.number_picker_two, 5)
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -520,7 +462,6 @@ class AddGearTest {
                                         withClassName(`is`("android.widget.ScrollView")),
                                         0),
                                 3))).perform(scrollTo(), click())
-
 
         // Check the text in the aperture range TextView
         onView(allOf(withId(R.id.aperture_range_text), isDisplayed()))
@@ -534,7 +475,6 @@ class AddGearTest {
                                         0),
                                 5),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(R.id.picker_one_fast_forward),
                         childAtPosition(
@@ -543,7 +483,6 @@ class AddGearTest {
                                         0),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(R.id.picker_two_fast_forward),
                         childAtPosition(
@@ -552,7 +491,6 @@ class AddGearTest {
                                         2),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -573,7 +511,6 @@ class AddGearTest {
                                 3))).perform(scrollTo(), click())
 
 
-
         // Lens 3
         onView(
                 allOf(withId(R.id.fab_lenses),
@@ -581,7 +518,6 @@ class AddGearTest {
                                 withParent(withId(R.id.viewpager)),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(R.id.make_editText),
                         childAtPosition(
@@ -590,7 +526,6 @@ class AddGearTest {
                                         0),
                                 1),
                         isDisplayed())).perform(replaceText("Nikon"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.model_editText),
                         childAtPosition(
@@ -599,7 +534,6 @@ class AddGearTest {
                                         1),
                                 2),
                         isDisplayed())).perform(replaceText("28mm /2.8 AI"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.serialNumber_editText),
                         childAtPosition(
@@ -608,7 +542,6 @@ class AddGearTest {
                                         2),
                                 2),
                         isDisplayed())).perform(pressImeActionButton())
-
         onView(
                 allOf(withId(R.id.increment_layout),
                         childAtPosition(
@@ -617,14 +550,12 @@ class AddGearTest {
                                         0),
                                 3),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withClassName(`is`("com.android.internal.app.AlertController\$RecycleListView")),
                         childAtPosition(
                                 withClassName(`is`("android.widget.FrameLayout")),
                                 0)))
                 .atPosition(2).perform(click())
-
         onView(
                 allOf(withId(R.id.aperture_range_layout),
                         childAtPosition(
@@ -633,10 +564,8 @@ class AddGearTest {
                                         0),
                                 4),
                         isDisplayed())).perform(click())
-
         setNumberPickerValue(R.id.number_picker_one, 9)
         setNumberPickerValue(R.id.number_picker_two, 3)
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -644,7 +573,6 @@ class AddGearTest {
                                         withClassName(`is`("android.widget.ScrollView")),
                                         0),
                                 3))).perform(scrollTo(), click())
-
 
         // Check the text in the aperture range TextView
         onView(allOf(withId(R.id.aperture_range_text), isDisplayed()))
@@ -658,10 +586,8 @@ class AddGearTest {
                                         0),
                                 5),
                         isDisplayed())).perform(click())
-
         setNumberPickerValue(R.id.number_picker_one, 28)
         setNumberPickerValue(R.id.number_picker_two, 28)
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -682,8 +608,6 @@ class AddGearTest {
                                 3))).perform(scrollTo(), click())
 
 
-
-
         // Lens 4
         onView(
                 allOf(withId(R.id.fab_lenses),
@@ -691,7 +615,6 @@ class AddGearTest {
                                 withParent(withId(R.id.viewpager)),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(R.id.make_editText),
                         childAtPosition(
@@ -700,7 +623,6 @@ class AddGearTest {
                                         0),
                                 1),
                         isDisplayed())).perform(replaceText("Canon"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.model_editText),
                         childAtPosition(
@@ -709,7 +631,6 @@ class AddGearTest {
                                         1),
                                 2),
                         isDisplayed())).perform(replaceText("FD 35-70mm f/4"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.serialNumber_editText),
                         childAtPosition(
@@ -718,7 +639,6 @@ class AddGearTest {
                                         2),
                                 2),
                         isDisplayed())).perform(pressImeActionButton())
-
         onView(
                 allOf(withId(R.id.increment_layout),
                         childAtPosition(
@@ -727,14 +647,12 @@ class AddGearTest {
                                         0),
                                 3),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withClassName(`is`("com.android.internal.app.AlertController\$RecycleListView")),
                         childAtPosition(
                                 withClassName(`is`("android.widget.FrameLayout")),
                                 0)))
                 .atPosition(1).perform(click())
-
         onView(
                 allOf(withId(R.id.aperture_range_layout),
                         childAtPosition(
@@ -743,10 +661,8 @@ class AddGearTest {
                                         0),
                                 4),
                         isDisplayed())).perform(click())
-
         setNumberPickerValue(R.id.number_picker_one, 15)
         setNumberPickerValue(R.id.number_picker_two, 5)
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -754,7 +670,6 @@ class AddGearTest {
                                         withClassName(`is`("android.widget.ScrollView")),
                                         0),
                                 3))).perform(scrollTo(), click())
-
 
         // Check the text in the aperture range TextView
         onView(allOf(withId(R.id.aperture_range_text), isDisplayed()))
@@ -768,10 +683,8 @@ class AddGearTest {
                                         0),
                                 5),
                         isDisplayed())).perform(click())
-
         setNumberPickerValue(R.id.number_picker_one, 35)
         setNumberPickerValue(R.id.number_picker_two, 70)
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -792,8 +705,6 @@ class AddGearTest {
                                 3))).perform(scrollTo(), click())
 
 
-
-
         // Select mountable cameras for added lenses
 
         // Lens 1
@@ -806,7 +717,6 @@ class AddGearTest {
                                                 1)),
                                 0),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(android.R.id.title), withText("Select mountable cameras"),
                         childAtPosition(
@@ -815,14 +725,12 @@ class AddGearTest {
                                         0),
                                 0),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.select_dialog_listview),
                         childAtPosition(
                                 withId(R.id.contentPanel),
                                 0)))
                 .atPosition(0).perform(click())
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -830,8 +738,6 @@ class AddGearTest {
                                         withId(R.id.buttonPanel),
                                         0),
                                 3))).perform(scrollTo(), click())
-
-
 
         // Lens 2
         onView(
@@ -843,7 +749,6 @@ class AddGearTest {
                                                 1)),
                                 1),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(android.R.id.title), withText("Select mountable cameras"),
                         childAtPosition(
@@ -852,14 +757,12 @@ class AddGearTest {
                                         0),
                                 0),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.select_dialog_listview),
                         childAtPosition(
                                 withId(R.id.contentPanel),
                                 0)))
                 .atPosition(0).perform(click())
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -867,8 +770,6 @@ class AddGearTest {
                                         withId(R.id.buttonPanel),
                                         0),
                                 3))).perform(scrollTo(), click())
-
-
 
         // Lens 3
         onView(
@@ -880,7 +781,6 @@ class AddGearTest {
                                                 1)),
                                 3),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(android.R.id.title), withText("Select mountable cameras"),
                         childAtPosition(
@@ -889,14 +789,12 @@ class AddGearTest {
                                         0),
                                 0),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.select_dialog_listview),
                         childAtPosition(
                                 withId(R.id.contentPanel),
                                 0)))
                 .atPosition(1).perform(click())
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -904,8 +802,6 @@ class AddGearTest {
                                         withId(R.id.buttonPanel),
                                         0),
                                 3))).perform(scrollTo(), click())
-
-
 
         // Lens 4
         onView(
@@ -917,7 +813,6 @@ class AddGearTest {
                                                 1)),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(android.R.id.title), withText("Select mountable cameras"),
                         childAtPosition(
@@ -926,14 +821,12 @@ class AddGearTest {
                                         0),
                                 0),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.select_dialog_listview),
                         childAtPosition(
                                 withId(R.id.contentPanel),
                                 0)))
                 .atPosition(0).perform(click())
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -941,8 +834,6 @@ class AddGearTest {
                                         withId(R.id.buttonPanel),
                                         0),
                                 3))).perform(scrollTo(), click())
-
-
 
 
         // Add filters
@@ -956,7 +847,6 @@ class AddGearTest {
                         isDisplayed())).perform(click())
 
 
-
         // Filter 1
         onView(
                 allOf(withId(R.id.fab_filters),
@@ -964,7 +854,6 @@ class AddGearTest {
                                 withParent(withId(R.id.viewpager)),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(R.id.make_editText),
                         childAtPosition(
@@ -973,7 +862,6 @@ class AddGearTest {
                                         0),
                                 1),
                         isDisplayed())).perform(replaceText("Haida"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.model_editText),
                         childAtPosition(
@@ -982,7 +870,6 @@ class AddGearTest {
                                         1),
                                 2),
                         isDisplayed())).perform(replaceText("C-POL PRO II"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(android.R.id.button1), withText("Add"),
                         childAtPosition(
@@ -990,7 +877,6 @@ class AddGearTest {
                                         withClassName(`is`("android.widget.ScrollView")),
                                         0),
                                 3))).perform(scrollTo(), click())
-
 
 
         // Filter 2
@@ -1000,7 +886,6 @@ class AddGearTest {
                                 withParent(withId(R.id.viewpager)),
                                 2),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(R.id.make_editText),
                         childAtPosition(
@@ -1009,7 +894,6 @@ class AddGearTest {
                                         0),
                                 1),
                         isDisplayed())).perform(replaceText("Hoya"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(R.id.model_editText),
                         childAtPosition(
@@ -1018,7 +902,6 @@ class AddGearTest {
                                         1),
                                 2),
                         isDisplayed())).perform(replaceText("ND x64"), closeSoftKeyboard())
-
         onView(
                 allOf(withId(android.R.id.button1), withText("Add"),
                         childAtPosition(
@@ -1026,8 +909,6 @@ class AddGearTest {
                                         withClassName(`is`("android.widget.ScrollView")),
                                         0),
                                 3))).perform(scrollTo(), click())
-
-
 
 
         // Select mountable lenses for filters
@@ -1042,7 +923,6 @@ class AddGearTest {
                                                 1)),
                                 0),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(android.R.id.title), withText("Select mountable lenses"),
                         childAtPosition(
@@ -1051,21 +931,18 @@ class AddGearTest {
                                         0),
                                 0),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.select_dialog_listview),
                         childAtPosition(
                                 withId(R.id.contentPanel),
                                 0)))
                 .atPosition(0).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.select_dialog_listview),
                         childAtPosition(
                                 withId(R.id.contentPanel),
                                 0)))
                 .atPosition(1).perform(click())
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -1073,8 +950,6 @@ class AddGearTest {
                                         withId(R.id.buttonPanel),
                                         0),
                                 3))).perform(scrollTo(), click())
-
-
 
         // Filter 2
         onView(
@@ -1086,7 +961,6 @@ class AddGearTest {
                                                 1)),
                                 1),
                         isDisplayed())).perform(click())
-
         onView(
                 allOf(withId(android.R.id.title), withText("Select mountable lenses"),
                         childAtPosition(
@@ -1095,21 +969,18 @@ class AddGearTest {
                                         0),
                                 0),
                         isDisplayed())).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.select_dialog_listview),
                         childAtPosition(
                                 withId(R.id.contentPanel),
                                 0)))
                 .atPosition(0).perform(click())
-
         onData(anything())
                 .inAdapterView(allOf(withId(R.id.select_dialog_listview),
                         childAtPosition(
                                 withId(R.id.contentPanel),
                                 0)))
                 .atPosition(1).perform(click())
-
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
@@ -1117,7 +988,6 @@ class AddGearTest {
                                         withId(R.id.buttonPanel),
                                         0),
                                 3))).perform(scrollTo(), click())
-
 
 
         // Go back to main page
