@@ -1,6 +1,5 @@
 package com.tommihirvonen.exifnotes.fragments
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
@@ -14,10 +13,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.GearAdapter
+import com.tommihirvonen.exifnotes.databinding.FragmentFilmsBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
@@ -36,10 +34,10 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         const val FILTER_MODE_PREADDED = 2
     }
 
+    private lateinit var binding: FragmentFilmsBinding
     private lateinit var allFilmStocks: MutableList<FilmStock>
     private lateinit var filteredFilmStocks: MutableList<FilmStock>
     private var fragmentVisible = false
-    private lateinit var filmStocksRecyclerView: RecyclerView
     private lateinit var filmStockAdapter: GearAdapter
     var sortMode = SORT_MODE_NAME
         private set
@@ -58,29 +56,24 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-
-        @SuppressLint("InflateParams")
-        val view = inflater.inflate(R.layout.fragment_films, null)
-
-        val floatingActionButton: FloatingActionButton = view.findViewById(R.id.fab_films)
-        floatingActionButton.setOnClickListener(this)
+        binding = FragmentFilmsBinding.inflate(inflater, container, false)
+        binding.fabFilms.setOnClickListener(this)
         // Also change the floating action button color. Use the darker secondaryColor for this.
         val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
-        floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fabFilms.backgroundTintList = ColorStateList.valueOf(secondaryColor)
 
-        filmStocksRecyclerView = view.findViewById(R.id.films_recycler_view)
         val layoutManager = LinearLayoutManager(activity)
-        filmStocksRecyclerView.layoutManager = layoutManager
-        filmStocksRecyclerView.addItemDecoration(
+        binding.filmsRecyclerView.layoutManager = layoutManager
+        binding.filmsRecyclerView.addItemDecoration(
                 DividerItemDecoration(
-                        filmStocksRecyclerView.context, layoutManager.orientation
+                        binding.filmsRecyclerView.context, layoutManager.orientation
                 )
         )
         filmStockAdapter = GearAdapter(requireActivity(), filteredFilmStocks)
-        filmStocksRecyclerView.adapter = filmStockAdapter
+        binding.filmsRecyclerView.adapter = filmStockAdapter
         filmStockAdapter.notifyDataSetChanged()
 
-        return view
+        return binding.root
     }
 
     override fun onResume() {
@@ -156,7 +149,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                 sortFilmStocks()
                 val position = filteredFilmStocks.indexOf(filmStock)
                 filmStockAdapter.notifyItemInserted(position)
-                filmStocksRecyclerView.scrollToPosition(position)
+                binding.filmsRecyclerView.scrollToPosition(position)
             }
             EDIT_FILM_STOCK -> if (resultCode == Activity.RESULT_OK) {
                 val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return

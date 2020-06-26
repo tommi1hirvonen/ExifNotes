@@ -10,17 +10,15 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.GearActivity
 import com.tommihirvonen.exifnotes.adapters.GearAdapter
+import com.tommihirvonen.exifnotes.databinding.FragmentFiltersBinding
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
@@ -46,18 +44,10 @@ class FiltersFragment : Fragment(), View.OnClickListener {
         private const val EDIT_FILTER = 2
     }
 
-    /**
-     * TextView to show that no filters have been added to the database
-     */
-    private lateinit var mainTextView: TextView
+    private lateinit var binding: FragmentFiltersBinding
 
     /**
-     * ListView to show all the filters in the database along with details
-     */
-    private lateinit var mainRecyclerView: RecyclerView
-
-    /**
-     * Adapter used to adapt filterList to mainRecyclerView
+     * Adapter used to adapt filterList to binding.filtersRecyclerView
      */
     private lateinit var filterAdapter: GearAdapter
 
@@ -85,34 +75,28 @@ class FiltersFragment : Fragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-
-        val layoutInflater = requireActivity().layoutInflater
+        binding = FragmentFiltersBinding.inflate(inflater, container, false)
         filterList = database.allFilters.toMutableList()
         filterList.sort()
-        val view = layoutInflater.inflate(R.layout.fragment_filters, container, false)
-        val floatingActionButton: FloatingActionButton = view.findViewById(R.id.fab_filters)
-        floatingActionButton.setOnClickListener(this)
+        binding.fabFilters.setOnClickListener(this)
         val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
-        mainTextView = view.findViewById(R.id.no_added_filters)
+        binding.fabFilters.backgroundTintList = ColorStateList.valueOf(secondaryColor)
 
-        // Access the ListView
-        mainRecyclerView = view.findViewById(R.id.filters_recycler_view)
         val layoutManager = LinearLayoutManager(activity)
-        mainRecyclerView.layoutManager = layoutManager
-        mainRecyclerView.addItemDecoration(DividerItemDecoration(mainRecyclerView.context,
+        binding.filtersRecyclerView.layoutManager = layoutManager
+        binding.filtersRecyclerView.addItemDecoration(DividerItemDecoration(binding.filtersRecyclerView.context,
                 layoutManager.orientation))
 
         // Create an ArrayAdapter for the ListView
         filterAdapter = GearAdapter(requireActivity(), filterList)
 
         // Set the ListView to use the ArrayAdapter
-        mainRecyclerView.adapter = filterAdapter
-        if (filterList.size >= 1) mainTextView.visibility = View.GONE
+        binding.filtersRecyclerView.adapter = filterAdapter
+        if (filterList.size >= 1) binding.noAddedFilters.visibility = View.GONE
         filterAdapter.notifyDataSetChanged()
-        return view
+        return binding.root
     }
 
     override fun onClick(v: View) {
@@ -171,7 +155,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
 
                         // Remove the filter from the filterList. Do this last!
                         filterList.removeAt(position)
-                        if (filterList.size == 0) mainTextView.visibility = View.VISIBLE
+                        if (filterList.size == 0) binding.noAddedFilters.visibility = View.VISIBLE
                         filterAdapter.notifyItemRemoved(position)
 
                         // Update the LensesFragment through the parent activity.
@@ -204,7 +188,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                 // After Ok code.
                 val filter: Filter = data?.getParcelableExtra(ExtraKeys.FILTER) ?: return
                 if (filter.make?.isNotEmpty() == true && filter.model?.isNotEmpty() == true) {
-                    mainTextView.visibility = View.GONE
+                    binding.noAddedFilters.visibility = View.GONE
                     filter.id = database.addFilter(filter)
                     filterList.add(filter)
                     filterList.sort()
@@ -212,7 +196,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                     filterAdapter.notifyItemInserted(listPos)
 
                     // When the lens is added jump to view the last entry
-                    mainRecyclerView.scrollToPosition(listPos)
+                    binding.filtersRecyclerView.scrollToPosition(listPos)
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // After Cancel code.
@@ -229,7 +213,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                     val newPos = filterList.indexOf(filter)
                     filterAdapter.notifyItemChanged(oldPos)
                     filterAdapter.notifyItemMoved(oldPos, newPos)
-                    mainRecyclerView.scrollToPosition(newPos)
+                    binding.filtersRecyclerView.scrollToPosition(newPos)
 
                     // Update the LensesFragment through the parent activity.
                     val gearActivity = requireActivity() as GearActivity

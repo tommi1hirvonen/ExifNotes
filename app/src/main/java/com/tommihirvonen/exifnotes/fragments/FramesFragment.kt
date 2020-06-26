@@ -12,7 +12,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.NumberPicker
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -22,12 +21,11 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter.FrameAdapterListener
+import com.tommihirvonen.exifnotes.databinding.FragmentFramesBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode.Companion.fromValue
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
@@ -69,16 +67,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         private const val REQUEST_LOCATION_PICK = 5
         private const val REQUEST_EXPORT_FILES = 6
     }
-
-    /**
-     * TextView to show that no frames have been added to this roll
-     */
-    private lateinit var mainTextView: TextView
-
-    /**
-     * ListView to show all the frames on this roll with details
-     */
-    private lateinit var mainRecyclerView: RecyclerView
+    
+    private lateinit var binding: FragmentFramesBinding
 
     /**
      * Contains all the frames for this roll
@@ -86,7 +76,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     private var frameList = mutableListOf<Frame>()
 
     /**
-     * Adapter to adapt frameList to mainRecyclerView
+     * Adapter to adapt frameList to binding.framesRecyclerView
      */
     private lateinit var frameAdapter: FrameAdapter
 
@@ -94,11 +84,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
      * Currently selected roll
      */
     private lateinit var roll: Roll
-
-    /**
-     * Reference to the FloatingActionButton
-     */
-    private lateinit var floatingActionButton: FloatingActionButton
 
     /**
      * Holds the frame sort mode.
@@ -114,6 +99,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
      * Reference to the (Support)ActionMode, which is launched when a list item is long pressed.
      */
     private var actionMode: ActionMode? = null
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -134,38 +120,31 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val layoutInflater = requireActivity().layoutInflater
-        val view = layoutInflater.inflate(R.layout.fragment_frames, container, false)
+        binding = FragmentFramesBinding.inflate(inflater, container, false)
         val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
         actionBar?.title = roll.name
         roll.camera?.let { actionBar?.subtitle = it.name }
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
-        floatingActionButton = view.findViewById(R.id.fab)
-        floatingActionButton.setOnClickListener(this)
+        binding.fab.setOnClickListener(this)
         val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
-        mainTextView = view.findViewById(R.id.no_added_frames)
+        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
 
-        // Access the ListView
-        mainRecyclerView = view.findViewById(R.id.frames_recycler_view)
-
-        // Create an adapter for the RecyclerView
         frameAdapter = FrameAdapter(requireActivity(), frameList, this)
         val layoutManager = LinearLayoutManager(activity)
-        mainRecyclerView.layoutManager = layoutManager
+        binding.framesRecyclerView.layoutManager = layoutManager
         // Add dividers for list items.
-        mainRecyclerView.addItemDecoration(DividerItemDecoration(mainRecyclerView.context, layoutManager.orientation))
+        binding.framesRecyclerView.addItemDecoration(DividerItemDecoration(binding.framesRecyclerView.context, layoutManager.orientation))
 
         // Set the RecyclerView to use frameAdapter
-        mainRecyclerView.adapter = frameAdapter
+        binding.framesRecyclerView.adapter = frameAdapter
         if (frameList.size > 0) {
-            mainTextView.visibility = View.GONE
+            binding.noAddedFrames.visibility = View.GONE
         }
-        if (frameAdapter.itemCount > 0) mainRecyclerView.scrollToPosition(frameAdapter.itemCount - 1)
-        return view
+        if (frameAdapter.itemCount > 0) binding.framesRecyclerView.scrollToPosition(frameAdapter.itemCount - 1)
+        return binding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -252,7 +231,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     override fun onResume() {
         super.onResume()
         val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
-        floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
 
         // If action mode is enabled, color the status bar dark grey.
         if (frameAdapter.selectedItemCount > 0 || actionMode != null) {
@@ -410,7 +389,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     }
 
     /**
-     * Called when the user presses the FloatingActionButton.
+     * Called when the user presses the binding.fab.
      * Show a dialog fragment to add a new frame.
      */
     private fun showFrameInfoDialog() {
@@ -465,10 +444,10 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 frameList.add(frame)
                 Frame.sortFrameList(requireActivity(), sortMode, frameList)
                 frameAdapter.notifyItemInserted(frameList.indexOf(frame))
-                mainTextView.visibility = View.GONE
+                binding.noAddedFrames.visibility = View.GONE
                 // When the new frame is added jump to view the added entry
                 val pos = frameList.indexOf(frame)
-                if (pos < frameAdapter.itemCount) mainRecyclerView.scrollToPosition(pos)
+                if (pos < frameAdapter.itemCount) binding.framesRecyclerView.scrollToPosition(pos)
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // After cancel do nothing
                 return
@@ -491,7 +470,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 frameList = database.getAllFramesFromRoll(roll).toMutableList()
                 Frame.sortFrameList(requireActivity(), sortMode, frameList)
                 frameAdapter = FrameAdapter(requireActivity(), frameList, this)
-                mainRecyclerView.adapter = frameAdapter
+                binding.framesRecyclerView.adapter = frameAdapter
                 frameAdapter.notifyDataSetChanged()
             }
             REQUEST_LOCATION_PICK ->
@@ -590,7 +569,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             // Set the status bar color to be dark grey to complement the grey action mode toolbar.
             Utilities.setStatusBarColor(requireActivity(), ContextCompat.getColor(requireActivity(), R.color.dark_grey))
             // Hide the floating action button so no new rolls can be added while in action mode.
-            floatingActionButton.hide()
+            binding.fab.hide()
             mode.menuInflater.inflate(R.menu.menu_action_mode_frames, menu)
             return true
         }
@@ -616,7 +595,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                             frameList.remove(frame)
                             frameAdapter.notifyItemRemoved(position)
                         }
-                        if (frameList.size == 0) mainTextView.visibility = View.VISIBLE
+                        if (frameList.size == 0) binding.noAddedFrames.visibility = View.VISIBLE
                         mode.finish()
                     }
                     deleteConfirmDialog.create().show()
@@ -670,7 +649,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 }
                 R.id.menu_item_select_all -> {
                     frameAdapter.toggleSelectionAll()
-                    mainRecyclerView.post { frameAdapter.resetAnimateAll() }
+                    binding.framesRecyclerView.post { frameAdapter.resetAnimateAll() }
                     mode.title = frameAdapter.selectedItemCount.toString() + "/" + frameAdapter.itemCount
                     true
                 }
@@ -681,11 +660,11 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         override fun onDestroyActionMode(mode: ActionMode) {
             frameAdapter.clearSelections()
             actionMode = null
-            mainRecyclerView.post { frameAdapter.resetAnimationIndex() }
+            binding.framesRecyclerView.post { frameAdapter.resetAnimationIndex() }
             // Return the status bar to its original color before action mode.
             Utilities.setStatusBarColor(requireActivity(), Utilities.getSecondaryUiColor(requireActivity()))
             // Make the floating action bar visible again since action mode is exited.
-            floatingActionButton.show()
+            binding.fab.show()
         }
 
         /**

@@ -132,7 +132,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
     override fun onDisplayPreferenceDialog(preference: Preference) {
         var dialogFragment: DialogFragment? = null
         if (preference is UIColorDialogPreference) {
-            dialogFragment = UIColorPreferenceDialogFragment.newInstance(preference.getKey())
+            dialogFragment = UIColorPreferenceDialogFragment(preference.getKey())
         }
         if (dialogFragment != null) {
             dialogFragment.setTargetFragment(this, 0)

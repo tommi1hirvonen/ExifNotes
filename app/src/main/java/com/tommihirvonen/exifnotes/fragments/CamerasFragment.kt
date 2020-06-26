@@ -10,17 +10,15 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.GearActivity
 import com.tommihirvonen.exifnotes.adapters.GearAdapter
+import com.tommihirvonen.exifnotes.databinding.FragmentCamerasBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
@@ -46,18 +44,10 @@ class CamerasFragment : Fragment(), View.OnClickListener {
         private const val EDIT_CAMERA = 2
     }
 
-    /**
-     * TextView to show that no cameras have been added to the database
-     */
-    private lateinit var mainTextView: TextView
+    private lateinit var binding: FragmentCamerasBinding
 
     /**
-     * ListView to show all the cameras in the database along with details
-     */
-    private lateinit var mainRecyclerView: RecyclerView
-
-    /**
-     * Adapter used to adapt cameraList to mainRecyclerView
+     * Adapter used to adapt cameraList to binding.camerasRecyclerView
      */
     private lateinit var cameraAdapter: GearAdapter
 
@@ -85,33 +75,29 @@ class CamerasFragment : Fragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val layoutInflater = requireActivity().layoutInflater
         cameraList = database.allCameras.toMutableList()
         cameraList.sort()
-        val view = layoutInflater.inflate(R.layout.fragment_cameras, container, false)
-        val floatingActionButton: FloatingActionButton = view.findViewById(R.id.fab_cameras)
-        floatingActionButton.setOnClickListener(this)
+        binding = FragmentCamerasBinding.inflate(inflater, container, false)
+        binding.fabCameras.setOnClickListener(this)
         val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
-        mainTextView = view.findViewById(R.id.no_added_cameras)
+        binding.fabCameras.backgroundTintList = ColorStateList.valueOf(secondaryColor)
 
         // Access the ListView
-        mainRecyclerView = view.findViewById(R.id.cameras_recycler_view)
         val layoutManager = LinearLayoutManager(activity)
-        mainRecyclerView.layoutManager = layoutManager
-        mainRecyclerView.addItemDecoration(DividerItemDecoration(mainRecyclerView.context,
+        binding.camerasRecyclerView.layoutManager = layoutManager
+        binding.camerasRecyclerView.addItemDecoration(DividerItemDecoration(binding.camerasRecyclerView.context,
                 layoutManager.orientation))
 
         // Create an ArrayAdapter for the ListView
         cameraAdapter = GearAdapter(requireActivity(), cameraList)
 
         // Set the ListView to use the ArrayAdapter
-        mainRecyclerView.adapter = cameraAdapter
-        if (cameraList.size >= 1) mainTextView.visibility = View.GONE
+        binding.camerasRecyclerView.adapter = cameraAdapter
+        if (cameraList.size >= 1) binding.noAddedCameras.visibility = View.GONE
         cameraAdapter.notifyDataSetChanged()
-        return view
+        return binding.root
     }
 
     @SuppressLint("CommitTransaction")
@@ -148,7 +134,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
 
                         // Remove the camera from the cameraList. Do this last!
                         cameraList.removeAt(position)
-                        if (cameraList.size == 0) mainTextView.visibility = View.VISIBLE
+                        if (cameraList.size == 0) binding.noAddedCameras.visibility = View.VISIBLE
                         cameraAdapter.notifyItemRemoved(position)
 
                         // Update the LensesFragment through the parent activity.
@@ -200,7 +186,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                 // After Ok code.
                 val camera: Camera = data?.getParcelableExtra(ExtraKeys.CAMERA) ?: return
                 if (camera.make?.isNotEmpty() == true && camera.model?.isNotEmpty() == true) {
-                    mainTextView.visibility = View.GONE
+                    binding.noAddedCameras.visibility = View.GONE
                     camera.id = database.addCamera(camera)
                     cameraList.add(camera)
                     cameraList.sort()
@@ -208,7 +194,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                     cameraAdapter.notifyItemInserted(listPos)
 
                     // When the lens is added jump to view the last entry
-                    mainRecyclerView.scrollToPosition(listPos)
+                    binding.camerasRecyclerView.scrollToPosition(listPos)
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // After Cancel code.
@@ -224,7 +210,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                     val newPos = cameraList.indexOf(camera)
                     cameraAdapter.notifyItemChanged(oldPos)
                     cameraAdapter.notifyItemMoved(oldPos, newPos)
-                    mainRecyclerView.scrollToPosition(newPos)
+                    binding.camerasRecyclerView.scrollToPosition(newPos)
 
                     // Update the LensesFragment through the parent activity.
                     val gearActivity = requireActivity() as GearActivity

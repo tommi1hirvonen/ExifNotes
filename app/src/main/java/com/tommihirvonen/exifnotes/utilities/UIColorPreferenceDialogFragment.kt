@@ -6,16 +6,12 @@ import android.widget.ImageView
 import androidx.preference.PreferenceDialogFragmentCompat
 import com.tommihirvonen.exifnotes.R
 
-class UIColorPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
+class UIColorPreferenceDialogFragment(key: String?) : PreferenceDialogFragmentCompat() {
 
-    companion object {
-        fun newInstance(key: String?): UIColorPreferenceDialogFragment {
-            val fragment = UIColorPreferenceDialogFragment()
-            val b = Bundle(1)
-            b.putString(ARG_KEY, key)
-            fragment.arguments = b
-            return fragment
-        }
+    init {
+        val bundle = Bundle(1)
+        bundle.putString(ARG_KEY, key)
+        this.arguments = bundle
     }
     
     /**
@@ -71,8 +67,7 @@ class UIColorPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
     override fun onDialogClosed(positiveResult: Boolean) {
         if (positiveResult) {
             val preference = preference
-            if (preference is UIColorDialogPreference &&
-                    preference.callChangeListener(preference.selectedColorData)) {
+            if (preference is UIColorDialogPreference && preference.callChangeListener(preference.selectedColorData)) {
                 preference.setUIColor(index)
                 preference.setSummary(preference.selectedColorName)
             }

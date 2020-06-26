@@ -10,7 +10,6 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.*
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -19,8 +18,6 @@ import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.GearActivity
 import com.tommihirvonen.exifnotes.activities.MainActivity
@@ -28,6 +25,7 @@ import com.tommihirvonen.exifnotes.activities.MapActivity
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
 import com.tommihirvonen.exifnotes.adapters.RollAdapter
 import com.tommihirvonen.exifnotes.adapters.RollAdapter.RollAdapterListener
+import com.tommihirvonen.exifnotes.databinding.FragmentRollsBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.RollFilterMode
 import com.tommihirvonen.exifnotes.datastructures.Roll
@@ -65,23 +63,10 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
      */
     private lateinit var callback: OnRollSelectedListener
 
-    /**
-     * Reference to the FloatingActionButton
-     */
-    private lateinit var floatingActionButton: FloatingActionButton
+    private lateinit var binding: FragmentRollsBinding
 
     /**
-     * TextView to show that no rolls have been added to the database
-     */
-    private lateinit var mainTextView: TextView
-
-    /**
-     * ListView to show all the rolls in the database along with details
-     */
-    private lateinit var mainRecyclerView: RecyclerView
-
-    /**
-     * Adapter used to adapt rollList to mainRecyclerView
+     * Adapter used to adapt rollList to binding.rollsRecyclerView
      */
     private lateinit var rollAdapter: RollAdapter
 
@@ -146,26 +131,16 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         actionBar?.title = "  " + resources.getString(R.string.MainActivityTitle)
         actionBar?.setDisplayHomeAsUpEnabled(false)
 
-        // Inflate the layout view.
-        val layoutInflater = requireActivity().layoutInflater
-        val view = layoutInflater.inflate(R.layout.fragment_rolls, container, false)
+        binding = FragmentRollsBinding.inflate(inflater, container, false)
 
-        // Assign the FloatingActionButton and set this activity to react to the fab being pressed.
-        floatingActionButton = view.findViewById(R.id.fab)
-        floatingActionButton.setOnClickListener(this)
-
-        // Assign the main TextView.
-        mainTextView = view.findViewById(R.id.no_added_rolls)
-
-        // Assign the main film roll RecyclerView.
-        mainRecyclerView = view.findViewById(R.id.rolls_recycler_view)
+        binding.fab.setOnClickListener(this)
         val layoutManager = LinearLayoutManager(activity)
-        mainRecyclerView.layoutManager = layoutManager
-        mainRecyclerView.addItemDecoration(DividerItemDecoration(mainRecyclerView.context, layoutManager.orientation))
+        binding.rollsRecyclerView.layoutManager = layoutManager
+        binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
-        floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
 
         // Use the updateFragment() method to load the film rolls from the database,
         // create an ArrayAdapter to link the list of rolls to the ListView,
@@ -173,7 +148,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         // either visible or hidden.
         updateFragment(true)
         // Return the inflated view.
-        return view
+        return binding.root
     }
 
     /**
@@ -196,22 +171,22 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
             RollFilterMode.ACTIVE -> {
                 subtitleText = resources.getString(R.string.ActiveFilmRolls)
                 mainTextViewText = resources.getString(R.string.NoActiveRolls)
-                floatingActionButton.show()
+                binding.fab.show()
             }
             RollFilterMode.ARCHIVED -> {
                 subtitleText = resources.getString(R.string.ArchivedFilmRolls)
                 mainTextViewText = resources.getString(R.string.NoArchivedRolls)
-                floatingActionButton.hide()
+                binding.fab.hide()
             }
             RollFilterMode.ALL -> {
                 subtitleText = resources.getString(R.string.AllFilmRolls)
                 mainTextViewText = resources.getString(R.string.NoActiveOrArchivedRolls)
-                floatingActionButton.show()
+                binding.fab.show()
             }
             else -> {
                 subtitleText = resources.getString(R.string.ActiveFilmRolls)
                 mainTextViewText = resources.getString(R.string.NoActiveRolls)
-                floatingActionButton.show()
+                binding.fab.show()
             }
         }
         val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
@@ -219,7 +194,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         actionBar?.subtitle = "   $subtitleText"
 
         // Set the main TextView text.
-        mainTextView.text = mainTextViewText
+        binding.noAddedRolls.text = mainTextViewText
 
         // Load the rolls from the database.
         rollList = database.getRolls(filterMode).toMutableList()
@@ -229,7 +204,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
             // Create an ArrayAdapter for the ListView.
             rollAdapter = RollAdapter(requireActivity(), rollList, this)
             // Set the ListView to use the ArrayAdapter.
-            mainRecyclerView.adapter = rollAdapter
+            binding.rollsRecyclerView.adapter = rollAdapter
             // Notify the adapter to update itself.
         } else {
             // rollAdapter still references the old rollList. Update its reference.
@@ -244,7 +219,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         super.onResume()
         rollAdapter.notifyDataSetChanged()
         val secondaryColor = Utilities.getSecondaryUiColor(requireActivity().applicationContext)
-        floatingActionButton.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
         // If action mode is enabled, color the status bar dark grey.
         if (rollAdapter.selectedItemCount > 0 || actionMode != null) {
             Utilities.setStatusBarColor(requireActivity(), ContextCompat.getColor(requireActivity(), R.color.dark_grey))
@@ -421,7 +396,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
     }
 
     /**
-     * Called when the user presses the FloatingActionButton.
+     * Called when the user presses the binding.fab.
      * Shows a DialogFragment to add a new roll.
      */
     @SuppressLint("CommitTransaction")
@@ -448,7 +423,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
 
                 // When the new roll is added jump to view the added entry
                 val pos = rollList.indexOf(roll)
-                if (pos < rollAdapter.itemCount) mainRecyclerView.scrollToPosition(pos)
+                if (pos < rollAdapter.itemCount) binding.rollsRecyclerView.scrollToPosition(pos)
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // After cancel do nothing
                 return
@@ -507,14 +482,14 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
      * Method to fade in the main TextView ("No rolls")
      */
     private fun mainTextViewAnimateVisible() {
-        mainTextView.animate().alpha(1.0f).duration = 150
+        binding.noAddedRolls.animate().alpha(1.0f).duration = 150
     }
 
     /**
      * Method to fade out the main TextView ("No rolls")
      */
     private fun mainTextViewAnimateInvisible() {
-        mainTextView.animate().alpha(0.0f).duration = 0
+        binding.noAddedRolls.animate().alpha(0.0f).duration = 0
     }
 
     /**
@@ -528,7 +503,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
             Utilities.setStatusBarColor(requireActivity(), ContextCompat.getColor(requireActivity(), R.color.dark_grey))
 
             // Hide the floating action button so no new rolls can be added while in action mode.
-            floatingActionButton.hide()
+            binding.fab.hide()
 
             // Use different action mode menu layouts depending on which rolls are shown.
             when {
@@ -574,7 +549,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                 }
                 R.id.menu_item_select_all -> {
                     rollAdapter.toggleSelectionAll()
-                    mainRecyclerView.post { rollAdapter.resetAnimateAll() }
+                    binding.rollsRecyclerView.post { rollAdapter.resetAnimateAll() }
                     actionMode.title = (rollAdapter.selectedItemCount.toString() + "/" + rollAdapter.itemCount)
                     true
                 }
@@ -658,11 +633,11 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         override fun onDestroyActionMode(mode: ActionMode) {
             rollAdapter.clearSelections()
             actionMode = null
-            mainRecyclerView.post { rollAdapter.resetAnimationIndex() }
+            binding.rollsRecyclerView.post { rollAdapter.resetAnimationIndex() }
             // Return the status bar to its original color before action mode.
             Utilities.setStatusBarColor(requireActivity(), Utilities.getSecondaryUiColor(requireActivity()))
             // Make the floating action bar visible again since action mode is exited.
-            floatingActionButton.show()
+            binding.fab.show()
         }
     }
 

@@ -10,17 +10,15 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.GearActivity
 import com.tommihirvonen.exifnotes.adapters.GearAdapter
+import com.tommihirvonen.exifnotes.databinding.FragmentLensesBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.datastructures.Lens
@@ -47,18 +45,10 @@ class LensesFragment : Fragment(), View.OnClickListener {
         private const val EDIT_LENS = 2
     }
 
-    /**
-     * TextView to show that no lenses have been added to the database
-     */
-    private lateinit var mainTextView: TextView
+    private lateinit var binding: FragmentLensesBinding
 
     /**
-     * ListView to show all the lenses in the database along with details
-     */
-    private lateinit var mainRecyclerView: RecyclerView
-
-    /**
-     * Adapter used to adapt lensList to mainRecyclerView
+     * Adapter used to adapt lensList to binding.lensesRecyclerView
      */
     private lateinit var lensAdapter: GearAdapter
 
@@ -86,29 +76,24 @@ class LensesFragment : Fragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val layoutInflater = requireActivity().layoutInflater
+        binding = FragmentLensesBinding.inflate(inflater, container, false)
         lensList = database.allLenses.toMutableList()
         lensList.sort()
-        val view = layoutInflater.inflate(R.layout.fragment_lenses, container, false)
-        val fab: FloatingActionButton = view.findViewById(R.id.fab_lenses)
-        fab.setOnClickListener(this)
+        binding.fabLenses.setOnClickListener(this)
         val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        fab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
-        mainTextView = view.findViewById(R.id.no_added_lenses)
+        binding.fabLenses.backgroundTintList = ColorStateList.valueOf(secondaryColor)
 
-        // Access the ListView
-        mainRecyclerView = view.findViewById(R.id.lenses_recycler_view)
         val layoutManager = LinearLayoutManager(activity)
-        mainRecyclerView.layoutManager = layoutManager
-        mainRecyclerView.addItemDecoration(DividerItemDecoration(mainRecyclerView.context,
+        binding.lensesRecyclerView.layoutManager = layoutManager
+        binding.lensesRecyclerView.addItemDecoration(DividerItemDecoration(binding.lensesRecyclerView.context,
                 layoutManager.orientation))
         lensAdapter = GearAdapter(requireActivity(), lensList)
-        mainRecyclerView.adapter = lensAdapter
-        if (lensList.size >= 1) mainTextView.visibility = View.GONE
+        binding.lensesRecyclerView.adapter = lensAdapter
+        if (lensList.size >= 1) binding.noAddedLenses.visibility = View.GONE
         lensAdapter.notifyDataSetChanged()
-        return view
+        return binding.root
     }
 
     @SuppressLint("CommitTransaction")
@@ -149,7 +134,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
 
                         // Remove the lens from the lensList. Do this last!
                         lensList.removeAt(position)
-                        if (lensList.size == 0) mainTextView.visibility = View.VISIBLE
+                        if (lensList.size == 0) binding.noAddedLenses.visibility = View.VISIBLE
                         lensAdapter.notifyItemRemoved(position)
 
                         // Update the CamerasFragment through the parent activity.
@@ -196,7 +181,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
                 // After Ok code.
                 val lens: Lens = data?.getParcelableExtra(ExtraKeys.LENS) ?: return
                 if (lens.make?.isNotEmpty() == true && lens.model?.isNotEmpty() == true) {
-                    mainTextView.visibility = View.GONE
+                    binding.noAddedLenses.visibility = View.GONE
                     lens.id = database.addLens(lens)
                     lensList.add(lens)
                     lensList.sort()
@@ -204,7 +189,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
                     lensAdapter.notifyItemInserted(listPos)
 
                     // When the lens is added jump to view the last entry
-                    mainRecyclerView.scrollToPosition(listPos)
+                    binding.lensesRecyclerView.scrollToPosition(listPos)
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // After Cancel code.
@@ -220,7 +205,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
                     val newPos = lensList.indexOf(lens)
                     lensAdapter.notifyItemChanged(oldPos)
                     lensAdapter.notifyItemMoved(oldPos, newPos)
-                    mainRecyclerView.scrollToPosition(newPos)
+                    binding.lensesRecyclerView.scrollToPosition(newPos)
 
                     // Update the LensesFragment through the parent activity.
                     val gearActivity = requireActivity() as GearActivity

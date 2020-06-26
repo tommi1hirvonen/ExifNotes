@@ -12,8 +12,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -33,6 +31,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.ActivityLocationPickBinding
 import com.tommihirvonen.exifnotes.datastructures.Location
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask
@@ -52,17 +51,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
      * Marker object to hold the marker added/moved by the user.
      */
     private var marker: Marker? = null
-
-    /**
-     * ProgressBar object displayed when the formatted address is queried
-     */
-    private lateinit var progressBar: ProgressBar
-
-    /**
-     * TextView which displays the current formatted address
-     */
-    private lateinit var formattedAddressTextView: TextView
-
+    
     /**
      * String to hold the current formatted address
      */
@@ -88,6 +77,8 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private lateinit var binding: ActivityLocationPickBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -107,9 +98,11 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             setTheme(R.style.Theme_AppCompat)
         }
         if (savedInstanceState != null) continueActivity = true
-        setContentView(R.layout.activity_location_pick)
-        val confirmFab = findViewById<FloatingActionButton>(R.id.fab)
-        confirmFab.setOnClickListener(this)
+
+        binding = ActivityLocationPickBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        
+        binding.fab.setOnClickListener(this)
         val currentLocationFab = findViewById<FloatingActionButton>(R.id.fab_current_location)
         currentLocationFab.setOnClickListener(this)
         Utilities.setUiColor(this, true)
@@ -117,15 +110,13 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         val secondaryColor = Utilities.getSecondaryUiColor(baseContext)
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        confirmFab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
 
         // In case the app's theme is dark, color the bottom bar dark grey
         if (Utilities.isAppThemeDark(baseContext)) {
             val bottomBarLayout = findViewById<FrameLayout>(R.id.bottom_bar)
             bottomBarLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey))
         }
-        progressBar = findViewById(R.id.progress_bar)
-        formattedAddressTextView = findViewById(R.id.formatted_address)
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
 
@@ -151,16 +142,16 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             latLngLocation = location.latLng
             // If the formatted address is set, display it
             if (formattedAddress != null && formattedAddress?.isNotEmpty() == true) {
-                formattedAddressTextView.text = formattedAddress
+                binding.formattedAddress.text = formattedAddress
             } else {
-                progressBar.visibility = View.VISIBLE
+                binding.progressBar.visibility = View.VISIBLE
                 GeocodingAsyncTask { _, formattedAddress_ ->
-                    progressBar.visibility = View.INVISIBLE
+                    binding.progressBar.visibility = View.INVISIBLE
                     formattedAddress = if (formattedAddress_.isNotEmpty()) {
-                        formattedAddressTextView.text = formattedAddress_
+                        binding.formattedAddress.text = formattedAddress_
                         formattedAddress_
                     } else {
-                        formattedAddressTextView.setText(R.string.AddressNotFound)
+                        binding.formattedAddress.setText(R.string.AddressNotFound)
                         null
                     }
                 }.execute(location.decimalLocation, googleMapsApiKey)
@@ -265,18 +256,18 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
 
     override fun onMapClick(latLng: LatLng) {
         // Get the formatted address
-        formattedAddressTextView.text = ""
-        progressBar.visibility = View.VISIBLE
+        binding.formattedAddress.text = ""
+        binding.progressBar.visibility = View.VISIBLE
         val latitude = "" + latLng.latitude
         val longitude = "" + latLng.longitude
         val query = "$latitude $longitude"
         GeocodingAsyncTask { _: String?, formattedAddress_: String ->
-            progressBar.visibility = View.INVISIBLE
+            binding.progressBar.visibility = View.INVISIBLE
             if (formattedAddress_.isNotEmpty()) {
-                formattedAddressTextView.text = formattedAddress_
+                binding.formattedAddress.text = formattedAddress_
                 formattedAddress = formattedAddress_
             } else {
-                formattedAddressTextView.setText(R.string.AddressNotFound)
+                binding.formattedAddress.setText(R.string.AddressNotFound)
                 formattedAddress = null
             }
         }.execute(query, googleMapsApiKey)
@@ -293,10 +284,10 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
     override fun onQueryTextSubmit(query: String): Boolean {
         // When the user enters the search string, use GeocodingAsyncTask to get
         // the formatted address and coordinates. Also move the marker if the result was valid.
-        formattedAddressTextView.text = ""
-        progressBar.visibility = View.VISIBLE
+        binding.formattedAddress.text = ""
+        binding.progressBar.visibility = View.VISIBLE
         GeocodingAsyncTask { output: String, formattedAddress_: String? ->
-            progressBar.visibility = View.INVISIBLE
+            binding.progressBar.visibility = View.INVISIBLE
             if (output.isNotEmpty()) {
                 val location = Location(output)
                 val position = location.latLng
@@ -312,10 +303,10 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                     latLngLocation = position
                     googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
                 }
-                formattedAddressTextView.text = formattedAddress_
+                binding.formattedAddress.text = formattedAddress_
                 formattedAddress = formattedAddress_
             } else {
-                formattedAddressTextView.setText(R.string.AddressNotFound)
+                binding.formattedAddress.setText(R.string.AddressNotFound)
                 formattedAddress = null
             }
         }.execute(query, googleMapsApiKey)
