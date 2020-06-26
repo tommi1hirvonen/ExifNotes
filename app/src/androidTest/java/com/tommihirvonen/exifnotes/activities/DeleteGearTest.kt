@@ -1,53 +1,60 @@
-package com.tommihirvonen.exifnotes.activities;
+package com.tommihirvonen.exifnotes.activities
 
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-
-import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.rule.GrantPermissionRule;
-import androidx.test.runner.AndroidJUnit4;
-
-import com.tommihirvonen.exifnotes.R;
-
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
-import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.is;
+import android.view.View
+import android.view.ViewGroup
+import androidx.test.core.app.launchActivity
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.filters.LargeTest
+import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
+import com.tommihirvonen.exifnotes.R
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers.*
+import org.hamcrest.TypeSafeMatcher
+import org.junit.Test
+import org.junit.runner.RunWith
 
 /**
  * Prerequisites: AddGearTest.java has to be successfully run first on an empty database.
  * Deletes all gear added by AddGearTest.
  */
 @LargeTest
-@RunWith(AndroidJUnit4.class)
-public class DeleteGearTest {
+@RunWith(AndroidJUnit4ClassRunner::class)
+class DeleteGearTest {
 
-    @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
+    @Suppress("SameParameterValue")
+    private fun pauseTestFor(milliseconds: Long) {
+        try {
+            Thread.sleep(milliseconds)
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+    }
 
-    @Rule
-    public GrantPermissionRule mGrantPermissionRule =
-            GrantPermissionRule.grant(
-                    "android.permission.ACCESS_FINE_LOCATION",
-                    "android.permission.ACCESS_COARSE_LOCATION",
-                    "android.permission.WRITE_EXTERNAL_STORAGE");
+    private fun childAtPosition(
+            parentMatcher: Matcher<View>, position: Int): Matcher<View> {
+        return object : TypeSafeMatcher<View>() {
+            override fun describeTo(description: Description) {
+                description.appendText("Child at position $position in parent ")
+                parentMatcher.describeTo(description)
+            }
+
+            public override fun matchesSafely(view: View): Boolean {
+                val parent = view.parent
+                return (parent is ViewGroup && parentMatcher.matches(parent)
+                        && view == parent.getChildAt(position))
+            }
+        }
+    }
 
     @Test
-    public void deleteGearTest() {
+    fun deleteGearTest() {
+
+        launchActivity<MainActivity>()
+
+        pauseTestFor(200)
 
         // Navigate to GearActivity
         onView(
@@ -57,7 +64,7 @@ public class DeleteGearTest {
                                         withId(R.id.action_bar),
                                         2),
                                 2),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(R.id.title), withText("Gear"),
                         childAtPosition(
@@ -65,7 +72,7 @@ public class DeleteGearTest {
                                         withId(R.id.content),
                                         0),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
 
 
         // Navigate to filters tab
@@ -76,7 +83,7 @@ public class DeleteGearTest {
                                         withId(R.id.sliding_tabs),
                                         0),
                                 2),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
 
 
         // Delete filter 2
@@ -85,25 +92,25 @@ public class DeleteGearTest {
                         childAtPosition(
                                 allOf(withId(R.id.filters_recycler_view),
                                         childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
+                                                withClassName(`is`("android.widget.FrameLayout")),
                                                 1)),
                                 1),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.title), withText("Delete"),
                         childAtPosition(
                                 childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                        withClassName(`is`("com.android.internal.view.menu.ListMenuItemView")),
                                         0),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.buttonPanel),
                                         0),
-                                3))).perform(click());
+                                3))).perform(click())
 
         // Delete filter 1
         onView(
@@ -111,25 +118,25 @@ public class DeleteGearTest {
                         childAtPosition(
                                 allOf(withId(R.id.filters_recycler_view),
                                         childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
+                                                withClassName(`is`("android.widget.FrameLayout")),
                                                 1)),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.title), withText("Delete"),
                         childAtPosition(
                                 childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                        withClassName(`is`("com.android.internal.view.menu.ListMenuItemView")),
                                         0),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.buttonPanel),
                                         0),
-                                3))).perform(click());
+                                3))).perform(click())
 
 
         // Navigate to lenses tab
@@ -140,7 +147,7 @@ public class DeleteGearTest {
                                         withId(R.id.sliding_tabs),
                                         0),
                                 1),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
 
 
         // Delete lens 4
@@ -149,25 +156,25 @@ public class DeleteGearTest {
                         childAtPosition(
                                 allOf(withId(R.id.lenses_recycler_view),
                                         childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
+                                                withClassName(`is`("android.widget.FrameLayout")),
                                                 1)),
                                 3),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.title), withText("Delete"),
                         childAtPosition(
                                 childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                        withClassName(`is`("com.android.internal.view.menu.ListMenuItemView")),
                                         0),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.buttonPanel),
                                         0),
-                                3))).perform(click());
+                                3))).perform(click())
 
         // Delete lens 3
         onView(
@@ -175,25 +182,25 @@ public class DeleteGearTest {
                         childAtPosition(
                                 allOf(withId(R.id.lenses_recycler_view),
                                         childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
+                                                withClassName(`is`("android.widget.FrameLayout")),
                                                 1)),
                                 2),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.title), withText("Delete"),
                         childAtPosition(
                                 childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                        withClassName(`is`("com.android.internal.view.menu.ListMenuItemView")),
                                         0),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.buttonPanel),
                                         0),
-                                3))).perform(click());
+                                3))).perform(click())
 
         // Delete lens 2
         onView(
@@ -201,25 +208,25 @@ public class DeleteGearTest {
                         childAtPosition(
                                 allOf(withId(R.id.lenses_recycler_view),
                                         childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
+                                                withClassName(`is`("android.widget.FrameLayout")),
                                                 1)),
                                 1),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.title), withText("Delete"),
                         childAtPosition(
                                 childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                        withClassName(`is`("com.android.internal.view.menu.ListMenuItemView")),
                                         0),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.buttonPanel),
                                         0),
-                                3))).perform(click());
+                                3))).perform(click())
 
         // Delete lens 1
         onView(
@@ -227,25 +234,25 @@ public class DeleteGearTest {
                         childAtPosition(
                                 allOf(withId(R.id.lenses_recycler_view),
                                         childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
+                                                withClassName(`is`("android.widget.FrameLayout")),
                                                 1)),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.title), withText("Delete"),
                         childAtPosition(
                                 childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                        withClassName(`is`("com.android.internal.view.menu.ListMenuItemView")),
                                         0),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.buttonPanel),
                                         0),
-                                3))).perform(click());
+                                3))).perform(click())
 
 
         // Navigate to cameras tab
@@ -256,7 +263,7 @@ public class DeleteGearTest {
                                         withId(R.id.sliding_tabs),
                                         0),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
 
         // Delete camera 2
         onView(
@@ -264,25 +271,25 @@ public class DeleteGearTest {
                         childAtPosition(
                                 allOf(withId(R.id.cameras_recycler_view),
                                         childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
+                                                withClassName(`is`("android.widget.FrameLayout")),
                                                 1)),
                                 1),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.title), withText("Delete"),
                         childAtPosition(
                                 childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                        withClassName(`is`("com.android.internal.view.menu.ListMenuItemView")),
                                         0),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.buttonPanel),
                                         0),
-                                3))).perform(click());
+                                3))).perform(click())
 
         // Delete camera 1
         onView(
@@ -290,26 +297,27 @@ public class DeleteGearTest {
                         childAtPosition(
                                 allOf(withId(R.id.cameras_recycler_view),
                                         childAtPosition(
-                                                withClassName(is("android.widget.FrameLayout")),
+                                                withClassName(`is`("android.widget.FrameLayout")),
                                                 1)),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.title), withText("Delete"),
                         childAtPosition(
                                 childAtPosition(
-                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                        withClassName(`is`("com.android.internal.view.menu.ListMenuItemView")),
                                         0),
                                 0),
-                        isDisplayed())).perform(click());
+                        isDisplayed())).perform(click())
         onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.buttonPanel),
                                         0),
-                                3))).perform(click());
+                                3))).perform(click())
 
+        pauseTestFor(100)
 
         // Go back to MainActivity
         onView(
@@ -320,27 +328,7 @@ public class DeleteGearTest {
                                                 withId(R.id.action_bar_container),
                                                 0)),
                                 1),
-                        isDisplayed())).perform(click());
-
+                        isDisplayed())).perform(click())
     }
-
-    private static Matcher<View> childAtPosition(
-            final Matcher<View> parentMatcher, final int position) {
-
-        return new TypeSafeMatcher<View>() {
-            @Override
-            public void describeTo(final Description description) {
-                description.appendText("Child at position " + position + " in parent ");
-                parentMatcher.describeTo(description);
-            }
-
-            @Override
-            public boolean matchesSafely(final View view) {
-                final ViewParent parent = view.getParent();
-                return parent instanceof ViewGroup && parentMatcher.matches(parent)
-                        && view.equals(((ViewGroup) parent).getChildAt(position));
-            }
-        };
-    }
-
+    
 }
