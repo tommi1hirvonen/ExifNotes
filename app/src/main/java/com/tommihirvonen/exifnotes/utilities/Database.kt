@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.utilities.Utilities.copyFile
 import java.io.File
 import java.io.IOException
 
@@ -1188,21 +1187,19 @@ class Database private constructor(private val context: Context)
             close()
 
             //Backup the old database file in case the new file is corrupted.
-            copyFile(oldDb, oldDbBackup)
+            oldDb.copyTo(oldDbBackup, overwrite = true)
 
             //Replace the old database file with the new one.
-            copyFile(newDb, oldDb)
+            newDb.copyTo(oldDb, overwrite = true)
 
-            // Access the copied database so SQLiteHelper will cache it and mark
-            // it as created.
-            val db: SQLiteDatabase
+            // Access the copied database so SQLiteHelper will cache it and mark it as created.
             val success = booleanArrayOf(true)
             try {
-                db = SQLiteDatabase.openDatabase(getDatabaseFile(context).absolutePath, null,
+                SQLiteDatabase.openDatabase(getDatabaseFile(context).absolutePath, null,
                         SQLiteDatabase.OPEN_READWRITE, DatabaseErrorHandler {
                     // If the database was corrupt, try to replace with the old backup.
                     try {
-                        copyFile(oldDbBackup, oldDb)
+                        oldDbBackup.copyTo(oldDb, overwrite = true)
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -1221,8 +1218,8 @@ class Database private constructor(private val context: Context)
             }
             if (!runIntegrityCheck()) {
                 //If the new database file failed the integrity check, replace it with the backup.
-                db.close()
-                copyFile(oldDbBackup, oldDb)
+                close()
+                oldDbBackup.copyTo(oldDb, overwrite = true)
                 Toast.makeText(context, context.resources.getString(R.string.IntegrityCheckFailed),
                         Toast.LENGTH_LONG).show()
                 return false

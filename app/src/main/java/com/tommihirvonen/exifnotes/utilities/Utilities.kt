@@ -512,21 +512,6 @@ object Utilities {
     }
 
     /**
-     * Creates the specified toFile as a byte for byte copy of the
-     * fromFile. If toFile already exists, then it
-     * will be replaced with a copy of fromFile. The name and path
-     * of toFile will be that of toFile.
-     *
-     * @param fromFile the file to copy from
-     * @param toFile the file to copy to
-     */
-    @JvmStatic
-    @Throws(IOException::class, NoSuchFileException::class)
-    fun copyFile(fromFile: File, toFile: File) {
-        fromFile.copyTo(target = toFile, overwrite = true)
-    }
-
-    /**
      * Applies a color filter to a Drawable object.
      *
      * @param drawable the object that should be colored
