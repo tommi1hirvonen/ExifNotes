@@ -17,6 +17,9 @@ import com.tommihirvonen.exifnotes.fragments.FilmStocksFragment
 import com.tommihirvonen.exifnotes.fragments.FiltersFragment
 import com.tommihirvonen.exifnotes.fragments.LensesFragment
 import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
+import com.tommihirvonen.exifnotes.utilities.primaryUiColor
+import com.tommihirvonen.exifnotes.utilities.setUiColor
 
 /**
  * GearActivity contains fragments for adding, editing and removing cameras, lenses and filters.
@@ -59,9 +62,9 @@ class GearActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         overridePendingTransition(R.anim.enter_from_right, R.anim.hold)
         val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
-        if (Utilities.isAppThemeDark(baseContext)) setTheme(R.style.Theme_AppCompat)
+        if (isAppThemeDark) setTheme(R.style.Theme_AppCompat)
         super.onCreate(savedInstanceState)
-        Utilities.setUiColor(this, true)
+        setUiColor(true)
         supportActionBar?.setTitle(R.string.Gear)
         setContentView(R.layout.activity_gear)
 
@@ -74,7 +77,7 @@ class GearActivity : AppCompatActivity() {
         tabLayout = findViewById(R.id.sliding_tabs)
         tabLayout.setupWithViewPager(viewPager)
         tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white))
-        tabLayout.setBackgroundColor(Utilities.getPrimaryUiColor(baseContext))
+        tabLayout.setBackgroundColor(primaryUiColor)
 
         //Get the index for the view which was last shown.
         viewPager.currentItem = prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, POSITION_CAMERAS)

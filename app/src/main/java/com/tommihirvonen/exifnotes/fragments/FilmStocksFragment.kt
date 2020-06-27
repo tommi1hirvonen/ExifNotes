@@ -21,6 +21,7 @@ import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
 
 class FilmStocksFragment : Fragment(), View.OnClickListener {
 
@@ -59,8 +60,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         binding = FragmentFilmsBinding.inflate(inflater, container, false)
         binding.fabFilms.setOnClickListener(this)
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
-        binding.fabFilms.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fabFilms.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
 
         val layoutManager = LinearLayoutManager(activity)
         binding.filmsRecyclerView.layoutManager = layoutManager

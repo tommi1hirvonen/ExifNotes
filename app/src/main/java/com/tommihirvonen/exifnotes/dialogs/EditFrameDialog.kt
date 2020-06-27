@@ -165,7 +165,7 @@ open class EditFrameDialog : DialogFragment() {
 
 
         // Color the dividers white if the app's theme is dark
-        if (Utilities.isAppThemeDark(activity)) {
+        if (isAppThemeDark) {
             val color = ContextCompat.getColor(requireActivity(), R.color.white)
             listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3,
                     binding.dividerView4, binding.dividerView5, binding.dividerView6,
@@ -779,9 +779,7 @@ open class EditFrameDialog : DialogFragment() {
             val inflater = requireActivity().layoutInflater
             @SuppressLint("InflateParams")
             val dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null)
-            val shutterPicker = Utilities.fixNumberPicker(
-                    dialogView.findViewById(R.id.number_picker)
-            )
+            val shutterPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker).fix()
             initialiseShutterPicker(shutterPicker)
             shutterPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
             builder.setView(dialogView)
@@ -1130,9 +1128,7 @@ open class EditFrameDialog : DialogFragment() {
             val builder = AlertDialog.Builder(activity)
             val inflater = requireActivity().layoutInflater
             @SuppressLint("InflateParams") val dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null)
-            val exposureCompPicker = Utilities.fixNumberPicker(
-                    dialogView.findViewById(R.id.number_picker)
-            )
+            val exposureCompPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker).fix()
             displayedExposureCompValues = when (exposureCompIncrements) {
                 0 -> requireActivity().resources.getStringArray(R.array.CompValues)
                 1 -> requireActivity().resources.getStringArray(R.array.CompValuesHalf)

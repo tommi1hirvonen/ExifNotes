@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import androidx.core.widget.TextViewCompat
+import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
@@ -51,9 +52,94 @@ fun Drawable.setColorFilterCompat(color: Int) =
         }
 
 /**
- * Class containing utility functions.
- * Class mimics a static class.
+ *
+ * Function to set the ActionBar and StatusBar colours of an AppCompatActivity.
+ * This function should be called in the onCreate() of every activity.
+ *
+ * @param displayHomeAsUp whether the back navigation icon should displayed in the ActionBar
  */
+fun AppCompatActivity.setUiColor(displayHomeAsUp: Boolean) {
+    supportActionBar?.let {
+        it.displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE
+        it.elevation = 0f
+        it.setDisplayHomeAsUpEnabled(displayHomeAsUp)
+    }
+    setSupportActionBarColor(primaryUiColor)
+    setStatusBarColor(secondaryUiColor)
+}
+
+/**
+ * Function to color the ActionBar of an AppCompatActivity
+ *
+ * @param color the color to which the ActionBar is colored
+ */
+fun AppCompatActivity.setSupportActionBarColor(color: Int) = supportActionBar?.setBackgroundDrawable(ColorDrawable(color))
+
+/**
+ * Function to set the status bar color
+ *
+ * @param color the color to be set to the status bar
+ */
+fun Activity.setStatusBarColor(color: Int) {
+    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    window.statusBarColor = color
+}
+
+fun Fragment.setStatusBarColor(color: Int) = requireActivity().setStatusBarColor(color)
+
+val Activity.packageInfo: PackageInfo? get() {
+    try {
+        return packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
+    } catch (e: PackageManager.NameNotFoundException) {
+        e.printStackTrace()
+    }
+    return null
+}
+
+val Context.primaryUiColor: Int get() = Color.parseColor(Utilities.getUiColorList(this)[0])
+
+val Context.secondaryUiColor: Int get() = Color.parseColor(Utilities.getUiColorList(this)[1])
+val Fragment.secondaryUiColor: Int get() = requireContext().secondaryUiColor
+
+val Fragment.isAppThemeDark: Boolean get() = requireContext().isAppThemeDark
+val Context.isAppThemeDark: Boolean get() =
+    PreferenceManager.getDefaultSharedPreferences(this)
+            .getBoolean(PreferenceConstants.KEY_DARK_THEME, false)
+
+fun String.illegalCharsRemoved(): String = replace("[|\\\\?*<\":>/]".toRegex(), "_")
+
+/**
+ * This function is used to fix a bug which Google hasn't been able to fix since 2012.
+ * https://issuetracker.google.com/issues/36952035
+ *
+ * Initially the NumberPicker shows the wrong value, but when the Picker is first scrolled,
+ * the displayed value changes to the correct one. This function fixes this and shows
+ * the correct value immediately.
+ *
+ * @return reference to the fixed NumberPicker
+ */
+fun NumberPicker.fix(): NumberPicker {
+    var field: Field? = null
+    try {
+        // Disregard IDE warning "Cannot resolve field mInputText'".
+        // This function seems to work despite the warning.
+        field = NumberPicker::class.java.getDeclaredField("mInputText")
+    } catch (ignore: NoSuchFieldException) {
+    }
+    if (field != null) {
+        field.isAccessible = true
+        var inputText: EditText? = null
+        try {
+            inputText = field[this] as EditText
+        } catch (ignore: IllegalAccessException) {
+        }
+        if (inputText != null) inputText.filters = arrayOfNulls(0)
+    }
+    return this
+}
+
+
+
 object Utilities {
 
     /**
@@ -80,7 +166,7 @@ object Utilities {
 
     fun showAboutDialog(activity: Activity) {
         val title = activity.resources.getString(R.string.app_name)
-        val versionInfo = getPackageInfo(activity)
+        val versionInfo = activity.packageInfo
         val versionName = if (versionInfo != null) versionInfo.versionName else ""
         val about = activity.resources.getString(R.string.AboutAndTermsOfUse, versionName)
         val versionHistory = activity.resources.getString(R.string.VersionHistory)
@@ -94,142 +180,16 @@ object Utilities {
         showGeneralDialog(activity, title, message)
     }
 
-    fun getPackageInfo(activity: Activity): PackageInfo? {
-        var packageInfo: PackageInfo? = null
-        try {
-            packageInfo = activity.packageManager.getPackageInfo(
-                    activity.packageName, PackageManager.GET_ACTIVITIES)
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
-        return packageInfo
-    }
-
-    /**
-     * Function to set the ActionBar and StatusBar colours of an AppCompatActivity.
-     * This function should be called in the onCreate() of every activity.
-     *
-     * @param activity AppCompatActivity whose ui elements should be coloured
-     */
-    fun setUiColor(activity: AppCompatActivity, displayHomeAsUp: Boolean) {
-        val primaryColor = getPrimaryUiColor(activity)
-        val secondaryColor = getSecondaryUiColor(activity)
-        activity.supportActionBar?.let {
-            it.displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE
-            it.elevation = 0f
-            it.setDisplayHomeAsUpEnabled(displayHomeAsUp)
-        }
-        setSupportActionBarColor(activity, primaryColor)
-        setStatusBarColor(activity, secondaryColor)
-    }
-
-    /**
-     * Function to color the ActionBar of an AppCompatActivity
-     *
-     * @param activity the activity whose ActionBar is colored
-     * @param color the color to which the ActionBar is colored
-     */
-    fun setSupportActionBarColor(activity: AppCompatActivity, color: Int) {
-        activity.supportActionBar?.setBackgroundDrawable(ColorDrawable(color))
-    }
-
-    /**
-     * Function to set the status bar color
-     *
-     * @param activity the base activity
-     * @param color the color to be set to the status bar
-     */
-    fun setStatusBarColor(activity: Activity, color: Int) {
-        activity.window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        activity.window.statusBarColor = color
-    }
-
-    /**
-     * Get the primary color of the app's ui
-     *
-     * @param context the base context of the application
-     * @return the primary color as an integer
-     */
-    fun getPrimaryUiColor(context: Context): Int {
-        val colors = getUiColorList(context)
-        return Color.parseColor(colors[0])
-    }
-
-    /**
-     * Get the secondary color of the app's ui
-     *
-     * @param context the base context of the application
-     * @return the secondary color as an integer
-     */
-    fun getSecondaryUiColor(context: Context): Int {
-        val colors = getUiColorList(context)
-        return Color.parseColor(colors[1])
-    }
-
     /**
      * Function to get a List containing the ui color codes in String format.
      *
      * @param context the base context of the application
      * @return List containing the ui color codes in String format
      */
-    private fun getUiColorList(context: Context): List<String> {
+    internal fun getUiColorList(context: Context): List<String> {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         val uiColor = prefs.getString("UIColor", "#00838F,#006064") ?: "#00838F,#006064"
         return uiColor.split(",")
-    }
-
-    /**
-     * Function to test whether the app's current theme is set to light or dark.
-     *
-     * @param context application's context
-     * @return true if the app's theme is set to dark, false otherwise
-     */
-    fun isAppThemeDark(context: Context?): Boolean {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        return preferences.getBoolean(PreferenceConstants.KEY_DARK_THEME, false)
-    }
-
-    /**
-     * This function is used to fix a bug which Google hasn't been able to fix since 2012.
-     * https://issuetracker.google.com/issues/36952035
-     *
-     * Initially the NumberPicker shows the wrong value, but when the Picker is first scrolled,
-     * the displayed value changes to the correct one. This function fixes this and shows
-     * the correct value immediately.
-     *
-     * @param numberPicker the NumberPicker to be fixed
-     * @return reference to the fixed NumberPicker
-     */
-    fun fixNumberPicker(numberPicker: NumberPicker): NumberPicker {
-        var field: Field? = null
-        try {
-            // Disregard IDE warning "Cannot resolve field mInputText'".
-            // This function seems to work despite the warning.
-            field = NumberPicker::class.java.getDeclaredField("mInputText")
-        } catch (ignore: NoSuchFieldException) {
-        }
-        if (field != null) {
-            field.isAccessible = true
-            var inputText: EditText? = null
-            try {
-                inputText = field[numberPicker] as EditText
-            } catch (ignore: IllegalAccessException) {
-            }
-            if (inputText != null) inputText.filters = arrayOfNulls(0)
-        }
-        return numberPicker
-    }
-
-    /**
-     *
-     * This function replaces illegal characters from the input string to make
-     * a valid file name string.
-     *
-     * @param input the string to be handled
-     * @return String where the illegal characters are replaced with an underscore
-     */
-    fun replaceIllegalChars(input: String?): String? {
-        return input?.replace("[|\\\\?*<\":>/]".toRegex(), "_")
     }
 
     /**
@@ -534,7 +494,7 @@ object Utilities {
 
         init {
             val color =
-                    if (isAppThemeDark(context)) ContextCompat.getColor(context, R.color.white)
+                    if (context.isAppThemeDark) ContextCompat.getColor(context, R.color.white)
                     else ContextCompat.getColor(context, R.color.black)
             indicatorUp.setBackgroundColor(color)
             indicatorDown.setBackgroundColor(color)
@@ -573,7 +533,7 @@ object Utilities {
 
         init {
             val color =
-                    if (isAppThemeDark(context)) ContextCompat.getColor(context, R.color.white)
+                    if (context.isAppThemeDark) ContextCompat.getColor(context, R.color.white)
                     else ContextCompat.getColor(context, R.color.black)
             indicatorUp.setBackgroundColor(color)
             indicatorDown.setBackgroundColor(color)

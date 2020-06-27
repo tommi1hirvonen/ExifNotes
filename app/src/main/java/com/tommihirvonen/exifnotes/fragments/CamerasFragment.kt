@@ -26,6 +26,7 @@ import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
 
 /**
  * Fragment to display all cameras from the database along with details
@@ -79,10 +80,9 @@ class CamerasFragment : Fragment(), View.OnClickListener {
         cameraList.sort()
         binding = FragmentCamerasBinding.inflate(inflater, container, false)
         binding.fabCameras.setOnClickListener(this)
-        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        binding.fabCameras.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fabCameras.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
 
         // Access the ListView
         val layoutManager = LinearLayoutManager(activity)

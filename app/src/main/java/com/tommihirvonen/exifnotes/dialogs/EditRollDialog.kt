@@ -65,7 +65,7 @@ class EditRollDialog : DialogFragment() {
         alert.setView(binding.root)
 
         // Color the dividers white if the app's theme is dark
-        if (Utilities.isAppThemeDark(activity)) {
+        if (isAppThemeDark) {
             val color = ContextCompat.getColor(requireActivity(), R.color.white)
             listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4,
                     binding.dividerView5, binding.dividerView6, binding.dividerView7, binding.dividerView8, 
@@ -240,7 +240,7 @@ class EditRollDialog : DialogFragment() {
             val inflater = requireActivity().layoutInflater
             @SuppressLint("InflateParams")
             val dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null)
-            val pushPullPicker = Utilities.fixNumberPicker(dialogView.findViewById(R.id.number_picker))
+            val pushPullPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker).fix()
             val compValues = requireActivity().resources.getStringArray(R.array.CompValues)
             pushPullPicker.minValue = 0
             pushPullPicker.maxValue = compValues.size - 1

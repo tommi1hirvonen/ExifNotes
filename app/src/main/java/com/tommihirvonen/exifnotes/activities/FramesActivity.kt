@@ -9,8 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.fragments.FramesFragment
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.*
 
 /**
  * Activity to contain the fragment for frames
@@ -42,7 +41,7 @@ class FramesActivity : AppCompatActivity() {
             intent.putExtra(ExtraKeys.OVERRIDE_PENDING_TRANSITION, false)
             setIntent(intent)
         }
-        if (Utilities.isAppThemeDark(baseContext)) setTheme(R.style.AppTheme_Dark)
+        if (isAppThemeDark) setTheme(R.style.AppTheme_Dark)
 
         // The point at which super.onCreate() is called is important.
         // Calling it at the end of the method resulted in the back button not appearing
@@ -64,7 +63,7 @@ class FramesActivity : AppCompatActivity() {
 
         // Use the same activity layout as in MainActivity.
         setContentView(R.layout.activity_main)
-        Utilities.setUiColor(this, true)
+        setUiColor(true)
         if (findViewById<View?>(R.id.fragment_container) != null && savedInstanceState == null) {
 
             // Pass the arguments from MainActivity on to FramesFragment.
@@ -83,10 +82,8 @@ class FramesActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        val primaryColor = Utilities.getPrimaryUiColor(baseContext)
-        val secondaryColor = Utilities.getSecondaryUiColor(baseContext)
-        Utilities.setSupportActionBarColor(this, primaryColor)
-        Utilities.setStatusBarColor(this, secondaryColor)
+        setSupportActionBarColor(baseContext.primaryUiColor)
+        setStatusBarColor(baseContext.secondaryUiColor)
     }
 
     override fun finish() {

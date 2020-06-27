@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemFrameConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
-import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
 import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
@@ -45,7 +45,7 @@ class FrameAdapter(private val context: Context,
      * The color of the frame ImageView depending on the current app theme (light or dark).
      */
     private val backgroundFrameColor: Int =
-            if (Utilities.isAppThemeDark(context)) ContextCompat.getColor(context, R.color.background_frame_dark_grey)
+            if (context.isAppThemeDark) ContextCompat.getColor(context, R.color.background_frame_dark_grey)
             else ContextCompat.getColor(context, R.color.background_frame_light_grey)
 
     /**

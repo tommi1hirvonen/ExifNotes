@@ -26,10 +26,7 @@ import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialogCallback
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.PreferenceConstants
-import com.tommihirvonen.exifnotes.utilities.Utilities
-import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.*
 import kotlin.math.roundToInt
 
 /**
@@ -65,7 +62,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         overridePendingTransition(R.anim.enter_from_right, R.anim.hold)
         super.onCreate(savedInstanceState)
-        if (Utilities.isAppThemeDark(baseContext)) {
+        if (isAppThemeDark) {
             setTheme(R.style.Theme_AppCompat)
         }
 
@@ -75,7 +72,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Set the UI
         setContentView(R.layout.activity_map)
-        Utilities.setUiColor(this, true)
+        setUiColor(true)
         supportActionBar?.subtitle = intent.getStringExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE)
         supportActionBar?.title = intent.getStringExtra(ExtraKeys.MAPS_ACTIVITY_TITLE)
 
@@ -237,7 +234,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // If the app's theme is dark, stylize the map with the custom night mode
         val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
-        if (Utilities.isAppThemeDark(baseContext)) {
+        if (isAppThemeDark) {
             googleMap?.setMapStyle(MapStyleOptions(resources
                     .getString(R.string.style_json)))
         }

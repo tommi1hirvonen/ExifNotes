@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.packageInfo
 
 /**
  * This dialog is shown when the user first opens the application.
@@ -24,7 +25,7 @@ class TermsOfUseDialog(private val activity: Activity) {
      * to the terms of use. Also shows the user what's new with this version of the app.
      */
     fun show() {
-        val versionInfo = Utilities.getPackageInfo(activity)
+        val versionInfo = activity.packageInfo
         val versionName = versionInfo?.versionName ?: ""
         @Suppress("DEPRECATION")
         val versionCode =

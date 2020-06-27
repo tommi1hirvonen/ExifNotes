@@ -19,6 +19,7 @@ import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
+import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
 import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
@@ -69,7 +70,7 @@ class EditLensDialog : DialogFragment() {
         alert.setView(binding.root)
 
         // Color the dividers white if the app's theme is dark
-        if (Utilities.isAppThemeDark(activity)) {
+        if (isAppThemeDark) {
             listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4, binding.dividerView5)
                     .forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
         }
@@ -123,7 +124,7 @@ class EditLensDialog : DialogFragment() {
             val maxAperturePicker = binding1.numberPickerOne
             val minAperturePicker = binding1.numberPickerTwo
             val color =
-                    if (Utilities.isAppThemeDark(activity)) ContextCompat.getColor(requireActivity(), R.color.light_grey)
+                    if (isAppThemeDark) ContextCompat.getColor(requireActivity(), R.color.light_grey)
                     else ContextCompat.getColor(requireActivity(), R.color.grey)
             binding1.dash.drawable.setColorFilterCompat(color)
 
@@ -179,7 +180,7 @@ class EditLensDialog : DialogFragment() {
             val maxFocalLengthFastRewind = binding1.pickerTwoFastRewind
             val maxFocalLengthFastForward = binding1.pickerTwoFastForward
             val color =
-                    if (Utilities.isAppThemeDark(activity)) ContextCompat.getColor(requireActivity(), R.color.light_grey)
+                    if (isAppThemeDark) ContextCompat.getColor(requireActivity(), R.color.light_grey)
                     else ContextCompat.getColor(requireActivity(), R.color.grey)
             listOf(binding1.pickerOneFastForwardImage, binding1.pickerOneFastRewindImage,
                     binding1.pickerTwoFastForwardImage, binding1.pickerTwoFastRewindImage, binding1.dash

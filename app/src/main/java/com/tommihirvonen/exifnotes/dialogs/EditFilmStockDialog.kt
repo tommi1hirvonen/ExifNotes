@@ -17,6 +17,7 @@ import com.tommihirvonen.exifnotes.databinding.DialogFilmBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
 
 class EditFilmStockDialog : DialogFragment() {
 
@@ -36,7 +37,7 @@ class EditFilmStockDialog : DialogFragment() {
                 .setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
 
         // Color the dividers white if the app's theme is dark
-        if (Utilities.isAppThemeDark(requireActivity())) {
+        if (isAppThemeDark) {
             listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4)
                     .forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
         }

@@ -18,6 +18,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
+import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
 import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
@@ -64,7 +65,7 @@ class EditCameraDialog : DialogFragment() {
         alert.setView(binding.root)
 
         // Color the dividers white if the app's theme is dark
-        if (Utilities.isAppThemeDark(requireActivity().applicationContext)) {
+        if (isAppThemeDark) {
             arrayOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4, binding.dividerView5)
                     .forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
         }
@@ -122,7 +123,7 @@ class EditCameraDialog : DialogFragment() {
             val minShutterPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_one)
             val maxShutterPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_two)
             val color =
-                    if (Utilities.isAppThemeDark(requireActivity().applicationContext)) ContextCompat.getColor(requireActivity(), R.color.light_grey)
+                    if (isAppThemeDark) ContextCompat.getColor(requireActivity(), R.color.light_grey)
                     else ContextCompat.getColor(requireActivity(), R.color.grey)
             val dash = dialogView.findViewById<ImageView>(R.id.dash)
             dash.drawable.setColorFilterCompat(color)

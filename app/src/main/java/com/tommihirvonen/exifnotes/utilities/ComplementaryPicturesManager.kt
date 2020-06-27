@@ -22,7 +22,6 @@ import java.util.zip.ZipOutputStream
 
 /**
  * Manages all complementary pictures attached to frames.
- * Mimics static class and doesn't allow instantiation.
  */
 object ComplementaryPicturesManager {
 

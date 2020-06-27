@@ -11,9 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.fragments.PreferenceFragment
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.Utilities
-import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
+import com.tommihirvonen.exifnotes.utilities.*
 
 /**
  * PreferenceActivity contains the PreferenceFragment for editing the app's settings
@@ -52,7 +50,7 @@ class PreferenceActivity : AppCompatActivity(), OnSharedPreferenceChangeListener
         // Set the UI and add listeners.
         overridePendingTransition(R.anim.enter_from_right, R.anim.hold)
         val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
-        if (Utilities.isAppThemeDark(baseContext)) {
+        if (isAppThemeDark) {
             setTheme(R.style.Theme_AppCompat)
         }
 
@@ -61,23 +59,21 @@ class PreferenceActivity : AppCompatActivity(), OnSharedPreferenceChangeListener
         // If the activity was recreated, get the saved result code
         savedInstanceState?.let { resultCode = it.getInt(ExtraKeys.RESULT_CODE) }
 
-        val primaryColor = Utilities.getPrimaryUiColor(baseContext)
-        val secondaryColor = Utilities.getSecondaryUiColor(baseContext)
         supportActionBar?.hide()
         prefs.registerOnSharedPreferenceChangeListener(this)
-        Utilities.setStatusBarColor(this, secondaryColor)
+        setStatusBarColor(baseContext.secondaryUiColor)
 
         // This is a way to get the action bar in Preferences.
         // This is a legacy implementation. All this is needed in order to make
         // the action bar title and icon appear in white. WTF!?
         setContentView(R.layout.activity_settings_legacy)
-        if (Utilities.isAppThemeDark(baseContext)) {
+        if (isAppThemeDark) {
             val relativeLayout = findViewById<RelativeLayout>(R.id.rel_layout)
             relativeLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.background_dark_grey))
         }
         actionbar = findViewById(R.id.actionbar)
         actionbar.setTitle(R.string.Preferences)
-        actionbar.setBackgroundColor(primaryColor)
+        actionbar.setBackgroundColor(baseContext.primaryUiColor)
         actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white))
         // And even this shit! Since API 23 (M) this is needed to render the back button white.
         // Do only for M and up, on older devices this will cause Resources$NotFoundException.
@@ -96,11 +92,9 @@ class PreferenceActivity : AppCompatActivity(), OnSharedPreferenceChangeListener
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        val primaryColor = Utilities.getPrimaryUiColor(baseContext)
-        val secondaryColor = Utilities.getSecondaryUiColor(baseContext)
-        Utilities.setStatusBarColor(this, secondaryColor)
+        setStatusBarColor(baseContext.secondaryUiColor)
         actionbar = findViewById(R.id.actionbar)
-        actionbar.setBackgroundColor(primaryColor)
+        actionbar.setBackgroundColor(baseContext.primaryUiColor)
     }
 
     override fun finish() {

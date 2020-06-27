@@ -19,10 +19,7 @@ import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.fragments.RollsFragment
 import com.tommihirvonen.exifnotes.fragments.RollsFragment.OnRollSelectedListener
-import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.PreferenceConstants
-import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.*
 
 /**
  * MainActivity is the first activity to be called when the app is launched.
@@ -62,7 +59,7 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
         if (savedInstanceState == null) ComplementaryPicturesManager.deleteUnusedPictures(this)
 
         // Set the activity's UI
-        if (Utilities.isAppThemeDark(baseContext)) {
+        if (isAppThemeDark) {
             setTheme(R.style.AppTheme_Dark)
             darkThemeEnabled = true
         }
@@ -73,7 +70,7 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         TermsOfUseDialog(this).show()
-        Utilities.setUiColor(this, false)
+        setUiColor(false)
         if (supportActionBar != null) supportActionBar!!.title = "  " + resources.getString(R.string.MainActivityTitle)
 
         // Check that the application has write permission to the phone's external storage
@@ -129,15 +126,13 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
     public override fun onResume() {
         super.onResume()
         // When resuming we have to change the UI colours again.
-        if (Utilities.isAppThemeDark(baseContext) && !darkThemeEnabled ||
-                !Utilities.isAppThemeDark(baseContext) && darkThemeEnabled) {
+        if (isAppThemeDark && !darkThemeEnabled ||
+                !isAppThemeDark && darkThemeEnabled) {
             recreate()
             return
         }
-        val primaryColor = Utilities.getPrimaryUiColor(baseContext)
-        val secondaryColor = Utilities.getSecondaryUiColor(baseContext)
-        Utilities.setSupportActionBarColor(this, primaryColor)
-        Utilities.setStatusBarColor(this, secondaryColor)
+        setSupportActionBarColor(baseContext.primaryUiColor)
+        setStatusBarColor(baseContext.secondaryUiColor)
     }
 
     public override fun onStart() {

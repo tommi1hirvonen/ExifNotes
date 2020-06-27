@@ -139,8 +139,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
-        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
 
         // Use the updateFragment() method to load the film rolls from the database,
         // create an ArrayAdapter to link the list of rolls to the ListView,
@@ -218,11 +217,10 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
     override fun onResume() {
         super.onResume()
         rollAdapter.notifyDataSetChanged()
-        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity().applicationContext)
-        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
         // If action mode is enabled, color the status bar dark grey.
         if (rollAdapter.selectedItemCount > 0 || actionMode != null) {
-            Utilities.setStatusBarColor(requireActivity(), ContextCompat.getColor(requireActivity(), R.color.dark_grey))
+            setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.dark_grey))
         }
     }
 
@@ -500,7 +498,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         override fun onCreateActionMode(actionMode: ActionMode, menu: Menu): Boolean {
 
             // Set the status bar color to be dark grey to complement the grey action mode toolbar.
-            Utilities.setStatusBarColor(requireActivity(), ContextCompat.getColor(requireActivity(), R.color.dark_grey))
+            setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.dark_grey))
 
             // Hide the floating action button so no new rolls can be added while in action mode.
             binding.fab.hide()
@@ -635,7 +633,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
             actionMode = null
             binding.rollsRecyclerView.post { rollAdapter.resetAnimationIndex() }
             // Return the status bar to its original color before action mode.
-            Utilities.setStatusBarColor(requireActivity(), Utilities.getSecondaryUiColor(requireActivity()))
+            setStatusBarColor(secondaryUiColor)
             // Make the floating action bar visible again since action mode is exited.
             binding.fab.show()
         }

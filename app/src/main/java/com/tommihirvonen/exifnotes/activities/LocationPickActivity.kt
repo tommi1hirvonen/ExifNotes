@@ -33,10 +33,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityLocationPickBinding
 import com.tommihirvonen.exifnotes.datastructures.Location
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.GeocodingAsyncTask
-import com.tommihirvonen.exifnotes.utilities.PreferenceConstants
-import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.*
 
 /**
  * Allows the user to select a location for a frame on a map.
@@ -94,7 +91,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             @Suppress("DEPRECATION") window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
             @Suppress("DEPRECATION") window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         }
-        if (Utilities.isAppThemeDark(baseContext)) {
+        if (isAppThemeDark) {
             setTheme(R.style.Theme_AppCompat)
         }
         if (savedInstanceState != null) continueActivity = true
@@ -105,15 +102,14 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         binding.fab.setOnClickListener(this)
         val currentLocationFab = findViewById<FloatingActionButton>(R.id.fab_current_location)
         currentLocationFab.setOnClickListener(this)
-        Utilities.setUiColor(this, true)
+        setUiColor(true)
         supportActionBar?.title = resources.getString(R.string.PickLocation)
-        val secondaryColor = Utilities.getSecondaryUiColor(baseContext)
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fab.backgroundTintList = ColorStateList.valueOf(baseContext.secondaryUiColor)
 
         // In case the app's theme is dark, color the bottom bar dark grey
-        if (Utilities.isAppThemeDark(baseContext)) {
+        if (isAppThemeDark) {
             val bottomBarLayout = findViewById<FrameLayout>(R.id.bottom_bar)
             bottomBarLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey))
         }
@@ -234,7 +230,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         googleMap?.let { googleMap ->
             googleMap.setOnMapClickListener(this)
             // If the app's theme is dark, stylize the map with the custom night mode
-            if (Utilities.isAppThemeDark(baseContext)) {
+            if (isAppThemeDark) {
                 googleMap.setMapStyle(MapStyleOptions(resources.getString(R.string.style_json)))
             }
             googleMap.mapType = mapType

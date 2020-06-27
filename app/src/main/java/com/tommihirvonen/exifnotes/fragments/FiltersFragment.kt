@@ -26,6 +26,7 @@ import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
 
 /**
  * Fragment to display all filters from the database along with details
@@ -79,10 +80,9 @@ class FiltersFragment : Fragment(), View.OnClickListener {
         filterList = database.allFilters.toMutableList()
         filterList.sort()
         binding.fabFilters.setOnClickListener(this)
-        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        binding.fabFilters.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fabFilters.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
 
         val layoutManager = LinearLayoutManager(activity)
         binding.filtersRecyclerView.layoutManager = layoutManager

@@ -3,7 +3,6 @@ package com.tommihirvonen.exifnotes.utilities
 /**
  * Class containing global constants used as keys when passing
  * extras between fragments or activities.
- * Class mimics a static class.
  */
 object ExtraKeys {
     const val CONTINUE = "CONTINUE"

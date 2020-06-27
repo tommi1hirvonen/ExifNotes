@@ -3,7 +3,6 @@ package com.tommihirvonen.exifnotes.utilities
 /**
  * Class containing global constants used as keys and values when
  * reading or editing SharedPreferences.
- * Class mimics a static class.
  */
 object PreferenceConstants {
     const val KEY_DARK_THEME = "DarkTheme"

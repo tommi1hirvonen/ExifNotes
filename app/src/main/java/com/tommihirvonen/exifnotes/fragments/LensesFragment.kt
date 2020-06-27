@@ -27,6 +27,7 @@ import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
 
 /**
  * Fragment to display all lenses from the database along with details
@@ -80,10 +81,9 @@ class LensesFragment : Fragment(), View.OnClickListener {
         lensList = database.allLenses.toMutableList()
         lensList.sort()
         binding.fabLenses.setOnClickListener(this)
-        val secondaryColor = Utilities.getSecondaryUiColor(requireActivity())
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
-        binding.fabLenses.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+        binding.fabLenses.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
 
         val layoutManager = LinearLayoutManager(activity)
         binding.lensesRecyclerView.layoutManager = layoutManager
