@@ -66,15 +66,15 @@ class EditRollDialog : DialogFragment() {
 
         // Color the dividers white if the app's theme is dark
         if (Utilities.isAppThemeDark(activity)) {
-            listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4, 
+            val color = ContextCompat.getColor(requireActivity(), R.color.white)
+            listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4,
                     binding.dividerView5, binding.dividerView6, binding.dividerView7, binding.dividerView8, 
                     binding.dividerView9, binding.dividerView10)
-                    .forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
-
-            Utilities.setColorFilter(binding.addCamera.drawable.mutate(), ContextCompat.getColor(requireActivity(), R.color.white))
-            Utilities.setColorFilter(binding.clearFilmStock.drawable.mutate(), ContextCompat.getColor(requireActivity(), R.color.white))
-            Utilities.setColorFilter(binding.clearDateUnloaded.drawable.mutate(), ContextCompat.getColor(requireActivity(), R.color.white))
-            Utilities.setColorFilter(binding.clearDateDeveloped.drawable.mutate(), ContextCompat.getColor(requireActivity(), R.color.white))
+                    .forEach { it.setBackgroundColor(color) }
+            binding.addCamera.drawable.setColorFilterCompat(color)
+            binding.clearFilmStock.drawable.setColorFilterCompat(color)
+            binding.clearDateUnloaded.drawable.setColorFilterCompat(color)
+            binding.clearDateDeveloped.drawable.setColorFilterCompat(color)
         }
         //==========================================================================================
 

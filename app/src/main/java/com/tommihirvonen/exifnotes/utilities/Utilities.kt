@@ -38,6 +38,19 @@ import java.lang.reflect.Field
 import java.text.Normalizer
 
 /**
+ * Applies a color filter to a Drawable object.
+ *
+ * @param color the color that should be used in the form 0xAARRGGBB
+ */
+fun Drawable.setColorFilterCompat(color: Int) =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            mutate().colorFilter = BlendModeColorFilter(color, BlendMode.SRC_IN)
+        } else {
+            @Suppress("DEPRECATION")
+            mutate().setColorFilter(color, PorterDuff.Mode.SRC_IN)
+        }
+
+/**
  * Class containing utility functions.
  * Class mimics a static class.
  */
@@ -509,21 +522,6 @@ object Utilities {
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
-    }
-
-    /**
-     * Applies a color filter to a Drawable object.
-     *
-     * @param drawable the object that should be colored
-     * @param color the color that should be used in the form 0xAARRGGBB
-     */
-    fun setColorFilter(drawable: Drawable, color: Int) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            drawable.colorFilter = BlendModeColorFilter(color, BlendMode.SRC_IN)
-        } else {
-            @Suppress("DEPRECATION")
-            drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-        }
     }
 
     /**

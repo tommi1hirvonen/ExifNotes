@@ -13,6 +13,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.fragments.PreferenceFragment
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
  * PreferenceActivity contains the PreferenceFragment for editing the app's settings
@@ -83,9 +84,7 @@ class PreferenceActivity : AppCompatActivity(), OnSharedPreferenceChangeListener
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             actionbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.ic_ab_back_material)
         }
-        actionbar.navigationIcon?.let {
-            Utilities.setColorFilter(it.mutate(), ContextCompat.getColor(baseContext, R.color.white))
-        }
+        actionbar.navigationIcon?.setColorFilterCompat(ContextCompat.getColor(baseContext, R.color.white))
         actionbar.setNavigationOnClickListener { finish() }
         supportFragmentManager.beginTransaction().add(R.id.rel_layout, PreferenceFragment()).commit()
     }

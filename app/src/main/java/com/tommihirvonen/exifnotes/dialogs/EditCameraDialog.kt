@@ -18,6 +18,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
+import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
  * Dialog to edit Camera's information
@@ -124,7 +125,7 @@ class EditCameraDialog : DialogFragment() {
                     if (Utilities.isAppThemeDark(requireActivity().applicationContext)) ContextCompat.getColor(requireActivity(), R.color.light_grey)
                     else ContextCompat.getColor(requireActivity(), R.color.grey)
             val dash = dialogView.findViewById<ImageView>(R.id.dash)
-            Utilities.setColorFilter(dash.drawable.mutate(), color)
+            dash.drawable.setColorFilterCompat(color)
 
             // To prevent text edit
             minShutterPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS

@@ -19,6 +19,7 @@ import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
+import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
  * Dialog to edit Lens's information
@@ -124,7 +125,7 @@ class EditLensDialog : DialogFragment() {
             val color =
                     if (Utilities.isAppThemeDark(activity)) ContextCompat.getColor(requireActivity(), R.color.light_grey)
                     else ContextCompat.getColor(requireActivity(), R.color.grey)
-            Utilities.setColorFilter(binding1.dash.drawable.mutate(), color)
+            binding1.dash.drawable.setColorFilterCompat(color)
 
             //To prevent text edit
             minAperturePicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
@@ -182,7 +183,7 @@ class EditLensDialog : DialogFragment() {
                     else ContextCompat.getColor(requireActivity(), R.color.grey)
             listOf(binding1.pickerOneFastForwardImage, binding1.pickerOneFastRewindImage,
                     binding1.pickerTwoFastForwardImage, binding1.pickerTwoFastRewindImage, binding1.dash
-            ).forEach { Utilities.setColorFilter(it.drawable.mutate(), color) }
+            ).forEach { it.drawable.setColorFilterCompat(color) }
 
             // To prevent text edit
             minFocalLengthPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS

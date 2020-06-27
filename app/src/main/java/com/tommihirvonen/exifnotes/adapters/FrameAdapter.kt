@@ -12,6 +12,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemFrameConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
  * FrameAdapter acts as an adapter to link an ArrayList of Frames and a RecyclerView together.
@@ -86,9 +87,10 @@ class FrameAdapter(private val context: Context,
                 true
             }
             // Color the png drawables grey.
-            Utilities.setColorFilter(binding.backgroundFrame.drawable.mutate(), backgroundFrameColor)
-            Utilities.setColorFilter(binding.drawableClock.drawable.mutate(), ContextCompat.getColor(context, R.color.grey))
-            Utilities.setColorFilter(binding.drawableAperture.drawable.mutate(), ContextCompat.getColor(context, R.color.grey))
+            binding.backgroundFrame.drawable.setColorFilterCompat(backgroundFrameColor)
+            val color = ContextCompat.getColor(context, R.color.grey)
+            binding.drawableClock.drawable.setColorFilterCompat(color)
+            binding.drawableAperture.drawable.setColorFilterCompat(color)
         }
     }
 
