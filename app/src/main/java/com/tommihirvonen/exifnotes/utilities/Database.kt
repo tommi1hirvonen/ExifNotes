@@ -18,6 +18,9 @@ val Context.database: Database get() = Database.getInstance(applicationContext)
 
 val Fragment.database: Database get() = Database.getInstance(requireContext().applicationContext)
 
+fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
+        generateSequence { if (this.moveToNext()) this else null }.map { transform(it) }.toList()
+
 /**
  * FilmDbHelper is the SQL database class that holds all the information
  * the user stores in the app. This class provides all necessary CRUD operations as well as
@@ -150,21 +153,12 @@ class Database private constructor(private val context: Context)
      * @param frame the new frame to be added to the database
      */
     fun addFrame(frame: Frame): Boolean {
-        // Get reference to writable database
-        val db = this.writableDatabase
-        // Create ContentValues to add key "column"/value
         val values = buildFrameContentValues(frame)
-        // Insert
-        val rowId = db.insert(TABLE_FRAMES,  // table
-                null,  // nullColumnHack
-                values)
-        // Update the frame's id with the insert statement's return value
+        val rowId = writableDatabase.insert(TABLE_FRAMES, null, values)
         frame.id = rowId
         // Add the filter links, if the frame was inserted successfully.
         return if (rowId != -1L) {
-            for (filter in frame.filters) {
-                addFrameFilterLink(frame, filter)
-            }
+            frame.filters.forEach { filter -> addFrameFilterLink(frame, filter) }
             true
         } else {
             false
@@ -177,19 +171,9 @@ class Database private constructor(private val context: Context)
      * @return an array of Frames
      */
     fun getAllFramesFromRoll(roll: Roll): List<Frame> {
-        val frames: MutableList<Frame> = ArrayList()
-        // Get reference to readable database
-        val db = this.readableDatabase
-        val cursor = db.query(
-                TABLE_FRAMES, null,
+        val cursor = readableDatabase.query(TABLE_FRAMES, null,
                 "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()), null, null, KEY_COUNT)
-        // Go over each row, build list
-        while (cursor.moveToNext()) {
-            val frame = getFrameFromCursor(cursor, roll)
-            frames.add(frame)
-        }
-        cursor.close()
-        return frames
+        return cursor.map { getFrameFromCursor(it, roll) }.also { cursor.close() }
     }
 
     /**
@@ -197,98 +181,64 @@ class Database private constructor(private val context: Context)
      * @param frame the frame to be updated.
      */
     fun updateFrame(frame: Frame) {
-        // Get reference to writable database
-        val db = this.writableDatabase
         val contentValues = buildFrameContentValues(frame)
-        db.update(TABLE_FRAMES, contentValues, "$KEY_FRAME_ID=?", arrayOf(frame.id.toString()))
+        writableDatabase.update(TABLE_FRAMES, contentValues, "$KEY_FRAME_ID=?", arrayOf(frame.id.toString()))
         deleteAllFrameFilterLinks(frame)
-        for (filter in frame.filters) addFrameFilterLink(frame, filter)
+        frame.filters.forEach { filter -> addFrameFilterLink(frame, filter) }
     }
 
     /**
      * Deletes a frame from the database.
      * @param frame the frame to be deleted
      */
-    fun deleteFrame(frame: Frame) {
-        // Get reference to writable database
-        val db = this.writableDatabase
-        // Delete
-        db.delete(TABLE_FRAMES,
-                "$KEY_FRAME_ID = ?", arrayOf(frame.id.toString()))
-    }
+    fun deleteFrame(frame: Frame) =
+            writableDatabase.delete(TABLE_FRAMES, "$KEY_FRAME_ID = ?", arrayOf(frame.id.toString()))
 
     /**
      * Gets all complementary picture filenames from the frames table.
      * @return List of all complementary picture filenames
      */
-    val allComplementaryPictureFilenames: List<String>
-        get() {
-            val filenames: MutableList<String> = ArrayList()
-            val db = this.readableDatabase
-            val cursor = db.query(TABLE_FRAMES, arrayOf(KEY_PICTURE_FILENAME),
-                    "$KEY_PICTURE_FILENAME IS NOT NULL", null, null, null, null)
-            while (cursor.moveToNext()) {
-                filenames.add(cursor.getString(cursor.getColumnIndex(KEY_PICTURE_FILENAME)))
-            }
-            cursor.close()
-            return filenames
-        }
+    val allComplementaryPictureFilenames: List<String> get() {
+        val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf(KEY_PICTURE_FILENAME),
+                "$KEY_PICTURE_FILENAME IS NOT NULL", null, null, null, null)
+        return cursor.map { it.getString(it.getColumnIndex(KEY_PICTURE_FILENAME)) }.also { cursor.close() }
+    }
 
     // ******************** CRUD operations for the lenses table ********************
     /**
      * Adds a new lens to the database.
      * @param lens the lens to be added to the database
      */
-    fun addLens(lens: Lens): Long {
-        val db = this.writableDatabase
-        val values = buildLensContentValues(lens)
-        return db.insert(TABLE_LENSES, null, values)
-    }
+    fun addLens(lens: Lens): Long =
+            writableDatabase.insert(TABLE_LENSES, null, buildLensContentValues(lens))
 
     /**
      * Gets a lens corresponding to the id.
      * @param lens_id the id of the lens
      * @return a Lens corresponding to the id
      */
-    fun getLens(lens_id: Long): Lens? {
-        val db = this.readableDatabase
-        var lens: Lens? = null
-        val cursor = db.query(TABLE_LENSES, null,
+    private fun getLens(lens_id: Long): Lens? {
+        val cursor = readableDatabase.query(TABLE_LENSES, null,
                 "$KEY_LENS_ID=?", arrayOf(lens_id.toString()), null, null, null)
-        if (cursor.moveToFirst()) {
-            lens = getLensFromCursor(cursor)
-            cursor.close()
-        }
-        return lens
+        return (if (cursor.moveToFirst()) getLensFromCursor(cursor) else null).also { cursor.close() }
     }
 
     /**
      * Gets all the lenses from the database.
      * @return a List of all the lenses in the database.
      */
-    val allLenses: List<Lens>
-        get() {
-            val lenses: MutableList<Lens> = ArrayList()
-            val db = this.readableDatabase
-            val cursor = db.query(TABLE_LENSES, null, null, null,
-                    null, null, "$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase")
-            var lens: Lens
-            while (cursor.moveToNext()) {
-                lens = getLensFromCursor(cursor)
-                lenses.add(lens)
-            }
-            cursor.close()
-            return lenses
-        }
+    val allLenses: List<Lens> get() {
+        val cursor = readableDatabase.query(TABLE_LENSES, null, null, null,
+                null, null, "$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase")
+        return cursor.map { getLensFromCursor(it) }.also { cursor.close() }
+    }
 
     /**
      * Deletes Lens from the database.
      * @param lens the Lens to be deleted
      */
-    fun deleteLens(lens: Lens) {
-        val db = this.writableDatabase
-        db.delete(TABLE_LENSES, "$KEY_LENS_ID = ?", arrayOf(lens.id.toString()))
-    }
+    fun deleteLens(lens: Lens) =
+            writableDatabase.delete(TABLE_LENSES, "$KEY_LENS_ID = ?", arrayOf(lens.id.toString()))
 
     /**
      * Checks if the lens is being used in some frame.
@@ -296,16 +246,9 @@ class Database private constructor(private val context: Context)
      * @return true if the lens is in use, false if not
      */
     fun isLensInUse(lens: Lens): Boolean {
-        val db = this.readableDatabase
-        val cursor = db.query(TABLE_FRAMES, arrayOf(KEY_LENS_ID),
+        val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf(KEY_LENS_ID),
                 "$KEY_LENS_ID=?", arrayOf(lens.id.toString()), null, null, null)
-        return if (cursor.moveToFirst()) {
-            cursor.close()
-            true
-        } else {
-            cursor.close()
-            false
-        }
+        return cursor.moveToFirst().also { cursor.close() }
     }
 
     /**
@@ -313,9 +256,8 @@ class Database private constructor(private val context: Context)
      * @param lens the Lens to be updated
      */
     fun updateLens(lens: Lens) {
-        val db = this.writableDatabase
         val contentValues = buildLensContentValues(lens)
-        db.update(TABLE_LENSES, contentValues, "$KEY_LENS_ID=?", arrayOf(lens.id.toString()))
+        writableDatabase.update(TABLE_LENSES, contentValues, "$KEY_LENS_ID=?", arrayOf(lens.id.toString()))
     }
 
     // ******************** CRUD operations for the cameras table ********************
@@ -323,56 +265,36 @@ class Database private constructor(private val context: Context)
      * Adds a new camera to the database.
      * @param camera the camera to be added to the database
      */
-    fun addCamera(camera: Camera): Long {
-        val db = this.writableDatabase
-        val values = buildCameraContentValues(camera)
-        return db.insert(TABLE_CAMERAS, null, values)
-    }
+    fun addCamera(camera: Camera): Long =
+            writableDatabase.insert(TABLE_CAMERAS, null, buildCameraContentValues(camera))
 
     /**
      * Gets the Camera corresponding to the camera id
      * @param camera_id the id of the Camera
      * @return the Camera corresponding to the given id
      */
-    fun getCamera(camera_id: Long): Camera? {
-        val db = this.readableDatabase
-        var camera: Camera? = null
-        val cursor = db.query(TABLE_CAMERAS, null,
+    private fun getCamera(camera_id: Long): Camera? {
+        val cursor = readableDatabase.query(TABLE_CAMERAS, null,
                 "$KEY_CAMERA_ID=?", arrayOf(camera_id.toString()), null, null, null)
-        if (cursor.moveToFirst()) {
-            camera = getCameraFromCursor(cursor)
-            cursor.close()
-        }
-        return camera
+        return (if (cursor.moveToFirst()) getCameraFromCursor(cursor) else null).also { cursor.close() }
     }
 
     /**
      * Gets all the cameras from the database
      * @return a List of all the cameras in the database
      */
-    val allCameras: List<Camera>
-        get() {
-            val cameras: MutableList<Camera> = ArrayList()
-            val db = this.readableDatabase
-            val cursor = db.query(TABLE_CAMERAS, null, null, null,
-                    null, null, "$KEY_CAMERA_MAKE collate nocase,$KEY_CAMERA_MODEL collate nocase")
-            var camera: Camera
-            while (cursor.moveToNext()) {
-                camera = getCameraFromCursor(cursor)
-                cameras.add(camera)
-            }
-            cursor.close()
-            return cameras
-        }
+    val allCameras: List<Camera> get() {
+        val cursor = readableDatabase.query(TABLE_CAMERAS, null, null, null,
+                null, null, "$KEY_CAMERA_MAKE collate nocase,$KEY_CAMERA_MODEL collate nocase")
+        return cursor.map { getCameraFromCursor(it) }.also { cursor.close() }
+    }
 
     /**
      * Deletes the specified camera from the database
      * @param camera the camera to be deleted
      */
-    fun deleteCamera(camera: Camera) {
-        val db = this.writableDatabase
-        db.delete(TABLE_CAMERAS, "$KEY_CAMERA_ID = ?", arrayOf(camera.id.toString()))
-    }
+    fun deleteCamera(camera: Camera) =
+            writableDatabase.delete(TABLE_CAMERAS, "$KEY_CAMERA_ID = ?", arrayOf(camera.id.toString()))
 
     /**
      * Checks if a camera is being used in some roll.
@@ -380,16 +302,9 @@ class Database private constructor(private val context: Context)
      * @return true if the camera is in use, false if not
      */
     fun isCameraBeingUsed(camera: Camera): Boolean {
-        val db = this.readableDatabase
-        val cursor = db.query(TABLE_ROLLS, arrayOf(KEY_CAMERA_ID),
+        val cursor = readableDatabase.query(TABLE_ROLLS, arrayOf(KEY_CAMERA_ID),
                 "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()), null, null, null)
-        return if (cursor.moveToFirst()) {
-            cursor.close()
-            true
-        } else {
-            cursor.close()
-            false
-        }
+        return cursor.moveToFirst().also { cursor.close() }
     }
 
     /**
@@ -397,9 +312,8 @@ class Database private constructor(private val context: Context)
      * @param camera the camera to be updated
      */
     fun updateCamera(camera: Camera) {
-        val db = this.writableDatabase
         val contentValues = buildCameraContentValues(camera)
-        db.update(TABLE_CAMERAS, contentValues, "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()))
+        writableDatabase.update(TABLE_CAMERAS, contentValues, "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()))
     }
 
     // ******************** CRUD operations for the camera-lens link table ********************
@@ -409,14 +323,13 @@ class Database private constructor(private val context: Context)
      * @param lens the lens that can be mounted with the camera
      */
     fun addCameraLensLink(camera: Camera, lens: Lens) {
-        val db = this.writableDatabase
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
         val query = ("INSERT INTO " + TABLE_LINK_CAMERA_LENS + "(" + KEY_CAMERA_ID + "," + KEY_LENS_ID
                 + ") SELECT " + camera.id + ", " + lens.id
                 + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
                 + KEY_CAMERA_ID + "=" + camera.id + " AND " + KEY_LENS_ID + "=" + lens.id + ");")
-        db.execSQL(query)
+        writableDatabase.execSQL(query)
     }
 
     /**
@@ -424,10 +337,9 @@ class Database private constructor(private val context: Context)
      * @param camera the camera that can be mounted with the lens
      * @param lens the lens that can be mounted with the camera
      */
-    fun deleteCameraLensLink(camera: Camera, lens: Lens) {
-        val db = this.writableDatabase
-        db.delete(TABLE_LINK_CAMERA_LENS, "$KEY_CAMERA_ID = ? AND $KEY_LENS_ID = ?", arrayOf(camera.id.toString(), lens.id.toString()))
-    }
+    fun deleteCameraLensLink(camera: Camera, lens: Lens) =
+            writableDatabase.delete(TABLE_LINK_CAMERA_LENS,
+                    "$KEY_CAMERA_ID = ? AND $KEY_LENS_ID = ?", arrayOf(camera.id.toString(), lens.id.toString()))
 
     /**
      * Gets all the lenses that can be mounted to the specified camera
@@ -435,21 +347,13 @@ class Database private constructor(private val context: Context)
      * @return a List of all linked lenses
      */
     fun getLinkedLenses(camera: Camera): List<Lens> {
-        val lenses: MutableList<Lens> = ArrayList()
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         val query = ("SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
                 + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
                 + KEY_CAMERA_ID + "=" + camera.id + ") ORDER BY " + KEY_LENS_MAKE)
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(query, null)
-        var lens: Lens
-        while (cursor.moveToNext()) {
-            lens = getLensFromCursor(cursor)
-            lenses.add(lens)
-        }
-        cursor.close()
-        return lenses
+        val cursor = readableDatabase.rawQuery(query, null)
+        return cursor.map { getLensFromCursor(it) }.also { cursor.close() }
     }
 
     /**
@@ -458,21 +362,13 @@ class Database private constructor(private val context: Context)
      * @return a List of all linked cameras
      */
     fun getLinkedCameras(lens: Lens): List<Camera> {
-        val cameras: MutableList<Camera> = ArrayList()
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         val query = ("SELECT * FROM " + TABLE_CAMERAS + " WHERE " + KEY_CAMERA_ID + " IN "
                 + "(" + "SELECT " + KEY_CAMERA_ID + " FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
                 + KEY_LENS_ID + "=" + lens.id + ") ORDER BY " + KEY_CAMERA_MAKE)
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(query, null)
-        var camera: Camera
-        while (cursor.moveToNext()) {
-            camera = getCameraFromCursor(cursor)
-            cameras.add(camera)
-        }
-        cursor.close()
-        return cameras
+        val cursor = readableDatabase.rawQuery(query, null)
+        return cursor.map { getCameraFromCursor(it) }.also { cursor.close() }
     }
 
     // ******************** CRUD operations for the rolls table ********************
@@ -480,11 +376,8 @@ class Database private constructor(private val context: Context)
      * Adds a new roll to the database.
      * @param roll the roll to be added
      */
-    fun addRoll(roll: Roll): Long {
-        val db = this.writableDatabase
-        val values = buildRollContentValues(roll)
-        return db.insert(TABLE_ROLLS, null, values)
-    }
+    fun addRoll(roll: Roll): Long =
+            writableDatabase.insert(TABLE_ROLLS, null, buildRollContentValues(roll))
 
     /**
      * Gets all the rolls in the database
@@ -497,53 +390,25 @@ class Database private constructor(private val context: Context)
             RollFilterMode.ALL -> null
             else -> "$KEY_ROLL_ARCHIVED=0"
         }
-        val rolls: MutableList<Roll> = ArrayList()
-        val db = this.readableDatabase
-        val cursor = db.query(TABLE_ROLLS, null, selectionArg, null,
+        val cursor = readableDatabase.query(TABLE_ROLLS, null, selectionArg, null,
                 null, null, "$KEY_ROLL_DATE DESC")
-        var roll: Roll
-        while (cursor.moveToNext()) {
-            roll = getRollFromCursor(cursor)
-            rolls.add(roll)
-        }
-        cursor.close()
-        return rolls
-    }
-
-    /**
-     * Gets the roll corresponding to the given id.
-     * @param id the id of the roll
-     * @return the roll corresponding to the given id
-     */
-    fun getRoll(id: Long): Roll? {
-        val db = this.readableDatabase
-        var roll: Roll? = null
-        val cursor = db.query(TABLE_ROLLS, null,
-                "$KEY_ROLL_ID=?", arrayOf(id.toString()), null, null, null)
-        if (cursor.moveToFirst()) {
-            roll = getRollFromCursor(cursor)
-            cursor.close()
-        }
-        return roll
+        return cursor.map { getRollFromCursor(it) }.also { cursor.close() }
     }
 
     /**
      * Deletes a roll from the database.
      * @param roll the roll to be deleted from the database
      */
-    fun deleteRoll(roll: Roll) {
-        val db = this.writableDatabase
-        db.delete(TABLE_ROLLS, "$KEY_ROLL_ID = ?", arrayOf(roll.id.toString()))
-    }
+    fun deleteRoll(roll: Roll) =
+            writableDatabase.delete(TABLE_ROLLS, "$KEY_ROLL_ID = ?", arrayOf(roll.id.toString()))
 
     /**
      * Updates the specified roll's information
      * @param roll the roll to be updated
      */
     fun updateRoll(roll: Roll) {
-        val db = this.writableDatabase
         val contentValues = buildRollContentValues(roll)
-        db.update(TABLE_ROLLS, contentValues, "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()))
+        writableDatabase.update(TABLE_ROLLS, contentValues, "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()))
     }
 
     /**
@@ -552,15 +417,9 @@ class Database private constructor(private val context: Context)
      * @return an integer of the the number of frames on that roll
      */
     fun getNumberOfFrames(roll: Roll): Int {
-        val db = this.readableDatabase
-        val cursor = db.query(TABLE_FRAMES, arrayOf("COUNT($KEY_FRAME_ID)"),
+        val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf("COUNT($KEY_FRAME_ID)"),
                 "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()), null, null, null)
-        var returnValue = 0
-        if (cursor.moveToFirst()) {
-            returnValue = cursor.getInt(0)
-            cursor.close()
-        }
-        return returnValue
+        return (if (cursor.moveToFirst()) cursor.getInt(0) else 0).also { cursor.close() }
     }
 
     // ******************** CRUD operations for the filters table ********************
@@ -568,56 +427,25 @@ class Database private constructor(private val context: Context)
      * Adds a new filter to the database.
      * @param filter the filter to be added to the database
      */
-    fun addFilter(filter: Filter): Long {
-        val db = this.writableDatabase
-        val values = buildFilterContentValues(filter)
-        return db.insert(TABLE_FILTERS, null, values)
-    }
-
-    /**
-     * Gets the Filter corresponding to the filter id
-     * @param filter_id the id of the Filter
-     * @return the Filter corresponding to the given id
-     */
-    fun getFilter(filter_id: Long): Filter {
-        val db = this.readableDatabase
-        val filter = Filter()
-        val cursor = db.query(TABLE_FILTERS, null,
-                "$KEY_FILTER_ID=?", arrayOf(filter_id.toString()), null, null, null)
-        if (cursor.moveToFirst()) {
-            getFilterFromCursor(cursor, filter)
-            cursor.close()
-        }
-        return filter
-    }
+    fun addFilter(filter: Filter): Long =
+            writableDatabase.insert(TABLE_FILTERS, null, buildFilterContentValues(filter))
 
     /**
      * Gets all the filters from the database
      * @return a List of all the filters in the database
      */
-    val allFilters: List<Filter>
-        get() {
-            val filters: MutableList<Filter> = ArrayList()
-            val db = this.readableDatabase
-            val cursor = db.query(TABLE_FILTERS, null, null, null,
-                    null, null, "$KEY_FILTER_MAKE collate nocase,$KEY_FILTER_MODEL collate nocase")
-            var filter: Filter
-            while (cursor.moveToNext()) {
-                filter = getFilterFromCursor(cursor)
-                filters.add(filter)
-            }
-            cursor.close()
-            return filters
-        }
+    val allFilters: List<Filter> get() {
+        val cursor = readableDatabase.query(TABLE_FILTERS, null, null, null,
+                null, null, "$KEY_FILTER_MAKE collate nocase,$KEY_FILTER_MODEL collate nocase")
+        return cursor.map { getFilterFromCursor(it) }.also { cursor.close() }
+    }
 
     /**
      * Deletes the specified filter from the database
      * @param filter the filter to be deleted
      */
-    fun deleteFilter(filter: Filter) {
-        val db = this.writableDatabase
-        db.delete(TABLE_FILTERS, "$KEY_FILTER_ID = ?", arrayOf(filter.id.toString()))
-    }
+    fun deleteFilter(filter: Filter) =
+            writableDatabase.delete(TABLE_FILTERS, "$KEY_FILTER_ID = ?", arrayOf(filter.id.toString()))
 
     /**
      * Checks if a filter is being used in some roll.
@@ -625,16 +453,9 @@ class Database private constructor(private val context: Context)
      * @return true if the filter is in use, false if not
      */
     fun isFilterBeingUsed(filter: Filter): Boolean {
-        val db = this.readableDatabase
-        val cursor = db.query(TABLE_LINK_FRAME_FILTER, arrayOf(KEY_FILTER_ID),
+        val cursor = readableDatabase.query(TABLE_LINK_FRAME_FILTER, arrayOf(KEY_FILTER_ID),
                 "$KEY_FILTER_ID=?", arrayOf(filter.id.toString()), null, null, null)
-        return if (cursor.moveToFirst()) {
-            cursor.close()
-            true
-        } else {
-            cursor.close()
-            false
-        }
+        return cursor.moveToFirst().also { cursor.close() }
     }
 
     /**
@@ -642,9 +463,8 @@ class Database private constructor(private val context: Context)
      * @param filter the filter to be updated
      */
     fun updateFilter(filter: Filter) {
-        val db = this.writableDatabase
         val contentValues = buildFilterContentValues(filter)
-        db.update(TABLE_FILTERS, contentValues, "$KEY_FILTER_ID=?", arrayOf(filter.id.toString()))
+        writableDatabase.update(TABLE_FILTERS, contentValues, "$KEY_FILTER_ID=?", arrayOf(filter.id.toString()))
     }
 
     // ******************** CRUD operations for the lens-filter link table ********************
@@ -654,14 +474,13 @@ class Database private constructor(private val context: Context)
      * @param lens the lens that can be mounted with the filter
      */
     fun addLensFilterLink(filter: Filter, lens: Lens) {
-        val db = this.writableDatabase
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
         val query = ("INSERT INTO " + TABLE_LINK_LENS_FILTER + "(" + KEY_FILTER_ID + "," + KEY_LENS_ID
                 + ") SELECT " + filter.id + ", " + lens.id
                 + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
                 + KEY_FILTER_ID + "=" + filter.id + " AND " + KEY_LENS_ID + "=" + lens.id + ");")
-        db.execSQL(query)
+        writableDatabase.execSQL(query)
     }
 
     /**
@@ -669,10 +488,9 @@ class Database private constructor(private val context: Context)
      * @param filter the filter that can be mounted with the lens
      * @param lens the lens that can be mounted with the filter
      */
-    fun deleteLensFilterLink(filter: Filter, lens: Lens) {
-        val db = this.writableDatabase
-        db.delete(TABLE_LINK_LENS_FILTER, "$KEY_FILTER_ID = ? AND $KEY_LENS_ID = ?", arrayOf(filter.id.toString(), lens.id.toString()))
-    }
+    fun deleteLensFilterLink(filter: Filter, lens: Lens) =
+            writableDatabase.delete(TABLE_LINK_LENS_FILTER,
+                    "$KEY_FILTER_ID = ? AND $KEY_LENS_ID = ?", arrayOf(filter.id.toString(), lens.id.toString()))
 
     /**
      * Gets all the lenses that can be mounted to the specified filter
@@ -680,21 +498,13 @@ class Database private constructor(private val context: Context)
      * @return a List of all linked lenses
      */
     fun getLinkedLenses(filter: Filter): List<Lens> {
-        val lenses: MutableList<Lens> = ArrayList()
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         val query = ("SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
                 + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
                 + KEY_FILTER_ID + "=" + filter.id + ") ORDER BY " + KEY_LENS_MAKE)
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(query, null)
-        var lens: Lens
-        while (cursor.moveToNext()) {
-            lens = getLensFromCursor(cursor)
-            lenses.add(lens)
-        }
-        cursor.close()
-        return lenses
+        val cursor = readableDatabase.rawQuery(query, null)
+        return cursor.map { getLensFromCursor(it) }.also { cursor.close() }
     }
 
     /**
@@ -703,21 +513,13 @@ class Database private constructor(private val context: Context)
      * @return a List of all linked filters
      */
     fun getLinkedFilters(lens: Lens): List<Filter> {
-        val filters: MutableList<Filter> = ArrayList()
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         val query = ("SELECT * FROM " + TABLE_FILTERS + " WHERE " + KEY_FILTER_ID + " IN "
                 + "(" + "SELECT " + KEY_FILTER_ID + " FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
                 + KEY_LENS_ID + "=" + lens.id + ") ORDER BY " + KEY_FILTER_MAKE)
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(query, null)
-        var filter: Filter
-        while (cursor.moveToNext()) {
-            filter = getFilterFromCursor(cursor)
-            filters.add(filter)
-        }
-        cursor.close()
-        return filters
+        val cursor = readableDatabase.rawQuery(query, null)
+        return cursor.map { getFilterFromCursor(it) }.also { cursor.close() }
     }
 
     // ******************** CRUD operations for the frame-filter link table ********************
@@ -728,7 +530,6 @@ class Database private constructor(private val context: Context)
      * @param filter filter that is linked to the frame
      */
     private fun addFrameFilterLink(frame: Frame, filter: Filter) {
-        val db = this.writableDatabase
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
         val query = ("insert into " + TABLE_LINK_FRAME_FILTER + " ("
@@ -737,7 +538,7 @@ class Database private constructor(private val context: Context)
                 + "where not exists (select * from " + TABLE_LINK_FRAME_FILTER + " "
                 + "where " + KEY_FRAME_ID + " = " + frame.id + " and "
                 + KEY_FILTER_ID + " = " + filter.id + ");")
-        db.execSQL(query)
+        writableDatabase.execSQL(query)
     }
 
     /**
@@ -745,10 +546,8 @@ class Database private constructor(private val context: Context)
      *
      * @param frame Frame object whose filter links should be deleted
      */
-    private fun deleteAllFrameFilterLinks(frame: Frame) {
-        val db = this.writableDatabase
-        db.delete(TABLE_LINK_FRAME_FILTER, "$KEY_FRAME_ID = ?", arrayOf(frame.id.toString()))
-    }
+    private fun deleteAllFrameFilterLinks(frame: Frame) =
+            writableDatabase.delete(TABLE_LINK_FRAME_FILTER, "$KEY_FRAME_ID = ?", arrayOf(frame.id.toString()))
 
     /**
      * Gets all filter objects that are linked to a specific Frame object
@@ -757,102 +556,52 @@ class Database private constructor(private val context: Context)
      * @return List object containing all Filter objects linked to the specified Frame object
      */
     private fun getLinkedFilters(frame: Frame): List<Filter> {
-        val filters: MutableList<Filter> = ArrayList()
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection
         val query = ("select * from " + TABLE_FILTERS + " where " + KEY_FILTER_ID + " in "
                 + "(select " + KEY_FILTER_ID + " from " + TABLE_LINK_FRAME_FILTER + " where "
                 + KEY_FRAME_ID + " = " + frame.id + ") order by " + KEY_FILTER_MAKE)
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(query, null)
-        var filter: Filter
-        while (cursor.moveToNext()) {
-            filter = getFilterFromCursor(cursor)
-            filters.add(filter)
-        }
-        cursor.close()
-        return filters
+        val cursor = readableDatabase.rawQuery(query, null)
+        return cursor.map { getFilterFromCursor(it) }.also { cursor.close() }
     }
 
     // ******************** CRUD operations for the film stock table ********************
 
-    fun addFilmStock(filmStock: FilmStock): Long {
-        val db = this.writableDatabase
-        val values = buildFilmStockContentValues(filmStock)
-        return db.insert(TABLE_FILM_STOCKS, null, values)
-    }
+    fun addFilmStock(filmStock: FilmStock): Long =
+            writableDatabase.insert(TABLE_FILM_STOCKS, null, buildFilmStockContentValues(filmStock))
 
-    fun getFilmStock(filmStockId: Long): FilmStock? {
-        val db = this.readableDatabase
-        var filmStock: FilmStock? = null
-        val cursor = db.query(TABLE_FILM_STOCKS, null,
+    private fun getFilmStock(filmStockId: Long): FilmStock? {
+        val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null,
                 "$KEY_FILM_STOCK_ID=?", arrayOf(filmStockId.toString()), null, null, null)
-        if (cursor.moveToFirst()) {
-            filmStock = getFilmStockFromCursor(cursor, FilmStock())
-            cursor.close()
-        }
-        return filmStock
+        return (if (cursor.moveToFirst()) getFilmStockFromCursor(cursor, FilmStock()) else null)
+                .also { cursor.close() }
     }
 
-    val allFilmStocks: List<FilmStock>
-        get() {
-            val filmStocks: MutableList<FilmStock> = ArrayList()
-            val db = this.readableDatabase
-            val cursor = db.query(TABLE_FILM_STOCKS, null, null,
-                    null, null, null,
-                    "$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase")
-            while (cursor.moveToNext()) {
-                filmStocks.add(getFilmStockFromCursor(cursor, FilmStock()))
-            }
-            cursor.close()
-            return filmStocks
-        }
-
-    fun getAllFilmStocks(manufacturerName: String): List<FilmStock> {
-        val filmStocks: MutableList<FilmStock> = ArrayList()
-        val db = this.readableDatabase
-        val cursor = db.query(TABLE_FILM_STOCKS, null,
-                "$KEY_FILM_MANUFACTURER_NAME=?", arrayOf(manufacturerName), null, null, "$KEY_FILM_STOCK_NAME collate nocase")
-        while (cursor.moveToNext()) {
-            filmStocks.add(getFilmStockFromCursor(cursor, FilmStock()))
-        }
-        cursor.close()
-        return filmStocks
+    val allFilmStocks: List<FilmStock> get() {
+        val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null, null,
+                null, null, null,
+                "$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase")
+        return cursor.map { getFilmStockFromCursor(it, FilmStock()) }.also { cursor.close() }
     }
 
-    val allFilmManufacturers: List<String>
-        get() {
-            val manufacturers: MutableList<String> = ArrayList()
-            val db = this.readableDatabase
-            val cursor = db.query(true, TABLE_FILM_STOCKS, arrayOf(KEY_FILM_MANUFACTURER_NAME),
-                    null, null, null, null, "$KEY_FILM_MANUFACTURER_NAME collate nocase", null)
-            while (cursor.moveToNext()) {
-                manufacturers.add(cursor.getString(cursor.getColumnIndex(KEY_FILM_MANUFACTURER_NAME)))
-            }
-            cursor.close()
-            return manufacturers
-        }
+    val allFilmManufacturers: List<String> get() {
+        val cursor = readableDatabase.query(true, TABLE_FILM_STOCKS, arrayOf(KEY_FILM_MANUFACTURER_NAME),
+                null, null, null, null, "$KEY_FILM_MANUFACTURER_NAME collate nocase", null)
+        return cursor.map { it.getString(it.getColumnIndex(KEY_FILM_MANUFACTURER_NAME)) }.also { cursor.close() }
+    }
 
     fun isFilmStockBeingUsed(filmStock: FilmStock): Boolean {
-        val db = this.readableDatabase
-        val cursor = db.query(TABLE_ROLLS, arrayOf(KEY_FILM_STOCK_ID),
+        val cursor = readableDatabase.query(TABLE_ROLLS, arrayOf(KEY_FILM_STOCK_ID),
                 "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()), null, null, null)
-        if (cursor.moveToFirst()) {
-            cursor.close()
-            return true
-        }
-        return false
+        return cursor.moveToFirst().also { cursor.close() }
     }
 
-    fun deleteFilmStock(filmStock: FilmStock) {
-        val db = this.writableDatabase
-        db.delete(TABLE_FILM_STOCKS, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
-    }
+    fun deleteFilmStock(filmStock: FilmStock) =
+            writableDatabase.delete(TABLE_FILM_STOCKS, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
 
     fun updateFilmStock(filmStock: FilmStock) {
-        val db = this.writableDatabase
         val contentValues = buildFilmStockContentValues(filmStock)
-        db.update(TABLE_FILM_STOCKS, contentValues, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
+        writableDatabase.update(TABLE_FILM_STOCKS, contentValues, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
     }
 
     //*********************** METHODS TO GET OBJECTS FROM CURSOR **********************************
@@ -1059,7 +808,11 @@ class Database private constructor(private val context: Context)
         contentValues.put(KEY_ROLL_ID, frame.roll.id)
         contentValues.put(KEY_COUNT, frame.count)
         contentValues.put(KEY_DATE, if (frame.date != null) frame.date.toString() else null)
-        if (frame.lens != null) contentValues.put(KEY_LENS_ID, frame.lens!!.id) else contentValues.putNull(KEY_LENS_ID)
+
+        val lens = frame.lens
+        if (lens != null) contentValues.put(KEY_LENS_ID, lens.id)
+        else contentValues.putNull(KEY_LENS_ID)
+
         contentValues.put(KEY_SHUTTER, frame.shutter)
         contentValues.put(KEY_APERTURE, frame.aperture)
         contentValues.put(KEY_FRAME_NOTE, frame.note)
@@ -1125,12 +878,20 @@ class Database private constructor(private val context: Context)
         contentValues.put(KEY_ROLLNAME, roll.name)
         contentValues.put(KEY_ROLL_DATE, if (roll.date != null) roll.date.toString() else null)
         contentValues.put(KEY_ROLL_NOTE, roll.note)
-        if (roll.camera != null) contentValues.put(KEY_CAMERA_ID, roll.camera!!.id) else contentValues.putNull(KEY_CAMERA_ID)
+
+        val camera = roll.camera
+        if (camera != null) contentValues.put(KEY_CAMERA_ID, camera.id)
+        else contentValues.putNull(KEY_CAMERA_ID)
+
         contentValues.put(KEY_ROLL_ISO, roll.iso)
         contentValues.put(KEY_ROLL_PUSH, roll.pushPull)
         contentValues.put(KEY_ROLL_FORMAT, roll.format)
         contentValues.put(KEY_ROLL_ARCHIVED, roll.archived)
-        if (roll.filmStock != null) contentValues.put(KEY_FILM_STOCK_ID, roll.filmStock!!.id) else contentValues.putNull(KEY_FILM_STOCK_ID)
+
+        val filmStock = roll.filmStock
+        if (filmStock != null) contentValues.put(KEY_FILM_STOCK_ID, filmStock.id)
+        else contentValues.putNull(KEY_FILM_STOCK_ID)
+
         contentValues.put(KEY_ROLL_UNLOADED, if (roll.unloaded != null) roll.unloaded.toString() else null)
         contentValues.put(KEY_ROLL_DEVELOPED, if (roll.developed != null) roll.developed.toString() else null)
         return contentValues
