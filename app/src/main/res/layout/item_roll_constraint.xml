@@ -50,17 +50,62 @@
             app:layout_constraintLeft_toLeftOf="@id/item_roll_layout"
             />
 
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/roll_status_layout"
+            android:layout_marginLeft="15dp"
+            app:layout_constraintStart_toStartOf="@+id/guideline0"
+            app:layout_constraintTop_toBottomOf="@+id/tv_film_stock"
+            >
+
+            <ImageView
+                android:id="@+id/roll_loaded_image_view"
+                android:layout_width="30dp"
+                android:layout_height="20dp"
+                android:scaleX="1.3"
+                android:scaleY="1.3"
+                android:src="@drawable/ic_roll_loaded"
+                android:visibility="invisible"
+                app:layout_constraintStart_toStartOf="@+id/guideline0"
+                app:layout_constraintTop_toBottomOf="@+id/tv_film_stock" />
+
+            <ImageView
+                android:id="@+id/roll_unloaded_image_view"
+                android:layout_width="16dp"
+                android:layout_height="20dp"
+                android:scaleY="0.8"
+                android:scaleX="0.8"
+                android:src="@drawable/ic_roll_unloaded"
+                android:visibility="invisible"
+                app:layout_constraintTop_toBottomOf="@+id/tv_film_stock"
+                app:layout_constraintStart_toStartOf="@+id/guideline0"
+                />
+
+            <ImageView
+                android:id="@+id/roll_developed_image_view"
+                android:layout_width="30dp"
+                android:layout_height="20dp"
+                android:scaleX="1.3"
+                android:scaleY="1.3"
+                android:src="@drawable/ic_roll_developed"
+                android:visibility="invisible"
+                app:layout_constraintStart_toStartOf="@+id/guideline0"
+                app:layout_constraintTop_toBottomOf="@+id/tv_film_stock" />
+
+        </FrameLayout>
+
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/tv_roll_date"
             android:text="@string/Text"
-            android:paddingLeft="@dimen/ItemRollLeftRightPadding"
+            android:paddingLeft="2dp"
             android:paddingRight="@dimen/ItemRollLeftRightPadding"
             android:textSize="15sp"
             app:layout_constraintTop_toBottomOf="@+id/tv_film_stock"
+            app:layout_constraintStart_toEndOf="@+id/roll_status_layout"
             app:layout_constraintEnd_toStartOf="@+id/guideline1"
-            app:layout_constraintStart_toStartOf="@+id/guideline0"
              />
 
         <TextView

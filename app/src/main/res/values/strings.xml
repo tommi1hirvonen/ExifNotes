@@ -317,13 +317,16 @@
     <string name="Updates">Updates in this version:
         \n\n-Migrated all Java source code to Kotlin
         \n-General code refactoring
-        \n-Enabled links in About and Help dialog\n
+        \n-Enabled links in About and Help dialog
+        \n-Roll status is displayed in the list of rolls (loaded/unloaded/developed)
+        \n
     </string>
     <string name="VersionHistory">Version history
         \n\nv1.14.3 2020-06-26:
         \n-Migrated all Java source code to Kotlin
         \n-General code refactoring
         \n-Enabled links in About and Help dialog
+        \n-Roll status is displayed in the list of rolls (loaded/unloaded/developed)
         \n\nv1.14.2 2020-06-09:
         \n-Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance
         \n-Frame counts can be reversed when batch editing frames (useful for prewind cameras)

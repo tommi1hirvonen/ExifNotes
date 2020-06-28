@@ -13,6 +13,8 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemRollConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
+import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
  * RollAdapter acts as an adapter between a List of rolls and a RecyclerView.
@@ -91,9 +93,20 @@ class RollAdapter(private val context: Context,
         val roll = rollList[position]
         val numberOfFrames = context.database.getNumberOfFrames(roll)
 
+        holder.binding.rollLoadedImageView.visibility = View.GONE
+        holder.binding.rollUnloadedImageView.visibility = View.GONE
+        holder.binding.rollDevelopedImageView.visibility = View.GONE
+        when {
+            roll.developed != null -> holder.binding.rollDevelopedImageView.visibility = View.VISIBLE
+            roll.unloaded != null -> holder.binding.rollUnloadedImageView.visibility = View.VISIBLE
+            else -> holder.binding.rollLoadedImageView.visibility = View.VISIBLE
+        }
+
+        holder.binding.tvRollDate.text =
+                roll.developed?.dateTimeAsText ?: roll.unloaded?.dateTimeAsText ?: roll.date?.dateTimeAsText
+
         // Populate the data into the template view using the data object
         holder.binding.tvRollName.text = roll.name
-        holder.binding.tvRollDate.text = roll.date?.dateTimeAsText
         holder.binding.tvRollNote.text = roll.note
 
         roll.filmStock?.let {
@@ -113,6 +126,13 @@ class RollAdapter(private val context: Context,
                     R.plurals.PhotosAmount, numberOfFrames, numberOfFrames)
         }
 
+        if (context.isAppThemeDark) {
+            val color = ContextCompat.getColor(context, R.color.light_grey)
+            holder.binding.rollLoadedImageView.drawable.setColorFilterCompat(color)
+            holder.binding.rollUnloadedImageView.drawable.setColorFilterCompat(color)
+            holder.binding.rollDevelopedImageView.drawable.setColorFilterCompat(color)
+        }
+
         val noFade = 1.0f
         val lightFade = 0.9f
         val moderateFade = 0.5f
@@ -120,6 +140,9 @@ class RollAdapter(private val context: Context,
 
         // If the roll is archived, fade the text somewhat
         if (roll.archived) {
+            holder.binding.rollLoadedImageView.alpha = heavyFade
+            holder.binding.rollUnloadedImageView.alpha = heavyFade
+            holder.binding.rollDevelopedImageView.alpha = heavyFade
             holder.binding.tvRollName.alpha = heavyFade
             holder.binding.tvFilmStock.alpha = heavyFade
             holder.binding.tvRollDate.alpha = moderateFade
@@ -127,6 +150,9 @@ class RollAdapter(private val context: Context,
             holder.binding.tvPhotos.alpha = moderateFade
             holder.binding.tvCamera.alpha = moderateFade
         } else {
+            holder.binding.rollLoadedImageView.alpha = lightFade
+            holder.binding.rollUnloadedImageView.alpha = lightFade
+            holder.binding.rollDevelopedImageView.alpha = lightFade
             holder.binding.tvRollName.alpha = lightFade
             holder.binding.tvFilmStock.alpha = lightFade
             holder.binding.tvRollDate.alpha = noFade
