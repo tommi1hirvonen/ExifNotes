@@ -21,6 +21,12 @@ val Fragment.database: Database get() = Database.getInstance(requireContext().ap
 fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
         generateSequence { if (this.moveToNext()) this else null }.map { transform(it) }.toList()
 
+fun <T> Cursor.withFirstOrNull(transform: (Cursor) -> T): T? =
+        if (this.moveToFirst()) transform(this) else null
+
+fun <T> Cursor.withFirstOrDefault(default: T, transform: (Cursor) -> T): T =
+        if (this.moveToFirst()) transform(this) else default
+
 /**
  * FilmDbHelper is the SQL database class that holds all the information
  * the user stores in the app. This class provides all necessary CRUD operations as well as
@@ -220,7 +226,7 @@ class Database private constructor(private val context: Context)
     private fun getLens(lens_id: Long): Lens? {
         val cursor = readableDatabase.query(TABLE_LENSES, null,
                 "$KEY_LENS_ID=?", arrayOf(lens_id.toString()), null, null, null)
-        return (if (cursor.moveToFirst()) getLensFromCursor(cursor) else null).also { cursor.close() }
+        return cursor.withFirstOrNull { getLensFromCursor(it) }.also { cursor.close() }
     }
 
     /**
@@ -276,7 +282,7 @@ class Database private constructor(private val context: Context)
     private fun getCamera(camera_id: Long): Camera? {
         val cursor = readableDatabase.query(TABLE_CAMERAS, null,
                 "$KEY_CAMERA_ID=?", arrayOf(camera_id.toString()), null, null, null)
-        return (if (cursor.moveToFirst()) getCameraFromCursor(cursor) else null).also { cursor.close() }
+        return cursor.withFirstOrNull { getCameraFromCursor(it) }.also { cursor.close() }
     }
 
     /**
@@ -419,7 +425,7 @@ class Database private constructor(private val context: Context)
     fun getNumberOfFrames(roll: Roll): Int {
         val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf("COUNT($KEY_FRAME_ID)"),
                 "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()), null, null, null)
-        return (if (cursor.moveToFirst()) cursor.getInt(0) else 0).also { cursor.close() }
+        return cursor.withFirstOrDefault(0) { it.getInt(0) }.also { cursor.close() }
     }
 
     // ******************** CRUD operations for the filters table ********************
@@ -573,8 +579,7 @@ class Database private constructor(private val context: Context)
     private fun getFilmStock(filmStockId: Long): FilmStock? {
         val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null,
                 "$KEY_FILM_STOCK_ID=?", arrayOf(filmStockId.toString()), null, null, null)
-        return (if (cursor.moveToFirst()) getFilmStockFromCursor(cursor, FilmStock()) else null)
-                .also { cursor.close() }
+        return cursor.withFirstOrNull { getFilmStockFromCursor(cursor, FilmStock()) }.also { cursor.close() }
     }
 
     val allFilmStocks: List<FilmStock> get() {
