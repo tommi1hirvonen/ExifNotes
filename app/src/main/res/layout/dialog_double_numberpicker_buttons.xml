@@ -30,7 +30,7 @@
                 android:id="@+id/picker_one_fast_rewind_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_fast_rewind_black_48dp"
+                android:src="@drawable/ic_baseline_fast_rewind_24"
                 android:layout_gravity="center"
                 android:duplicateParentState="true"
                 tools:ignore="ContentDescription" />
@@ -70,7 +70,7 @@
                 android:id="@+id/picker_one_fast_forward_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_fast_forward_black_48dp"
+                android:src="@drawable/ic_baseline_fast_forward_24"
                 android:layout_gravity="center_horizontal"
                 android:duplicateParentState="true"
                 tools:ignore="ContentDescription" />
@@ -85,7 +85,7 @@
         android:layout_height="30dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:src="@drawable/ic_remove_black_48dp"
+        android:src="@drawable/ic_baseline_remove_24"
         android:layout_gravity="center"
         tools:ignore="ContentDescription" />
 
@@ -110,7 +110,7 @@
                 android:id="@+id/picker_two_fast_rewind_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_fast_rewind_black_48dp"
+                android:src="@drawable/ic_baseline_fast_rewind_24"
                 android:layout_gravity="center_horizontal"
                 android:duplicateParentState="true"
                 tools:ignore="ContentDescription" />
@@ -148,7 +148,7 @@
                 android:id="@+id/picker_two_fast_forward_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_fast_forward_black_48dp"
+                android:src="@drawable/ic_baseline_fast_forward_24"
                 android:layout_gravity="center_horizontal"
                 android:duplicateParentState="true"
                 tools:ignore="ContentDescription" />

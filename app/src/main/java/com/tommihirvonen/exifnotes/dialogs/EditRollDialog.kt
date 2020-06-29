@@ -71,10 +71,11 @@ class EditRollDialog : DialogFragment() {
                     binding.dividerView5, binding.dividerView6, binding.dividerView7, binding.dividerView8, 
                     binding.dividerView9, binding.dividerView10)
                     .forEach { it.setBackgroundColor(color) }
-            binding.addCamera.drawable.setColorFilterCompat(color)
-            binding.clearFilmStock.drawable.setColorFilterCompat(color)
-            binding.clearDateUnloaded.drawable.setColorFilterCompat(color)
-            binding.clearDateDeveloped.drawable.setColorFilterCompat(color)
+            val color2 = ContextCompat.getColor(requireActivity(), R.color.light_grey)
+            binding.addCamera.drawable.setColorFilterCompat(color2)
+            binding.clearFilmStock.drawable.setColorFilterCompat(color2)
+            binding.clearDateUnloaded.drawable.setColorFilterCompat(color2)
+            binding.clearDateDeveloped.drawable.setColorFilterCompat(color2)
         }
         //==========================================================================================
 

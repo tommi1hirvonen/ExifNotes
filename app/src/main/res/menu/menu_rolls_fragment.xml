@@ -5,7 +5,7 @@
     <item
         android:title="@string/VisibleRolls"
         android:id="@+id/menu_item_filter"
-        android:icon="@drawable/ic_filter_list_white_48dp"
+        android:icon="@drawable/ic_baseline_filter_list_24"
         app:showAsAction="ifRoom">
         <menu>
             <group
@@ -29,7 +29,7 @@
     <item
         android:title="@string/SortBy"
         android:id="@+id/menu_item_sort"
-        android:icon="@drawable/ic_sort_white_48dp"
+        android:icon="@drawable/ic_baseline_sort_24"
         app:showAsAction="ifRoom">
         <menu>
             <group

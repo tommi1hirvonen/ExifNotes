@@ -123,11 +123,9 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="15dp"
-                    android:rotation="45"
                     android:clickable="true"
-                    android:alpha="0.6"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_add_circle_black_48dp"
+                    android:src="@drawable/ic_baseline_cancel_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
             </RelativeLayout>
@@ -349,11 +347,9 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:layout_marginRight="15dp"
-                    android:rotation="45"
                     android:clickable="true"
-                    android:alpha="0.6"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_add_circle_black_48dp"
+                    android:src="@drawable/ic_baseline_cancel_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
                 <View
@@ -467,11 +463,9 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:layout_marginRight="15dp"
-                    android:rotation="45"
                     android:clickable="true"
-                    android:alpha="0.6"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_add_circle_black_48dp"
+                    android:src="@drawable/ic_baseline_cancel_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
                 <View
@@ -534,9 +528,8 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="15dp"
                     android:clickable="true"
-                    android:alpha="0.6"
                     android:background="?selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_add_circle_black_48dp"
+                    android:src="@drawable/ic_baseline_add_circle_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
             </RelativeLayout>

@@ -24,7 +24,7 @@
         android:scaleY="0.7"
         android:id="@+id/checkbox_1"
         android:layout_alignParentTop="true"
-        android:src="@drawable/ic_done_white_48dp"
+        android:src="@drawable/ic_baseline_done_24"
         android:contentDescription="@string/Blue"
         android:layout_margin="10dp" />
 
@@ -46,7 +46,7 @@
         android:scaleY="0.7"
         android:id="@+id/checkbox_2"
         android:layout_toRightOf="@id/ui_color_option_1"
-        android:src="@drawable/ic_done_white_48dp"
+        android:src="@drawable/ic_baseline_done_24"
         android:contentDescription="@string/Blue"
         android:layout_margin="10dp" />
 
@@ -68,7 +68,7 @@
         android:scaleY="0.7"
         android:id="@+id/checkbox_3"
         android:layout_toRightOf="@id/ui_color_option_2"
-        android:src="@drawable/ic_done_white_48dp"
+        android:src="@drawable/ic_baseline_done_24"
         android:contentDescription="@string/Blue"
         android:layout_margin="10dp" />
 
@@ -90,7 +90,7 @@
         android:scaleY="0.7"
         android:id="@+id/checkbox_4"
         android:layout_toRightOf="@id/ui_color_option_3"
-        android:src="@drawable/ic_done_white_48dp"
+        android:src="@drawable/ic_baseline_done_24"
         android:contentDescription="@string/Blue"
         android:layout_margin="10dp" />
 
@@ -112,7 +112,7 @@
         android:scaleY="0.7"
         android:id="@+id/checkbox_5"
         android:layout_below="@id/ui_color_option_1"
-        android:src="@drawable/ic_done_white_48dp"
+        android:src="@drawable/ic_baseline_done_24"
         android:contentDescription="@string/Blue"
         android:layout_margin="10dp" />
 
@@ -136,7 +136,7 @@
         android:id="@+id/checkbox_6"
         android:layout_below="@id/ui_color_option_2"
         android:layout_toRightOf="@id/ui_color_option_5"
-        android:src="@drawable/ic_done_white_48dp"
+        android:src="@drawable/ic_baseline_done_24"
         android:contentDescription="@string/Blue"
         android:layout_margin="10dp" />
 
@@ -160,7 +160,7 @@
         android:id="@+id/checkbox_7"
         android:layout_below="@id/ui_color_option_3"
         android:layout_toRightOf="@id/ui_color_option_6"
-        android:src="@drawable/ic_done_white_48dp"
+        android:src="@drawable/ic_baseline_done_24"
         android:contentDescription="@string/Blue"
         android:layout_margin="10dp" />
 
@@ -184,7 +184,7 @@
         android:id="@+id/checkbox_8"
         android:layout_below="@id/ui_color_option_4"
         android:layout_toRightOf="@id/ui_color_option_7"
-        android:src="@drawable/ic_done_white_48dp"
+        android:src="@drawable/ic_baseline_done_24"
         android:contentDescription="@string/Blue"
         android:layout_margin="10dp" />
     

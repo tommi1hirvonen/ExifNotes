@@ -12,7 +12,7 @@
     <item
         android:title="@string/MapType"
         android:id="@+id/menu_item_map_type"
-        android:icon="@drawable/ic_map_white_48dp"
+        android:icon="@drawable/ic_baseline_map_24"
         app:showAsAction="always">
         <menu
             xmlns:android="http://schemas.android.com/apk/res/android">

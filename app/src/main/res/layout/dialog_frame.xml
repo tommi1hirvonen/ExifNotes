@@ -318,9 +318,8 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="15dp"
                     android:clickable="true"
-                    android:alpha="0.6"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_add_circle_black_48dp"
+                    android:src="@drawable/ic_baseline_add_circle_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
             </RelativeLayout>
@@ -383,9 +382,8 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="15dp"
                     android:clickable="true"
-                    android:alpha="0.6"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_add_circle_black_48dp"
+                    android:src="@drawable/ic_baseline_add_circle_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
             </RelativeLayout>
@@ -555,11 +553,9 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="15dp"
-                    android:rotation="45"
                     android:clickable="true"
-                    android:alpha="0.6"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_add_circle_black_48dp"
+                    android:src="@drawable/ic_baseline_cancel_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
             </RelativeLayout>

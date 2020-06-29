@@ -173,9 +173,10 @@ open class EditFrameDialog : DialogFragment() {
                     binding.dividerView10, binding.dividerView11, binding.dividerView12,
                     binding.dividerView13, binding.dividerView14)
                     .forEach { it.setBackgroundColor(color) }
-            binding.addLens.drawable.setColorFilterCompat(color)
-            binding.addFilter.drawable.setColorFilterCompat(color)
-            binding.clearLocation.drawable.setColorFilterCompat(color)
+            val color2 = ContextCompat.getColor(requireActivity(), R.color.light_grey)
+            binding.addLens.drawable.setColorFilterCompat(color2)
+            binding.addFilter.drawable.setColorFilterCompat(color2)
+            binding.clearLocation.drawable.setColorFilterCompat(color2)
         }
 
 

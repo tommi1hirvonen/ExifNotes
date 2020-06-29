@@ -5,7 +5,7 @@
     <item
         android:title="@string/FilterNoColon"
         android:id="@+id/menu_item_filter"
-        android:icon="@drawable/ic_filter_list_white_48dp"
+        android:icon="@drawable/ic_baseline_filter_list_24"
         app:showAsAction="ifRoom"
         >
     </item>
@@ -13,7 +13,7 @@
     <item
         android:title="@string/MapType"
         android:id="@+id/menu_item_map_type"
-        android:icon="@drawable/ic_map_white_48dp"
+        android:icon="@drawable/ic_baseline_map_24"
         app:showAsAction="always">
         <menu
             xmlns:android="http://schemas.android.com/apk/res/android">
