@@ -75,6 +75,8 @@ class RollAdapter(private val context: Context,
      * All common view elements for all items are initialized here.
      */
     inner class ViewHolder(val binding: ItemRollConstraintBinding) : RecyclerView.ViewHolder(binding.root) {
+        val imageViews = listOf(binding.dateImageView, binding.filmStockImageView,
+                binding.cameraImageView, binding.photosImageView, binding.notesImageView)
         init {
             binding.itemRollLayout.setOnClickListener { listener.onItemClick(adapterPosition) }
             binding.itemRollLayout.setOnLongClickListener {
@@ -93,28 +95,26 @@ class RollAdapter(private val context: Context,
         val roll = rollList[position]
         val numberOfFrames = context.database.getNumberOfFrames(roll)
 
-        holder.binding.rollLoadedImageView.visibility = View.GONE
-        holder.binding.rollUnloadedImageView.visibility = View.GONE
-        holder.binding.rollDevelopedImageView.visibility = View.GONE
-        when {
-            roll.developed != null -> holder.binding.rollDevelopedImageView.visibility = View.VISIBLE
-            roll.unloaded != null -> holder.binding.rollUnloadedImageView.visibility = View.VISIBLE
-            else -> holder.binding.rollLoadedImageView.visibility = View.VISIBLE
-        }
-
         holder.binding.tvRollDate.text =
-                roll.developed?.dateTimeAsText ?: roll.unloaded?.dateTimeAsText ?: roll.date?.dateTimeAsText
+                roll.developed?.dateTimeAsText?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Developed) }
+                        ?: roll.unloaded?.dateTimeAsText?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Unloaded) }
+                                ?: roll.date?.dateTimeAsText?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Loaded) }
 
-        // Populate the data into the template view using the data object
         holder.binding.tvRollName.text = roll.name
-        holder.binding.tvRollNote.text = roll.note
+
+        if (roll.note?.isNotEmpty() == true) {
+            holder.binding.tvRollNote.text = roll.note
+            holder.binding.notesLayout.visibility = View.VISIBLE
+        } else {
+            holder.binding.notesLayout.visibility = View.GONE
+        }
 
         roll.filmStock?.let {
             holder.binding.tvFilmStock.text = it.name
-            holder.binding.tvFilmStock.visibility = View.VISIBLE
+            holder.binding.filmStockLayout.visibility = View.VISIBLE
         } ?: run {
             holder.binding.tvFilmStock.text = ""
-            holder.binding.tvFilmStock.visibility = View.GONE
+            holder.binding.filmStockLayout.visibility = View.GONE
         }
 
         holder.binding.tvCamera.text = roll.camera?.name ?: context.resources.getString(R.string.NoCamera)
@@ -128,9 +128,7 @@ class RollAdapter(private val context: Context,
 
         if (context.isAppThemeDark) {
             val color = ContextCompat.getColor(context, R.color.light_grey)
-            holder.binding.rollLoadedImageView.drawable.setColorFilterCompat(color)
-            holder.binding.rollUnloadedImageView.drawable.setColorFilterCompat(color)
-            holder.binding.rollDevelopedImageView.drawable.setColorFilterCompat(color)
+            holder.imageViews.forEach { it.drawable.setColorFilterCompat(color) }
         }
 
         val noFade = 1.0f
@@ -140,9 +138,7 @@ class RollAdapter(private val context: Context,
 
         // If the roll is archived, fade the text somewhat
         if (roll.archived) {
-            holder.binding.rollLoadedImageView.alpha = heavyFade
-            holder.binding.rollUnloadedImageView.alpha = heavyFade
-            holder.binding.rollDevelopedImageView.alpha = heavyFade
+            holder.imageViews.forEach { it.alpha = heavyFade }
             holder.binding.tvRollName.alpha = heavyFade
             holder.binding.tvFilmStock.alpha = heavyFade
             holder.binding.tvRollDate.alpha = moderateFade
@@ -150,9 +146,7 @@ class RollAdapter(private val context: Context,
             holder.binding.tvPhotos.alpha = moderateFade
             holder.binding.tvCamera.alpha = moderateFade
         } else {
-            holder.binding.rollLoadedImageView.alpha = lightFade
-            holder.binding.rollUnloadedImageView.alpha = lightFade
-            holder.binding.rollDevelopedImageView.alpha = lightFade
+            holder.imageViews.forEach { it.alpha = lightFade }
             holder.binding.tvRollName.alpha = lightFade
             holder.binding.tvFilmStock.alpha = lightFade
             holder.binding.tvRollDate.alpha = noFade

@@ -89,6 +89,7 @@
     <string name="DeleteFilmStock">Delete film stock</string>
     <string name="DescriptionOrNote">Description/note</string>
     <string name="DeselectAll">Deselect all</string>
+    <string name="Developed">Developed</string>
     <string name="DevelopedOn">Developed on</string>
     <string name="DisableInApp">Disable in app</string>
     <string name="Edit">Edit</string>
@@ -193,6 +194,7 @@
     <string name="Lenses">LENSES</string>
     <string name="Light">Light</string>
     <string name="LightSource">Light source</string>
+    <string name="Loaded">Loaded</string>
     <string name="LoadedOn">Loaded on</string>
     <string name="LoadingPicture">Loading picture…</string>
     <string name="Location">Location</string>
@@ -302,6 +304,7 @@
     <string name="UIColorTitle">User interface color </string>
     <string name="Unarchive">Unarchive</string>
     <string name="Unknown">Unknown</string>
+    <string name="Unloaded">Unloaded</string>
     <string name="UnloadedOn">Unloaded on</string>
     <string name="UseCustomValue">Use custom value</string>
     <string name="UsedCamera">Choose used camera</string>

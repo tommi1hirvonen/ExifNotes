@@ -35,131 +35,202 @@
             app:layout_constraintRight_toRightOf="@id/item_roll_layout"
             />
 
-        <TextView
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/film_stock_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_film_stock"
-            android:text="@string/Text"
-            android:paddingLeft="@dimen/ItemRollLeftRightPadding"
-            android:paddingRight="@dimen/ItemRollLeftRightPadding"
-            android:textSize="15sp"
-            android:ellipsize="end"
-            android:maxLines="1"
             app:layout_constraintTop_toBottomOf="@id/tv_roll_name"
-            app:layout_constraintRight_toLeftOf="@id/guideline2"
             app:layout_constraintLeft_toLeftOf="@id/item_roll_layout"
-            />
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/roll_status_layout"
-            android:layout_marginLeft="15dp"
-            app:layout_constraintStart_toStartOf="@+id/guideline0"
-            app:layout_constraintTop_toBottomOf="@+id/tv_film_stock"
+            app:layout_constraintRight_toRightOf="@id/item_roll_layout"
             >
 
             <ImageView
-                android:id="@+id/roll_loaded_image_view"
-                android:layout_width="30dp"
-                android:layout_height="20dp"
-                android:scaleX="1.3"
-                android:scaleY="1.3"
-                android:src="@drawable/ic_roll_loaded"
-                android:visibility="invisible"
-                app:layout_constraintStart_toStartOf="@+id/guideline0"
-                app:layout_constraintTop_toBottomOf="@+id/tv_film_stock" />
-
-            <ImageView
-                android:id="@+id/roll_unloaded_image_view"
-                android:layout_width="16dp"
-                android:layout_height="20dp"
-                android:scaleY="0.8"
-                android:scaleX="0.8"
-                android:src="@drawable/ic_roll_unloaded"
-                android:visibility="invisible"
-                app:layout_constraintTop_toBottomOf="@+id/tv_film_stock"
-                app:layout_constraintStart_toStartOf="@+id/guideline0"
+                android:id="@+id/film_stock_image_view"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:layout_marginLeft="@dimen/ItemRollLeftRightPadding"
+                android:src="@drawable/ic_baseline_camera_roll_24"
+                android:layout_gravity="center_vertical"
                 />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_film_stock"
+                android:text="@string/Text"
+                android:paddingLeft="5dp"
+                android:paddingRight="@dimen/ItemRollLeftRightPadding"
+                android:textSize="15sp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:layout_gravity="center_vertical"
+                />
+
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/date_layout"
+            app:layout_constraintTop_toBottomOf="@+id/camera_layout"
+            app:layout_constraintLeft_toLeftOf="@id/item_roll_layout"
+            app:layout_constraintRight_toRightOf="@+id/item_roll_layout"
+            >
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/date_layout_guideline1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
             <ImageView
-                android:id="@+id/roll_developed_image_view"
-                android:layout_width="30dp"
-                android:layout_height="20dp"
-                android:scaleX="1.3"
-                android:scaleY="1.3"
-                android:src="@drawable/ic_roll_developed"
-                android:visibility="invisible"
-                app:layout_constraintStart_toStartOf="@+id/guideline0"
-                app:layout_constraintTop_toBottomOf="@+id/tv_film_stock" />
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:id="@+id/date_image_view"
+                android:src="@drawable/ic_baseline_calendar_today_24"
+                android:layout_marginLeft="@dimen/ItemRollLeftRightPadding"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintLeft_toLeftOf="@+id/date_layout"
+                app:layout_constraintTop_toTopOf="@+id/date_layout"
+                app:layout_constraintBottom_toBottomOf="@+id/date_layout"
+                />
 
-        </FrameLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_roll_date"
+                android:text="@string/Text"
+                android:paddingLeft="5dp"
+                android:paddingRight="@dimen/ItemRollLeftRightPadding"
+                android:textSize="15sp"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintLeft_toRightOf="@+id/date_image_view"
+                app:layout_constraintTop_toTopOf="@+id/date_layout"
+                app:layout_constraintBottom_toBottomOf="@+id/date_layout"
+                />
 
-        <TextView
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/status_text_view"
+                android:text="@string/Text"
+                android:textSize="13sp"
+                app:layout_constraintTop_toTopOf="@+id/date_layout"
+                app:layout_constraintBottom_toBottomOf="@+id/date_layout"
+                app:layout_constraintLeft_toLeftOf="@+id/date_layout_guideline1"
+                app:layout_constraintRight_toRightOf="@+id/date_layout"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        <LinearLayout
+            android:id="@+id/photos_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_roll_date"
-            android:text="@string/Text"
-            android:paddingLeft="2dp"
-            android:paddingRight="@dimen/ItemRollLeftRightPadding"
-            android:textSize="15sp"
-            app:layout_constraintTop_toBottomOf="@+id/tv_film_stock"
-            app:layout_constraintStart_toEndOf="@+id/roll_status_layout"
-            app:layout_constraintEnd_toStartOf="@+id/guideline1"
-             />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/tv_photos"
-            android:text="@string/Text"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:textSize="15sp"
             app:layout_constraintStart_toStartOf="@+id/guideline1"
-            app:layout_constraintTop_toBottomOf="@+id/tv_film_stock"
-            app:layout_constraintEnd_toStartOf="@+id/guideline2"/>
+            app:layout_constraintTop_toBottomOf="@+id/film_stock_layout"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            >
 
-        <TextView
+            <ImageView
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:id="@+id/photos_image_view"
+                android:src="@drawable/ic_baseline_theaters_24"
+                android:layout_gravity="center_vertical"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_photos"
+                android:text="@string/Text"
+                android:paddingLeft="5dp"
+                android:paddingRight="10dp"
+                android:textSize="15sp"
+                android:layout_gravity="center_vertical"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/camera_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_camera"
-            android:text="@string/Text"
-            android:paddingLeft="@dimen/ItemRollLeftRightPadding"
-            android:paddingRight="@dimen/ItemRollLeftRightPadding"
-            android:gravity="center_vertical"
-            android:textSize="15sp"
-            android:scrollHorizontally="true"
-            android:ellipsize="end"
-            android:maxLines="1"
-            app:layout_constraintTop_toBottomOf="@+id/tv_roll_date"
+            app:layout_constraintTop_toBottomOf="@+id/film_stock_layout"
             app:layout_constraintEnd_toStartOf="@+id/guideline1"
             app:layout_constraintStart_toStartOf="@+id/guideline0"
-            />
+            >
 
-        <TextView
+            <ImageView
+                android:id="@+id/camera_image_view"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:src="@drawable/ic_baseline_camera_alt_24"
+                android:layout_marginLeft="@dimen/ItemRollLeftRightPadding"
+                android:layout_gravity="center_vertical"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_camera"
+                android:text="@string/Text"
+                android:paddingLeft="5dp"
+                android:paddingRight="@dimen/ItemRollLeftRightPadding"
+                android:gravity="center_vertical"
+                android:textSize="15sp"
+                android:scrollHorizontally="true"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:layout_gravity="center_vertical"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/notes_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:id="@+id/tv_roll_note"
-            android:text="@string/Text"
-            android:textSize="13sp"
-            android:gravity="center_vertical"
-            android:scrollHorizontally="true"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textStyle="italic"
-            app:layout_constraintTop_toBottomOf="@+id/tv_photos"
-            app:layout_constraintEnd_toStartOf="@+id/guideline2"
-            app:layout_constraintStart_toStartOf="@+id/guideline1"/>
+            app:layout_constraintTop_toBottomOf="@+id/date_layout"
+            app:layout_constraintLeft_toLeftOf="@id/item_roll_layout"
+            app:layout_constraintRight_toRightOf="@+id/item_roll_layout"
+            >
+
+            <ImageView
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:layout_marginLeft="@dimen/ItemRollLeftRightPadding"
+                android:id="@+id/notes_image_view"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_baseline_notes_24"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:paddingRight="10dp"
+                android:id="@+id/tv_roll_note"
+                android:text="@string/Text"
+                android:textSize="13sp"
+                android:layout_gravity="center_vertical"
+                android:scrollHorizontally="true"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textStyle="italic"
+                />
+
+        </LinearLayout>
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_check_box_green"
             android:id="@+id/checkbox"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintStart_toStartOf="@+id/guideline0"
             app:layout_constraintTop_toTopOf="@id/guideline3"
             app:layout_constraintBottom_toBottomOf="@+id/guideline3"
@@ -176,11 +247,11 @@
             app:layout_constraintGuide_begin="0dp" />
 
         <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/guideline1"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5"/>
+            app:layout_constraintGuide_percent="0.5" />
 
         <androidx.constraintlayout.widget.Guideline
             android:layout_width="wrap_content"
