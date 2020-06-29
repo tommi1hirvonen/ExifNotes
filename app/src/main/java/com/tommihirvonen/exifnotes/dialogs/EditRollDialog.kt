@@ -235,50 +235,25 @@ class EditRollDialog : DialogFragment() {
 
         //==========================================================================================
         //PUSH PULL PICKER
-        binding.pushPullText.text = if (roll.pushPull == null || roll.pushPull == "0") "" else roll.pushPull
-        binding.pushPullLayout.setOnClickListener {
-            val builder = AlertDialog.Builder(activity)
-            val inflater = requireActivity().layoutInflater
-            @SuppressLint("InflateParams")
-            val dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null)
-            val pushPullPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker).fix()
-            val compValues = requireActivity().resources.getStringArray(R.array.CompValues)
-            pushPullPicker.minValue = 0
-            pushPullPicker.maxValue = compValues.size - 1
-            pushPullPicker.displayedValues = compValues
-            pushPullPicker.value = 9
-            val initialValue = compValues.indexOfFirst { it == newRoll.pushPull }
-            if (initialValue != -1) pushPullPicker.value = initialValue
-
-            //To prevent text edit
-            pushPullPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            builder.setView(dialogView)
-            builder.setTitle(resources.getString(R.string.ChoosePushOrPull))
-            builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                newRoll.pushPull = compValues[pushPullPicker.value]
-                binding.pushPullText.text = if (newRoll.pushPull == "0") "" else newRoll.pushPull
+        try {
+            if (newRoll.pushPull != null) {
+                val values = resources.getStringArray(R.array.CompValues)
+                binding.pushPullSpinner.setSelection(values.indexOf(newRoll.pushPull))
+            } else {
+                binding.pushPullSpinner.setSelection(9)
             }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            e.printStackTrace()
         }
         //==========================================================================================
 
 
         //==========================================================================================
-        //FORMAT PICK DIALOG
-        binding.formatText.text = resources.getStringArray(R.array.FilmFormats)[roll.format]
-        binding.formatLayout.setOnClickListener {
-            val checkedItem = newRoll.format
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle(resources.getString(R.string.ChooseFormat))
-            builder.setSingleChoiceItems(R.array.FilmFormats, checkedItem) { dialogInterface: DialogInterface, i: Int ->
-                newRoll.format = i
-                binding.formatText.text = resources.getStringArray(R.array.FilmFormats)[i]
-                dialogInterface.dismiss()
-            }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            builder.create().show()
+        //FORMAT PICKER
+        try {
+            binding.formatSpinner.setSelection(newRoll.format)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            e.printStackTrace()
         }
         //==========================================================================================
 
@@ -316,8 +291,8 @@ class EditRollDialog : DialogFragment() {
                 roll.unloaded = dateUnloadedManager.dateTime
                 roll.developed = dateDevelopedManager.dateTime
                 roll.iso = newRoll.iso
-                roll.pushPull = newRoll.pushPull
-                roll.format = newRoll.format
+                roll.pushPull = binding.pushPullSpinner.selectedItem as String?
+                roll.format = binding.formatSpinner.selectedItemPosition
                 roll.filmStock = newRoll.filmStock
                 val intent = Intent()
                 intent.putExtra(ExtraKeys.ROLL, roll)

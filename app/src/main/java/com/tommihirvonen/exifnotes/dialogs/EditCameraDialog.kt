@@ -85,7 +85,6 @@ class EditCameraDialog : DialogFragment() {
         binding.shutterSpeedIncrementSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                newCamera.shutterIncrements = position
                 //Shutter speed increments were changed, make update
                 //Check if the new increments include both min and max values.
                 //Otherwise reset them to null
@@ -171,12 +170,6 @@ class EditCameraDialog : DialogFragment() {
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
-        binding.exposureCompIncrementSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                newCamera.exposureCompIncrements = position
-            }
-        }
 
 
         // FINALISE BUILDING THE DIALOG
@@ -214,10 +207,10 @@ class EditCameraDialog : DialogFragment() {
                 camera.make = make
                 camera.model = model
                 camera.serialNumber = serialNumber
-                camera.shutterIncrements = newCamera.shutterIncrements
+                camera.shutterIncrements = binding.shutterSpeedIncrementSpinner.selectedItemPosition
                 camera.minShutter = newCamera.minShutter
                 camera.maxShutter = newCamera.maxShutter
-                camera.exposureCompIncrements = newCamera.exposureCompIncrements
+                camera.exposureCompIncrements = binding.exposureCompIncrementSpinner.selectedItemPosition
 
                 // Return the new entered name to the calling activity
                 val intent = Intent()

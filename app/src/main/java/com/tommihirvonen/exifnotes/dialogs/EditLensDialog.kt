@@ -91,7 +91,6 @@ class EditLensDialog : DialogFragment() {
         binding.incrementSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                newLens.apertureIncrements = position
                 //Check if the new increments include both min and max values.
                 //Otherwise reset them to null
                 displayedApertureValues = when (newLens.apertureIncrements) {
@@ -254,7 +253,7 @@ class EditLensDialog : DialogFragment() {
                 lens.make = make
                 lens.model = model
                 lens.serialNumber = serialNumber
-                lens.apertureIncrements = newLens.apertureIncrements
+                lens.apertureIncrements = binding.incrementSpinner.selectedItemPosition
                 lens.minAperture = newLens.minAperture
                 lens.maxAperture = newLens.maxAperture
                 lens.minFocalLength = newLens.minFocalLength
