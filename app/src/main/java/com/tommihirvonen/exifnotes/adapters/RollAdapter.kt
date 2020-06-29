@@ -142,6 +142,7 @@ class RollAdapter(private val context: Context,
             holder.binding.tvRollName.alpha = heavyFade
             holder.binding.tvFilmStock.alpha = heavyFade
             holder.binding.tvRollDate.alpha = moderateFade
+            holder.binding.statusTextView.alpha = moderateFade
             holder.binding.tvRollNote.alpha = moderateFade
             holder.binding.tvPhotos.alpha = moderateFade
             holder.binding.tvCamera.alpha = moderateFade
@@ -150,6 +151,7 @@ class RollAdapter(private val context: Context,
             holder.binding.tvRollName.alpha = lightFade
             holder.binding.tvFilmStock.alpha = lightFade
             holder.binding.tvRollDate.alpha = noFade
+            holder.binding.statusTextView.alpha = noFade
             holder.binding.tvRollNote.alpha = noFade
             holder.binding.tvPhotos.alpha = noFade
             holder.binding.tvCamera.alpha = noFade
