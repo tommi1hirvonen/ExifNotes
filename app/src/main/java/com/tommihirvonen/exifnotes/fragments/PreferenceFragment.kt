@@ -13,7 +13,6 @@ import android.widget.Chronometer
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.DialogFragment
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.tommihirvonen.exifnotes.R
@@ -130,15 +129,21 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
-        var dialogFragment: DialogFragment? = null
-        if (preference is UIColorDialogPreference) {
-            dialogFragment = UIColorPreferenceDialogFragment(preference.getKey())
-        }
-        if (dialogFragment != null) {
-            dialogFragment.setTargetFragment(this, 0)
-            dialogFragment.show(parentFragmentManager, null)
-        } else {
-            super.onDisplayPreferenceDialog(preference)
+        when (preference) {
+            is UIColorDialogPreference -> {
+                val dialogFragment = UIColorPreferenceDialogFragment(preference.getKey())
+                dialogFragment.setTargetFragment(this, 0)
+                dialogFragment.show(parentFragmentManager, null)
+            }
+            is AboutDialogPreference -> {
+                Utilities.showAboutDialog(requireActivity())
+            }
+            is HelpDialogPreference -> {
+                Utilities.showHelpDialog(requireActivity())
+            }
+            else -> {
+                super.onDisplayPreferenceDialog(preference)
+            }
         }
     }
 

@@ -17,6 +17,7 @@ import android.os.Build
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
+import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -29,6 +30,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
+import androidx.preference.DialogPreference
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
@@ -138,6 +140,10 @@ fun NumberPicker.fix(): NumberPicker {
     return this
 }
 
+
+class AboutDialogPreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs)
+
+class HelpDialogPreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs)
 
 
 object Utilities {

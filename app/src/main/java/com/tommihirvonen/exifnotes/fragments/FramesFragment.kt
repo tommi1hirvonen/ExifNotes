@@ -194,12 +194,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 //The result will be handled in FramesActivity.
                 requireActivity().startActivityForResult(preferenceActivityIntent, FramesActivity.PREFERENCE_ACTIVITY_REQUEST)
             }
-            R.id.menu_item_help -> {
-                Utilities.showHelpDialog(requireActivity())
-            }
-            R.id.menu_item_about -> {
-                Utilities.showAboutDialog(requireActivity())
-            }
             android.R.id.home -> requireActivity().finish()
             R.id.menu_item_show_on_map -> {
                 val mapIntent = Intent(activity, MapActivity::class.java)

@@ -323,6 +323,7 @@
         \n-Enabled links in About and Help dialog
         \n-Roll status is displayed in the list of rolls (loaded/unloaded/developed)
         \n-UI improvements
+        \n-Moved the about and help dialogs from the overflow menu to settings
         \n
     </string>
     <string name="VersionHistory">Version history
@@ -332,6 +333,7 @@
         \n-Enabled links in About and Help dialog
         \n-Roll status is displayed in the list of rolls (loaded/unloaded/developed)
         \n-UI improvements
+        \n-Moved the about and help dialogs from the overflow menu to settings
         \n\nv1.14.2 2020-06-09:
         \n-Changed date and time format from yyyy-M-d H:m to yyyy-MM-dd HH:mm for a prettier appearance
         \n-Frame counts can be reversed when batch editing frames (useful for prewind cameras)

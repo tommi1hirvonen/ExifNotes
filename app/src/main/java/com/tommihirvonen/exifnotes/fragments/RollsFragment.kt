@@ -256,12 +256,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                 //The result will be handled in MainActivity.
                 requireActivity().startActivityForResult(preferenceActivityIntent, MainActivity.PREFERENCE_ACTIVITY_REQUEST)
             }
-            R.id.menu_item_help -> {
-                Utilities.showHelpDialog(requireActivity())
-            }
-            R.id.menu_item_about -> {
-                Utilities.showAboutDialog(requireActivity())
-            }
             R.id.menu_item_show_on_map -> {
 
                 // Show all frames from all rolls on a map

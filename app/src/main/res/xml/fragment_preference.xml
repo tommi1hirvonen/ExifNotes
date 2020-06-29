@@ -4,6 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
+    <com.tommihirvonen.exifnotes.utilities.AboutDialogPreference
+        android:title="@string/About"
+        app:iconSpaceReserved="false"
+        />
+
+    <com.tommihirvonen.exifnotes.utilities.HelpDialogPreference
+        android:title="@string/Help"
+        app:iconSpaceReserved="false"
+        />
 
     <PreferenceCategory
         android:title="@string/General_Cap"
