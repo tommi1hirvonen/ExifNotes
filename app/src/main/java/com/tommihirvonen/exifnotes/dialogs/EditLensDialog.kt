@@ -6,6 +6,7 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
@@ -81,16 +82,16 @@ class EditLensDialog : DialogFragment() {
         binding.serialNumberEditText.setText(lens.serialNumber)
 
 
-        // APERTURE INCREMENTS BUTTON
-        binding.incrementText.text = resources.getStringArray(R.array.StopIncrements)[lens.apertureIncrements]
-        binding.incrementLayout.setOnClickListener {
-            val checkedItem = newLens.apertureIncrements
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle(resources.getString(R.string.ChooseIncrements))
-            builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem) { dialogInterface: DialogInterface, i: Int ->
-                newLens.apertureIncrements = i
-                binding.incrementText.text = resources.getStringArray(R.array.StopIncrements)[i]
-
+        // APERTURE INCREMENTS
+        try {
+            binding.incrementSpinner.setSelection(newLens.apertureIncrements)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+        binding.incrementSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                newLens.apertureIncrements = position
                 //Check if the new increments include both min and max values.
                 //Otherwise reset them to null
                 displayedApertureValues = when (newLens.apertureIncrements) {
@@ -107,10 +108,7 @@ class EditLensDialog : DialogFragment() {
                     newLens.maxAperture = null
                     updateApertureRangeTextView()
                 }
-                dialogInterface.dismiss()
             }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            builder.create().show()
         }
 
         // APERTURE RANGE BUTTON

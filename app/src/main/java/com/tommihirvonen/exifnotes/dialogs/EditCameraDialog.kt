@@ -7,6 +7,7 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
@@ -75,16 +76,16 @@ class EditCameraDialog : DialogFragment() {
         binding.modelEditText.setText(camera.model)
         binding.serialNumberEditText.setText(camera.serialNumber)
 
-        // SHUTTER SPEED INCREMENTS BUTTON
-        binding.incrementText.text = resources.getStringArray(R.array.StopIncrements)[camera.shutterIncrements]
-        binding.incrementLayout.setOnClickListener {
-            val checkedItem = newCamera.shutterIncrements
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle(resources.getString(R.string.ChooseIncrements))
-            builder.setSingleChoiceItems(R.array.StopIncrements, checkedItem) { dialogInterface: DialogInterface, i: Int ->
-                newCamera.shutterIncrements = i
-                binding.incrementText.text = resources.getStringArray(R.array.StopIncrements)[i]
-
+        // SHUTTER SPEED INCREMENTS
+        try {
+            binding.shutterSpeedIncrementSpinner.setSelection(newCamera.shutterIncrements)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+        binding.shutterSpeedIncrementSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                newCamera.shutterIncrements = position
                 //Shutter speed increments were changed, make update
                 //Check if the new increments include both min and max values.
                 //Otherwise reset them to null
@@ -107,10 +108,7 @@ class EditCameraDialog : DialogFragment() {
                     newCamera.maxShutter = null
                     updateShutterRangeTextView()
                 }
-                dialogInterface.dismiss()
             }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            builder.create().show()
         }
 
         // SHUTTER RANGE BUTTON
@@ -167,19 +165,17 @@ class EditCameraDialog : DialogFragment() {
         }
 
 
-        // EXPOSURE COMPENSATION INCREMENTS BUTTON
-        binding.exposureCompIncrementText.text = resources.getStringArray(R.array.ExposureCompIncrements)[camera.exposureCompIncrements]
-        binding.exposureCompIncrementLayout.setOnClickListener {
-            val checkedItem = newCamera.exposureCompIncrements
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle(resources.getString(R.string.ChooseIncrements))
-            builder.setSingleChoiceItems(R.array.ExposureCompIncrements, checkedItem) { dialogInterface: DialogInterface, i: Int ->
-                newCamera.exposureCompIncrements = i
-                binding.exposureCompIncrementText.text = resources.getStringArray(R.array.ExposureCompIncrements)[i]
-                dialogInterface.dismiss()
+        // EXPOSURE COMPENSATION INCREMENTS
+        try {
+            binding.exposureCompIncrementSpinner.setSelection(newCamera.exposureCompIncrements)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+        binding.exposureCompIncrementSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                newCamera.exposureCompIncrements = position
             }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            builder.create().show()
         }
 
 
