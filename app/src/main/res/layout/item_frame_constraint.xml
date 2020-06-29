@@ -90,11 +90,33 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="13sp"
         android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline1"
-        app:layout_constraintTop_toBottomOf="@+id/tvFrameText2"
+        app:layout_constraintRight_toLeftOf="@id/picture_image_view"
+        app:layout_constraintLeft_toLeftOf="@id/guideline1"
+        app:layout_constraintTop_toBottomOf="@id/tvFrameText2"
         app:layout_widthPercent="88%"
         tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+    <ImageView
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:id="@+id/picture_image_view"
+        android:src="@drawable/ic_baseline_image_24"
+        android:layout_marginRight="5dp"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toBottomOf="@id/tvAperture"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <ImageView
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:id="@+id/broken_picture_image_view"
+        android:src="@drawable/ic_baseline_broken_image_24"
+        android:layout_marginRight="5dp"
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toBottomOf="@id/tvAperture"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
     <ImageView
         android:id="@+id/drawable_clock"

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemFrameConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
+import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
 import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
@@ -91,6 +92,8 @@ class FrameAdapter(private val context: Context,
             val color = ContextCompat.getColor(context, R.color.grey)
             binding.drawableClock.drawable.setColorFilterCompat(color)
             binding.drawableAperture.drawable.setColorFilterCompat(color)
+            binding.pictureImageView.drawable.setColorFilterCompat(color)
+            binding.brokenPictureImageView.drawable.setColorFilterCompat(color)
         }
     }
 
@@ -108,6 +111,15 @@ class FrameAdapter(private val context: Context,
         holder.binding.tvFrameNote.text = frame.note
         holder.binding.tvAperture.text = frame.aperture?.let { "f/$it" } ?: ""
         holder.binding.tvShutter.text = frame.shutter
+
+        holder.binding.pictureImageView.visibility = View.INVISIBLE
+        holder.binding.brokenPictureImageView.visibility = View.INVISIBLE
+        frame.pictureFilename?.let {
+            val pictureFile = ComplementaryPicturesManager.getPictureFile(context, it)
+            if (pictureFile.exists()) holder.binding.pictureImageView.visibility = View.VISIBLE
+            else holder.binding.brokenPictureImageView.visibility = View.VISIBLE
+        }
+
         holder.itemView.isActivated = selectedItems[position, false]
         applyCheckBoxAnimation(holder, position)
     }
