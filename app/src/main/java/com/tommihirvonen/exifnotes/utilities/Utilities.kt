@@ -534,15 +534,15 @@ object Utilities {
      */
     open class ScrollIndicatorNestedScrollViewListener(context: Context,
                                                        private val nestedScrollView: NestedScrollView,
-                                                       private val indicatorUp: View,
-                                                       private val indicatorDown: View) : NestedScrollView.OnScrollChangeListener {
+                                                       private val indicatorUp: View?,
+                                                       private val indicatorDown: View?) : NestedScrollView.OnScrollChangeListener {
 
         init {
             val color =
                     if (context.isAppThemeDark) ContextCompat.getColor(context, R.color.white)
                     else ContextCompat.getColor(context, R.color.black)
-            indicatorUp.setBackgroundColor(color)
-            indicatorDown.setBackgroundColor(color)
+            indicatorUp?.setBackgroundColor(color)
+            indicatorDown?.setBackgroundColor(color)
             nestedScrollView.post { toggleIndicators() }
         }
 
@@ -553,9 +553,9 @@ object Utilities {
             // Instead we use getScrollY methods and avoid the headache entirely.
             // Besides, these methods work the same way on all devices.
             if (nestedScrollView.scrollY == 0) {
-                indicatorUp.visibility = View.INVISIBLE
+                indicatorUp?.visibility = View.INVISIBLE
             } else {
-                indicatorUp.visibility = View.VISIBLE
+                indicatorUp?.visibility = View.VISIBLE
             }
 
             // If we can't scroll down, hide the down scroll indicator. Otherwise show it.
@@ -564,9 +564,9 @@ object Utilities {
             // The ScrollView always has one child. Getting its height returns the true height
             // of the ScrollView.
             if (nestedScrollView.scrollY == nestedScrollView.getChildAt(0).height - nestedScrollView.height) {
-                indicatorDown.visibility = View.INVISIBLE
+                indicatorDown?.visibility = View.INVISIBLE
             } else {
-                indicatorDown.visibility = View.VISIBLE
+                indicatorDown?.visibility = View.VISIBLE
             }
         }
 

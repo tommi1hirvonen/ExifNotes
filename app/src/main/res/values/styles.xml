@@ -11,6 +11,7 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="actionModeBackground">@color/grey</item>
         <item name="android:actionModeBackground">@color/grey</item>
+        <item name="bottomSheetDialogTheme">@style/Theme.Design.BottomSheetDialog</item>
     </style>
 
     <style name="AppToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
