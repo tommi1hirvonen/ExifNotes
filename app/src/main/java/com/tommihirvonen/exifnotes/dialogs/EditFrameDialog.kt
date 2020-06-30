@@ -251,10 +251,11 @@ open class EditFrameDialog : DialogFragment() {
 
         //==========================================================================================
         //NO OF EXPOSURES BUTTON
-
-        //Check that the number is bigger than zero.
-        binding.noOfExposuresText.text = newFrame.noOfExposures.toString()
-        binding.noOfExposuresLayout.setOnClickListener(NoOfExposuresLayoutOnClickListener())
+        try {
+            binding.noOfExposuresSpinner.setSelection(newFrame.noOfExposures - 1)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
 
 
         //==========================================================================================
@@ -320,16 +321,11 @@ open class EditFrameDialog : DialogFragment() {
 
         //==========================================================================================
         //LIGHT SOURCE
-        val lightSource: String
-        lightSource = try {
-            resources.getStringArray(R.array.LightSource)[newFrame.lightSource]
+        try {
+            binding.lightSourceSpinner.setSelection(newFrame.lightSource)
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
-            ""
         }
-        binding.lightSourceText.text = if (newFrame.lightSource == 0) "" else lightSource
-        binding.lightSourceLayout.setOnClickListener(LightSourceLayoutOnClickListener())
-
 
         //==========================================================================================
         //FINALISE BUILDING THE DIALOG
@@ -403,11 +399,11 @@ open class EditFrameDialog : DialogFragment() {
         frame.location = newFrame.location
         frame.formattedAddress = newFrame.formattedAddress
         frame.exposureComp = newFrame.exposureComp
-        frame.noOfExposures = newFrame.noOfExposures
+        frame.noOfExposures = binding.noOfExposuresSpinner.selectedItem as Int
         frame.focalLength = newFrame.focalLength
         frame.pictureFilename = newFrame.pictureFilename
         frame.filters = newFrame.filters
-        frame.lightSource = newFrame.lightSource
+        frame.lightSource = binding.lightSourceSpinner.selectedItemPosition
         frame.flashUsed = binding.flashCheckbox.isChecked
     }
 
@@ -1157,37 +1153,6 @@ open class EditFrameDialog : DialogFragment() {
     }
 
     /**
-     * Listener class attached to number of exposures layout.
-     * Opens a new dialog to display number of exposures options.
-     */
-    private inner class NoOfExposuresLayoutOnClickListener : View.OnClickListener {
-        override fun onClick(view: View) {
-            val builder = AlertDialog.Builder(activity)
-            val inflater = requireActivity().layoutInflater
-            @SuppressLint("InflateParams")
-            val dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null)
-            val noOfExposuresPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
-            noOfExposuresPicker.minValue = 1
-            noOfExposuresPicker.maxValue = 10
-            noOfExposuresPicker.value = 1
-            if (newFrame.noOfExposures > 1) {
-                noOfExposuresPicker.value = newFrame.noOfExposures
-            }
-            noOfExposuresPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            builder.setView(dialogView)
-            builder.setTitle(resources.getString(R.string.ChooseNoOfExposures))
-            builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                newFrame.noOfExposures = noOfExposuresPicker.value
-                binding.noOfExposuresText.text = newFrame.noOfExposures.toString()
-            }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)
-            ) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
-        }
-    }
-
-    /**
      * Listener class attached to complementary picture layout.
      * Shows various actions regarding the complementary picture.
      */
@@ -1308,26 +1273,6 @@ open class EditFrameDialog : DialogFragment() {
             } catch (e: IOException) {
                 Toast.makeText(activity, R.string.ErrorWhileEditingPicturesExifData, Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-    /**
-     * Listener class attached to light source layout.
-     * Shows different light source options as a simple list.
-     */
-    private inner class LightSourceLayoutOnClickListener : View.OnClickListener {
-        override fun onClick(v: View) {
-            val builder = AlertDialog.Builder(activity)
-            val checkedItem = newFrame.lightSource
-            builder.setSingleChoiceItems(R.array.LightSource, checkedItem) { dialog: DialogInterface, which: Int ->
-                newFrame.lightSource = which
-                binding.lightSourceText.text =
-                        if (newFrame.lightSource == 0) ""
-                        else resources.getStringArray(R.array.LightSource)[which]
-                dialog.dismiss()
-            }
-            builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-            builder.create().show()
         }
     }
 

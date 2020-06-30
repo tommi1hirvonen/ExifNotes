@@ -601,7 +601,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
-                    android:text="@string/PushPull"
+                    android:text="@string/ChoosePushOrPull"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
                     />
@@ -655,7 +655,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/format_spinner"
                     android:entries="@array/FilmFormats"
-                    android:prompt="@string/Format"
+                    android:prompt="@string/ChooseFormat"
                     android:spinnerMode="dropdown"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
