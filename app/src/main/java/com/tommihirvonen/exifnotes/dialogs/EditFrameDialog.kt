@@ -19,7 +19,6 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.widget.NestedScrollView
@@ -110,12 +109,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
      */
     private var tempPictureFilename: String? = null
 
-    /**
-     * Stores the currently displayed aperture values.
-     * Changes depending on the currently selected lens.
-     */
-    private lateinit var displayedApertureValues: Array<String>
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DialogFrameBinding.inflate(inflater, container, false)
         binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
@@ -134,6 +127,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         } ?: run {
             mountableLenses = database.allLenses.toMutableList()
         }
+        apertureIncrements = frame.lens?.apertureIncrements ?: apertureIncrements
 
         val listener = OnScrollChangeListener(
                 requireActivity(),
@@ -151,6 +145,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                     binding.dividerView10)
                     .forEach { it.setBackgroundColor(color) }
             val color2 = ContextCompat.getColor(requireActivity(), R.color.light_grey)
+            binding.apertureEditImageView.drawable.setColorFilterCompat(color2)
             binding.addLens.drawable.setColorFilterCompat(color2)
             binding.addFilter.drawable.setColorFilterCompat(color2)
             binding.clearLocation.drawable.setColorFilterCompat(color2)
@@ -206,8 +201,35 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         initializeShutterSpeedSpinner()
 
         //APERTURE BUTTON
-        updateApertureTextView()
-        binding.apertureLayout.setOnClickListener(ApertureLayoutOnClickListener())
+        initializeApertureSpinner(allowCustomValue = true)
+        binding.apertureSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) { }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val aperture = parent?.adapter?.getItem(position) as String
+                newFrame.aperture = if (aperture != resources.getString(R.string.NoValue)) aperture else null
+            }
+        }
+        binding.apertureEditImageView.setOnClickListener {
+            val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_number_edit_text, null)
+            val editText = view.findViewById<EditText>(R.id.edit_text)
+            try {
+                val num = newFrame.aperture?.toDouble()
+                num?.let { editText.setText(num.toString()) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            AlertDialog.Builder(requireContext())
+                    .setView(view)
+                    .setTitle(R.string.EnterCustomerApertureValue)
+                    .setPositiveButton(R.string.OK) { _, _ ->
+                        newFrame.aperture = editText.text.toString()
+                        initializeApertureSpinner(allowCustomValue = true)
+                    }
+                    .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
+                    .create()
+                    .show()
+            editText.requestFocus()
+        }
 
         //FOCAL LENGTH BUTTON
         updateFocalLengthTextView()
@@ -342,6 +364,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     internal fun commitChanges() {
         val shutter = binding.shutterSpeedSpinner.selectedItem as String
         frame.shutter = if (shutter != resources.getString(R.string.NoValue)) shutter else null
+
         frame.aperture = newFrame.aperture
         frame.count = binding.frameCountSpinner.selectedItem as Int
         frame.note = binding.noteEditText.text.toString()
@@ -382,7 +405,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             }
             binding.lensText.text = lens.name
             apertureIncrements = lens.apertureIncrements
-            checkApertureValueValidity()
+            initializeApertureSpinner()
             if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
             else if (newFrame.focalLength < lens.minFocalLength) newFrame.focalLength = lens.minFocalLength
             newFrame.lens = lens
@@ -530,14 +553,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         }
     }
 
-    /**
-     * Set the displayed aperture values depending on the lens's aperture increments
-     * and its max and min aperture values. If no lens is selected, default to third stop
-     * increments and don't limit the aperture values from either end.
-     */
-    private fun setDisplayedApertureValues() {
+    private fun initializeApertureSpinner(allowCustomValue: Boolean = false) {
         //Get the array of displayed aperture values according to the set increments.
-        displayedApertureValues = when (apertureIncrements) {
+        var displayedApertureValues = when (apertureIncrements) {
             0 -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
             1 -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
             2 -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
@@ -561,6 +579,25 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 }.plus(resources.getString(R.string.NoValue))
                 displayedApertureValues = apertureValues.toTypedArray()
             }
+        }
+
+        val aperture = newFrame.aperture
+        if (aperture != null && !displayedApertureValues.contains(aperture) && allowCustomValue) {
+            displayedApertureValues = displayedApertureValues.toMutableList()
+                    .also { it.add(aperture) }.toTypedArray()
+        }
+        ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, displayedApertureValues)
+                .also { adapter ->
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    binding.apertureSpinner.adapter = adapter
+                }
+
+        try {
+            val initialValue = displayedApertureValues.indexOfFirst { it == aperture }
+            if (initialValue != -1) binding.apertureSpinner.setSelection(initialValue)
+            else binding.apertureSpinner.setSelection(displayedApertureValues.size - 1)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -594,6 +631,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                     it.add(it.size - 1, "B")
                 }.toTypedArray()
             }
+        } ?: run {
+            displayedShutterValues = displayedShutterValues.toMutableList()
+                    .also{ it.add(it.size - 1, "B") }.toTypedArray()
         }
 
         ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, displayedShutterValues)
@@ -616,18 +656,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     private fun resetFilters() {
         newFrame.filters.clear()
         binding.filterText.text = ""
-    }
-
-    /**
-     * Updates the aperture value button's text.
-     */
-    private fun updateApertureTextView() {
-        if (newFrame.aperture == null) {
-            binding.apertureText.text = ""
-        } else {
-            val newText = "f/${newFrame.aperture}"
-            binding.apertureText.text = newText
-        }
     }
 
     /**
@@ -655,25 +683,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     }
 
     /**
-     * When the currently selected lens is changed, check the validity of the currently
-     * selected aperture value. I.e. it has to be within the new lens's aperture range.
-     */
-    private fun checkApertureValueValidity() {
-        setDisplayedApertureValues()
-        var apertureFound = false
-        for (string in displayedApertureValues) {
-            if (string == newFrame.aperture) {
-                apertureFound = true
-                break
-            }
-        }
-        if (!apertureFound) {
-            newFrame.aperture = null
-            updateApertureTextView()
-        }
-    }
-
-    /**
      * Scroll change listener used to detect when the binding.pictureLayout is visible.
      * Only then will the complementary picture be loaded.
      */
@@ -694,135 +703,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     }
 
     // LISTENER CLASSES USED TO OPEN NEW DIALOGS AFTER ONCLICK EVENTS
-
-    /**
-     * Listener class attached to aperture value layout.
-     * Opens a new dialog to display aperture value options.
-     */
-    private inner class ApertureLayoutOnClickListener : View.OnClickListener {
-        /**
-         * Variable to denote whether a custom aperture is being used or a predefined one.
-         */
-        private var manualOverride = false
-
-        override fun onClick(view: View) {
-            val builder = AlertDialog.Builder(activity)
-            val inflater = requireActivity().layoutInflater
-            @SuppressLint("InflateParams")
-            val dialogView = inflater.inflate(R.layout.dialog_single_numberpicker_custom, null)
-            val aperturePicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
-            val editText = dialogView.findViewById<EditText>(R.id.edit_text)
-            val customApertureSwitch: SwitchCompat = dialogView.findViewById(R.id.custom_aperture_switch)
-
-            // Initialise the aperture value NumberPicker. The return value is true, if the
-            // aperture value corresponds to a predefined value. The return value is false,
-            // if the aperture value is a custom value.
-            val apertureValueMatch = initialiseAperturePicker(aperturePicker)
-            aperturePicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            builder.setView(dialogView)
-            builder.setTitle(resources.getString(R.string.ChooseApertureValue))
-
-            // If the aperture value did not match to any predefined aperture values, enable custom input.
-            if (!apertureValueMatch) {
-                customApertureSwitch.isChecked = true
-                editText.setText(newFrame.aperture)
-                aperturePicker.visibility = View.INVISIBLE
-                editText.visibility = View.VISIBLE
-                manualOverride = true
-            } else {
-                // Otherwise set manualOverride to false. This has to be done in case manual
-                // override was enabled in a previous onClick event and the value of manualOverride
-                // was left to true.
-                manualOverride = false
-            }
-
-            // The user can switch between predefined aperture values and custom values using a switch.
-            customApertureSwitch.setOnCheckedChangeListener { _: CompoundButton?, b: Boolean ->
-                if (b) {
-                    aperturePicker.visibility = View.INVISIBLE
-                    editText.visibility = View.VISIBLE
-                    manualOverride = true
-                    val animation1 = AnimationUtils.loadAnimation(activity, R.anim.exit_to_right_alt)
-                    val animation2 = AnimationUtils.loadAnimation(activity, R.anim.enter_from_left_alt)
-                    aperturePicker.startAnimation(animation1)
-                    editText.startAnimation(animation2)
-                } else {
-                    editText.visibility = View.INVISIBLE
-                    aperturePicker.visibility = View.VISIBLE
-                    manualOverride = false
-                    val animation1 = AnimationUtils.loadAnimation(activity, R.anim.enter_from_right_alt)
-                    val animation2 = AnimationUtils.loadAnimation(activity, R.anim.exit_to_left_alt)
-                    aperturePicker.startAnimation(animation1)
-                    editText.startAnimation(animation2)
-                }
-            }
-            builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                // Use the aperture value from the NumberPicker or EditText
-                // depending on whether a custom value was used.
-                newFrame.aperture = if (!manualOverride) {
-                    if (aperturePicker.value != aperturePicker.maxValue) displayedApertureValues[aperturePicker.value] else null
-                } else {
-                    val customAperture = editText.text.toString()
-                    if (customAperture.isNotEmpty()) customAperture else null
-                }
-                updateApertureTextView()
-            }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
-        }
-
-        /**
-         * Called when the aperture value dialog is opened.
-         * Sets the values for the NumberPicker.
-         *
-         * @param aperturePicker NumberPicker associated with the aperture value
-         * @return true if the current aperture value corresponds to some predefined aperture value,
-         * false if not.
-         */
-        private fun initialiseAperturePicker(aperturePicker: NumberPicker): Boolean {
-            setDisplayedApertureValues()
-            //If no lens is selected, end here
-            if (newFrame.lens == null) {
-                aperturePicker.displayedValues = null
-                aperturePicker.minValue = 0
-                aperturePicker.maxValue = displayedApertureValues.size - 1
-                aperturePicker.displayedValues = displayedApertureValues
-                aperturePicker.value = displayedApertureValues.size - 1
-                // Null aperture value is empty, which is a known value. Return true.
-                if (newFrame.aperture == null) return true
-                for (i in displayedApertureValues.indices) {
-                    if (newFrame.aperture == displayedApertureValues[i]) {
-                        aperturePicker.value = i
-                        return true
-                    }
-                }
-                return false
-            }
-
-            //Set the NumberPicker displayed values to null. If we set the displayed values
-            //and the maxValue is smaller than the length of the new displayed values array,
-            //ArrayIndexOutOfBounds is thrown.
-            //Also if we set maxValue and the currently displayed values array length is smaller,
-            //ArrayIndexOutOfBounds is thrown.
-            //Setting displayed values to null solves this problem.
-            aperturePicker.displayedValues = null
-            aperturePicker.minValue = 0
-            aperturePicker.maxValue = displayedApertureValues.size - 1
-            aperturePicker.displayedValues = displayedApertureValues
-            aperturePicker.value = displayedApertureValues.size - 1
-            // Null aperture value is empty, which is a known value. Return true.
-            if (newFrame.aperture == null) return true
-            for (i in displayedApertureValues.indices) {
-                if (newFrame.aperture == displayedApertureValues[i]) {
-                    aperturePicker.value = i
-                    return true
-                }
-            }
-            return false
-        }
-    }
-
     /**
      * Listener class attached to lens layout.
      * Opens a new dialog to display lens options for current camera.
@@ -854,7 +734,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                     apertureIncrements = lens.apertureIncrements
 
                     //Check the aperture value's validity against the new lens' properties.
-                    checkApertureValueValidity()
+                    initializeApertureSpinner()
                     // The lens was changed, reset filters
                     resetFilters()
                 } else {
@@ -863,6 +743,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                     newFrame.focalLength = 0
                     updateFocalLengthTextView()
                     apertureIncrements = 0
+                    initializeApertureSpinner()
                     resetFilters()
                 }
                 dialog.dismiss()

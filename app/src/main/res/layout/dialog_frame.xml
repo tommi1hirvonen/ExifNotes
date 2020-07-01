@@ -180,13 +180,11 @@
                     app:layout_constraintGuide_percent="0.5" />
 
                 <!--APERTURE-->
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
                     android:orientation="vertical"
-                    android:clickable="true"
                     android:id="@+id/aperture_layout"
-                    android:background="?android:attr/selectableItemBackground"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintRight_toRightOf="@id/guideline_vertical_005"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -196,26 +194,47 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:id="@+id/aperture_title"
                         android:paddingTop="7dp"
                         android:paddingLeft="10dp"
                         android:text="@string/Aperture"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textSize="17sp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
                         />
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <Spinner
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
-                        android:paddingLeft="10dp"
-                        android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        android:textSize="15sp"
-                        android:id="@+id/aperture_text"
-                        android:text="@string/ClickToSet"
+                        android:id="@+id/aperture_spinner"
+                        android:prompt="@string/ChooseApertureValue"
+                        android:spinnerMode="dropdown"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="10dp"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/aperture_title"
+                        app:layout_constraintRight_toLeftOf="@id/aperture_edit_image_view"
                         />
 
-                </LinearLayout>
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:clickable="true"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:id="@+id/aperture_edit_image_view"
+                        android:layout_marginRight="15dp"
+                        android:layout_marginLeft="15dp"
+                        android:src="@drawable/ic_baseline_edit_24"
+                        android:tint="@color/grey"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/aperture_spinner"
+                        app:layout_constraintBottom_toBottomOf="@id/aperture_spinner"
+                        />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <!--SHUTTER SPEED-->
                 <LinearLayout
@@ -618,7 +637,7 @@
                 <!--FLASH-->
                 <RelativeLayout
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
                     android:id="@+id/flash_layout"
                     android:clickable="true"
                     android:background="?android:attr/selectableItemBackground"

@@ -102,6 +102,7 @@
     <string name="EditLens">Edit lens</string>
     <string name="EditLocation">Edit location</string>
     <string name="EditRoll">Edit roll info</string>
+    <string name="EnterCustomerApertureValue">Enter custom aperture value</string>
     <string name="ErrorAddingFilmStocks">Error adding film stocks to database</string>
     <string name="ErrorAddingPictureToGallery">Error adding picture to gallery</string>
     <string name="ErrorCompressingComplementaryPicture">Error compressing complementary picture</string>
