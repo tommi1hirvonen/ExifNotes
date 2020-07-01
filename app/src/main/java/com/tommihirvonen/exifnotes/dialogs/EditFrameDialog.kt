@@ -148,8 +148,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3,
                     binding.dividerView4, binding.dividerView5, binding.dividerView6,
                     binding.dividerView7, binding.dividerView8, binding.dividerView9,
-                    binding.dividerView10, binding.dividerView11, binding.dividerView12,
-                    binding.dividerView13, binding.dividerView14)
+                    binding.dividerView10)
                     .forEach { it.setBackgroundColor(color) }
             val color2 = ContextCompat.getColor(requireActivity(), R.color.light_grey)
             binding.addLens.drawable.setColorFilterCompat(color2)
@@ -191,8 +190,17 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         binding.noteEditText.setSelection(binding.noteEditText.text.length)
 
         //COUNT BUTTON
-        binding.frameCountText.text = newFrame.count.toString()
-        binding.frameCountLayout.setOnClickListener(FrameCountLayoutOnClickListener())
+        val frameCountValues = IntArray(100) { it + 1 }.toTypedArray()
+        ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, frameCountValues)
+                .also { adapter ->
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    binding.frameCountSpinner.adapter = adapter
+                }
+        try {
+            binding.frameCountSpinner.setSelection(newFrame.count - 1)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         //SHUTTER SPEED BUTTON
         initializeShutterSpeedSpinner()
@@ -211,14 +219,11 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             1 -> requireActivity().resources.getStringArray(R.array.CompValuesHalf)
             else -> requireActivity().resources.getStringArray(R.array.CompValues)
         }
-        ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_spinner_item,
-                exposureCompValues
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.exposureCompSpinner.adapter = adapter
-        }
+        ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, exposureCompValues)
+                .also { adapter ->
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    binding.exposureCompSpinner.adapter = adapter
+                }
         try {
             val exposureComp = frame.exposureComp
             if (exposureComp != null) binding.exposureCompSpinner.setSelection(exposureCompValues.indexOf(exposureComp))
@@ -338,7 +343,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         val shutter = binding.shutterSpeedSpinner.selectedItem as String
         frame.shutter = if (shutter != resources.getString(R.string.NoValue)) shutter else null
         frame.aperture = newFrame.aperture
-        frame.count = newFrame.count
+        frame.count = binding.frameCountSpinner.selectedItem as Int
         frame.note = binding.noteEditText.text.toString()
         frame.date = dateTimeLayoutManager.dateTime
         frame.lens = newFrame.lens
@@ -815,32 +820,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 }
             }
             return false
-        }
-    }
-
-    /**
-     * Listener class attached to frame count layout.
-     * Opens a new dialog to display frame count options.
-     */
-    private inner class FrameCountLayoutOnClickListener : View.OnClickListener {
-        override fun onClick(view: View) {
-            val builder = AlertDialog.Builder(activity)
-            val inflater = requireActivity().layoutInflater
-            @SuppressLint("InflateParams") val dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null)
-            val frameCountPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
-            frameCountPicker.minValue = 0
-            frameCountPicker.maxValue = 100
-            frameCountPicker.value = newFrame.count
-            frameCountPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            builder.setView(dialogView)
-            builder.setTitle(resources.getString(R.string.ChooseFrameCount))
-            builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                newFrame.count = frameCountPicker.value
-                binding.frameCountText.text = newFrame.count.toString()
-            }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
         }
     }
 
