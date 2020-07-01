@@ -27,8 +27,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
 import com.tommihirvonen.exifnotes.databinding.DialogFrameBinding
-import com.tommihirvonen.exifnotes.datastructures.*
+import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.Filter
+import com.tommihirvonen.exifnotes.datastructures.Frame
+import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
 import java.io.FileNotFoundException
@@ -109,6 +111,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
      */
     private var tempPictureFilename: String? = null
 
+    private var complementaryPictureLoaded: Boolean = false
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DialogFrameBinding.inflate(inflater, container, false)
         binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
@@ -129,6 +133,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         }
         apertureIncrements = frame.lens?.apertureIncrements ?: apertureIncrements
 
+        // Set a listener to check whether the complementary picture should be loaded and displayed.
         val listener = OnScrollChangeListener(
                 requireActivity(),
                 binding.nestedScrollView)
@@ -320,7 +325,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             e.printStackTrace()
         }
 
-
+        binding.title.negativeImageView.setOnClickListener { dismiss() }
         binding.title.positiveImageView.setOnClickListener {
             commitChanges()
             val intent = Intent()
@@ -330,6 +335,20 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // Check whether the complementary picture should be loaded and displayed immediately because
+        // the screen can show the entire content at once and the NestedScrollView cannot be scrolled.
+        dialog?.setOnShowListener {
+            val scrollView = binding.nestedScrollView
+            val childHeight = scrollView.getChildAt(0).height
+            val isScrollable = scrollView.height < childHeight + scrollView.paddingTop + scrollView.paddingBottom
+            if (!isScrollable) {
+                setComplementaryPicture(animate = false)
+                complementaryPictureLoaded = true
+            }
+        }
     }
 
     /**
@@ -440,7 +459,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                     Toast.makeText(activity, R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show()
                 }
                 // Set the complementary picture ImageView on the UI thread.
-                requireActivity().runOnUiThread { setComplementaryPicture() }
+                requireActivity().runOnUiThread { setComplementaryPicture(animate = true) }
             }).start()
         }
 
@@ -464,7 +483,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                         // Update the member reference and set the complementary picture.
                         newFrame.pictureFilename = pictureFile.name
                         // Set the complementary picture ImageView on the UI thread.
-                        requireActivity().runOnUiThread { setComplementaryPicture() }
+                        requireActivity().runOnUiThread { setComplementaryPicture(animate = true) }
                     } catch (e: IOException) {
                         Toast.makeText(activity, R.string.ErrorSavingSelectedPicture, Toast.LENGTH_SHORT).show()
                     }
@@ -479,7 +498,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     /**
      * Set the complementary picture ImageView with the newly selected/taken picture
      */
-    private fun setComplementaryPicture() {
+    private fun setComplementaryPicture(animate: Boolean) {
 
         // If the picture filename was not set, set text and return. Otherwise continue
         val filename = newFrame.pictureFilename
@@ -544,8 +563,10 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 requireActivity().runOnUiThread {
                     binding.ivPicture.rotation = rotation.toFloat()
                     binding.ivPicture.setImageBitmap(bitmap)
-                    val animation = AnimationUtils.loadAnimation(activity, R.anim.fade_in_fast)
-                    binding.ivPicture.startAnimation(animation)
+                    if (animate) {
+                        val animation = AnimationUtils.loadAnimation(activity, R.anim.fade_in_fast)
+                        binding.ivPicture.startAnimation(animation)
+                    }
                 }
             }).start()
         } else {
@@ -689,15 +710,14 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     private inner class OnScrollChangeListener internal constructor(
             context: Context, nestedScrollView: NestedScrollView) : ScrollIndicatorNestedScrollViewListener(
             context, nestedScrollView, null, null) {
-        private var pictureLoaded = false
         override fun onScrollChange(v: NestedScrollView, scrollX: Int, scrollY: Int,
                                     oldScrollX: Int, oldScrollY: Int) {
             super.onScrollChange(v, scrollX, scrollY, oldScrollX, oldScrollY)
             val scrollBounds = Rect()
             v.getHitRect(scrollBounds)
-            if (binding.pictureLayout.getLocalVisibleRect(scrollBounds) && !pictureLoaded) {
-                setComplementaryPicture()
-                pictureLoaded = true
+            if (binding.pictureLayout.getLocalVisibleRect(scrollBounds) && !complementaryPictureLoaded) {
+                setComplementaryPicture(animate = true)
+                complementaryPictureLoaded = true
             }
         }
     }
