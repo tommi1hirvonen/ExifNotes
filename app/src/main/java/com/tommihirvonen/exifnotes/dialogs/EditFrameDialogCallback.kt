@@ -9,9 +9,9 @@ class EditFrameDialogCallback(val positiveButtonClicked: (Intent) -> Unit) : Edi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.title.positiveImageView.setOnClickListener {
+            commitChanges()
             val intent = Intent()
             intent.putExtra(ExtraKeys.FRAME, frame)
-            commitChanges()
             positiveButtonClicked(intent)
             dismiss()
         }

@@ -322,10 +322,10 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
 
 
         binding.title.positiveImageView.setOnClickListener {
+            commitChanges()
             val intent = Intent()
             intent.putExtra(ExtraKeys.FRAME, frame)
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
-            commitChanges()
             dismiss()
         }
 
