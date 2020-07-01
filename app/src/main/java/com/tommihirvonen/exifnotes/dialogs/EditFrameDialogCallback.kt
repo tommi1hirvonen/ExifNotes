@@ -8,10 +8,12 @@ import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 class EditFrameDialogCallback(val positiveButtonClicked: (Intent) -> Unit) : EditFrameDialog() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.positiveImageView.setOnClickListener {
+        binding.title.positiveImageView.setOnClickListener {
             val intent = Intent()
             intent.putExtra(ExtraKeys.FRAME, frame)
+            commitChanges()
             positiveButtonClicked(intent)
+            dismiss()
         }
         super.onViewCreated(view, savedInstanceState)
     }

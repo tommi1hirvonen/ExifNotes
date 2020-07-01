@@ -10,42 +10,9 @@
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/title_layout"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:background="@color/primary_color"
-        >
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/title_text_view"
-            android:text="@string/Text"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:textColor="@color/white"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/positive_image_view"
-            />
-
-        <ImageView
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:id="@+id/positive_image_view"
-            android:src="@drawable/ic_baseline_done_24"
-            android:background="?android:selectableItemBackgroundBorderless"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            tools:ignore="ContentDescription" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        android:id="@id/title"
+        layout="@layout/layout_title" />
 
     <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
      doesn't get focus when the Dialog is first shown. -->
@@ -239,9 +206,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:clickable="true"
                 android:id="@+id/shutter_layout"
-                android:background="?android:attr/selectableItemBackground"
                 tools:ignore="KeyboardInaccessibleWidget">
 
                 <View
@@ -262,16 +227,16 @@
                     android:textSize="17sp"
                     />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <Spinner
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="7dp"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="15sp"
-                    android:id="@+id/shutter_text"
-                    android:text="@string/ClickToSet"
+                    android:id="@+id/shutter_speed_spinner"
+                    android:prompt="@string/ChooseShutterSpeed"
+                    android:spinnerMode="dropdown"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     />
 
                 <View
@@ -467,9 +432,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:clickable="true"
                 android:id="@+id/exposure_comp_layout"
-                android:background="?android:attr/selectableItemBackground"
                 tools:ignore="KeyboardInaccessibleWidget">
 
                 <View
@@ -490,16 +453,16 @@
                     android:textSize="17sp"
                     />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <Spinner
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="7dp"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="15sp"
-                    android:id="@+id/exposure_comp_text"
-                    android:text="@string/ClickToSet"
+                    android:id="@+id/exposure_comp_spinner"
+                    android:prompt="@string/ChooseExposureComp"
+                    android:spinnerMode="dropdown"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     />
 
             </LinearLayout>

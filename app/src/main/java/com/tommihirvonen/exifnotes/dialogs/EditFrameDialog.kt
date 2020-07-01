@@ -34,7 +34,6 @@ import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
 import java.io.FileNotFoundException
 import java.io.IOException
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 /**
@@ -112,25 +111,14 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     private var tempPictureFilename: String? = null
 
     /**
-     * Stores the currently displayed shutter speed values.
-     */
-    private lateinit var displayedShutterValues: Array<String>
-
-    /**
      * Stores the currently displayed aperture values.
      * Changes depending on the currently selected lens.
      */
     private lateinit var displayedApertureValues: Array<String>
 
-    /**
-     * Stores the currently displayed exposure compensation values.
-     * Changes depending on the film's camera.
-     */
-    private lateinit var displayedExposureCompValues: Array<String>
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DialogFrameBinding.inflate(inflater, container, false)
-        binding.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
+        binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
         val frame1: Frame? = requireArguments().getParcelable(ExtraKeys.FRAME)
         if (frame1 == null) {
             showsDialog = false
@@ -152,7 +140,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 binding.nestedScrollView)
         binding.nestedScrollView.setOnScrollChangeListener(listener)
 
-        binding.titleLayout.setBackgroundColor(requireContext().primaryUiColor)
+        binding.title.titleLayout.setBackgroundColor(requireContext().primaryUiColor)
 
         // Color the dividers white if the app's theme is dark
         if (isAppThemeDark) {
@@ -207,8 +195,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         binding.frameCountLayout.setOnClickListener(FrameCountLayoutOnClickListener())
 
         //SHUTTER SPEED BUTTON
-        updateShutterTextView()
-        binding.shutterLayout.setOnClickListener(ShutterLayoutOnClickListener())
+        initializeShutterSpeedSpinner()
 
         //APERTURE BUTTON
         updateApertureTextView()
@@ -219,8 +206,26 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         binding.focalLengthLayout.setOnClickListener(FocalLengthLayoutOnClickListener())
 
         //EXPOSURE COMP BUTTON
-        binding.exposureCompText.text = if (newFrame.exposureComp == null || newFrame.exposureComp == "0") "" else newFrame.exposureComp
-        binding.exposureCompLayout.setOnClickListener(ExposureCompLayoutOnClickListener())
+        val exposureCompValues = when (exposureCompIncrements) {
+            0 -> requireActivity().resources.getStringArray(R.array.CompValues)
+            1 -> requireActivity().resources.getStringArray(R.array.CompValuesHalf)
+            else -> requireActivity().resources.getStringArray(R.array.CompValues)
+        }
+        ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                exposureCompValues
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.exposureCompSpinner.adapter = adapter
+        }
+        try {
+            val exposureComp = frame.exposureComp
+            if (exposureComp != null) binding.exposureCompSpinner.setSelection(exposureCompValues.indexOf(exposureComp))
+            else binding.exposureCompSpinner.setSelection(exposureCompValues.indexOf("0"))
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
 
         //NO OF EXPOSURES BUTTON
         try {
@@ -289,10 +294,11 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         }
 
 
-        binding.positiveImageView.setOnClickListener {
+        binding.title.positiveImageView.setOnClickListener {
             val intent = Intent()
             intent.putExtra(ExtraKeys.FRAME, frame)
             targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
+            commitChanges()
             dismiss()
         }
 
@@ -328,12 +334,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         binding.filterText.text = newFrame.filters.joinToString(separator = "\n") { "-${it.name}" }
     }
 
-    /**
-     * Method to finalize the member that is passed to the target fragment.
-     * Also used to delete possibly unused older complementary pictures.
-     */
-    private fun onDialogDismiss() {
-        frame.shutter = newFrame.shutter
+    internal fun commitChanges() {
+        val shutter = binding.shutterSpeedSpinner.selectedItem as String
+        frame.shutter = if (shutter != resources.getString(R.string.NoValue)) shutter else null
         frame.aperture = newFrame.aperture
         frame.count = newFrame.count
         frame.note = binding.noteEditText.text.toString()
@@ -341,8 +344,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         frame.lens = newFrame.lens
         frame.location = newFrame.location
         frame.formattedAddress = newFrame.formattedAddress
-        frame.exposureComp = newFrame.exposureComp
-        frame.noOfExposures = binding.noOfExposuresSpinner.selectedItem as Int
+        frame.exposureComp = binding.exposureCompSpinner.selectedItem as String
+        frame.noOfExposures = (binding.noOfExposuresSpinner.selectedItem as String).toInt()
         frame.focalLength = newFrame.focalLength
         frame.pictureFilename = newFrame.pictureFilename
         frame.filters = newFrame.filters
@@ -556,15 +559,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         }
     }
 
-    /**
-     * Called when the shutter speed value dialog is opened.
-     * Set the values for the NumberPicker
-     *
-     * @param shutterPicker NumberPicker associated with the shutter speed value
-     */
-    private fun initialiseShutterPicker(shutterPicker: NumberPicker) {
+    private fun initializeShutterSpeedSpinner() {
         // Set the increments according to settings
-        displayedShutterValues = when (shutterIncrements) {
+        var displayedShutterValues = when (shutterIncrements) {
             0 -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
             1 -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
             2 -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
@@ -576,8 +573,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             displayedShutterValues.reverse()
         }
 
-
-        // Set the min and max values only if a lens is selected and they are set for the lens.
+        // Set the min and max values only if a camera is set and they are set for the camera.
         // Otherwise the displayedShutterValues array will be left alone
         // (all shutter values available, since min and max were not defined).
         frame.roll.camera?.let { camera ->
@@ -595,12 +591,18 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             }
         }
 
-        shutterPicker.minValue = 0
-        shutterPicker.maxValue = displayedShutterValues.size - 1
-        shutterPicker.displayedValues = displayedShutterValues
-        shutterPicker.value = displayedShutterValues.size - 1
-        val initialValue = displayedShutterValues.indexOfFirst { it == newFrame.shutter }
-        if (initialValue != -1) shutterPicker.value = initialValue
+        ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, displayedShutterValues)
+                .also { adapter ->
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    binding.shutterSpeedSpinner.adapter = adapter
+                }
+        try {
+            val initialValue = displayedShutterValues.indexOfFirst { it == newFrame.shutter }
+            if (initialValue != -1) binding.shutterSpeedSpinner.setSelection(initialValue)
+            else binding.shutterSpeedSpinner.setSelection(displayedShutterValues.size - 1)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     /**
@@ -609,17 +611,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     private fun resetFilters() {
         newFrame.filters.clear()
         binding.filterText.text = ""
-    }
-
-    /**
-     * Updates the shutter speed value TextView's text.
-     */
-    private fun updateShutterTextView() {
-        if (newFrame.shutter == null) {
-            binding.shutterText.text = ""
-        } else {
-            binding.shutterText.text = newFrame.shutter
-        }
     }
 
     /**
@@ -678,18 +669,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     }
 
     /**
-     * Class used by this class AlertDialog class and its subclasses. Implemented for positive button
-     * onClick events.
-     */
-    internal open inner class OnPositiveButtonClickListener(private val dialog: AlertDialog) : View.OnClickListener {
-        override fun onClick(view: View) {
-            onDialogDismiss()
-            dialog.dismiss()
-        }
-
-    }
-
-    /**
      * Scroll change listener used to detect when the binding.pictureLayout is visible.
      * Only then will the complementary picture be loaded.
      */
@@ -709,34 +688,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         }
     }
 
-    //==============================================================================================
     // LISTENER CLASSES USED TO OPEN NEW DIALOGS AFTER ONCLICK EVENTS
-    /**
-     * Listener class attached to shutter speed layout.
-     * Opens a new dialog to display shutter speed options.
-     */
-    private inner class ShutterLayoutOnClickListener : View.OnClickListener {
-        override fun onClick(view: View) {
-            val builder = AlertDialog.Builder(activity)
-            val inflater = requireActivity().layoutInflater
-            @SuppressLint("InflateParams")
-            val dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null)
-            val shutterPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker).fix()
-            initialiseShutterPicker(shutterPicker)
-            shutterPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            builder.setView(dialogView)
-            builder.setTitle(resources.getString(R.string.ChooseShutterSpeed))
-            builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                newFrame.shutter =
-                        if (shutterPicker.value != shutterPicker.maxValue) displayedShutterValues[shutterPicker.value]
-                        else null
-                updateShutterTextView()
-            }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
-        }
-    }
 
     /**
      * Listener class attached to aperture value layout.
@@ -1054,42 +1006,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
                 newFrame.focalLength = focalLengthText.text.toString().toInt()
                 updateFocalLengthTextView()
-            }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
-        }
-    }
-
-    /**
-     * Listener class attached to exposure compensation layout.
-     * Opens a new dialog to display exposure compensation options.
-     */
-    private inner class ExposureCompLayoutOnClickListener : View.OnClickListener {
-        override fun onClick(view: View) {
-            val builder = AlertDialog.Builder(activity)
-            val inflater = requireActivity().layoutInflater
-            @SuppressLint("InflateParams") val dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null)
-            val exposureCompPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker).fix()
-            displayedExposureCompValues = when (exposureCompIncrements) {
-                0 -> requireActivity().resources.getStringArray(R.array.CompValues)
-                1 -> requireActivity().resources.getStringArray(R.array.CompValuesHalf)
-                else -> requireActivity().resources.getStringArray(R.array.CompValues)
-            }
-            exposureCompPicker.minValue = 0
-            exposureCompPicker.maxValue = displayedExposureCompValues.size - 1
-            exposureCompPicker.displayedValues = displayedExposureCompValues
-            exposureCompPicker.value = floor(displayedExposureCompValues.size / 2.toDouble()).toInt()
-            val initialValue = displayedExposureCompValues.indexOfFirst { it == newFrame.exposureComp }
-            if (initialValue != -1) exposureCompPicker.value = initialValue
-            exposureCompPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            builder.setView(dialogView)
-            builder.setTitle(resources.getString(R.string.ChooseExposureComp))
-            builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                newFrame.exposureComp = displayedExposureCompValues[exposureCompPicker.value]
-                binding.exposureCompText.text =
-                        if (newFrame.exposureComp == null || newFrame.exposureComp == "0") ""
-                        else newFrame.exposureComp
             }
             builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
             val dialog = builder.create()
