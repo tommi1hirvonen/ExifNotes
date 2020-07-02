@@ -45,7 +45,7 @@
                     android:text="@string/FrameCount"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
-                    />
+                    tools:ignore="RtlHardcoded,RtlSymmetry" />
 
                 <Spinner
                     android:layout_width="match_parent"
@@ -61,13 +61,12 @@
 
             </LinearLayout>
 
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:id="@+id/divider_view1"
-                android:background="@color/black"
-                android:alpha="0.15"
-                />
+                android:background="?attr/iconTintColorSecondary" />
+
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -162,10 +161,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:id="@+id/divider_view2"
-                android:background="@color/black"
-                android:alpha="0.15"
-                />
+                android:background="?attr/iconTintColorSecondary" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -228,7 +224,7 @@
                         android:layout_marginRight="15dp"
                         android:layout_marginLeft="15dp"
                         android:src="@drawable/ic_baseline_edit_24"
-                        android:tint="@color/grey"
+                        android:tint="?attr/iconTintColorPrimary"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="@id/aperture_spinner"
                         app:layout_constraintBottom_toBottomOf="@id/aperture_spinner"
@@ -278,10 +274,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:id="@+id/divider_view3"
-                android:background="@color/black"
-                android:alpha="0.15"
-                />
+                android:background="?attr/iconTintColorSecondary" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -331,13 +324,17 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="15dp"
                     android:clickable="true"
+                    android:tint="?attr/iconTintColorPrimary"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_add_circle_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
             </RelativeLayout>
 
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -353,14 +350,6 @@
                     android:id="@+id/filter_layout"
                     android:background="?android:attr/selectableItemBackground"
                     tools:ignore="KeyboardInaccessibleWidget">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:id="@+id/divider_view4"
-                        android:background="@color/black"
-                        android:alpha="0.15"
-                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -395,15 +384,17 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="15dp"
                     android:clickable="true"
+                    android:tint="?attr/iconTintColorPrimary"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_add_circle_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
             </RelativeLayout>
 
-
-
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
 
             <!--FOCAL LENGTH-->
             <LinearLayout
@@ -415,13 +406,6 @@
                 android:background="?android:attr/selectableItemBackground"
                 tools:ignore="KeyboardInaccessibleWidget">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:id="@+id/divider_view5"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -447,6 +431,11 @@
 
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -460,14 +449,6 @@
                     android:id="@+id/location_layout"
                     android:background="?android:attr/selectableItemBackground"
                     tools:ignore="KeyboardInaccessibleWidget">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:id="@+id/divider_view6"
-                        android:background="@color/black"
-                        android:alpha="0.15"
-                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -512,6 +493,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="15dp"
                     android:clickable="true"
+                    android:tint="?attr/iconTintColorPrimary"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_cancel_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
@@ -521,10 +503,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:id="@+id/divider_view7"
-                android:background="@color/black"
-                android:alpha="0.15"
-                />
+                android:background="?attr/iconTintColorSecondary" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -617,10 +596,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:id="@+id/divider_view8"
-                android:background="@color/black"
-                android:alpha="0.15"
-                />
+                android:background="?attr/iconTintColorSecondary" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -719,6 +695,10 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
 
             <!--NOTE-->
             <LinearLayout
@@ -728,14 +708,6 @@
                 android:id="@+id/note_layout"
                 android:background="?android:attr/selectableItemBackground"
                 >
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:id="@+id/divider_view9"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -758,7 +730,10 @@
 
             </LinearLayout>
 
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
 
             <!--COMPLEMENTARY PICTURE-->
             <LinearLayout
@@ -768,14 +743,6 @@
                 android:id="@+id/picture_layout"
                 android:background="?android:attr/selectableItemBackground"
                 >
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:id="@+id/divider_view10"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
 
                 <TextView
                     android:layout_width="wrap_content"

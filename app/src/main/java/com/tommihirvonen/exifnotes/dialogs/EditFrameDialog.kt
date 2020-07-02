@@ -19,7 +19,6 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.widget.NestedScrollView
 import androidx.exifinterface.media.ExifInterface
@@ -140,21 +139,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         binding.nestedScrollView.setOnScrollChangeListener(listener)
 
         binding.title.titleLayout.setBackgroundColor(requireContext().primaryUiColor)
-
-        // Color the dividers white if the app's theme is dark
-        if (isAppThemeDark) {
-            val color = ContextCompat.getColor(requireActivity(), R.color.white)
-            listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3,
-                    binding.dividerView4, binding.dividerView5, binding.dividerView6,
-                    binding.dividerView7, binding.dividerView8, binding.dividerView9,
-                    binding.dividerView10)
-                    .forEach { it.setBackgroundColor(color) }
-            val color2 = ContextCompat.getColor(requireActivity(), R.color.light_grey)
-            binding.apertureEditImageView.drawable.setColorFilterCompat(color2)
-            binding.addLens.drawable.setColorFilterCompat(color2)
-            binding.addFilter.drawable.setColorFilterCompat(color2)
-            binding.clearLocation.drawable.setColorFilterCompat(color2)
-        }
 
         //LENS TEXT
         binding.lensText.text = frame.lens?.name ?: ""
