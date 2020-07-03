@@ -2,12 +2,9 @@ package com.tommihirvonen.exifnotes.activities
 
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import android.os.Build
 import android.os.Bundle
-import android.widget.RelativeLayout
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.fragments.PreferenceFragment
@@ -41,48 +38,32 @@ class PreferenceActivity : AppCompatActivity(), OnSharedPreferenceChangeListener
             setResult(value)
         }
 
-    /**
-     * The ActionBar layout is added manually
-     */
-    private lateinit var actionbar: Toolbar
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        // Set the UI and add listeners.
+    override fun onCreate(savedInstanceState: Bundle?) {
         overridePendingTransition(R.anim.enter_from_right, R.anim.hold)
-        val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
+
         if (isAppThemeDark) {
-            setTheme(R.style.Theme_AppCompat)
+            setTheme(R.style.AppTheme_Dark)
         }
 
-        super.onPostCreate(savedInstanceState)
+        super.onCreate(savedInstanceState)
 
         // If the activity was recreated, get the saved result code
         savedInstanceState?.let { resultCode = it.getInt(ExtraKeys.RESULT_CODE) }
 
-        supportActionBar?.hide()
+        setContentView(R.layout.activity_settings)
+        setUiColor(true)
+        supportActionBar?.title = resources.getString(R.string.Preferences)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
         prefs.registerOnSharedPreferenceChangeListener(this)
-        setStatusBarColor(baseContext.secondaryUiColor)
 
-        // This is a way to get the action bar in Preferences.
-        // This is a legacy implementation. All this is needed in order to make
-        // the action bar title and icon appear in white. WTF!?
-        setContentView(R.layout.activity_settings_legacy)
-        if (isAppThemeDark) {
-            val relativeLayout = findViewById<RelativeLayout>(R.id.rel_layout)
-            relativeLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.background_dark_grey))
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction().add(R.id.rel_layout, PreferenceFragment()).commit()
         }
-        actionbar = findViewById(R.id.actionbar)
-        actionbar.setTitle(R.string.Preferences)
-        actionbar.setBackgroundColor(baseContext.primaryUiColor)
-        actionbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white))
-        // And even this shit! Since API 23 (M) this is needed to render the back button white.
-        // Do only for M and up, on older devices this will cause Resources$NotFoundException.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            actionbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.ic_ab_back_material)
-        }
-        actionbar.navigationIcon?.setColorFilterCompat(ContextCompat.getColor(baseContext, R.color.white))
-        actionbar.setNavigationOnClickListener { finish() }
-        supportFragmentManager.beginTransaction().add(R.id.rel_layout, PreferenceFragment()).commit()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) finish()
+        return true
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {
@@ -92,9 +73,8 @@ class PreferenceActivity : AppCompatActivity(), OnSharedPreferenceChangeListener
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        setStatusBarColor(baseContext.secondaryUiColor)
-        actionbar = findViewById(R.id.actionbar)
-        actionbar.setBackgroundColor(baseContext.primaryUiColor)
+        setStatusBarColor(secondaryUiColor)
+        setSupportActionBarColor(primaryUiColor)
     }
 
     override fun finish() {

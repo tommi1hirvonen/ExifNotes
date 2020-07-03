@@ -11,12 +11,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -108,11 +106,6 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         // Also change the floating action button color. Use the darker secondaryColor for this.
         binding.fab.backgroundTintList = ColorStateList.valueOf(baseContext.secondaryUiColor)
 
-        // In case the app's theme is dark, color the bottom bar dark grey
-        if (isAppThemeDark) {
-            val bottomBarLayout = findViewById<FrameLayout>(R.id.bottom_bar)
-            bottomBarLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey))
-        }
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
 

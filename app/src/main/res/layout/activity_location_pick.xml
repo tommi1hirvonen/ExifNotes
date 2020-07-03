@@ -38,7 +38,7 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/bottom_bar"
         android:orientation="vertical"
-        android:background="@color/white"
+        android:background="?android:attr/colorBackground"
         >
 
         <TextView
