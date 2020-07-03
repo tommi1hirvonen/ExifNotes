@@ -29,6 +29,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/image_view_expand"
             android:src="@drawable/arrow_down"
+            android:tint="?attr/iconTintColorPrimary"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_centerVertical="true"

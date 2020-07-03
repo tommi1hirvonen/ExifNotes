@@ -21,12 +21,9 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
-import android.widget.EditText
-import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
@@ -37,7 +34,6 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import org.apache.commons.text.StringEscapeUtils
 import java.io.*
-import java.lang.reflect.Field
 import java.text.Normalizer
 
 /**
@@ -103,48 +99,15 @@ val Context.primaryUiColor: Int get() = Color.parseColor(Utilities.getUiColorLis
 val Context.secondaryUiColor: Int get() = Color.parseColor(Utilities.getUiColorList(this)[1])
 val Fragment.secondaryUiColor: Int get() = requireContext().secondaryUiColor
 
-val Fragment.isAppThemeDark: Boolean get() = requireContext().isAppThemeDark
 val Context.isAppThemeDark: Boolean get() =
     PreferenceManager.getDefaultSharedPreferences(this)
             .getBoolean(PreferenceConstants.KEY_DARK_THEME, false)
 
 fun String.illegalCharsRemoved(): String = replace("[|\\\\?*<\":>/]".toRegex(), "_")
 
-/**
- * This function is used to fix a bug which Google hasn't been able to fix since 2012.
- * https://issuetracker.google.com/issues/36952035
- *
- * Initially the NumberPicker shows the wrong value, but when the Picker is first scrolled,
- * the displayed value changes to the correct one. This function fixes this and shows
- * the correct value immediately.
- *
- * @return reference to the fixed NumberPicker
- */
-fun NumberPicker.fix(): NumberPicker {
-    var field: Field? = null
-    try {
-        // Disregard IDE warning "Cannot resolve field mInputText'".
-        // This function seems to work despite the warning.
-        field = NumberPicker::class.java.getDeclaredField("mInputText")
-    } catch (ignore: NoSuchFieldException) {
-    }
-    if (field != null) {
-        field.isAccessible = true
-        var inputText: EditText? = null
-        try {
-            inputText = field[this] as EditText
-        } catch (ignore: IllegalAccessException) {
-        }
-        if (inputText != null) inputText.filters = arrayOfNulls(0)
-    }
-    return this
-}
-
-
 class AboutDialogPreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs)
 
 class HelpDialogPreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs)
-
 
 object Utilities {
 
@@ -493,17 +456,11 @@ object Utilities {
     /**
      * Class which manages custom Android Marshmallow type scroll indicators based on a RecyclerView
      */
-    class ScrollIndicatorRecyclerViewListener(context: Context,
-                                              private val recyclerView: RecyclerView,
+    class ScrollIndicatorRecyclerViewListener(private val recyclerView: RecyclerView,
                                               private val indicatorUp: View,
                                               private val indicatorDown: View) : RecyclerView.OnScrollListener() {
 
         init {
-            val color =
-                    if (context.isAppThemeDark) ContextCompat.getColor(context, R.color.white)
-                    else ContextCompat.getColor(context, R.color.black)
-            indicatorUp.setBackgroundColor(color)
-            indicatorDown.setBackgroundColor(color)
             recyclerView.post { toggleIndicators() }
         }
 
@@ -532,17 +489,11 @@ object Utilities {
     /**
      * Class which manages custom Android Marshmallow type scroll indicators inside a NestedScrollView.
      */
-    open class ScrollIndicatorNestedScrollViewListener(context: Context,
-                                                       private val nestedScrollView: NestedScrollView,
+    open class ScrollIndicatorNestedScrollViewListener(private val nestedScrollView: NestedScrollView,
                                                        private val indicatorUp: View?,
                                                        private val indicatorDown: View?) : NestedScrollView.OnScrollChangeListener {
 
         init {
-            val color =
-                    if (context.isAppThemeDark) ContextCompat.getColor(context, R.color.white)
-                    else ContextCompat.getColor(context, R.color.black)
-            indicatorUp?.setBackgroundColor(color)
-            indicatorDown?.setBackgroundColor(color)
             nestedScrollView.post { toggleIndicators() }
         }
 

@@ -6,14 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemFrameConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
-import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
-import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
  * FrameAdapter acts as an adapter to link an ArrayList of Frames and a RecyclerView together.
@@ -41,13 +38,6 @@ class FrameAdapter(private val context: Context,
         fun onItemClick(position: Int)
         fun onItemLongClick(position: Int)
     }
-
-    /**
-     * The color of the frame ImageView depending on the current app theme (light or dark).
-     */
-    private val backgroundFrameColor: Int =
-            if (context.isAppThemeDark) ContextCompat.getColor(context, R.color.background_frame_dark_grey)
-            else ContextCompat.getColor(context, R.color.background_frame_light_grey)
 
     /**
      * Used to hold the positions of selected items in the RecyclerView.
@@ -87,13 +77,6 @@ class FrameAdapter(private val context: Context,
                 listener.onItemLongClick(adapterPosition)
                 true
             }
-            // Color the png drawables grey.
-            binding.backgroundFrame.drawable.setColorFilterCompat(backgroundFrameColor)
-            val color = ContextCompat.getColor(context, R.color.grey)
-            binding.drawableClock.drawable.setColorFilterCompat(color)
-            binding.drawableAperture.drawable.setColorFilterCompat(color)
-            binding.pictureImageView.drawable.setColorFilterCompat(color)
-            binding.brokenPictureImageView.drawable.setColorFilterCompat(color)
         }
     }
 

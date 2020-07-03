@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogCameraBinding
@@ -19,8 +18,6 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
-import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
-import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
  * Dialog to edit Camera's information
@@ -57,19 +54,12 @@ class EditCameraDialog : DialogFragment() {
         val nestedScrollView = binding.nestedScrollView
         nestedScrollView.setOnScrollChangeListener(
                 ScrollIndicatorNestedScrollViewListener(
-                        requireActivity(),
                         nestedScrollView,
                         binding.scrollIndicatorUp,
                         binding.scrollIndicatorDown))
 
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
         alert.setView(binding.root)
-
-        // Color the dividers white if the app's theme is dark
-        if (isAppThemeDark) {
-            arrayOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4, binding.dividerView5)
-                    .forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
-        }
 
         // EDIT TEXT FIELDS
         binding.makeEditText.setText(camera.make)
@@ -119,11 +109,6 @@ class EditCameraDialog : DialogFragment() {
             val dialogView = inflater.inflate(R.layout.dialog_double_numberpicker, null)
             val minShutterPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_one)
             val maxShutterPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_two)
-            val color =
-                    if (isAppThemeDark) ContextCompat.getColor(requireActivity(), R.color.light_grey)
-                    else ContextCompat.getColor(requireActivity(), R.color.grey)
-            val dash = dialogView.findViewById<ImageView>(R.id.dash)
-            dash.drawable.setColorFilterCompat(color)
 
             // To prevent text edit
             minShutterPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS

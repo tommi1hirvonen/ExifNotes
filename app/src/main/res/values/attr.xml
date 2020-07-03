@@ -2,4 +2,5 @@
 <resources>
     <attr name="iconTintColorPrimary" format="color" />
     <attr name="iconTintColorSecondary" format="color" />
+    <attr name="iconTintColorTertiary" format="color" />
 </resources>

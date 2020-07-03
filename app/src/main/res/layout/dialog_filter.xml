@@ -16,8 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_gravity="center_horizontal|top"
-        android:background="@color/black"
-        android:alpha="0.15"
+        android:background="?attr/iconTintColorSecondary"
         android:visibility="gone"
         tools:visibility="visible"
         />
@@ -34,9 +33,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             >
-
-
-
 
 
             <!--MAKE-->
@@ -80,10 +76,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:id="@+id/divider_view1"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
+                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -119,8 +112,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_gravity="center_horizontal|bottom"
-        android:background="@color/black"
-        android:alpha="0.15"
+        android:background="?attr/iconTintColorSecondary"
         android:visibility="gone"
         tools:visibility="visible"
         />

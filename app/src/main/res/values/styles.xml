@@ -7,6 +7,7 @@
         <item name="android:actionModeBackground">@color/grey</item>
         <item name="iconTintColorPrimary">@color/grey</item>
         <item name="iconTintColorSecondary">@color/extra_light_grey</item>
+        <item name="iconTintColorTertiary">@color/background_frame_light_grey</item>
     </style>
 
     <style name="AppTheme_Dark" parent="Theme.AppCompat">
@@ -16,6 +17,7 @@
         <item name="bottomSheetDialogTheme">@style/Theme.Design.BottomSheetDialog</item>
         <item name="iconTintColorPrimary">@color/light_grey</item>
         <item name="iconTintColorSecondary">@color/mid_dark_grey</item>
+        <item name="iconTintColorTertiary">@color/background_frame_dark_grey</item>
     </style>
 
     <style name="AppToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">

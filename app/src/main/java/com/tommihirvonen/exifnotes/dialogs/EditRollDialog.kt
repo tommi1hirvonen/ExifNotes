@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogRollBinding
@@ -57,27 +56,11 @@ class EditRollDialog : DialogFragment() {
         val alert = AlertDialog.Builder(activity)
         binding.nestedScrollView.setOnScrollChangeListener(
                 ScrollIndicatorNestedScrollViewListener(
-                        requireActivity(),
                         binding.nestedScrollView,
                         binding.scrollIndicatorUp,
                         binding.scrollIndicatorDown))
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
         alert.setView(binding.root)
-
-        // Color the dividers white if the app's theme is dark
-        if (isAppThemeDark) {
-            val color = ContextCompat.getColor(requireActivity(), R.color.white)
-            listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4,
-                    binding.dividerView5, binding.dividerView6, binding.dividerView7, binding.dividerView8, 
-                    binding.dividerView9, binding.dividerView10)
-                    .forEach { it.setBackgroundColor(color) }
-            val color2 = ContextCompat.getColor(requireActivity(), R.color.light_grey)
-            binding.addCamera.drawable.setColorFilterCompat(color2)
-            binding.clearFilmStock.drawable.setColorFilterCompat(color2)
-            binding.clearDateUnloaded.drawable.setColorFilterCompat(color2)
-            binding.clearDateDeveloped.drawable.setColorFilterCompat(color2)
-        }
-        //==========================================================================================
 
         // NAME EDIT TEXT
         binding.nameEditText.setText(roll.name)
@@ -86,15 +69,12 @@ class EditRollDialog : DialogFragment() {
         binding.nameEditText.isSingleLine = false
 
 
-        //==========================================================================================
         // NOTE EDIT TEXT
         binding.noteEditText.isSingleLine = false
         binding.noteEditText.setText(roll.note)
         binding.noteEditText.setSelection(binding.noteEditText.text.length)
-        //==========================================================================================
 
 
-        //==========================================================================================
         // FILM STOCK PICK DIALOG
         roll.filmStock?.let {
             binding.filmStockText.text = it.name
@@ -114,10 +94,8 @@ class EditRollDialog : DialogFragment() {
             dialog.setTargetFragment(this@EditRollDialog, REQUEST_CODE_SELECT_FILM_STOCK)
             dialog.show(parentFragmentManager.beginTransaction(), null)
         }
-        //==========================================================================================
 
 
-        //==========================================================================================
         // CAMERA PICK DIALOG
         binding.cameraText.text = roll.camera?.name ?: ""
         binding.cameraLayout.setOnClickListener {
@@ -144,10 +122,8 @@ class EditRollDialog : DialogFragment() {
             val alert1 = builder.create()
             alert1.show()
         }
-        //==========================================================================================
 
 
-        //==========================================================================================
         // CAMERA ADD DIALOG
         binding.addCamera.isClickable = true
         binding.addCamera.setOnClickListener {
@@ -161,10 +137,8 @@ class EditRollDialog : DialogFragment() {
             dialog.arguments = arguments
             dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
         }
-        //==========================================================================================
 
 
-        //==========================================================================================
         // DATE & TIME LOADED PICK DIALOG
 
         // DATE
@@ -176,10 +150,8 @@ class EditRollDialog : DialogFragment() {
         val dateLoadedManager = DateTimeLayoutManager(requireActivity(), binding.dateLayout,
                 binding.timeLayout, binding.dateText, binding.timeText, roll.date, null)
 
-        //==========================================================================================
 
 
-        //==========================================================================================
         // DATE & TIME UNLOADED PICK DIALOG
         binding.dateUnloadedText.text = roll.unloaded?.dateAsText
         binding.timeUnloadedText.text = roll.unloaded?.timeAsText
@@ -187,10 +159,8 @@ class EditRollDialog : DialogFragment() {
                 binding.timeUnloadedLayout, binding.dateUnloadedText, binding.timeUnloadedText, roll.unloaded,
                 binding.clearDateUnloaded)
 
-        //==========================================================================================
 
 
-        //==========================================================================================
         // DATE & TIME DEVELOPED PICK DIALOG
         binding.dateDevelopedText.text = roll.developed?.dateAsText
         binding.timeDevelopedText.text = roll.developed?.timeAsText
@@ -198,10 +168,8 @@ class EditRollDialog : DialogFragment() {
                 binding.timeDevelopedLayout, binding.dateDevelopedText, binding.timeDevelopedText, roll.developed,
                 binding.clearDateDeveloped)
 
-        //==========================================================================================
 
 
-        //==========================================================================================
         //ISO PICKER
         binding.isoText.text = if (roll.iso == 0) "" else roll.iso.toString()
         binding.isoLayout.setOnClickListener {
@@ -230,10 +198,8 @@ class EditRollDialog : DialogFragment() {
             val dialog = builder.create()
             dialog.show()
         }
-        //==========================================================================================
 
 
-        //==========================================================================================
         //PUSH PULL PICKER
         try {
             if (newRoll.pushPull != null) {
@@ -245,17 +211,14 @@ class EditRollDialog : DialogFragment() {
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
-        //==========================================================================================
 
 
-        //==========================================================================================
         //FORMAT PICKER
         try {
             binding.formatSpinner.setSelection(newRoll.format)
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
-        //==========================================================================================
 
 
         //FINALISE SETTING UP THE DIALOG

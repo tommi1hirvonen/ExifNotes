@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerBinding
@@ -20,8 +19,6 @@ import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
-import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
-import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
  * Dialog to edit Lens's information
@@ -63,18 +60,11 @@ class EditLensDialog : DialogFragment() {
 
         binding.nestedScrollView.setOnScrollChangeListener(
                 ScrollIndicatorNestedScrollViewListener(
-                        requireActivity(),
                         binding.nestedScrollView,
                         binding.scrollIndicatorUp,
                         binding.scrollIndicatorDown))
         alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
         alert.setView(binding.root)
-
-        // Color the dividers white if the app's theme is dark
-        if (isAppThemeDark) {
-            listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4, binding.dividerView5)
-                    .forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
-        }
 
         // EDIT TEXT FIELDS
         binding.makeEditText.setText(lens.make)
@@ -120,10 +110,6 @@ class EditLensDialog : DialogFragment() {
             val binding1 = DialogDoubleNumberpickerBinding.inflate(inflater)
             val maxAperturePicker = binding1.numberPickerOne
             val minAperturePicker = binding1.numberPickerTwo
-            val color =
-                    if (isAppThemeDark) ContextCompat.getColor(requireActivity(), R.color.light_grey)
-                    else ContextCompat.getColor(requireActivity(), R.color.grey)
-            binding1.dash.drawable.setColorFilterCompat(color)
 
             //To prevent text edit
             minAperturePicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
@@ -176,12 +162,6 @@ class EditLensDialog : DialogFragment() {
             val minFocalLengthFastForward = binding1.pickerOneFastForward
             val maxFocalLengthFastRewind = binding1.pickerTwoFastRewind
             val maxFocalLengthFastForward = binding1.pickerTwoFastForward
-            val color =
-                    if (isAppThemeDark) ContextCompat.getColor(requireActivity(), R.color.light_grey)
-                    else ContextCompat.getColor(requireActivity(), R.color.grey)
-            listOf(binding1.pickerOneFastForwardImage, binding1.pickerOneFastRewindImage,
-                    binding1.pickerTwoFastForwardImage, binding1.pickerTwoFastRewindImage, binding1.dash
-            ).forEach { it.drawable.setColorFilterCompat(color) }
 
             // To prevent text edit
             minFocalLengthPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS

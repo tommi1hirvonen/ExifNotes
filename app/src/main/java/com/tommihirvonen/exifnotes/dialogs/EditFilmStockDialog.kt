@@ -10,14 +10,12 @@ import android.os.Bundle
 import android.text.InputFilter
 import android.text.Spanned
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilmBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
-import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
 
 class EditFilmStockDialog : DialogFragment() {
 
@@ -35,12 +33,6 @@ class EditFilmStockDialog : DialogFragment() {
         val builder = AlertDialog.Builder(requireActivity())
         builder.setView(binding.root)
                 .setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
-
-        // Color the dividers white if the app's theme is dark
-        if (isAppThemeDark) {
-            listOf(binding.dividerView1, binding.dividerView2, binding.dividerView3, binding.dividerView4)
-                    .forEach { it.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white)) }
-        }
 
         binding.manufacturerEditText.setText(filmStock.make)
         binding.filmStockEditText.setText(filmStock.model)

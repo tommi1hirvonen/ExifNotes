@@ -16,7 +16,6 @@ import com.tommihirvonen.exifnotes.fragments.CamerasFragment
 import com.tommihirvonen.exifnotes.fragments.FilmStocksFragment
 import com.tommihirvonen.exifnotes.fragments.FiltersFragment
 import com.tommihirvonen.exifnotes.fragments.LensesFragment
-import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
 import com.tommihirvonen.exifnotes.utilities.primaryUiColor
 import com.tommihirvonen.exifnotes.utilities.setUiColor
@@ -62,7 +61,7 @@ class GearActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         overridePendingTransition(R.anim.enter_from_right, R.anim.hold)
         val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
-        if (isAppThemeDark) setTheme(R.style.Theme_AppCompat)
+        if (isAppThemeDark) setTheme(R.style.AppTheme_Dark)
         super.onCreate(savedInstanceState)
         setUiColor(true)
         supportActionBar?.setTitle(R.string.Gear)

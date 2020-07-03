@@ -13,8 +13,6 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemRollConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.database
-import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
-import com.tommihirvonen.exifnotes.utilities.setColorFilterCompat
 
 /**
  * RollAdapter acts as an adapter between a List of rolls and a RecyclerView.
@@ -124,11 +122,6 @@ class RollAdapter(private val context: Context,
         } else {
             holder.binding.tvPhotos.text = context.resources.getQuantityString(
                     R.plurals.PhotosAmount, numberOfFrames, numberOfFrames)
-        }
-
-        if (context.isAppThemeDark) {
-            val color = ContextCompat.getColor(context, R.color.light_grey)
-            holder.imageViews.forEach { it.drawable.setColorFilterCompat(color) }
         }
 
         val noFade = 1.0f

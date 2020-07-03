@@ -16,8 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_gravity="center_horizontal|top"
-        android:background="@color/black"
-        android:alpha="0.15"
+        android:background="?attr/iconTintColorSecondary"
         android:visibility="gone"
         tools:visibility="visible"
         />
@@ -34,12 +33,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             >
-
-
-
-
-
-
 
             <!--MAKE-->
             <LinearLayout
@@ -70,6 +63,10 @@
 
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
 
             <!--MODEL-->
             <LinearLayout
@@ -78,14 +75,6 @@
                 android:orientation="vertical"
                 android:background="?android:attr/selectableItemBackground"
                 >
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:id="@+id/divider_view1"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -120,10 +109,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:id="@+id/divider_view2"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
+                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -158,10 +144,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:id="@+id/divider_view3"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
+                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -202,10 +185,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:id="@+id/divider_view4"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
+                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -243,10 +223,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:id="@+id/divider_view5"
-                    android:background="@color/black"
-                    android:alpha="0.15"
-                    />
+                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -273,11 +250,6 @@
 
             </LinearLayout>
 
-
-
-
-
-
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
@@ -287,8 +259,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_gravity="center_horizontal|bottom"
-        android:background="@color/black"
-        android:alpha="0.15"
+        android:background="?attr/iconTintColorSecondary"
         android:visibility="gone"
         tools:visibility="visible"
         />

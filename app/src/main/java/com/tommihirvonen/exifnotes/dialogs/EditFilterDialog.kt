@@ -8,14 +8,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilterBinding
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
-import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
 
 /**
  * Dialog to edit a Filter's information
@@ -38,10 +36,6 @@ class EditFilterDialog : DialogFragment() {
         val title = requireArguments().getString(ExtraKeys.TITLE)
         builder.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
         builder.setView(binding.root)
-        // Color the dividers white if the app's theme is dark
-        if (isAppThemeDark) {
-            binding.dividerView1.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.white))
-        }
         val filter = requireArguments().getParcelable(ExtraKeys.FILTER) ?: Filter()
         binding.makeEditText.setText(filter.make)
         binding.modelEditText.setText(filter.model)

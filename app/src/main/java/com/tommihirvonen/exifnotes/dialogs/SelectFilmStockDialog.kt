@@ -34,7 +34,6 @@ class SelectFilmStockDialog : DialogFragment() {
                 manufacturersRecyclerView.context, layoutManager.orientation))
         manufacturersRecyclerView.addOnScrollListener(
                 ScrollIndicatorRecyclerViewListener(
-                        requireContext(),
                         manufacturersRecyclerView,
                         view.findViewById(R.id.scrollIndicatorUp),
                         view.findViewById(R.id.scrollIndicatorDown)))

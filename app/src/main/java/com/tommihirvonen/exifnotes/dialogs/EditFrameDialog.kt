@@ -3,7 +3,6 @@ package com.tommihirvonen.exifnotes.dialogs
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -133,9 +132,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         apertureIncrements = frame.lens?.apertureIncrements ?: apertureIncrements
 
         // Set a listener to check whether the complementary picture should be loaded and displayed.
-        val listener = OnScrollChangeListener(
-                requireActivity(),
-                binding.nestedScrollView)
+        val listener = OnScrollChangeListener(binding.nestedScrollView)
         binding.nestedScrollView.setOnScrollChangeListener(listener)
 
         binding.title.titleLayout.setBackgroundColor(requireContext().primaryUiColor)
@@ -692,8 +689,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
      * Only then will the complementary picture be loaded.
      */
     private inner class OnScrollChangeListener internal constructor(
-            context: Context, nestedScrollView: NestedScrollView) : ScrollIndicatorNestedScrollViewListener(
-            context, nestedScrollView, null, null) {
+            nestedScrollView: NestedScrollView) : ScrollIndicatorNestedScrollViewListener(
+            nestedScrollView, null, null) {
         override fun onScrollChange(v: NestedScrollView, scrollX: Int, scrollY: Int,
                                     oldScrollX: Int, oldScrollY: Int) {
             super.onScrollChange(v, scrollX, scrollY, oldScrollX, oldScrollY)
