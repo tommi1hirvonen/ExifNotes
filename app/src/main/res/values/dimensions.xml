@@ -5,4 +5,6 @@
     <dimen name="ItemRollLeftRightPadding">15dp</dimen>
     <dimen name="ItemGearLeftRightPadding">15dp</dimen>
     <dimen name="MapActivityBottomSheetPeekHeight">50dp</dimen>
+    <dimen name="FrameDialogSidePadding">15dp</dimen>
+    <dimen name="FrameDialogImageMargin">20dp</dimen>
 </resources>
