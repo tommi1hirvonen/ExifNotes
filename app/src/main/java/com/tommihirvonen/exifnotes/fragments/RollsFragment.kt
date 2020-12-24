@@ -125,7 +125,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         // Set the ActionBar title text.
         val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
         actionBar?.title = "  " + resources.getString(R.string.MainActivityTitle)

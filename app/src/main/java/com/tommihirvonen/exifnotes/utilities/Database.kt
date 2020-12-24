@@ -3,7 +3,6 @@ package com.tommihirvonen.exifnotes.utilities
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import android.database.DatabaseErrorHandler
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
@@ -962,7 +961,7 @@ class Database private constructor(private val context: Context)
             val success = booleanArrayOf(true)
             try {
                 SQLiteDatabase.openDatabase(getDatabaseFile(context).absolutePath, null,
-                        SQLiteDatabase.OPEN_READWRITE, DatabaseErrorHandler {
+                        SQLiteDatabase.OPEN_READWRITE, {
                     // If the database was corrupt, try to replace with the old backup.
                     try {
                         oldDbBackup.copyTo(oldDb, overwrite = true)

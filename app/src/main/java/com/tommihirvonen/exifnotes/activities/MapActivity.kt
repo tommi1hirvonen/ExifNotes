@@ -34,7 +34,7 @@ import kotlin.math.roundToInt
  */
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private class Triple<T, U, V> internal constructor(val first: T, var second: U, val third: V)
+    private class Triple<T, U, V>(val first: T, var second: U, val third: V)
 
     private lateinit var allRolls: List<Triple<Roll, Boolean, List<Frame>>>
     private val selectedRolls = mutableListOf<Triple<Roll, Bitmap?, List<Frame>>>()
@@ -422,7 +422,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         return bitmap
     }
 
-    private class RollMarkerAdapter internal constructor(
+    private class RollMarkerAdapter(
             context: Context,
             private val rollList: List<Triple<Roll, Bitmap?, List<Frame>>>)
         : ArrayAdapter<Triple<Roll, Bitmap?, List<Frame>>>(context, android.R.layout.simple_list_item_1, rollList) {

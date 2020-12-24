@@ -81,12 +81,12 @@ class FilmManufacturerAdapter(
         if (animate) currentExpandedIndex = -1
     }
 
-    private inner class FilmStockAdapter internal constructor(private val filmStocks: List<FilmStock>)
+    private inner class FilmStockAdapter(private val filmStocks: List<FilmStock>)
         : RecyclerView.Adapter<FilmStockAdapter.ViewHolder>() {
 
         init { setHasStableIds(true) }
 
-        internal inner class ViewHolder(val binding: ItemFilmStockBinding) : RecyclerView.ViewHolder(binding.root)
+        inner class ViewHolder(val binding: ItemFilmStockBinding) : RecyclerView.ViewHolder(binding.root)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val inflater = LayoutInflater.from(context)

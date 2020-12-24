@@ -10,7 +10,6 @@ import android.text.util.Linkify
 import android.widget.TextView
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.packageInfo
 
 /**

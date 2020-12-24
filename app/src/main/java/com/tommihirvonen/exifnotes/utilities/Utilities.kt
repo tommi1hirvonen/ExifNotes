@@ -7,13 +7,8 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.graphics.BlendMode
-import android.graphics.BlendModeColorFilter
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
-import android.os.Build
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
@@ -35,19 +30,6 @@ import com.tommihirvonen.exifnotes.datastructures.Roll
 import org.apache.commons.text.StringEscapeUtils
 import java.io.*
 import java.text.Normalizer
-
-/**
- * Applies a color filter to a Drawable object.
- *
- * @param color the color that should be used in the form 0xAARRGGBB
- */
-fun Drawable.setColorFilterCompat(color: Int) =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            mutate().colorFilter = BlendModeColorFilter(color, BlendMode.SRC_IN)
-        } else {
-            @Suppress("DEPRECATION")
-            mutate().setColorFilter(color, PorterDuff.Mode.SRC_IN)
-        }
 
 /**
  *

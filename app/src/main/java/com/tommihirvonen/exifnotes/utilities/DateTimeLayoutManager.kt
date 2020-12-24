@@ -2,9 +2,7 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.app.Activity
 import android.app.DatePickerDialog
-import android.app.DatePickerDialog.OnDateSetListener
 import android.app.TimePickerDialog
-import android.app.TimePickerDialog.OnTimeSetListener
 import android.view.View
 import android.widget.DatePicker
 import android.widget.TextView
@@ -31,7 +29,7 @@ class DateTimeLayoutManager(
     init {
         dateLayout.setOnClickListener {
             val dateTimeTemp = dateTime ?: fromCurrentTime()
-            val dialog = DatePickerDialog(activity, OnDateSetListener { _: DatePicker?, year: Int, month: Int, dayOfMonth: Int ->
+            val dialog = DatePickerDialog(activity, { _: DatePicker?, year: Int, month: Int, dayOfMonth: Int ->
                 val dateTime = DateTime(year, month + 1, dayOfMonth, dateTimeTemp.hour, dateTimeTemp.minute)
                 dateTextView.text = dateTime.dateAsText
                 timeTextView.text = dateTime.timeAsText
@@ -42,7 +40,7 @@ class DateTimeLayoutManager(
 
         timeLayout.setOnClickListener {
             val dateTimeTemp = dateTime ?: fromCurrentTime()
-            val dialog = TimePickerDialog(activity, OnTimeSetListener { _: TimePicker?, hourOfDay: Int, minute: Int ->
+            val dialog = TimePickerDialog(activity, { _: TimePicker?, hourOfDay: Int, minute: Int ->
                 val dateTime = DateTime(dateTimeTemp.year, dateTimeTemp.month, dateTimeTemp.day, hourOfDay, minute)
                 dateTextView.text = dateTime.dateAsText
                 timeTextView.text = dateTime.timeAsText

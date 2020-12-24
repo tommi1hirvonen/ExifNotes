@@ -119,7 +119,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         binding = FragmentFramesBinding.inflate(inflater, container, false)
         val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
         actionBar?.title = roll.name
@@ -208,10 +208,10 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 // Method getShareRollIntent() may take a while to run since it
                 // generates the files that will be shared.
                 // -> Run the code on a new thread, which lets the UI thread to finish menu animations.
-                Thread(Runnable {
+                Thread {
                     val shareIntent = shareRollIntent
                     shareIntent?.let { startActivity(Intent.createChooser(it, resources.getString(R.string.Share))) }
-                }).start()
+                }.start()
             R.id.menu_item_export -> {
                 val intent = Intent()
                 intent.action = Intent.ACTION_OPEN_DOCUMENT_TREE
@@ -663,7 +663,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
          * Private class which creates a dialog builder for a custom dialog.
          * Used to batch edit frame counts.
          */
-        private inner class FrameCountBatchEditDialogBuilder internal constructor(context: Context) : AlertDialog.Builder(context) {
+        private inner class FrameCountBatchEditDialogBuilder(context: Context) : AlertDialog.Builder(context) {
             init {
                 setTitle(R.string.EditFrameCountsBy)
                 @SuppressLint("InflateParams")

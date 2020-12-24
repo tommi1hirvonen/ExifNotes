@@ -498,14 +498,15 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             binding.ivPicture.visibility = View.VISIBLE
 
             // Load the bitmap on a background thread
-            Thread(Runnable {
+            Thread {
 
                 // Get the target ImageView height.
                 // Because the complementary picture ImageView uses subclass SquareImageView,
                 // the ImageView width should also be its height. Because the ImageView's
                 // width is match_parent, we get the dialog's width instead.
                 // If there is a problem getting the dialog window, use the resource dimension instead.
-                val targetH = dialog?.window?.decorView?.width ?: resources.getDimension(R.dimen.ComplementaryPictureImageViewHeight).toInt()
+                val targetH = dialog?.window?.decorView?.width
+                        ?: resources.getDimension(R.dimen.ComplementaryPictureImageViewHeight).toInt()
 
                 // Rotate the complementary picture ImageView if necessary
                 var rotationTemp = 0
@@ -549,7 +550,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                         binding.ivPicture.startAnimation(animation)
                     }
                 }
-            }).start()
+            }.start()
         } else {
             binding.pictureText.setText(R.string.PictureSetButNotFound)
         }
@@ -688,7 +689,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
      * Scroll change listener used to detect when the binding.pictureLayout is visible.
      * Only then will the complementary picture be loaded.
      */
-    private inner class OnScrollChangeListener internal constructor(
+    private inner class OnScrollChangeListener(
             nestedScrollView: NestedScrollView) : ScrollIndicatorNestedScrollViewListener(
             nestedScrollView, null, null) {
         override fun onScrollChange(v: NestedScrollView, scrollX: Int, scrollY: Int,
