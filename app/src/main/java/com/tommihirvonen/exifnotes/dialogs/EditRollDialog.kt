@@ -3,15 +3,14 @@ package com.tommihirvonen.exifnotes.dialogs
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.*
-import androidx.fragment.app.DialogFragment
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogRollBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
@@ -19,12 +18,12 @@ import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.*
-import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
+import java.util.*
 
 /**
  * Dialog to edit Roll's information
  */
-class EditRollDialog : DialogFragment() {
+class EditRollDialog : BottomSheetDialogFragment() {
 
     companion object {
         /**
@@ -41,26 +40,23 @@ class EditRollDialog : DialogFragment() {
      * Holds all the cameras in the database
      */
     private lateinit var cameraList: MutableList<Camera>
-    
+
+    private lateinit var roll: Roll
     private lateinit var newRoll: Roll
 
-    override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
-        val layoutInflater = requireActivity().layoutInflater
-        binding = DialogRollBinding.inflate(layoutInflater)
-        val title = requireArguments().getString(ExtraKeys.TITLE)
-        val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
-        val roll = requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll()
+    private lateinit var dateLoadedManager: DateTimeLayoutManager
+    private lateinit var dateUnloadedManager: DateTimeLayoutManager
+    private lateinit var dateDevelopedManager: DateTimeLayoutManager
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = DialogRollBinding.inflate(inflater, container, false)
+        binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
+        binding.title.titleLayout.setBackgroundColor(requireContext().primaryUiColor)
+
+        roll = requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll()
         newRoll = roll.copy()
         cameraList = database.allCameras.toMutableList()
-        
-        val alert = AlertDialog.Builder(activity)
-        binding.nestedScrollView.setOnScrollChangeListener(
-                ScrollIndicatorNestedScrollViewListener(
-                        binding.nestedScrollView,
-                        binding.scrollIndicatorUp,
-                        binding.scrollIndicatorDown))
-        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
-        alert.setView(binding.root)
+
 
         // NAME EDIT TEXT
         binding.nameEditText.setText(roll.name)
@@ -100,7 +96,7 @@ class EditRollDialog : DialogFragment() {
         binding.cameraText.text = roll.camera?.name ?: ""
         binding.cameraLayout.setOnClickListener {
             val listItems = listOf(resources.getString(R.string.NoCamera))
-                            .plus(cameraList.map { it.name }).toTypedArray()
+                    .plus(cameraList.map { it.name }).toTypedArray()
 
             val index = cameraList.indexOfFirst { it == newRoll.camera }
             val checkedItem = if (index == -1) 0 else index + 1
@@ -147,7 +143,7 @@ class EditRollDialog : DialogFragment() {
         }
         binding.dateText.text = roll.date?.dateAsText
         binding.timeText.text = roll.date?.timeAsText
-        val dateLoadedManager = DateTimeLayoutManager(requireActivity(), binding.dateLayout,
+        dateLoadedManager = DateTimeLayoutManager(requireActivity(), binding.dateLayout,
                 binding.timeLayout, binding.dateText, binding.timeText, roll.date, null)
 
 
@@ -155,7 +151,7 @@ class EditRollDialog : DialogFragment() {
         // DATE & TIME UNLOADED PICK DIALOG
         binding.dateUnloadedText.text = roll.unloaded?.dateAsText
         binding.timeUnloadedText.text = roll.unloaded?.timeAsText
-        val dateUnloadedManager = DateTimeLayoutManager(requireActivity(), binding.dateUnloadedLayout,
+        dateUnloadedManager = DateTimeLayoutManager(requireActivity(), binding.dateUnloadedLayout,
                 binding.timeUnloadedLayout, binding.dateUnloadedText, binding.timeUnloadedText, roll.unloaded,
                 binding.clearDateUnloaded)
 
@@ -164,7 +160,7 @@ class EditRollDialog : DialogFragment() {
         // DATE & TIME DEVELOPED PICK DIALOG
         binding.dateDevelopedText.text = roll.developed?.dateAsText
         binding.timeDevelopedText.text = roll.developed?.timeAsText
-        val dateDevelopedManager = DateTimeLayoutManager(requireActivity(), binding.dateDevelopedLayout,
+        dateDevelopedManager = DateTimeLayoutManager(requireActivity(), binding.dateDevelopedLayout,
                 binding.timeDevelopedLayout, binding.dateDevelopedText, binding.timeDevelopedText, roll.developed,
                 binding.clearDateDeveloped)
 
@@ -174,9 +170,9 @@ class EditRollDialog : DialogFragment() {
         binding.isoText.text = if (roll.iso == 0) "" else roll.iso.toString()
         binding.isoLayout.setOnClickListener {
             val builder = AlertDialog.Builder(activity)
-            val inflater = requireActivity().layoutInflater
+            val inflater1 = requireActivity().layoutInflater
             @SuppressLint("InflateParams")
-            val dialogView = inflater.inflate(R.layout.dialog_single_numberpicker, null)
+            val dialogView = inflater1.inflate(R.layout.dialog_single_numberpicker, null)
             val isoPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
             val isoValues = requireActivity().resources.getStringArray(R.array.ISOValues)
             isoPicker.minValue = 0
@@ -220,53 +216,43 @@ class EditRollDialog : DialogFragment() {
             e.printStackTrace()
         }
 
-
-        //FINALISE SETTING UP THE DIALOG
-        alert.setPositiveButton(positiveButton, null)
-        alert.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
-            //dialog.cancel();
-            val intent = Intent()
-            targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, intent)
-        }
-        val dialog = alert.create()
-
-        // SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
-        // so it doesn't need to deal with resizing
-        // but just panned by the framework to ensure the current input focus is visible
-        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-
-        dialog.show()
-
-        // We override the positive button onClick so that we can dismiss the dialog
-        // only when both roll name and camera are set.
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            var name = binding.nameEditText.text.toString()
-
-            // Check if name is not set and if name can be replaced with the film stock's name.
-            if (name.isEmpty()) name = newRoll.filmStock?.name ?: ""
-
-            // Check the length again.
-            if (name.isNotEmpty()) {
-                roll.name = name
-                roll.note = binding.noteEditText.text.toString()
-                roll.camera = newRoll.camera
-                roll.date = dateLoadedManager.dateTime
-                roll.unloaded = dateUnloadedManager.dateTime
-                roll.developed = dateDevelopedManager.dateTime
-                roll.iso = newRoll.iso
-                roll.pushPull = binding.pushPullSpinner.selectedItem as String?
-                roll.format = binding.formatSpinner.selectedItemPosition
-                roll.filmStock = newRoll.filmStock
+        binding.title.negativeImageView.setOnClickListener { dismiss() }
+        binding.title.positiveImageView.setOnClickListener {
+            if (commitChanges()) {
                 val intent = Intent()
                 intent.putExtra(ExtraKeys.ROLL, roll)
-                dialog.dismiss()
                 targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
-            } else {
-                Toast.makeText(activity, resources.getString(R.string.NoName),
-                        Toast.LENGTH_SHORT).show()
+                dismiss()
             }
         }
-        return dialog
+
+        return binding.root
+    }
+
+    private fun commitChanges(): Boolean {
+        var name = binding.nameEditText.text.toString()
+
+        // Check if name is not set and if name can be replaced with the film stock's name.
+        if (name.isEmpty()) name = newRoll.filmStock?.name ?: ""
+
+        // Check the length again.
+        if (name.isNotEmpty()) {
+            roll.name = name
+            roll.note = binding.noteEditText.text.toString()
+            roll.camera = newRoll.camera
+            roll.date = dateLoadedManager.dateTime
+            roll.unloaded = dateUnloadedManager.dateTime
+            roll.developed = dateDevelopedManager.dateTime
+            roll.iso = newRoll.iso
+            roll.pushPull = binding.pushPullSpinner.selectedItem as String?
+            roll.format = binding.formatSpinner.selectedItemPosition
+            roll.filmStock = newRoll.filmStock
+            return true
+        } else {
+            Toast.makeText(activity, resources.getString(R.string.NoName),
+                    Toast.LENGTH_SHORT).show()
+            return false
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -7,4 +7,5 @@
     <dimen name="MapActivityBottomSheetPeekHeight">50dp</dimen>
     <dimen name="FrameDialogSidePadding">15dp</dimen>
     <dimen name="FrameDialogImageMargin">20dp</dimen>
+    <dimen name="RollDialogSidePadding">15dp</dimen>
 </resources>

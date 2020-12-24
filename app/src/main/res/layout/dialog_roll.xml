@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,18 +10,12 @@
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
 
+    <include
+        android:id="@id/title"
+        layout="@layout/layout_title" />
+
     <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
      doesn't get focus when the Dialog is first shown. -->
-
-    <View
-        android:id="@+id/scrollIndicatorUp"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_gravity="center_horizontal|top"
-        android:background="?attr/iconTintColorSecondary"
-        android:visibility="gone"
-        tools:visibility="visible"
-        />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -41,13 +36,14 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="?android:attr/selectableItemBackground"
+                android:paddingLeft="@dimen/RollDialogSidePadding"
+                android:paddingRight="@dimen/RollDialogSidePadding"
                 >
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
                     android:text="@string/Name"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
@@ -56,20 +52,24 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
                     android:id="@+id/name_editText"
                     android:inputType="textCapSentences"
                     />
 
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
 
             <!--FILM STOCK-->
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/RollDialogSidePadding"
+                android:paddingRight="@dimen/RollDialogSidePadding">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -80,16 +80,10 @@
                     android:background="?android:attr/selectableItemBackground"
                     tools:ignore="KeyboardInaccessibleWidget">
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="?attr/iconTintColorSecondary" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
-                        android:paddingLeft="10dp"
                         android:text="@string/FilmStock"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textSize="17sp"
@@ -99,7 +93,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
-                        android:paddingLeft="10dp"
                         android:paddingTop="5dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textSize="15sp"
@@ -115,18 +108,25 @@
                     android:id="@+id/clear_film_stock"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="15dp"
                     android:clickable="true"
-                    android:tint="?attr/iconTintColorPrimary"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_cancel_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+                    app:tint="?attr/iconTintColorPrimary" />
 
             </RelativeLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/RollDialogSidePadding"
+                android:paddingRight="@dimen/RollDialogSidePadding"
+                >
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -134,7 +134,6 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
                     android:text="@string/LoadedOn"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
@@ -153,16 +152,10 @@
                     android:background="?android:attr/selectableItemBackground"
                     tools:ignore="KeyboardInaccessibleWidget">
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="?attr/iconTintColorSecondary" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
-                        android:paddingLeft="10dp"
                         android:text=""
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textSize="17sp"
@@ -172,7 +165,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
-                        android:paddingLeft="10dp"
                         android:paddingTop="5dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textSize="15sp"
@@ -195,16 +187,10 @@
                     android:background="?android:attr/selectableItemBackground"
                     tools:ignore="KeyboardInaccessibleWidget">
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="?attr/iconTintColorSecondary" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
-                        android:paddingLeft="10dp"
                         android:text=""
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textSize="17sp"
@@ -214,7 +200,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
-                        android:paddingLeft="10dp"
                         android:paddingTop="5dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textSize="15sp"
@@ -224,18 +209,20 @@
 
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary"
+                />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/RollDialogSidePadding"
+                android:paddingRight="@dimen/RollDialogSidePadding">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -243,7 +230,6 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
                     android:text="@string/UnloadedOn"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
@@ -266,7 +252,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
-                        android:paddingLeft="10dp"
                         android:text=""
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textSize="17sp"
@@ -276,7 +261,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
-                        android:paddingLeft="10dp"
                         android:paddingTop="5dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textSize="15sp"
@@ -303,7 +287,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
-                        android:paddingLeft="10dp"
                         android:text=""
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textSize="17sp"
@@ -313,7 +296,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
-                        android:paddingLeft="10dp"
                         android:paddingTop="5dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textSize="15sp"
@@ -331,24 +313,24 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginRight="15dp"
                     android:clickable="true"
-                    android:tint="?attr/iconTintColorPrimary"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_cancel_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+                    app:tint="?attr/iconTintColorPrimary" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary"/>
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/RollDialogSidePadding"
+                android:paddingRight="@dimen/RollDialogSidePadding">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -356,7 +338,6 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
                     android:text="@string/DevelopedOn"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
@@ -380,7 +361,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
-                        android:paddingLeft="10dp"
                         android:text=""
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textSize="17sp"
@@ -390,7 +370,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
-                        android:paddingLeft="10dp"
                         android:paddingTop="5dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textSize="15sp"
@@ -417,7 +396,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
-                        android:paddingLeft="10dp"
                         android:text=""
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textSize="17sp"
@@ -427,7 +405,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
-                        android:paddingLeft="10dp"
                         android:paddingTop="5dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textSize="15sp"
@@ -445,25 +422,24 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginRight="15dp"
                     android:clickable="true"
-                    android:tint="?attr/iconTintColorPrimary"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_cancel_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+                    app:tint="?attr/iconTintColorPrimary" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/RollDialogSidePadding"
+                android:paddingRight="@dimen/RollDialogSidePadding"
                 >
 
                 <!--CAMERA-->
@@ -480,7 +456,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
-                        android:paddingLeft="10dp"
                         android:text="@string/Camera"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textSize="17sp"
@@ -491,7 +466,6 @@
                         android:layout_marginRight="60dp"
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
-                        android:paddingLeft="10dp"
                         android:paddingTop="5dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textSize="15sp"
@@ -507,15 +481,18 @@
                     android:id="@+id/add_camera"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="15dp"
                     android:clickable="true"
-                    android:tint="?attr/iconTintColorPrimary"
                     android:background="?selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_add_circle_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+                    app:tint="?attr/iconTintColorPrimary" />
 
             </RelativeLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
 
             <!--ISO-->
             <LinearLayout
@@ -525,18 +502,14 @@
                 android:clickable="true"
                 android:id="@+id/iso_layout"
                 android:background="?android:attr/selectableItemBackground"
-                tools:ignore="KeyboardInaccessibleWidget">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
+                tools:ignore="KeyboardInaccessibleWidget"
+                android:paddingLeft="@dimen/RollDialogSidePadding"
+                android:paddingRight="@dimen/RollDialogSidePadding">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
                     android:text="@string/ISO"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
@@ -546,7 +519,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="7dp"
-                    android:paddingLeft="10dp"
                     android:paddingTop="5dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="15sp"
@@ -554,91 +526,102 @@
                     android:text="@string/ClickToSet"
                     />
 
-
-
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
 
-            <!--PUSH/PULL-->
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:id="@+id/push_pull_layout"
-                tools:ignore="KeyboardInaccessibleWidget">
+                android:paddingLeft="@dimen/RollDialogSidePadding"
+                android:paddingRight="@dimen/RollDialogSidePadding">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
-
-                <TextView
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline_vertical1_005"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/ChoosePushOrPull"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    android:textSize="17sp"
-                    />
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.5" />
 
-                <Spinner
-                    android:layout_width="match_parent"
+                <!--PUSH/PULL-->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:id="@+id/push_pull_spinner"
-                    android:entries="@array/CompValues"
-                    android:prompt="@string/PushPull"
-                    android:spinnerMode="dropdown"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    />
+                    android:orientation="vertical"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="@id/guideline_vertical1_005"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:id="@+id/push_pull_layout"
+                    tools:ignore="KeyboardInaccessibleWidget">
 
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="7dp"
+                        android:text="@string/PushPull"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textSize="17sp"
+                        />
 
-            </LinearLayout>
+                    <Spinner
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/push_pull_spinner"
+                        android:entries="@array/CompValues"
+                        android:prompt="@string/PushPull"
+                        android:spinnerMode="dropdown"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        />
+
+                </LinearLayout>
 
 
-            <!--FORMAT-->
-            <LinearLayout
+                <!--FORMAT-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toLeftOf="@id/guideline_vertical1_005"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:id="@+id/format_layout"
+                    tools:ignore="KeyboardInaccessibleWidget">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="7dp"
+                        android:text="@string/Format"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textSize="17sp"
+                        />
+
+                    <Spinner
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/format_spinner"
+                        android:entries="@array/FilmFormats"
+                        android:prompt="@string/ChooseFormat"
+                        android:spinnerMode="dropdown"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        />
+
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:id="@+id/format_layout"
-                tools:ignore="KeyboardInaccessibleWidget">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/Format"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    android:textSize="17sp"
-                    />
-
-                <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/format_spinner"
-                    android:entries="@array/FilmFormats"
-                    android:prompt="@string/ChooseFormat"
-                    android:spinnerMode="dropdown"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    />
-
-            </LinearLayout>
-
-
+                android:layout_height="1dp"
+                android:background="?attr/iconTintColorSecondary" />
 
             <!--NOTE-->
             <LinearLayout
@@ -647,18 +630,14 @@
                 android:orientation="vertical"
                 android:id="@+id/note_layout"
                 android:background="?android:attr/selectableItemBackground"
+                android:paddingLeft="@dimen/RollDialogSidePadding"
+                android:paddingRight="@dimen/RollDialogSidePadding"
                 >
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
                     android:text="@string/DescriptionOrNote"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textSize="17sp"
@@ -667,8 +646,6 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
                     android:id="@+id/note_editText"
                     android:inputType="textCapSentences"
                     />
@@ -679,14 +656,4 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <View
-        android:id="@+id/scrollIndicatorDown"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_gravity="center_horizontal|bottom"
-        android:background="?attr/iconTintColorSecondary"
-        android:visibility="gone"
-        tools:visibility="visible"
-        />
-
-</FrameLayout>
+</LinearLayout>

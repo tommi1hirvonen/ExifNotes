@@ -223,11 +223,10 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginLeft="10dp"
                         android:src="@drawable/ic_baseline_edit_24"
-                        android:tint="?attr/iconTintColorPrimary"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="@id/aperture_spinner"
                         app:layout_constraintBottom_toBottomOf="@id/aperture_spinner"
-                        />
+                        app:tint="?attr/iconTintColorPrimary" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -322,10 +321,10 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="@dimen/FrameDialogImageMargin"
                     android:clickable="true"
-                    android:tint="?attr/iconTintColorPrimary"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_add_circle_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+                    app:tint="?attr/iconTintColorPrimary" />
 
             </RelativeLayout>
 
@@ -382,10 +381,10 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="@dimen/FrameDialogImageMargin"
                     android:clickable="true"
-                    android:tint="?attr/iconTintColorPrimary"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_add_circle_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+                    app:tint="?attr/iconTintColorPrimary" />
 
             </RelativeLayout>
 
@@ -491,10 +490,10 @@
                     android:layout_centerVertical="true"
                     android:layout_marginRight="@dimen/FrameDialogImageMargin"
                     android:clickable="true"
-                    android:tint="?attr/iconTintColorPrimary"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_cancel_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+                    app:tint="?attr/iconTintColorPrimary" />
 
             </RelativeLayout>
 

@@ -381,7 +381,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         val arguments = Bundle()
         arguments.putParcelable(ExtraKeys.ROLL, rollList[position])
         arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, requireActivity().resources.getString(R.string.OK))
         dialog.arguments = arguments
         dialog.setTargetFragment(this, REQUEST_CODE_EDIT_ROLL)
         dialog.show(parentFragmentManager.beginTransaction(), EditRollDialog.TAG)
@@ -396,7 +395,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         val dialog = EditRollDialog()
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.NewRoll))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, requireActivity().resources.getString(R.string.Add))
         dialog.arguments = arguments
         dialog.setTargetFragment(this, REQUEST_CODE_ADD_ROLL)
         dialog.show(parentFragmentManager.beginTransaction(), EditRollDialog.TAG)
