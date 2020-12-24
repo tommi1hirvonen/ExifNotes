@@ -329,7 +329,7 @@
         \n
     </string>
     <string name="VersionHistory">Version history
-        \n\nv1.14.3 2020-06-26:
+        \n\nv1.15.0 2020-12-24:
         \n-Migrated all Java source code to Kotlin
         \n-General code refactoring
         \n-Enabled links in About and Help dialog
