@@ -32,6 +32,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityLocationPickBinding
 import com.tommihirvonen.exifnotes.datastructures.Location
 import com.tommihirvonen.exifnotes.utilities.*
+import kotlinx.coroutines.*
 
 /**
  * Allows the user to select a location for a frame on a map.
@@ -73,6 +74,9 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var binding: ActivityLocationPickBinding
+
+    private val job: Job = Job()
+    private val scope = CoroutineScope(job + Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,16 +138,22 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                 binding.formattedAddress.text = formattedAddress
             } else {
                 binding.progressBar.visibility = View.VISIBLE
-                GeocodingAsyncTask { _, formattedAddress_ ->
+                // Start a coroutine to asynchronously fetch the formatted address.
+                scope.launch {
+                    var addressResult: String
+                    withContext(Dispatchers.IO) {
+                        val result = Utilities.getGeocodeData(location.decimalLocation, googleMapsApiKey)
+                        addressResult = result.second
+                    }
                     binding.progressBar.visibility = View.INVISIBLE
-                    formattedAddress = if (formattedAddress_.isNotEmpty()) {
-                        binding.formattedAddress.text = formattedAddress_
-                        formattedAddress_
+                    formattedAddress = if (addressResult.isNotEmpty()) {
+                        binding.formattedAddress.text = addressResult
+                        addressResult
                     } else {
                         binding.formattedAddress.setText(R.string.AddressNotFound)
                         null
                     }
-                }.execute(location.decimalLocation, googleMapsApiKey)
+                }
             }
         }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -250,16 +260,23 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         val latitude = "" + latLng.latitude
         val longitude = "" + latLng.longitude
         val query = "$latitude $longitude"
-        GeocodingAsyncTask { _: String?, formattedAddress_: String ->
+
+        // Start a coroutine to asynchronously fetch the formatted address.
+        scope.launch {
+            var addressResult: String
+            withContext(Dispatchers.IO) {
+                val result = Utilities.getGeocodeData(query, googleMapsApiKey)
+                addressResult = result.second
+            }
             binding.progressBar.visibility = View.INVISIBLE
-            if (formattedAddress_.isNotEmpty()) {
-                binding.formattedAddress.text = formattedAddress_
-                formattedAddress = formattedAddress_
+            formattedAddress = if (addressResult.isNotEmpty()) {
+                binding.formattedAddress.text = addressResult
+                addressResult
             } else {
                 binding.formattedAddress.setText(R.string.AddressNotFound)
-                formattedAddress = null
+                null
             }
-        }.execute(query, googleMapsApiKey)
+        }
 
         // if the location was cleared before editing -> add marker to selected location
         if (marker == null) {
@@ -275,8 +292,15 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         // the formatted address and coordinates. Also move the marker if the result was valid.
         binding.formattedAddress.text = ""
         binding.progressBar.visibility = View.VISIBLE
-        GeocodingAsyncTask { output: String, formattedAddress_: String? ->
-            binding.progressBar.visibility = View.INVISIBLE
+
+        scope.launch {
+            var addressResult: String
+            var output: String
+            withContext(Dispatchers.IO) {
+                val result = Utilities.getGeocodeData(query, googleMapsApiKey)
+                output = result.first
+                addressResult = result.second
+            }
             if (output.isNotEmpty()) {
                 val location = Location(output)
                 val position = location.latLng
@@ -292,13 +316,15 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                     latLngLocation = position
                     googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
                 }
-                binding.formattedAddress.text = formattedAddress_
-                formattedAddress = formattedAddress_
+                binding.formattedAddress.text = addressResult
+                formattedAddress = addressResult
             } else {
                 binding.formattedAddress.setText(R.string.AddressNotFound)
                 formattedAddress = null
             }
-        }.execute(query, googleMapsApiKey)
+            binding.progressBar.visibility = View.INVISIBLE
+        }
+
         return false
     }
 

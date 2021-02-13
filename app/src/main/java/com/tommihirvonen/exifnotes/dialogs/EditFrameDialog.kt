@@ -31,8 +31,10 @@ import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
+import kotlinx.coroutines.*
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.lang.Runnable
 import kotlin.math.roundToInt
 
 /**
@@ -110,6 +112,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     private var tempPictureFilename: String? = null
 
     private var complementaryPictureLoaded: Boolean = false
+
+    private val job: Job = Job()
+    private val scope = CoroutineScope(job + Dispatchers.Main)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DialogFrameBinding.inflate(inflater, container, false)
@@ -254,13 +259,17 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             if (newFrame.formattedAddress == null || newFrame.formattedAddress?.isEmpty() == true) {
                 // Make the ProgressBar visible to indicate that a query is being executed
                 binding.locationProgressBar.visibility = View.VISIBLE
-
-                GeocodingAsyncTask { _, formattedAddress ->
+                // Start a coroutine to asynchronously fetch the formatted address.
+                scope.launch {
+                    withContext(Dispatchers.IO) {
+                        val result = Utilities.getGeocodeData(location.decimalLocation,
+                                resources.getString(R.string.google_maps_key))
+                        val formattedAddress = result.second
+                        newFrame.formattedAddress = if (formattedAddress.isNotEmpty()) formattedAddress else null
+                    }
                     binding.locationProgressBar.visibility = View.INVISIBLE
-                    newFrame.formattedAddress = if (formattedAddress.isNotEmpty()) formattedAddress else null
                     updateLocationTextView()
-                }.execute(location.decimalLocation, resources.getString(R.string.google_maps_key))
-
+                }
             }
         }
         binding.clearLocation.setOnClickListener {
@@ -330,6 +339,11 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 complementaryPictureLoaded = true
             }
         }
+    }
+
+    override fun onDestroy() {
+        job.cancel()
+        super.onDestroy()
     }
 
     /**

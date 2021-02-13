@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
@@ -28,8 +29,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import org.apache.commons.text.StringEscapeUtils
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.*
+import java.lang.Exception
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.Normalizer
+import javax.net.ssl.HttpsURLConnection
 
 /**
  *
@@ -92,6 +99,65 @@ class AboutDialogPreference(context: Context?, attrs: AttributeSet?) : DialogPre
 class HelpDialogPreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs)
 
 object Utilities {
+
+    /**
+     * @param coordinatesOrQuery Latitude and longitude coordinates in decimal format or a search query
+     * @param apiKey Google Maps API key
+     * @return Pair object where first is latitude and longitude in decimal format and second is
+     * the formatted address
+     */
+    fun getGeocodeData(coordinatesOrQuery: String, apiKey: String): Pair<String, String> {
+        val queryUrl = Uri.Builder() // Requests must be made over SSL.
+                .scheme("https")
+                .authority("maps.google.com")
+                .appendPath("maps")
+                .appendPath("api")
+                .appendPath("geocode")
+                .appendPath("json")
+                // Use address parameter for both the coordinates and search string.
+                .appendQueryParameter("address", coordinatesOrQuery)
+                .appendQueryParameter("sensor", "false")
+                // Use key parameter to pass the API key credentials.
+                .appendQueryParameter("key", apiKey)
+                .build().toString()
+
+        try {
+            val url = URL(queryUrl)
+            val responseBuilder = StringBuilder()
+            val conn = url.openConnection() as HttpURLConnection
+            conn.readTimeout = 15000
+            conn.connectTimeout = 15000
+            conn.requestMethod = "GET"
+            conn.doInput = true
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+            conn.doOutput = true
+            val responseCode = conn.responseCode
+
+            // If the connection was successful, add the connection result to the response string
+            // one line at a time.
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                var line: String?
+                val br = BufferedReader(InputStreamReader(conn.inputStream))
+                while (br.readLine().also { line = it } != null) {
+                    responseBuilder.append(line)
+                }
+            }
+
+            val jsonObject = JSONObject(responseBuilder.toString())
+            val lng = (jsonObject["results"] as JSONArray).getJSONObject(0)
+                    .getJSONObject("geometry").getJSONObject("location")
+                    .getDouble("lng")
+            val lat = (jsonObject["results"] as JSONArray).getJSONObject(0)
+                    .getJSONObject("geometry").getJSONObject("location")
+                    .getDouble("lat")
+            val formattedAddress = (jsonObject["results"] as JSONArray).getJSONObject(0)
+                    .getString("formatted_address")
+
+            return Pair("$lat $lng", formattedAddress)
+        } catch (e: Exception) {
+            return Pair("", "")
+        }
+    }
 
     /**
      * Shows a general dialog containing a title and a message.

@@ -314,21 +314,18 @@
     <string name="UsedLens">Choose used lens</string>
     <string name="UserAdded">User added</string>
     <string name="AboutAndTermsOfUse">Version %s
-        \nCopyright 2020 Tommi Hirvonen
+        \nCopyright 2021 Tommi Hirvonen
         \nAll rights reserved.
         \n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.
         \n\nThis application uses the Apache Commons IO (<a href="http://commons.apache.org/proper/commons-io">http://commons.apache.org/proper/commons-io</a>) and Apache Commons Text (<a href="https://commons.apache.org/proper/commons-text">https://commons.apache.org/proper/commons-text</a>) libraries available under the Apache 2.0 license, which can be obtained from <a href="https://www.apache.org/licenses/LICENSE-2.0">https://www.apache.org/licenses/LICENSE-2.0</a>.
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Migrated all Java source code to Kotlin
-        \n-General code refactoring
-        \n-Enabled links in About and Help dialog
-        \n-Roll status is displayed in the list of rolls (loaded/unloaded/developed)
-        \n-UI improvements
-        \n-Moved the about and help dialogs from the overflow menu to settings
+        \n\n-Replaced deprecated AsyncTask with Kotlin coroutines
         \n
     </string>
     <string name="VersionHistory">Version history
+        \n\nv1.15.1 2021-02-13:
+        \n-Replaced deprecated AsyncTask with Kotlin coroutines
         \n\nv1.15.0 2020-12-24:
         \n-Migrated all Java source code to Kotlin
         \n-General code refactoring
