@@ -189,8 +189,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
     }
 
     private fun importComplementaryPictures(data: Intent) {
-        val filePath: String
-        filePath = try {
+        val filePath: String = try {
             val picturesUri = data.data
             val inputStream = requireContext().contentResolver.openInputStream(picturesUri!!)
             val outputDir = requireContext().externalCacheDir
@@ -276,8 +275,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             //If the length of filePath is 0, then the user canceled the import.
             if (filePath.isNotEmpty() && extension == "db") {
                 val database = database
-                val importSuccess: Boolean
-                importSuccess = try {
+                val importSuccess: Boolean = try {
                     database.importDatabase(requireActivity(), filePath)
                 } catch (e: IOException) {
                     Toast.makeText(activity,

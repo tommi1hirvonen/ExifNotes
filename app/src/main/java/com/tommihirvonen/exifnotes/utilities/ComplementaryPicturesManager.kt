@@ -216,8 +216,8 @@ object ComplementaryPicturesManager {
         val outHeight: Int
         val inWidth = bitmap.width
         val inHeight = bitmap.height
-        // TODO: When Kotlin 1.4 is out, replace Java function with Kotlin max() with varargs.
-        if (maxSize >= Math.max(inHeight, inWidth)) return bitmap
+
+        if (maxSize >= maxOf(inHeight, inWidth)) return bitmap
         if (inWidth > inHeight) {
             outWidth = maxSize
             outHeight = inHeight * maxSize / inWidth
@@ -245,8 +245,7 @@ object ComplementaryPicturesManager {
     private fun calculateInSampleSize(options: BitmapFactory.Options): Int {
         val height = options.outHeight
         val width = options.outWidth
-        // TODO: When Kotlin 1.4 is out, replace Java function with Kotlin max() with varargs.
-        return if (MAX_SIZE >= Math.max(height, width)) 1 else Math.max(height / MAX_SIZE, width / MAX_SIZE)
+        return if (MAX_SIZE >= maxOf(height, width)) 1 else maxOf(height / MAX_SIZE, width / MAX_SIZE)
     }
 
     /**

@@ -170,11 +170,11 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         when (sortMode_) {
             SORT_MODE_NAME -> {
                 sortMode = SORT_MODE_NAME
-                filteredFilmStocks.sortWith(Comparator { o1, o2 -> o1.name.compareTo(o2.name, ignoreCase = true) })
+                filteredFilmStocks.sortWith { o1, o2 -> o1.name.compareTo(o2.name, ignoreCase = true) }
             }
             SORT_MODE_ISO -> {
                 sortMode = SORT_MODE_ISO
-                filteredFilmStocks.sortWith(Comparator { o1, o2 -> o1.iso.compareTo(o2.iso) })
+                filteredFilmStocks.sortWith { o1, o2 -> o1.iso.compareTo(o2.iso) }
             }
         }
 

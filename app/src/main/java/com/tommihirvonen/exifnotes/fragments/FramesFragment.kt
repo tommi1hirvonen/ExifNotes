@@ -313,9 +313,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             val files = ArrayList<Uri>()
             for (path in filesToSend) {
                 val file = File(path)
-                val uri: Uri
                 //Android Nougat requires that the file is given via FileProvider
-                uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
                             .packageName + ".provider", file)
                 } else {
@@ -387,7 +386,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     private fun showFrameInfoDialog() {
 
         // If the frame count is greater than 100, then don't add a new frame.
-        val nextFrameCount = frameList.maxBy { it.count }?.count?.plus(1) ?: 1
+        val nextFrameCount = frameList.maxByOrNull { it.count }?.count?.plus(1) ?: 1
         if (nextFrameCount > 100) {
             Toast.makeText(activity, resources.getString(R.string.TooManyFrames), Toast.LENGTH_LONG).show()
             return
@@ -406,7 +405,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         if (frameList.isNotEmpty()) {
             //Get the information for the last added frame.
             //The last added frame has the highest id number (database autoincrement).
-            val previousFrame = frameList.maxBy { it.id }
+            val previousFrame = frameList.maxByOrNull { it.id }
             // Here we can list the properties we want to bring from the previous frame
             previousFrame?.let {
                 frame.lens = previousFrame.lens

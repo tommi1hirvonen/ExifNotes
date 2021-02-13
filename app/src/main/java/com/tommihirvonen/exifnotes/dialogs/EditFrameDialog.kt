@@ -953,9 +953,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 // Create the file where the photo should go
                 val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
                 tempPictureFilename = pictureFile.name
-                val photoURI: Uri
                 //Android Nougat requires that the file is given via FileProvider
-                photoURI = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val photoURI: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
                             .packageName + ".provider", pictureFile)
                 } else {
