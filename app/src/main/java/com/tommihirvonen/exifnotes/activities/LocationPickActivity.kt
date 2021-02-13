@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -74,9 +75,6 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var binding: ActivityLocationPickBinding
-
-    private val job: Job = Job()
-    private val scope = CoroutineScope(job + Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,12 +137,9 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             } else {
                 binding.progressBar.visibility = View.VISIBLE
                 // Start a coroutine to asynchronously fetch the formatted address.
-                scope.launch {
-                    var addressResult: String
-                    withContext(Dispatchers.IO) {
-                        val result = Utilities.getGeocodeData(location.decimalLocation, googleMapsApiKey)
-                        addressResult = result.second
-                    }
+                lifecycleScope.launch {
+                    val result = Utilities.getGeocodeData(location.decimalLocation, googleMapsApiKey)
+                    val addressResult = result.second
                     binding.progressBar.visibility = View.INVISIBLE
                     formattedAddress = if (addressResult.isNotEmpty()) {
                         binding.formattedAddress.text = addressResult
@@ -262,12 +257,9 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         val query = "$latitude $longitude"
 
         // Start a coroutine to asynchronously fetch the formatted address.
-        scope.launch {
-            var addressResult: String
-            withContext(Dispatchers.IO) {
-                val result = Utilities.getGeocodeData(query, googleMapsApiKey)
-                addressResult = result.second
-            }
+        lifecycleScope.launch {
+            val result = Utilities.getGeocodeData(query, googleMapsApiKey)
+            val addressResult = result.second
             binding.progressBar.visibility = View.INVISIBLE
             formattedAddress = if (addressResult.isNotEmpty()) {
                 binding.formattedAddress.text = addressResult
@@ -293,14 +285,10 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         binding.formattedAddress.text = ""
         binding.progressBar.visibility = View.VISIBLE
 
-        scope.launch {
-            var addressResult: String
-            var output: String
-            withContext(Dispatchers.IO) {
-                val result = Utilities.getGeocodeData(query, googleMapsApiKey)
-                output = result.first
-                addressResult = result.second
-            }
+        lifecycleScope.launch {
+            val result = Utilities.getGeocodeData(query, googleMapsApiKey)
+            val output = result.first
+            val addressResult = result.second
             if (output.isNotEmpty()) {
                 val location = Location(output)
                 val position = location.latLng

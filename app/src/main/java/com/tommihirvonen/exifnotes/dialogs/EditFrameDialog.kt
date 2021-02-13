@@ -21,6 +21,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.core.content.FileProvider
 import androidx.core.widget.NestedScrollView
 import androidx.exifinterface.media.ExifInterface
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
@@ -112,9 +113,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     private var tempPictureFilename: String? = null
 
     private var complementaryPictureLoaded: Boolean = false
-
-    private val job: Job = Job()
-    private val scope = CoroutineScope(job + Dispatchers.Main)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DialogFrameBinding.inflate(inflater, container, false)
@@ -260,13 +258,11 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 // Make the ProgressBar visible to indicate that a query is being executed
                 binding.locationProgressBar.visibility = View.VISIBLE
                 // Start a coroutine to asynchronously fetch the formatted address.
-                scope.launch {
-                    withContext(Dispatchers.IO) {
-                        val result = Utilities.getGeocodeData(location.decimalLocation,
-                                resources.getString(R.string.google_maps_key))
-                        val formattedAddress = result.second
-                        newFrame.formattedAddress = if (formattedAddress.isNotEmpty()) formattedAddress else null
-                    }
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val result = Utilities.getGeocodeData(location.decimalLocation,
+                            resources.getString(R.string.google_maps_key))
+                    val formattedAddress = result.second
+                    newFrame.formattedAddress = if (formattedAddress.isNotEmpty()) formattedAddress else null
                     binding.locationProgressBar.visibility = View.INVISIBLE
                     updateLocationTextView()
                 }
@@ -339,11 +335,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 complementaryPictureLoaded = true
             }
         }
-    }
-
-    override fun onDestroy() {
-        job.cancel()
-        super.onDestroy()
     }
 
     /**

@@ -28,6 +28,8 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Roll
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.commons.text.StringEscapeUtils
 import org.json.JSONArray
 import org.json.JSONObject
@@ -106,7 +108,7 @@ object Utilities {
      * @return Pair object where first is latitude and longitude in decimal format and second is
      * the formatted address
      */
-    fun getGeocodeData(coordinatesOrQuery: String, apiKey: String): Pair<String, String> {
+    suspend fun getGeocodeData(coordinatesOrQuery: String, apiKey: String): Pair<String, String> {
         val queryUrl = Uri.Builder() // Requests must be made over SSL.
                 .scheme("https")
                 .authority("maps.google.com")
@@ -121,41 +123,46 @@ object Utilities {
                 .appendQueryParameter("key", apiKey)
                 .build().toString()
 
-        try {
-            val url = URL(queryUrl)
-            val responseBuilder = StringBuilder()
-            val conn = url.openConnection() as HttpURLConnection
-            conn.readTimeout = 15000
-            conn.connectTimeout = 15000
-            conn.requestMethod = "GET"
-            conn.doInput = true
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-            conn.doOutput = true
-            val responseCode = conn.responseCode
+        // Here it is safe to suppress the blocking method warning,
+        // since we are doing the blocking in the IO thread.
+        @Suppress("BlockingMethodInNonBlockingContext")
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = URL(queryUrl)
+                val responseBuilder = StringBuilder()
+                val conn = url.openConnection() as HttpURLConnection
+                conn.readTimeout = 15000
+                conn.connectTimeout = 15000
+                conn.requestMethod = "GET"
+                conn.doInput = true
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+                conn.doOutput = true
+                val responseCode = conn.responseCode
 
-            // If the connection was successful, add the connection result to the response string
-            // one line at a time.
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
-                var line: String?
-                val br = BufferedReader(InputStreamReader(conn.inputStream))
-                while (br.readLine().also { line = it } != null) {
-                    responseBuilder.append(line)
+                // If the connection was successful, add the connection result to the response string
+                // one line at a time.
+                if (responseCode == HttpsURLConnection.HTTP_OK) {
+                    var line: String?
+                    val br = BufferedReader(InputStreamReader(conn.inputStream))
+                    while (br.readLine().also { line = it } != null) {
+                        responseBuilder.append(line)
+                    }
                 }
+
+                val jsonObject = JSONObject(responseBuilder.toString())
+                val lng = (jsonObject["results"] as JSONArray).getJSONObject(0)
+                        .getJSONObject("geometry").getJSONObject("location")
+                        .getDouble("lng")
+                val lat = (jsonObject["results"] as JSONArray).getJSONObject(0)
+                        .getJSONObject("geometry").getJSONObject("location")
+                        .getDouble("lat")
+                val formattedAddress = (jsonObject["results"] as JSONArray).getJSONObject(0)
+                        .getString("formatted_address")
+
+                return@withContext Pair("$lat $lng", formattedAddress)
+            } catch (e: Exception) {
+                return@withContext Pair("", "")
             }
-
-            val jsonObject = JSONObject(responseBuilder.toString())
-            val lng = (jsonObject["results"] as JSONArray).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lng")
-            val lat = (jsonObject["results"] as JSONArray).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lat")
-            val formattedAddress = (jsonObject["results"] as JSONArray).getJSONObject(0)
-                    .getString("formatted_address")
-
-            return Pair("$lat $lng", formattedAddress)
-        } catch (e: Exception) {
-            return Pair("", "")
         }
     }
 
