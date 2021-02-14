@@ -34,11 +34,10 @@ import org.apache.commons.text.StringEscapeUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.*
-import java.lang.Exception
-import java.net.HttpURLConnection
 import java.net.URL
 import java.text.Normalizer
 import javax.net.ssl.HttpsURLConnection
+import kotlin.Exception
 
 /**
  *
@@ -127,29 +126,27 @@ object Utilities {
         // since we are doing the blocking in the IO thread.
         @Suppress("BlockingMethodInNonBlockingContext")
         return withContext(Dispatchers.IO) {
-            try {
-                val url = URL(queryUrl)
-                val responseBuilder = StringBuilder()
-                val conn = url.openConnection() as HttpURLConnection
-                conn.readTimeout = 15000
-                conn.connectTimeout = 15000
-                conn.requestMethod = "GET"
-                conn.doInput = true
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-                conn.doOutput = true
-                val responseCode = conn.responseCode
+            val connection = try {
+                URL(queryUrl).openConnection() as HttpsURLConnection
+            } catch (e: Exception) {
+                return@withContext Pair("", "")
+            }
 
-                // If the connection was successful, add the connection result to the response string
-                // one line at a time.
-                if (responseCode == HttpsURLConnection.HTTP_OK) {
-                    var line: String?
-                    val br = BufferedReader(InputStreamReader(conn.inputStream))
-                    while (br.readLine().also { line = it } != null) {
-                        responseBuilder.append(line)
-                    }
+            try {
+                connection.readTimeout = 15000
+                connection.connectTimeout = 15000
+                connection.requestMethod = "GET"
+                connection.doInput = true
+                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+                connection.doOutput = true
+
+                val data = if (connection.responseCode == HttpsURLConnection.HTTP_OK) {
+                    connection.inputStream.bufferedReader().readText()
+                } else {
+                    return@withContext Pair("", "")
                 }
 
-                val jsonObject = JSONObject(responseBuilder.toString())
+                val jsonObject = JSONObject(data)
                 val lng = (jsonObject["results"] as JSONArray).getJSONObject(0)
                         .getJSONObject("geometry").getJSONObject("location")
                         .getDouble("lng")
@@ -162,6 +159,8 @@ object Utilities {
                 return@withContext Pair("$lat $lng", formattedAddress)
             } catch (e: Exception) {
                 return@withContext Pair("", "")
+            } finally {
+                connection.disconnect()
             }
         }
     }
