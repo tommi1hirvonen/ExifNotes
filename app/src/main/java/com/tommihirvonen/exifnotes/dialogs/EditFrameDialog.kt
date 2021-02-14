@@ -259,10 +259,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 binding.locationProgressBar.visibility = View.VISIBLE
                 // Start a coroutine to asynchronously fetch the formatted address.
                 viewLifecycleOwner.lifecycleScope.launch {
-                    val result = Utilities.getGeocodeData(location.decimalLocation,
+                    val (_, addressResult) = Utilities.getGeocodeData(location.decimalLocation,
                             resources.getString(R.string.google_maps_key))
-                    val formattedAddress = result.second
-                    newFrame.formattedAddress = if (formattedAddress.isNotEmpty()) formattedAddress else null
+                    newFrame.formattedAddress = if (addressResult.isNotEmpty()) addressResult else null
                     binding.locationProgressBar.visibility = View.INVISIBLE
                     updateLocationTextView()
                 }

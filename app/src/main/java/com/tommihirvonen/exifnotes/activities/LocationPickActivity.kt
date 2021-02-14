@@ -138,8 +138,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                 binding.progressBar.visibility = View.VISIBLE
                 // Start a coroutine to asynchronously fetch the formatted address.
                 lifecycleScope.launch {
-                    val result = Utilities.getGeocodeData(location.decimalLocation, googleMapsApiKey)
-                    val addressResult = result.second
+                    val (_, addressResult) = Utilities.getGeocodeData(location.decimalLocation, googleMapsApiKey)
                     binding.progressBar.visibility = View.INVISIBLE
                     formattedAddress = if (addressResult.isNotEmpty()) {
                         binding.formattedAddress.text = addressResult
@@ -258,8 +257,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
 
         // Start a coroutine to asynchronously fetch the formatted address.
         lifecycleScope.launch {
-            val result = Utilities.getGeocodeData(query, googleMapsApiKey)
-            val addressResult = result.second
+            val (_, addressResult) = Utilities.getGeocodeData(query, googleMapsApiKey)
             binding.progressBar.visibility = View.INVISIBLE
             formattedAddress = if (addressResult.isNotEmpty()) {
                 binding.formattedAddress.text = addressResult
@@ -286,11 +284,9 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         binding.progressBar.visibility = View.VISIBLE
 
         lifecycleScope.launch {
-            val result = Utilities.getGeocodeData(query, googleMapsApiKey)
-            val output = result.first
-            val addressResult = result.second
-            if (output.isNotEmpty()) {
-                val location = Location(output)
+            val (latLngResult, addressResult) = Utilities.getGeocodeData(query, googleMapsApiKey)
+            if (latLngResult.isNotEmpty()) {
+                val location = Location(latLngResult)
                 val position = location.latLng
                 if (position != null) {
                     // marker is null, if the search was made before the marker has been added
