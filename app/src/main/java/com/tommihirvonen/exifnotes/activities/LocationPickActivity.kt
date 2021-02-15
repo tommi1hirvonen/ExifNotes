@@ -278,7 +278,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
     }
 
     override fun onQueryTextSubmit(query: String): Boolean {
-        // When the user enters the search string, use GeocodingAsyncTask to get
+        // When the user enters the search string, use a coroutine to get
         // the formatted address and coordinates. Also move the marker if the result was valid.
         binding.formattedAddress.text = ""
         binding.progressBar.visibility = View.VISIBLE

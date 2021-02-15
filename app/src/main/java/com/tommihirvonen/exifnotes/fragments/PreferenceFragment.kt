@@ -1,6 +1,5 @@
 package com.tommihirvonen.exifnotes.fragments
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
@@ -9,18 +8,17 @@ import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.widget.Chronometer
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.utilities.*
-import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager.ZipFileCreatorAsyncTask
-import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager.ZipFileReaderAsyncTask
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.IOUtils
 import java.io.*
@@ -204,45 +202,20 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             return
         }
 
-        // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
-        val builder = AlertDialog.Builder(activity)
-        @SuppressLint("InflateParams")
-        val view = requireActivity().layoutInflater.inflate(R.layout.dialog_progress, null)
-        builder.setView(view)
-        val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
-        val messageTextView = view.findViewById<TextView>(R.id.textview_1)
-        messageTextView.setText(R.string.ImportingComplementaryPicturesPleaseWait)
-        val progressTextView = view.findViewById<TextView>(R.id.textview_2)
-        val chronometer = view.findViewById<Chronometer>(R.id.elapsed_time)
-        progressBar.max = 100
-        progressBar.progress = 0
-        progressTextView.text = ""
-        val dialog = builder.create()
-        dialog.setCancelable(false)
-        dialog.show()
-        chronometer.start()
-        ComplementaryPicturesManager.importComplementaryPictures(requireActivity(), File(filePath),
-                object : ZipFileReaderAsyncTask.ProgressListener {
-            override fun onProgressChanged(progressPercentage: Int,
-                                           completed: Int, total: Int) {
-                progressBar.progress = progressPercentage
-                val progressText = "$completed/$total"
-                progressTextView.text = progressText
+        viewLifecycleOwner.lifecycleScope.launch {
+            val (success, completedEntries) = ComplementaryPicturesManager
+                    .importComplementaryPictures(requireActivity(), File(filePath))
+
+            if (success) {
+                if (completedEntries == 0) {
+                    Toast.makeText(activity, R.string.NoPicturesImported, Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(activity, resources.getQuantityString(R.plurals.ComplementaryPicturesImported, completedEntries, completedEntries), Toast.LENGTH_LONG).show()
+                }
+            } else {
+                Toast.makeText(activity, R.string.ErrorImportingComplementaryPictures, Toast.LENGTH_LONG).show()
             }
-            override fun onCompleted(success: Boolean, completedEntries: Int) {
-                dialog.dismiss()
-                if (success) {
-                    if (completedEntries == 0) Toast.makeText(activity,
-                            R.string.NoPicturesImported, Toast.LENGTH_LONG).show() else Toast.makeText(activity,
-                            resources.getQuantityString(
-                                    R.plurals.ComplementaryPicturesImported,
-                                    completedEntries, completedEntries),
-                            Toast.LENGTH_LONG).show()
-                } else Toast.makeText(activity,
-                        R.string.ErrorImportingComplementaryPictures,
-                        Toast.LENGTH_LONG).show()
-            }
-        })
+        }
     }
 
     private fun importDatabase(data: Intent) {
@@ -306,70 +279,39 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
     }
 
     private fun exportComplementaryPictures(data: Intent) {
-        try {
-            val picturesUri = data.data
-            val outputStream = requireContext().contentResolver.openOutputStream(picturesUri!!)
-            val inputDir = requireContext().externalCacheDir
-            val inputFile = File.createTempFile("complementary_pictures", ".zip", inputDir)
+        val picturesUri = data.data
+        val outputStream = requireContext().contentResolver.openOutputStream(picturesUri!!)
+        val inputDir = requireContext().externalCacheDir
+        val inputFile = File.createTempFile("complementary_pictures", ".zip", inputDir)
 
-            // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
-            val builder = AlertDialog.Builder(activity)
-            @SuppressLint("InflateParams")
-            val view = requireActivity().layoutInflater.inflate(R.layout.dialog_progress, null)
-            builder.setView(view)
-            val progressBar = view.findViewById<ProgressBar>(R.id.progress_bar)
-            val messageTextView = view.findViewById<TextView>(R.id.textview_1)
-            messageTextView.setText(R.string.ExportingComplementaryPicturesPleaseWait)
-            val progressTextView = view.findViewById<TextView>(R.id.textview_2)
-            val chronometer = view.findViewById<Chronometer>(R.id.elapsed_time)
-            progressBar.max = 100
-            progressBar.progress = 0
-            progressTextView.text = ""
-            val dialog = builder.create()
-            dialog.setCancelable(false)
-            dialog.show()
-            chronometer.start()
-            ComplementaryPicturesManager.exportComplementaryPictures(requireActivity(), inputFile,
-                    object : ZipFileCreatorAsyncTask.ProgressListener {
-                override fun onProgressChanged(progressPercentage: Int, completed: Int, total: Int) {
-                    progressBar.progress = progressPercentage
-                    val progressText = "$completed/$total"
-                    progressTextView.text = progressText
-                }
-                override fun onCompleted(success: Boolean, completedEntries: Int, zipFile: File) {
-                    dialog.dismiss()
-                    if (success) {
-                        if (completedEntries == 0) {
-                            Toast.makeText(activity, R.string.NoPicturesExported,
-                                    Toast.LENGTH_LONG).show()
-                        } else {
-                            try {
-                                val inputStream: InputStream = FileInputStream(zipFile)
-                                IOUtils.copy(inputStream, outputStream)
-                                inputStream.close()
-                                outputStream!!.close()
-                                Toast.makeText(activity,
-                                        resources.getQuantityString(
-                                                R.plurals.ComplementaryPicturesExported,
-                                                completedEntries, completedEntries), Toast.LENGTH_LONG).show()
-                            } catch (e: IOException) {
-                                e.printStackTrace()
-                                Toast.makeText(activity,
-                                        R.string.ErrorExportingComplementaryPictures,
-                                        Toast.LENGTH_LONG).show()
-                            }
+        viewLifecycleOwner.lifecycleScope.launch {
+            val (success, completedEntries) = ComplementaryPicturesManager
+                    .exportComplementaryPictures(requireActivity(), inputFile)
+
+            if (success) {
+                if (completedEntries == 0) {
+                    Toast.makeText(activity, R.string.NoPicturesExported, Toast.LENGTH_LONG).show()
+                } else {
+                    try {
+                        @Suppress("BlockingMethodInNonBlockingContext")
+                        withContext(Dispatchers.IO) {
+                            val inputStream: InputStream = FileInputStream(inputFile)
+                            IOUtils.copy(inputStream, outputStream)
+                            inputStream.close()
+                            outputStream?.close()
                         }
-                    } else {
-                        Toast.makeText(activity,
-                                R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show()
+                        Toast.makeText(activity, resources.getQuantityString(R.plurals.ComplementaryPicturesExported, completedEntries, completedEntries), Toast.LENGTH_LONG).show()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                        Toast.makeText(activity, R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show()
                     }
                 }
-            })
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Toast.makeText(activity,
-                    R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(activity,
+                        R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show()
+            }
         }
+
     }
 
     private fun exportDatabase(data: Intent) {
