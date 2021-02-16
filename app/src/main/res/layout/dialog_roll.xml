@@ -105,10 +105,23 @@
                 <ImageView
                     android:layout_width="35dp"
                     android:layout_height="35dp"
+                    android:id="@+id/add_film_stock"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_baseline_add_circle_24"
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+                    app:tint="?attr/iconTintColorPrimary" />
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
                     android:id="@+id/clear_film_stock"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:clickable="true"
+                    android:visibility="gone"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_cancel_24"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget"

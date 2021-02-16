@@ -32,6 +32,7 @@ class EditRollDialog : BottomSheetDialogFragment() {
         const val TAG = "EditRollDialog"
         private const val REQUEST_CODE_ADD_CAMERA = 1
         private const val REQUEST_CODE_SELECT_FILM_STOCK = 2
+        private const val REQUEST_CODE_ADD_FILM_STOCK = 3
     }
     
     private lateinit var binding: DialogRollBinding
@@ -75,15 +76,30 @@ class EditRollDialog : BottomSheetDialogFragment() {
         roll.filmStock?.let {
             binding.filmStockText.text = it.name
             binding.nameEditText.hint = it.name
+            binding.addFilmStock.visibility = View.GONE
+            binding.clearFilmStock.visibility = View.VISIBLE
         } ?: run {
             binding.filmStockText.text = ""
             binding.clearFilmStock.visibility = View.GONE
+            binding.addFilmStock.visibility = View.VISIBLE
         }
         binding.clearFilmStock.setOnClickListener {
             newRoll.filmStock = null
             binding.nameEditText.hint = ""
             binding.filmStockText.text = ""
             binding.clearFilmStock.visibility = View.GONE
+            binding.addFilmStock.visibility = View.VISIBLE
+        }
+        binding.addFilmStock.setOnClickListener {
+            binding.noteEditText.clearFocus()
+            binding.nameEditText.clearFocus()
+            val dialog = EditFilmStockDialog()
+            dialog.setTargetFragment(this@EditRollDialog, REQUEST_CODE_ADD_FILM_STOCK)
+            val arguments = Bundle()
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+            dialog.arguments = arguments
+            dialog.show(parentFragmentManager.beginTransaction(), null)
         }
         binding.filmStockLayout.setOnClickListener {
             val dialog = SelectFilmStockDialog()
@@ -255,6 +271,19 @@ class EditRollDialog : BottomSheetDialogFragment() {
         }
     }
 
+    private fun setFilmStock(filmStock: FilmStock) {
+        binding.filmStockText.text = filmStock.name
+        binding.nameEditText.hint = filmStock.name
+        newRoll.filmStock = filmStock
+        binding.addFilmStock.visibility = View.GONE
+        binding.clearFilmStock.visibility = View.VISIBLE
+        // If the film stock ISO is defined, set the ISO
+        if (filmStock.iso != 0) {
+            newRoll.iso = filmStock.iso
+            binding.isoText.text = if (newRoll.iso == 0) "" else newRoll.iso.toString()
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUEST_CODE_ADD_CAMERA -> if (resultCode == Activity.RESULT_OK) {
@@ -267,15 +296,13 @@ class EditRollDialog : BottomSheetDialogFragment() {
             }
             REQUEST_CODE_SELECT_FILM_STOCK ->  if (resultCode == Activity.RESULT_OK) {
                 val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
-                binding.filmStockText.text = filmStock.name
-                binding.nameEditText.hint = filmStock.name
-                newRoll.filmStock = filmStock
-                binding.clearFilmStock.visibility = View.VISIBLE
-                // If the film stock ISO is defined, set the ISO
-                if (filmStock.iso != 0) {
-                    newRoll.iso = filmStock.iso
-                    binding.isoText.text = if (newRoll.iso == 0) "" else newRoll.iso.toString()
-                }
+                setFilmStock(filmStock)
+            }
+            REQUEST_CODE_ADD_FILM_STOCK -> if (resultCode == Activity.RESULT_OK) {
+                val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
+                val rowId = database.addFilmStock(filmStock)
+                filmStock.id = rowId
+                setFilmStock(filmStock)
             }
         }
     }
