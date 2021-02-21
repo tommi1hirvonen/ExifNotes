@@ -3,6 +3,8 @@ package com.tommihirvonen.exifnotes.fragments
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -11,7 +13,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.*
+import android.widget.DatePicker
 import android.widget.NumberPicker
+import android.widget.TimePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -605,13 +609,37 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                             when (i) {
                                 // Edit frame counts
                                 0 -> FrameCountBatchEditDialogBuilder(requireActivity()).create().show()
-                                // Edit location
+                                // Edit date and time
                                 1 -> {
+                                    val dateTimeTemp = DateTime.fromCurrentTime()
+                                    // Show date dialog.
+                                    val dateDialog = DatePickerDialog(requireActivity(), { _: DatePicker?, year: Int, month: Int, dayOfMonth: Int ->
+                                        // If date was set, show time dialog.
+                                        val dateTime = DateTime(year, month + 1, dayOfMonth, dateTimeTemp.hour, dateTimeTemp.minute)
+                                        val timeDialog = TimePickerDialog(requireActivity(), { _: TimePicker?, hourOfDay: Int, minute: Int ->
+                                            // If time was set, update selected frames.
+                                            dateTime.hour = hourOfDay
+                                            dateTime.minute = minute
+                                            val selectedFrames = frameAdapter.selectedItemPositions.map { frameList[it] }
+                                            selectedFrames.forEach {
+                                                it.date = dateTime
+                                                database.updateFrame(it)
+                                            }
+                                            frameAdapter.notifyDataSetChanged()
+                                            actionMode?.finish()
+                                        }, dateTimeTemp.hour, dateTimeTemp.minute, true)
+                                        timeDialog.show()
+
+                                    }, dateTimeTemp.year, dateTimeTemp.month - 1, dateTimeTemp.day)
+                                    dateDialog.show()
+                                }
+                                // Edit location
+                                2 -> {
                                     val intent = Intent(activity, LocationPickActivity::class.java)
                                     startActivityForResult(intent, REQUEST_LOCATION_PICK)
                                 }
                                 // Reverse frame counts
-                                2 -> {
+                                3 -> {
                                     // Get the selected frames and sort them based on frame count
                                     val selectedFrames = frameAdapter.selectedItemPositions.map { frameList[it] }.sortedBy { it.count }
                                     // Create a list of frame counts in reversed order

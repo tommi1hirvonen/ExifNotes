@@ -94,6 +94,7 @@
     <string name="DisableInApp">Disable in app</string>
     <string name="Edit">Edit</string>
     <string name="EditCamera">Edit camera</string>
+    <string name="EditDateAndTime">Edit date and time</string>
     <string name="EditFilmStock">Edit film stock</string>
     <string name="EditFilter">Edit filter</string>
     <string name="EditFrame">Edit frame #</string>
