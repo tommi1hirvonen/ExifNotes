@@ -3,7 +3,7 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.location.Location
 import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class Location(val decimalLocation: String) : Parcelable {

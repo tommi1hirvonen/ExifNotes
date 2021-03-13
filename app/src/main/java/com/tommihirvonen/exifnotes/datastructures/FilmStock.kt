@@ -2,7 +2,7 @@ package com.tommihirvonen.exifnotes.datastructures
 
 import android.content.Context
 import com.tommihirvonen.exifnotes.R
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class FilmStock(
