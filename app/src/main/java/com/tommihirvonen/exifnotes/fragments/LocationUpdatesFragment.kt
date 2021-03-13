@@ -16,8 +16,8 @@ abstract class LocationUpdatesFragment : Fragment() {
 
     var locationPermissionsGranted = false
     private var fusedLocationClient: FusedLocationProviderClient? = null
-    private var locationRequest: LocationRequest? = null
-    private var locationCallback: LocationCallback? = null
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
     var requestingLocationUpdates = false
     var lastLocation: Location? = null
 
@@ -31,13 +31,12 @@ abstract class LocationUpdatesFragment : Fragment() {
             // Returns null if location permissions were denied.
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-            // Create locationRequest to update the last known location.
-            locationRequest = LocationRequest()
-            // 10 seconds
-            locationRequest?.interval = 10 * 1000.toLong()
-            // 1 second
-            locationRequest?.fastestInterval = 1000
-            locationRequest?.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            // Create LocationRequest to update the last known location.
+            locationRequest = LocationRequest.create().apply {
+                interval = 10 * 1000.toLong() // 10 seconds
+                fastestInterval = 1000 // 1 second
+                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            }
         }
 
         // This can be done anyway. It only has effect if locationPermissionsGranted is true.
