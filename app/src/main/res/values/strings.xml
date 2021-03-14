@@ -322,13 +322,13 @@
     </string>
     <string name="Updates">Updates in this version:
         \n\n-Replaced deprecated AsyncTask with Kotlin coroutines
-        \n-New frame batch edit options: date and time
+        \n-New frame batch edit options: date and time, lens
         \n
     </string>
     <string name="VersionHistory">Version history
         \n\nv1.15.1 2021-02-13:
         \n-Replaced deprecated AsyncTask with Kotlin coroutines
-        \n-New frame batch edit options: date and time
+        \n-New frame batch edit options: date and time, lens
         \n\nv1.15.0 2020-12-24:
         \n-Migrated all Java source code to Kotlin
         \n-General code refactoring

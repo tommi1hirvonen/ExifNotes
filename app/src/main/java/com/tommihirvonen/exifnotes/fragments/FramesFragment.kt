@@ -85,6 +85,12 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     private lateinit var frameAdapter: FrameAdapter
 
     /**
+     * Utility function to return a list of currently selected frames.
+     */
+    private val selectedFrames get() = frameAdapter.selectedItemPositions
+            .map { frameList[it] }.sortedBy { it.count }
+
+    /**
      * Currently selected roll
      */
     private lateinit var roll: Roll
@@ -116,7 +122,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         //If the same sort order setting is to be used elsewhere in the app, then
         //getDefaultSharedPreferences() should be used.
         val sharedPreferences = requireActivity().getPreferences(Context.MODE_PRIVATE)
-        sortMode = fromValue(sharedPreferences.getInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, FrameSortMode.FRAME_COUNT.value))
+        sortMode = fromValue(sharedPreferences.getInt(PreferenceConstants.KEY_FRAME_SORT_ORDER,
+                FrameSortMode.FRAME_COUNT.value))
 
         //Sort the list according to preferences
         Frame.sortFrameList(requireActivity(), sortMode, frameList)
@@ -139,14 +146,17 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         val layoutManager = LinearLayoutManager(activity)
         binding.framesRecyclerView.layoutManager = layoutManager
         // Add dividers for list items.
-        binding.framesRecyclerView.addItemDecoration(DividerItemDecoration(binding.framesRecyclerView.context, layoutManager.orientation))
+        binding.framesRecyclerView.addItemDecoration(DividerItemDecoration(binding.framesRecyclerView.context,
+                layoutManager.orientation))
 
         // Set the RecyclerView to use frameAdapter
         binding.framesRecyclerView.adapter = frameAdapter
         if (frameList.size > 0) {
             binding.noAddedFrames.visibility = View.GONE
         }
-        if (frameAdapter.itemCount > 0) binding.framesRecyclerView.scrollToPosition(frameAdapter.itemCount - 1)
+        if (frameAdapter.itemCount > 0) {
+            binding.framesRecyclerView.scrollToPosition(frameAdapter.itemCount - 1)
+        }
         return binding.root
     }
 
@@ -196,7 +206,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 val preferenceActivityIntent = Intent(activity, PreferenceActivity::class.java)
                 //Start the preference activity from FramesActivity.
                 //The result will be handled in FramesActivity.
-                requireActivity().startActivityForResult(preferenceActivityIntent, FramesActivity.PREFERENCE_ACTIVITY_REQUEST)
+                requireActivity().startActivityForResult(preferenceActivityIntent,
+                        FramesActivity.PREFERENCE_ACTIVITY_REQUEST)
             }
             android.R.id.home -> requireActivity().finish()
             R.id.menu_item_show_on_map -> {
@@ -392,7 +403,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         // If the frame count is greater than 100, then don't add a new frame.
         val nextFrameCount = frameList.maxByOrNull { it.count }?.count?.plus(1) ?: 1
         if (nextFrameCount > 100) {
-            Toast.makeText(activity, resources.getString(R.string.TooManyFrames), Toast.LENGTH_LONG).show()
+            Toast.makeText(activity, resources.getString(R.string.TooManyFrames),
+                    Toast.LENGTH_LONG).show()
             return
         }
         val title = requireActivity().resources.getString(R.string.NewFrame)
@@ -480,8 +492,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                             if (data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
                                 data.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
                             } else null
-                    frameAdapter.selectedItemPositions.forEach { position ->
-                        val frame = frameList[position]
+                    selectedFrames.forEach { frame ->
                         frame.location = location
                         frame.formattedAddress = formattedAddress
                         database.updateFrame(frame)
@@ -498,10 +509,14 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
 
                     //Get the user setting about which files to export. By default, share both files.
                     val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
-                    val filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT, PreferenceConstants.VALUE_BOTH)
-                    if (filesToExport == PreferenceConstants.VALUE_BOTH || filesToExport == PreferenceConstants.VALUE_CSV) {
-                        val csvDocumentFile = directoryDocumentFile.createFile("text/plain", rollName + "_csv.txt") ?: return
-                        val csvOutputStream = requireActivity().contentResolver.openOutputStream(csvDocumentFile.uri) ?: return
+                    val filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT,
+                            PreferenceConstants.VALUE_BOTH)
+                    if (filesToExport == PreferenceConstants.VALUE_BOTH
+                            || filesToExport == PreferenceConstants.VALUE_CSV) {
+                        val csvDocumentFile = directoryDocumentFile.createFile("text/plain",
+                                rollName + "_csv.txt") ?: return
+                        val csvOutputStream = requireActivity().contentResolver
+                                .openOutputStream(csvDocumentFile.uri) ?: return
                         val csvString = Utilities.createCsvString(requireActivity(), roll)
                         val csvOutputStreamWriter = OutputStreamWriter(csvOutputStream)
                         csvOutputStreamWriter.write(csvString)
@@ -509,9 +524,12 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                         csvOutputStreamWriter.close()
                         csvOutputStream.close()
                     }
-                    if (filesToExport == PreferenceConstants.VALUE_BOTH || filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
-                        val cmdDocumentFile = directoryDocumentFile.createFile("text/plain", rollName + "_ExifToolCmds.txt") ?: return
-                        val cmdOutputStream = requireActivity().contentResolver.openOutputStream(cmdDocumentFile.uri) ?: return
+                    if (filesToExport == PreferenceConstants.VALUE_BOTH
+                            || filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
+                        val cmdDocumentFile = directoryDocumentFile.createFile("text/plain",
+                                rollName + "_ExifToolCmds.txt") ?: return
+                        val cmdOutputStream = requireActivity().contentResolver
+                                .openOutputStream(cmdDocumentFile.uri) ?: return
                         val cmdString = Utilities.createExifToolCmdsString(requireActivity(), roll)
                         val cmdOutputStreamWriter = OutputStreamWriter(cmdOutputStream)
                         cmdOutputStreamWriter.write(cmdString)
@@ -613,14 +631,16 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 1 -> {
                                     val dateTimeTemp = DateTime.fromCurrentTime()
                                     // Show date dialog.
-                                    val dateDialog = DatePickerDialog(requireActivity(), { _: DatePicker?, year: Int, month: Int, dayOfMonth: Int ->
+                                    val dateDialog = DatePickerDialog(requireActivity(),
+                                            { _: DatePicker?, year: Int, month: Int, dayOfMonth: Int ->
                                         // If date was set, show time dialog.
-                                        val dateTime = DateTime(year, month + 1, dayOfMonth, dateTimeTemp.hour, dateTimeTemp.minute)
-                                        val timeDialog = TimePickerDialog(requireActivity(), { _: TimePicker?, hourOfDay: Int, minute: Int ->
+                                        val dateTime = DateTime(year, month + 1, dayOfMonth,
+                                                dateTimeTemp.hour, dateTimeTemp.minute)
+                                        val timeDialog = TimePickerDialog(requireActivity(),
+                                                { _: TimePicker?, hourOfDay: Int, minute: Int ->
                                             // If time was set, update selected frames.
                                             dateTime.hour = hourOfDay
                                             dateTime.minute = minute
-                                            val selectedFrames = frameAdapter.selectedItemPositions.map { frameList[it] }
                                             selectedFrames.forEach {
                                                 it.date = dateTime
                                                 database.updateFrame(it)
@@ -633,15 +653,42 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                     }, dateTimeTemp.year, dateTimeTemp.month - 1, dateTimeTemp.day)
                                     dateDialog.show()
                                 }
-                                // Edit location
+                                // Edit lens
                                 2 -> {
+                                    AlertDialog.Builder(requireContext()).apply {
+                                        setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+                                        val lenses = roll.camera?.let { database.getLinkedLenses(it) }
+                                                ?: database.allLenses
+                                        val listItems = listOf(resources.getString(R.string.NoLens))
+                                                .plus(lenses.map { it.name })
+                                                .toTypedArray()
+                                        setItems(listItems) { dialog: DialogInterface, which: Int ->
+                                            if (which == 0) {
+                                                // No lens was selected
+                                                selectedFrames.forEach {
+                                                    it.lens = null
+                                                    database.updateFrame(it)
+                                                }
+                                            } else {
+                                                val lens = lenses[which - 1]
+                                                selectedFrames.forEach {
+                                                    it.lens = lens
+                                                    database.updateFrame(it)
+                                                }
+                                            }
+                                            frameAdapter.notifyDataSetChanged()
+                                            dialog.dismiss()
+                                            actionMode?.finish()
+                                        }
+                                    }.create().show()
+                                }
+                                // Edit location
+                                3 -> {
                                     val intent = Intent(activity, LocationPickActivity::class.java)
                                     startActivityForResult(intent, REQUEST_LOCATION_PICK)
                                 }
                                 // Reverse frame counts
-                                3 -> {
-                                    // Get the selected frames and sort them based on frame count
-                                    val selectedFrames = frameAdapter.selectedItemPositions.map { frameList[it] }.sortedBy { it.count }
+                                4 -> {
                                     // Create a list of frame counts in reversed order
                                     val frameCountsReversed = selectedFrames.map { it.count }.reversed()
                                     selectedFrames.forEachIndexed { index, frame ->
@@ -654,8 +701,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                     frameAdapter.notifyDataSetChanged()
                                     actionMode?.finish()
                                 }
-                                else -> {
-                                }
+                                else -> { }
                             }
                         }
                         builder.setNegativeButton(R.string.Cancel) { dialogInterface: DialogInterface, _: Int ->
@@ -710,8 +756,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
                     // Replace the plus sign because on pre L devices this seems to cause a crash
                     val change = displayedValues[numberPicker.value].replace("+", "").toInt()
-                    frameAdapter.selectedItemPositions.forEach { position ->
-                        val frame = frameList[position]
+                    selectedFrames.forEach { frame ->
                         frame.count += change
                         database.updateFrame(frame)
                     }
