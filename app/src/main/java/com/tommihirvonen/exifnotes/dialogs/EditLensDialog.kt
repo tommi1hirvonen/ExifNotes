@@ -15,6 +15,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerBinding
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerButtonsBinding
 import com.tommihirvonen.exifnotes.databinding.DialogLensBinding
+import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
@@ -74,7 +75,7 @@ class EditLensDialog : DialogFragment() {
 
         // APERTURE INCREMENTS
         try {
-            binding.incrementSpinner.setSelection(newLens.apertureIncrements)
+            binding.incrementSpinner.setSelection(newLens.apertureIncrements.ordinal)
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
@@ -84,10 +85,9 @@ class EditLensDialog : DialogFragment() {
                 //Check if the new increments include both min and max values.
                 //Otherwise reset them to null
                 displayedApertureValues = when (newLens.apertureIncrements) {
-                    1 -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
-                    2 -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
-                    0 -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
-                    else -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
+                    Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
+                    Increment.HALF -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
+                    Increment.FULL -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
                 }
                 val minFound = displayedApertureValues.contains(newLens.minAperture)
                 val maxFound = displayedApertureValues.contains(newLens.maxAperture)
@@ -233,7 +233,7 @@ class EditLensDialog : DialogFragment() {
                 lens.make = make
                 lens.model = model
                 lens.serialNumber = serialNumber
-                lens.apertureIncrements = binding.incrementSpinner.selectedItemPosition
+                lens.apertureIncrements = Increment.from(binding.incrementSpinner.selectedItemPosition)
                 lens.minAperture = newLens.minAperture
                 lens.maxAperture = newLens.maxAperture
                 lens.minFocalLength = newLens.minFocalLength
@@ -259,10 +259,9 @@ class EditLensDialog : DialogFragment() {
     private fun initialiseApertureRangePickers(minAperturePicker: NumberPicker,
                                                maxAperturePicker: NumberPicker) {
         displayedApertureValues = when (newLens.apertureIncrements) {
-            1 -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
-            2 -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
-            0 -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
-            else -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
+            Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
+            Increment.HALF -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
+            Increment.FULL -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
         }
         if (displayedApertureValues[0] == resources.getString(R.string.NoValue)) {
             displayedApertureValues.reverse()

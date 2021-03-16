@@ -15,6 +15,8 @@ import androidx.fragment.app.DialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogCameraBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
+import com.tommihirvonen.exifnotes.datastructures.Increment
+import com.tommihirvonen.exifnotes.datastructures.PartialIncrement
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
@@ -68,7 +70,7 @@ class EditCameraDialog : DialogFragment() {
 
         // SHUTTER SPEED INCREMENTS
         try {
-            binding.shutterSpeedIncrementSpinner.setSelection(newCamera.shutterIncrements)
+            binding.shutterSpeedIncrementSpinner.setSelection(newCamera.shutterIncrements.ordinal)
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
@@ -81,10 +83,9 @@ class EditCameraDialog : DialogFragment() {
                 var minFound = false
                 var maxFound = false
                 displayedShutterValues = when (newCamera.shutterIncrements) {
-                    1 -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
-                    2 -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
-                    0 -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
-                    else -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
+                    Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
+                    Increment.HALF -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
+                    Increment.FULL -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
                 }
                 for (string in displayedShutterValues) {
                     if (!minFound && string == newCamera.minShutter) minFound = true
@@ -151,7 +152,7 @@ class EditCameraDialog : DialogFragment() {
 
         // EXPOSURE COMPENSATION INCREMENTS
         try {
-            binding.exposureCompIncrementSpinner.setSelection(newCamera.exposureCompIncrements)
+            binding.exposureCompIncrementSpinner.setSelection(newCamera.exposureCompIncrements.ordinal)
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
@@ -192,10 +193,10 @@ class EditCameraDialog : DialogFragment() {
                 camera.make = make
                 camera.model = model
                 camera.serialNumber = serialNumber
-                camera.shutterIncrements = binding.shutterSpeedIncrementSpinner.selectedItemPosition
+                camera.shutterIncrements = Increment.from(binding.shutterSpeedIncrementSpinner.selectedItemPosition)
                 camera.minShutter = newCamera.minShutter
                 camera.maxShutter = newCamera.maxShutter
-                camera.exposureCompIncrements = binding.exposureCompIncrementSpinner.selectedItemPosition
+                camera.exposureCompIncrements = PartialIncrement.from(binding.exposureCompIncrementSpinner.selectedItemPosition)
 
                 // Return the new entered name to the calling activity
                 val intent = Intent()
@@ -217,10 +218,9 @@ class EditCameraDialog : DialogFragment() {
     private fun initialiseShutterRangePickers(minShutterPicker: NumberPicker,
                                               maxShutterPicker: NumberPicker) {
         displayedShutterValues = when (newCamera.shutterIncrements) {
-            1 -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
-            2 -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
-            0 -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
-            else -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
+            Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
+            Increment.HALF -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
+            Increment.FULL -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
         }
         if (displayedShutterValues[0] == resources.getString(R.string.NoValue)) {
             displayedShutterValues.reverse()

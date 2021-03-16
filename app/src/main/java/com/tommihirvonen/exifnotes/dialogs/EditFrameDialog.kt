@@ -26,10 +26,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
 import com.tommihirvonen.exifnotes.databinding.DialogFrameBinding
-import com.tommihirvonen.exifnotes.datastructures.DateTime
+import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
-import com.tommihirvonen.exifnotes.datastructures.Frame
-import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
 import kotlinx.coroutines.*
@@ -93,17 +91,17 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     /**
      * Currently selected lens's aperture increment setting
      */
-    private var apertureIncrements = 0
+    private var apertureIncrements = Increment.THIRD
 
     /**
      * The shutter speed increment setting of the camera used
      */
-    private var shutterIncrements = 0
+    private var shutterIncrements = Increment.THIRD
 
     /**
      * The exposure compensation increment setting of the camera used
      */
-    private var exposureCompIncrements = 0
+    private var exposureCompIncrements = PartialIncrement.THIRD
 
     /**
      * Used to temporarily store the possible new picture name. newPictureFilename is only set,
@@ -226,9 +224,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
 
         //EXPOSURE COMP BUTTON
         val exposureCompValues = when (exposureCompIncrements) {
-            0 -> requireActivity().resources.getStringArray(R.array.CompValues)
-            1 -> requireActivity().resources.getStringArray(R.array.CompValuesHalf)
-            else -> requireActivity().resources.getStringArray(R.array.CompValues)
+            PartialIncrement.THIRD -> requireActivity().resources.getStringArray(R.array.CompValues)
+            PartialIncrement.HALF -> requireActivity().resources.getStringArray(R.array.CompValuesHalf)
         }
         ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, exposureCompValues)
                 .also { adapter ->
@@ -563,10 +560,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     private fun initializeApertureSpinner(allowCustomValue: Boolean = false) {
         //Get the array of displayed aperture values according to the set increments.
         var displayedApertureValues = when (apertureIncrements) {
-            0 -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
-            1 -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
-            2 -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
-            else -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
+            Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
+            Increment.HALF -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
+            Increment.FULL -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
         }
         //Reverse the order if necessary.
         if (displayedApertureValues[0] == resources.getString(R.string.NoValue)) {
@@ -611,10 +607,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     private fun initializeShutterSpeedSpinner() {
         // Set the increments according to settings
         var displayedShutterValues = when (shutterIncrements) {
-            0 -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
-            1 -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
-            2 -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
-            else -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
+            Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
+            Increment.HALF -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
+            Increment.FULL -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
         }
         //Reverse the order if necessary
         if (displayedShutterValues[0] == resources.getString(R.string.NoValue)) {
@@ -748,7 +743,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                     newFrame.lens = null
                     newFrame.focalLength = 0
                     updateFocalLengthTextView()
-                    apertureIncrements = 0
+                    apertureIncrements = Increment.THIRD
                     initializeApertureSpinner()
                     resetFilters()
                 }

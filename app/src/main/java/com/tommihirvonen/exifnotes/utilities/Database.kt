@@ -722,7 +722,8 @@ class Database private constructor(private val context: Context)
         lens.maxAperture = cursor.getString(cursor.getColumnIndex(KEY_LENS_MAX_APERTURE))
         lens.minFocalLength = cursor.getInt(cursor.getColumnIndex(KEY_LENS_MIN_FOCAL_LENGTH))
         lens.maxFocalLength = cursor.getInt(cursor.getColumnIndex(KEY_LENS_MAX_FOCAL_LENGTH))
-        lens.apertureIncrements = cursor.getInt(cursor.getColumnIndex(KEY_LENS_APERTURE_INCREMENTS))
+        val incrementIndex = cursor.getInt(cursor.getColumnIndex(KEY_LENS_APERTURE_INCREMENTS))
+        lens.apertureIncrements = Increment.from(incrementIndex)
         return lens
     }
 
@@ -751,8 +752,10 @@ class Database private constructor(private val context: Context)
         camera.serialNumber = cursor.getString(cursor.getColumnIndex(KEY_CAMERA_SERIAL_NO))
         camera.minShutter = cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MIN_SHUTTER))
         camera.maxShutter = cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAX_SHUTTER))
-        camera.shutterIncrements = cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_SHUTTER_INCREMENTS))
-        camera.exposureCompIncrements = cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS))
+        val shutterIncrementIndex = cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_SHUTTER_INCREMENTS))
+        camera.shutterIncrements = Increment.from(shutterIncrementIndex)
+        val compIncrementIndex = cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS))
+        camera.exposureCompIncrements = PartialIncrement.from(compIncrementIndex)
         return camera
     }
 
@@ -849,7 +852,7 @@ class Database private constructor(private val context: Context)
         contentValues.put(KEY_LENS_MAX_APERTURE, lens.maxAperture)
         contentValues.put(KEY_LENS_MIN_FOCAL_LENGTH, lens.minFocalLength)
         contentValues.put(KEY_LENS_MAX_FOCAL_LENGTH, lens.maxFocalLength)
-        contentValues.put(KEY_LENS_APERTURE_INCREMENTS, lens.apertureIncrements)
+        contentValues.put(KEY_LENS_APERTURE_INCREMENTS, lens.apertureIncrements.ordinal)
         return contentValues
     }
 
@@ -866,8 +869,8 @@ class Database private constructor(private val context: Context)
         contentValues.put(KEY_CAMERA_SERIAL_NO, camera.serialNumber)
         contentValues.put(KEY_CAMERA_MIN_SHUTTER, camera.minShutter)
         contentValues.put(KEY_CAMERA_MAX_SHUTTER, camera.maxShutter)
-        contentValues.put(KEY_CAMERA_SHUTTER_INCREMENTS, camera.shutterIncrements)
-        contentValues.put(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, camera.exposureCompIncrements)
+        contentValues.put(KEY_CAMERA_SHUTTER_INCREMENTS, camera.shutterIncrements.ordinal)
+        contentValues.put(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, camera.exposureCompIncrements.ordinal)
         return contentValues
     }
 
