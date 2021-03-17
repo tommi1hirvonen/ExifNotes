@@ -80,28 +80,12 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
 
     private lateinit var newFrame: Frame
 
-
     /**
      * Holds all the lenses that can be mounted to the used camera
      */
     private var mountableLenses: MutableList<Lens>? = null
 
     private lateinit var dateTimeLayoutManager: DateTimeLayoutManager
-
-    /**
-     * Currently selected lens's aperture increment setting
-     */
-    private var apertureIncrements = Increment.THIRD
-
-    /**
-     * The shutter speed increment setting of the camera used
-     */
-    private var shutterIncrements = Increment.THIRD
-
-    /**
-     * The exposure compensation increment setting of the camera used
-     */
-    private var exposureCompIncrements = PartialIncrement.THIRD
 
     /**
      * Used to temporarily store the possible new picture name. newPictureFilename is only set,
@@ -125,12 +109,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         newFrame = frame.copy()
         frame.roll.camera?.let {
             mountableLenses = database.getLinkedLenses(it).toMutableList()
-            shutterIncrements = it.shutterIncrements
-            exposureCompIncrements = it.exposureCompIncrements
         } ?: run {
             mountableLenses = database.allLenses.toMutableList()
         }
-        apertureIncrements = frame.lens?.apertureIncrements ?: apertureIncrements
 
         // Set a listener to check whether the complementary picture should be loaded and displayed.
         val listener = OnScrollChangeListener(binding.nestedScrollView)
@@ -223,7 +204,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         binding.focalLengthLayout.setOnClickListener(FocalLengthLayoutOnClickListener())
 
         //EXPOSURE COMP BUTTON
-        val exposureCompValues = when (exposureCompIncrements) {
+        val exposureCompValues = when (frame.roll.camera?.exposureCompIncrements ?: PartialIncrement.THIRD) {
             PartialIncrement.THIRD -> requireActivity().resources.getStringArray(R.array.CompValues)
             PartialIncrement.HALF -> requireActivity().resources.getStringArray(R.array.CompValuesHalf)
         }
@@ -405,7 +386,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 mountableLenses?.add(lens)
             }
             binding.lensText.text = lens.name
-            apertureIncrements = lens.apertureIncrements
             initializeApertureSpinner()
             if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
             else if (newFrame.focalLength < lens.minFocalLength) newFrame.focalLength = lens.minFocalLength
@@ -558,43 +538,24 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     }
 
     private fun initializeApertureSpinner(allowCustomValue: Boolean = false) {
-        //Get the array of displayed aperture values according to the set increments.
-        var displayedApertureValues = when (apertureIncrements) {
-            Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
-            Increment.HALF -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
-            Increment.FULL -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
-        }
-        //Reverse the order if necessary.
-        if (displayedApertureValues[0] == resources.getString(R.string.NoValue)) {
-            // By reversing the order we can reverse the order in the NumberPicker too
-            displayedApertureValues.reverse()
-        }
-
-        // Set the min and max values only if a lens is selected and they are set for the lens.
-        // Otherwise the displayedApertureValues array will be left alone
-        // (all aperture values available, since min and max were not defined).
-        newFrame.lens?.let { lens ->
-            val minIndex = displayedApertureValues.indexOfFirst { it == lens.minAperture }
-            val maxIndex = displayedApertureValues.indexOfFirst { it == lens.maxAperture }
-            if (minIndex != -1 && maxIndex != -1) {
-                val apertureValues = displayedApertureValues.filterIndexed { index, _ ->
-                    index in minIndex..maxIndex
-                }.plus(resources.getString(R.string.NoValue))
-                displayedApertureValues = apertureValues.toTypedArray()
-            }
-        }
-
         val aperture = newFrame.aperture
-        if (aperture != null && !displayedApertureValues.contains(aperture) && allowCustomValue) {
-            displayedApertureValues = displayedApertureValues.toMutableList()
-                    .also { it.add(aperture) }.toTypedArray()
-        }
+        val displayedApertureValues = (
+                newFrame.lens?.apertureValues(requireContext())
+                ?: Lens.defaultApertureValues(requireContext())
+                ).let {
+                    // If a custom aperture value is set and it's not included in the list,
+                    // add it to the list.
+                    if (aperture != null && !it.contains(aperture) && allowCustomValue) {
+                        it.plus(aperture)
+                    } else {
+                        it
+                    }
+                }
         ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, displayedApertureValues)
                 .also { adapter ->
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     binding.apertureSpinner.adapter = adapter
                 }
-
         try {
             val initialValue = displayedApertureValues.indexOfFirst { it == aperture }
             if (initialValue != -1) binding.apertureSpinner.setSelection(initialValue)
@@ -605,38 +566,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     }
 
     private fun initializeShutterSpeedSpinner() {
-        // Set the increments according to settings
-        var displayedShutterValues = when (shutterIncrements) {
-            Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
-            Increment.HALF -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
-            Increment.FULL -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
-        }
-        //Reverse the order if necessary
-        if (displayedShutterValues[0] == resources.getString(R.string.NoValue)) {
-            // By reversing the order we can reverse the order in the NumberPicker too
-            displayedShutterValues.reverse()
-        }
-
-        // Set the min and max values only if a camera is set and they are set for the camera.
-        // Otherwise the displayedShutterValues array will be left alone
-        // (all shutter values available, since min and max were not defined).
-        frame.roll.camera?.let { camera ->
-            val minIndex = displayedShutterValues.indexOfFirst { it == camera.minShutter }
-            val maxIndex = displayedShutterValues.indexOfFirst { it == camera.maxShutter }
-            displayedShutterValues = if (minIndex != -1 && maxIndex != -1) {
-                val shutterValues = displayedShutterValues.filterIndexed { index, _ ->
-                    index in minIndex..maxIndex
-                }.plus("B").plus(resources.getString(R.string.NoValue))
-                shutterValues.toTypedArray()
-            } else {
-                displayedShutterValues.toMutableList().also {
-                    it.add(it.size - 1, "B")
-                }.toTypedArray()
-            }
-        } ?: run {
-            displayedShutterValues = displayedShutterValues.toMutableList()
-                    .also{ it.add(it.size - 1, "B") }.toTypedArray()
-        }
+        val displayedShutterValues = frame.roll.camera?.shutterSpeedValues(requireContext())
+                ?: Camera.defaultShutterSpeedValues(requireContext())
 
         ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, displayedShutterValues)
                 .also { adapter ->
@@ -732,7 +663,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                         newFrame.focalLength = lens.minFocalLength
                     }
                     binding.focalLengthText.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
-                    apertureIncrements = lens.apertureIncrements
 
                     //Check the aperture value's validity against the new lens' properties.
                     initializeApertureSpinner()
@@ -743,7 +673,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                     newFrame.lens = null
                     newFrame.focalLength = 0
                     updateFocalLengthTextView()
-                    apertureIncrements = Increment.THIRD
                     initializeApertureSpinner()
                     resetFilters()
                 }

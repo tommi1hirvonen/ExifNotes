@@ -324,6 +324,7 @@
         \n\n-Replaced deprecated AsyncTask with Kotlin coroutines
         \n-New frame batch edit options: date and time, lens
         \n-Library and dependency updates
+        \n-Code refactoring
         \n
     </string>
     <string name="VersionHistory">Version history
@@ -331,6 +332,7 @@
         \n-Replaced deprecated AsyncTask with Kotlin coroutines
         \n-New frame batch edit options: date and time, lens
         \n-Library and dependency updates
+        \n-Code refactoring
         \n\nv1.15.0 2020-12-24:
         \n-Migrated all Java source code to Kotlin
         \n-General code refactoring
