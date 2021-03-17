@@ -103,6 +103,7 @@
     <string name="EditLens">Edit lens</string>
     <string name="EditLocation">Edit location</string>
     <string name="EditRoll">Edit roll info</string>
+    <string name="EditShutterSpeed">Edit shutter speed</string>
     <string name="EnterCustomerApertureValue">Enter custom aperture value</string>
     <string name="ErrorAddingFilmStocks">Error adding film stocks to database</string>
     <string name="ErrorAddingPictureToGallery">Error adding picture to gallery</string>
@@ -322,7 +323,7 @@
     </string>
     <string name="Updates">Updates in this version:
         \n\n-Replaced deprecated AsyncTask with Kotlin coroutines
-        \n-New frame batch edit options: date and time, lens
+        \n-New frame batch edit options: date and time, lens, shutter speed
         \n-Library and dependency updates
         \n-Code refactoring
         \n
@@ -330,7 +331,7 @@
     <string name="VersionHistory">Version history
         \n\nv1.15.1 2021-03-16:
         \n-Replaced deprecated AsyncTask with Kotlin coroutines
-        \n-New frame batch edit options: date and time, lens
+        \n-New frame batch edit options: date and time, lens, shutter speed
         \n-Library and dependency updates
         \n-Code refactoring
         \n\nv1.15.0 2020-12-24:

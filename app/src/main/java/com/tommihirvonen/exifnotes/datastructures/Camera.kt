@@ -21,13 +21,7 @@ data class Camera(
             Increment.THIRD -> context.resources.getStringArray(R.array.ShutterValuesThird)
             Increment.HALF -> context.resources.getStringArray(R.array.ShutterValuesHalf)
             Increment.FULL -> context.resources.getStringArray(R.array.ShutterValuesFull)
-        }.let {
-            if (it[0] == context.resources.getString(R.string.NoValue)) {
-                it.reversed()
-            } else {
-                it.toList()
-            }
-        }.let {
+        }.reversed().let {
             val minIndex = it.indexOfFirst { it_ -> it_ == minShutter }
             val maxIndex = it.indexOfFirst { it_ -> it_ == maxShutter }
             if (minIndex != -1 && maxIndex != -1) {
@@ -42,6 +36,7 @@ data class Camera(
     companion object {
         fun defaultShutterSpeedValues(context: Context): Array<String> =
             context.resources.getStringArray(R.array.ShutterValuesThird)
+                    .reversed()
                     .toMutableList()
                     .also{ it.add(it.size - 1, "B") }
                     .toTypedArray()

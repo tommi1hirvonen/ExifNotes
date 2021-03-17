@@ -22,13 +22,7 @@ data class Lens(
             Increment.THIRD -> context.resources.getStringArray(R.array.ApertureValuesThird)
             Increment.HALF -> context.resources.getStringArray(R.array.ApertureValuesHalf)
             Increment.FULL -> context.resources.getStringArray(R.array.ApertureValuesFull)
-        }.let {
-            if (it[0] == context.resources.getString(R.string.NoValue)) {
-                it.reversed()
-            } else {
-                it.toList()
-            }
-        }.let {
+        }.reversed().let {
             val minIndex = it.indexOfFirst { it_ -> it_ == minAperture }
             val maxIndex = it.indexOfFirst { it_ -> it_ == maxAperture }
             if (minIndex != -1 && maxIndex != -1) {
@@ -42,5 +36,6 @@ data class Lens(
     companion object {
         fun defaultApertureValues(context: Context): Array<String> =
                 context.resources.getStringArray(R.array.ApertureValuesThird)
+                        .reversedArray()
     }
 }
