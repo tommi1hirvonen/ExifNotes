@@ -597,8 +597,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                     // Separate confirm titles for one or multiple frames
                     val title = resources.getQuantityString(R.plurals.ConfirmFramesDelete, selectedItemPositions.size, selectedItemPositions.size)
                     deleteConfirmDialog.setTitle(title)
-                    deleteConfirmDialog.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                    deleteConfirmDialog.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
+                    deleteConfirmDialog.setNegativeButton(R.string.Cancel) { _, _ -> }
+                    deleteConfirmDialog.setPositiveButton(R.string.OK) { _, _ ->
                         selectedItemPositions.sortedDescending().forEach { position ->
                             val frame = frameList[position]
                             database.deleteFrame(frame)
@@ -620,7 +620,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                     } else {
                         val builder = AlertDialog.Builder(activity)
                         builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), frameAdapter.selectedItemCount))
-                        builder.setItems(R.array.FramesBatchEditOptions) { _: DialogInterface?, i: Int ->
+                        builder.setItems(R.array.FramesBatchEditOptions) { _, i ->
                             when (i) {
                                 // Edit frame counts
                                 0 -> FrameCountBatchEditDialogBuilder(requireActivity()).create().show()
@@ -653,13 +653,13 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 // Edit lens
                                 2 -> {
                                     AlertDialog.Builder(requireContext()).apply {
-                                        setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+                                        setNegativeButton(R.string.Cancel) { _, _ -> }
                                         val lenses = roll.camera?.let { database.getLinkedLenses(it) }
                                                 ?: database.allLenses
                                         val listItems = listOf(resources.getString(R.string.NoLens))
                                                 .plus(lenses.map { it.name })
                                                 .toTypedArray()
-                                        setItems(listItems) { dialog: DialogInterface, which: Int ->
+                                        setItems(listItems) { dialog, which ->
                                             if (which == 0) {
                                                 // No lens was selected
                                                 selectedFrames.forEach {
@@ -703,11 +703,11 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 // Edit shutter speed
                                 4 -> {
                                     AlertDialog.Builder(requireContext()).apply {
-                                        setNegativeButton(R.string.Cancel) { _: DialogInterface, _: Int -> }
+                                        setNegativeButton(R.string.Cancel) { _, _ -> }
                                         val listItems =
                                                 roll.camera?.shutterSpeedValues(requireContext())
                                                         ?: Camera.defaultShutterSpeedValues(requireContext())
-                                        setItems(listItems) { dialog: DialogInterface, which: Int ->
+                                        setItems(listItems) { dialog, which ->
                                             if (which == 0) {
                                                 selectedFrames.forEach {
                                                     it.shutter = null
@@ -725,13 +725,32 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                         }
                                     }.create().show()
                                 }
-                                // Edit exposure compensation
+                                // Edit filters
                                 5 -> {
+                                    val filters = database.allFilters.map { it to false }.toMutableList()
+                                    val listItems = filters.map { it.first.name }.toTypedArray()
+                                    AlertDialog.Builder(requireContext())
+                                            .setMultiChoiceItems(listItems, BooleanArray(listItems.size)) { _, which, isChecked ->
+                                                filters[which] = filters[which].first to isChecked
+                                            }
+                                            .setNegativeButton(R.string.Cancel) { _, _ -> }
+                                            .setPositiveButton(R.string.OK) { _, _ ->
+                                                selectedFrames.forEach { frame ->
+                                                    frame.filters = filters.filter { it.second }
+                                                            .map { it.first }.toMutableList()
+                                                    database.updateFrame(frame)
+                                                }
+                                                actionMode?.finish()
+                                            }
+                                            .create().show()
+                                }
+                                // Edit exposure compensation
+                                6 -> {
                                     AlertDialog.Builder(requireContext()).apply {
-                                        setNegativeButton(R.string.Cancel) { _: DialogInterface, _: Int -> }
+                                        setNegativeButton(R.string.Cancel) { _, _ -> }
                                         val listItems = roll.camera?.exposureCompValues(requireContext())
                                                 ?: Camera.defaultExposureCompValues(requireContext())
-                                        setItems(listItems) { dialog: DialogInterface, which: Int ->
+                                        setItems(listItems) { dialog, which ->
                                             selectedFrames.forEach {
                                                 it.exposureComp = listItems[which]
                                                 database.updateFrame(it)
@@ -743,15 +762,15 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                     }.create().show()
                                 }
                                 // Edit location
-                                6 -> {
+                                7 -> {
                                     val intent = Intent(activity, LocationPickActivity::class.java)
                                     startActivityForResult(intent, REQUEST_LOCATION_PICK)
                                 }
                                 // Edit light source
-                                7 -> {
+                                8 -> {
                                     AlertDialog.Builder(requireContext())
-                                            .setNegativeButton(R.string.Cancel) { _: DialogInterface, _:Int -> }
-                                            .setItems(R.array.LightSource) { dialog: DialogInterface, which: Int ->
+                                            .setNegativeButton(R.string.Cancel) { _, _ -> }
+                                            .setItems(R.array.LightSource) { dialog, which ->
                                                 selectedFrames.forEach {
                                                     it.lightSource = which
                                                     database.updateFrame(it)
@@ -763,7 +782,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                             .create().show()
                                 }
                                 // Reverse frame counts
-                                8 -> {
+                                9 -> {
                                     // Create a list of frame counts in reversed order
                                     val frameCountsReversed = selectedFrames.map { it.count }.reversed()
                                     selectedFrames.forEachIndexed { index, frame ->

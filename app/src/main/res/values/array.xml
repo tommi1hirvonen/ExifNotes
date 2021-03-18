@@ -52,6 +52,7 @@
         <item>@string/EditLens</item>
         <item>@string/EditAperture</item>
         <item>@string/EditShutterSpeed</item>
+        <item>@string/EditFilters</item>
         <item>@string/EditExposureCompensation</item>
         <item>@string/EditLocation</item>
         <item>@string/EditLightSource</item>
