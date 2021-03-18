@@ -705,13 +705,28 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                         }
                                     }.create().show()
                                 }
-                                // Edit location
+                                // Edit exposure compensation
                                 4 -> {
+                                    AlertDialog.Builder(requireContext()).apply {
+                                        setNegativeButton(R.string.Cancel) { _: DialogInterface, _: Int -> }
+                                        val listItems = roll.camera?.exposureCompValues(requireContext())
+                                                ?: Camera.defaultExposureCompValues(requireContext())
+                                        setItems(listItems) { dialog: DialogInterface, which: Int ->
+                                            selectedFrames.forEach {
+                                                it.exposureComp = listItems[which]
+                                                database.updateFrame(it)
+                                            }
+                                            dialog.dismiss()
+                                        }
+                                    }.create().show()
+                                }
+                                // Edit location
+                                5 -> {
                                     val intent = Intent(activity, LocationPickActivity::class.java)
                                     startActivityForResult(intent, REQUEST_LOCATION_PICK)
                                 }
                                 // Reverse frame counts
-                                5 -> {
+                                6 -> {
                                     // Create a list of frame counts in reversed order
                                     val frameCountsReversed = selectedFrames.map { it.count }.reversed()
                                     selectedFrames.forEachIndexed { index, frame ->

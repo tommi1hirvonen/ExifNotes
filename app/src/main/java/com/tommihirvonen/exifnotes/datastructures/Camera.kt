@@ -17,21 +17,27 @@ data class Camera(
     : Gear(id, make, model), Comparable<Gear> {
 
     fun shutterSpeedValues(context: Context): Array<String> =
-        when (shutterIncrements) {
-            Increment.THIRD -> context.resources.getStringArray(R.array.ShutterValuesThird)
-            Increment.HALF -> context.resources.getStringArray(R.array.ShutterValuesHalf)
-            Increment.FULL -> context.resources.getStringArray(R.array.ShutterValuesFull)
-        }.reversed().let {
-            val minIndex = it.indexOfFirst { it_ -> it_ == minShutter }
-            val maxIndex = it.indexOfFirst { it_ -> it_ == maxShutter }
-            if (minIndex != -1 && maxIndex != -1) {
-                it.filterIndexed { index, _ -> index in minIndex..maxIndex }
-                        .plus("B")
-                        .plus(context.resources.getString(R.string.NoValue))
-            } else {
-                it.plus("B")
-            }
-        }.toTypedArray()
+            when (shutterIncrements) {
+                Increment.THIRD -> context.resources.getStringArray(R.array.ShutterValuesThird)
+                Increment.HALF -> context.resources.getStringArray(R.array.ShutterValuesHalf)
+                Increment.FULL -> context.resources.getStringArray(R.array.ShutterValuesFull)
+            }.reversed().let {
+                val minIndex = it.indexOfFirst { it_ -> it_ == minShutter }
+                val maxIndex = it.indexOfFirst { it_ -> it_ == maxShutter }
+                if (minIndex != -1 && maxIndex != -1) {
+                    it.filterIndexed { index, _ -> index in minIndex..maxIndex }
+                            .plus("B")
+                            .plus(context.resources.getString(R.string.NoValue))
+                } else {
+                    it.plus("B")
+                }
+            }.toTypedArray()
+
+    fun exposureCompValues(context: Context): Array<String> =
+            when (exposureCompIncrements) {
+                PartialIncrement.THIRD -> context.resources.getStringArray(R.array.CompValues)
+                PartialIncrement.HALF -> context.resources.getStringArray(R.array.CompValuesHalf)
+            }.reversedArray()
 
     companion object {
         fun defaultShutterSpeedValues(context: Context): Array<String> =
@@ -40,5 +46,8 @@ data class Camera(
                     .toMutableList()
                     .also{ it.add(it.size - 1, "B") }
                     .toTypedArray()
+
+        fun defaultExposureCompValues(context: Context): Array<String> =
+                context.resources.getStringArray(R.array.CompValues).reversedArray()
     }
 }

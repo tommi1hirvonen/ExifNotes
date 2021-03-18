@@ -204,10 +204,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         binding.focalLengthLayout.setOnClickListener(FocalLengthLayoutOnClickListener())
 
         //EXPOSURE COMP BUTTON
-        val exposureCompValues = when (frame.roll.camera?.exposureCompIncrements ?: PartialIncrement.THIRD) {
-            PartialIncrement.THIRD -> requireActivity().resources.getStringArray(R.array.CompValues)
-            PartialIncrement.HALF -> requireActivity().resources.getStringArray(R.array.CompValuesHalf)
-        }
+        val exposureCompValues = frame.roll.camera?.exposureCompValues(requireContext())
+                ?: Camera.defaultExposureCompValues(requireContext())
         ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, exposureCompValues)
                 .also { adapter ->
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

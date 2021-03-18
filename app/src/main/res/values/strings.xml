@@ -95,6 +95,7 @@
     <string name="Edit">Edit</string>
     <string name="EditCamera">Edit camera</string>
     <string name="EditDateAndTime">Edit date and time</string>
+    <string name="EditExposureCompensation">Edit exposure compensation</string>
     <string name="EditFilmStock">Edit film stock</string>
     <string name="EditFilter">Edit filter</string>
     <string name="EditFrame">Edit frame #</string>
@@ -323,7 +324,7 @@
     </string>
     <string name="Updates">Updates in this version:
         \n\n-Replaced deprecated AsyncTask with Kotlin coroutines
-        \n-New frame batch edit options: date and time, lens, shutter speed
+        \n-New frame batch edit options: date and time, lens, shutter speed, exposure compensation
         \n-Library and dependency updates
         \n-Code refactoring
         \n
@@ -331,7 +332,7 @@
     <string name="VersionHistory">Version history
         \n\nv1.15.1 2021-03-16:
         \n-Replaced deprecated AsyncTask with Kotlin coroutines
-        \n-New frame batch edit options: date and time, lens, shutter speed
+        \n-New frame batch edit options: date and time, lens, shutter speed, exposure compensation
         \n-Library and dependency updates
         \n-Code refactoring
         \n\nv1.15.0 2020-12-24:
