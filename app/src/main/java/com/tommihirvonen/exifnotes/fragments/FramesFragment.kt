@@ -13,10 +13,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import android.widget.DatePicker
-import android.widget.NumberPicker
-import android.widget.TimePicker
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.ContextCompat
@@ -682,8 +679,29 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                         }
                                     }.create().show()
                                 }
-                                // Edit shutter speed
+                                // Edit aperture
                                 3 -> {
+                                    val view = requireActivity().layoutInflater
+                                            .inflate(R.layout.dialog_single_number_edit_text, null)
+                                    val editText = view.findViewById<EditText>(R.id.edit_text)
+                                    AlertDialog.Builder(requireContext())
+                                            .setView(view)
+                                            .setTitle(R.string.EnterCustomerApertureValue)
+                                            .setPositiveButton(R.string.OK) { _, _ ->
+                                                selectedFrames.forEach {
+                                                    it.aperture = editText.text.toString()
+                                                    database.updateFrame(it)
+                                                }
+                                                frameAdapter.notifyDataSetChanged()
+                                                actionMode?.finish()
+                                            }
+                                            .setNegativeButton(R.string.Cancel) { _, _ -> }
+                                            .create()
+                                            .show()
+                                    editText.requestFocus()
+                                }
+                                // Edit shutter speed
+                                4 -> {
                                     AlertDialog.Builder(requireContext()).apply {
                                         setNegativeButton(R.string.Cancel) { _: DialogInterface, _: Int -> }
                                         val listItems =
@@ -702,11 +720,13 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                                 }
                                             }
                                             dialog.dismiss()
+                                            frameAdapter.notifyDataSetChanged()
+                                            actionMode?.finish()
                                         }
                                     }.create().show()
                                 }
                                 // Edit exposure compensation
-                                4 -> {
+                                5 -> {
                                     AlertDialog.Builder(requireContext()).apply {
                                         setNegativeButton(R.string.Cancel) { _: DialogInterface, _: Int -> }
                                         val listItems = roll.camera?.exposureCompValues(requireContext())
@@ -717,16 +737,18 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                                 database.updateFrame(it)
                                             }
                                             dialog.dismiss()
+                                            frameAdapter.notifyDataSetChanged()
+                                            actionMode?.finish()
                                         }
                                     }.create().show()
                                 }
                                 // Edit location
-                                5 -> {
+                                6 -> {
                                     val intent = Intent(activity, LocationPickActivity::class.java)
                                     startActivityForResult(intent, REQUEST_LOCATION_PICK)
                                 }
                                 // Reverse frame counts
-                                6 -> {
+                                7 -> {
                                     // Create a list of frame counts in reversed order
                                     val frameCountsReversed = selectedFrames.map { it.count }.reversed()
                                     selectedFrames.forEachIndexed { index, frame ->

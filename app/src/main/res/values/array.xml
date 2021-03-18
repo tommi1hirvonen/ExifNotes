@@ -50,6 +50,7 @@
         <item>@string/EditFrameCounts</item>
         <item>@string/EditDateAndTime</item>
         <item>@string/EditLens</item>
+        <item>@string/EditAperture</item>
         <item>@string/EditShutterSpeed</item>
         <item>@string/EditExposureCompensation</item>
         <item>@string/EditLocation</item>
