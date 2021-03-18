@@ -103,6 +103,7 @@
     <string name="EditFrameCounts">Edit frame counts</string>
     <string name="EditFrameCountsBy">Edit frame counts by…</string>
     <string name="EditLens">Edit lens</string>
+    <string name="EditLightSource">Edit light source</string>
     <string name="EditLocation">Edit location</string>
     <string name="EditRoll">Edit roll info</string>
     <string name="EditShutterSpeed">Edit shutter speed</string>
@@ -325,7 +326,7 @@
     </string>
     <string name="Updates">Updates in this version:
         \n\n-Replaced deprecated AsyncTask with Kotlin coroutines
-        \n-New frame batch edit options: date and time, lens, aperture, shutter speed, exposure compensation
+        \n-New frame batch edit options: date and time, lens, aperture, shutter speed, exposure compensation, light source
         \n-Library and dependency updates
         \n-Code refactoring
         \n
@@ -333,7 +334,7 @@
     <string name="VersionHistory">Version history
         \n\nv1.15.1 2021-03-16:
         \n-Replaced deprecated AsyncTask with Kotlin coroutines
-        \n-New frame batch edit options: date and time, lens, aperture, shutter speed, exposure compensation
+        \n-New frame batch edit options: date and time, lens, aperture, shutter speed, exposure compensation, light source
         \n-Library and dependency updates
         \n-Code refactoring
         \n\nv1.15.0 2020-12-24:

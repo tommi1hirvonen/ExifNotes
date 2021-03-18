@@ -747,8 +747,23 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                     val intent = Intent(activity, LocationPickActivity::class.java)
                                     startActivityForResult(intent, REQUEST_LOCATION_PICK)
                                 }
-                                // Reverse frame counts
+                                // Edit light source
                                 7 -> {
+                                    AlertDialog.Builder(requireContext())
+                                            .setNegativeButton(R.string.Cancel) { _: DialogInterface, _:Int -> }
+                                            .setItems(R.array.LightSource) { dialog: DialogInterface, which: Int ->
+                                                selectedFrames.forEach {
+                                                    it.lightSource = which
+                                                    database.updateFrame(it)
+                                                }
+                                                dialog.dismiss()
+                                                frameAdapter.notifyDataSetChanged()
+                                                actionMode?.finish()
+                                            }
+                                            .create().show()
+                                }
+                                // Reverse frame counts
+                                8 -> {
                                     // Create a list of frame counts in reversed order
                                     val frameCountsReversed = selectedFrames.map { it.count }.reversed()
                                     selectedFrames.forEachIndexed { index, frame ->

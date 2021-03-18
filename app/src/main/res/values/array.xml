@@ -54,6 +54,7 @@
         <item>@string/EditShutterSpeed</item>
         <item>@string/EditExposureCompensation</item>
         <item>@string/EditLocation</item>
+        <item>@string/EditLightSource</item>
         <item>@string/ReverseFrameCounts</item>
     </string-array>
 
