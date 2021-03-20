@@ -817,6 +817,24 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                     }
                     true
                 }
+                R.id.menu_item_copy -> {
+                    // Capture the id values for newly added frames.
+                    val newIds = selectedFrames.map {
+                        val frame = it.copy()
+                        database.addFrame(frame)
+                        frameList.add(frame)
+                        frame.id
+                    }
+                    Frame.sortFrameList(requireActivity(), sortMode, frameList)
+                    // Capture the positions in the sorted this of the newly added frames.
+                    val positions = frameList.mapIndexed { index, frame -> frame.id to index }
+                            .filter { newIds.contains(it.first) }.map { it.second }
+                    frameAdapter.clearSelections()
+                    frameAdapter.notifyDataSetChanged()
+                    // Select the newly added frames based on their positions.
+                    positions.forEach { frameAdapter.toggleSelection(it) }
+                    true
+                }
                 R.id.menu_item_select_all -> {
                     frameAdapter.toggleSelectionAll()
                     binding.framesRecyclerView.post { frameAdapter.resetAnimateAll() }
@@ -865,9 +883,15 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                         frame.count += change
                         database.updateFrame(frame)
                     }
-                    actionMode?.finish()
+                    val selectedIds = selectedFrames.map { it.id }
                     Frame.sortFrameList(requireActivity(), sortMode, frameList)
+                    // Capture the positions in the sorted this of the newly added frames.
+                    val positions = frameList.mapIndexed { index, frame -> frame.id to index }
+                            .filter { selectedIds.contains(it.first) }.map { it.second }
+                    frameAdapter.clearSelections()
                     frameAdapter.notifyDataSetChanged()
+                    // Select the newly added frames based on their positions.
+                    positions.forEach { frameAdapter.toggleSelection(it) }
                 }
             }
         }
