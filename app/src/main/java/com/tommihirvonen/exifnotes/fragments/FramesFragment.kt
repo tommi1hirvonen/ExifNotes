@@ -494,9 +494,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                         frame.formattedAddress = formattedAddress
                         database.updateFrame(frame)
                     }
-                    // Exit action mode after edit,
-                    // so that getSelectedItemPositions() isn't an empty list.
-                    actionMode?.finish()
                 }
             REQUEST_EXPORT_FILES -> if (resultCode == Activity.RESULT_OK) {
                 try {
@@ -643,7 +640,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                                 database.updateFrame(it)
                                             }
                                             frameAdapter.notifyDataSetChanged()
-                                            actionMode?.finish()
                                         }, dateTimeTemp.hour, dateTimeTemp.minute, true)
                                         timeDialog.show()
 
@@ -675,7 +671,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                             }
                                             frameAdapter.notifyDataSetChanged()
                                             dialog.dismiss()
-                                            actionMode?.finish()
                                         }
                                     }.create().show()
                                 }
@@ -693,7 +688,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                                     database.updateFrame(it)
                                                 }
                                                 frameAdapter.notifyDataSetChanged()
-                                                actionMode?.finish()
                                             }
                                             .setNegativeButton(R.string.Cancel) { _, _ -> }
                                             .create()
@@ -721,7 +715,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                             }
                                             dialog.dismiss()
                                             frameAdapter.notifyDataSetChanged()
-                                            actionMode?.finish()
                                         }
                                     }.create().show()
                                 }
@@ -740,7 +733,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                                             .map { it.first }.toMutableList()
                                                     database.updateFrame(frame)
                                                 }
-                                                actionMode?.finish()
                                             }
                                             .create().show()
                                 }
@@ -759,7 +751,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                                     database.updateFrame(it)
                                                 }
                                                 frameAdapter.notifyDataSetChanged()
-                                                actionMode?.finish()
                                             }
                                             .setNegativeButton(R.string.Cancel) { _, _ -> }
                                             .create()
@@ -779,7 +770,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                             }
                                             dialog.dismiss()
                                             frameAdapter.notifyDataSetChanged()
-                                            actionMode?.finish()
                                         }
                                     }.create().show()
                                 }
@@ -799,7 +789,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                                 }
                                                 dialog.dismiss()
                                                 frameAdapter.notifyDataSetChanged()
-                                                actionMode?.finish()
                                             }
                                             .create().show()
                                 }
