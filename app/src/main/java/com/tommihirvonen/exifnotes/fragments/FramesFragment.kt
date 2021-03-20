@@ -682,7 +682,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 // Edit aperture
                                 3 -> {
                                     val view = requireActivity().layoutInflater
-                                            .inflate(R.layout.dialog_single_number_edit_text, null)
+                                            .inflate(R.layout.dialog_single_decimal_edit_text, null)
                                     val editText = view.findViewById<EditText>(R.id.edit_text)
                                     AlertDialog.Builder(requireContext())
                                             .setView(view)
@@ -744,8 +744,30 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                             }
                                             .create().show()
                                 }
-                                // Edit exposure compensation
+                                // Edit focal length
                                 6 -> {
+                                    val view = requireActivity().layoutInflater
+                                            .inflate(R.layout.dialog_single_integer_edit_text, null)
+                                    val editText = view.findViewById<EditText>(R.id.edit_text)
+                                    AlertDialog.Builder(requireContext())
+                                            .setView(view)
+                                            .setTitle(R.string.EditFocalLength)
+                                            .setPositiveButton(R.string.OK) { _, _ ->
+                                                selectedFrames.forEach {
+                                                    it.focalLength = editText.text.toString()
+                                                            .toIntOrNull() ?: it.focalLength
+                                                    database.updateFrame(it)
+                                                }
+                                                frameAdapter.notifyDataSetChanged()
+                                                actionMode?.finish()
+                                            }
+                                            .setNegativeButton(R.string.Cancel) { _, _ -> }
+                                            .create()
+                                            .show()
+                                    editText.requestFocus()
+                                }
+                                // Edit exposure compensation
+                                7 -> {
                                     AlertDialog.Builder(requireContext()).apply {
                                         setNegativeButton(R.string.Cancel) { _, _ -> }
                                         val listItems = roll.camera?.exposureCompValues(requireContext())
@@ -762,12 +784,12 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                     }.create().show()
                                 }
                                 // Edit location
-                                7 -> {
+                                8 -> {
                                     val intent = Intent(activity, LocationPickActivity::class.java)
                                     startActivityForResult(intent, REQUEST_LOCATION_PICK)
                                 }
                                 // Edit light source
-                                8 -> {
+                                9 -> {
                                     AlertDialog.Builder(requireContext())
                                             .setNegativeButton(R.string.Cancel) { _, _ -> }
                                             .setItems(R.array.LightSource) { dialog, which ->
@@ -782,7 +804,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                             .create().show()
                                 }
                                 // Reverse frame counts
-                                9 -> {
+                                10 -> {
                                     // Create a list of frame counts in reversed order
                                     val frameCountsReversed = selectedFrames.map { it.count }.reversed()
                                     selectedFrames.forEachIndexed { index, frame ->

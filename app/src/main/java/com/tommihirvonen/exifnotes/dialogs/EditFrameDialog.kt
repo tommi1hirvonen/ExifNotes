@@ -178,7 +178,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             }
         }
         binding.apertureEditImageView.setOnClickListener {
-            val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_number_edit_text, null)
+            val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
             val editText = view.findViewById<EditText>(R.id.edit_text)
             try {
                 val num = newFrame.aperture?.toDouble()
