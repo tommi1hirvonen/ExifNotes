@@ -335,8 +335,8 @@
         \n
     </string>
     <string name="VersionHistory">Version history
-        \n\nv1.15.1 2021-03-20:
-        \n-Replaced deprecated AsyncTask with Kotlin coroutines
+        \n\nv1.16.0 2021-04-11:
+        \n-Replaced deprecated AsyncTasks with Kotlin coroutines
         \n-New frame batch edit options
         \n-Frames can be copied
         \n-Library and dependency updates
