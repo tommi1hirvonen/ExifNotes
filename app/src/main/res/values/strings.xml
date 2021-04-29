@@ -327,14 +327,12 @@
         \n\nThis application uses the Apache Commons IO (<a href="http://commons.apache.org/proper/commons-io">http://commons.apache.org/proper/commons-io</a>) and Apache Commons Text (<a href="https://commons.apache.org/proper/commons-text">https://commons.apache.org/proper/commons-text</a>) libraries available under the Apache 2.0 license, which can be obtained from <a href="https://www.apache.org/licenses/LICENSE-2.0">https://www.apache.org/licenses/LICENSE-2.0</a>.
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Replaced deprecated AsyncTask with Kotlin coroutines
-        \n-New frame batch edit options
-        \n-Frames can be copied
-        \n-Library and dependency updates
-        \n-Code refactoring
+        \n\n-Fixes a bug which caused B (bulb) to be incorrectly preselected as the shutter speed value for new frames if previous frame\'s shutter speed value was empty
         \n
     </string>
     <string name="VersionHistory">Version history
+        \n\nv1.16.1 2021-04-29:
+        \n-Fixes a bug which caused B (bulb) to be incorrectly preselected as the shutter speed value for new frames if previous frame\'s shutter speed value was empty
         \n\nv1.16.0 2021-04-11:
         \n-Replaced deprecated AsyncTasks with Kotlin coroutines
         \n-New frame batch edit options

@@ -29,7 +29,7 @@ data class Camera(
                             .plus("B")
                             .plus(context.resources.getString(R.string.NoValue))
                 } else {
-                    it.plus("B")
+                    it.toMutableList().also { it_ -> it_.add(it_.size - 1, "B") }
                 }
             }.toTypedArray()
 
