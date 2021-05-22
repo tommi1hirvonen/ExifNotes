@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:id="@+id/root"
@@ -249,6 +250,79 @@
                     />
 
             </LinearLayout>
+
+            <!--FIXED LENS-->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:clickable="true"
+                    android:id="@+id/fixed_lens_layout"
+                    android:background="?android:attr/selectableItemBackground"
+                    tools:ignore="KeyboardInaccessibleWidget">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?attr/iconTintColorSecondary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="7dp"
+                        android:paddingLeft="10dp"
+                        android:text="@string/FixedLens"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textSize="17sp"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="7dp"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="5dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="15sp"
+                        android:id="@+id/fixed_lens_text"
+                        android:text="@string/ClickToSet"
+                        />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:id="@+id/lens_clear"
+                    android:layout_toLeftOf="@id/fixed_lens_help"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="@dimen/FrameDialogImageMargin"
+                    android:clickable="true"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_baseline_cancel_24"
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+                    app:tint="?attr/iconTintColorPrimary" />
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:id="@+id/fixed_lens_help"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="@dimen/FrameDialogImageMargin"
+                    android:clickable="true"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_baseline_help_24"
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+                    app:tint="?attr/iconTintColorPrimary" />
+
+            </RelativeLayout>
+
 
         </LinearLayout>
 

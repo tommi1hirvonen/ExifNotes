@@ -110,7 +110,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         frame.roll.camera?.let {
             mountableLenses = database.getLinkedLenses(it).toMutableList()
         } ?: run {
-            mountableLenses = database.allLenses.toMutableList()
+            mountableLenses = database.getLenses().toMutableList()
         }
 
         // Set a listener to check whether the complementary picture should be loaded and displayed.
@@ -378,7 +378,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         if (requestCode == ADD_LENS && resultCode == Activity.RESULT_OK) {
             // After Ok code.
             val lens: Lens = data?.getParcelableExtra(ExtraKeys.LENS) ?: return
-            lens.id = database.addLens(lens)
+            database.addLens(lens)
             frame.roll.camera?.let {
                 database.addCameraLensLink(it, lens)
                 mountableLenses?.add(lens)
@@ -395,7 +395,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         if (requestCode == ADD_FILTER && resultCode == Activity.RESULT_OK) {
             // After Ok code.
             val filter: Filter = data?.getParcelableExtra(ExtraKeys.FILTER) ?: return
-            filter.id = database.addFilter(filter)
+            database.addFilter(filter)
             newFrame.lens?.let { database.addLensFilterLink(filter, it) }
             newFrame.filters.add(filter)
             updateFiltersTextView()

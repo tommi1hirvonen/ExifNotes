@@ -13,8 +13,12 @@ data class Camera(
         var minShutter: String? = null,
         var maxShutter: String? = null,
         var shutterIncrements: Increment = Increment.THIRD,
-        var exposureCompIncrements: PartialIncrement = PartialIncrement.THIRD)
+        var exposureCompIncrements: PartialIncrement = PartialIncrement.THIRD,
+        var lens: Lens? = null)
     : Gear(id, make, model), Comparable<Gear> {
+
+    val isFixedLens get() = lens != null
+    val isNotFixedLens get() = lens == null
 
     fun shutterSpeedValues(context: Context): Array<String> =
             when (shutterIncrements) {

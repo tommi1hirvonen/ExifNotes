@@ -129,12 +129,13 @@ class FiltersFragment : Fragment(), View.OnClickListener {
             val position = item.order
             val filter = filterList[position]
             when (item.itemId) {
-
                 GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_LENSES -> {
-                    showSelectMountableLensesDialog(position)
+                    showSelectMountableLensesDialog(position, fixedLensCameras = false)
                     return true
                 }
-
+                GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_CAMERAS -> {
+                    showSelectMountableLensesDialog(position, fixedLensCameras = true)
+                }
                 GearAdapter.MENU_ITEM_DELETE -> {
 
                     // Check if the filter is being used with one of the rolls.
@@ -188,7 +189,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                 val filter: Filter = data?.getParcelableExtra(ExtraKeys.FILTER) ?: return
                 if (filter.make?.isNotEmpty() == true && filter.model?.isNotEmpty() == true) {
                     binding.noAddedFilters.visibility = View.GONE
-                    filter.id = database.addFilter(filter)
+                    database.addFilter(filter)
                     filterList.add(filter)
                     filterList.sort()
                     val listPos = filterList.indexOf(filter)
@@ -232,17 +233,27 @@ class FiltersFragment : Fragment(), View.OnClickListener {
      *
      * @param position indicates the position of the picked filter in filterList
      */
-    private fun showSelectMountableLensesDialog(position: Int) {
+    private fun showSelectMountableLensesDialog(position: Int, fixedLensCameras: Boolean) {
         val filter = filterList[position]
         val mountableLenses = database.getLinkedLenses(filter)
-        val allLenses = database.allLenses
+        val allLenses =
+            if (fixedLensCameras) {
+                database.getCameras(onlyFixedLensCameras = true).mapNotNull {
+                    it.lens?.make = it.make
+                    it.lens?.model = it.model
+                    it.lens
+                }
+            } else {
+                database.getLenses()
+            }
 
         // Create a list where the mountable selections are saved.
-        val lensSelections = allLenses.map {
-            MountableState(it, mountableLenses.contains(it))
+        val lensSelections = allLenses.map { lens ->
+            MountableState(lens, mountableLenses.any { it.id == lens.id })
         }.toMutableList()
 
         // Make a list of strings for all the lens names to be shown in the multi choice list.
+        // If the lens is actually a fixed-lens camera, show the camera name instead.
         val listItems = allLenses.map { it.name }.toTypedArray<CharSequence>()
         // Create a bool array for preselected items in the multi choice list.
         val booleans = lensSelections.map { it.beforeState }.toBooleanArray()

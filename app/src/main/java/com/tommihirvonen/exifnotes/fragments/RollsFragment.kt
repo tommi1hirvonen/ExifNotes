@@ -404,7 +404,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         when (requestCode) {
             REQUEST_CODE_ADD_ROLL -> if (resultCode == Activity.RESULT_OK) {
                 val roll: Roll = data?.getParcelableExtra(ExtraKeys.ROLL) ?: return
-                roll.id = database.addRoll(roll)
+                database.addRoll(roll)
                 mainTextViewAnimateInvisible()
                 // Add new roll to the top of the list
                 rollList.add(0, roll)

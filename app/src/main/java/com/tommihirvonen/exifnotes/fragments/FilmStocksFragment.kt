@@ -140,8 +140,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         when (requestCode) {
             ADD_FILM_STOCK -> if (resultCode == Activity.RESULT_OK) {
                 val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
-                val rowId = database.addFilmStock(filmStock)
-                filmStock.id = rowId
+                database.addFilmStock(filmStock)
                 // Add the new film stock to both lists.
                 filteredFilmStocks.add(filmStock) // The new film stock is shown immediately regardless of filters.
                 allFilmStocks.add(filmStock) // The new film stock is shown after new filters are applied and they match.

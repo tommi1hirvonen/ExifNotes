@@ -16,10 +16,12 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogCameraBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Increment
+import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.PartialIncrement
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.Utilities
 import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
+import com.tommihirvonen.exifnotes.utilities.database
 
 /**
  * Dialog to edit Camera's information
@@ -31,6 +33,7 @@ class EditCameraDialog : DialogFragment() {
          * Public constant used to tag the fragment when created
          */
         const val TAG = "EditCameraDialog"
+        private const val EDIT_LENS = 1
     }
 
     private lateinit var binding: DialogCameraBinding
@@ -157,6 +160,38 @@ class EditCameraDialog : DialogFragment() {
             e.printStackTrace()
         }
 
+        // FIXED LENS
+        binding.fixedLensHelp.setOnClickListener {
+            AlertDialog.Builder(requireContext()).apply {
+                setMessage(R.string.FixedLensHelp)
+                setPositiveButton(R.string.Close) { _: DialogInterface, _: Int -> }
+            }.create().show()
+        }
+        newCamera.lens?.let {
+            binding.fixedLensText.text = it.name
+            binding.lensClear.visibility = View.VISIBLE
+        } ?: run {
+            binding.fixedLensText.text = resources.getString(R.string.ClickToSet)
+            binding.lensClear.visibility = View.GONE
+        }
+        binding.fixedLensLayout.setOnClickListener {
+            val dialog = EditLensDialog()
+            dialog.setTargetFragment(this@EditCameraDialog, EDIT_LENS)
+            val arguments = Bundle()
+            newCamera.lens?.let {
+                arguments.putParcelable(ExtraKeys.LENS, it)
+            }
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.SetFixedLens))
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
+            dialog.arguments = arguments
+            dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
+        }
+        binding.lensClear.setOnClickListener {
+            newCamera.lens = null
+            binding.fixedLensText.text = resources.getString(R.string.ClickToSet)
+            binding.lensClear.visibility = View.GONE
+        }
+
 
         // FINALISE BUILDING THE DIALOG
         alert.setPositiveButton(positiveButton, null)
@@ -197,6 +232,29 @@ class EditCameraDialog : DialogFragment() {
                 camera.minShutter = newCamera.minShutter
                 camera.maxShutter = newCamera.maxShutter
                 camera.exposureCompIncrements = PartialIncrement.from(binding.exposureCompIncrementSpinner.selectedItemPosition)
+                val previousLens = camera.lens
+                camera.lens = newCamera.lens
+                val currentLens = camera.lens
+
+                // If the fixed lens was removed.
+                if (previousLens != null && currentLens == null) {
+                    database.deleteLens(previousLens)
+                }
+                // If the fixed lens was set.
+                else if (currentLens != null) {
+                    if (database.updateLens(currentLens) == 0) {
+                        // New fixed lens.
+                        database.addLens(currentLens)
+                    }
+                    // Remove linked lenses for this camera
+                    // because it was converted to a fixed lens camera.
+                    database.getLinkedLenses(camera)
+                        .forEach { database.deleteCameraLensLink(camera, it) }
+                }
+
+                if (database.updateCamera(camera) == 0) {
+                    database.addCamera(camera)
+                }
 
                 // Return the new entered name to the calling activity
                 val intent = Intent()
@@ -206,6 +264,16 @@ class EditCameraDialog : DialogFragment() {
             }
         }
         return dialog
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == EDIT_LENS && resultCode == Activity.RESULT_OK) {
+            // After Ok code.
+            val lens: Lens = data?.getParcelableExtra(ExtraKeys.LENS) ?: return
+            newCamera.lens = lens
+            binding.fixedLensText.text = lens.name
+            binding.lensClear.visibility = View.VISIBLE
+        }
     }
 
     /**

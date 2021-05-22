@@ -20,6 +20,7 @@ import com.tommihirvonen.exifnotes.activities.GearActivity
 import com.tommihirvonen.exifnotes.adapters.GearAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentCamerasBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
+import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog
@@ -75,7 +76,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        cameraList = database.allCameras.toMutableList()
+        cameraList = database.getCameras().toMutableList()
         cameraList.sort()
         binding = FragmentCamerasBinding.inflate(inflater, container, false)
         binding.fabCameras.setOnClickListener(this)
@@ -114,6 +115,11 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                     showSelectMountableLensesDialog(position)
                     return true
                 }
+                // Mountable filters can be selected for fixed lens cameras.
+                GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_FILTERS -> {
+                    showSelectMountableFiltersDialog(position)
+                    return true
+                }
                 GearAdapter.MENU_ITEM_DELETE -> {
 
                     // Check if the camera is being used with one of the rolls.
@@ -130,6 +136,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                     builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
                     builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
                         database.deleteCamera(camera)
+                        camera.lens?.let { database.deleteLens(it) }
 
                         // Remove the camera from the cameraList. Do this last!
                         cameraList.removeAt(position)
@@ -186,7 +193,6 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                 val camera: Camera = data?.getParcelableExtra(ExtraKeys.CAMERA) ?: return
                 if (camera.make?.isNotEmpty() == true && camera.model?.isNotEmpty() == true) {
                     binding.noAddedCameras.visibility = View.GONE
-                    camera.id = database.addCamera(camera)
                     cameraList.add(camera)
                     cameraList.sort()
                     val listPos = cameraList.indexOf(camera)
@@ -202,21 +208,16 @@ class CamerasFragment : Fragment(), View.OnClickListener {
             }
             EDIT_CAMERA -> if (resultCode == Activity.RESULT_OK) {
                 val camera: Camera = data?.getParcelableExtra(ExtraKeys.CAMERA) ?: return
-                if (camera.make?.isNotEmpty() == true && camera.model?.isNotEmpty() == true && camera.id > 0) {
-                    database.updateCamera(camera)
-                    val oldPos = cameraList.indexOf(camera)
-                    cameraList.sort()
-                    val newPos = cameraList.indexOf(camera)
-                    cameraAdapter.notifyItemChanged(oldPos)
-                    cameraAdapter.notifyItemMoved(oldPos, newPos)
-                    binding.camerasRecyclerView.scrollToPosition(newPos)
+                val oldPos = cameraList.indexOf(camera)
+                cameraList.sort()
+                val newPos = cameraList.indexOf(camera)
+                cameraAdapter.notifyItemChanged(oldPos)
+                cameraAdapter.notifyItemMoved(oldPos, newPos)
+                binding.camerasRecyclerView.scrollToPosition(newPos)
 
-                    // Update the LensesFragment through the parent activity.
-                    val gearActivity = requireActivity() as GearActivity
-                    gearActivity.updateFragments()
-                } else {
-                    Toast.makeText(activity, "Something went wrong :(", Toast.LENGTH_SHORT).show()
-                }
+                // Update the LensesFragment through the parent activity.
+                val gearActivity = requireActivity() as GearActivity
+                gearActivity.updateFragments()
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 return
             }
@@ -231,7 +232,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
     private fun showSelectMountableLensesDialog(position: Int) {
         val camera = cameraList[position]
         val mountableLenses = database.getLinkedLenses(camera)
-        val allLenses = database.allLenses
+        val allLenses = database.getLenses()
 
         // Create a list where the mountable selections are saved.
         val lensSelections = allLenses.map {
@@ -267,6 +268,55 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                     gearActivity.updateFragments()
                 }
                 .setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        val alert = builder.create()
+        alert.show()
+    }
+
+    /**
+     * Show dialog where the user can select which filters can be mounted to the picked lens.
+     *
+     * @param position indicates the position of the picked lens in lensList
+     */
+    private fun showSelectMountableFiltersDialog(position: Int) {
+        val camera = cameraList[position]
+        val lens = camera.lens ?: return
+        val mountableFilters = database.getLinkedFilters(lens)
+        val allFilters = database.allFilters
+
+        // Create a list where the mountable selections are saved.
+        val filterSelections = allFilters.map {
+            MountableState(it, mountableFilters.contains(it))
+        }.toMutableList()
+
+        // Make a list of strings for all the lens names to be shown in the multi choice list.
+        val listItems = allFilters.map { it.name }.toTypedArray<CharSequence>()
+        // Create a bool array for preselected items in the multi choice list.
+        val booleans = filterSelections.map { it.beforeState }.toBooleanArray()
+
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.setTitle(R.string.SelectMountableFilters)
+            .setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+                filterSelections[which].afterState = isChecked
+            }
+            .setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
+
+                // Go through new mountable combinations.
+                filterSelections.filter { it.afterState != it.beforeState && it.afterState }.forEach {
+                    database.addLensFilterLink(it.gear as Filter, lens)
+                }
+
+                // Go through removed mountable combinations.
+                filterSelections.filter { it.afterState != it.beforeState && !it.afterState }.forEach {
+                    database.deleteLensFilterLink(it.gear as Filter, lens)
+                }
+
+                cameraAdapter.notifyItemChanged(position)
+
+                // Update the FiltersFragment through the parent activity.
+                val gearActivity = requireActivity() as GearActivity
+                gearActivity.updateFragments()
+            }
+            .setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
         val alert = builder.create()
         alert.show()
     }

@@ -30,6 +30,7 @@
     <string name="Camera">Camera</string>
     <string name="CameraNoColon">Camera</string>
     <string name="Cameras">CAMERAS</string>
+    <string name="CamerasNoCap">Cameras</string>
     <string name="Cancel">Cancel</string>
     <string name="ChooseApertureRange">Choose aperture range</string>
     <string name="ChooseApertureValue">Choose aperture value</string>
@@ -156,6 +157,9 @@
     <string name="FilterNoColon">Filter</string>
     <string name="FilterOrFilters">Filter(s)</string>
     <string name="Filters">FILTERS</string>
+    <string name="FiltersNoCap">Filters</string>
+    <string name="FixedLens">Fixed lens</string>
+    <string name="FixedLensHelp">Setting a fixed lens will change the camera into a fixed-lens camera. The lens will be used by default for all (new) frames added with this camera. This reduces the number of steps when adding new frames and keeps the list of separate lenses to a minimum.\n\nSetting a fixed lens removes and disables other lens links for this camera. You can however define mountable filters for fixed lens cameras.</string>
     <string name="Flash">Flash</string>
     <string name="Fluorescent">Fluorescent</string>
     <string name="FocalLengthRange">Focal length range (mm)</string>
@@ -201,6 +205,7 @@
     <string name="Lens">Lens</string>
     <string name="LensNoColon">Lens</string>
     <string name="Lenses">LENSES</string>
+    <string name="LensesNoCap">Lenses</string>
     <string name="Light">Light</string>
     <string name="LightSource">Light source</string>
     <string name="Loaded">Loaded</string>
@@ -268,6 +273,8 @@
     <string name="Purple">Purple</string>
     <string name="PushPull">Push(+)/pull(-)</string>
     <string name="Red">Red</string>
+    <string name="RemoveCameraMappingsMessage">This camera is set as a fixed lens camera, but it has other lens mappings. Do you want to remove these mappings?</string>
+    <string name="RemoveLensMappingsMessage">This lens has mountable camera mappings. Do you want to remove these mappings? No cameras or lenses will be deleted, only the links between them.</string>
     <string name="Reset">Reset</string>
     <string name="ReverseFrameCounts">Reverse frame counts</string>
     <string name="RollsActivated">Roll(s) unarchived</string>
@@ -286,6 +293,7 @@
     <string name="SelectMountableLenses">Select mountable lenses</string>
     <string name="SelectPictureFromGallery">Select from gallery</string>
     <string name="SerialNumber">Serial number</string>
+    <string name="SetFixedLens">Set fixed lens</string>
     <string name="Settings">Settings</string>
     <string name="Shade">Shade</string>
     <string name="Share">Share</string>

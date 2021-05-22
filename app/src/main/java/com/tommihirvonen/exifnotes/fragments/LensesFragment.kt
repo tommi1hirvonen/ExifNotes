@@ -77,7 +77,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentLensesBinding.inflate(inflater, container, false)
-        lensList = database.allLenses.toMutableList()
+        lensList = database.getLenses().toMutableList()
         lensList.sort()
         binding.fabLenses.setOnClickListener(this)
 
@@ -181,7 +181,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
                 val lens: Lens = data?.getParcelableExtra(ExtraKeys.LENS) ?: return
                 if (lens.make?.isNotEmpty() == true && lens.model?.isNotEmpty() == true) {
                     binding.noAddedLenses.visibility = View.GONE
-                    lens.id = database.addLens(lens)
+                    database.addLens(lens)
                     lensList.add(lens)
                     lensList.sort()
                     val listPos = lensList.indexOf(lens)
@@ -232,7 +232,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
     private fun showSelectMountableCamerasDialog(position: Int) {
         val lens = lensList[position]
         val mountableCameras = database.getLinkedCameras(lens)
-        val allCameras = database.allCameras
+        val allCameras = database.getCameras(includeFixedLensCameras = false)
 
         // Create a list where the mountable selections are saved.
         val cameraSelections = allCameras.map {

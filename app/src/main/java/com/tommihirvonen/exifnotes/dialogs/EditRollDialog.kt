@@ -56,7 +56,7 @@ class EditRollDialog : BottomSheetDialogFragment() {
 
         roll = requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll()
         newRoll = roll.copy()
-        cameraList = database.allCameras.toMutableList()
+        cameraList = database.getCameras().toMutableList()
 
 
         // NAME EDIT TEXT
@@ -289,7 +289,6 @@ class EditRollDialog : BottomSheetDialogFragment() {
             REQUEST_CODE_ADD_CAMERA -> if (resultCode == Activity.RESULT_OK) {
                 // After Ok code.
                 val camera: Camera = data?.getParcelableExtra(ExtraKeys.CAMERA) ?: return
-                camera.id = database.addCamera(camera)
                 cameraList.add(camera)
                 binding.cameraText.text = camera.name
                 newRoll.camera = camera
@@ -300,8 +299,7 @@ class EditRollDialog : BottomSheetDialogFragment() {
             }
             REQUEST_CODE_ADD_FILM_STOCK -> if (resultCode == Activity.RESULT_OK) {
                 val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
-                val rowId = database.addFilmStock(filmStock)
-                filmStock.id = rowId
+                database.addFilmStock(filmStock)
                 setFilmStock(filmStock)
             }
         }

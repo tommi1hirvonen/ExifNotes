@@ -150,6 +150,9 @@ class Database private constructor(private val context: Context)
             db.execSQL(ALTER_TABLE_ROLLS_6)
             db.execSQL(ALTER_TABLE_ROLLS_7)
         }
+        if (oldVersion < 22) {
+            db.execSQL(ALTER_TABLE_CAMERAS_6)
+        }
     }
 
     // ******************** CRUD operations for the frames table ********************
@@ -185,18 +188,19 @@ class Database private constructor(private val context: Context)
      * Updates the information of a frame.
      * @param frame the frame to be updated.
      */
-    fun updateFrame(frame: Frame) {
+    fun updateFrame(frame: Frame): Int {
         val contentValues = buildFrameContentValues(frame)
-        writableDatabase.update(TABLE_FRAMES, contentValues, "$KEY_FRAME_ID=?", arrayOf(frame.id.toString()))
+        val rows = writableDatabase.update(TABLE_FRAMES, contentValues, "$KEY_FRAME_ID=?", arrayOf(frame.id.toString()))
         deleteAllFrameFilterLinks(frame)
         frame.filters.forEach { filter -> addFrameFilterLink(frame, filter) }
+        return rows
     }
 
     /**
      * Deletes a frame from the database.
      * @param frame the frame to be deleted
      */
-    fun deleteFrame(frame: Frame) =
+    fun deleteFrame(frame: Frame): Int =
             writableDatabase.delete(TABLE_FRAMES, "$KEY_FRAME_ID = ?", arrayOf(frame.id.toString()))
 
     /**
@@ -214,8 +218,11 @@ class Database private constructor(private val context: Context)
      * Adds a new lens to the database.
      * @param lens the lens to be added to the database
      */
-    fun addLens(lens: Lens): Long =
-            writableDatabase.insert(TABLE_LENSES, null, buildLensContentValues(lens))
+    fun addLens(lens: Lens): Long {
+        val id = writableDatabase.insert(TABLE_LENSES, null, buildLensContentValues(lens))
+        lens.id = id
+        return id
+    }
 
     /**
      * Gets a lens corresponding to the id.
@@ -229,11 +236,13 @@ class Database private constructor(private val context: Context)
     }
 
     /**
-     * Gets all the lenses from the database.
-     * @return a List of all the lenses in the database.
+     * Get lenses from the database.
      */
-    val allLenses: List<Lens> get() {
-        val cursor = readableDatabase.query(TABLE_LENSES, null, null, null,
+    fun getLenses(includeFixedLenses: Boolean = false): List<Lens> {
+        val selection =
+            if (includeFixedLenses) null
+            else "$KEY_LENS_ID not in (select $KEY_LENS_ID from $TABLE_CAMERAS where $KEY_LENS_ID is not null)"
+        val cursor = readableDatabase.query(TABLE_LENSES, null, selection, null,
                 null, null, "$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase")
         return cursor.map { getLensFromCursor(it) }.also { cursor.close() }
     }
@@ -242,7 +251,7 @@ class Database private constructor(private val context: Context)
      * Deletes Lens from the database.
      * @param lens the Lens to be deleted
      */
-    fun deleteLens(lens: Lens) =
+    fun deleteLens(lens: Lens): Int =
             writableDatabase.delete(TABLE_LENSES, "$KEY_LENS_ID = ?", arrayOf(lens.id.toString()))
 
     /**
@@ -260,9 +269,9 @@ class Database private constructor(private val context: Context)
      * Updates the information of a lens
      * @param lens the Lens to be updated
      */
-    fun updateLens(lens: Lens) {
+    fun updateLens(lens: Lens): Int {
         val contentValues = buildLensContentValues(lens)
-        writableDatabase.update(TABLE_LENSES, contentValues, "$KEY_LENS_ID=?", arrayOf(lens.id.toString()))
+        return writableDatabase.update(TABLE_LENSES, contentValues, "$KEY_LENS_ID=?", arrayOf(lens.id.toString()))
     }
 
     // ******************** CRUD operations for the cameras table ********************
@@ -270,8 +279,11 @@ class Database private constructor(private val context: Context)
      * Adds a new camera to the database.
      * @param camera the camera to be added to the database
      */
-    fun addCamera(camera: Camera): Long =
-            writableDatabase.insert(TABLE_CAMERAS, null, buildCameraContentValues(camera))
+    fun addCamera(camera: Camera): Long {
+        val id = writableDatabase.insert(TABLE_CAMERAS, null, buildCameraContentValues(camera))
+        camera.id = id
+        return id
+    }
 
     /**
      * Gets the Camera corresponding to the camera id
@@ -285,12 +297,22 @@ class Database private constructor(private val context: Context)
     }
 
     /**
-     * Gets all the cameras from the database
-     * @return a List of all the cameras in the database
+     * Get a fixed-lens camera by its lens id.
      */
-    val allCameras: List<Camera> get() {
-        val cursor = readableDatabase.query(TABLE_CAMERAS, null, null, null,
-                null, null, "$KEY_CAMERA_MAKE collate nocase,$KEY_CAMERA_MODEL collate nocase")
+    fun getCameraByLensId(lensId: Long): Camera? {
+        val cursor = readableDatabase.query(TABLE_CAMERAS, null, "$KEY_LENS_ID = ?",
+            arrayOf(lensId.toString()), null, null, null, "1")
+        return cursor.withFirstOrNull { getCameraFromCursor(it) }.also { cursor.close() }
+    }
+
+    fun getCameras(includeFixedLensCameras: Boolean = true, onlyFixedLensCameras: Boolean = false): List<Camera> {
+        val selection = when {
+            onlyFixedLensCameras -> "$KEY_LENS_ID is not null"
+            includeFixedLensCameras -> null
+            else -> "$KEY_LENS_ID is null"
+        }
+        val cursor = readableDatabase.query(TABLE_CAMERAS, null, selection, null,
+            null, null, "$KEY_CAMERA_MAKE collate nocase,$KEY_CAMERA_MODEL collate nocase")
         return cursor.map { getCameraFromCursor(it) }.also { cursor.close() }
     }
 
@@ -298,8 +320,13 @@ class Database private constructor(private val context: Context)
      * Deletes the specified camera from the database
      * @param camera the camera to be deleted
      */
-    fun deleteCamera(camera: Camera) =
-            writableDatabase.delete(TABLE_CAMERAS, "$KEY_CAMERA_ID = ?", arrayOf(camera.id.toString()))
+    fun deleteCamera(camera: Camera): Int {
+        // In case of fixed lens cameras, also delete the lens from database.
+        camera.lens?.let {
+            writableDatabase.delete(TABLE_LENSES, "$KEY_LENS_ID = ?", arrayOf(it.id.toString()))
+        }
+        return writableDatabase.delete(TABLE_CAMERAS, "$KEY_CAMERA_ID = ?", arrayOf(camera.id.toString()))
+    }
 
     /**
      * Checks if a camera is being used in some roll.
@@ -316,9 +343,9 @@ class Database private constructor(private val context: Context)
      * Updates the information of the specified camera.
      * @param camera the camera to be updated
      */
-    fun updateCamera(camera: Camera) {
+    fun updateCamera(camera: Camera): Int {
         val contentValues = buildCameraContentValues(camera)
-        writableDatabase.update(TABLE_CAMERAS, contentValues, "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()))
+        return writableDatabase.update(TABLE_CAMERAS, contentValues, "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()))
     }
 
     // ******************** CRUD operations for the camera-lens link table ********************
@@ -381,8 +408,11 @@ class Database private constructor(private val context: Context)
      * Adds a new roll to the database.
      * @param roll the roll to be added
      */
-    fun addRoll(roll: Roll): Long =
-            writableDatabase.insert(TABLE_ROLLS, null, buildRollContentValues(roll))
+    fun addRoll(roll: Roll): Long {
+        val id = writableDatabase.insert(TABLE_ROLLS, null, buildRollContentValues(roll))
+        roll.id = id
+        return id
+    }
 
     /**
      * Gets all the rolls in the database
@@ -404,16 +434,16 @@ class Database private constructor(private val context: Context)
      * Deletes a roll from the database.
      * @param roll the roll to be deleted from the database
      */
-    fun deleteRoll(roll: Roll) =
+    fun deleteRoll(roll: Roll): Int =
             writableDatabase.delete(TABLE_ROLLS, "$KEY_ROLL_ID = ?", arrayOf(roll.id.toString()))
 
     /**
      * Updates the specified roll's information
      * @param roll the roll to be updated
      */
-    fun updateRoll(roll: Roll) {
+    fun updateRoll(roll: Roll): Int {
         val contentValues = buildRollContentValues(roll)
-        writableDatabase.update(TABLE_ROLLS, contentValues, "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()))
+        return writableDatabase.update(TABLE_ROLLS, contentValues, "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()))
     }
 
     /**
@@ -432,8 +462,11 @@ class Database private constructor(private val context: Context)
      * Adds a new filter to the database.
      * @param filter the filter to be added to the database
      */
-    fun addFilter(filter: Filter): Long =
-            writableDatabase.insert(TABLE_FILTERS, null, buildFilterContentValues(filter))
+    fun addFilter(filter: Filter): Long {
+        val id = writableDatabase.insert(TABLE_FILTERS, null, buildFilterContentValues(filter))
+        filter.id = id
+        return id
+    }
 
     /**
      * Gets all the filters from the database
@@ -449,7 +482,7 @@ class Database private constructor(private val context: Context)
      * Deletes the specified filter from the database
      * @param filter the filter to be deleted
      */
-    fun deleteFilter(filter: Filter) =
+    fun deleteFilter(filter: Filter): Int =
             writableDatabase.delete(TABLE_FILTERS, "$KEY_FILTER_ID = ?", arrayOf(filter.id.toString()))
 
     /**
@@ -467,9 +500,9 @@ class Database private constructor(private val context: Context)
      * Updates the information of the specified filter.
      * @param filter the filter to be updated
      */
-    fun updateFilter(filter: Filter) {
+    fun updateFilter(filter: Filter): Int {
         val contentValues = buildFilterContentValues(filter)
-        writableDatabase.update(TABLE_FILTERS, contentValues, "$KEY_FILTER_ID=?", arrayOf(filter.id.toString()))
+        return writableDatabase.update(TABLE_FILTERS, contentValues, "$KEY_FILTER_ID=?", arrayOf(filter.id.toString()))
     }
 
     // ******************** CRUD operations for the lens-filter link table ********************
@@ -493,7 +526,7 @@ class Database private constructor(private val context: Context)
      * @param filter the filter that can be mounted with the lens
      * @param lens the lens that can be mounted with the filter
      */
-    fun deleteLensFilterLink(filter: Filter, lens: Lens) =
+    fun deleteLensFilterLink(filter: Filter, lens: Lens): Int =
             writableDatabase.delete(TABLE_LINK_LENS_FILTER,
                     "$KEY_FILTER_ID = ? AND $KEY_LENS_ID = ?", arrayOf(filter.id.toString(), lens.id.toString()))
 
@@ -551,7 +584,7 @@ class Database private constructor(private val context: Context)
      *
      * @param frame Frame object whose filter links should be deleted
      */
-    private fun deleteAllFrameFilterLinks(frame: Frame) =
+    private fun deleteAllFrameFilterLinks(frame: Frame): Int =
             writableDatabase.delete(TABLE_LINK_FRAME_FILTER, "$KEY_FRAME_ID = ?", arrayOf(frame.id.toString()))
 
     /**
@@ -572,8 +605,11 @@ class Database private constructor(private val context: Context)
 
     // ******************** CRUD operations for the film stock table ********************
 
-    fun addFilmStock(filmStock: FilmStock): Long =
-            writableDatabase.insert(TABLE_FILM_STOCKS, null, buildFilmStockContentValues(filmStock))
+    fun addFilmStock(filmStock: FilmStock): Long {
+        val id = writableDatabase.insert(TABLE_FILM_STOCKS, null, buildFilmStockContentValues(filmStock))
+        filmStock.id = id
+        return id
+    }
 
     private fun getFilmStock(filmStockId: Long): FilmStock? {
         val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null,
@@ -756,6 +792,8 @@ class Database private constructor(private val context: Context)
         camera.shutterIncrements = Increment.from(shutterIncrementIndex)
         val compIncrementIndex = cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS))
         camera.exposureCompIncrements = PartialIncrement.from(compIncrementIndex)
+        val lensId = cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID))
+        if (lensId > 0) camera.lens = getLens(lensId)
         return camera
     }
 
@@ -871,6 +909,11 @@ class Database private constructor(private val context: Context)
         contentValues.put(KEY_CAMERA_MAX_SHUTTER, camera.maxShutter)
         contentValues.put(KEY_CAMERA_SHUTTER_INCREMENTS, camera.shutterIncrements.ordinal)
         contentValues.put(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, camera.exposureCompIncrements.ordinal)
+
+        val lens = camera.lens
+        if (lens != null) contentValues.put(KEY_LENS_ID, lens.id)
+        else contentValues.putNull(KEY_LENS_ID)
+
         return contentValues
     }
 
@@ -1022,6 +1065,9 @@ class Database private constructor(private val context: Context)
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SERIAL_NO, text, 0) &&
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SHUTTER_INCREMENTS, integer, 1) &&
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, integer, 1) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_LENS_ID, integer, 0,
+                    primaryKeyInput = false, autoIncrementInput = false, foreignKeyInput = true,
+                    referenceTableNameInput = TABLE_LENSES, onDeleteActionInput = setNull) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_ID, integer, 0,
                         primaryKeyInput = true, autoIncrementInput = true) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_MAKE, text, 1) &&
@@ -1380,7 +1426,7 @@ class Database private constructor(private val context: Context)
         //Updated version from 16 to 17 - 2018-03-26 - v1.11.0
         //Updated version from 17 to 18 - 2018-07-08 - v1.12.0
         //Updated version from 18 to 19 - 2018-07-17 - awaiting
-        private const val DATABASE_VERSION = 21
+        private const val DATABASE_VERSION = 22
 
         //=============================================================================================
         //onCreate strings
@@ -1412,7 +1458,8 @@ class Database private constructor(private val context: Context)
                 + KEY_CAMERA_MIN_SHUTTER + " text, "
                 + KEY_CAMERA_SERIAL_NO + " text, "
                 + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null, "
-                + KEY_CAMERA_EXPOSURE_COMP_INCREMENTS + " integer not null default 0"
+                + KEY_CAMERA_EXPOSURE_COMP_INCREMENTS + " integer not null default 0, "
+                + KEY_LENS_ID + " integer references " + TABLE_LENSES + " on delete set null"
                 + ");")
         private const val CREATE_FILTER_TABLE = ("create table " + TABLE_FILTERS
                 + "(" + KEY_FILTER_ID + " integer primary key autoincrement, "
@@ -1532,6 +1579,8 @@ class Database private constructor(private val context: Context)
                 + " ADD COLUMN " + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null default 0;")
         private const val ALTER_TABLE_CAMERAS_5 = ("ALTER TABLE " + TABLE_CAMERAS
                 + " ADD COLUMN " + KEY_CAMERA_EXPOSURE_COMP_INCREMENTS + " integer not null default 0;")
+        private const val ALTER_TABLE_CAMERAS_6 = ("ALTER TABLE " + TABLE_CAMERAS
+                + " ADD COLUMN " + KEY_LENS_ID + " integer references " + TABLE_LENSES + " on delete set null;")
         private const val ALTER_TABLE_ROLLS_1 = ("ALTER TABLE " + TABLE_ROLLS
                 + " ADD COLUMN " + KEY_ROLL_ISO + " integer;")
         private const val ALTER_TABLE_ROLLS_2 = ("ALTER TABLE " + TABLE_ROLLS
