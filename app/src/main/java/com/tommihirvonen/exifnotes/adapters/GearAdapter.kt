@@ -100,8 +100,7 @@ class GearAdapter(private val context: Context, var gearList: List<Gear>)
             gear.lens?.let {
                 val filters = context.database.getLinkedFilters(it)
                 stringBuilder
-                    .append(context.getString(R.string.FixedLens))
-                    .append(": ").append(it.name).append("\n\n")
+                    .append(context.getString(R.string.FixedLens)).append("\n\n")
                     .append(context.getString(R.string.FiltersNoCap)).append(":")
                     .append(filters.toStringList())
             }

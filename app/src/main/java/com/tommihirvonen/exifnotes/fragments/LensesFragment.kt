@@ -144,7 +144,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
                     return true
                 }
                 GearAdapter.MENU_ITEM_EDIT -> {
-                    val dialog = EditLensDialog()
+                    val dialog = EditLensDialog(fixedLens = false)
                     dialog.setTargetFragment(this, EDIT_LENS)
                     val arguments = Bundle()
                     arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditLens))
@@ -165,7 +165,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
      */
     @SuppressLint("CommitTransaction")
     private fun showLensNameDialog() {
-        val dialog = EditLensDialog()
+        val dialog = EditLensDialog(fixedLens = false)
         dialog.setTargetFragment(this, ADD_LENS)
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewLens))

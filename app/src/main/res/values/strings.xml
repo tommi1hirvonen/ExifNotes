@@ -214,6 +214,7 @@
     <string name="Location">Location</string>
     <string name="MainActivityTitle">Film rolls</string>
     <string name="Make">Make</string>
+    <string name="MakeAndOrModelIsEmpty">Make and/or model is empty</string>
     <string name="Manufacturer">Manufacturer</string>
     <string name="ManufacturerOrFilmStockNameCannotBeEmpty">Manufacturer or film stock name cannot be empty</string>
     <string name="MapType">Map type</string>

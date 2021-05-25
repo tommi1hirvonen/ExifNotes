@@ -39,6 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:id="@+id/make_layout"
                 android:background="?android:attr/selectableItemBackground"
                 >
 
@@ -61,6 +62,11 @@
                     android:inputType="textCapSentences"
                     />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/iconTintColorSecondary" />
+
             </LinearLayout>
 
 
@@ -69,13 +75,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:id="@+id/model_layout"
                 android:background="?android:attr/selectableItemBackground"
                 >
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -96,6 +98,11 @@
                     android:inputType="textCapSentences"
                     />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/iconTintColorSecondary" />
+
             </LinearLayout>
 
 
@@ -104,13 +111,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:id="@+id/serial_number_layout"
                 android:background="?android:attr/selectableItemBackground"
                 >
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -131,6 +134,11 @@
                     android:inputType="textCapSentences"
                     tools:ignore="TextFields" />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/iconTintColorSecondary" />
+
             </LinearLayout>
 
 
@@ -141,11 +149,6 @@
                 android:orientation="vertical"
                 android:id="@+id/increment_layout"
                 tools:ignore="KeyboardInaccessibleWidget">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -170,6 +173,11 @@
                     android:layout_marginBottom="10dp"
                     />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/iconTintColorSecondary" />
+
             </LinearLayout>
 
 
@@ -182,11 +190,6 @@
                 android:id="@+id/aperture_range_layout"
                 android:background="?android:attr/selectableItemBackground"
                 tools:ignore="KeyboardInaccessibleWidget">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -210,6 +213,11 @@
                     android:text="@string/ClickToSet"
                     />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/iconTintColorSecondary" />
+
             </LinearLayout>
 
 
@@ -222,11 +230,6 @@
                 android:id="@+id/focal_length_range_layout"
                 android:background="?android:attr/selectableItemBackground"
                 tools:ignore="KeyboardInaccessibleWidget">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
 
                 <TextView
                     android:layout_width="wrap_content"

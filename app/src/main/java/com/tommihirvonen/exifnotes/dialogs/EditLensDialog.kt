@@ -24,7 +24,7 @@ import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScro
 /**
  * Dialog to edit Lens's information
  */
-class EditLensDialog : DialogFragment() {
+class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
 
     companion object {
         /**
@@ -52,6 +52,13 @@ class EditLensDialog : DialogFragment() {
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
         val layoutInflater = requireActivity().layoutInflater
         binding = DialogLensBinding.inflate(layoutInflater)
+
+        // Hide certain layouts for fixed lenses. Make and model are later derived from camera.
+        if (fixedLens) {
+            binding.makeLayout.visibility = View.GONE
+            binding.modelLayout.visibility = View.GONE
+            binding.serialNumberLayout.visibility = View.GONE
+        }
 
         val alert = AlertDialog.Builder(activity)
         val title = requireArguments().getString(ExtraKeys.TITLE)
@@ -218,16 +225,10 @@ class EditLensDialog : DialogFragment() {
             val make = binding.makeEditText.text.toString()
             val model = binding.modelEditText.text.toString()
             val serialNumber = binding.serialNumberEditText.text.toString()
-            if (make.isEmpty() && model.isEmpty()) {
+            if ((make.isEmpty() || model.isEmpty()) && !fixedLens) {
                 // No make or model was set
-                Toast.makeText(activity, resources.getString(R.string.NoMakeOrModel),
+                Toast.makeText(activity, resources.getString(R.string.MakeAndOrModelIsEmpty),
                         Toast.LENGTH_SHORT).show()
-            } else if (make.isNotEmpty() && model.isEmpty()) {
-                // No model was set
-                Toast.makeText(activity, resources.getString(R.string.NoModel), Toast.LENGTH_SHORT).show()
-            } else if (make.isEmpty()) {
-                // No make was set
-                Toast.makeText(activity, resources.getString(R.string.NoMake), Toast.LENGTH_SHORT).show()
             } else {
                 //All the required information was given. Save.
                 lens.make = make

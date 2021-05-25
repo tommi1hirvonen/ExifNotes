@@ -168,14 +168,14 @@ class EditCameraDialog : DialogFragment() {
             }.create().show()
         }
         newCamera.lens?.let {
-            binding.fixedLensText.text = it.name
+            binding.fixedLensText.text = resources.getString(R.string.ClickToEdit)
             binding.lensClear.visibility = View.VISIBLE
         } ?: run {
             binding.fixedLensText.text = resources.getString(R.string.ClickToSet)
             binding.lensClear.visibility = View.GONE
         }
         binding.fixedLensLayout.setOnClickListener {
-            val dialog = EditLensDialog()
+            val dialog = EditLensDialog(fixedLens = true)
             dialog.setTargetFragment(this@EditCameraDialog, EDIT_LENS)
             val arguments = Bundle()
             newCamera.lens?.let {
@@ -242,6 +242,9 @@ class EditCameraDialog : DialogFragment() {
                 }
                 // If the fixed lens was set.
                 else if (currentLens != null) {
+                    // Copy make and model properties from camera, since this is a fixed lens.
+                    currentLens.make = camera.make
+                    currentLens.model = camera.model
                     if (database.updateLens(currentLens) == 0) {
                         // New fixed lens.
                         database.addLens(currentLens)
@@ -271,7 +274,7 @@ class EditCameraDialog : DialogFragment() {
             // After Ok code.
             val lens: Lens = data?.getParcelableExtra(ExtraKeys.LENS) ?: return
             newCamera.lens = lens
-            binding.fixedLensText.text = lens.name
+            binding.fixedLensText.text = resources.getString(R.string.ClickToEdit)
             binding.lensClear.visibility = View.VISIBLE
         }
     }

@@ -129,7 +129,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         binding.addLens.isClickable = true
         binding.addLens.setOnClickListener {
             binding.noteEditText.clearFocus()
-            val dialog = EditLensDialog()
+            val dialog = EditLensDialog(fixedLens = false)
             dialog.setTargetFragment(this@EditFrameDialog, ADD_LENS)
             val arguments = Bundle()
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewLens))
