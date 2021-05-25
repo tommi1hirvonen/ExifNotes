@@ -80,6 +80,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
 
     private lateinit var newFrame: Frame
 
+    private val lens get() = newFrame.roll.camera?.lens ?: newFrame.lens
+
     /**
      * Holds all the lenses that can be mounted to the used camera
      */
@@ -107,6 +109,14 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         }
         frame = frame1
         newFrame = frame.copy()
+
+        // If the cameras used for this roll is a fixed-lens camera,
+        // set the frame's lens to the camera's lens.
+        if (newFrame.roll.camera?.isFixedLens == true) {
+            newFrame.lens = null
+        }
+
+        // Get mountable lenses based on the roll's camera. If no camera was set, get all lenses.
         frame.roll.camera?.let {
             mountableLenses = database.getLinkedLenses(it).toMutableList()
         } ?: run {
@@ -119,24 +129,26 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
 
         binding.title.titleLayout.setBackgroundColor(requireContext().primaryUiColor)
 
-        //LENS TEXT
-        binding.lensText.text = frame.lens?.name ?: ""
-
         // LENS PICK DIALOG
-        binding.lensLayout.setOnClickListener(LensLayoutOnClickListener())
-
-        // LENS ADD DIALOG
-        binding.addLens.isClickable = true
-        binding.addLens.setOnClickListener {
-            binding.noteEditText.clearFocus()
-            val dialog = EditLensDialog(fixedLens = false)
-            dialog.setTargetFragment(this@EditFrameDialog, ADD_LENS)
-            val arguments = Bundle()
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewLens))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-            dialog.arguments = arguments
-            dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
+        if (frame.roll.camera?.isNotFixedLens == true) {
+            binding.lensText.text = frame.lens?.name ?: ""
+            binding.lensLayout.setOnClickListener(LensLayoutOnClickListener())
+            // LENS ADD DIALOG
+            binding.addLens.isClickable = true
+            binding.addLens.setOnClickListener {
+                binding.noteEditText.clearFocus()
+                val dialog = EditLensDialog(fixedLens = false)
+                dialog.setTargetFragment(this@EditFrameDialog, ADD_LENS)
+                val arguments = Bundle()
+                arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewLens))
+                arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+                dialog.arguments = arguments
+                dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
+            }
+        } else {
+            binding.lensLayout.visibility = View.GONE
         }
+
 
         // DATE & TIME PICK DIALOG
         if (frame.date == null) frame.date = DateTime.fromCurrentTime()
@@ -349,7 +361,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         frame.count = binding.frameCountSpinner.selectedItem as Int
         frame.note = binding.noteEditText.text.toString()
         frame.date = dateTimeLayoutManager.dateTime
-        frame.lens = newFrame.lens
+        frame.lens = newFrame.lens // null if the camera is a fixed-lens camera
         frame.location = newFrame.location
         frame.formattedAddress = newFrame.formattedAddress
         frame.exposureComp = binding.exposureCompSpinner.selectedItem as String
@@ -396,7 +408,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             // After Ok code.
             val filter: Filter = data?.getParcelableExtra(ExtraKeys.FILTER) ?: return
             database.addFilter(filter)
-            newFrame.lens?.let { database.addLensFilterLink(filter, it) }
+            lens?.let { database.addLensFilterLink(filter, it) }
             newFrame.filters.add(filter)
             updateFiltersTextView()
         }
@@ -538,7 +550,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     private fun initializeApertureSpinner(allowCustomValue: Boolean = false) {
         val aperture = newFrame.aperture
         val displayedApertureValues = (
-                newFrame.lens?.apertureValues(requireContext())
+                lens?.apertureValues(requireContext())
                 ?: Lens.defaultApertureValues(requireContext())
                 ).let {
                     // If a custom aperture value is set and it's not included in the list,
@@ -692,8 +704,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             // If current lens is defined, use that to get linked filters.
             // Otherwise get all filters from database.
             val possibleFilters: List<Filter> =
-                    newFrame.lens?.let { database.getLinkedFilters(it) }
-                    ?: database.allFilters
+                    lens?.let { database.getLinkedFilters(it) } ?: database.allFilters
             // Create a list with filter names to be shown on the multi choice dialog.
             val listItems = possibleFilters.map { it.name }.toTypedArray()
             // List where the mountable selections are stored.
@@ -732,8 +743,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             val focalLengthText = dialogView.findViewById<TextView>(R.id.value_text_view)
 
             // Get the min and max focal lengths
-            val minValue: Int = newFrame.lens?.minFocalLength ?: 0
-            val maxValue: Int = newFrame.lens?.maxFocalLength ?: 500
+            val minValue: Int = lens?.minFocalLength ?: 0
+            val maxValue: Int = lens?.maxFocalLength ?: 500
 
             // Set the SeekBar progress percent
             when {

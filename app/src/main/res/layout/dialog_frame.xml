@@ -276,6 +276,10 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="true"
+                android:id="@+id/lens_layout"
+                android:background="?android:attr/selectableItemBackground"
+                tools:ignore="KeyboardInaccessibleWidget"
                 >
 
                 <!--LENS-->
@@ -283,12 +287,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:clickable="true"
-                    android:id="@+id/lens_layout"
-                    android:background="?android:attr/selectableItemBackground"
                     android:paddingLeft="@dimen/FrameDialogSidePadding"
                     android:paddingRight="@dimen/FrameDialogSidePadding"
-                    tools:ignore="KeyboardInaccessibleWidget">
+                    >
 
                     <TextView
                         android:layout_width="wrap_content"

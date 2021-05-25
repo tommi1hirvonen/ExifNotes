@@ -72,9 +72,9 @@ class FrameAdapter(private val context: Context,
      */
     inner class ViewHolder(val binding: ItemFrameConstraintBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            binding.itemFrameLayout.setOnClickListener { listener.onItemClick(adapterPosition) }
+            binding.itemFrameLayout.setOnClickListener { listener.onItemClick(bindingAdapterPosition) }
             binding.itemFrameLayout.setOnLongClickListener {
-                listener.onItemLongClick(adapterPosition)
+                listener.onItemLongClick(bindingAdapterPosition)
                 true
             }
         }
@@ -90,7 +90,10 @@ class FrameAdapter(private val context: Context,
         val frame = frameList[position]
         holder.binding.tvFrameText.text = frame.date?.dateTimeAsText
         holder.binding.tvCount.text = "${frame.count}"
-        holder.binding.tvFrameText2.text = frame.lens?.name ?: context.resources.getString(R.string.NoLens)
+        holder.binding.tvFrameText2.text = frame.lens?.name
+            ?:
+            if (frame.roll.camera?.isNotFixedLens == true) context.resources.getString(R.string.NoLens)
+            else ""
         holder.binding.tvFrameNote.text = frame.note
         holder.binding.tvAperture.text = frame.aperture?.let { "f/$it" } ?: ""
         holder.binding.tvShutter.text = frame.shutter

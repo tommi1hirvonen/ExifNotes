@@ -76,9 +76,9 @@ class RollAdapter(private val context: Context,
         val imageViews = listOf(binding.dateImageView, binding.filmStockImageView,
                 binding.cameraImageView, binding.photosImageView, binding.notesImageView)
         init {
-            binding.itemRollLayout.setOnClickListener { listener.onItemClick(adapterPosition) }
+            binding.itemRollLayout.setOnClickListener { listener.onItemClick(bindingAdapterPosition) }
             binding.itemRollLayout.setOnLongClickListener {
-                listener.onItemLongClick(adapterPosition)
+                listener.onItemLongClick(bindingAdapterPosition)
                 true
             }
         }

@@ -359,7 +359,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 val frameCountText = "#" + frame.count
                 frameCountTextView.text = frameCountText
                 dateTimeTextView.text = frame.date?.dateTimeAsText ?: ""
-                lensTextView.text = frame.lens?.name ?: getString(R.string.NoLens)
+                lensTextView.text = frame.lens?.name
+                    ?: if (frame.roll.camera?.isNotFixedLens == true) getString(R.string.NoLens)
+                    else ""
                 noteTextView.text = frame.note
                 view
             } else {

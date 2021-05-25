@@ -24,7 +24,7 @@ class FilmManufacturerAdapter(
     private val expandAnimations = SparseBooleanArray()
     private var currentExpandedIndex = -1
     private val filmStocksMap: Map<String?, List<FilmStock>> = context.database.allFilmStocks.groupBy { it.make }
-    private val manufacturers: List<String?> = filmStocksMap.map { it.key }.sortedBy { it?.toLowerCase(Locale.ROOT) }
+    private val manufacturers: List<String?> = filmStocksMap.map { it.key }.sortedBy { it?.lowercase(Locale.ROOT) }
 
     init { setHasStableIds(true) }
 
