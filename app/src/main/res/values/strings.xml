@@ -336,10 +336,14 @@
         \n\nThis application uses the Apache Commons IO (<a href="http://commons.apache.org/proper/commons-io">http://commons.apache.org/proper/commons-io</a>) and Apache Commons Text (<a href="https://commons.apache.org/proper/commons-text">https://commons.apache.org/proper/commons-text</a>) libraries available under the Apache 2.0 license, which can be obtained from <a href="https://www.apache.org/licenses/LICENSE-2.0">https://www.apache.org/licenses/LICENSE-2.0</a>.
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Fixes a bug which caused B (bulb) to be incorrectly preselected as the shutter speed value for new frames if previous frame\'s shutter speed value was empty
+        \n\n-Fixed lens cameras: you can now add/edit fixed-lens cameras in gear settings. When adding frames with a camera that has a fixed-lens, you cannot select a lens in the frame\'s properties. The lens settings from the camera will be applied when adding new frames or editing existing frames. Filters can be linked to fixed-lens cameras in the gear settings.
+        \n-Library updates
         \n
     </string>
     <string name="VersionHistory">Version history
+        \n\nv1.17.0 2021-05-26:
+        \n-Fixed lens cameras: you can now add/edit fixed-lens cameras in gear settings. When adding frames with a camera that has a fixed-lens, you cannot select a lens in the frame\'s properties. The lens settings from the camera will be applied when adding new frames or editing existing frames. Filters can be linked to fixed-lens cameras in the gear settings.
+        \n-Library updates
         \n\nv1.16.1 2021-04-29:
         \n-Fixes a bug which caused B (bulb) to be incorrectly preselected as the shutter speed value for new frames if previous frame\'s shutter speed value was empty
         \n\nv1.16.0 2021-04-11:
