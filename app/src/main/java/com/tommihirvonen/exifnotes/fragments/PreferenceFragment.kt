@@ -1,14 +1,16 @@
 package com.tommihirvonen.exifnotes.fragments
 
-import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -29,11 +31,38 @@ import java.io.*
  */
 class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
 
-    companion object {
-        private const val REQUEST_IMPORT_COMPLEMENTARY_PICTURES = 1
-        private const val REQUEST_IMPORT_DATABASE = 2
-        private const val REQUEST_EXPORT_COMPLEMENTARY_PICTURES = 3
-        private const val REQUEST_EXPORT_DATABASE = 4
+    private inner class ExportPictures : ActivityResultContracts.CreateDocument() {
+        override fun createIntent(context: Context, input: String): Intent {
+            val intent = super.createIntent(context, input)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = "application/zip"
+            return intent
+        }
+    }
+
+    private inner class ExportDatabase : ActivityResultContracts.CreateDocument() {
+        override fun createIntent(context: Context, input: String): Intent {
+            val intent = super.createIntent(context, input)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = "*/*"
+            return intent
+        }
+    }
+
+    private val exportPicturesResultLauncher = registerForActivityResult(ExportPictures()) { resultUri ->
+        resultUri?.let { exportComplementaryPictures(it) }
+    }
+
+    private val importPicturesResultLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
+        resultUri?.let { importComplementaryPictures(it) }
+    }
+
+    private val exportDatabaseResultLauncher = registerForActivityResult(ExportDatabase()) { resultUri ->
+        resultUri?.let { exportDatabase(it) }
+    }
+
+    private val importDatabaseResultLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
+        resultUri?.let { importDatabase(it) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,31 +81,21 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         // OnClickListener to start complementary pictures export.
         val exportComplementaryPictures = findPreference<Preference>(PreferenceConstants.KEY_EXPORT_COMPLEMENTARY_PICTURES)!!
         exportComplementaryPictures.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            val intent = Intent()
-            intent.action = Intent.ACTION_CREATE_DOCUMENT
-            intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = "application/zip"
             val date = DateTime.fromCurrentTime().dateAsText
             val title = "Exif_Notes_Complementary_Pictures_$date.zip"
-            intent.putExtra(Intent.EXTRA_TITLE, title)
-            startActivityForResult(intent, REQUEST_EXPORT_COMPLEMENTARY_PICTURES)
+            exportPicturesResultLauncher.launch(title)
             true
         }
 
         // OnClickListener to start complementary pictures import
         val importComplementaryPictures = findPreference<Preference>(PreferenceConstants.KEY_IMPORT_COMPLEMENTARY_PICTURES)!!
         importComplementaryPictures.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-
             // Show additional message about importing complementary pictures using a separate dialog.
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(R.string.ImportDatabaseTitle)
             builder.setMessage(R.string.ImportComplementaryPicturesVerification)
             builder.setPositiveButton(R.string.Continue) { _: DialogInterface?, _: Int ->
-                val intent = Intent()
-                intent.action = Intent.ACTION_OPEN_DOCUMENT
-                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                intent.type = "application/zip"
-                startActivityForResult(intent, REQUEST_IMPORT_COMPLEMENTARY_PICTURES)
+                importPicturesResultLauncher.launch(arrayOf("application/zip"))
             }
             builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
             builder.create().show()
@@ -86,20 +105,14 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         // OnClickListener to start database export
         val exportDatabase = findPreference<Preference>(PreferenceConstants.KEY_EXPORT_DATABASE)!!
         exportDatabase.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-
             // Show additional message about exporting the SQL database using a separate dialog.
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(R.string.ExportDatabaseTitle)
             builder.setMessage(R.string.ExportDatabaseVerification)
             builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-                val intent = Intent()
-                intent.action = Intent.ACTION_CREATE_DOCUMENT
-                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                intent.type = "*/*"
                 val date = DateTime.fromCurrentTime().dateAsText
                 val filename = "Exif_Notes_Database_$date.db"
-                intent.putExtra(Intent.EXTRA_TITLE, filename)
-                startActivityForResult(intent, REQUEST_EXPORT_DATABASE)
+                exportDatabaseResultLauncher.launch(filename)
             }
             builder.create().show()
             true
@@ -108,17 +121,12 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         // OnClickListener to start database import
         val importDatabase = findPreference<Preference>(PreferenceConstants.KEY_IMPORT_DATABASE)!!
         importDatabase.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-
             // Show additional message about importing the database using a separate dialog.
             val builder = AlertDialog.Builder(activity)
             builder.setTitle(R.string.ImportDatabaseTitle)
             builder.setMessage(R.string.ImportDatabaseVerification)
             builder.setPositiveButton(R.string.Continue) { _: DialogInterface?, _: Int ->
-                val intent = Intent()
-                intent.action = Intent.ACTION_OPEN_DOCUMENT
-                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                intent.type = "*/*"
-                startActivityForResult(intent, REQUEST_IMPORT_DATABASE)
+                importDatabaseResultLauncher.launch(arrayOf("*/*"))
             }
             builder.setNegativeButton(resources.getString(R.string.No)) { _: DialogInterface?, _: Int -> }
             builder.create().show()
@@ -141,23 +149,6 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             }
             else -> {
                 super.onDisplayPreferenceDialog(preference)
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            REQUEST_IMPORT_COMPLEMENTARY_PICTURES -> if (resultCode == Activity.RESULT_OK) {
-                data?.let { importComplementaryPictures(data) }
-            }
-            REQUEST_IMPORT_DATABASE -> if (resultCode == Activity.RESULT_OK) {
-                data?.let { importDatabase(data) }
-            }
-            REQUEST_EXPORT_COMPLEMENTARY_PICTURES -> if (resultCode == Activity.RESULT_OK) {
-                data?.let { exportComplementaryPictures(data) }
-            }
-            REQUEST_EXPORT_DATABASE -> if (resultCode == Activity.RESULT_OK) {
-                data?.let { exportDatabase(data) }
             }
         }
     }
@@ -186,10 +177,9 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         }
     }
 
-    private fun importComplementaryPictures(data: Intent) {
+    private fun importComplementaryPictures(picturesUri: Uri) {
         val filePath: String = try {
-            val picturesUri = data.data
-            val inputStream = requireContext().contentResolver.openInputStream(picturesUri!!)
+            val inputStream = requireContext().contentResolver.openInputStream(picturesUri)
             val outputDir = requireContext().externalCacheDir
             val outputFile = File.createTempFile("pictures", ".zip", outputDir)
             val outputStream: OutputStream = FileOutputStream(outputFile)
@@ -218,13 +208,12 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         }
     }
 
-    private fun importDatabase(data: Intent) {
+    private fun importDatabase(databaseUri: Uri) {
         try {
             // Copy the content from the Uri to a cached File so it can be read as a File.
-            val databaseUri = data.data
 
             // Check the extension of the given file.
-            val cursor = requireContext().contentResolver.query(databaseUri!!,
+            val cursor = requireContext().contentResolver.query(databaseUri,
                     null, null, null, null)
             cursor!!.moveToFirst()
             val name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
@@ -278,9 +267,8 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         }
     }
 
-    private fun exportComplementaryPictures(data: Intent) {
-        val picturesUri = data.data
-        val outputStream = requireContext().contentResolver.openOutputStream(picturesUri!!)
+    private fun exportComplementaryPictures(picturesUri: Uri) {
+        val outputStream = requireContext().contentResolver.openOutputStream(picturesUri)
         val inputDir = requireContext().externalCacheDir
         val inputFile = File.createTempFile("complementary_pictures", ".zip", inputDir)
 
@@ -314,10 +302,9 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
 
     }
 
-    private fun exportDatabase(data: Intent) {
+    private fun exportDatabase(destinationUri: Uri) {
         try {
-            val destinationUri = data.data
-            val outputStream = requireContext().contentResolver.openOutputStream(destinationUri!!)
+            val outputStream = requireContext().contentResolver.openOutputStream(destinationUri)
             val databaseFile = Database.getDatabaseFile(requireActivity())
             val inputStream: InputStream = FileInputStream(databaseFile)
             IOUtils.copy(inputStream, outputStream)

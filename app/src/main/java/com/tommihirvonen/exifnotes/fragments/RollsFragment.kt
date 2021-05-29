@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.view.*
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.ContextCompat
@@ -21,7 +22,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.GearActivity
-import com.tommihirvonen.exifnotes.activities.MainActivity
 import com.tommihirvonen.exifnotes.activities.MapActivity
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
 import com.tommihirvonen.exifnotes.adapters.RollAdapter
@@ -143,7 +143,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
     /**
      * Public method to update the contents of this fragment.
      */
-    fun updateFragment(recreateRollAdapter: Boolean) {
+    private fun updateFragment(recreateRollAdapter: Boolean) {
         val sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(requireActivity().baseContext)
         // Get from preferences which rolls to load from the database.
@@ -234,6 +234,19 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         super.onPrepareOptionsMenu(menu)
     }
 
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        // If a new database was imported, update the contents of RollsFragment.
+        if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED ==
+            PreferenceActivity.RESULT_DATABASE_IMPORTED) {
+            updateFragment(true)
+        }
+        // If the app theme was changed, recreate activity.
+        if (result.resultCode and PreferenceActivity.RESULT_THEME_CHANGED ==
+            PreferenceActivity.RESULT_THEME_CHANGED) {
+            requireActivity().recreate()
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_item_gear -> {
@@ -242,9 +255,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
             }
             R.id.menu_item_preferences -> {
                 val preferenceActivityIntent = Intent(activity, PreferenceActivity::class.java)
-                //Start the preference activity from MainActivity.
-                //The result will be handled in MainActivity.
-                requireActivity().startActivityForResult(preferenceActivityIntent, MainActivity.PREFERENCE_ACTIVITY_REQUEST)
+                resultLauncher.launch(preferenceActivityIntent)
             }
             R.id.menu_item_show_on_map -> {
 

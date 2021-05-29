@@ -1,6 +1,5 @@
 package com.tommihirvonen.exifnotes.activities
 
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -15,13 +14,6 @@ import com.tommihirvonen.exifnotes.utilities.*
  * Activity to contain the fragment for frames
  */
 class FramesActivity : AppCompatActivity() {
-
-    companion object {
-        /**
-         * Constants passed to PreferenceActivity
-         */
-        const val PREFERENCE_ACTIVITY_REQUEST = 8
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -89,28 +81,6 @@ class FramesActivity : AppCompatActivity() {
     override fun finish() {
         super.finish()
         overridePendingTransition(R.anim.nothing, R.anim.exit_to_right)
-    }
-
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        // The PreferenceActivity is started for result and the result is captured here.
-        // The result code is compared using bitwise operators to determine
-        // whether a new database was imported, the app theme was changed or both.
-
-        // If a new database was imported, use setResult() to notify MainActivity as well.
-        if (requestCode == PREFERENCE_ACTIVITY_REQUEST) {
-            // Finish this activity since the selected roll may not be valid anymore.
-            if (resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED == PreferenceActivity.RESULT_DATABASE_IMPORTED) {
-                setResult(resultCode)
-                finish()
-            }
-            // If the app theme was changed, recreate activity for changes to take effect.
-            if (resultCode and PreferenceActivity.RESULT_THEME_CHANGED == PreferenceActivity.RESULT_THEME_CHANGED) {
-                recreate()
-            }
-            return
-        }
-        // Call super in case the result was not handled here
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
 }

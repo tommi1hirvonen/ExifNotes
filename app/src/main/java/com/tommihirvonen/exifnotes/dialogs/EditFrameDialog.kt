@@ -11,13 +11,13 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.core.widget.NestedScrollView
 import androidx.exifinterface.media.ExifInterface
@@ -48,21 +48,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
          * Public constant used to tag the fragment when created
          */
         const val TAG = "EditFrameDialog"
-
-        /**
-         * Constant passed to LocationPickActivity for result
-         */
-        private const val PLACE_PICKER_REQUEST = 1
-
-        /**
-         * Constant passed to takePictureIntent for result
-         */
-        private const val CAPTURE_IMAGE_REQUEST = 4
-
-        /**
-         * Constant passed to selectPictureIntent for result
-         */
-        private const val SELECT_PICTURE_REQUEST = 5
     }
     
     internal lateinit var binding: DialogFrameBinding
@@ -89,6 +74,71 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     private var tempPictureFilename: String? = null
 
     private var complementaryPictureLoaded: Boolean = false
+
+    private val locationResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Set the location
+            if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
+                newFrame.location = result.data?.getParcelableExtra(ExtraKeys.LOCATION)
+            }
+            // Set the formatted address
+            if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
+                newFrame.formattedAddress = result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
+            }
+            updateLocationTextView()
+        }
+    }
+
+    private val captureImageResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
+        if (result) {
+            // In case the picture decoding takes a long time, show the user, that the picture is being loaded.
+            binding.pictureText.setText(R.string.LoadingPicture)
+            binding.pictureText.visibility = View.VISIBLE
+            // Decode and compress the picture on a background thread.
+            Thread(Runnable {
+                // The user has taken a new complementary picture. Update the possible new filename,
+                // notify gallery app and set the complementary picture bitmap.
+                val filename = tempPictureFilename ?: return@Runnable
+                newFrame.pictureFilename = tempPictureFilename
+                // Compress the picture file
+                try {
+                    ComplementaryPicturesManager.compressPictureFile(requireActivity(), filename)
+                } catch (e: IOException) {
+                    Toast.makeText(activity, R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show()
+                }
+                // Set the complementary picture ImageView on the UI thread.
+                requireActivity().runOnUiThread { setComplementaryPicture(animate = true) }
+            }).start()
+        }
+    }
+
+    private val selectImageResultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { resultUri ->
+        // In case the picture decoding takes a long time, show the user, that the picture is being loaded.
+        binding.pictureText.setText(R.string.LoadingPicture)
+        binding.pictureText.visibility = View.VISIBLE
+        // Decode and compress the selected file on a background thread.
+        Thread(Runnable {
+            // Create the placeholder file in the complementary pictures directory.
+            val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
+            try {
+                // Get the compressed bitmap from the Uri.
+                val pictureBitmap = ComplementaryPicturesManager
+                    .getCompressedBitmap(requireActivity(), resultUri) ?: return@Runnable
+                try {
+                    // Save the compressed bitmap to the placeholder file.
+                    ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile)
+                    // Update the member reference and set the complementary picture.
+                    newFrame.pictureFilename = pictureFile.name
+                    // Set the complementary picture ImageView on the UI thread.
+                    requireActivity().runOnUiThread { setComplementaryPicture(animate = true) }
+                } catch (e: IOException) {
+                    Toast.makeText(activity, R.string.ErrorSavingSelectedPicture, Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: FileNotFoundException) {
+                Toast.makeText(activity, R.string.ErrorLocatingSelectedPicture, Toast.LENGTH_SHORT).show()
+            }
+        }).start()
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DialogFrameBinding.inflate(inflater, container, false)
@@ -271,7 +321,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             val intent = Intent(activity, LocationPickActivity::class.java)
             intent.putExtra(ExtraKeys.LOCATION, newFrame.location)
             intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, newFrame.formattedAddress)
-            startActivityForResult(intent, PLACE_PICKER_REQUEST)
+            locationResultLauncher.launch(intent)
         }
 
         // FILTER PICK DIALOG
@@ -385,74 +435,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         frame.filters = newFrame.filters
         frame.lightSource = binding.lightSourceSpinner.selectedItemPosition
         frame.flashUsed = binding.flashCheckbox.isChecked
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
-        if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
-            // Set the location
-            if (data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                newFrame.location = data.getParcelableExtra(ExtraKeys.LOCATION)
-            }
-            // Set the formatted address
-            if (data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
-                newFrame.formattedAddress = data.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
-            }
-            updateLocationTextView()
-        }
-
-        if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
-            // In case the picture decoding takes a long time, show the user, that the picture is being loaded.
-            binding.pictureText.setText(R.string.LoadingPicture)
-            binding.pictureText.visibility = View.VISIBLE
-            // Decode and compress the picture on a background thread.
-            Thread(Runnable {
-
-                // The user has taken a new complementary picture. Update the possible new filename,
-                // notify gallery app and set the complementary picture bitmap.
-                val filename = tempPictureFilename ?: return@Runnable
-                newFrame.pictureFilename = tempPictureFilename
-                // Compress the picture file
-                try {
-                    ComplementaryPicturesManager.compressPictureFile(requireActivity(), filename)
-                } catch (e: IOException) {
-                    Toast.makeText(activity, R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show()
-                }
-                // Set the complementary picture ImageView on the UI thread.
-                requireActivity().runOnUiThread { setComplementaryPicture(animate = true) }
-            }).start()
-        }
-
-        if (requestCode == SELECT_PICTURE_REQUEST && resultCode == Activity.RESULT_OK) {
-            val selectedPictureUri = data?.data ?: return
-            // In case the picture decoding takes a long time, show the user, that the picture is being loaded.
-            binding.pictureText.setText(R.string.LoadingPicture)
-            binding.pictureText.visibility = View.VISIBLE
-            // Decode and compress the selected file on a background thread.
-            Thread(Runnable {
-
-                // Create the placeholder file in the complementary pictures directory.
-                val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
-                try {
-                    // Get the compressed bitmap from the Uri.
-                    val pictureBitmap = ComplementaryPicturesManager
-                            .getCompressedBitmap(requireActivity(), selectedPictureUri) ?: return@Runnable
-                    try {
-                        // Save the compressed bitmap to the placeholder file.
-                        ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile)
-                        // Update the member reference and set the complementary picture.
-                        newFrame.pictureFilename = pictureFile.name
-                        // Set the complementary picture ImageView on the UI thread.
-                        requireActivity().runOnUiThread { setComplementaryPicture(animate = true) }
-                    } catch (e: IOException) {
-                        Toast.makeText(activity, R.string.ErrorSavingSelectedPicture, Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: FileNotFoundException) {
-                    Toast.makeText(activity, R.string.ErrorLocatingSelectedPicture, Toast.LENGTH_SHORT).show()
-                }
-            }).start()
-        }
-
     }
 
     /**
@@ -833,9 +815,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                         startPictureActivity()
                     }
                     1 -> {
-                        val selectPictureIntent = Intent(Intent.ACTION_PICK)
-                        selectPictureIntent.type = "image/*"
-                        startActivityForResult(selectPictureIntent, SELECT_PICTURE_REQUEST)
+                        selectImageResultLauncher.launch("image/*")
                     }
                     2 -> {
                         try {
@@ -872,22 +852,20 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 Toast.makeText(activity, R.string.NoCameraFeatureWasFound, Toast.LENGTH_SHORT).show()
                 return
             }
+
             // Advance with taking the picture
-            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if (takePictureIntent.resolveActivity(requireActivity().packageManager) != null) {
-                // Create the file where the photo should go
-                val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
-                tempPictureFilename = pictureFile.name
-                //Android Nougat requires that the file is given via FileProvider
-                val photoURI: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
-                            .packageName + ".provider", pictureFile)
-                } else {
-                    Uri.fromFile(pictureFile)
-                }
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                startActivityForResult(takePictureIntent, CAPTURE_IMAGE_REQUEST)
+
+            // Create the file where the photo should go
+            val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
+            tempPictureFilename = pictureFile.name
+            //Android Nougat requires that the file is given via FileProvider
+            val photoURI: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
+                        .packageName + ".provider", pictureFile)
+            } else {
+                Uri.fromFile(pictureFile)
             }
+            captureImageResultLauncher.launch(photoURI)
         }
 
         /**

@@ -33,13 +33,6 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
          * Tag for permission request
          */
         private const val MY_MULTIPLE_PERMISSIONS_REQUEST = 1
-
-        /**
-         * Tag for database import request. Used when the PreferenceActivity is launched.
-         */
-        const val PREFERENCE_ACTIVITY_REQUEST = 8
-
-        private const val FRAMES_ACTIVITY_REQUEST = 10
     }
 
     /**
@@ -154,7 +147,7 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
         framesActivityIntent.putExtra(ExtraKeys.ROLL, roll)
         framesActivityIntent.putExtra(ExtraKeys.LOCATION_ENABLED, locationPermissionsGranted)
         framesActivityIntent.putExtra(ExtraKeys.OVERRIDE_PENDING_TRANSITION, true)
-        startActivityForResult(framesActivityIntent, FRAMES_ACTIVITY_REQUEST)
+        startActivity(framesActivityIntent)
     }
 
     /**
@@ -203,36 +196,7 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
                 Toast.makeText(this, R.string.NoWritePermission, Toast.LENGTH_LONG).show()
             }
         }
-    }
-
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        // PreferenceActivity and FramesActivity are started for result
-        // and the possible result is captured here.
-
-        // The result code is compared using bitwise operators to determine
-        // whether a new database was imported, the app theme was changed or both.
-        when (requestCode) {
-            PREFERENCE_ACTIVITY_REQUEST, FRAMES_ACTIVITY_REQUEST -> {
-
-                // If a new database was imported, update the contents of RollsFragment.
-                if (resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED ==
-                        PreferenceActivity.RESULT_DATABASE_IMPORTED) {
-                    val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-                    if (fragment is RollsFragment) {
-                        fragment.updateFragment(true)
-                    }
-                }
-                // If the app theme was changed, recreate activity.
-                if (resultCode and PreferenceActivity.RESULT_THEME_CHANGED ==
-                        PreferenceActivity.RESULT_THEME_CHANGED) {
-                    recreate()
-                }
-                return
-            }
-        }
-
-        // Call super in case the result was not handled here
-        super.onActivityResult(requestCode, resultCode, data)
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
 }

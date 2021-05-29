@@ -14,6 +14,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.ContextCompat
@@ -47,17 +48,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
          * Public constant to tag this fragment when it is created.
          */
         const val FRAMES_FRAGMENT_TAG = "FRAMES_FRAGMENT"
-
-        /**
-         * Constant passed to ErrorDialogFragment
-         */
-        private const val SHOW_ON_MAP = 4
-
-        /**
-         * Constant passed to LocationPickActivity
-         */
-        private const val REQUEST_LOCATION_PICK = 5
-        private const val REQUEST_EXPORT_FILES = 6
     }
     
     private lateinit var binding: FragmentFramesBinding
@@ -97,6 +87,95 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
      * Reference to the (Support)ActionMode, which is launched when a list item is long pressed.
      */
     private var actionMode: ActionMode? = null
+
+    private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        // Finish this activity since the selected roll may not be valid anymore.
+        if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED == PreferenceActivity.RESULT_DATABASE_IMPORTED) {
+            requireActivity().setResult(result.resultCode)
+            requireActivity().finish()
+        }
+        // If the app theme was changed, recreate activity for changes to take effect.
+        if (result.resultCode and PreferenceActivity.RESULT_THEME_CHANGED == PreferenceActivity.RESULT_THEME_CHANGED) {
+            requireActivity().recreate()
+        }
+    }
+
+    private val mapResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Update the frame list in case updates were made in MapsActivity.
+            frameList = database.getAllFramesFromRoll(roll).toMutableList()
+            Frame.sortFrameList(requireActivity(), sortMode, frameList)
+            frameAdapter = FrameAdapter(requireActivity(), frameList, this)
+            binding.framesRecyclerView.adapter = frameAdapter
+            frameAdapter.notifyDataSetChanged()
+        }
+    }
+
+    private val locationResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        // Consume the case when the user has edited
+        // the location of several frames in action mode.
+        if (result.resultCode == Activity.RESULT_OK) {
+            val location: Location? =
+                if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
+                    result.data?.getParcelableExtra(ExtraKeys.LOCATION)
+                } else null
+            val formattedAddress: String? =
+                if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
+                    result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
+                } else null
+            selectedFrames.forEach { frame ->
+                frame.location = location
+                frame.formattedAddress = formattedAddress
+                database.updateFrame(frame)
+            }
+        }
+    }
+
+    private val exportResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            try {
+                val rollName = roll.name?.illegalCharsRemoved()
+                val directoryUri = result.data?.data ?: return@registerForActivityResult
+                val directoryDocumentFile = DocumentFile.fromTreeUri(requireContext(), directoryUri)
+                    ?: return@registerForActivityResult
+
+                //Get the user setting about which files to export. By default, share both files.
+                val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
+                val filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT,
+                    PreferenceConstants.VALUE_BOTH)
+                if (filesToExport == PreferenceConstants.VALUE_BOTH
+                    || filesToExport == PreferenceConstants.VALUE_CSV) {
+                    val csvDocumentFile = directoryDocumentFile.createFile("text/plain",
+                        rollName + "_csv.txt") ?: return@registerForActivityResult
+                    val csvOutputStream = requireActivity().contentResolver
+                        .openOutputStream(csvDocumentFile.uri) ?: return@registerForActivityResult
+                    val csvString = Utilities.createCsvString(requireActivity(), roll)
+                    val csvOutputStreamWriter = OutputStreamWriter(csvOutputStream)
+                    csvOutputStreamWriter.write(csvString)
+                    csvOutputStreamWriter.flush()
+                    csvOutputStreamWriter.close()
+                    csvOutputStream.close()
+                }
+                if (filesToExport == PreferenceConstants.VALUE_BOTH
+                    || filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
+                    val cmdDocumentFile = directoryDocumentFile.createFile("text/plain",
+                        rollName + "_ExifToolCmds.txt") ?: return@registerForActivityResult
+                    val cmdOutputStream = requireActivity().contentResolver
+                        .openOutputStream(cmdDocumentFile.uri) ?: return@registerForActivityResult
+                    val cmdString = Utilities.createExifToolCmdsString(requireActivity(), roll)
+                    val cmdOutputStreamWriter = OutputStreamWriter(cmdOutputStream)
+                    cmdOutputStreamWriter.write(cmdString)
+                    cmdOutputStreamWriter.flush()
+                    cmdOutputStreamWriter.close()
+                    cmdOutputStream.close()
+                }
+                Toast.makeText(activity, R.string.ExportedFilesSuccessfully, Toast.LENGTH_SHORT).show()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                Toast.makeText(activity, R.string.ErrorExporting, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -192,10 +271,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             }
             R.id.menu_item_preferences -> {
                 val preferenceActivityIntent = Intent(activity, PreferenceActivity::class.java)
-                //Start the preference activity from FramesActivity.
-                //The result will be handled in FramesActivity.
-                requireActivity().startActivityForResult(preferenceActivityIntent,
-                        FramesActivity.PREFERENCE_ACTIVITY_REQUEST)
+                preferenceResultLauncher.launch(preferenceActivityIntent)
             }
             android.R.id.home -> requireActivity().finish()
             R.id.menu_item_show_on_map -> {
@@ -205,7 +281,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 mapIntent.putParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS, list)
                 mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, roll.name)
                 roll.camera?.let { mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE, it.name) }
-                startActivityForResult(mapIntent, SHOW_ON_MAP)
+                mapResultLauncher.launch(mapIntent)
             }
             R.id.menu_item_share ->
                 // Method getShareRollIntent() may take a while to run since it
@@ -218,7 +294,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             R.id.menu_item_export -> {
                 val intent = Intent()
                 intent.action = Intent.ACTION_OPEN_DOCUMENT_TREE
-                startActivityForResult(intent, REQUEST_EXPORT_FILES)
+                exportResultLauncher.launch(intent)
             }
         }
         return true
@@ -449,79 +525,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             // When the new frame is added jump to view the added entry
             val pos = frameList.indexOf(frame1)
             if (pos < frameAdapter.itemCount) binding.framesRecyclerView.scrollToPosition(pos)
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            SHOW_ON_MAP -> if (resultCode == Activity.RESULT_OK) {
-                // Update the frame list in case updates were made in MapsActivity.
-                frameList = database.getAllFramesFromRoll(roll).toMutableList()
-                Frame.sortFrameList(requireActivity(), sortMode, frameList)
-                frameAdapter = FrameAdapter(requireActivity(), frameList, this)
-                binding.framesRecyclerView.adapter = frameAdapter
-                frameAdapter.notifyDataSetChanged()
-            }
-            REQUEST_LOCATION_PICK ->
-                // Consume the case when the user has edited
-                // the location of several frames in action mode.
-                if (resultCode == Activity.RESULT_OK) {
-                    val location: Location? =
-                            if (data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                                data.getParcelableExtra(ExtraKeys.LOCATION)
-                            } else null
-                    val formattedAddress: String? =
-                            if (data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
-                                data.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
-                            } else null
-                    selectedFrames.forEach { frame ->
-                        frame.location = location
-                        frame.formattedAddress = formattedAddress
-                        database.updateFrame(frame)
-                    }
-                }
-            REQUEST_EXPORT_FILES -> if (resultCode == Activity.RESULT_OK) {
-                try {
-                    val rollName = roll.name?.illegalCharsRemoved()
-                    val directoryUri = data?.data ?: return
-                    val directoryDocumentFile = DocumentFile.fromTreeUri(requireContext(), directoryUri) ?: return
-
-                    //Get the user setting about which files to export. By default, share both files.
-                    val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
-                    val filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT,
-                            PreferenceConstants.VALUE_BOTH)
-                    if (filesToExport == PreferenceConstants.VALUE_BOTH
-                            || filesToExport == PreferenceConstants.VALUE_CSV) {
-                        val csvDocumentFile = directoryDocumentFile.createFile("text/plain",
-                                rollName + "_csv.txt") ?: return
-                        val csvOutputStream = requireActivity().contentResolver
-                                .openOutputStream(csvDocumentFile.uri) ?: return
-                        val csvString = Utilities.createCsvString(requireActivity(), roll)
-                        val csvOutputStreamWriter = OutputStreamWriter(csvOutputStream)
-                        csvOutputStreamWriter.write(csvString)
-                        csvOutputStreamWriter.flush()
-                        csvOutputStreamWriter.close()
-                        csvOutputStream.close()
-                    }
-                    if (filesToExport == PreferenceConstants.VALUE_BOTH
-                            || filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
-                        val cmdDocumentFile = directoryDocumentFile.createFile("text/plain",
-                                rollName + "_ExifToolCmds.txt") ?: return
-                        val cmdOutputStream = requireActivity().contentResolver
-                                .openOutputStream(cmdDocumentFile.uri) ?: return
-                        val cmdString = Utilities.createExifToolCmdsString(requireActivity(), roll)
-                        val cmdOutputStreamWriter = OutputStreamWriter(cmdOutputStream)
-                        cmdOutputStreamWriter.write(cmdString)
-                        cmdOutputStreamWriter.flush()
-                        cmdOutputStreamWriter.close()
-                        cmdOutputStream.close()
-                    }
-                    Toast.makeText(activity, R.string.ExportedFilesSuccessfully, Toast.LENGTH_SHORT).show()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    Toast.makeText(activity, R.string.ErrorExporting, Toast.LENGTH_SHORT).show()
-                }
-            }
         }
     }
 
@@ -761,7 +764,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 // Edit location
                                 8 -> {
                                     val intent = Intent(activity, LocationPickActivity::class.java)
-                                    startActivityForResult(intent, REQUEST_LOCATION_PICK)
+                                    locationResultLauncher.launch(intent)
                                 }
                                 // Edit light source
                                 9 -> {
