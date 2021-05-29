@@ -1,9 +1,7 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tommihirvonen.exifnotes.R
@@ -32,18 +31,6 @@ import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
  * Fragment to display all cameras from the database along with details
  */
 class CamerasFragment : Fragment(), View.OnClickListener {
-
-    companion object {
-        /**
-         * Constant passed to EditCameraDialog for result
-         */
-        private const val ADD_CAMERA = 1
-
-        /**
-         * Constant passed to EditCameraDialog for result
-         */
-        private const val EDIT_CAMERA = 2
-    }
 
     private lateinit var binding: FragmentCamerasBinding
 
@@ -152,13 +139,26 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                 }
                 GearAdapter.MENU_ITEM_EDIT -> {
                     val dialog = EditCameraDialog()
-                    dialog.setTargetFragment(this, EDIT_CAMERA)
                     val arguments = Bundle()
                     arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditCamera))
                     arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
                     arguments.putParcelable(ExtraKeys.CAMERA, camera)
                     dialog.arguments = arguments
                     dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
+                    dialog.setFragmentResultListener("EditCameraDialog") { _, bundle ->
+                        val camera1: Camera = bundle.getParcelable(ExtraKeys.CAMERA)
+                            ?: return@setFragmentResultListener
+                        val oldPos = cameraList.indexOf(camera1)
+                        cameraList.sort()
+                        val newPos = cameraList.indexOf(camera1)
+                        cameraAdapter.notifyItemChanged(oldPos)
+                        cameraAdapter.notifyItemMoved(oldPos, newPos)
+                        binding.camerasRecyclerView.scrollToPosition(newPos)
+
+                        // Update the LensesFragment through the parent activity.
+                        val gearActivity = requireActivity() as GearActivity
+                        gearActivity.updateFragments()
+                    }
                     return true
                 }
             }
@@ -172,55 +172,30 @@ class CamerasFragment : Fragment(), View.OnClickListener {
     @SuppressLint("CommitTransaction")
     private fun showCameraNameDialog() {
         val dialog = EditCameraDialog()
-        dialog.setTargetFragment(this, ADD_CAMERA)
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewCamera))
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
         dialog.arguments = arguments
         dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
+        dialog.setFragmentResultListener("EditCameraDialog") { _, bundle ->
+            val camera: Camera = bundle.getParcelable(ExtraKeys.CAMERA)
+                ?: return@setFragmentResultListener
+            if (camera.make?.isNotEmpty() == true && camera.model?.isNotEmpty() == true) {
+                binding.noAddedCameras.visibility = View.GONE
+                cameraList.add(camera)
+                cameraList.sort()
+                val listPos = cameraList.indexOf(camera)
+                cameraAdapter.notifyItemInserted(listPos)
+
+                // When the lens is added jump to view the last entry
+                binding.camerasRecyclerView.scrollToPosition(listPos)
+            }
+        }
     }
 
     override fun onClick(v: View) {
         if (v.id == R.id.fab_cameras) {
             showCameraNameDialog()
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            ADD_CAMERA -> if (resultCode == Activity.RESULT_OK) {
-                // After Ok code.
-                val camera: Camera = data?.getParcelableExtra(ExtraKeys.CAMERA) ?: return
-                if (camera.make?.isNotEmpty() == true && camera.model?.isNotEmpty() == true) {
-                    binding.noAddedCameras.visibility = View.GONE
-                    cameraList.add(camera)
-                    cameraList.sort()
-                    val listPos = cameraList.indexOf(camera)
-                    cameraAdapter.notifyItemInserted(listPos)
-
-                    // When the lens is added jump to view the last entry
-                    binding.camerasRecyclerView.scrollToPosition(listPos)
-                }
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                // After Cancel code.
-                // Do nothing.
-                return
-            }
-            EDIT_CAMERA -> if (resultCode == Activity.RESULT_OK) {
-                val camera: Camera = data?.getParcelableExtra(ExtraKeys.CAMERA) ?: return
-                val oldPos = cameraList.indexOf(camera)
-                cameraList.sort()
-                val newPos = cameraList.indexOf(camera)
-                cameraAdapter.notifyItemChanged(oldPos)
-                cameraAdapter.notifyItemMoved(oldPos, newPos)
-                binding.camerasRecyclerView.scrollToPosition(newPos)
-
-                // Update the LensesFragment through the parent activity.
-                val gearActivity = requireActivity() as GearActivity
-                gearActivity.updateFragments()
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                return
-            }
         }
     }
 

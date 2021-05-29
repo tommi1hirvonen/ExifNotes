@@ -1,14 +1,13 @@
 package com.tommihirvonen.exifnotes.dialogs
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilterBinding
 import com.tommihirvonen.exifnotes.datastructures.Filter
@@ -42,8 +41,7 @@ class EditFilterDialog : DialogFragment() {
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         builder.setPositiveButton(positiveButton, null)
         builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
-            val intent = Intent()
-            targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, intent)
+            setFragmentResult("EditFilterDialog", Bundle())
         }
         val dialog = builder.create()
 
@@ -73,10 +71,10 @@ class EditFilterDialog : DialogFragment() {
                 filter.make = make
                 filter.model = model
                 // Return the new entered name to the calling activity
-                val intent = Intent()
-                intent.putExtra("FILTER", filter)
+                val bundle = Bundle()
+                bundle.putParcelable("FILTER", filter)
+                setFragmentResult("EditFilterDialog", bundle)
                 dialog.dismiss()
-                targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
             }
         }
         return dialog

@@ -1,9 +1,7 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tommihirvonen.exifnotes.R
@@ -31,18 +30,6 @@ import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
  * Fragment to display all filters from the database along with details
  */
 class FiltersFragment : Fragment(), View.OnClickListener {
-
-    companion object {
-        /**
-         * Constant passed to EditFilterDialog for result
-         */
-        private const val ADD_FILTER = 1
-
-        /**
-         * Constant passed to EditFilterDialog for result
-         */
-        private const val EDIT_FILTER = 2
-    }
 
     private lateinit var binding: FragmentFiltersBinding
 
@@ -100,22 +87,28 @@ class FiltersFragment : Fragment(), View.OnClickListener {
 
     override fun onClick(v: View) {
         if (v.id == R.id.fab_filters) {
-            showFilterNameDialog()
-        }
-    }
+            val dialog = EditFilterDialog()
+            val arguments = Bundle()
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewFilter))
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+            dialog.arguments = arguments
+            dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
+            dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
+                val filter: Filter = bundle.getParcelable(ExtraKeys.FILTER)
+                    ?: return@setFragmentResultListener
+                if (filter.make?.isNotEmpty() == true && filter.model?.isNotEmpty() == true) {
+                    binding.noAddedFilters.visibility = View.GONE
+                    database.addFilter(filter)
+                    filterList.add(filter)
+                    filterList.sort()
+                    val listPos = filterList.indexOf(filter)
+                    filterAdapter.notifyItemInserted(listPos)
 
-    /**
-     * Show EditFilterDialog to add a new filter to the database
-     */
-    @SuppressLint("CommitTransaction")
-    private fun showFilterNameDialog() {
-        val dialog = EditFilterDialog()
-        dialog.setTargetFragment(this, ADD_FILTER)
-        val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewFilter))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
+                    // When the lens is added jump to view the last entry
+                    binding.filtersRecyclerView.scrollToPosition(listPos)
+                }
+            }
+        }
     }
 
     @SuppressLint("CommitTransaction")
@@ -168,64 +161,34 @@ class FiltersFragment : Fragment(), View.OnClickListener {
 
                 GearAdapter.MENU_ITEM_EDIT -> {
                     val dialog = EditFilterDialog()
-                    dialog.setTargetFragment(this, EDIT_FILTER)
                     val arguments = Bundle()
                     arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilter))
                     arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
                     arguments.putParcelable(ExtraKeys.FILTER, filter)
                     dialog.arguments = arguments
                     dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
+                    dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
+                        val filter1: Filter = bundle.getParcelable(ExtraKeys.FILTER)
+                            ?: return@setFragmentResultListener
+                        if (filter1.make?.isNotEmpty() == true && filter1.model?.isNotEmpty() == true && filter1.id > 0) {
+                            database.updateFilter(filter1)
+                            val oldPos = filterList.indexOf(filter1)
+                            filterList.sort()
+                            val newPos = filterList.indexOf(filter1)
+                            filterAdapter.notifyItemChanged(oldPos)
+                            filterAdapter.notifyItemMoved(oldPos, newPos)
+                            binding.filtersRecyclerView.scrollToPosition(newPos)
+
+                            // Update the LensesFragment through the parent activity.
+                            val gearActivity = requireActivity() as GearActivity
+                            gearActivity.updateFragments()
+                        }
+                    }
                     return true
                 }
             }
         }
         return false
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            ADD_FILTER -> if (resultCode == Activity.RESULT_OK) {
-                // After Ok code.
-                val filter: Filter = data?.getParcelableExtra(ExtraKeys.FILTER) ?: return
-                if (filter.make?.isNotEmpty() == true && filter.model?.isNotEmpty() == true) {
-                    binding.noAddedFilters.visibility = View.GONE
-                    database.addFilter(filter)
-                    filterList.add(filter)
-                    filterList.sort()
-                    val listPos = filterList.indexOf(filter)
-                    filterAdapter.notifyItemInserted(listPos)
-
-                    // When the lens is added jump to view the last entry
-                    binding.filtersRecyclerView.scrollToPosition(listPos)
-                }
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                // After Cancel code.
-                // Do nothing.
-                return
-            }
-
-            EDIT_FILTER -> if (resultCode == Activity.RESULT_OK) {
-                val filter: Filter = data?.getParcelableExtra(ExtraKeys.FILTER) ?: return
-                if (filter.make?.isNotEmpty() == true && filter.model?.isNotEmpty() == true && filter.id > 0) {
-                    database.updateFilter(filter)
-                    val oldPos = filterList.indexOf(filter)
-                    filterList.sort()
-                    val newPos = filterList.indexOf(filter)
-                    filterAdapter.notifyItemChanged(oldPos)
-                    filterAdapter.notifyItemMoved(oldPos, newPos)
-                    binding.filtersRecyclerView.scrollToPosition(newPos)
-
-                    // Update the LensesFragment through the parent activity.
-                    val gearActivity = requireActivity() as GearActivity
-                    gearActivity.updateFragments()
-                } else {
-                    Toast.makeText(activity, "Something went wrong :(", Toast.LENGTH_SHORT).show()
-                }
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                return
-            }
-
-        }
     }
 
     /**

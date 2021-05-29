@@ -19,6 +19,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
+import androidx.fragment.app.setFragmentResultListener
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -46,16 +47,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
          * Public constant to tag this fragment when it is created.
          */
         const val FRAMES_FRAGMENT_TAG = "FRAMES_FRAGMENT"
-
-        /**
-         * Constant passed to EditFrameDialog for result
-         */
-        private const val FRAME_DIALOG = 1
-
-        /**
-         * Constant passed to EditFrameDialog for result
-         */
-        private const val EDIT_FRAME_DIALOG = 2
 
         /**
          * Constant passed to ErrorDialogFragment
@@ -386,9 +377,19 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
         arguments.putParcelable(ExtraKeys.FRAME, frame)
         val dialog = EditFrameDialog()
-        dialog.setTargetFragment(this, EDIT_FRAME_DIALOG)
         dialog.arguments = arguments
         dialog.show(parentFragmentManager.beginTransaction(), EditFrameDialog.TAG)
+        dialog.setFragmentResultListener("EditFrameDialog") { _, bundle ->
+            actionMode?.finish()
+            val frame1: Frame = bundle.getParcelable(ExtraKeys.FRAME)
+                ?: return@setFragmentResultListener
+            database.updateFrame(frame1)
+            val oldPosition = frameList.indexOf(frame1)
+            Frame.sortFrameList(requireActivity(), sortMode, frameList)
+            val newPosition = frameList.indexOf(frame1)
+            frameAdapter.notifyItemChanged(oldPosition)
+            frameAdapter.notifyItemMoved(oldPosition, newPosition)
+        }
     }
 
     /**
@@ -431,44 +432,28 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         }
 
         val dialog = EditFrameDialog()
-        dialog.setTargetFragment(this, FRAME_DIALOG)
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, title)
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
         arguments.putParcelable(ExtraKeys.FRAME, frame)
         dialog.arguments = arguments
         dialog.show(parentFragmentManager, EditFrameDialog.TAG)
+        dialog.setFragmentResultListener("EditFrameDialog") { _, bundle ->
+            val frame1: Frame = bundle.getParcelable(ExtraKeys.FRAME)
+                ?: return@setFragmentResultListener
+            database.addFrame(frame1)
+            frameList.add(frame1)
+            Frame.sortFrameList(requireActivity(), sortMode, frameList)
+            frameAdapter.notifyItemInserted(frameList.indexOf(frame1))
+            binding.noAddedFrames.visibility = View.GONE
+            // When the new frame is added jump to view the added entry
+            val pos = frameList.indexOf(frame1)
+            if (pos < frameAdapter.itemCount) binding.framesRecyclerView.scrollToPosition(pos)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            FRAME_DIALOG -> if (resultCode == Activity.RESULT_OK) {
-                val frame: Frame = data?.getParcelableExtra(ExtraKeys.FRAME) ?: return
-                database.addFrame(frame)
-                frameList.add(frame)
-                Frame.sortFrameList(requireActivity(), sortMode, frameList)
-                frameAdapter.notifyItemInserted(frameList.indexOf(frame))
-                binding.noAddedFrames.visibility = View.GONE
-                // When the new frame is added jump to view the added entry
-                val pos = frameList.indexOf(frame)
-                if (pos < frameAdapter.itemCount) binding.framesRecyclerView.scrollToPosition(pos)
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                // After cancel do nothing
-                return
-            }
-            EDIT_FRAME_DIALOG -> if (resultCode == Activity.RESULT_OK) {
-                actionMode?.finish()
-                val frame: Frame = data?.getParcelableExtra(ExtraKeys.FRAME) ?: return
-                database.updateFrame(frame)
-                val oldPosition = frameList.indexOf(frame)
-                Frame.sortFrameList(requireActivity(), sortMode, frameList)
-                val newPosition = frameList.indexOf(frame)
-                frameAdapter.notifyItemChanged(oldPosition)
-                frameAdapter.notifyItemMoved(oldPosition, newPosition)
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                // After cancel do nothing
-                return
-            }
             SHOW_ON_MAP -> if (resultCode == Activity.RESULT_OK) {
                 // Update the frame list in case updates were made in MapsActivity.
                 frameList = database.getAllFramesFromRoll(roll).toMutableList()

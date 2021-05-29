@@ -1,9 +1,7 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tommihirvonen.exifnotes.R
@@ -32,18 +31,6 @@ import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
  * Fragment to display all lenses from the database along with details
  */
 class LensesFragment : Fragment(), View.OnClickListener {
-
-    companion object {
-        /**
-         * Constant passed to EditLensDialog for result
-         */
-        private const val ADD_LENS = 1
-
-        /**
-         * Constant passed to EditLensDialog for result
-         */
-        private const val EDIT_LENS = 2
-    }
 
     private lateinit var binding: FragmentLensesBinding
 
@@ -145,7 +132,6 @@ class LensesFragment : Fragment(), View.OnClickListener {
                 }
                 GearAdapter.MENU_ITEM_EDIT -> {
                     val dialog = EditLensDialog(fixedLens = false)
-                    dialog.setTargetFragment(this, EDIT_LENS)
                     val arguments = Bundle()
                     arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditLens))
                     arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
@@ -153,6 +139,23 @@ class LensesFragment : Fragment(), View.OnClickListener {
                     arguments.putInt(ExtraKeys.POSITION, position)
                     dialog.arguments = arguments
                     dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
+                    dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
+                        val lens1: Lens = bundle.getParcelable(ExtraKeys.LENS)
+                            ?: return@setFragmentResultListener
+                        if (lens1.make?.isNotEmpty() == true && lens1.model?.isNotEmpty() == true && lens1.id > 0) {
+                            database.updateLens(lens1)
+                            val oldPos = lensList.indexOf(lens1)
+                            lensList.sort()
+                            val newPos = lensList.indexOf(lens1)
+                            lensAdapter.notifyItemChanged(oldPos)
+                            lensAdapter.notifyItemMoved(oldPos, newPos)
+                            binding.lensesRecyclerView.scrollToPosition(newPos)
+
+                            // Update the LensesFragment through the parent activity.
+                            val gearActivity = requireActivity() as GearActivity
+                            gearActivity.updateFragments()
+                        }
+                    }
                     return true
                 }
             }
@@ -166,54 +169,24 @@ class LensesFragment : Fragment(), View.OnClickListener {
     @SuppressLint("CommitTransaction")
     private fun showLensNameDialog() {
         val dialog = EditLensDialog(fixedLens = false)
-        dialog.setTargetFragment(this, ADD_LENS)
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewLens))
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
         dialog.arguments = arguments
         dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
-    }
+        dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
+            val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
+                ?: return@setFragmentResultListener
+            if (lens.make?.isNotEmpty() == true && lens.model?.isNotEmpty() == true) {
+                binding.noAddedLenses.visibility = View.GONE
+                database.addLens(lens)
+                lensList.add(lens)
+                lensList.sort()
+                val listPos = lensList.indexOf(lens)
+                lensAdapter.notifyItemInserted(listPos)
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            ADD_LENS -> if (resultCode == Activity.RESULT_OK) {
-                // After Ok code.
-                val lens: Lens = data?.getParcelableExtra(ExtraKeys.LENS) ?: return
-                if (lens.make?.isNotEmpty() == true && lens.model?.isNotEmpty() == true) {
-                    binding.noAddedLenses.visibility = View.GONE
-                    database.addLens(lens)
-                    lensList.add(lens)
-                    lensList.sort()
-                    val listPos = lensList.indexOf(lens)
-                    lensAdapter.notifyItemInserted(listPos)
-
-                    // When the lens is added jump to view the last entry
-                    binding.lensesRecyclerView.scrollToPosition(listPos)
-                }
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                // After Cancel code.
-                // Do nothing.
-                return
-            }
-            EDIT_LENS -> if (resultCode == Activity.RESULT_OK) {
-                val lens: Lens = data?.getParcelableExtra(ExtraKeys.LENS) ?: return
-                if (lens.make?.isNotEmpty() == true && lens.model?.isNotEmpty() == true && lens.id > 0) {
-                    database.updateLens(lens)
-                    val oldPos = lensList.indexOf(lens)
-                    lensList.sort()
-                    val newPos = lensList.indexOf(lens)
-                    lensAdapter.notifyItemChanged(oldPos)
-                    lensAdapter.notifyItemMoved(oldPos, newPos)
-                    binding.lensesRecyclerView.scrollToPosition(newPos)
-
-                    // Update the LensesFragment through the parent activity.
-                    val gearActivity = requireActivity() as GearActivity
-                    gearActivity.updateFragments()
-                } else {
-                    Toast.makeText(activity, "Something went wrong :(", Toast.LENGTH_SHORT).show()
-                }
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                return
+                // When the lens is added jump to view the last entry
+                binding.lensesRecyclerView.scrollToPosition(listPos)
             }
         }
     }

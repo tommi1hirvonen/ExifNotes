@@ -21,6 +21,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.core.content.FileProvider
 import androidx.core.widget.NestedScrollView
 import androidx.exifinterface.media.ExifInterface
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.tommihirvonen.exifnotes.R
@@ -51,16 +53,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
          * Constant passed to LocationPickActivity for result
          */
         private const val PLACE_PICKER_REQUEST = 1
-
-        /**
-         * Constant passed to EditLensDialog for result
-         */
-        private const val ADD_LENS = 2
-
-        /**
-         * Constant passed to EditFilterDialog for result
-         */
-        private const val ADD_FILTER = 3
 
         /**
          * Constant passed to takePictureIntent for result
@@ -138,12 +130,27 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             binding.addLens.setOnClickListener {
                 binding.noteEditText.clearFocus()
                 val dialog = EditLensDialog(fixedLens = false)
-                dialog.setTargetFragment(this@EditFrameDialog, ADD_LENS)
                 val arguments = Bundle()
                 arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewLens))
                 arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
                 dialog.arguments = arguments
                 dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
+                dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
+                    val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
+                        ?: return@setFragmentResultListener
+                    database.addLens(lens)
+                    frame.roll.camera?.let {
+                        database.addCameraLensLink(it, lens)
+                        mountableLenses?.add(lens)
+                    }
+                    binding.lensText.text = lens.name
+                    initializeApertureSpinner()
+                    if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
+                    else if (newFrame.focalLength < lens.minFocalLength) newFrame.focalLength = lens.minFocalLength
+                    newFrame.lens = lens
+                    updateFocalLengthTextView()
+                    resetFilters()
+                }
             }
         } else {
             binding.lensLayout.visibility = View.GONE
@@ -276,12 +283,19 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         binding.addFilter.setOnClickListener {
             binding.noteEditText.clearFocus()
             val dialog = EditFilterDialog()
-            dialog.setTargetFragment(this@EditFrameDialog, ADD_FILTER)
             val arguments = Bundle()
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewFilter))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
             dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
+            dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
+                val filter: Filter = bundle.getParcelable(ExtraKeys.FILTER)
+                    ?: return@setFragmentResultListener
+                database.addFilter(filter)
+                lens?.let { database.addLensFilterLink(filter, it) }
+                newFrame.filters.add(filter)
+                updateFiltersTextView()
+            }
         }
 
         //COMPLEMENTARY PICTURE
@@ -301,9 +315,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         binding.title.negativeImageView.setOnClickListener { dismiss() }
         binding.title.positiveImageView.setOnClickListener {
             commitChanges()
-            val intent = Intent()
-            intent.putExtra(ExtraKeys.FRAME, frame)
-            targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
+            val bundle = Bundle()
+            bundle.putParcelable(ExtraKeys.FRAME, frame)
+            setFragmentResult("EditFrameDialog", bundle)
             dismiss()
         }
 
@@ -385,32 +399,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 newFrame.formattedAddress = data.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
             }
             updateLocationTextView()
-        }
-
-        if (requestCode == ADD_LENS && resultCode == Activity.RESULT_OK) {
-            // After Ok code.
-            val lens: Lens = data?.getParcelableExtra(ExtraKeys.LENS) ?: return
-            database.addLens(lens)
-            frame.roll.camera?.let {
-                database.addCameraLensLink(it, lens)
-                mountableLenses?.add(lens)
-            }
-            binding.lensText.text = lens.name
-            initializeApertureSpinner()
-            if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
-            else if (newFrame.focalLength < lens.minFocalLength) newFrame.focalLength = lens.minFocalLength
-            newFrame.lens = lens
-            updateFocalLengthTextView()
-            resetFilters()
-        }
-
-        if (requestCode == ADD_FILTER && resultCode == Activity.RESULT_OK) {
-            // After Ok code.
-            val filter: Filter = data?.getParcelableExtra(ExtraKeys.FILTER) ?: return
-            database.addFilter(filter)
-            lens?.let { database.addLensFilterLink(filter, it) }
-            newFrame.filters.add(filter)
-            updateFiltersTextView()
         }
 
         if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {

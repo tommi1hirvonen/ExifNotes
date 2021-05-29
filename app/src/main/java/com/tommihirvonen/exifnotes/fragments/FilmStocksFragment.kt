@@ -1,9 +1,7 @@
 package com.tommihirvonen.exifnotes.fragments
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tommihirvonen.exifnotes.R
@@ -25,8 +24,6 @@ import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
 class FilmStocksFragment : Fragment(), View.OnClickListener {
 
     companion object {
-        private const val ADD_FILM_STOCK = 1
-        private const val EDIT_FILM_STOCK = 2
         const val SORT_MODE_NAME = 1
         const val SORT_MODE_ISO = 2
         const val FILTER_MODE_ALL = 0
@@ -88,12 +85,23 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View) {
         if (v.id == R.id.fab_films) {
             val dialog = EditFilmStockDialog()
-            dialog.setTargetFragment(this, ADD_FILM_STOCK)
             val arguments = Bundle()
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
             dialog.show(parentFragmentManager.beginTransaction(), null)
+            dialog.setFragmentResultListener("EditFilmStockDialog") { _, bundle ->
+                val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
+                    ?: return@setFragmentResultListener
+                database.addFilmStock(filmStock)
+                // Add the new film stock to both lists.
+                filteredFilmStocks.add(filmStock) // The new film stock is shown immediately regardless of filters.
+                allFilmStocks.add(filmStock) // The new film stock is shown after new filters are applied and they match.
+                sortFilmStocks()
+                val position = filteredFilmStocks.indexOf(filmStock)
+                filmStockAdapter.notifyItemInserted(position)
+                binding.filmsRecyclerView.scrollToPosition(position)
+            }
         }
     }
 
@@ -122,43 +130,27 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                 }
                 GearAdapter.MENU_ITEM_EDIT -> {
                     val dialog = EditFilmStockDialog()
-                    dialog.setTargetFragment(this, EDIT_FILM_STOCK)
                     val arguments = Bundle()
                     arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilmStock))
                     arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
                     arguments.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
                     dialog.arguments = arguments
                     dialog.show(parentFragmentManager.beginTransaction(), null)
+                    dialog.setFragmentResultListener("EditFilmStockDialog") { _, bundle ->
+                        val filmStock1: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
+                            ?: return@setFragmentResultListener
+                        database.updateFilmStock(filmStock1)
+                        val oldPosition = filteredFilmStocks.indexOf(filmStock1)
+                        sortFilmStocks()
+                        val newPosition = filteredFilmStocks.indexOf(filmStock1)
+                        filmStockAdapter.notifyItemChanged(oldPosition)
+                        filmStockAdapter.notifyItemMoved(oldPosition, newPosition)
+                    }
                     return true
                 }
             }
         }
         return false
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            ADD_FILM_STOCK -> if (resultCode == Activity.RESULT_OK) {
-                val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
-                database.addFilmStock(filmStock)
-                // Add the new film stock to both lists.
-                filteredFilmStocks.add(filmStock) // The new film stock is shown immediately regardless of filters.
-                allFilmStocks.add(filmStock) // The new film stock is shown after new filters are applied and they match.
-                sortFilmStocks()
-                val position = filteredFilmStocks.indexOf(filmStock)
-                filmStockAdapter.notifyItemInserted(position)
-                binding.filmsRecyclerView.scrollToPosition(position)
-            }
-            EDIT_FILM_STOCK -> if (resultCode == Activity.RESULT_OK) {
-                val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
-                database.updateFilmStock(filmStock)
-                val oldPosition = filteredFilmStocks.indexOf(filmStock)
-                sortFilmStocks()
-                val newPosition = filteredFilmStocks.indexOf(filmStock)
-                filmStockAdapter.notifyItemChanged(oldPosition)
-                filmStockAdapter.notifyItemMoved(oldPosition, newPosition)
-            }
-        }
     }
 
     private fun sortFilmStocks() {

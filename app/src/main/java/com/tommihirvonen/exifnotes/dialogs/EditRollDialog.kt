@@ -1,15 +1,15 @@
 package com.tommihirvonen.exifnotes.dialogs
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogRollBinding
@@ -30,9 +30,6 @@ class EditRollDialog : BottomSheetDialogFragment() {
          * Public constant used to tag the fragment when created
          */
         const val TAG = "EditRollDialog"
-        private const val REQUEST_CODE_ADD_CAMERA = 1
-        private const val REQUEST_CODE_SELECT_FILM_STOCK = 2
-        private const val REQUEST_CODE_ADD_FILM_STOCK = 3
     }
     
     private lateinit var binding: DialogRollBinding
@@ -94,17 +91,26 @@ class EditRollDialog : BottomSheetDialogFragment() {
             binding.noteEditText.clearFocus()
             binding.nameEditText.clearFocus()
             val dialog = EditFilmStockDialog()
-            dialog.setTargetFragment(this@EditRollDialog, REQUEST_CODE_ADD_FILM_STOCK)
             val arguments = Bundle()
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
             dialog.show(parentFragmentManager.beginTransaction(), null)
+            dialog.setFragmentResultListener("EditFilmStockDialog") { _, bundle ->
+                val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
+                    ?: return@setFragmentResultListener
+                database.addFilmStock(filmStock)
+                setFilmStock(filmStock)
+            }
         }
         binding.filmStockLayout.setOnClickListener {
             val dialog = SelectFilmStockDialog()
-            dialog.setTargetFragment(this@EditRollDialog, REQUEST_CODE_SELECT_FILM_STOCK)
             dialog.show(parentFragmentManager.beginTransaction(), null)
+            dialog.setFragmentResultListener("SelectFilmStockDialog") { _, bundle ->
+                val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
+                    ?: return@setFragmentResultListener
+                setFilmStock(filmStock)
+            }
         }
 
 
@@ -142,12 +148,18 @@ class EditRollDialog : BottomSheetDialogFragment() {
             binding.noteEditText.clearFocus()
             binding.nameEditText.clearFocus()
             val dialog = EditCameraDialog()
-            dialog.setTargetFragment(this@EditRollDialog, REQUEST_CODE_ADD_CAMERA)
             val arguments = Bundle()
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewCamera))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
             dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
+            dialog.setFragmentResultListener("EditCameraDialog") { _, bundle ->
+                val camera: Camera = bundle.getParcelable(ExtraKeys.CAMERA)
+                    ?: return@setFragmentResultListener
+                cameraList.add(camera)
+                binding.cameraText.text = camera.name
+                newRoll.camera = camera
+            }
         }
 
 
@@ -235,9 +247,9 @@ class EditRollDialog : BottomSheetDialogFragment() {
         binding.title.negativeImageView.setOnClickListener { dismiss() }
         binding.title.positiveImageView.setOnClickListener {
             if (commitChanges()) {
-                val intent = Intent()
-                intent.putExtra(ExtraKeys.ROLL, roll)
-                targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
+                val bundle = Bundle()
+                bundle.putParcelable(ExtraKeys.ROLL, roll)
+                setFragmentResult("EditRollDialog", bundle)
                 dismiss()
             }
         }
@@ -281,27 +293,6 @@ class EditRollDialog : BottomSheetDialogFragment() {
         if (filmStock.iso != 0) {
             newRoll.iso = filmStock.iso
             binding.isoText.text = if (newRoll.iso == 0) "" else newRoll.iso.toString()
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            REQUEST_CODE_ADD_CAMERA -> if (resultCode == Activity.RESULT_OK) {
-                // After Ok code.
-                val camera: Camera = data?.getParcelableExtra(ExtraKeys.CAMERA) ?: return
-                cameraList.add(camera)
-                binding.cameraText.text = camera.name
-                newRoll.camera = camera
-            }
-            REQUEST_CODE_SELECT_FILM_STOCK ->  if (resultCode == Activity.RESULT_OK) {
-                val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
-                setFilmStock(filmStock)
-            }
-            REQUEST_CODE_ADD_FILM_STOCK -> if (resultCode == Activity.RESULT_OK) {
-                val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
-                database.addFilmStock(filmStock)
-                setFilmStock(filmStock)
-            }
         }
     }
 

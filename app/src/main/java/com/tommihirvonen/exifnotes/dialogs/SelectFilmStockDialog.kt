@@ -1,13 +1,12 @@
 package com.tommihirvonen.exifnotes.dialogs
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,9 +40,9 @@ class SelectFilmStockDialog : DialogFragment() {
 
         val adapter = FilmManufacturerAdapter(requireContext()) { filmStock: FilmStock? ->
             dialog.dismiss()
-            val intent = Intent()
-            intent.putExtra(ExtraKeys.FILM_STOCK, filmStock)
-            targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
+            val bundle = Bundle()
+            bundle.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
+            setFragmentResult("SelectFilmStockDialog", bundle)
         }
 
         manufacturersRecyclerView.adapter = adapter

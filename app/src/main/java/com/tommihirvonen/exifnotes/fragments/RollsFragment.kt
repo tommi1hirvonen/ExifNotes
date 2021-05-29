@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -45,17 +46,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
          * Public constant used to tag the fragment when created
          */
         const val ROLLS_FRAGMENT_TAG = "ROLLS_FRAGMENT"
-
-        /**
-         * Constant passed to EditRollDialog for result
-         */
-        private const val REQUEST_CODE_ADD_ROLL = 1
-
-        /**
-         * Constant passed to EditRollDialog for result
-         */
-        private const val REQUEST_CODE_EDIT_ROLL = 2
-        private const val REQUEST_CODE_BATCH_EDIT_FILM_STOCK = 3
     }
 
     /**
@@ -382,8 +372,18 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         arguments.putParcelable(ExtraKeys.ROLL, rollList[position])
         arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
         dialog.arguments = arguments
-        dialog.setTargetFragment(this, REQUEST_CODE_EDIT_ROLL)
         dialog.show(parentFragmentManager.beginTransaction(), EditRollDialog.TAG)
+        dialog.setFragmentResultListener("EditRollDialog") { _, bundle ->
+            if (actionMode != null) actionMode?.finish()
+            val roll: Roll = bundle.getParcelable(ExtraKeys.ROLL) ?: return@setFragmentResultListener
+            database.updateRoll(roll)
+            // Notify array adapter that the data set has to be updated
+            val oldPosition = rollList.indexOf(roll)
+            Roll.sortRollList(sortMode, rollList)
+            val newPosition = rollList.indexOf(roll)
+            rollAdapter.notifyItemChanged(oldPosition)
+            rollAdapter.notifyItemMoved(oldPosition, newPosition)
+        }
     }
 
     /**
@@ -396,52 +396,19 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.NewRoll))
         dialog.arguments = arguments
-        dialog.setTargetFragment(this, REQUEST_CODE_ADD_ROLL)
         dialog.show(parentFragmentManager.beginTransaction(), EditRollDialog.TAG)
-    }
+        dialog.setFragmentResultListener("EditRollDialog") { _, bundle ->
+            val roll: Roll = bundle.getParcelable(ExtraKeys.ROLL) ?: return@setFragmentResultListener
+            database.addRoll(roll)
+            mainTextViewAnimateInvisible()
+            // Add new roll to the top of the list
+            rollList.add(0, roll)
+            Roll.sortRollList(sortMode, rollList)
+            rollAdapter.notifyItemInserted(rollList.indexOf(roll))
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            REQUEST_CODE_ADD_ROLL -> if (resultCode == Activity.RESULT_OK) {
-                val roll: Roll = data?.getParcelableExtra(ExtraKeys.ROLL) ?: return
-                database.addRoll(roll)
-                mainTextViewAnimateInvisible()
-                // Add new roll to the top of the list
-                rollList.add(0, roll)
-                Roll.sortRollList(sortMode, rollList)
-                rollAdapter.notifyItemInserted(rollList.indexOf(roll))
-
-                // When the new roll is added jump to view the added entry
-                val pos = rollList.indexOf(roll)
-                if (pos < rollAdapter.itemCount) binding.rollsRecyclerView.scrollToPosition(pos)
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                // After cancel do nothing
-                return
-            }
-            REQUEST_CODE_EDIT_ROLL -> if (resultCode == Activity.RESULT_OK) {
-                if (actionMode != null) actionMode?.finish()
-                val roll: Roll = data?.getParcelableExtra(ExtraKeys.ROLL) ?: return
-                database.updateRoll(roll)
-                // Notify array adapter that the data set has to be updated
-                val oldPosition = rollList.indexOf(roll)
-                Roll.sortRollList(sortMode, rollList)
-                val newPosition = rollList.indexOf(roll)
-                rollAdapter.notifyItemChanged(oldPosition)
-                rollAdapter.notifyItemMoved(oldPosition, newPosition)
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                // After cancel do nothing
-                return
-            }
-            REQUEST_CODE_BATCH_EDIT_FILM_STOCK -> {
-                if (resultCode != Activity.RESULT_OK) return
-                val filmStock: FilmStock = data?.getParcelableExtra(ExtraKeys.FILM_STOCK) ?: return
-                val builder = AlertDialog.Builder(activity)
-                builder.setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
-                builder.setNegativeButton(R.string.No) { _: DialogInterface?, _: Int -> batchUpdateRollsFilmStock(filmStock, false) }
-                builder.setPositiveButton(R.string.Yes) { _: DialogInterface?, _: Int -> batchUpdateRollsFilmStock(filmStock, true) }
-                builder.setNeutralButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                builder.create().show()
-            }
+            // When the new roll is added jump to view the added entry
+            val pos = rollList.indexOf(roll)
+            if (pos < rollAdapter.itemCount) binding.rollsRecyclerView.scrollToPosition(pos)
         }
     }
 
@@ -560,9 +527,22 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                                 0 -> {
                                     // Edit film stock
                                     val filmStockDialog = SelectFilmStockDialog()
-                                    filmStockDialog.setTargetFragment(this@RollsFragment,
-                                            REQUEST_CODE_BATCH_EDIT_FILM_STOCK)
                                     filmStockDialog.show(parentFragmentManager.beginTransaction(), null)
+                                    filmStockDialog.setFragmentResultListener(
+                                        "SelectFilmStockDialog") { _, bundle ->
+                                        val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
+                                            ?: return@setFragmentResultListener
+                                        AlertDialog.Builder(activity).apply {
+                                            setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
+                                            setNegativeButton(R.string.No) { _: DialogInterface?, _: Int ->
+                                                batchUpdateRollsFilmStock(filmStock, false)
+                                            }
+                                            setPositiveButton(R.string.Yes) { _: DialogInterface?, _: Int ->
+                                                batchUpdateRollsFilmStock(filmStock, true)
+                                            }
+                                            setNeutralButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+                                        }.create().show()
+                                    }
                                 }
                                 1 -> {
                                     // Clear film stock

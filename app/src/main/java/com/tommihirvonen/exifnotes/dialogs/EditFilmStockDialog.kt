@@ -1,16 +1,15 @@
 package com.tommihirvonen.exifnotes.dialogs
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.Spanned
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilmBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
@@ -48,7 +47,7 @@ class EditFilmStockDialog : DialogFragment() {
         } catch (ignore: ArrayIndexOutOfBoundsException) {}
 
         builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
-            targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, Intent())
+            setFragmentResult("EditFilmStockDialog", Bundle())
         }.setPositiveButton(positiveButtonText, null)
 
         val dialog = builder.create()
@@ -72,9 +71,9 @@ class EditFilmStockDialog : DialogFragment() {
                 filmStock.process = binding.spinnerFilmProcess.selectedItemPosition
 
                 dialog.dismiss()
-                val intent = Intent()
-                intent.putExtra(ExtraKeys.FILM_STOCK, filmStock)
-                targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
+                val bundle = Bundle()
+                bundle.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
+                setFragmentResult("EditFilmStockDialog", bundle)
             }
         }
 

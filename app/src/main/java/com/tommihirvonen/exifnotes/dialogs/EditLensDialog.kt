@@ -1,16 +1,15 @@
 package com.tommihirvonen.exifnotes.dialogs
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerBinding
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerButtonsBinding
@@ -207,8 +206,7 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
         // FINALISE BUILDING THE DIALOG
         alert.setPositiveButton(positiveButton, null)
         alert.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
-            val intent = Intent()
-            targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, intent)
+            setFragmentResult("EditLensDialog", Bundle())
         }
         val dialog = alert.create()
 
@@ -241,10 +239,10 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
                 lens.maxFocalLength = newLens.maxFocalLength
 
                 // Return the new entered name to the calling activity
-                val intent = Intent()
-                intent.putExtra(ExtraKeys.LENS, lens)
+                val bundle = Bundle()
+                bundle.putParcelable(ExtraKeys.LENS, lens)
+                setFragmentResult("EditLensDialog", bundle)
                 dialog.dismiss()
-                targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
             }
         }
         return dialog

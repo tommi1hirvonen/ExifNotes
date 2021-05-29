@@ -1,17 +1,17 @@
 package com.tommihirvonen.exifnotes.dialogs
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogCameraBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
@@ -33,7 +33,6 @@ class EditCameraDialog : DialogFragment() {
          * Public constant used to tag the fragment when created
          */
         const val TAG = "EditCameraDialog"
-        private const val EDIT_LENS = 1
     }
 
     private lateinit var binding: DialogCameraBinding
@@ -176,7 +175,6 @@ class EditCameraDialog : DialogFragment() {
         }
         binding.fixedLensLayout.setOnClickListener {
             val dialog = EditLensDialog(fixedLens = true)
-            dialog.setTargetFragment(this@EditCameraDialog, EDIT_LENS)
             val arguments = Bundle()
             newCamera.lens?.let {
                 arguments.putParcelable(ExtraKeys.LENS, it)
@@ -185,6 +183,13 @@ class EditCameraDialog : DialogFragment() {
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
             dialog.arguments = arguments
             dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
+            dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
+                val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
+                    ?: return@setFragmentResultListener
+                newCamera.lens = lens
+                binding.fixedLensText.text = resources.getString(R.string.ClickToEdit)
+                binding.lensClear.visibility = View.VISIBLE
+            }
         }
         binding.lensClear.setOnClickListener {
             newCamera.lens = null
@@ -196,8 +201,7 @@ class EditCameraDialog : DialogFragment() {
         // FINALISE BUILDING THE DIALOG
         alert.setPositiveButton(positiveButton, null)
         alert.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
-            val intent = Intent()
-            targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, intent)
+            setFragmentResult("EditCameraDialog", Bundle())
         }
         val dialog = alert.create()
 
@@ -260,23 +264,13 @@ class EditCameraDialog : DialogFragment() {
                 }
 
                 // Return the new entered name to the calling activity
-                val intent = Intent()
-                intent.putExtra(ExtraKeys.CAMERA, camera)
+                val bundle = Bundle()
+                bundle.putParcelable(ExtraKeys.CAMERA, camera)
+                setFragmentResult("EditCameraDialog", bundle)
                 dialog.dismiss()
-                targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
             }
         }
         return dialog
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == EDIT_LENS && resultCode == Activity.RESULT_OK) {
-            // After Ok code.
-            val lens: Lens = data?.getParcelableExtra(ExtraKeys.LENS) ?: return
-            newCamera.lens = lens
-            binding.fixedLensText.text = resources.getString(R.string.ClickToEdit)
-            binding.lensClear.visibility = View.VISIBLE
-        }
     }
 
     /**
