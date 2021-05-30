@@ -138,6 +138,12 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         when (preference) {
             is UIColorDialogPreference -> {
                 val dialogFragment = UIColorPreferenceDialogFragment(preference.getKey())
+                // Here we can safely suppress deprecation warnings, because we aren't
+                // actually communicating/passing data between two fragments.
+                // PreferenceDialogFragmentCompat requires target fragment to be set,
+                // which is we setTargetFragment() needs to be called. Currently there
+                // seems to be no other workaround.
+                @Suppress("DEPRECATION")
                 dialogFragment.setTargetFragment(this, 0)
                 dialogFragment.show(parentFragmentManager, null)
             }
