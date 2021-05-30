@@ -6,11 +6,12 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.fragments.CamerasFragment
 import com.tommihirvonen.exifnotes.fragments.FilmStocksFragment
@@ -19,6 +20,7 @@ import com.tommihirvonen.exifnotes.fragments.LensesFragment
 import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
 import com.tommihirvonen.exifnotes.utilities.primaryUiColor
 import com.tommihirvonen.exifnotes.utilities.setUiColor
+import java.lang.IllegalArgumentException
 
 /**
  * GearActivity contains fragments for adding, editing and removing cameras, lenses and filters.
@@ -50,7 +52,7 @@ class GearActivity : AppCompatActivity() {
     /**
      * ViewPager is responsible for changing the layout when the user swipes or clicks on a tab.
      */
-    private lateinit var viewPager: ViewPager
+    private lateinit var viewPager: ViewPager2
 
     /**
      * PagerAdapter adapts fragments to show in the ViewPager
@@ -69,12 +71,21 @@ class GearActivity : AppCompatActivity() {
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = findViewById(R.id.viewpager)
-        pagerAdapter = PagerAdapter(supportFragmentManager)
+        pagerAdapter = PagerAdapter(this)
         viewPager.adapter = pagerAdapter
 
         // Give the TabLayout the ViewPager
         tabLayout = findViewById(R.id.sliding_tabs)
-        tabLayout.setupWithViewPager(viewPager)
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            // Set tab title
+            tab.text = when (position) {
+                POSITION_FILMS -> applicationContext.resources.getString(R.string.FilmStocks)
+                POSITION_FILTERS -> applicationContext.resources.getString(R.string.Filters)
+                POSITION_LENSES -> applicationContext.resources.getString(R.string.Lenses)
+                POSITION_CAMERAS -> applicationContext.resources.getString(R.string.Cameras)
+                else -> "Error"
+            }
+        }.attach()
         tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white))
         tabLayout.setBackgroundColor(primaryUiColor)
 
@@ -104,44 +115,44 @@ class GearActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val filmStocksFragment = pagerAdapter.getItem(POSITION_FILMS) as FilmStocksFragment
+        val filmStocksFragment = pagerAdapter.fragments[POSITION_FILMS] as FilmStocksFragment?
         when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
                 return true
             }
             R.id.sort_mode_film_stock_name -> {
-                filmStocksFragment.setSortMode(FilmStocksFragment.SORT_MODE_NAME, true)
+                filmStocksFragment?.setSortMode(FilmStocksFragment.SORT_MODE_NAME, true)
                 item.isChecked = true
                 return true
             }
             R.id.sort_mode_film_stock_iso -> {
-                filmStocksFragment.setSortMode(FilmStocksFragment.SORT_MODE_ISO, true)
+                filmStocksFragment?.setSortMode(FilmStocksFragment.SORT_MODE_ISO, true)
                 item.isChecked = true
                 return true
             }
             R.id.filter_mode_film_manufacturer -> {
-                filmStocksFragment.showManufacturerFilterDialog()
+                filmStocksFragment?.showManufacturerFilterDialog()
                 return true
             }
             R.id.filter_mode_added_by -> {
-                filmStocksFragment.showAddedByFilterDialog()
+                filmStocksFragment?.showAddedByFilterDialog()
                 return true
             }
             R.id.filter_mode_film_iso -> {
-                filmStocksFragment.showIsoValuesFilterDialog()
+                filmStocksFragment?.showIsoValuesFilterDialog()
                 return true
             }
             R.id.filter_mode_film_type -> {
-                filmStocksFragment.showFilmTypeFilterDialog()
+                filmStocksFragment?.showFilmTypeFilterDialog()
                 return true
             }
             R.id.filter_mode_film_process -> {
-                filmStocksFragment.showFilmProcessFilterDialog()
+                filmStocksFragment?.showFilmProcessFilterDialog()
                 return true
             }
             R.id.filter_mode_reset -> {
-                filmStocksFragment.resetFilters()
+                filmStocksFragment?.resetFilters()
                 return true
             }
         }
@@ -164,8 +175,8 @@ class GearActivity : AppCompatActivity() {
             menu.findItem(R.id.filter_mode_reset).isEnabled = false
         } else {
             // When the options menu is opened, set the correct items to be preselected.
-            val fragment = pagerAdapter.getItem(3) as FilmStocksFragment
-            when (fragment.sortMode) {
+            val fragment = pagerAdapter.fragments[POSITION_FILMS] as FilmStocksFragment?
+            when (fragment?.sortMode) {
                 FilmStocksFragment.SORT_MODE_NAME -> menu.findItem(R.id.sort_mode_film_stock_name).isChecked = true
                 FilmStocksFragment.SORT_MODE_ISO -> menu.findItem(R.id.sort_mode_film_stock_iso).isChecked = true
             }
@@ -191,63 +202,38 @@ class GearActivity : AppCompatActivity() {
     fun updateFragments() {
         when (viewPager.currentItem) {
             POSITION_CAMERAS -> {
-                (pagerAdapter.getItem(POSITION_LENSES) as LensesFragment).updateFragment()
+                (pagerAdapter.fragments[POSITION_LENSES] as LensesFragment).updateFragment()
+                (pagerAdapter.fragments[POSITION_FILTERS] as FiltersFragment).updateFragment()
             }
             POSITION_LENSES -> {
-                (pagerAdapter.getItem(POSITION_CAMERAS) as CamerasFragment).updateFragment()
-                (pagerAdapter.getItem(POSITION_FILTERS) as FiltersFragment).updateFragment()
+                (pagerAdapter.fragments[POSITION_CAMERAS] as CamerasFragment).updateFragment()
+                (pagerAdapter.fragments[POSITION_FILTERS] as FiltersFragment).updateFragment()
             }
             POSITION_FILTERS -> {
-                (pagerAdapter.getItem(POSITION_LENSES) as LensesFragment).updateFragment()
+                (pagerAdapter.fragments[POSITION_LENSES] as LensesFragment).updateFragment()
             }
         }
     }
 
     /**
      * Manages the fragments inside GearActivity.
-     * This class is also attached to the TabLayout used to switch between the fragments.
      */
-    private inner class PagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    private inner class PagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
 
-        private var lensesFragment: Fragment? = null
-        private var camerasFragment: Fragment? = null
-        private var filtersFragment: Fragment? = null
-        private var filmStocksFragment: Fragment? = null
+        val fragments: MutableMap<Int, Fragment> = mutableMapOf()
 
-        override fun getItem(position: Int): Fragment {
-            when (position) {
-                POSITION_FILMS -> {
-                    if (filmStocksFragment == null) filmStocksFragment = FilmStocksFragment()
-                    return filmStocksFragment!!
-                }
-                POSITION_FILTERS -> {
-                    if (filtersFragment == null) filtersFragment = FiltersFragment()
-                    return filtersFragment!!
-                }
-                POSITION_LENSES -> {
-                    if (lensesFragment == null) lensesFragment = LensesFragment()
-                    return lensesFragment!!
-                }
-                POSITION_CAMERAS -> {
-                    if (camerasFragment == null) camerasFragment = CamerasFragment()
-                    return camerasFragment!!
-                }
+        override fun getItemCount(): Int = PAGE_COUNT
+
+        override fun createFragment(position: Int): Fragment {
+            val fragment = when (position) {
+                POSITION_FILMS -> FilmStocksFragment()
+                POSITION_FILTERS -> FiltersFragment()
+                POSITION_LENSES -> LensesFragment()
+                POSITION_CAMERAS -> CamerasFragment()
+                else -> throw IllegalArgumentException("Illegal fragment position $position")
             }
-            return Fragment()
-        }
-
-        override fun getCount(): Int {
-            return PAGE_COUNT
-        }
-
-        override fun getPageTitle(position: Int): CharSequence? {
-            when (position) {
-                POSITION_FILMS -> return applicationContext.resources.getString(R.string.FilmStocks)
-                POSITION_FILTERS -> return applicationContext.resources.getString(R.string.Filters)
-                POSITION_LENSES -> return applicationContext.resources.getString(R.string.Lenses)
-                POSITION_CAMERAS -> return applicationContext.resources.getString(R.string.Cameras)
-            }
-            return null
+            fragments[position] = fragment
+            return fragment
         }
 
     }
