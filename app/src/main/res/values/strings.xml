@@ -337,12 +337,14 @@
     </string>
     <string name="Updates">Updates in this version:
         \n\n-Fixed lens cameras: you can now add/edit fixed-lens cameras in gear settings. When adding frames with a camera that has a fixed-lens, you cannot select a lens in the frame\'s properties. The lens settings from the camera will be applied when adding new frames or editing existing frames. Filters can be linked to fixed-lens cameras in the gear settings.
+        \n-Replaced deprecated API/method calls, code refactoring
         \n-Library updates
         \n
     </string>
     <string name="VersionHistory">Version history
-        \n\nv1.17.0 2021-05-26:
+        \n\nv1.17.0 2021-05-30:
         \n-Fixed lens cameras: you can now add/edit fixed-lens cameras in gear settings. When adding frames with a camera that has a fixed-lens, you cannot select a lens in the frame\'s properties. The lens settings from the camera will be applied when adding new frames or editing existing frames. Filters can be linked to fixed-lens cameras in the gear settings.
+        \n-Replaced deprecated API/method calls, code refactoring
         \n-Library updates
         \n\nv1.16.1 2021-04-29:
         \n-Fixes a bug which caused B (bulb) to be incorrectly preselected as the shutter speed value for new frames if previous frame\'s shutter speed value was empty
