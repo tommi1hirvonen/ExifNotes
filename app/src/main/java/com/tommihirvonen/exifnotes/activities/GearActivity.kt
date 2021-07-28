@@ -202,15 +202,15 @@ class GearActivity : AppCompatActivity() {
     fun updateFragments() {
         when (viewPager.currentItem) {
             POSITION_CAMERAS -> {
-                (pagerAdapter.fragments[POSITION_LENSES] as LensesFragment).updateFragment()
-                (pagerAdapter.fragments[POSITION_FILTERS] as FiltersFragment).updateFragment()
+                (pagerAdapter.fragments[POSITION_LENSES] as LensesFragment?)?.updateFragment()
+                (pagerAdapter.fragments[POSITION_FILTERS] as FiltersFragment?)?.updateFragment()
             }
             POSITION_LENSES -> {
-                (pagerAdapter.fragments[POSITION_CAMERAS] as CamerasFragment).updateFragment()
-                (pagerAdapter.fragments[POSITION_FILTERS] as FiltersFragment).updateFragment()
+                (pagerAdapter.fragments[POSITION_CAMERAS] as CamerasFragment?)?.updateFragment()
+                (pagerAdapter.fragments[POSITION_FILTERS] as FiltersFragment?)?.updateFragment()
             }
             POSITION_FILTERS -> {
-                (pagerAdapter.fragments[POSITION_LENSES] as LensesFragment).updateFragment()
+                (pagerAdapter.fragments[POSITION_LENSES] as LensesFragment?)?.updateFragment()
             }
         }
     }
