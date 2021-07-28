@@ -268,11 +268,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
-
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -281,6 +276,11 @@
                 android:background="?android:attr/selectableItemBackground"
                 tools:ignore="KeyboardInaccessibleWidget"
                 >
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/iconTintColorSecondary" />
 
                 <!--LENS-->
                 <LinearLayout
