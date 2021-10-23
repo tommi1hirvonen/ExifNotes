@@ -36,7 +36,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
     /**
      * Adapter used to adapt filterList to binding.filtersRecyclerView
      */
-    private lateinit var filterAdapter: GearAdapter
+    private var filterAdapter: GearAdapter? = null
 
     /**
      * Contains all filters from the database
@@ -81,7 +81,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
         // Set the ListView to use the ArrayAdapter
         binding.filtersRecyclerView.adapter = filterAdapter
         if (filterList.size >= 1) binding.noAddedFilters.visibility = View.GONE
-        filterAdapter.notifyDataSetChanged()
+        filterAdapter?.notifyDataSetChanged()
         return binding.root
     }
 
@@ -102,7 +102,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                     filterList.add(filter)
                     filterList.sort()
                     val listPos = filterList.indexOf(filter)
-                    filterAdapter.notifyItemInserted(listPos)
+                    filterAdapter?.notifyItemInserted(listPos)
 
                     // When the lens is added jump to view the last entry
                     binding.filtersRecyclerView.scrollToPosition(listPos)
@@ -149,7 +149,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                         // Remove the filter from the filterList. Do this last!
                         filterList.removeAt(position)
                         if (filterList.size == 0) binding.noAddedFilters.visibility = View.VISIBLE
-                        filterAdapter.notifyItemRemoved(position)
+                        filterAdapter?.notifyItemRemoved(position)
 
                         // Update the LensesFragment through the parent activity.
                         val gearActivity = requireActivity() as GearActivity
@@ -175,8 +175,8 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                             val oldPos = filterList.indexOf(filter1)
                             filterList.sort()
                             val newPos = filterList.indexOf(filter1)
-                            filterAdapter.notifyItemChanged(oldPos)
-                            filterAdapter.notifyItemMoved(oldPos, newPos)
+                            filterAdapter?.notifyItemChanged(oldPos)
+                            filterAdapter?.notifyItemMoved(oldPos, newPos)
                             binding.filtersRecyclerView.scrollToPosition(newPos)
 
                             // Update the LensesFragment through the parent activity.
@@ -238,7 +238,7 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                         database.deleteLensFilterLink(filter, it.gear as Lens)
                     }
 
-                    filterAdapter.notifyItemChanged(position)
+                    filterAdapter?.notifyItemChanged(position)
 
                     // Update the LensesFragment through the parent activity.
                     val myActivity = requireActivity() as GearActivity
@@ -252,8 +252,9 @@ class FiltersFragment : Fragment(), View.OnClickListener {
     /**
      * Public method to update the contents of this fragment's ListView
      */
+    @SuppressLint("NotifyDataSetChanged")
     fun updateFragment() {
-        filterAdapter.notifyDataSetChanged()
+        filterAdapter?.notifyDataSetChanged()
     }
 
 }

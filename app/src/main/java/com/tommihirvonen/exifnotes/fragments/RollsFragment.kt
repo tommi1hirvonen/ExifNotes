@@ -234,7 +234,13 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         super.onPrepareOptionsMenu(menu)
     }
 
-    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+        // Update fragment after the user navigates back from the GearActivity.
+        // Cameras might have been edited, so they need to be reloaded.
+        updateFragment(true)
+    }
+
+    private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         // If a new database was imported, update the contents of RollsFragment.
         if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED ==
             PreferenceActivity.RESULT_DATABASE_IMPORTED) {
@@ -251,11 +257,11 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         when (item.itemId) {
             R.id.menu_item_gear -> {
                 val gearActivityIntent = Intent(activity, GearActivity::class.java)
-                startActivity(gearActivityIntent)
+                gearResultLauncher.launch(gearActivityIntent)
             }
             R.id.menu_item_preferences -> {
                 val preferenceActivityIntent = Intent(activity, PreferenceActivity::class.java)
-                resultLauncher.launch(preferenceActivityIntent)
+                preferenceResultLauncher.launch(preferenceActivityIntent)
             }
             R.id.menu_item_show_on_map -> {
 
