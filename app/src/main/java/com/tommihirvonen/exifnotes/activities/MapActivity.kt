@@ -264,12 +264,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         markerList.clear()
         selectedRolls.forEach { triple ->
             val frames = triple.third
+            val bitmap = triple.second ?: return
             frames.forEach frames@ { frame ->
                 val location = frame.location ?: return@frames
                 val position = location.latLng ?: return@frames
                 val rollName = triple.first.name
                 val frameCount = "#" + frame.count
-                val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(triple.second)
+                val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bitmap)
                 val marker = googleMap?.addMarker(MarkerOptions()
                         .icon(bitmapDescriptor)
                         .position(position)
