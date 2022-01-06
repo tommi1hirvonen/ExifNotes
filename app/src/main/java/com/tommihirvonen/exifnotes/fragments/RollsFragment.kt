@@ -234,7 +234,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         super.onPrepareOptionsMenu(menu)
     }
 
-    private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+    private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         // Update fragment after the user navigates back from the GearActivity.
         // Cameras might have been edited, so they need to be reloaded.
         updateFragment(true)

@@ -222,7 +222,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             val cursor = requireContext().contentResolver.query(databaseUri,
                     null, null, null, null)
             cursor!!.moveToFirst()
-            val name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+            val name = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
             if (FilenameUtils.getExtension(name) != "db") {
                 Toast.makeText(context, "Not a valid .db file!", Toast.LENGTH_SHORT).show()
                 return

@@ -210,7 +210,7 @@ class Database private constructor(private val context: Context)
     val allComplementaryPictureFilenames: List<String> get() {
         val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf(KEY_PICTURE_FILENAME),
                 "$KEY_PICTURE_FILENAME IS NOT NULL", null, null, null, null)
-        return cursor.map { it.getString(it.getColumnIndex(KEY_PICTURE_FILENAME)) }.also { cursor.close() }
+        return cursor.map { it.getString(it.getColumnIndexOrThrow(KEY_PICTURE_FILENAME)) }.also { cursor.close() }
     }
 
     // ******************** CRUD operations for the lenses table ********************
@@ -627,7 +627,7 @@ class Database private constructor(private val context: Context)
     val allFilmManufacturers: List<String> get() {
         val cursor = readableDatabase.query(true, TABLE_FILM_STOCKS, arrayOf(KEY_FILM_MANUFACTURER_NAME),
                 null, null, null, null, "$KEY_FILM_MANUFACTURER_NAME collate nocase", null)
-        return cursor.map { it.getString(it.getColumnIndex(KEY_FILM_MANUFACTURER_NAME)) }.also { cursor.close() }
+        return cursor.map { it.getString(it.getColumnIndexOrThrow(KEY_FILM_MANUFACTURER_NAME)) }.also { cursor.close() }
     }
 
     fun isFilmStockBeingUsed(filmStock: FilmStock): Boolean {
@@ -665,28 +665,28 @@ class Database private constructor(private val context: Context)
      * @return reference to the Frame object given as the parameter
      */
     private fun getFrameFromCursor(cursor: Cursor, frame: Frame): Frame {
-        frame.id = cursor.getLong(cursor.getColumnIndex(KEY_FRAME_ID))
-        frame.count = cursor.getInt(cursor.getColumnIndex(KEY_COUNT))
-        val date = cursor.getString(cursor.getColumnIndex(KEY_DATE))
+        frame.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FRAME_ID))
+        frame.count = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COUNT))
+        val date = cursor.getString(cursor.getColumnIndexOrThrow(KEY_DATE))
         if (date != null) frame.date = DateTime(date)
-        val lensId = cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID))
+        val lensId = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_LENS_ID))
         if (lensId > 0) frame.lens = getLens(lensId)
-        frame.shutter = cursor.getString(cursor.getColumnIndex(KEY_SHUTTER))
-        frame.aperture = cursor.getString(cursor.getColumnIndex(KEY_APERTURE))
-        frame.note = cursor.getString(cursor.getColumnIndex(KEY_FRAME_NOTE))
-        val location = cursor.getString(cursor.getColumnIndex(KEY_LOCATION))
+        frame.shutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_SHUTTER))
+        frame.aperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_APERTURE))
+        frame.note = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FRAME_NOTE))
+        val location = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LOCATION))
         if (location != null) frame.location = Location(location)
-        frame.focalLength = cursor.getInt(cursor.getColumnIndex(KEY_FOCAL_LENGTH))
-        frame.exposureComp = cursor.getString(cursor.getColumnIndex(KEY_EXPOSURE_COMP))
-        frame.noOfExposures = cursor.getInt(cursor.getColumnIndex(KEY_NO_OF_EXPOSURES))
-        val flashUsed = cursor.getInt(cursor.getColumnIndex(KEY_FLASH_USED))
+        frame.focalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FOCAL_LENGTH))
+        frame.exposureComp = cursor.getString(cursor.getColumnIndexOrThrow(KEY_EXPOSURE_COMP))
+        frame.noOfExposures = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_NO_OF_EXPOSURES))
+        val flashUsed = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FLASH_USED))
         frame.flashUsed = flashUsed > 0
-        frame.flashPower = cursor.getString(cursor.getColumnIndex(KEY_FLASH_POWER))
-        frame.flashComp = cursor.getString(cursor.getColumnIndex(KEY_FLASH_COMP))
-        frame.meteringMode = cursor.getInt(cursor.getColumnIndex(KEY_METERING_MODE))
-        frame.formattedAddress = cursor.getString(cursor.getColumnIndex(KEY_FORMATTED_ADDRESS))
-        frame.pictureFilename = cursor.getString(cursor.getColumnIndex(KEY_PICTURE_FILENAME))
-        frame.lightSource = cursor.getInt(cursor.getColumnIndex(KEY_LIGHT_SOURCE))
+        frame.flashPower = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FLASH_POWER))
+        frame.flashComp = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FLASH_COMP))
+        frame.meteringMode = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_METERING_MODE))
+        frame.formattedAddress = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FORMATTED_ADDRESS))
+        frame.pictureFilename = cursor.getString(cursor.getColumnIndexOrThrow(KEY_PICTURE_FILENAME))
+        frame.lightSource = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LIGHT_SOURCE))
         frame.filters = getLinkedFilters(frame).toMutableList()
         return frame
     }
@@ -710,23 +710,23 @@ class Database private constructor(private val context: Context)
      * @return reference to the Roll object given as the parameter
      */
     private fun getRollFromCursor(cursor: Cursor, roll: Roll): Roll {
-        roll.id = cursor.getLong(cursor.getColumnIndex(KEY_ROLL_ID))
-        roll.name = cursor.getString(cursor.getColumnIndex(KEY_ROLLNAME))
-        val date = cursor.getString(cursor.getColumnIndex(KEY_ROLL_DATE))
+        roll.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_ROLL_ID))
+        roll.name = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLLNAME))
+        val date = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_DATE))
         if (date != null) roll.date = DateTime(date)
-        roll.note = cursor.getString(cursor.getColumnIndex(KEY_ROLL_NOTE))
-        val cameraId = cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID))
+        roll.note = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_NOTE))
+        val cameraId = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_CAMERA_ID))
         if (cameraId > 0) roll.camera = getCamera(cameraId)
-        roll.iso = cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ISO))
-        roll.pushPull = cursor.getString(cursor.getColumnIndex(KEY_ROLL_PUSH))
-        roll.format = cursor.getInt(cursor.getColumnIndex(KEY_ROLL_FORMAT))
-        val archived = cursor.getInt(cursor.getColumnIndex(KEY_ROLL_ARCHIVED))
+        roll.iso = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_ISO))
+        roll.pushPull = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_PUSH))
+        roll.format = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_FORMAT))
+        val archived = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_ARCHIVED))
         roll.archived = archived > 0
-        val filmStockId = cursor.getInt(cursor.getColumnIndex(KEY_FILM_STOCK_ID)).toLong()
+        val filmStockId = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_ID)).toLong()
         if (filmStockId > 0) roll.filmStock = getFilmStock(filmStockId)
-        val unloaded = cursor.getString(cursor.getColumnIndex(KEY_ROLL_UNLOADED))
+        val unloaded = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_UNLOADED))
         if (unloaded != null) roll.unloaded = DateTime(unloaded)
-        val developed = cursor.getString(cursor.getColumnIndex(KEY_ROLL_DEVELOPED))
+        val developed = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_DEVELOPED))
         if (developed != null) roll.developed = DateTime(developed)
         return roll
     }
@@ -750,15 +750,15 @@ class Database private constructor(private val context: Context)
      * @return reference to the Lens object given as the parameter
      */
     private fun getLensFromCursor(cursor: Cursor, lens: Lens): Lens {
-        lens.id = cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID))
-        lens.make = cursor.getString(cursor.getColumnIndex(KEY_LENS_MAKE))
-        lens.model = cursor.getString(cursor.getColumnIndex(KEY_LENS_MODEL))
-        lens.serialNumber = cursor.getString(cursor.getColumnIndex(KEY_LENS_SERIAL_NO))
-        lens.minAperture = cursor.getString(cursor.getColumnIndex(KEY_LENS_MIN_APERTURE))
-        lens.maxAperture = cursor.getString(cursor.getColumnIndex(KEY_LENS_MAX_APERTURE))
-        lens.minFocalLength = cursor.getInt(cursor.getColumnIndex(KEY_LENS_MIN_FOCAL_LENGTH))
-        lens.maxFocalLength = cursor.getInt(cursor.getColumnIndex(KEY_LENS_MAX_FOCAL_LENGTH))
-        val incrementIndex = cursor.getInt(cursor.getColumnIndex(KEY_LENS_APERTURE_INCREMENTS))
+        lens.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_LENS_ID))
+        lens.make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MAKE))
+        lens.model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MODEL))
+        lens.serialNumber = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_SERIAL_NO))
+        lens.minAperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MIN_APERTURE))
+        lens.maxAperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MAX_APERTURE))
+        lens.minFocalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_MIN_FOCAL_LENGTH))
+        lens.maxFocalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_MAX_FOCAL_LENGTH))
+        val incrementIndex = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_APERTURE_INCREMENTS))
         lens.apertureIncrements = Increment.from(incrementIndex)
         return lens
     }
@@ -782,17 +782,17 @@ class Database private constructor(private val context: Context)
      * @return reference to the Camera object given as the parameter
      */
     private fun getCameraFromCursor(cursor: Cursor, camera: Camera): Camera {
-        camera.id = cursor.getLong(cursor.getColumnIndex(KEY_CAMERA_ID))
-        camera.make = cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAKE))
-        camera.model = cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MODEL))
-        camera.serialNumber = cursor.getString(cursor.getColumnIndex(KEY_CAMERA_SERIAL_NO))
-        camera.minShutter = cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MIN_SHUTTER))
-        camera.maxShutter = cursor.getString(cursor.getColumnIndex(KEY_CAMERA_MAX_SHUTTER))
-        val shutterIncrementIndex = cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_SHUTTER_INCREMENTS))
+        camera.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_CAMERA_ID))
+        camera.make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MAKE))
+        camera.model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MODEL))
+        camera.serialNumber = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_SERIAL_NO))
+        camera.minShutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MIN_SHUTTER))
+        camera.maxShutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MAX_SHUTTER))
+        val shutterIncrementIndex = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_CAMERA_SHUTTER_INCREMENTS))
         camera.shutterIncrements = Increment.from(shutterIncrementIndex)
-        val compIncrementIndex = cursor.getInt(cursor.getColumnIndex(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS))
+        val compIncrementIndex = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS))
         camera.exposureCompIncrements = PartialIncrement.from(compIncrementIndex)
-        val lensId = cursor.getLong(cursor.getColumnIndex(KEY_LENS_ID))
+        val lensId = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_LENS_ID))
         if (lensId > 0) camera.lens = getLens(lensId)
         return camera
     }
@@ -816,9 +816,9 @@ class Database private constructor(private val context: Context)
      * @return reference to the Filter object given as the parameter
      */
     private fun getFilterFromCursor(cursor: Cursor, filter: Filter): Filter {
-        filter.id = cursor.getLong(cursor.getColumnIndex(KEY_FILTER_ID))
-        filter.make = cursor.getString(cursor.getColumnIndex(KEY_FILTER_MAKE))
-        filter.model = cursor.getString(cursor.getColumnIndex(KEY_FILTER_MODEL))
+        filter.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FILTER_ID))
+        filter.make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILTER_MAKE))
+        filter.model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILTER_MODEL))
         return filter
     }
 
@@ -830,13 +830,13 @@ class Database private constructor(private val context: Context)
      * @return reference to the FilmStock object given as the parameter
      */
     private fun getFilmStockFromCursor(cursor: Cursor, filmStock: FilmStock): FilmStock {
-        filmStock.id = cursor.getLong(cursor.getColumnIndex(KEY_FILM_STOCK_ID))
-        filmStock.make = cursor.getString(cursor.getColumnIndex(KEY_FILM_MANUFACTURER_NAME))
-        filmStock.model = cursor.getString(cursor.getColumnIndex(KEY_FILM_STOCK_NAME))
-        filmStock.iso = cursor.getInt(cursor.getColumnIndex(KEY_FILM_ISO))
-        filmStock.type = cursor.getInt(cursor.getColumnIndex(KEY_FILM_TYPE))
-        filmStock.process = cursor.getInt(cursor.getColumnIndex(KEY_FILM_PROCESS))
-        val preadded = cursor.getInt(cursor.getColumnIndex(KEY_FILM_IS_PREADDED))
+        filmStock.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_ID))
+        filmStock.make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILM_MANUFACTURER_NAME))
+        filmStock.model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_NAME))
+        filmStock.iso = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_ISO))
+        filmStock.type = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_TYPE))
+        filmStock.process = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_PROCESS))
+        val preadded = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_IS_PREADDED))
         filmStock.isPreadded = preadded > 0
         return filmStock
     }
@@ -1192,10 +1192,10 @@ class Database private constructor(private val context: Context)
             var foreignKeyFound = false
             //Iterate through the tables foreign key columns and get the properties.
             while (foreignKeyCursor.moveToNext()) {
-                val table = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndex("table"))
-                val from = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndex("from"))
-                val onDelete = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndex("on_delete"))
-                val to = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndex("to"))
+                val table = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndexOrThrow("table"))
+                val from = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndexOrThrow("from"))
+                val onDelete = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndexOrThrow("on_delete"))
+                val to = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndexOrThrow("to"))
                 //If the table, from-column and on-delete actions match to those defined
                 //by the parameters, the foreign key is correct. The to-column value
                 //should be null, because during table creation we have used the shorthand form
@@ -1215,13 +1215,13 @@ class Database private constructor(private val context: Context)
 
         //Iterate the result rows...
         while (cursor.moveToNext()) {
-            val columnName = cursor.getString(cursor.getColumnIndex("name"))
+            val columnName = cursor.getString(cursor.getColumnIndexOrThrow("name"))
             // ...until the name checks.
             if (columnName == columnNameInput) {
-                val columnType = cursor.getString(cursor.getColumnIndex("type"))
-                val notNull = cursor.getInt(cursor.getColumnIndex("notnull"))
+                val columnType = cursor.getString(cursor.getColumnIndexOrThrow("type"))
+                val notNull = cursor.getInt(cursor.getColumnIndexOrThrow("notnull"))
                 //If the column is defined as primary key, the pk value is 1.
-                val primaryKey = cursor.getInt(cursor.getColumnIndex("pk")) > 0
+                val primaryKey = cursor.getInt(cursor.getColumnIndexOrThrow("pk")) > 0
                 cursor.close()
 
                 //Check that the attributes are correct and return the result
