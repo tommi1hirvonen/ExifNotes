@@ -306,7 +306,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     val (_, addressResult) = Utilities.getGeocodeData(location.decimalLocation,
                             resources.getString(R.string.google_maps_key))
-                    newFrame.formattedAddress = if (addressResult.isNotEmpty()) addressResult else null
+                    newFrame.formattedAddress = addressResult.ifEmpty { null }
                     binding.locationProgressBar.visibility = View.INVISIBLE
                     updateLocationTextView()
                 }

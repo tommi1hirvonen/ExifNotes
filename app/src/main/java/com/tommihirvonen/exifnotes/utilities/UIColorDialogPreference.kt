@@ -9,7 +9,7 @@ import com.tommihirvonen.exifnotes.R
 /**
  * Custom DialogPreference added to PreferenceFragment via fragment_preference.xml
  */
-class UIColorDialogPreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs) {
+class UIColorDialogPreference(context: Context, attrs: AttributeSet?) : DialogPreference(context, attrs) {
     /**
      * Names for the UI color options
      */

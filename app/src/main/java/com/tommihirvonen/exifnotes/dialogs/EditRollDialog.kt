@@ -18,7 +18,6 @@ import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.*
-import java.util.*
 
 /**
  * Dialog to edit Roll's information

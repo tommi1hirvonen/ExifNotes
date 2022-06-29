@@ -95,9 +95,9 @@ val Context.isAppThemeDark: Boolean get() =
 
 fun String.illegalCharsRemoved(): String = replace("[|\\\\?*<\":>/]".toRegex(), "_")
 
-class AboutDialogPreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs)
+class AboutDialogPreference(context: Context, attrs: AttributeSet?) : DialogPreference(context, attrs)
 
-class HelpDialogPreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs)
+class HelpDialogPreference(context: Context, attrs: AttributeSet?) : DialogPreference(context, attrs)
 
 object Utilities {
 

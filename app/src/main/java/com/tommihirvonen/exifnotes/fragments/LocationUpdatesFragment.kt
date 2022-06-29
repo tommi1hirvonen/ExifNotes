@@ -35,7 +35,7 @@ abstract class LocationUpdatesFragment : Fragment() {
             locationRequest = LocationRequest.create().apply {
                 interval = 10 * 1000.toLong() // 10 seconds
                 fastestInterval = 1000 // 1 second
-                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                priority = Priority.PRIORITY_HIGH_ACCURACY
             }
         }
 

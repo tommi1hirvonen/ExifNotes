@@ -340,12 +340,12 @@ object ComplementaryPicturesManager {
             return false to 0
         }
         val filter = FilenameFilter { _: File?, s: String? -> complementaryPictureFilenames.contains(s) }
-        val files = picturesDirectory.listFiles(filter)
+        val files = picturesDirectory.listFiles(filter) ?: emptyArray()
         // If files is empty, no zip file will be created in ZipFileCreatorAsyncTask
-        if (files != null) {
+        if (files.isNotEmpty()) {
             return ZipFileWriter(activity, files, targetFile).export()
         }
-        return false to 0
+        return true to 0
     }
 
     /**

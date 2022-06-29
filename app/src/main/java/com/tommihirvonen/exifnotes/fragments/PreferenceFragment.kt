@@ -21,8 +21,6 @@ import com.tommihirvonen.exifnotes.utilities.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.apache.commons.io.FilenameUtils
-import org.apache.commons.io.IOUtils
 import java.io.*
 
 /**
@@ -163,11 +161,11 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
 
     override fun onResume() {
         super.onResume()
-        preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        preferenceManager.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
-        preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        preferenceManager.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
         super.onPause()
     }
 
@@ -189,8 +187,8 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             val outputDir = requireContext().externalCacheDir
             val outputFile = File.createTempFile("pictures", ".zip", outputDir)
             val outputStream: OutputStream = FileOutputStream(outputFile)
-            IOUtils.copy(inputStream, outputStream)
-            inputStream!!.close()
+            inputStream!!.copyTo(outputStream)
+            inputStream.close()
             outputStream.close()
             outputFile.absolutePath
         } catch (e: IOException) {
@@ -223,7 +221,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
                     null, null, null, null)
             cursor!!.moveToFirst()
             val name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-            if (FilenameUtils.getExtension(name) != "db") {
+            if (File(name).extension != "db") {
                 Toast.makeText(context, "Not a valid .db file!", Toast.LENGTH_SHORT).show()
                 return
             }
@@ -234,11 +232,11 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             val outputDir = requireContext().externalCacheDir
             val outputFile = File.createTempFile("database", ".db", outputDir)
             val outputStream: OutputStream = FileOutputStream(outputFile)
-            IOUtils.copy(inputStream, outputStream)
-            inputStream!!.close()
+            inputStream!!.copyTo(outputStream)
+            inputStream.close()
             outputStream.close()
             val filePath = outputFile.absolutePath
-            val extension = FilenameUtils.getExtension(outputFile.name)
+            val extension = outputFile.extension
 
             //If the length of filePath is 0, then the user canceled the import.
             if (filePath.isNotEmpty() && extension == "db") {
@@ -290,9 +288,9 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
                         @Suppress("BlockingMethodInNonBlockingContext")
                         withContext(Dispatchers.IO) {
                             val inputStream: InputStream = FileInputStream(inputFile)
-                            IOUtils.copy(inputStream, outputStream)
+                            inputStream.copyTo(outputStream!!)
                             inputStream.close()
-                            outputStream?.close()
+                            outputStream.close()
                         }
                         Toast.makeText(activity, resources.getQuantityString(R.plurals.ComplementaryPicturesExported, completedEntries, completedEntries), Toast.LENGTH_LONG).show()
                     } catch (e: IOException) {
@@ -313,9 +311,9 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             val outputStream = requireContext().contentResolver.openOutputStream(destinationUri)
             val databaseFile = Database.getDatabaseFile(requireActivity())
             val inputStream: InputStream = FileInputStream(databaseFile)
-            IOUtils.copy(inputStream, outputStream)
+            inputStream.copyTo(outputStream!!)
             inputStream.close()
-            outputStream!!.close()
+            outputStream.close()
             Toast.makeText(activity,
                     resources.getString(R.string.DatabaseCopiedSuccessfully),
                     Toast.LENGTH_LONG).show()

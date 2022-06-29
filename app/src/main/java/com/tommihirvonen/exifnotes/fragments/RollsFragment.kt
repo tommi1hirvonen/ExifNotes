@@ -97,6 +97,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
     }
 
     // This onAttach() is called before API 23
+    @Deprecated("Deprecated in Java")
     @Suppress("DEPRECATION")
     override fun onAttach(a: Activity) {
         super.onAttach(a)
@@ -234,7 +235,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         super.onPrepareOptionsMenu(menu)
     }
 
-    private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+    private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         // Update fragment after the user navigates back from the GearActivity.
         // Cameras might have been edited, so they need to be reloaded.
         updateFragment(true)

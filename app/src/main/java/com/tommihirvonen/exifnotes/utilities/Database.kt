@@ -1007,7 +1007,8 @@ class Database private constructor(private val context: Context)
             val success = booleanArrayOf(true)
             try {
                 SQLiteDatabase.openDatabase(getDatabaseFile(context).absolutePath, null,
-                        SQLiteDatabase.OPEN_READWRITE, {
+                        SQLiteDatabase.OPEN_READWRITE
+                ) {
                     // If the database was corrupt, try to replace with the old backup.
                     try {
                         oldDbBackup.copyTo(oldDb, overwrite = true)
@@ -1015,7 +1016,7 @@ class Database private constructor(private val context: Context)
                         e.printStackTrace()
                     }
                     success[0] = false
-                })
+                }
             } catch (e: SQLiteException) {
                 Toast.makeText(context, context.resources.getString(R.string.CouldNotReadDatabase),
                         Toast.LENGTH_LONG).show()
