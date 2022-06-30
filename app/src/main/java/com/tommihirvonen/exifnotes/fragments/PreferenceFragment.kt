@@ -145,15 +145,10 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
                 dialogFragment.setTargetFragment(this, 0)
                 dialogFragment.show(parentFragmentManager, null)
             }
-            is AboutDialogPreference -> {
-                Utilities.showAboutDialog(requireActivity())
-            }
-            is HelpDialogPreference -> {
-                Utilities.showHelpDialog(requireActivity())
-            }
-            else -> {
-                super.onDisplayPreferenceDialog(preference)
-            }
+            is AboutDialogPreference -> { showAboutDialog() }
+            is HelpDialogPreference -> { showHelpDialog() }
+            is LicensesDialogPreference -> { showLicensesDialog() }
+            else -> { super.onDisplayPreferenceDialog(preference) }
         }
     }
 

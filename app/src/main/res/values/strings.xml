@@ -257,6 +257,7 @@
     <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
     <string name="Normal">Normal</string>
     <string name="OK">OK</string>
+    <string name="OpenSourceLicenses">Open source licenses</string>
     <string name="Orange">Orange</string>
     <plurals name="PhotosAmount">
         <item quantity="one">%d photo</item>
@@ -333,17 +334,18 @@
         \nCopyright 2022 Tommi Hirvonen
         \nAll rights reserved.
         \n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.
-        \n\nThis application uses the Apache Commons Text (<a href="https://commons.apache.org/proper/commons-text">https://commons.apache.org/proper/commons-text</a>) library available under the Apache 2.0 license, which can be obtained from <a href="https://www.apache.org/licenses/LICENSE-2.0">https://www.apache.org/licenses/LICENSE-2.0</a>.
     </string>
     <string name="Updates">Updates in this version:
         \n\n-Library and build tool upgrades
-        \n-Replacing deprecated classes and methods
+        \n-Replaced deprecated classes and methods
+        \n-Included comprehensive open source license notices for used dependencies
         \n
     </string>
     <string name="VersionHistory">Version history
         \n\nv1.17.1 2022-06-28:
         \n-Library and build tool upgrades
-        \n-Replacing deprecated classes and methods
+        \n-Replaced deprecated classes and methods
+        \n-Included comprehensive open source license notices for used dependencies
         \n\nv1.17.0 2022-01-06:
         \n-Fixed lens cameras: you can now add/edit fixed-lens cameras in gear settings. When adding frames with a camera that has a fixed-lens, you cannot select a lens in the frame\'s properties. The lens settings from the camera will be applied when adding new frames or editing existing frames. Filters can be linked to fixed-lens cameras in the gear settings.
         \n-Replaced deprecated API/method calls, code refactoring

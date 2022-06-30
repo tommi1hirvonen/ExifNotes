@@ -17,6 +17,7 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import android.webkit.WebView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -75,7 +76,7 @@ fun Activity.setStatusBarColor(color: Int) {
 
 fun Fragment.setStatusBarColor(color: Int) = requireActivity().setStatusBarColor(color)
 
-val Activity.packageInfo: PackageInfo? get() {
+val Context.packageInfo: PackageInfo? get() {
     try {
         return packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
     } catch (e: PackageManager.NameNotFoundException) {
@@ -98,6 +99,40 @@ fun String.illegalCharsRemoved(): String = replace("[|\\\\?*<\":>/]".toRegex(), 
 class AboutDialogPreference(context: Context, attrs: AttributeSet?) : DialogPreference(context, attrs)
 
 class HelpDialogPreference(context: Context, attrs: AttributeSet?) : DialogPreference(context, attrs)
+
+class LicensesDialogPreference(context: Context, attrs: AttributeSet?) : DialogPreference(context, attrs)
+
+fun Context.showLicensesDialog() {
+    val webView = WebView(this)
+    webView.loadUrl("file:///android_asset/open_source_licenses.html")
+    AlertDialog.Builder(this)
+        .setView(webView)
+        .setPositiveButton(R.string.OK) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+        .create()
+        .show()
+}
+
+fun Fragment.showLicensesDialog() = this.requireContext().showLicensesDialog()
+
+fun Context.showHelpDialog() {
+    val title = this.resources.getString(R.string.Help)
+    val message = this.resources.getString(R.string.main_help)
+    Utilities.showGeneralDialog(this, title, message)
+}
+
+fun Fragment.showHelpDialog() = this.requireContext().showHelpDialog()
+
+fun Context.showAboutDialog() {
+    val title = this.resources.getString(R.string.app_name)
+    val versionInfo = this.packageInfo
+    val versionName = if (versionInfo != null) versionInfo.versionName else ""
+    val about = this.resources.getString(R.string.AboutAndTermsOfUse, versionName)
+    val versionHistory = this.resources.getString(R.string.VersionHistory)
+    val message = "$about\n\n\n$versionHistory"
+    Utilities.showGeneralDialog(this, title, message)
+}
+
+fun Fragment.showAboutDialog() = this.requireContext().showAboutDialog()
 
 object Utilities {
 
@@ -168,12 +203,12 @@ object Utilities {
     /**
      * Shows a general dialog containing a title and a message.
      *
-     * @param activity the calling activity
+     * @param context the calling activity's context
      * @param title the title of the dialog
      * @param message the message of the dialog
      */
-    private fun showGeneralDialog(activity: Activity, title: String, message: String) {
-        val generalDialogBuilder = AlertDialog.Builder(activity)
+    fun showGeneralDialog(context: Context, title: String, message: String) {
+        val generalDialogBuilder = AlertDialog.Builder(context)
         generalDialogBuilder.setTitle(title)
         val spannableString = SpannableString(message)
         Linkify.addLinks(spannableString, Linkify.WEB_URLS)
@@ -185,22 +220,6 @@ object Utilities {
         val textView = generalDialog.findViewById<TextView>(android.R.id.message)
         textView.textSize = 14f
         textView.movementMethod = LinkMovementMethod.getInstance()
-    }
-
-    fun showAboutDialog(activity: Activity) {
-        val title = activity.resources.getString(R.string.app_name)
-        val versionInfo = activity.packageInfo
-        val versionName = if (versionInfo != null) versionInfo.versionName else ""
-        val about = activity.resources.getString(R.string.AboutAndTermsOfUse, versionName)
-        val versionHistory = activity.resources.getString(R.string.VersionHistory)
-        val message = "$about\n\n\n$versionHistory"
-        showGeneralDialog(activity, title, message)
-    }
-
-    fun showHelpDialog(activity: Activity) {
-        val title = activity.resources.getString(R.string.Help)
-        val message = activity.resources.getString(R.string.main_help)
-        showGeneralDialog(activity, title, message)
     }
 
     /**

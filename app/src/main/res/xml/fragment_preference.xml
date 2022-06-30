@@ -14,6 +14,11 @@
         app:iconSpaceReserved="false"
         />
 
+    <com.tommihirvonen.exifnotes.utilities.LicensesDialogPreference
+        android:title="@string/OpenSourceLicenses"
+        app:iconSpaceReserved="false"
+        />
+
     <PreferenceCategory
         android:title="@string/General_Cap"
         app:iconSpaceReserved="false"
