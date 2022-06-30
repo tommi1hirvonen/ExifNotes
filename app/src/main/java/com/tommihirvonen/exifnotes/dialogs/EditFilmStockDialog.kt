@@ -14,7 +14,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilmBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.buildCustomDialogTitleTextView
 
 class EditFilmStockDialog : DialogFragment() {
 
@@ -30,8 +30,8 @@ class EditFilmStockDialog : DialogFragment() {
         val filmStock = requireArguments().getParcelable(ExtraKeys.FILM_STOCK) ?: FilmStock()
 
         val builder = AlertDialog.Builder(requireActivity())
-        builder.setView(binding.root)
-                .setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
+        val titleView = buildCustomDialogTitleTextView(title)
+        builder.setView(binding.root).setCustomTitle(titleView)
 
         binding.manufacturerEditText.setText(filmStock.make)
         binding.filmStockEditText.setText(filmStock.model)

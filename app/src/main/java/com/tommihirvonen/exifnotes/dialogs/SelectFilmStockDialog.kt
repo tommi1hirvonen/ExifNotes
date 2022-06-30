@@ -14,7 +14,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilmManufacturerAdapter
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorRecyclerViewListener
+import com.tommihirvonen.exifnotes.utilities.ScrollIndicatorRecyclerViewListener
 
 class SelectFilmStockDialog : DialogFragment() {
 
@@ -35,7 +35,8 @@ class SelectFilmStockDialog : DialogFragment() {
                 ScrollIndicatorRecyclerViewListener(
                         manufacturersRecyclerView,
                         view.findViewById(R.id.scrollIndicatorUp),
-                        view.findViewById(R.id.scrollIndicatorDown)))
+                        view.findViewById(R.id.scrollIndicatorDown))
+        )
         val dialog = builder.create()
 
         val adapter = FilmManufacturerAdapter(requireContext()) { filmStock: FilmStock? ->

@@ -12,7 +12,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilterBinding
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.Utilities
+import com.tommihirvonen.exifnotes.utilities.buildCustomDialogTitleTextView
 
 /**
  * Dialog to edit a Filter's information
@@ -33,7 +33,8 @@ class EditFilterDialog : DialogFragment() {
         binding = DialogFilterBinding.inflate(layoutInflater)
         val builder = AlertDialog.Builder(activity)
         val title = requireArguments().getString(ExtraKeys.TITLE)
-        builder.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
+        val titleView = buildCustomDialogTitleTextView(title)
+        builder.setCustomTitle(titleView)
         builder.setView(binding.root)
         val filter = requireArguments().getParcelable(ExtraKeys.FILTER) ?: Filter()
         binding.makeEditText.setText(filter.make)

@@ -18,10 +18,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.PartialIncrement
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.Utilities
-import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
-import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.*
 
 /**
  * Dialog to edit Camera's information
@@ -60,9 +57,11 @@ class EditCameraDialog : DialogFragment() {
                 ScrollIndicatorNestedScrollViewListener(
                         nestedScrollView,
                         binding.scrollIndicatorUp,
-                        binding.scrollIndicatorDown))
+                        binding.scrollIndicatorDown)
+        )
 
-        alert.setCustomTitle(Utilities.buildCustomDialogTitleTextView(requireActivity(), title))
+        val titleView = buildCustomDialogTitleTextView(title)
+        alert.setCustomTitle(titleView)
         alert.setView(binding.root)
 
         // EDIT TEXT FIELDS

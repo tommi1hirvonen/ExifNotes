@@ -149,7 +149,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                         rollName + "_csv.txt") ?: return@registerForActivityResult
                     val csvOutputStream = requireActivity().contentResolver
                         .openOutputStream(csvDocumentFile.uri) ?: return@registerForActivityResult
-                    val csvString = Utilities.createCsvString(requireActivity(), roll)
+                    val csvString = CsvBuilder(requireActivity(), roll).create()
                     val csvOutputStreamWriter = OutputStreamWriter(csvOutputStream)
                     csvOutputStreamWriter.write(csvString)
                     csvOutputStreamWriter.flush()
@@ -162,7 +162,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                         rollName + "_ExifToolCmds.txt") ?: return@registerForActivityResult
                     val cmdOutputStream = requireActivity().contentResolver
                         .openOutputStream(cmdDocumentFile.uri) ?: return@registerForActivityResult
-                    val cmdString = Utilities.createExifToolCmdsString(requireActivity(), roll)
+                    val cmdString = ExifToolCommandsBuilder(requireActivity(), roll).create()
                     val cmdOutputStreamWriter = OutputStreamWriter(cmdOutputStream)
                     cmdOutputStreamWriter.write(cmdString)
                     cmdOutputStreamWriter.flush()
@@ -357,8 +357,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         val fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt"
 
         //Create the strings to be written on those two files
-        val csvString = Utilities.createCsvString(requireActivity(), roll)
-        val exifToolCmds = Utilities.createExifToolCmdsString(requireActivity(), roll)
+        val csvString = CsvBuilder(requireActivity(), roll).create()
+        val exifToolCmds = ExifToolCommandsBuilder(requireActivity(), roll).create()
 
         //Create the files in external storage
         val fileCsv = File(externalStorageDir, fileNameCsv)

@@ -138,7 +138,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                 binding.progressBar.visibility = View.VISIBLE
                 // Start a coroutine to asynchronously fetch the formatted address.
                 lifecycleScope.launch {
-                    val (_, addressResult) = Utilities.getGeocodeData(location.decimalLocation, googleMapsApiKey)
+                    val (_, addressResult) = Geocoder.getGeocodeData(location.decimalLocation, googleMapsApiKey)
                     binding.progressBar.visibility = View.INVISIBLE
                     formattedAddress = if (addressResult.isNotEmpty()) {
                         binding.formattedAddress.text = addressResult
@@ -257,7 +257,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
 
         // Start a coroutine to asynchronously fetch the formatted address.
         lifecycleScope.launch {
-            val (_, addressResult) = Utilities.getGeocodeData(query, googleMapsApiKey)
+            val (_, addressResult) = Geocoder.getGeocodeData(query, googleMapsApiKey)
             binding.progressBar.visibility = View.INVISIBLE
             formattedAddress = if (addressResult.isNotEmpty()) {
                 binding.formattedAddress.text = addressResult
@@ -284,7 +284,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         binding.progressBar.visibility = View.VISIBLE
 
         lifecycleScope.launch {
-            val (latLngResult, addressResult) = Utilities.getGeocodeData(query, googleMapsApiKey)
+            val (latLngResult, addressResult) = Geocoder.getGeocodeData(query, googleMapsApiKey)
             if (latLngResult.isNotEmpty()) {
                 val location = Location(latLngResult)
                 val position = location.latLng

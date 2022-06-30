@@ -136,9 +136,8 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
 
         //Delete all the files created in FramesFragment.setShareIntentExportRoll
         val externalStorageDir = getExternalFilesDir(null)
-        Utilities.purgeDirectory(externalStorageDir)
-        val externalCacheDir = externalCacheDir
-        Utilities.purgeDirectory(externalCacheDir)
+        externalStorageDir?.purgeDirectory()
+        externalCacheDir?.purgeDirectory()
         super.onStart()
     }
 

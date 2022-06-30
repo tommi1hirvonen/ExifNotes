@@ -31,7 +31,6 @@ import com.tommihirvonen.exifnotes.databinding.DialogFrameBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.*
-import com.tommihirvonen.exifnotes.utilities.Utilities.ScrollIndicatorNestedScrollViewListener
 import kotlinx.coroutines.*
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -304,7 +303,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 binding.locationProgressBar.visibility = View.VISIBLE
                 // Start a coroutine to asynchronously fetch the formatted address.
                 viewLifecycleOwner.lifecycleScope.launch {
-                    val (_, addressResult) = Utilities.getGeocodeData(location.decimalLocation,
+                    val (_, addressResult) = Geocoder.getGeocodeData(location.decimalLocation,
                             resources.getString(R.string.google_maps_key))
                     newFrame.formattedAddress = addressResult.ifEmpty { null }
                     binding.locationProgressBar.visibility = View.INVISIBLE
