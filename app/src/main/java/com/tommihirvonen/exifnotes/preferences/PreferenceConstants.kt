@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes.utilities
+package com.tommihirvonen.exifnotes.preferences
 
 /**
  * Class containing global constants used as keys and values when

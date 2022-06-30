@@ -9,6 +9,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,7 @@ import androidx.preference.PreferenceFragmentCompat
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
 import com.tommihirvonen.exifnotes.datastructures.DateTime
+import com.tommihirvonen.exifnotes.preferences.*
 import com.tommihirvonen.exifnotes.utilities.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,21 +49,25 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         }
     }
 
-    private val exportPicturesResultLauncher = registerForActivityResult(ExportPictures()) { resultUri ->
-        resultUri?.let { exportComplementaryPictures(it) }
-    }
+    private val exportPicturesResultLauncher =
+        registerForActivityResult(ExportPictures()) { resultUri ->
+            resultUri?.let { exportComplementaryPictures(it) }
+        }
 
-    private val importPicturesResultLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
-        resultUri?.let { importComplementaryPictures(it) }
-    }
+    private val importPicturesResultLauncher =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
+            resultUri?.let { importComplementaryPictures(it) }
+        }
 
-    private val exportDatabaseResultLauncher = registerForActivityResult(ExportDatabase()) { resultUri ->
-        resultUri?.let { exportDatabase(it) }
-    }
+    private val exportDatabaseResultLauncher =
+        registerForActivityResult(ExportDatabase()) { resultUri ->
+            resultUri?.let { exportDatabase(it) }
+        }
 
-    private val importDatabaseResultLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
-        resultUri?.let { importDatabase(it) }
-    }
+    private val importDatabaseResultLauncher =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
+            resultUri?.let { importDatabase(it) }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -318,6 +324,34 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
                     resources.getString(R.string.ErrorExportingDatabase),
                     Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun showAboutDialog() {
+        val title = this.resources.getString(R.string.app_name)
+        val versionInfo = requireContext().packageInfo
+        val versionName = if (versionInfo != null) versionInfo.versionName else ""
+        val about = this.resources.getString(R.string.AboutAndTermsOfUse, versionName)
+        val versionHistory = this.resources.getString(R.string.VersionHistory)
+        val message = "$about\n\n\n$versionHistory"
+        GeneralDialogBuilder(requireContext(), title, message).create().show()
+    }
+
+    private fun showHelpDialog() {
+        val title = this.resources.getString(R.string.Help)
+        val message = this.resources.getString(R.string.main_help)
+        GeneralDialogBuilder(requireContext(), title, message).create().show()
+    }
+
+    private fun showLicensesDialog() {
+        val webView = WebView(requireContext())
+        // Interactive html file containing notices/licenses for used dependencies.
+        // The file is generated using the Gradle plugin com.jaredsburrows.license.
+        webView.loadUrl("file:///android_asset/open_source_licenses.html")
+        AlertDialog.Builder(requireContext())
+            .setView(webView)
+            .setPositiveButton(R.string.OK) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+            .create()
+            .show()
     }
 
 }

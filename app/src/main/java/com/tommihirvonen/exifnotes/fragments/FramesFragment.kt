@@ -32,6 +32,7 @@ import com.tommihirvonen.exifnotes.databinding.FragmentFramesBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode.Companion.fromValue
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
+import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
 import java.io.File
 import java.io.IOException
@@ -141,7 +142,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
 
                 //Get the user setting about which files to export. By default, share both files.
                 val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
-                val filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT,
+                val filesToExport = prefs.getString(
+                    PreferenceConstants.KEY_FILES_TO_EXPORT,
                     PreferenceConstants.VALUE_BOTH)
                 if (filesToExport == PreferenceConstants.VALUE_BOTH
                     || filesToExport == PreferenceConstants.VALUE_CSV) {
@@ -189,7 +191,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         //If the same sort order setting is to be used elsewhere in the app, then
         //getDefaultSharedPreferences() should be used.
         val sharedPreferences = requireActivity().getPreferences(Context.MODE_PRIVATE)
-        sortMode = fromValue(sharedPreferences.getInt(PreferenceConstants.KEY_FRAME_SORT_ORDER,
+        sortMode = fromValue(sharedPreferences.getInt(
+            PreferenceConstants.KEY_FRAME_SORT_ORDER,
                 FrameSortMode.FRAME_COUNT.value))
 
         //Sort the list according to preferences

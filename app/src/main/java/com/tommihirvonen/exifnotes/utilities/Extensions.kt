@@ -1,25 +1,20 @@
 package com.tommihirvonen.exifnotes.utilities
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.util.AttributeSet
 import android.view.Gravity
 import android.view.WindowManager
-import android.webkit.WebView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
-import androidx.preference.DialogPreference
 import androidx.preference.PreferenceManager
-import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import java.io.*
 
 /**
@@ -85,44 +80,6 @@ val Context.isAppThemeDark: Boolean get() =
             .getBoolean(PreferenceConstants.KEY_DARK_THEME, false)
 
 fun String.illegalCharsRemoved(): String = replace("[|\\\\?*<\":>/]".toRegex(), "_")
-
-class AboutDialogPreference(context: Context, attrs: AttributeSet?) : DialogPreference(context, attrs)
-
-class HelpDialogPreference(context: Context, attrs: AttributeSet?) : DialogPreference(context, attrs)
-
-class LicensesDialogPreference(context: Context, attrs: AttributeSet?) : DialogPreference(context, attrs)
-
-fun Context.showLicensesDialog() {
-    val webView = WebView(this)
-    webView.loadUrl("file:///android_asset/open_source_licenses.html")
-    AlertDialog.Builder(this)
-        .setView(webView)
-        .setPositiveButton(R.string.OK) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-        .create()
-        .show()
-}
-
-fun Fragment.showLicensesDialog() = this.requireContext().showLicensesDialog()
-
-fun Context.showHelpDialog() {
-    val title = this.resources.getString(R.string.Help)
-    val message = this.resources.getString(R.string.main_help)
-    GeneralDialogBuilder(this, title, message).create().show()
-}
-
-fun Fragment.showHelpDialog() = this.requireContext().showHelpDialog()
-
-fun Context.showAboutDialog() {
-    val title = this.resources.getString(R.string.app_name)
-    val versionInfo = this.packageInfo
-    val versionName = if (versionInfo != null) versionInfo.versionName else ""
-    val about = this.resources.getString(R.string.AboutAndTermsOfUse, versionName)
-    val versionHistory = this.resources.getString(R.string.VersionHistory)
-    val message = "$about\n\n\n$versionHistory"
-    GeneralDialogBuilder(this, title, message).create().show()
-}
-
-fun Fragment.showAboutDialog() = this.requireContext().showAboutDialog()
 
 fun File.purgeDirectory() = this.listFiles()?.filter { !it.isDirectory }?.forEach { it.delete() }
 

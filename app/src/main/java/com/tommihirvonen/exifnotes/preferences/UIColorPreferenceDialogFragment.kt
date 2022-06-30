@@ -1,4 +1,4 @@
-package com.tommihirvonen.exifnotes.utilities
+package com.tommihirvonen.exifnotes.preferences
 
 import android.os.Bundle
 import android.view.View

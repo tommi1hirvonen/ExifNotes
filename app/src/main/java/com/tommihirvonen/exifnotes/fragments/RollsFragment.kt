@@ -33,6 +33,7 @@ import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.datastructures.RollSortMode
 import com.tommihirvonen.exifnotes.dialogs.EditRollDialog
 import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
+import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
 
 /**

@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.android.gms.location.*
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.PreferenceConstants
+import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 
 abstract class LocationUpdatesFragment : Fragment() {
 

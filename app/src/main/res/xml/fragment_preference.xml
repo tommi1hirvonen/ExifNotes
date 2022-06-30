@@ -4,17 +4,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
-    <com.tommihirvonen.exifnotes.utilities.AboutDialogPreference
+    <com.tommihirvonen.exifnotes.preferences.AboutDialogPreference
         android:title="@string/About"
         app:iconSpaceReserved="false"
         />
 
-    <com.tommihirvonen.exifnotes.utilities.HelpDialogPreference
+    <com.tommihirvonen.exifnotes.preferences.HelpDialogPreference
         android:title="@string/Help"
         app:iconSpaceReserved="false"
         />
 
-    <com.tommihirvonen.exifnotes.utilities.LicensesDialogPreference
+    <com.tommihirvonen.exifnotes.preferences.LicensesDialogPreference
         android:title="@string/OpenSourceLicenses"
         app:iconSpaceReserved="false"
         />
@@ -39,7 +39,7 @@
             app:iconSpaceReserved="false"
             />
 
-        <com.tommihirvonen.exifnotes.utilities.UIColorDialogPreference
+        <com.tommihirvonen.exifnotes.preferences.UIColorDialogPreference
             android:key="UIColor"
             android:title="@string/UIColorTitle"
             android:defaultValue="#00838F,#006064"
