@@ -376,12 +376,6 @@ object ComplementaryPicturesManager {
     }
 
     private class ZipFileWriter(activity: Activity, private val files: Array<File>, private val zipFile: File) {
-        companion object {
-            /**
-             * Limit the buffer memory size while reading and writing buffer into the zip stream
-             */
-            private const val BUFFER = 10240 // 10KB - good buffer size for disk access
-        }
 
         private val progressBar: ProgressBar
         private val progressTextView: TextView
@@ -419,31 +413,20 @@ object ComplementaryPicturesManager {
                     var completedEntries = 0
                     // Publish empty progress to tell the interface, that the process has begun.
                     updateProgress(0, files.size)
-                    // Set the ZipOutputStream beginning with FileOutputStream then ZipOutputStream.
+
                     ZipOutputStream(FileOutputStream(zipFile)).use { outputStream ->
-                        // byte array where the bytes read from input stream should be stored.
-                        val buffer = ByteArray(BUFFER)
-                        // Iterate the files from the files array
-                        for (file in files) {
-                            // Set the BufferedInputStream using FileInputStream
-                            BufferedInputStream(FileInputStream(file), BUFFER).use { inputStream ->
+                        files.forEach { file ->
+                            BufferedInputStream(FileInputStream(file)).use { inputStream ->
                                 val entry = ZipEntry(file.name)
-                                // Begin writing a new zip file entry.
                                 outputStream.putNextEntry(entry)
-                                // BufferedInputStream.read() returns the number of bytes read
-                                // or -1 if the end of stream was reached.
-                                while (true) {
-                                    val count = inputStream.read(buffer, 0, BUFFER)
-                                    if (count == -1) break
-                                    else outputStream.write(buffer, 0, count)
-                                }
+                                inputStream.copyTo(outputStream)
                             }
                             ++completedEntries
                             updateProgress(completedEntries, files.size)
                         }
                     }
                     return@withContext true to completedEntries
-                } catch (e: IOException) {
+                } catch (e: Exception) {
                     return@withContext false to 0
                 }
             }
@@ -465,12 +448,6 @@ object ComplementaryPicturesManager {
     }
 
     private class ZipFileReader(activity: Activity, private val zipFile: File, private val targetDirectory: File) {
-        companion object {
-            /**
-             * Limit the buffer memory size while reading and writing buffer from the zip stream
-             */
-            private const val BUFFER = 10240 // 10KB - good buffer size for disk access
-        }
 
         private val progressBar: ProgressBar
         private val progressTextView: TextView
@@ -513,24 +490,18 @@ object ComplementaryPicturesManager {
                     directoryChecker(targetDirectory)
                     var completedEntries = 0
                     ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
-                        val buffer = ByteArray(BUFFER)
-                        while (true) {
-                            // nextEntry returns null if the end was reached -> break loop
-                            val zipEntry = zipInputStream.nextEntry ?: break
-                            if (zipEntry.isDirectory) {
-                                directoryChecker(File(targetDirectory, zipEntry.name))
+                        generateSequence { zipInputStream.nextEntry }.forEach { zipEntry ->
+                            val targetFile = File(targetDirectory, zipEntry.name)
+                            if (!targetFile.canonicalPath.startsWith(targetDirectory.canonicalPath)) {
+                                throw SecurityException("Possible path traversal characters detected in zip entry path")
+                            } else if (zipEntry.isDirectory) {
+                                directoryChecker(targetFile)
                             } else {
-                                // Set the FileOutputStream using File
-                                val targetFile = File(targetDirectory, zipEntry.name)
-                                if (targetFile.exists()) targetFile.delete()
+                                if (targetFile.exists()) {
+                                    targetFile.delete()
+                                }
                                 FileOutputStream(targetFile).use { outputStream ->
-                                    while (true) {
-                                        // ZipInputStream.read() returns the number of bytes read
-                                        // or -1 if the end of stream was reached -> break loop.
-                                        val count = zipInputStream.read(buffer, 0, BUFFER)
-                                        if (count == -1) break
-                                        else outputStream.write(buffer, 0, count)
-                                    }
+                                    zipInputStream.copyTo(outputStream)
                                 }
                                 zipInputStream.closeEntry()
                                 ++completedEntries
@@ -539,7 +510,7 @@ object ComplementaryPicturesManager {
                         }
                     }
                     return@withContext true to completedEntries
-                } catch (e: IOException) {
+                } catch (e: Exception) {
                     return@withContext false to 0
                 }
             }
