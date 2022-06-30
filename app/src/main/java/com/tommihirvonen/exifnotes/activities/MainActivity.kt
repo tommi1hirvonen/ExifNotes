@@ -152,20 +152,18 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
 
     /**
      * This method is called if GPS is not enabled.
-     * Prompt the user to jump to settings to enable GPS.
+     * Prompt the user to jump to device settings to enable GPS.
      */
     private fun showSettingsAlert() {
         val alertDialog = AlertDialog.Builder(this)
-        // Setting Dialog Title
         alertDialog.setTitle(R.string.GPSSettings)
-        // Setting Dialog Message
         alertDialog.setMessage(R.string.GPSNotEnabled)
-        // On pressing Settings button
+        // Navigate to the device's settings.
         alertDialog.setPositiveButton(R.string.GoToSettings) { _: DialogInterface?, _: Int ->
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             startActivity(intent)
         }
-        // On pressing disable button
+        // Disable location tracking in the application's settings.
         alertDialog.setNegativeButton(R.string.DisableInApp) { dialogInterface: DialogInterface, _: Int ->
             val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
             val prefsEditor = prefs.edit()
@@ -173,9 +171,7 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
             prefsEditor.apply()
             dialogInterface.dismiss()
         }
-        // On pressing cancel button
         alertDialog.setNeutralButton(R.string.Cancel) { dialog: DialogInterface, _: Int -> dialog.cancel() }
-        // Showing Alert Message
         alertDialog.show()
     }
 

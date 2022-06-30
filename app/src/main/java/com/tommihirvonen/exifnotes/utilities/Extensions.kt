@@ -79,9 +79,15 @@ val Context.isAppThemeDark: Boolean get() =
     PreferenceManager.getDefaultSharedPreferences(this)
             .getBoolean(PreferenceConstants.KEY_DARK_THEME, false)
 
+/**
+ * Removes potential illegal characters from a string to make it a valid file name.
+ */
 fun String.illegalCharsRemoved(): String = replace("[|\\\\?*<\":>/]".toRegex(), "_")
 
-fun File.purgeDirectory() = this.listFiles()?.filter { !it.isDirectory }?.forEach { it.delete() }
+/**
+ * Remove all files in a directory. Subdirectories are skipped.
+ */
+fun File.purgeDirectory() = this.listFiles()?.filterNot { it.isDirectory }?.forEach { it.delete() }
 
 /**
  * Method to build a custom AlertDialog title TextView. This way we can imitate

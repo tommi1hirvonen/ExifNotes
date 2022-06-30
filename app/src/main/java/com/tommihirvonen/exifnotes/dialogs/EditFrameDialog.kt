@@ -151,8 +151,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         frame = frame1
         newFrame = frame.copy()
 
-        // If the cameras used for this roll is a fixed-lens camera,
-        // set the frame's lens to the camera's lens.
+        // If the camera used for this roll is a fixed-lens camera, clear the frame's lens.
         if (newFrame.roll.camera?.isFixedLens == true) {
             newFrame.lens = null
         }
@@ -587,9 +586,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         }
     }
 
-    /**
-     * Updates the focal length TextView
-     */
     private fun updateFocalLengthTextView() {
         binding.focalLengthText.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
     }

@@ -287,7 +287,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 mapResultLauncher.launch(mapIntent)
             }
             R.id.menu_item_share ->
-                // Method getShareRollIntent() may take a while to run since it
+                // Getting member shareRollIntent may take a while to run since it
                 // generates the files that will be shared.
                 // -> Run the code on a new thread, which lets the UI thread to finish menu animations.
                 Thread {
