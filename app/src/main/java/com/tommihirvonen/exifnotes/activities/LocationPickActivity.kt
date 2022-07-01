@@ -60,8 +60,6 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
      */
     private var latLngLocation: LatLng? = null
 
-    private lateinit var googleMapsApiKey: String
-
     /**
      * Member to indicate whether this activity was continued or not.
      * Some animations will only be activated if this value is false.
@@ -116,7 +114,6 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
-        googleMapsApiKey = resources.getString(R.string.google_maps_key)
 
         // If the activity is continued, then savedInstanceState is not null.
         // Get the location from there.
@@ -139,7 +136,8 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                 binding.progressBar.visibility = View.VISIBLE
                 // Start a coroutine to asynchronously fetch the formatted address.
                 lifecycleScope.launch {
-                    val (_, addressResult) = Geocoder.getGeocodeData(location.decimalLocation, googleMapsApiKey)
+                    val (_, addressResult) = Geocoder(this@LocationPickActivity)
+                        .getData(location.decimalLocation)
                     binding.progressBar.visibility = View.INVISIBLE
                     formattedAddress = if (addressResult.isNotEmpty()) {
                         binding.formattedAddress.text = addressResult
@@ -258,7 +256,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
 
         // Start a coroutine to asynchronously fetch the formatted address.
         lifecycleScope.launch {
-            val (_, addressResult) = Geocoder.getGeocodeData(query, googleMapsApiKey)
+            val (_, addressResult) = Geocoder(this@LocationPickActivity).getData(query)
             binding.progressBar.visibility = View.INVISIBLE
             formattedAddress = if (addressResult.isNotEmpty()) {
                 binding.formattedAddress.text = addressResult
@@ -285,7 +283,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         binding.progressBar.visibility = View.VISIBLE
 
         lifecycleScope.launch {
-            val (latLngResult, addressResult) = Geocoder.getGeocodeData(query, googleMapsApiKey)
+            val (latLngResult, addressResult) = Geocoder(this@LocationPickActivity).getData(query)
             if (latLngResult.isNotEmpty()) {
                 val location = Location(latLngResult)
                 val position = location.latLng
