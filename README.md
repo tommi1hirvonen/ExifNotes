@@ -39,8 +39,4 @@ https://www.photrio.com/forum/threads/new-app-for-making-exif-notes.137618/
 
 ## Contribute
 
-TBD
-
-### Setting up
-
-TBD
+If you're interested in contributing, please check the contributing guidelines (CONTRIBUTING.md).
