@@ -1,3 +1,21 @@
+/*
+ * Exif Notes
+ * Copyright (C) 2022  Tommi Hirvonen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package com.tommihirvonen.exifnotes.fragments
 
 import android.app.AlertDialog
@@ -153,7 +171,8 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             }
             is AboutDialogPreference -> { showAboutDialog() }
             is HelpDialogPreference -> { showHelpDialog() }
-            is LicensesDialogPreference -> { showLicensesDialog() }
+            is ThirdPartyLicensesDialogPreference -> { showThirdPartyLicensesDialog() }
+            is LicenseDialogPreference -> { showLicenseDialog() }
             else -> { super.onDisplayPreferenceDialog(preference) }
         }
     }
@@ -342,7 +361,17 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         GeneralDialogBuilder(requireContext(), title, message).create().show()
     }
 
-    private fun showLicensesDialog() {
+    private fun showLicenseDialog() {
+        val webView = WebView(requireContext())
+        webView.loadUrl("file:///android_asset/license.html")
+        AlertDialog.Builder(requireContext())
+            .setView(webView)
+            .setPositiveButton(R.string.OK) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+            .create()
+            .show()
+    }
+
+    private fun showThirdPartyLicensesDialog() {
         val webView = WebView(requireContext())
         // Interactive html file containing notices/licenses for used dependencies.
         // The file is generated using the Gradle plugin com.jaredsburrows.license.

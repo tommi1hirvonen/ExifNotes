@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Exif Notes
+  ~ Copyright (C) 2022  Tommi Hirvonen
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
 <resources>
     <string name="About">About</string>
     <string name="ActiveFilmRolls">Active</string>
@@ -206,6 +224,7 @@
     <string name="LensNoColon">Lens</string>
     <string name="Lenses">LENSES</string>
     <string name="LensesNoCap">Lenses</string>
+    <string name="License">License</string>
     <string name="Light">Light</string>
     <string name="LightSource">Light source</string>
     <string name="Loaded">Loaded</string>
@@ -257,7 +276,6 @@
     <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
     <string name="Normal">Normal</string>
     <string name="OK">OK</string>
-    <string name="OpenSourceLicenses">Open source licenses</string>
     <string name="Orange">Orange</string>
     <plurals name="PhotosAmount">
         <item quantity="one">%d photo</item>
@@ -313,6 +331,7 @@
     <string name="TapOnMap">Tap on map to move marker</string>
     <string name="Terrain">Terrain</string>
     <string name="Text">Text</string>
+    <string name="ThirdPartyOpenSourceLicenses">Third party open source licenses</string>
     <string name="ThirdStop">⅓ stop</string>
     <string name="Time">Time</string>
     <string name="TimeDeveloped">Time developed</string>
@@ -331,14 +350,17 @@
     <string name="UsedLens">Choose used lens</string>
     <string name="UserAdded">User added</string>
     <string name="AboutAndTermsOfUse">Version %s
-        \nCopyright 2022 Tommi Hirvonen
-        \nAll rights reserved.
-        \n\nNot liable for any damage incurred from use of this software including but not limited to: monetary loss, loss of data and or device malfunction.
+        \nExif Notes
+        \nCopyright © 2022  Tommi Hirvonen
+        \n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+        \n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+        \n\nYou should have received a copy of the GNU General Public License along with this program.  If not, see https://www.gnu.org/licenses/.
     </string>
     <string name="Updates">Updates in this version:
         \n\n-Library and build tool upgrades
         \n-Replaced deprecated classes and methods
         \n-Included comprehensive open source license notices for used dependencies
+        \n-Released source code under the GNU General Public License (GPLv3)
         \n
     </string>
     <string name="VersionHistory">Version history
@@ -346,6 +368,7 @@
         \n-Library and build tool upgrades
         \n-Replaced deprecated classes and methods
         \n-Included comprehensive open source license notices for used dependencies
+        \n-Released source code under the GNU General Public License (GPLv3)
         \n\nv1.17.0 2022-01-06:
         \n-Fixed lens cameras: you can now add/edit fixed-lens cameras in gear settings. When adding frames with a camera that has a fixed-lens, you cannot select a lens in the frame\'s properties. The lens settings from the camera will be applied when adding new frames or editing existing frames. Filters can be linked to fixed-lens cameras in the gear settings.
         \n-Replaced deprecated API/method calls, code refactoring
