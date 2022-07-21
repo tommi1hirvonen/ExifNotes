@@ -19,11 +19,14 @@ Before filing a new bug report, please search through existing issues to see whe
 
 ## Feature requests / improvement ideas
 
-Same as with bug reports, please check existing issues to see whether a similar feature or improvement was already suggested by someone. If not, feel free to create an issue describing the new feature or improvement idea.
+Same as with bug reports, please check existing issues to see whether a similar feature or improvement was already suggested by someone. If not, feel free to create an issue describing the new feature or improvement idea. Only include "one issue per issue": If you have two unrelated ideas or bug reports, please create two separate issues.
 1. Clear and descriptive title
-2. Current behaviour (when posting an improvement idea)
+2. Current behaviour (improvement idea) or related problem (feature request)
+    - E.g. "I'm always frustrated when..."
 3. New feature or behaviour
 4. Why this enhancement would be useful
+
+There is also a helpful article on <a href="https://medium.com/nyc-planning-digital/writing-a-proper-github-issue-97427d62a20f">Medium</a> on how to write good GitHub issues.
 
 ## Contributing code
 
@@ -33,11 +36,12 @@ If you feel like you're up to the task, code contributions are most welcome! Her
     - Kotlin is the recommended language for Android development (https://developer.android.com/kotlin/first).
 - Find an issue to work on and let others know you are working on that issue.
     - If there is no issue for the change you are making, please create the issue first (bug report / feature request / improvement idea) before writing any code.
+    - Consult the maintainer(s) via the issue's discussion on the issue's relevancy and how to start potential development. This is mainly to coordinate efforts and to avoid unnecessary work by anyone.
 - Test your changes thoroughly!
     - Use multiple devices for testing, if possible.
 - Please be extra careful if you are working on the main database class.
     - Test the changes on a fresh installation of Exif Notes and with an existing database.
-    - Changes affecting the database class will be reviewed more thoroughly.
+    - Changes affecting the database class will be reviewed more rigorously.
 - Keep your changes limited to the files you need to modify.
     - Don't stray and do changes to files that are not directly related for your bug fix or feature to work.
     - If you find something unrelated to improve in the code, please create a new issue for that.
@@ -49,6 +53,7 @@ If you feel like you're up to the task, code contributions are most welcome! Her
     - Purpose of the change
     - Impact of the change
     - Link to the issue
+- After the pull request has been reviewed and finalized, the maintainer(s) will merge the changes to the master branch.
 
 ### Setting up
 
