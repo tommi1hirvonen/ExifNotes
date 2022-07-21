@@ -290,6 +290,8 @@
     <string name="Plus50">+50</string>
     <string name="Preadded">Preadded</string>
     <string name="Preferences">Settings</string>
+    <string name="PrivacyPolicy">Privacy policy</string>
+    <string name="PrivacyPolicyStatement"><b>Exif Notes does not collect or use your data outside your own device.</b> Beyond the information Google provides to developers that you can decide to provide (e.g. bug/crash reports), it uses no third-party analytics or advertising frameworks.\n\nThe application can track your location if you give it the appropriate permissions, but the location data is not collected or stored outside the user\'s own device. Exif Notes uses the Google Geocoding API to translate between coordinates and addresses. Queries to the API are done over a secure connection (HTTPS).</string>
     <string name="Purple">Purple</string>
     <string name="PushPull">Push(+)/pull(-)</string>
     <string name="Red">Red</string>
@@ -364,7 +366,7 @@
         \n
     </string>
     <string name="VersionHistory">Version history
-        \n\nv1.17.1 2022-06-28:
+        \n\nv1.17.1 2022-07-21:
         \n-Library and build tool upgrades
         \n-Replaced deprecated classes and methods
         \n-Included comprehensive open source license notices for used dependencies

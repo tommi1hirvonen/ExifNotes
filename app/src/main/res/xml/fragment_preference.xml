@@ -32,6 +32,11 @@
         app:iconSpaceReserved="false"
         />
 
+    <com.tommihirvonen.exifnotes.preferences.PrivacyPolicyDialogPreference
+        android:title="@string/PrivacyPolicy"
+        app:iconSpaceReserved="false"
+        />
+
     <com.tommihirvonen.exifnotes.preferences.LicenseDialogPreference
         android:title="@string/License"
         app:iconSpaceReserved="false"

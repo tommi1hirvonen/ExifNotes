@@ -171,6 +171,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             }
             is AboutDialogPreference -> { showAboutDialog() }
             is HelpDialogPreference -> { showHelpDialog() }
+            is PrivacyPolicyDialogPreference -> { showPrivacyPolicyDialog() }
             is ThirdPartyLicensesDialogPreference -> { showThirdPartyLicensesDialog() }
             is LicenseDialogPreference -> { showLicenseDialog() }
             else -> { super.onDisplayPreferenceDialog(preference) }
@@ -352,21 +353,38 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         val about = this.resources.getString(R.string.AboutAndTermsOfUse, versionName)
         val versionHistory = this.resources.getString(R.string.VersionHistory)
         val message = "$about\n\n\n$versionHistory"
-        GeneralDialogBuilder(requireContext(), title, message).create().show()
+        GeneralDialogBuilder(requireContext())
+            .setTitle(title)
+            .setMessage(message)
+            .create()
+            .show()
     }
 
     private fun showHelpDialog() {
-        val title = this.resources.getString(R.string.Help)
-        val message = this.resources.getString(R.string.main_help)
-        GeneralDialogBuilder(requireContext(), title, message).create().show()
+        val title = resources.getString(R.string.Help)
+        val message = resources.getString(R.string.main_help)
+        GeneralDialogBuilder(requireContext())
+            .setTitle(title)
+            .setMessage(message)
+            .create()
+            .show()
+    }
+
+    private fun showPrivacyPolicyDialog() {
+        val title = resources.getString(R.string.PrivacyPolicy)
+        val message = resources.getText(R.string.PrivacyPolicyStatement)
+        GeneralDialogBuilder(requireContext())
+            .setTitle(title)
+            .setMessage(message)
+            .create()
+            .show()
     }
 
     private fun showLicenseDialog() {
         val webView = WebView(requireContext())
         webView.loadUrl("file:///android_asset/license.html")
-        AlertDialog.Builder(requireContext())
+        GeneralDialogBuilder(requireContext())
             .setView(webView)
-            .setPositiveButton(R.string.OK) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
             .create()
             .show()
     }
@@ -376,9 +394,8 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         // Interactive html file containing notices/licenses for used dependencies.
         // The file is generated using the Gradle plugin com.jaredsburrows.license.
         webView.loadUrl("file:///android_asset/open_source_licenses.html")
-        AlertDialog.Builder(requireContext())
+        GeneralDialogBuilder(requireContext())
             .setView(webView)
-            .setPositiveButton(R.string.OK) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
             .create()
             .show()
     }

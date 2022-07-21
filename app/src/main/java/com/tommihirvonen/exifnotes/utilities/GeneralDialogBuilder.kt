@@ -24,23 +24,41 @@ import android.content.DialogInterface
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
+import android.view.View
 import android.widget.TextView
 import com.tommihirvonen.exifnotes.R
 
-class GeneralDialogBuilder(private val context: Context, private val title: String, private val message: String) {
-    fun create(): AlertDialog {
-        val generalDialogBuilder = AlertDialog.Builder(context)
-        generalDialogBuilder.setTitle(title)
+/**
+ * Custom dialog builder to simplify creation of general purpose info dialogs.
+ */
+class GeneralDialogBuilder(context: Context) : AlertDialog.Builder(context) {
+
+    override fun setTitle(title: CharSequence): GeneralDialogBuilder {
+        super.setTitle(title)
+        return this
+    }
+
+    override fun setMessage(message: CharSequence): GeneralDialogBuilder {
+        // If there are URLs embedded in the message, modify them to become links.
         val spannableString = SpannableString(message)
         Linkify.addLinks(spannableString, Linkify.WEB_URLS)
-        generalDialogBuilder.setMessage(spannableString)
-        generalDialogBuilder.setNegativeButton(R.string.Close) { _: DialogInterface?, _: Int -> }
-        val generalDialog = generalDialogBuilder.create()
-        generalDialog.setOnShowListener {
-            val textView = generalDialog.findViewById<TextView>(android.R.id.message)
-            textView.textSize = 14f
-            textView.movementMethod = LinkMovementMethod.getInstance()
+        super.setMessage(spannableString)
+        return this
+    }
+
+    override fun setView(view: View): GeneralDialogBuilder {
+        super.setView(view)
+        return this
+    }
+
+    override fun create(): AlertDialog {
+        setNegativeButton(R.string.Close) { _: DialogInterface?, _: Int -> }
+        val dialog = super.create()
+        dialog.setOnShowListener {
+            val textView = dialog.findViewById<TextView>(android.R.id.message)
+            textView.textSize = 14f // Reduce message text size from default
+            textView.movementMethod = LinkMovementMethod.getInstance() // Enable links
         }
-        return generalDialog
+        return dialog
     }
 }
