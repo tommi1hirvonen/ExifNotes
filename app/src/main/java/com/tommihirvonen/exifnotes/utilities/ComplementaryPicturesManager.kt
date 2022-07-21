@@ -18,9 +18,7 @@
 
 package com.tommihirvonen.exifnotes.utilities
 
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -30,20 +28,11 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Chronometer
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.exifinterface.media.ExifInterface
 import com.tommihirvonen.exifnotes.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.*
 import java.util.*
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
-import java.util.zip.ZipInputStream
-import java.util.zip.ZipOutputStream
 
 /**
  * Manages all complementary pictures attached to frames.
@@ -361,7 +350,8 @@ object ComplementaryPicturesManager {
         val files = picturesDirectory.listFiles(filter) ?: emptyArray()
         // If files is empty, no zip file will be created in ZipFileCreatorAsyncTask
         if (files.isNotEmpty()) {
-            return ZipFileWriter(activity, files, targetFile).export()
+            val message = activity.getString(R.string.ExportingComplementaryPicturesPleaseWait)
+            return ZipFileWriter(activity).setMessage(message).export(files, targetFile)
         }
         return true to 0
     }
@@ -379,173 +369,7 @@ object ComplementaryPicturesManager {
             Toast.makeText(activity, activity.resources.getString(R.string.ErrorSharedStorageNotAvailable), Toast.LENGTH_SHORT).show()
             return false to 0
         }
-        return ZipFileReader(activity, zipFile, picturesDirectory).read()
+        val message = activity.getString(R.string.ImportingComplementaryPicturesPleaseWait)
+        return ZipFileReader(activity).setMessage(message).read(zipFile, picturesDirectory)
     }
-
-    /**
-     * Creates the directory given as parameter if it does not yet exist
-     *
-     * @param directory the directory to be checked and created if necessary
-     */
-    private fun directoryChecker(directory: File?) {
-        if (!directory!!.isDirectory) {
-            directory.mkdirs()
-        }
-    }
-
-    private class ZipFileWriter(activity: Activity, private val files: Array<File>, private val zipFile: File) {
-
-        private val progressBar: ProgressBar
-        private val progressTextView: TextView
-        private val chronometer: Chronometer
-        private val dialog: AlertDialog
-
-        init {
-            val builder = AlertDialog.Builder(activity)
-            @SuppressLint("InflateParams")
-            val view = activity.layoutInflater.inflate(R.layout.dialog_progress, null)
-            builder.setView(view)
-            progressBar = view.findViewById(R.id.progress_bar)
-            val messageTextView = view.findViewById<TextView>(R.id.textview_1)
-            messageTextView.setText(R.string.ExportingComplementaryPicturesPleaseWait)
-            progressTextView = view.findViewById(R.id.textview_2)
-            chronometer = view.findViewById(R.id.elapsed_time)
-            progressBar.max = 100
-            progressBar.progress = 0
-            progressTextView.text = ""
-            dialog = builder.create()
-            dialog.setCancelable(false)
-        }
-
-        suspend fun export(): Pair<Boolean, Int> {
-            dialog.show()
-            chronometer.start()
-
-            @Suppress("BlockingMethodInNonBlockingContext")
-            val result = withContext(Dispatchers.IO) {
-                try {
-                    // If the files array is empty, return true and end here.
-                    if (files.isEmpty()){
-                        return@withContext false to 0
-                    }
-                    var completedEntries = 0
-                    // Publish empty progress to tell the interface, that the process has begun.
-                    updateProgress(0, files.size)
-
-                    ZipOutputStream(FileOutputStream(zipFile)).use { outputStream ->
-                        files.forEach { file ->
-                            BufferedInputStream(FileInputStream(file)).use { inputStream ->
-                                val entry = ZipEntry(file.name)
-                                outputStream.putNextEntry(entry)
-                                inputStream.copyTo(outputStream)
-                            }
-                            ++completedEntries
-                            updateProgress(completedEntries, files.size)
-                        }
-                    }
-                    return@withContext true to completedEntries
-                } catch (e: Exception) {
-                    return@withContext false to 0
-                }
-            }
-
-            chronometer.stop()
-            dialog.dismiss()
-
-            return result
-        }
-
-        private suspend fun updateProgress(completed: Int, total: Int) {
-            withContext(Dispatchers.Main) {
-                val progressPercentage = (completed.toFloat() / total.toFloat() * 100f).toInt()
-                progressBar.progress = progressPercentage
-                val progressText = "$completed/$total"
-                progressTextView.text = progressText
-            }
-        }
-    }
-
-    private class ZipFileReader(activity: Activity, private val zipFile: File, private val targetDirectory: File) {
-
-        private val progressBar: ProgressBar
-        private val progressTextView: TextView
-        private val chronometer: Chronometer
-        private val dialog: AlertDialog
-
-        init {
-            // Show a dialog with progress bar, elapsed time, completed zip entries and total zip entries.
-            val builder = AlertDialog.Builder(activity)
-            @SuppressLint("InflateParams")
-            val view = activity.layoutInflater.inflate(R.layout.dialog_progress, null)
-            builder.setView(view)
-            progressBar = view.findViewById(R.id.progress_bar)
-            val messageTextView = view.findViewById<TextView>(R.id.textview_1)
-            messageTextView.setText(R.string.ImportingComplementaryPicturesPleaseWait)
-            progressTextView = view.findViewById(R.id.textview_2)
-            chronometer = view.findViewById(R.id.elapsed_time)
-            progressBar.max = 100
-            progressBar.progress = 0
-            progressTextView.text = ""
-            dialog = builder.create()
-            dialog.setCancelable(false)
-        }
-
-        suspend fun read(): Pair<Boolean, Int> {
-            dialog.show()
-            chronometer.start()
-
-            @Suppress("BlockingMethodInNonBlockingContext")
-            val result = withContext(Dispatchers.IO) {
-                try {
-                    val totalEntries = ZipFile(zipFile).size()
-                    // If the zip file was empty, end here.
-                    if (totalEntries == 0) {
-                        return@withContext false to 0
-                    }
-                    // Publish empty progress to tell the interface, that the process has begun.
-                    updateProgress(0, totalEntries)
-                    // Create target directory if it does not exists
-                    directoryChecker(targetDirectory)
-                    var completedEntries = 0
-                    ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
-                        generateSequence { zipInputStream.nextEntry }.forEach { zipEntry ->
-                            val targetFile = File(targetDirectory, zipEntry.name)
-                            if (!targetFile.canonicalPath.startsWith(targetDirectory.canonicalPath)) {
-                                throw SecurityException("Possible path traversal characters detected in zip entry path")
-                            } else if (zipEntry.isDirectory) {
-                                directoryChecker(targetFile)
-                            } else {
-                                if (targetFile.exists()) {
-                                    targetFile.delete()
-                                }
-                                FileOutputStream(targetFile).use { outputStream ->
-                                    zipInputStream.copyTo(outputStream)
-                                }
-                                zipInputStream.closeEntry()
-                                ++completedEntries
-                                updateProgress(completedEntries, totalEntries)
-                            }
-                        }
-                    }
-                    return@withContext true to completedEntries
-                } catch (e: Exception) {
-                    return@withContext false to 0
-                }
-            }
-            chronometer.stop()
-            dialog.dismiss()
-
-            return result
-        }
-
-        private suspend fun updateProgress(completed: Int, total: Int) {
-            withContext(Dispatchers.Main) {
-                val progressPercentage = (completed.toFloat() / total.toFloat() * 100f).toInt()
-                progressBar.progress = progressPercentage
-                val progressText = "$completed/$total"
-                progressTextView.text = progressText
-            }
-        }
-    }
-
 }

@@ -121,3 +121,5 @@ fun Fragment.buildCustomDialogTitleTextView(titleText: String?): TextView {
     titleTextView.gravity = Gravity.LEFT
     return titleTextView
 }
+
+fun File.makeDirsIfNotExists() { if (!isDirectory) mkdirs() }

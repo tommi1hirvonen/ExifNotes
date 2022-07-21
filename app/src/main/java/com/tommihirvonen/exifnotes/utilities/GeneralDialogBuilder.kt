@@ -33,23 +33,16 @@ import com.tommihirvonen.exifnotes.R
  */
 class GeneralDialogBuilder(context: Context) : AlertDialog.Builder(context) {
 
-    override fun setTitle(title: CharSequence): GeneralDialogBuilder {
-        super.setTitle(title)
-        return this
-    }
+    override fun setTitle(title: CharSequence) = apply { super.setTitle(title) }
 
-    override fun setMessage(message: CharSequence): GeneralDialogBuilder {
+    override fun setMessage(message: CharSequence) = apply {
         // If there are URLs embedded in the message, modify them to become links.
         val spannableString = SpannableString(message)
         Linkify.addLinks(spannableString, Linkify.WEB_URLS)
         super.setMessage(spannableString)
-        return this
     }
 
-    override fun setView(view: View): GeneralDialogBuilder {
-        super.setView(view)
-        return this
-    }
+    override fun setView(view: View) = apply { super.setView(view) }
 
     override fun create(): AlertDialog {
         setNegativeButton(R.string.Close) { _: DialogInterface?, _: Int -> }
