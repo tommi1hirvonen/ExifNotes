@@ -36,13 +36,16 @@ val Context.database: Database get() = Database.getInstance(applicationContext)
 val Fragment.database: Database get() = Database.getInstance(requireContext().applicationContext)
 
 fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
-        generateSequence { if (this.moveToNext()) this else null }.map { transform(it) }.toList()
+        generateSequence { if (moveToNext()) this else null }
+            .map { transform(it) }
+            .toList()
+            .apply { close() }
 
 fun <T> Cursor.withFirstOrNull(transform: (Cursor) -> T): T? =
-        if (this.moveToFirst()) transform(this) else null
+    moveToFirst().let { if (it) transform(this) else null }.apply { close() }
 
 fun <T> Cursor.withFirstOrDefault(default: T, transform: (Cursor) -> T): T =
-        if (this.moveToFirst()) transform(this) else default
+    moveToFirst().let { if (it) transform(this) else default }.apply { close() }
 
 /**
  * FilmDbHelper is the SQL database class that holds all the information
@@ -199,7 +202,7 @@ class Database private constructor(private val context: Context)
     fun getAllFramesFromRoll(roll: Roll): List<Frame> {
         val cursor = readableDatabase.query(TABLE_FRAMES, null,
                 "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()), null, null, KEY_COUNT)
-        return cursor.map { getFrameFromCursor(it, roll) }.also { cursor.close() }
+        return cursor.map { getFrameFromCursor(it, roll) }
     }
 
     /**
@@ -228,7 +231,7 @@ class Database private constructor(private val context: Context)
     val allComplementaryPictureFilenames: List<String> get() {
         val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf(KEY_PICTURE_FILENAME),
                 "$KEY_PICTURE_FILENAME IS NOT NULL", null, null, null, null)
-        return cursor.map { it.getString(it.getColumnIndexOrThrow(KEY_PICTURE_FILENAME)) }.also { cursor.close() }
+        return cursor.map { it.getString(it.getColumnIndexOrThrow(KEY_PICTURE_FILENAME)) }
     }
 
     // ******************** CRUD operations for the lenses table ********************
@@ -248,21 +251,49 @@ class Database private constructor(private val context: Context)
      * @return a Lens corresponding to the id
      */
     private fun getLens(lens_id: Long): Lens? {
-        val cursor = readableDatabase.query(TABLE_LENSES, null,
+        val filtersCursor = readableDatabase.query(TABLE_LINK_LENS_FILTER, arrayOf(KEY_FILTER_ID),
+            "$KEY_LENS_ID=?", arrayOf(lens_id.toString()), null, null, null)
+        val filters = filtersCursor.map { it.getLong(it.getColumnIndexOrThrow(KEY_FILTER_ID)) }.toHashSet()
+        val camerasCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, arrayOf(KEY_CAMERA_ID),
+            "$KEY_LENS_ID=?", arrayOf(lens_id.toString()), null, null, null)
+        val cameras = camerasCursor.map { it.getLong(it.getColumnIndexOrThrow(KEY_CAMERA_ID)) }.toHashSet()
+        val lensCursor = readableDatabase.query(TABLE_LENSES, null,
                 "$KEY_LENS_ID=?", arrayOf(lens_id.toString()), null, null, null)
-        return cursor.withFirstOrNull { getLensFromCursor(it) }.also { cursor.close() }
+        return lensCursor.withFirstOrNull {
+            getLensFromCursor(it).apply {
+                filterIds = filters
+                cameraIds = cameras
+            }
+        }
     }
 
     /**
      * Get lenses from the database.
      */
-    fun getLenses(includeFixedLenses: Boolean = false): List<Lens> {
-        val selection =
-            if (includeFixedLenses) null
-            else "$KEY_LENS_ID not in (select $KEY_LENS_ID from $TABLE_CAMERAS where $KEY_LENS_ID is not null)"
+    val allLenses: List<Lens> get() {
+        val filtersCursor = readableDatabase.query(TABLE_LINK_LENS_FILTER, null, null, null, null, null, null)
+        val filters = filtersCursor.map { c ->
+            val lensId = c.getLong(c.getColumnIndexOrThrow(KEY_LENS_ID))
+            val filterId = c.getLong(c.getColumnIndexOrThrow(KEY_FILTER_ID))
+            lensId to filterId
+        }.groupBy({ it.first }, { it.second })
+
+        val camerasCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, null, null, null, null, null, null)
+        val cameras = camerasCursor.map { c ->
+            val lensId = c.getLong(c.getColumnIndexOrThrow(KEY_LENS_ID))
+            val cameraId = c.getLong(c.getColumnIndexOrThrow(KEY_CAMERA_ID))
+            lensId to cameraId
+        }.groupBy({ it.first }, { it.second })
+
+        val selection = "$KEY_LENS_ID not in (select $KEY_LENS_ID from $TABLE_CAMERAS where $KEY_LENS_ID is not null)"
         val cursor = readableDatabase.query(TABLE_LENSES, null, selection, null,
                 null, null, "$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase")
-        return cursor.map { getLensFromCursor(it) }.also { cursor.close() }
+        return cursor.map {
+            getLensFromCursor(it).apply {
+                filterIds = filters[id]?.toHashSet() ?: HashSet()
+                cameraIds = cameras[id]?.toHashSet() ?: HashSet()
+            }
+        }
     }
 
     /**
@@ -309,29 +340,27 @@ class Database private constructor(private val context: Context)
      * @return the Camera corresponding to the given id
      */
     private fun getCamera(camera_id: Long): Camera? {
+        val lensesCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, arrayOf(KEY_LENS_ID),
+            "$KEY_CAMERA_ID=?", arrayOf(camera_id.toString()), null, null, null)
+        val lenses = lensesCursor
+            .map { it.getLong(it.getColumnIndexOrThrow(KEY_LENS_ID)) }
+            .toHashSet()
         val cursor = readableDatabase.query(TABLE_CAMERAS, null,
                 "$KEY_CAMERA_ID=?", arrayOf(camera_id.toString()), null, null, null)
-        return cursor.withFirstOrNull { getCameraFromCursor(it) }.also { cursor.close() }
+        return cursor.withFirstOrNull { getCameraFromCursor(it).apply { lensIds = lenses } }
     }
 
-    /**
-     * Get a fixed-lens camera by its lens id.
-     */
-    fun getCameraByLensId(lensId: Long): Camera? {
-        val cursor = readableDatabase.query(TABLE_CAMERAS, null, "$KEY_LENS_ID = ?",
-            arrayOf(lensId.toString()), null, null, null, "1")
-        return cursor.withFirstOrNull { getCameraFromCursor(it) }.also { cursor.close() }
-    }
-
-    fun getCameras(includeFixedLensCameras: Boolean = true, onlyFixedLensCameras: Boolean = false): List<Camera> {
-        val selection = when {
-            onlyFixedLensCameras -> "$KEY_LENS_ID is not null"
-            includeFixedLensCameras -> null
-            else -> "$KEY_LENS_ID is null"
-        }
-        val cursor = readableDatabase.query(TABLE_CAMERAS, null, selection, null,
+    val allCameras: List<Camera> get() {
+        val lensesCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, null, null, null, null, null, null)
+        val lenses = lensesCursor.map { c ->
+            val cameraId = c.getLong(c.getColumnIndexOrThrow(KEY_CAMERA_ID))
+            val lensId = c.getLong(c.getColumnIndexOrThrow(KEY_LENS_ID))
+            cameraId to lensId
+        }.groupBy({ it.first }, { it.second })
+        val cursor = readableDatabase.query(TABLE_CAMERAS, null, null, null,
             null, null, "$KEY_CAMERA_MAKE collate nocase,$KEY_CAMERA_MODEL collate nocase")
-        return cursor.map { getCameraFromCursor(it) }.also { cursor.close() }
+        return cursor
+            .map { getCameraFromCursor(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
     }
 
     /**
@@ -403,22 +432,7 @@ class Database private constructor(private val context: Context)
                 + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
                 + KEY_CAMERA_ID + "=" + camera.id + ") ORDER BY " + KEY_LENS_MAKE)
         val cursor = readableDatabase.rawQuery(query, null)
-        return cursor.map { getLensFromCursor(it) }.also { cursor.close() }
-    }
-
-    /**
-     * Gets all the cameras that can be mounted to the specified lens
-     * @param lens the lens whose cameras we want to get
-     * @return a List of all linked cameras
-     */
-    fun getLinkedCameras(lens: Lens): List<Camera> {
-        //Here it is safe to use a raw query, because we only use id values, which are database generated.
-        //So there is no danger of SQL injection
-        val query = ("SELECT * FROM " + TABLE_CAMERAS + " WHERE " + KEY_CAMERA_ID + " IN "
-                + "(" + "SELECT " + KEY_CAMERA_ID + " FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
-                + KEY_LENS_ID + "=" + lens.id + ") ORDER BY " + KEY_CAMERA_MAKE)
-        val cursor = readableDatabase.rawQuery(query, null)
-        return cursor.map { getCameraFromCursor(it) }.also { cursor.close() }
+        return cursor.map { getLensFromCursor(it) }
     }
 
     // ******************** CRUD operations for the rolls table ********************
@@ -445,7 +459,7 @@ class Database private constructor(private val context: Context)
         }
         val cursor = readableDatabase.query(TABLE_ROLLS, null, selectionArg, null,
                 null, null, "$KEY_ROLL_DATE DESC")
-        return cursor.map { getRollFromCursor(it) }.also { cursor.close() }
+        return cursor.map { getRollFromCursor(it) }
     }
 
     /**
@@ -472,7 +486,7 @@ class Database private constructor(private val context: Context)
     fun getNumberOfFrames(roll: Roll): Int {
         val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf("COUNT($KEY_FRAME_ID)"),
                 "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()), null, null, null)
-        return cursor.withFirstOrDefault(0) { it.getInt(0) }.also { cursor.close() }
+        return cursor.withFirstOrDefault(0) { it.getInt(0) }
     }
 
     // ******************** CRUD operations for the filters table ********************
@@ -491,9 +505,16 @@ class Database private constructor(private val context: Context)
      * @return a List of all the filters in the database
      */
     val allFilters: List<Filter> get() {
-        val cursor = readableDatabase.query(TABLE_FILTERS, null, null, null,
+        val lensesCursor = readableDatabase.query(TABLE_LINK_LENS_FILTER, null, null, null, null, null, null)
+        val lenses = lensesCursor.map { c ->
+            val filterId = c.getLong(c.getColumnIndexOrThrow(KEY_FILTER_ID))
+            val lensId = c.getLong(c.getColumnIndexOrThrow(KEY_LENS_ID))
+            filterId to lensId
+        }.groupBy({ it.first }, { it.second })
+        val filterCursor = readableDatabase.query(TABLE_FILTERS, null, null, null,
                 null, null, "$KEY_FILTER_MAKE collate nocase,$KEY_FILTER_MODEL collate nocase")
-        return cursor.map { getFilterFromCursor(it) }.also { cursor.close() }
+        return filterCursor
+            .map { getFilterFromCursor(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
     }
 
     /**
@@ -549,21 +570,6 @@ class Database private constructor(private val context: Context)
                     "$KEY_FILTER_ID = ? AND $KEY_LENS_ID = ?", arrayOf(filter.id.toString(), lens.id.toString()))
 
     /**
-     * Gets all the lenses that can be mounted to the specified filter
-     * @param filter the filter whose lenses we want to get
-     * @return a List of all linked lenses
-     */
-    fun getLinkedLenses(filter: Filter): List<Lens> {
-        //Here it is safe to use a raw query, because we only use id values, which are database generated.
-        //So there is no danger of SQL injection
-        val query = ("SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
-                + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
-                + KEY_FILTER_ID + "=" + filter.id + ") ORDER BY " + KEY_LENS_MAKE)
-        val cursor = readableDatabase.rawQuery(query, null)
-        return cursor.map { getLensFromCursor(it) }.also { cursor.close() }
-    }
-
-    /**
      * Gets all the filters that can be mounted to the specified lens
      * @param lens the lens whose filters we want to get
      * @return a List of all linked filters
@@ -575,7 +581,7 @@ class Database private constructor(private val context: Context)
                 + "(" + "SELECT " + KEY_FILTER_ID + " FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
                 + KEY_LENS_ID + "=" + lens.id + ") ORDER BY " + KEY_FILTER_MAKE)
         val cursor = readableDatabase.rawQuery(query, null)
-        return cursor.map { getFilterFromCursor(it) }.also { cursor.close() }
+        return cursor.map { getFilterFromCursor(it) }
     }
 
     // ******************** CRUD operations for the frame-filter link table ********************
@@ -618,7 +624,7 @@ class Database private constructor(private val context: Context)
                 + "(select " + KEY_FILTER_ID + " from " + TABLE_LINK_FRAME_FILTER + " where "
                 + KEY_FRAME_ID + " = " + frame.id + ") order by " + KEY_FILTER_MAKE)
         val cursor = readableDatabase.rawQuery(query, null)
-        return cursor.map { getFilterFromCursor(it) }.also { cursor.close() }
+        return cursor.map { getFilterFromCursor(it) }
     }
 
     // ******************** CRUD operations for the film stock table ********************
@@ -632,20 +638,20 @@ class Database private constructor(private val context: Context)
     private fun getFilmStock(filmStockId: Long): FilmStock? {
         val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null,
                 "$KEY_FILM_STOCK_ID=?", arrayOf(filmStockId.toString()), null, null, null)
-        return cursor.withFirstOrNull { getFilmStockFromCursor(cursor, FilmStock()) }.also { cursor.close() }
+        return cursor.withFirstOrNull { getFilmStockFromCursor(cursor, FilmStock()) }
     }
 
     val allFilmStocks: List<FilmStock> get() {
         val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null, null,
                 null, null, null,
                 "$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase")
-        return cursor.map { getFilmStockFromCursor(it, FilmStock()) }.also { cursor.close() }
+        return cursor.map { getFilmStockFromCursor(it, FilmStock()) }
     }
 
     val allFilmManufacturers: List<String> get() {
         val cursor = readableDatabase.query(true, TABLE_FILM_STOCKS, arrayOf(KEY_FILM_MANUFACTURER_NAME),
                 null, null, null, null, "$KEY_FILM_MANUFACTURER_NAME collate nocase", null)
-        return cursor.map { it.getString(it.getColumnIndexOrThrow(KEY_FILM_MANUFACTURER_NAME)) }.also { cursor.close() }
+        return cursor.map { it.getString(it.getColumnIndexOrThrow(KEY_FILM_MANUFACTURER_NAME)) }
     }
 
     fun isFilmStockBeingUsed(filmStock: FilmStock): Boolean {

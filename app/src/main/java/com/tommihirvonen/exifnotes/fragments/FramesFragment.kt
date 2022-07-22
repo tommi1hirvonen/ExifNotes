@@ -660,7 +660,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                     AlertDialog.Builder(requireContext()).apply {
                                         setNegativeButton(R.string.Cancel) { _, _ -> }
                                         val lenses = roll.camera?.let { database.getLinkedLenses(it) }
-                                                ?: database.getLenses()
+                                                ?: database.allLenses
                                         val listItems = listOf(resources.getString(R.string.NoLens))
                                                 .plus(lenses.map { it.name })
                                                 .toTypedArray()

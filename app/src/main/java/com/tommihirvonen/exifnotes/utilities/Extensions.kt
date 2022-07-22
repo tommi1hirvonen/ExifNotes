@@ -32,6 +32,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.tommihirvonen.exifnotes.datastructures.Gear
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import java.io.*
 
@@ -123,3 +124,6 @@ fun Fragment.buildCustomDialogTitleTextView(titleText: String?): TextView {
 }
 
 fun File.makeDirsIfNotExists() { if (!isDirectory) mkdirs() }
+
+fun List<Gear>.toStringList(): String =
+    if (this.isEmpty()) "" else this.joinToString(separator = "\n-", prefix = "\n-") { it.name }

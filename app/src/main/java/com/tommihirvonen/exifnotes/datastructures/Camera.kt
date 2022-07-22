@@ -32,7 +32,8 @@ data class Camera(
         var maxShutter: String? = null,
         var shutterIncrements: Increment = Increment.THIRD,
         var exposureCompIncrements: PartialIncrement = PartialIncrement.THIRD,
-        var lens: Lens? = null)
+        var lens: Lens? = null,
+        var lensIds: HashSet<Long> = HashSet())
     : Gear(id, make, model), Comparable<Gear> {
 
     val isFixedLens get() = lens != null

@@ -24,4 +24,5 @@ import kotlinx.parcelize.Parcelize
 class Filter(
         override var id: Long = 0,
         override var make: String? = null,
-        override var model: String? = null) : Gear(id, make, model),Comparable<Gear>
+        override var model: String? = null,
+        var lensIds: HashSet<Long> = HashSet()) : Gear(id, make, model), Comparable<Gear>

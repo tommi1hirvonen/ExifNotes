@@ -29,12 +29,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.activities.GearActivity
-import com.tommihirvonen.exifnotes.adapters.GearAdapter
+import com.tommihirvonen.exifnotes.adapters.LensAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentLensesBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Filter
@@ -44,23 +44,17 @@ import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
+import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 
 /**
  * Fragment to display all lenses from the database along with details
  */
 class LensesFragment : Fragment(), View.OnClickListener {
 
-    private lateinit var binding: FragmentLensesBinding
-
-    /**
-     * Adapter used to adapt lensList to binding.lensesRecyclerView
-     */
-    private lateinit var lensAdapter: GearAdapter
-
-    /**
-     * Contains all lenses from the database
-     */
-    private lateinit var lensList: MutableList<Lens>
+    private val model: GearViewModel by activityViewModels()
+    private var cameras: List<Camera> = emptyList()
+    private var lenses: List<Lens> = emptyList()
+    private var filters: List<Filter> = emptyList()
 
     private var fragmentVisible = false
 
@@ -81,9 +75,8 @@ class LensesFragment : Fragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        binding = FragmentLensesBinding.inflate(inflater, container, false)
-        lensList = database.getLenses().toMutableList()
-        lensList.sort()
+        val binding = FragmentLensesBinding.inflate(inflater, container, false)
+
         binding.fabLenses.setOnClickListener(this)
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
@@ -93,10 +86,29 @@ class LensesFragment : Fragment(), View.OnClickListener {
         binding.lensesRecyclerView.layoutManager = layoutManager
         binding.lensesRecyclerView.addItemDecoration(DividerItemDecoration(binding.lensesRecyclerView.context,
                 layoutManager.orientation))
-        lensAdapter = GearAdapter(requireActivity(), lensList)
+
+        val lensAdapter = LensAdapter(requireActivity())
         binding.lensesRecyclerView.adapter = lensAdapter
-        if (lensList.size >= 1) binding.noAddedLenses.visibility = View.GONE
-        lensAdapter.notifyDataSetChanged()
+
+        model.lenses.observe(viewLifecycleOwner) { lenses ->
+            this.lenses = lenses
+            lensAdapter.lenses = lenses
+            binding.noAddedLenses.visibility = if (lenses.isEmpty()) View.VISIBLE else View.GONE
+            lensAdapter.notifyDataSetChanged()
+        }
+
+        model.cameras.observe(viewLifecycleOwner) { cameras ->
+            this.cameras = cameras
+            lensAdapter.cameras = cameras
+            lensAdapter.notifyDataSetChanged()
+        }
+
+        model.filters.observe(viewLifecycleOwner) { filters ->
+            this.filters = filters
+            lensAdapter.filters = filters
+            lensAdapter.notifyDataSetChanged()
+        }
+
         return binding.root
     }
 
@@ -109,17 +121,17 @@ class LensesFragment : Fragment(), View.OnClickListener {
             // Use the getOrder() method to unconventionally get the clicked item's position.
             // This is set to work correctly in the Adapter class.
             val position = item.order
-            val lens = lensList[position]
+            val lens = lenses[position]
             when (item.itemId) {
-                GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_CAMERAS -> {
+                LensAdapter.MENU_ITEM_SELECT_MOUNTABLE_CAMERAS -> {
                     showSelectMountableCamerasDialog(position)
                     return true
                 }
-                GearAdapter.MENU_ITEM_SELECT_MOUNTABLE_FILTERS -> {
+                LensAdapter.MENU_ITEM_SELECT_MOUNTABLE_FILTERS -> {
                     showSelectMountableFiltersDialog(position)
                     return true
                 }
-                GearAdapter.MENU_ITEM_DELETE -> {
+                LensAdapter.MENU_ITEM_DELETE -> {
 
                     // Check if the lens is being used with one of the frames.
                     if (database.isLensInUse(lens)) {
@@ -134,21 +146,12 @@ class LensesFragment : Fragment(), View.OnClickListener {
                     )
                     builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
                     builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-                        database.deleteLens(lens)
-
-                        // Remove the lens from the lensList. Do this last!
-                        lensList.removeAt(position)
-                        if (lensList.size == 0) binding.noAddedLenses.visibility = View.VISIBLE
-                        lensAdapter.notifyItemRemoved(position)
-
-                        // Update the CamerasFragment through the parent activity.
-                        val gearActivity = requireActivity() as GearActivity
-                        gearActivity.updateFragments()
+                        model.deleteLens(lens)
                     }
                     builder.create().show()
                     return true
                 }
-                GearAdapter.MENU_ITEM_EDIT -> {
+                LensAdapter.MENU_ITEM_EDIT -> {
                     val dialog = EditLensDialog(fixedLens = false)
                     val arguments = Bundle()
                     arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditLens))
@@ -161,17 +164,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
                         val lens1: Lens = bundle.getParcelable(ExtraKeys.LENS)
                             ?: return@setFragmentResultListener
                         if (lens1.make?.isNotEmpty() == true && lens1.model?.isNotEmpty() == true && lens1.id > 0) {
-                            database.updateLens(lens1)
-                            val oldPos = lensList.indexOf(lens1)
-                            lensList.sort()
-                            val newPos = lensList.indexOf(lens1)
-                            lensAdapter.notifyItemChanged(oldPos)
-                            lensAdapter.notifyItemMoved(oldPos, newPos)
-                            binding.lensesRecyclerView.scrollToPosition(newPos)
-
-                            // Update the LensesFragment through the parent activity.
-                            val gearActivity = requireActivity() as GearActivity
-                            gearActivity.updateFragments()
+                            model.updateLens(lens1, isFixedLens = false)
                         }
                     }
                     return true
@@ -196,15 +189,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
             val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
                 ?: return@setFragmentResultListener
             if (lens.make?.isNotEmpty() == true && lens.model?.isNotEmpty() == true) {
-                binding.noAddedLenses.visibility = View.GONE
-                database.addLens(lens)
-                lensList.add(lens)
-                lensList.sort()
-                val listPos = lensList.indexOf(lens)
-                lensAdapter.notifyItemInserted(listPos)
-
-                // When the lens is added jump to view the last entry
-                binding.lensesRecyclerView.scrollToPosition(listPos)
+                model.addLens(lens, isFixedLens = false)
             }
         }
     }
@@ -221,9 +206,9 @@ class LensesFragment : Fragment(), View.OnClickListener {
      * @param position indicates the position of the picked lens in lensList
      */
     private fun showSelectMountableCamerasDialog(position: Int) {
-        val lens = lensList[position]
-        val mountableCameras = database.getLinkedCameras(lens)
-        val allCameras = database.getCameras(includeFixedLensCameras = false)
+        val lens = lenses[position]
+        val mountableCameras = cameras.filter { lens.cameraIds.contains(it.id) }
+        val allCameras = cameras.filter { it.isNotFixedLens }
 
         // Create a list where the mountable selections are saved.
         val cameraSelections = allCameras.map {
@@ -244,19 +229,13 @@ class LensesFragment : Fragment(), View.OnClickListener {
 
                     // Go through new mountable combinations.
                     cameraSelections.filter { it.afterState != it.beforeState && it.afterState }.forEach {
-                        database.addCameraLensLink(it.gear as Camera, lens)
+                        model.addCameraLensLink(it.gear as Camera, lens)
                     }
 
                     // Go through removed mountable combinations.
                     cameraSelections.filter { it.afterState != it.beforeState && !it.afterState }.forEach {
-                        database.deleteCameraLensLink(it.gear as Camera, lens)
+                        model.deleteCameraLensLink(it.gear as Camera, lens)
                     }
-
-                    lensAdapter.notifyItemChanged(position)
-
-                    // Update the CamerasFragment through the parent activity.
-                    val gearActivity = requireActivity() as GearActivity
-                    gearActivity.updateFragments()
                 }
                 .setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
         val alert = builder.create()
@@ -269,9 +248,9 @@ class LensesFragment : Fragment(), View.OnClickListener {
      * @param position indicates the position of the picked lens in lensList
      */
     private fun showSelectMountableFiltersDialog(position: Int) {
-        val lens = lensList[position]
-        val mountableFilters = database.getLinkedFilters(lens)
-        val allFilters = database.allFilters
+        val lens = lenses[position]
+        val mountableFilters = filters.filter { lens.filterIds.contains(it.id) }
+        val allFilters = filters
 
         // Create a list where the mountable selections are saved.
         val filterSelections = allFilters.map {
@@ -292,30 +271,17 @@ class LensesFragment : Fragment(), View.OnClickListener {
 
                     // Go through new mountable combinations.
                     filterSelections.filter { it.afterState != it.beforeState && it.afterState }.forEach {
-                        database.addLensFilterLink(it.gear as Filter, lens)
+                        model.addLensFilterLink(it.gear as Filter, lens, isFixedLens = false)
                     }
 
                     // Go through removed mountable combinations.
                     filterSelections.filter { it.afterState != it.beforeState && !it.afterState }.forEach {
-                        database.deleteLensFilterLink(it.gear as Filter, lens)
+                        model.deleteLensFilterLink(it.gear as Filter, lens, isFixedLens = false)
                     }
-
-                    lensAdapter.notifyItemChanged(position)
-
-                    // Update the FiltersFragment through the parent activity.
-                    val gearActivity = requireActivity() as GearActivity
-                    gearActivity.updateFragments()
                 }
                 .setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
         val alert = builder.create()
         alert.show()
-    }
-
-    /**
-     * Public method to update the contents of this fragment's ListView
-     */
-    fun updateFragment() {
-        lensAdapter.notifyDataSetChanged()
     }
 
 }

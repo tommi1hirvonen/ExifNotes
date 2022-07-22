@@ -70,7 +70,7 @@ class EditRollDialog : BottomSheetDialogFragment() {
 
         roll = requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll()
         newRoll = roll.copy()
-        cameraList = database.getCameras().toMutableList()
+        cameraList = database.allCameras.toMutableList()
 
 
         // NAME EDIT TEXT

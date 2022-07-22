@@ -214,26 +214,6 @@ class GearActivity : AppCompatActivity() {
     }
 
     /**
-     * When new mountable combinations are added to the database, other fragments' views
-     * have to be updated too to display the changes. This method updates the necessary fragment(s).
-     */
-    fun updateFragments() {
-        when (viewPager.currentItem) {
-            POSITION_CAMERAS -> {
-                (pagerAdapter.fragments[POSITION_LENSES] as LensesFragment?)?.updateFragment()
-                (pagerAdapter.fragments[POSITION_FILTERS] as FiltersFragment?)?.updateFragment()
-            }
-            POSITION_LENSES -> {
-                (pagerAdapter.fragments[POSITION_CAMERAS] as CamerasFragment?)?.updateFragment()
-                (pagerAdapter.fragments[POSITION_FILTERS] as FiltersFragment?)?.updateFragment()
-            }
-            POSITION_FILTERS -> {
-                (pagerAdapter.fragments[POSITION_LENSES] as LensesFragment?)?.updateFragment()
-            }
-        }
-    }
-
-    /**
      * Manages the fragments inside GearActivity.
      */
     private inner class PagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {

@@ -31,7 +31,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.adapters.GearAdapter
+import com.tommihirvonen.exifnotes.adapters.FilmStockAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentFilmsBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
@@ -53,7 +53,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     private lateinit var allFilmStocks: MutableList<FilmStock>
     private lateinit var filteredFilmStocks: MutableList<FilmStock>
     private var fragmentVisible = false
-    private lateinit var filmStockAdapter: GearAdapter
+    private lateinit var filmStockAdapter: FilmStockAdapter
     var sortMode = SORT_MODE_NAME
         private set
     private var manufacturerFilterList = emptyList<String>().toMutableList()
@@ -83,7 +83,8 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                         binding.filmsRecyclerView.context, layoutManager.orientation
                 )
         )
-        filmStockAdapter = GearAdapter(requireActivity(), filteredFilmStocks)
+        filmStockAdapter = FilmStockAdapter(requireActivity())
+        filmStockAdapter.filmStocks = filteredFilmStocks
         binding.filmsRecyclerView.adapter = filmStockAdapter
         filmStockAdapter.notifyDataSetChanged()
 
@@ -128,7 +129,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
             val position = item.order
             val filmStock = filteredFilmStocks[position]
             when (item.itemId) {
-                GearAdapter.MENU_ITEM_DELETE -> {
+                FilmStockAdapter.MENU_ITEM_DELETE -> {
                     val builder = AlertDialog.Builder(activity)
                     builder.setTitle(
                             resources.getString(R.string.DeleteFilmStock) + " " + filmStock.name
@@ -146,7 +147,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
                     builder.create().show()
                     return true
                 }
-                GearAdapter.MENU_ITEM_EDIT -> {
+                FilmStockAdapter.MENU_ITEM_EDIT -> {
                     val dialog = EditFilmStockDialog()
                     val arguments = Bundle()
                     arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilmStock))
@@ -220,7 +221,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         }.toMutableList()
         sortFilmStocks()
 
-        filmStockAdapter.gearList = filteredFilmStocks
+        filmStockAdapter.filmStocks = filteredFilmStocks
         filmStockAdapter.notifyDataSetChanged()
     }
 

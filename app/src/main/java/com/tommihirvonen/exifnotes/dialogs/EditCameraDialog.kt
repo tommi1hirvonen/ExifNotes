@@ -28,7 +28,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogCameraBinding
@@ -37,11 +37,15 @@ import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.PartialIncrement
 import com.tommihirvonen.exifnotes.utilities.*
+import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 
 /**
  * Dialog to edit Camera's information
  */
 class EditCameraDialog : DialogFragment() {
+
+    private val model: GearViewModel by activityViewModels()
+    private var lenses: List<Lens> = emptyList()
 
     companion object {
         /**
@@ -61,6 +65,11 @@ class EditCameraDialog : DialogFragment() {
     private lateinit var displayedShutterValues: Array<String>
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
+
+        model.lenses.observe(viewLifecycleOwner) { lenses ->
+            this.lenses = lenses
+        }
+
         val layoutInflater = requireActivity().layoutInflater
         binding = DialogCameraBinding.inflate(layoutInflater)
 
@@ -217,9 +226,7 @@ class EditCameraDialog : DialogFragment() {
 
         // FINALISE BUILDING THE DIALOG
         alert.setPositiveButton(positiveButton, null)
-        alert.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
-            setFragmentResult("EditCameraDialog", Bundle())
-        }
+        alert.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
         val dialog = alert.create()
 
         // SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
@@ -259,31 +266,28 @@ class EditCameraDialog : DialogFragment() {
 
                 // If the fixed lens was removed.
                 if (previousLens != null && currentLens == null) {
-                    database.deleteLens(previousLens)
+                    this.model.deleteLens(previousLens)
                 }
                 // If the fixed lens was set.
                 else if (currentLens != null) {
                     // Copy make and model properties from camera, since this is a fixed lens.
                     currentLens.make = camera.make
                     currentLens.model = camera.model
-                    if (database.updateLens(currentLens) == 0) {
+                    if (this.model.updateLens(currentLens, isFixedLens = true) == 0) {
                         // New fixed lens.
-                        database.addLens(currentLens)
+                        this.model.addLens(currentLens, isFixedLens = true)
                     }
                     // Remove linked lenses for this camera
                     // because it was converted to a fixed lens camera.
-                    database.getLinkedLenses(camera)
-                        .forEach { database.deleteCameraLensLink(camera, it) }
+                    lenses.filter { camera.lensIds.contains(it.id) }.forEach {
+                        this.model.deleteCameraLensLink(camera, it)
+                    }
                 }
 
-                if (database.updateCamera(camera) == 0) {
-                    database.addCamera(camera)
+                if (this.model.updateCamera(camera) == 0) {
+                    this.model.addCamera(camera)
                 }
 
-                // Return the new entered name to the calling activity
-                val bundle = Bundle()
-                bundle.putParcelable(ExtraKeys.CAMERA, camera)
-                setFragmentResult("EditCameraDialog", bundle)
                 dialog.dismiss()
             }
         }

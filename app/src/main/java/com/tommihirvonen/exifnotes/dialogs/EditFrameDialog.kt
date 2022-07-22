@@ -178,7 +178,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         frame.roll.camera?.let {
             mountableLenses = database.getLinkedLenses(it).toMutableList()
         } ?: run {
-            mountableLenses = database.getLenses().toMutableList()
+            mountableLenses = database.allLenses.toMutableList()
         }
 
         // Set a listener to check whether the complementary picture should be loaded and displayed.
