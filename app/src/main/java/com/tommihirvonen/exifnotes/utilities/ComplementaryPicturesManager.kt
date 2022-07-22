@@ -317,7 +317,7 @@ object ComplementaryPicturesManager {
      */
     fun deleteUnusedPictures(context: Context) {
         // List of all filenames that are being used in the database
-        val complementaryPictureFilenames = context.database.allComplementaryPictureFilenames
+        val complementaryPictureFilenames = context.database.complementaryPictureFilenames
         // The application private external storage directory, where complementary pictures are stored
         val picturesDirectory = getComplementaryPicturesDirectory(context)
         // Create a FileNameFilter using the filenames
@@ -340,7 +340,7 @@ object ComplementaryPicturesManager {
      * @param targetFile the directory where the zip file should be saved
      */
     suspend fun exportComplementaryPictures(activity: Activity, targetFile: File): Pair<Boolean, Int> {
-        val complementaryPictureFilenames = activity.database.allComplementaryPictureFilenames
+        val complementaryPictureFilenames = activity.database.complementaryPictureFilenames
         val picturesDirectory = getComplementaryPicturesDirectory(activity)
         if (picturesDirectory == null) {
             Toast.makeText(activity, activity.resources.getString(R.string.ErrorSharedStorageNotAvailable), Toast.LENGTH_SHORT).show()

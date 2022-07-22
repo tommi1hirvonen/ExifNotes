@@ -119,7 +119,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Set the roll list and other arrays
         val rolls = intent.getParcelableArrayListExtra<Roll>(ExtraKeys.ARRAY_LIST_ROLLS)
-        allRolls = rolls?.map { Triple(it, true, database.getAllFramesFromRoll(it)) } ?: emptyList()
+        allRolls = rolls?.map { Triple(it, true, database.getFrames(it)) } ?: emptyList()
 
         // If only one roll can be displayed, hide the bottom sheet.
         if (allRolls.size == 1) {

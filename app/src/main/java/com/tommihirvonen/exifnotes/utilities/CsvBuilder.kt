@@ -27,7 +27,7 @@ import org.apache.commons.text.StringEscapeUtils
 class CsvBuilder(val context: Context, val roll: Roll) {
     fun create(): String {
         val database = context.database
-        val frameList = database.getAllFramesFromRoll(roll)
+        val frameList = database.getFrames(roll)
         val camera = roll.camera
         val filmStock = roll.filmStock
         val separator = ","

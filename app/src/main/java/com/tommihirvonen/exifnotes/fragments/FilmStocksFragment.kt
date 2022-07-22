@@ -65,7 +65,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        allFilmStocks = database.allFilmStocks.toMutableList()
+        allFilmStocks = database.filmStocks.toMutableList()
         filteredFilmStocks = allFilmStocks.toMutableList()
     }
 
@@ -241,7 +241,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     fun showManufacturerFilterDialog() {
         val builder = AlertDialog.Builder(requireActivity())
         // Get all filter items.
-        val items = database.allFilmManufacturers.toTypedArray()
+        val items = database.filmManufacturers.toTypedArray()
         // Create a boolean array of same size with selected items marked true.
         val checkedItems = items.map { manufacturerFilterList.contains(it) }.toBooleanArray()
         builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->

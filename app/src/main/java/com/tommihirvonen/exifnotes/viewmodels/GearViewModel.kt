@@ -39,35 +39,31 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
     val filters: LiveData<List<Filter>> get() = mFilters
 
     private val mCameras: MutableLiveData<List<Camera>> by lazy {
-        MutableLiveData<List<Camera>>().also { loadCameras() }
+        MutableLiveData<List<Camera>>().apply {
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    postValue(database.cameras.sorted())
+                }
+            }
+        }
     }
+
     private val mLenses: MutableLiveData<List<Lens>> by lazy {
-        MutableLiveData<List<Lens>>().also { loadLenses() }
+        MutableLiveData<List<Lens>>().apply {
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    postValue(database.lenses.sorted())
+                }
+            }
+        }
     }
+
     private val mFilters: MutableLiveData<List<Filter>> by lazy {
-        MutableLiveData<List<Filter>>().also { loadFilters() }
-    }
-
-    private fun loadCameras() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                mCameras.postValue(database.allCameras.sorted())
-            }
-        }
-    }
-
-    private fun loadLenses() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                mLenses.postValue(database.allLenses.sorted())
-            }
-        }
-    }
-
-    private fun loadFilters() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                mFilters.postValue(database.allFilters.sorted())
+        MutableLiveData<List<Filter>>().apply {
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    postValue(database.filters.sorted())
+                }
             }
         }
     }

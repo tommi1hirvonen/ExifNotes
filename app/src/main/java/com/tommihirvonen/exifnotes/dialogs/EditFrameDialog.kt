@@ -178,7 +178,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         frame.roll.camera?.let {
             mountableLenses = database.getLinkedLenses(it).toMutableList()
         } ?: run {
-            mountableLenses = database.allLenses.toMutableList()
+            mountableLenses = database.lenses.toMutableList()
         }
 
         // Set a listener to check whether the complementary picture should be loaded and displayed.
@@ -686,7 +686,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             // If current lens is defined, use that to get linked filters.
             // Otherwise get all filters from database.
             val possibleFilters: List<Filter> =
-                    lens?.let { database.getLinkedFilters(it) } ?: database.allFilters
+                    lens?.let { database.getLinkedFilters(it) } ?: database.filters
             // Create a list with filter names to be shown on the multi choice dialog.
             val listItems = possibleFilters.map { it.name }.toTypedArray()
             // List where the mountable selections are stored.

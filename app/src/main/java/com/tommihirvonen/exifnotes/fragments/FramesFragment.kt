@@ -122,7 +122,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     private val mapResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             // Update the frame list in case updates were made in MapsActivity.
-            frameList = database.getAllFramesFromRoll(roll).toMutableList()
+            frameList = database.getFrames(roll).toMutableList()
             Frame.sortFrameList(requireActivity(), sortMode, frameList)
             frameAdapter = FrameAdapter(requireActivity(), frameList, this)
             binding.framesRecyclerView.adapter = frameAdapter
@@ -201,7 +201,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         roll = requireArguments().getParcelable(ExtraKeys.ROLL)!! // Roll must be defined for every Frame
-        frameList = database.getAllFramesFromRoll(roll).toMutableList()
+        frameList = database.getFrames(roll).toMutableList()
 
         //getActivity().getPreferences() returns a preferences file related to the
         //activity it is opened from. getDefaultSharedPreferences() returns the
@@ -660,7 +660,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                     AlertDialog.Builder(requireContext()).apply {
                                         setNegativeButton(R.string.Cancel) { _, _ -> }
                                         val lenses = roll.camera?.let { database.getLinkedLenses(it) }
-                                                ?: database.allLenses
+                                                ?: database.lenses
                                         val listItems = listOf(resources.getString(R.string.NoLens))
                                                 .plus(lenses.map { it.name })
                                                 .toTypedArray()
@@ -729,7 +729,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 }
                                 // Edit filters
                                 5 -> {
-                                    val filters = database.allFilters.map { it to false }.toMutableList()
+                                    val filters = database.filters.map { it to false }.toMutableList()
                                     val listItems = filters.map { it.first.name }.toTypedArray()
                                     AlertDialog.Builder(requireContext())
                                             .setMultiChoiceItems(listItems, BooleanArray(listItems.size)) { _, which, isChecked ->

@@ -199,7 +199,7 @@ class Database private constructor(private val context: Context)
      * @param roll Roll object whose frames should be fetched
      * @return an array of Frames
      */
-    fun getAllFramesFromRoll(roll: Roll): List<Frame> {
+    fun getFrames(roll: Roll): List<Frame> {
         val cursor = readableDatabase.query(TABLE_FRAMES, null,
                 "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()), null, null, KEY_COUNT)
         return cursor.map { getFrameFromCursor(it, roll) }
@@ -212,7 +212,7 @@ class Database private constructor(private val context: Context)
     fun updateFrame(frame: Frame): Int {
         val contentValues = buildFrameContentValues(frame)
         val rows = writableDatabase.update(TABLE_FRAMES, contentValues, "$KEY_FRAME_ID=?", arrayOf(frame.id.toString()))
-        deleteAllFrameFilterLinks(frame)
+        deleteFrameFilterLinks(frame)
         frame.filters.forEach { filter -> addFrameFilterLink(frame, filter) }
         return rows
     }
@@ -228,7 +228,7 @@ class Database private constructor(private val context: Context)
      * Gets all complementary picture filenames from the frames table.
      * @return List of all complementary picture filenames
      */
-    val allComplementaryPictureFilenames: List<String> get() {
+    val complementaryPictureFilenames: List<String> get() {
         val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf(KEY_PICTURE_FILENAME),
                 "$KEY_PICTURE_FILENAME IS NOT NULL", null, null, null, null)
         return cursor.map { it.getString(it.getColumnIndexOrThrow(KEY_PICTURE_FILENAME)) }
@@ -247,18 +247,18 @@ class Database private constructor(private val context: Context)
 
     /**
      * Gets a lens corresponding to the id.
-     * @param lens_id the id of the lens
+     * @param lensId the id of the lens
      * @return a Lens corresponding to the id
      */
-    private fun getLens(lens_id: Long): Lens? {
+    private fun getLens(lensId: Long): Lens? {
         val filtersCursor = readableDatabase.query(TABLE_LINK_LENS_FILTER, arrayOf(KEY_FILTER_ID),
-            "$KEY_LENS_ID=?", arrayOf(lens_id.toString()), null, null, null)
+            "$KEY_LENS_ID=?", arrayOf(lensId.toString()), null, null, null)
         val filters = filtersCursor.map { it.getLong(it.getColumnIndexOrThrow(KEY_FILTER_ID)) }.toHashSet()
         val camerasCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, arrayOf(KEY_CAMERA_ID),
-            "$KEY_LENS_ID=?", arrayOf(lens_id.toString()), null, null, null)
+            "$KEY_LENS_ID=?", arrayOf(lensId.toString()), null, null, null)
         val cameras = camerasCursor.map { it.getLong(it.getColumnIndexOrThrow(KEY_CAMERA_ID)) }.toHashSet()
         val lensCursor = readableDatabase.query(TABLE_LENSES, null,
-                "$KEY_LENS_ID=?", arrayOf(lens_id.toString()), null, null, null)
+                "$KEY_LENS_ID=?", arrayOf(lensId.toString()), null, null, null)
         return lensCursor.withFirstOrNull {
             getLensFromCursor(it).apply {
                 filterIds = filters
@@ -270,7 +270,7 @@ class Database private constructor(private val context: Context)
     /**
      * Get lenses from the database.
      */
-    val allLenses: List<Lens> get() {
+    val lenses: List<Lens> get() {
         val filtersCursor = readableDatabase.query(TABLE_LINK_LENS_FILTER, null, null, null, null, null, null)
         val filters = filtersCursor.map { c ->
             val lensId = c.getLong(c.getColumnIndexOrThrow(KEY_LENS_ID))
@@ -336,21 +336,21 @@ class Database private constructor(private val context: Context)
 
     /**
      * Gets the Camera corresponding to the camera id
-     * @param camera_id the id of the Camera
+     * @param cameraId the id of the Camera
      * @return the Camera corresponding to the given id
      */
-    private fun getCamera(camera_id: Long): Camera? {
+    private fun getCamera(cameraId: Long): Camera? {
         val lensesCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, arrayOf(KEY_LENS_ID),
-            "$KEY_CAMERA_ID=?", arrayOf(camera_id.toString()), null, null, null)
+            "$KEY_CAMERA_ID=?", arrayOf(cameraId.toString()), null, null, null)
         val lenses = lensesCursor
             .map { it.getLong(it.getColumnIndexOrThrow(KEY_LENS_ID)) }
             .toHashSet()
         val cursor = readableDatabase.query(TABLE_CAMERAS, null,
-                "$KEY_CAMERA_ID=?", arrayOf(camera_id.toString()), null, null, null)
+                "$KEY_CAMERA_ID=?", arrayOf(cameraId.toString()), null, null, null)
         return cursor.withFirstOrNull { getCameraFromCursor(it).apply { lensIds = lenses } }
     }
 
-    val allCameras: List<Camera> get() {
+    val cameras: List<Camera> get() {
         val lensesCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, null, null, null, null, null, null)
         val lenses = lensesCursor.map { c ->
             val cameraId = c.getLong(c.getColumnIndexOrThrow(KEY_CAMERA_ID))
@@ -504,7 +504,7 @@ class Database private constructor(private val context: Context)
      * Gets all the filters from the database
      * @return a List of all the filters in the database
      */
-    val allFilters: List<Filter> get() {
+    val filters: List<Filter> get() {
         val lensesCursor = readableDatabase.query(TABLE_LINK_LENS_FILTER, null, null, null, null, null, null)
         val lenses = lensesCursor.map { c ->
             val filterId = c.getLong(c.getColumnIndexOrThrow(KEY_FILTER_ID))
@@ -608,7 +608,7 @@ class Database private constructor(private val context: Context)
      *
      * @param frame Frame object whose filter links should be deleted
      */
-    private fun deleteAllFrameFilterLinks(frame: Frame): Int =
+    private fun deleteFrameFilterLinks(frame: Frame): Int =
             writableDatabase.delete(TABLE_LINK_FRAME_FILTER, "$KEY_FRAME_ID = ?", arrayOf(frame.id.toString()))
 
     /**
@@ -641,14 +641,14 @@ class Database private constructor(private val context: Context)
         return cursor.withFirstOrNull { getFilmStockFromCursor(cursor, FilmStock()) }
     }
 
-    val allFilmStocks: List<FilmStock> get() {
+    val filmStocks: List<FilmStock> get() {
         val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null, null,
                 null, null, null,
                 "$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase")
         return cursor.map { getFilmStockFromCursor(it, FilmStock()) }
     }
 
-    val allFilmManufacturers: List<String> get() {
+    val filmManufacturers: List<String> get() {
         val cursor = readableDatabase.query(true, TABLE_FILM_STOCKS, arrayOf(KEY_FILM_MANUFACTURER_NAME),
                 null, null, null, null, "$KEY_FILM_MANUFACTURER_NAME collate nocase", null)
         return cursor.map { it.getString(it.getColumnIndexOrThrow(KEY_FILM_MANUFACTURER_NAME)) }
