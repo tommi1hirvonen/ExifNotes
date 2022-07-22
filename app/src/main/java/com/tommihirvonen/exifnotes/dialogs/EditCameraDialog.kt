@@ -29,6 +29,7 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogCameraBinding
@@ -286,6 +287,10 @@ class EditCameraDialog : DialogFragment() {
                 if (this.model.updateCamera(camera) == 0) {
                     this.model.addCamera(camera)
                 }
+
+                val bundle = Bundle()
+                bundle.putParcelable(ExtraKeys.CAMERA, camera)
+                setFragmentResult("EditCameraDialog", bundle)
 
                 dialog.dismiss()
             }
