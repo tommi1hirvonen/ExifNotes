@@ -70,13 +70,14 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addCamera(camera: Camera) {
         database.addCamera(camera)
-        mCameras.value = mCameras.value?.plus(camera)?.sorted()
+        replaceCamera(camera)
     }
 
-    fun updateCamera(camera: Camera) = database.updateCamera(camera).also {
+    fun updateCamera(camera: Camera) = database.updateCamera(camera).also { replaceCamera(camera) }
+
+    private fun replaceCamera(camera: Camera) {
         mCameras.value = mCameras.value?.filterNot { it.id == camera.id }?.plus(camera)?.sorted()
     }
-
 
     fun deleteCamera(camera: Camera) {
         database.deleteCamera(camera)
@@ -85,13 +86,17 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addLens(lens: Lens, isFixedLens: Boolean) {
         database.addLens(lens)
-        if (!isFixedLens) mLenses.value = mLenses.value?.plus(lens)?.sorted()
+        if (!isFixedLens) replaceLens(lens)
     }
 
     fun updateLens(lens: Lens, isFixedLens: Boolean) = database.updateLens(lens).also {
         if (!isFixedLens) {
-            mLenses.value = mLenses.value?.filterNot { it.id == lens.id }?.plus(lens)?.sorted()
+            replaceLens(lens)
         }
+    }
+
+    private fun replaceLens(lens: Lens) {
+        mLenses.value = mLenses.value?.filterNot { it.id == lens.id }?.plus(lens)?.sorted()
     }
 
     fun deleteLens(lens: Lens) {
@@ -101,10 +106,12 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addFilter(filter: Filter) {
         database.addFilter(filter)
-        mFilters.value = mFilters.value?.plus(filter)?.sorted()
+        replaceFilter(filter)
     }
 
-    fun updateFilter(filter: Filter) = database.updateFilter(filter).also {
+    fun updateFilter(filter: Filter) = database.updateFilter(filter).also { replaceFilter(filter) }
+
+    private fun replaceFilter(filter: Filter) {
         mFilters.value = mFilters.value?.filterNot { it.id == filter.id }?.plus(filter)?.sorted()
     }
 
@@ -117,25 +124,25 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
         database.addCameraLensLink(camera, lens)
         camera.lensIds = camera.lensIds.plus(lens.id).toHashSet()
         lens.cameraIds = lens.cameraIds.plus(camera.id).toHashSet()
-        mCameras.value = mCameras.value?.filterNot { it.id == camera.id }?.plus(camera)?.sorted()
-        mLenses.value = mLenses.value?.filterNot { it.id == lens.id }?.plus(lens)?.sorted()
+        replaceCamera(camera)
+        replaceLens(lens)
     }
 
     fun deleteCameraLensLink(camera: Camera, lens: Lens) {
         database.deleteCameraLensLink(camera, lens)
         camera.lensIds = camera.lensIds.minus(lens.id).toHashSet()
         lens.cameraIds = lens.cameraIds.minus(camera.id).toHashSet()
-        mCameras.value = mCameras.value?.filterNot { it.id == camera.id }?.plus(camera)?.sorted()
-        mLenses.value = mLenses.value?.filterNot { it.id == lens.id }?.plus(lens)?.sorted()
+        replaceCamera(camera)
+        replaceLens(lens)
     }
 
     fun addLensFilterLink(filter: Filter, lens: Lens, isFixedLens: Boolean) {
         database.addLensFilterLink(filter, lens)
         filter.lensIds = filter.lensIds.plus(lens.id).toHashSet()
         lens.filterIds = lens.filterIds.plus(filter.id).toHashSet()
-        mFilters.value = mFilters.value?.filterNot { it.id == filter.id }?.plus(filter)?.sorted()
+        replaceFilter(filter)
         if (!isFixedLens) {
-            mLenses.value = mLenses.value?.filterNot { it.id == lens.id }?.plus(lens)?.sorted()
+            replaceLens(lens)
         }
     }
 
@@ -143,9 +150,9 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
         database.deleteLensFilterLink(filter, lens)
         filter.lensIds = filter.lensIds.minus(lens.id).toHashSet()
         lens.filterIds = lens.filterIds.minus(filter.id).toHashSet()
-        mFilters.value = mFilters.value?.filterNot { it.id == filter.id }?.plus(filter)?.sorted()
+        replaceFilter(filter)
         if (!isFixedLens) {
-            mLenses.value = mLenses.value?.filterNot { it.id == lens.id }?.plus(lens)?.sorted()
+            replaceLens(lens)
         }
     }
 }

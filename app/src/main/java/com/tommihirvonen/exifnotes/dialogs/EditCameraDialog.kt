@@ -65,8 +65,7 @@ class EditCameraDialog : DialogFragment() {
     private lateinit var displayedShutterValues: Array<String>
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
-
-        model.lenses.observe(viewLifecycleOwner) { lenses ->
+        model.lenses.observe(this) { lenses ->
             this.lenses = lenses
         }
 
