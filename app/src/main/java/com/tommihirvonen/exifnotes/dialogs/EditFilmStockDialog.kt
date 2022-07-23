@@ -35,13 +35,10 @@ import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.buildCustomDialogTitleTextView
 
 class EditFilmStockDialog : DialogFragment() {
-
-    private lateinit var binding: DialogFilmBinding
-
     @SuppressLint("SetTextI18n", "InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val layoutInflater = requireActivity().layoutInflater
-        binding = DialogFilmBinding.inflate(layoutInflater)
+        val binding = DialogFilmBinding.inflate(layoutInflater)
 
         val title = requireArguments().getString(ExtraKeys.TITLE)
         val positiveButtonText = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)

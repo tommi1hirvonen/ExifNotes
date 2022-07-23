@@ -44,11 +44,9 @@ class EditFilterDialog : DialogFragment() {
         const val TAG = "EditFilterDialog"
     }
 
-    private lateinit var binding: DialogFilterBinding
-
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
         val layoutInflater = requireActivity().layoutInflater
-        binding = DialogFilterBinding.inflate(layoutInflater)
+        val binding = DialogFilterBinding.inflate(layoutInflater)
         val builder = AlertDialog.Builder(activity)
         val title = requireArguments().getString(ExtraKeys.TITLE)
         val titleView = buildCustomDialogTitleTextView(title)
