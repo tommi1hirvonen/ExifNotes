@@ -638,14 +638,14 @@ class Database private constructor(private val context: Context)
     private fun getFilmStock(filmStockId: Long): FilmStock? {
         val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null,
                 "$KEY_FILM_STOCK_ID=?", arrayOf(filmStockId.toString()), null, null, null)
-        return cursor.withFirstOrNull { getFilmStockFromCursor(cursor, FilmStock()) }
+        return cursor.withFirstOrNull { getFilmStockFromCursor(it) }
     }
 
     val filmStocks: List<FilmStock> get() {
         val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null, null,
                 null, null, null,
                 "$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase")
-        return cursor.map { getFilmStockFromCursor(it, FilmStock()) }
+        return cursor.map { getFilmStockFromCursor(it) }
     }
 
     val filmManufacturers: List<String> get() {
@@ -671,198 +671,132 @@ class Database private constructor(private val context: Context)
     //*********************** METHODS TO GET OBJECTS FROM CURSOR **********************************
 
     /**
-     * Returns a Frame object generated from a Cursor object.
+     * Creates a new Frame object and maps the cursor's columns to the object's properties
      *
-     * @param cursor Cursor object containing the attributes for a Frame object
-     * @return Frame object generated from cursor
+     * @param cursor Cursor object which should be used to get the property values
+     * @param roll Roll object passed to the Frame's constructor
+     * @return Frame object with properties set from the cursor
      */
-    private fun getFrameFromCursor(cursor: Cursor, roll: Roll): Frame {
-        val frame = Frame(roll)
-        return getFrameFromCursor(cursor, frame)
-    }
-
-    /**
-     * Sets the attributes of a Frame object using a Cursor object.
-     *
-     * @param cursor Cursor object which should be used to get the attributes
-     * @param frame the Frame whose attributes should be set
-     * @return reference to the Frame object given as the parameter
-     */
-    private fun getFrameFromCursor(cursor: Cursor, frame: Frame): Frame {
-        frame.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FRAME_ID))
-        frame.count = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COUNT))
+    private fun getFrameFromCursor(cursor: Cursor, roll: Roll) = Frame(roll).apply {
+        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FRAME_ID))
+        count = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COUNT))
         val date = cursor.getString(cursor.getColumnIndexOrThrow(KEY_DATE))
-        if (date != null) frame.date = DateTime(date)
+        if (date != null) this.date = DateTime(date)
         val lensId = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_LENS_ID))
-        if (lensId > 0) frame.lens = getLens(lensId)
-        frame.shutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_SHUTTER))
-        frame.aperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_APERTURE))
-        frame.note = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FRAME_NOTE))
+        if (lensId > 0) lens = getLens(lensId)
+        shutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_SHUTTER))
+        aperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_APERTURE))
+        note = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FRAME_NOTE))
         val location = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LOCATION))
-        if (location != null) frame.location = Location(location)
-        frame.focalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FOCAL_LENGTH))
-        frame.exposureComp = cursor.getString(cursor.getColumnIndexOrThrow(KEY_EXPOSURE_COMP))
-        frame.noOfExposures = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_NO_OF_EXPOSURES))
+        if (location != null) this.location = Location(location)
+        focalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FOCAL_LENGTH))
+        exposureComp = cursor.getString(cursor.getColumnIndexOrThrow(KEY_EXPOSURE_COMP))
+        noOfExposures = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_NO_OF_EXPOSURES))
         val flashUsed = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FLASH_USED))
-        frame.flashUsed = flashUsed > 0
-        frame.flashPower = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FLASH_POWER))
-        frame.flashComp = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FLASH_COMP))
-        frame.meteringMode = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_METERING_MODE))
-        frame.formattedAddress = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FORMATTED_ADDRESS))
-        frame.pictureFilename = cursor.getString(cursor.getColumnIndexOrThrow(KEY_PICTURE_FILENAME))
-        frame.lightSource = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LIGHT_SOURCE))
-        frame.filters = getLinkedFilters(frame).toMutableList()
-        return frame
+        this.flashUsed = flashUsed > 0
+        flashPower = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FLASH_POWER))
+        flashComp = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FLASH_COMP))
+        meteringMode = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_METERING_MODE))
+        formattedAddress = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FORMATTED_ADDRESS))
+        pictureFilename = cursor.getString(cursor.getColumnIndexOrThrow(KEY_PICTURE_FILENAME))
+        lightSource = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LIGHT_SOURCE))
+        filters = getLinkedFilters(this).toMutableList()
     }
 
     /**
-     * Returns a Roll object generated from a Cursor object.
+     * Creates a new Roll object and maps the cursor's columns to the object's properties
      *
-     * @param cursor Cursor object containing the attributes for a Roll object
-     * @return Roll object generated from cursor
+     * @param cursor Cursor object which should be used to get the property values
+     * @return Roll object with properties set from the cursor
      */
-    private fun getRollFromCursor(cursor: Cursor): Roll {
-        val roll = Roll()
-        return getRollFromCursor(cursor, roll)
-    }
-
-    /**
-     * Sets the attributes of a Roll object using a Cursor object.
-     *
-     * @param cursor Cursor object which should be used to get the attributes
-     * @param roll the Roll whose attributes should be set
-     * @return reference to the Roll object given as the parameter
-     */
-    private fun getRollFromCursor(cursor: Cursor, roll: Roll): Roll {
-        roll.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_ROLL_ID))
-        roll.name = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLLNAME))
+    private fun getRollFromCursor(cursor: Cursor) = Roll().apply {
+        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_ROLL_ID))
+        name = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLLNAME))
         val date = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_DATE))
-        if (date != null) roll.date = DateTime(date)
-        roll.note = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_NOTE))
+        if (date != null) this.date = DateTime(date)
+        note = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_NOTE))
         val cameraId = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_CAMERA_ID))
-        if (cameraId > 0) roll.camera = getCamera(cameraId)
-        roll.iso = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_ISO))
-        roll.pushPull = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_PUSH))
-        roll.format = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_FORMAT))
+        if (cameraId > 0) camera = getCamera(cameraId)
+        iso = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_ISO))
+        pushPull = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_PUSH))
+        format = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_FORMAT))
         val archived = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_ARCHIVED))
-        roll.archived = archived > 0
+        this.archived = archived > 0
         val filmStockId = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_ID)).toLong()
-        if (filmStockId > 0) roll.filmStock = getFilmStock(filmStockId)
+        if (filmStockId > 0) filmStock = getFilmStock(filmStockId)
         val unloaded = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_UNLOADED))
-        if (unloaded != null) roll.unloaded = DateTime(unloaded)
+        if (unloaded != null) this.unloaded = DateTime(unloaded)
         val developed = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_DEVELOPED))
-        if (developed != null) roll.developed = DateTime(developed)
-        return roll
+        if (developed != null) this.developed = DateTime(developed)
     }
 
     /**
-     * Returns a Lens object generated from a Cursor object.
+     * Creates a new Lens object and maps the cursor's columns to the object's properties
      *
-     * @param cursor Cursor object containing the attributes for a Lens object
-     * @return Lens object generated from cursor
+     * @param cursor Cursor object which should be used to get the property values
+     * @return Lens object with properties set from the cursor
      */
-    private fun getLensFromCursor(cursor: Cursor): Lens {
-        val lens = Lens()
-        return getLensFromCursor(cursor, lens)
-    }
-
-    /**
-     * Sets the attributes of a Lens object using a Cursor object.
-     *
-     * @param cursor Cursor object which should be used to get the attributes
-     * @param lens the Lens whose attributes should be set
-     * @return reference to the Lens object given as the parameter
-     */
-    private fun getLensFromCursor(cursor: Cursor, lens: Lens): Lens {
-        lens.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_LENS_ID))
-        lens.make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MAKE))
-        lens.model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MODEL))
-        lens.serialNumber = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_SERIAL_NO))
-        lens.minAperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MIN_APERTURE))
-        lens.maxAperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MAX_APERTURE))
-        lens.minFocalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_MIN_FOCAL_LENGTH))
-        lens.maxFocalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_MAX_FOCAL_LENGTH))
+    private fun getLensFromCursor(cursor: Cursor) = Lens().apply {
+        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_LENS_ID))
+        make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MAKE))
+        model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MODEL))
+        serialNumber = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_SERIAL_NO))
+        minAperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MIN_APERTURE))
+        maxAperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MAX_APERTURE))
+        minFocalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_MIN_FOCAL_LENGTH))
+        maxFocalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_MAX_FOCAL_LENGTH))
         val incrementIndex = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_APERTURE_INCREMENTS))
-        lens.apertureIncrements = Increment.from(incrementIndex)
-        return lens
+        apertureIncrements = Increment.from(incrementIndex)
     }
 
     /**
-     * Returns a Camera object generated from a Cursor object.
+     * Creates a new Camera object and maps the cursor's columns to the object's properties
      *
-     * @param cursor Cursor object containing the attributes for a Camera object
-     * @return Camera object generated from cursor
+     * @param cursor Cursor object which should be used to get the property values
+     * @return Camera object with properties set from the cursor
      */
-    private fun getCameraFromCursor(cursor: Cursor): Camera {
-        val camera = Camera()
-        return getCameraFromCursor(cursor, camera)
-    }
-
-    /**
-     * Sets the attributes of a Camera object using a Cursor object.
-     *
-     * @param cursor Cursor object which should be used to get the attributes
-     * @param camera the Camera whose attributes should be set
-     * @return reference to the Camera object given as the parameter
-     */
-    private fun getCameraFromCursor(cursor: Cursor, camera: Camera): Camera {
-        camera.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_CAMERA_ID))
-        camera.make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MAKE))
-        camera.model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MODEL))
-        camera.serialNumber = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_SERIAL_NO))
-        camera.minShutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MIN_SHUTTER))
-        camera.maxShutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MAX_SHUTTER))
+    private fun getCameraFromCursor(cursor: Cursor) = Camera().apply {
+        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_CAMERA_ID))
+        make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MAKE))
+        model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MODEL))
+        serialNumber = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_SERIAL_NO))
+        minShutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MIN_SHUTTER))
+        maxShutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MAX_SHUTTER))
         val shutterIncrementIndex = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_CAMERA_SHUTTER_INCREMENTS))
-        camera.shutterIncrements = Increment.from(shutterIncrementIndex)
+        shutterIncrements = Increment.from(shutterIncrementIndex)
         val compIncrementIndex = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS))
-        camera.exposureCompIncrements = PartialIncrement.from(compIncrementIndex)
+        exposureCompIncrements = PartialIncrement.from(compIncrementIndex)
         val lensId = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_LENS_ID))
-        if (lensId > 0) camera.lens = getLens(lensId)
-        return camera
+        if (lensId > 0) lens = getLens(lensId)
     }
 
     /**
-     * Returns a Filter object generated from a Cursor object.
+     * Creates a new Filter object and maps the cursor's columns to the object's properties
      *
-     * @param cursor Cursor object containing the attributes for a Filter object
-     * @return Filter object generated from cursor
+     * @param cursor Cursor object which should be used to get the property values
+     * @return Filter object with properties set from the cursor
      */
-    private fun getFilterFromCursor(cursor: Cursor): Filter {
-        val filter = Filter()
-        return getFilterFromCursor(cursor, filter)
+    private fun getFilterFromCursor(cursor: Cursor) = Filter().apply {
+        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FILTER_ID))
+        make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILTER_MAKE))
+        model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILTER_MODEL))
     }
 
     /**
-     * Sets the attributes of a Filter object using a Cursor object.
+     * Creates a new FilmStock object and maps the cursor's columns to the object's properties
      *
-     * @param cursor Cursor object which should be used to get the attributes
-     * @param filter the Filter whose attributes should be set
-     * @return reference to the Filter object given as the parameter
+     * @param cursor Cursor object which should be used to get the property values
+     * @return FilmStock object with properties set from the cursor
      */
-    private fun getFilterFromCursor(cursor: Cursor, filter: Filter): Filter {
-        filter.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FILTER_ID))
-        filter.make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILTER_MAKE))
-        filter.model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILTER_MODEL))
-        return filter
-    }
-
-    /**
-     * Sets the attributes of a FilmStock object using a Cursor object
-     *
-     * @param cursor Cursor object which should be used to get the attributes
-     * @param filmStock the FilmStock whose attributes should be set
-     * @return reference to the FilmStock object given as the parameter
-     */
-    private fun getFilmStockFromCursor(cursor: Cursor, filmStock: FilmStock): FilmStock {
-        filmStock.id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_ID))
-        filmStock.make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILM_MANUFACTURER_NAME))
-        filmStock.model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_NAME))
-        filmStock.iso = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_ISO))
-        filmStock.type = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_TYPE))
-        filmStock.process = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_PROCESS))
+    private fun getFilmStockFromCursor(cursor: Cursor) = FilmStock().apply {
+        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_ID))
+        make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILM_MANUFACTURER_NAME))
+        model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_NAME))
+        iso = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_ISO))
+        type = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_TYPE))
+        process = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_PROCESS))
         val preadded = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_IS_PREADDED))
-        filmStock.isPreadded = preadded > 0
-        return filmStock
+        isPreadded = preadded > 0
     }
 
     //*********************** METHODS TO BUILD CONTENT VALUES **********************************
@@ -872,31 +806,29 @@ class Database private constructor(private val context: Context)
      * @param frame Frame object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Frame object.
      */
-    private fun buildFrameContentValues(frame: Frame): ContentValues {
-        val contentValues = ContentValues()
-        contentValues.put(KEY_ROLL_ID, frame.roll.id)
-        contentValues.put(KEY_COUNT, frame.count)
-        contentValues.put(KEY_DATE, if (frame.date != null) frame.date.toString() else null)
+    private fun buildFrameContentValues(frame: Frame) = ContentValues().apply {
+        put(KEY_ROLL_ID, frame.roll.id)
+        put(KEY_COUNT, frame.count)
+        put(KEY_DATE, if (frame.date != null) frame.date.toString() else null)
 
         val lens = frame.lens
-        if (lens != null) contentValues.put(KEY_LENS_ID, lens.id)
-        else contentValues.putNull(KEY_LENS_ID)
+        if (lens != null) put(KEY_LENS_ID, lens.id)
+        else putNull(KEY_LENS_ID)
 
-        contentValues.put(KEY_SHUTTER, frame.shutter)
-        contentValues.put(KEY_APERTURE, frame.aperture)
-        contentValues.put(KEY_FRAME_NOTE, frame.note)
-        contentValues.put(KEY_LOCATION, if (frame.location != null) frame.location.toString() else null)
-        contentValues.put(KEY_FOCAL_LENGTH, frame.focalLength)
-        contentValues.put(KEY_EXPOSURE_COMP, frame.exposureComp)
-        contentValues.put(KEY_NO_OF_EXPOSURES, frame.noOfExposures)
-        contentValues.put(KEY_FLASH_USED, frame.flashUsed)
-        contentValues.put(KEY_FLASH_POWER, frame.flashPower)
-        contentValues.put(KEY_FLASH_COMP, frame.flashComp)
-        contentValues.put(KEY_METERING_MODE, frame.meteringMode)
-        contentValues.put(KEY_FORMATTED_ADDRESS, frame.formattedAddress)
-        contentValues.put(KEY_PICTURE_FILENAME, frame.pictureFilename)
-        contentValues.put(KEY_LIGHT_SOURCE, frame.lightSource)
-        return contentValues
+        put(KEY_SHUTTER, frame.shutter)
+        put(KEY_APERTURE, frame.aperture)
+        put(KEY_FRAME_NOTE, frame.note)
+        put(KEY_LOCATION, if (frame.location != null) frame.location.toString() else null)
+        put(KEY_FOCAL_LENGTH, frame.focalLength)
+        put(KEY_EXPOSURE_COMP, frame.exposureComp)
+        put(KEY_NO_OF_EXPOSURES, frame.noOfExposures)
+        put(KEY_FLASH_USED, frame.flashUsed)
+        put(KEY_FLASH_POWER, frame.flashPower)
+        put(KEY_FLASH_COMP, frame.flashComp)
+        put(KEY_METERING_MODE, frame.meteringMode)
+        put(KEY_FORMATTED_ADDRESS, frame.formattedAddress)
+        put(KEY_PICTURE_FILENAME, frame.pictureFilename)
+        put(KEY_LIGHT_SOURCE, frame.lightSource)
     }
 
     /**
@@ -905,17 +837,15 @@ class Database private constructor(private val context: Context)
      * @param lens Lens object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the lens object.
      */
-    private fun buildLensContentValues(lens: Lens): ContentValues {
-        val contentValues = ContentValues()
-        contentValues.put(KEY_LENS_MAKE, lens.make)
-        contentValues.put(KEY_LENS_MODEL, lens.model)
-        contentValues.put(KEY_LENS_SERIAL_NO, lens.serialNumber)
-        contentValues.put(KEY_LENS_MIN_APERTURE, lens.minAperture)
-        contentValues.put(KEY_LENS_MAX_APERTURE, lens.maxAperture)
-        contentValues.put(KEY_LENS_MIN_FOCAL_LENGTH, lens.minFocalLength)
-        contentValues.put(KEY_LENS_MAX_FOCAL_LENGTH, lens.maxFocalLength)
-        contentValues.put(KEY_LENS_APERTURE_INCREMENTS, lens.apertureIncrements.ordinal)
-        return contentValues
+    private fun buildLensContentValues(lens: Lens) = ContentValues().apply {
+        put(KEY_LENS_MAKE, lens.make)
+        put(KEY_LENS_MODEL, lens.model)
+        put(KEY_LENS_SERIAL_NO, lens.serialNumber)
+        put(KEY_LENS_MIN_APERTURE, lens.minAperture)
+        put(KEY_LENS_MAX_APERTURE, lens.maxAperture)
+        put(KEY_LENS_MIN_FOCAL_LENGTH, lens.minFocalLength)
+        put(KEY_LENS_MAX_FOCAL_LENGTH, lens.maxFocalLength)
+        put(KEY_LENS_APERTURE_INCREMENTS, lens.apertureIncrements.ordinal)
     }
 
     /**
@@ -924,21 +854,17 @@ class Database private constructor(private val context: Context)
      * @param camera Camera object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Camera object.
      */
-    private fun buildCameraContentValues(camera: Camera): ContentValues {
-        val contentValues = ContentValues()
-        contentValues.put(KEY_CAMERA_MAKE, camera.make)
-        contentValues.put(KEY_CAMERA_MODEL, camera.model)
-        contentValues.put(KEY_CAMERA_SERIAL_NO, camera.serialNumber)
-        contentValues.put(KEY_CAMERA_MIN_SHUTTER, camera.minShutter)
-        contentValues.put(KEY_CAMERA_MAX_SHUTTER, camera.maxShutter)
-        contentValues.put(KEY_CAMERA_SHUTTER_INCREMENTS, camera.shutterIncrements.ordinal)
-        contentValues.put(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, camera.exposureCompIncrements.ordinal)
-
+    private fun buildCameraContentValues(camera: Camera) = ContentValues().apply {
+        put(KEY_CAMERA_MAKE, camera.make)
+        put(KEY_CAMERA_MODEL, camera.model)
+        put(KEY_CAMERA_SERIAL_NO, camera.serialNumber)
+        put(KEY_CAMERA_MIN_SHUTTER, camera.minShutter)
+        put(KEY_CAMERA_MAX_SHUTTER, camera.maxShutter)
+        put(KEY_CAMERA_SHUTTER_INCREMENTS, camera.shutterIncrements.ordinal)
+        put(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, camera.exposureCompIncrements.ordinal)
         val lens = camera.lens
-        if (lens != null) contentValues.put(KEY_LENS_ID, lens.id)
-        else contentValues.putNull(KEY_LENS_ID)
-
-        return contentValues
+        if (lens != null) put(KEY_LENS_ID, lens.id)
+        else putNull(KEY_LENS_ID)
     }
 
     /**
@@ -947,28 +873,26 @@ class Database private constructor(private val context: Context)
      * @param roll Roll object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Roll object.
      */
-    private fun buildRollContentValues(roll: Roll): ContentValues {
-        val contentValues = ContentValues()
-        contentValues.put(KEY_ROLLNAME, roll.name)
-        contentValues.put(KEY_ROLL_DATE, if (roll.date != null) roll.date.toString() else null)
-        contentValues.put(KEY_ROLL_NOTE, roll.note)
+    private fun buildRollContentValues(roll: Roll) = ContentValues().apply {
+        put(KEY_ROLLNAME, roll.name)
+        put(KEY_ROLL_DATE, if (roll.date != null) roll.date.toString() else null)
+        put(KEY_ROLL_NOTE, roll.note)
 
         val camera = roll.camera
-        if (camera != null) contentValues.put(KEY_CAMERA_ID, camera.id)
-        else contentValues.putNull(KEY_CAMERA_ID)
+        if (camera != null) put(KEY_CAMERA_ID, camera.id)
+        else putNull(KEY_CAMERA_ID)
 
-        contentValues.put(KEY_ROLL_ISO, roll.iso)
-        contentValues.put(KEY_ROLL_PUSH, roll.pushPull)
-        contentValues.put(KEY_ROLL_FORMAT, roll.format)
-        contentValues.put(KEY_ROLL_ARCHIVED, roll.archived)
+        put(KEY_ROLL_ISO, roll.iso)
+        put(KEY_ROLL_PUSH, roll.pushPull)
+        put(KEY_ROLL_FORMAT, roll.format)
+        put(KEY_ROLL_ARCHIVED, roll.archived)
 
         val filmStock = roll.filmStock
-        if (filmStock != null) contentValues.put(KEY_FILM_STOCK_ID, filmStock.id)
-        else contentValues.putNull(KEY_FILM_STOCK_ID)
+        if (filmStock != null) put(KEY_FILM_STOCK_ID, filmStock.id)
+        else putNull(KEY_FILM_STOCK_ID)
 
-        contentValues.put(KEY_ROLL_UNLOADED, if (roll.unloaded != null) roll.unloaded.toString() else null)
-        contentValues.put(KEY_ROLL_DEVELOPED, if (roll.developed != null) roll.developed.toString() else null)
-        return contentValues
+        put(KEY_ROLL_UNLOADED, if (roll.unloaded != null) roll.unloaded.toString() else null)
+        put(KEY_ROLL_DEVELOPED, if (roll.developed != null) roll.developed.toString() else null)
     }
 
     /**
@@ -977,11 +901,9 @@ class Database private constructor(private val context: Context)
      * @param filter Filter object of which the ContentValues is created.
      * @return ContentValues containing the attributes of the Filter object.
      */
-    private fun buildFilterContentValues(filter: Filter): ContentValues {
-        val contentValues = ContentValues()
-        contentValues.put(KEY_FILTER_MAKE, filter.make)
-        contentValues.put(KEY_FILTER_MODEL, filter.model)
-        return contentValues
+    private fun buildFilterContentValues(filter: Filter) = ContentValues().apply {
+        put(KEY_FILTER_MAKE, filter.make)
+        put(KEY_FILTER_MODEL, filter.model)
     }
 
     /**
@@ -990,15 +912,13 @@ class Database private constructor(private val context: Context)
      * @param filmStock FilmStock object of which the ContentValues is created
      * @return ContentValues containing the attributes of the FilmStock object
      */
-    private fun buildFilmStockContentValues(filmStock: FilmStock): ContentValues {
-        val contentValues = ContentValues()
-        contentValues.put(KEY_FILM_MANUFACTURER_NAME, filmStock.make)
-        contentValues.put(KEY_FILM_STOCK_NAME, filmStock.model)
-        contentValues.put(KEY_FILM_ISO, filmStock.iso)
-        contentValues.put(KEY_FILM_TYPE, filmStock.type)
-        contentValues.put(KEY_FILM_PROCESS, filmStock.process)
-        contentValues.put(KEY_FILM_IS_PREADDED, filmStock.isPreadded)
-        return contentValues
+    private fun buildFilmStockContentValues(filmStock: FilmStock) = ContentValues().apply {
+        put(KEY_FILM_MANUFACTURER_NAME, filmStock.make)
+        put(KEY_FILM_STOCK_NAME, filmStock.model)
+        put(KEY_FILM_ISO, filmStock.iso)
+        put(KEY_FILM_TYPE, filmStock.type)
+        put(KEY_FILM_PROCESS, filmStock.process)
+        put(KEY_FILM_IS_PREADDED, filmStock.isPreadded)
     }
 
     /**
