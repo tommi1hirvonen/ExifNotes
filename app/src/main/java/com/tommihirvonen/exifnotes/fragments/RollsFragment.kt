@@ -33,6 +33,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.preference.PreferenceManager
@@ -58,7 +60,7 @@ import com.tommihirvonen.exifnotes.utilities.*
  * RollsFragment is the fragment that is displayed first in MainActivity. It contains
  * a list of rolls the user has saved in the database.
  */
-class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
+class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener, MenuProvider {
 
     companion object {
         /**
@@ -129,11 +131,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         callback = c as OnRollSelectedListener
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         // Set the ActionBar title text.
@@ -150,6 +147,8 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
 
         // Also change the floating action button color. Use the darker secondaryColor for this.
         binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
+
+        (requireActivity() as MenuHost).addMenuProvider(this)
 
         // Use the updateFragment() method to load the film rolls from the database,
         // create an ArrayAdapter to link the list of rolls to the ListView,
@@ -234,12 +233,12 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.menu_rolls_fragment, menu)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
+    override fun onPrepareMenu(menu: Menu) {
         when (filterMode) {
             RollFilterMode.ACTIVE -> menu.findItem(R.id.active_rolls_filter).isChecked = true
             RollFilterMode.ARCHIVED -> menu.findItem(R.id.archived_rolls_filter).isChecked = true
@@ -251,7 +250,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
             RollSortMode.NAME -> menu.findItem(R.id.name_sort_mode).isChecked = true
             RollSortMode.CAMERA -> menu.findItem(R.id.camera_sort_mode).isChecked = true
         }
-        super.onPrepareOptionsMenu(menu)
     }
 
     private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -273,7 +271,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_item_gear -> {
                 val gearActivityIntent = Intent(activity, GearActivity::class.java)

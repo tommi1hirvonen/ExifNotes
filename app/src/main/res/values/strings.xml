@@ -359,13 +359,16 @@
         \n\nYou should have received a copy of the GNU General Public License along with this program.  If not, see https://www.gnu.org/licenses/.
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Library and build tool upgrades
-        \n-Replaced deprecated classes and methods
-        \n-Included comprehensive open source license notices for used dependencies
-        \n-Released source code under the GNU General Public License (GPLv3)
+        \n\n-Code refactoring
+        \n-Library updates
+        \n-Replaced deprecated methods
         \n
     </string>
     <string name="VersionHistory">Version history
+        \n\nv1.17.2 2022-07-24:
+        \n-Code refactoring
+        \n-Library updates
+        \n-Replaced deprecated methods
         \n\nv1.17.1 2022-07-21:
         \n-Library and build tool upgrades
         \n-Replaced deprecated classes and methods

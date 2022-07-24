@@ -20,9 +20,11 @@ package com.tommihirvonen.exifnotes.activities
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
@@ -109,6 +111,18 @@ class GearActivity : AppCompatActivity() {
 
         //Get the index for the view which was last shown.
         viewPager.currentItem = prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, POSITION_CAMERAS)
+
+        // Manually handling the back navigation button press enables custom transition animations.
+        addMenuProvider(object : MenuProvider{
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) { }
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == android.R.id.home) {
+                    onBackPressed()
+                    return true
+                }
+                return false
+            }
+        })
     }
 
     /*
@@ -126,82 +140,6 @@ class GearActivity : AppCompatActivity() {
         overridePendingTransition(R.anim.nothing, R.anim.exit_to_right)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_gear_actvity, menu)
-        menu.findItem(R.id.sort_mode_film_stock_name).isChecked = true
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val filmStocksFragment = pagerAdapter.fragments[POSITION_FILMS] as FilmStocksFragment?
-        when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                return true
-            }
-            R.id.sort_mode_film_stock_name -> {
-                filmStocksFragment?.setSortMode(FilmStocksFragment.SORT_MODE_NAME, true)
-                item.isChecked = true
-                return true
-            }
-            R.id.sort_mode_film_stock_iso -> {
-                filmStocksFragment?.setSortMode(FilmStocksFragment.SORT_MODE_ISO, true)
-                item.isChecked = true
-                return true
-            }
-            R.id.filter_mode_film_manufacturer -> {
-                filmStocksFragment?.showManufacturerFilterDialog()
-                return true
-            }
-            R.id.filter_mode_added_by -> {
-                filmStocksFragment?.showAddedByFilterDialog()
-                return true
-            }
-            R.id.filter_mode_film_iso -> {
-                filmStocksFragment?.showIsoValuesFilterDialog()
-                return true
-            }
-            R.id.filter_mode_film_type -> {
-                filmStocksFragment?.showFilmTypeFilterDialog()
-                return true
-            }
-            R.id.filter_mode_film_process -> {
-                filmStocksFragment?.showFilmProcessFilterDialog()
-                return true
-            }
-            R.id.filter_mode_reset -> {
-                filmStocksFragment?.resetFilters()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        // If a fragment other than FilmStocksFragment is being shown, disable the film stock
-        // filtering and sorting options. This is also done so that the filter and sort methods
-        // of FilmStocksFragment aren't called when its late init members are not initialized because
-        // its onCreate() hasn't yet been called.
-        if (viewPager.currentItem != POSITION_FILMS) {
-            menu.findItem(R.id.sort_mode_film_stock_name).isEnabled = false
-            menu.findItem(R.id.sort_mode_film_stock_iso).isEnabled = false
-            menu.findItem(R.id.filter_mode_film_manufacturer).isEnabled = false
-            menu.findItem(R.id.filter_mode_added_by).isEnabled = false
-            menu.findItem(R.id.filter_mode_film_iso).isEnabled = false
-            menu.findItem(R.id.filter_mode_film_type).isEnabled = false
-            menu.findItem(R.id.filter_mode_film_process).isEnabled = false
-            menu.findItem(R.id.filter_mode_reset).isEnabled = false
-        } else {
-            // When the options menu is opened, set the correct items to be preselected.
-            val fragment = pagerAdapter.fragments[POSITION_FILMS] as FilmStocksFragment?
-            when (fragment?.sortMode) {
-                FilmStocksFragment.SORT_MODE_NAME -> menu.findItem(R.id.sort_mode_film_stock_name).isChecked = true
-                FilmStocksFragment.SORT_MODE_ISO -> menu.findItem(R.id.sort_mode_film_stock_iso).isChecked = true
-            }
-        }
-        return super.onPrepareOptionsMenu(menu)
-    }
-
     public override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(POSITION, tabLayout.selectedTabPosition)
@@ -212,6 +150,8 @@ class GearActivity : AppCompatActivity() {
         super.onRestoreInstanceState(savedInstanceState)
         viewPager.currentItem = savedInstanceState.getInt(POSITION)
     }
+
+
 
     /**
      * Manages the fragments inside GearActivity.

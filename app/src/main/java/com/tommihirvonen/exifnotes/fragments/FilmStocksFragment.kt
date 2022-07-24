@@ -22,12 +22,12 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tommihirvonen.exifnotes.R
@@ -39,14 +39,14 @@ import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
 
-class FilmStocksFragment : Fragment(), View.OnClickListener {
+class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
 
     companion object {
-        const val SORT_MODE_NAME = 1
-        const val SORT_MODE_ISO = 2
-        const val FILTER_MODE_ALL = 0
-        const val FILTER_MODE_ADDED_BY_USER = 1
-        const val FILTER_MODE_PREADDED = 2
+        private const val SORT_MODE_NAME = 1
+        private const val SORT_MODE_ISO = 2
+        private const val FILTER_MODE_ALL = 0
+        private const val FILTER_MODE_ADDED_BY_USER = 1
+        private const val FILTER_MODE_PREADDED = 2
     }
 
     private lateinit var binding: FragmentFilmsBinding
@@ -54,8 +54,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     private lateinit var filteredFilmStocks: MutableList<FilmStock>
     private var fragmentVisible = false
     private lateinit var filmStockAdapter: FilmStockAdapter
-    var sortMode = SORT_MODE_NAME
-        private set
+    private var sortMode = SORT_MODE_NAME
     private var manufacturerFilterList = emptyList<String>().toMutableList()
     private var isoFilterList = emptyList<Int>().toMutableList()
     private var filmTypeFilterList = emptyList<Int>().toMutableList()
@@ -64,7 +63,6 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         allFilmStocks = database.filmStocks.toMutableList()
         filteredFilmStocks = allFilmStocks.toMutableList()
     }
@@ -88,6 +86,8 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         binding.filmsRecyclerView.adapter = filmStockAdapter
         filmStockAdapter.notifyDataSetChanged()
 
+        (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         return binding.root
     }
 
@@ -99,6 +99,58 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
     override fun onPause() {
         super.onPause()
         fragmentVisible = false
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_gear_actvity, menu)
+        menu.findItem(R.id.sort_mode_film_stock_name).isChecked = true
+    }
+
+    override fun onPrepareMenu(menu: Menu) {
+        when (sortMode) {
+            SORT_MODE_NAME -> menu.findItem(R.id.sort_mode_film_stock_name).isChecked = true
+            SORT_MODE_ISO -> menu.findItem(R.id.sort_mode_film_stock_iso).isChecked = true
+        }
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.sort_mode_film_stock_name -> {
+                setSortMode(SORT_MODE_NAME, true)
+                menuItem.isChecked = true
+                return true
+            }
+            R.id.sort_mode_film_stock_iso -> {
+                setSortMode(SORT_MODE_ISO, true)
+                menuItem.isChecked = true
+                return true
+            }
+            R.id.filter_mode_film_manufacturer -> {
+                showManufacturerFilterDialog()
+                return true
+            }
+            R.id.filter_mode_added_by -> {
+                showAddedByFilterDialog()
+                return true
+            }
+            R.id.filter_mode_film_iso -> {
+                showIsoValuesFilterDialog()
+                return true
+            }
+            R.id.filter_mode_film_type -> {
+                showFilmTypeFilterDialog()
+                return true
+            }
+            R.id.filter_mode_film_process -> {
+                showFilmProcessFilterDialog()
+                return true
+            }
+            R.id.filter_mode_reset -> {
+                resetFilters()
+                return true
+            }
+        }
+        return false
     }
 
     override fun onClick(v: View) {
@@ -176,7 +228,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         setSortMode(sortMode, false)
     }
 
-    fun setSortMode(sortMode_: Int, notifyDataSetChanged: Boolean) {
+    private fun setSortMode(sortMode_: Int, notifyDataSetChanged: Boolean) {
         when (sortMode_) {
             SORT_MODE_NAME -> {
                 sortMode = SORT_MODE_NAME
@@ -191,7 +243,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         if (notifyDataSetChanged) filmStockAdapter.notifyDataSetChanged()
     }
 
-    fun resetFilters() {
+    private fun resetFilters() {
         manufacturerFilterList.clear()
         isoFilterList.clear()
         filmTypeFilterList.clear()
@@ -238,7 +290,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
             }
     }.map { it.iso }.distinct().sorted()
 
-    fun showManufacturerFilterDialog() {
+    private fun showManufacturerFilterDialog() {
         val builder = AlertDialog.Builder(requireActivity())
         // Get all filter items.
         val items = database.filmManufacturers.toTypedArray()
@@ -262,7 +314,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         builder.create().show()
     }
 
-    fun showIsoValuesFilterDialog() {
+    private fun showIsoValuesFilterDialog() {
         val builder = AlertDialog.Builder(requireActivity())
         // Get all filter items.
         val items = possibleIsoValues.toTypedArray()
@@ -287,7 +339,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         builder.create().show()
     }
 
-    fun showFilmTypeFilterDialog() {
+    private fun showFilmTypeFilterDialog() {
         val builder = AlertDialog.Builder(requireActivity())
         // Get all filter items.
         val items = resources.getStringArray(R.array.FilmTypes)
@@ -311,7 +363,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         builder.create().show()
     }
 
-    fun showFilmProcessFilterDialog() {
+    private fun showFilmProcessFilterDialog() {
         val builder = AlertDialog.Builder(requireActivity())
         // Get all filter items.
         val items = resources.getStringArray(R.array.FilmProcesses)
@@ -335,7 +387,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener {
         builder.create().show()
     }
 
-    fun showAddedByFilterDialog() {
+    private fun showAddedByFilterDialog() {
         val builder = AlertDialog.Builder(requireActivity())
         val checkedItem: Int
         val filterModeAddedBy = addedByFilterMode

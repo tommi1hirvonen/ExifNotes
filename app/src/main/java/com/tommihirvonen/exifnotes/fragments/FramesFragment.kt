@@ -37,6 +37,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.setFragmentResultListener
 import androidx.preference.PreferenceManager
@@ -60,7 +62,7 @@ import java.io.OutputStreamWriter
  * FramesFragment is the fragment which is called when the user presses on a roll
  * on the ListView in RollsFragment. It displays all the frames from that roll.
  */
-class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAdapterListener {
+class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAdapterListener, MenuProvider {
 
     companion object {
         /**
@@ -199,7 +201,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         roll = requireArguments().getParcelable(ExtraKeys.ROLL)!! // Roll must be defined for every Frame
         frameList = database.getFrames(roll).toMutableList()
 
@@ -245,15 +246,18 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         if (frameAdapter.itemCount > 0) {
             binding.framesRecyclerView.scrollToPosition(frameAdapter.itemCount - 1)
         }
+
+        (requireActivity() as MenuHost).addMenuProvider(this)
+
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.menu_frames_fragment, menu)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
+    override fun onPrepareMenu(menu: Menu) {
         when (sortMode) {
             FrameSortMode.FRAME_COUNT -> menu.findItem(R.id.frame_count_sort_mode).isChecked = true
             FrameSortMode.DATE -> menu.findItem(R.id.date_sort_mode).isChecked = true
@@ -261,10 +265,9 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             FrameSortMode.SHUTTER_SPEED -> menu.findItem(R.id.shutter_speed_sort_mode).isChecked = true
             FrameSortMode.LENS -> menu.findItem(R.id.lens_sort_mode).isChecked = true
         }
-        super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.frame_count_sort_mode -> {
                 item.isChecked = true

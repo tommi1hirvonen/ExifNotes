@@ -57,11 +57,6 @@ class CamerasFragment : Fragment(), View.OnClickListener {
 
     private var fragmentVisible = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onResume() {
         fragmentVisible = true
         super.onResume()

@@ -52,8 +52,8 @@ android {
         applicationId 'com.tommihirvonen.exifnotes'
         minSdkVersion 21
         targetSdkVersion 32
-        versionCode 36
-        versionName "1.17.1"
+        versionCode 37
+        versionName "1.17.2"
         // Enabling this allows us to use resources when PNGs are generated during build-time
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
@@ -103,7 +103,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'com.google.android.material:material:1.6.1'
-    implementation 'com.google.android.gms:play-services-maps:18.0.2'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:20.0.0'
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -111,9 +111,9 @@ dependencies {
     implementation "androidx.core:core-ktx:1.8.0"
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.3'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.0'
     implementation 'org.apache.commons:commons-text:1.9'
-    implementation 'androidx.fragment:fragment-ktx:1.4.1'
+    implementation 'androidx.fragment:fragment-ktx:1.5.0'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
     androidTestImplementation 'androidx.test:core-ktx:1.4.0'
 }

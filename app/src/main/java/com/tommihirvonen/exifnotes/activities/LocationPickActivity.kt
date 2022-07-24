@@ -25,14 +25,12 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
+import androidx.core.view.MenuProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -57,7 +55,8 @@ import kotlinx.coroutines.*
 /**
  * Allows the user to select a location for a frame on a map.
  */
-class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClickListener, View.OnClickListener, SearchView.OnQueryTextListener {
+class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClickListener,
+    View.OnClickListener, SearchView.OnQueryTextListener, MenuProvider {
     /**
      * GoogleMap object to show the map and marker
      */
@@ -170,7 +169,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_location_pick, menu)
         // Retrieve the SearchView and plug it into SearchManager
         val searchView = menu.findItem(R.id.action_search).actionView as SearchView
@@ -178,10 +177,9 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         // Replace it with the English text.
         searchView.queryHint = getString(R.string.SearchWEllipsis)
         searchView.setOnQueryTextListener(this)
-        return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+    override fun onPrepareMenu(menu: Menu) {
         when (mapType) {
             GoogleMap.MAP_TYPE_NORMAL -> menu.findItem(R.id.menu_item_normal).isChecked = true
             GoogleMap.MAP_TYPE_HYBRID -> menu.findItem(R.id.menu_item_hybrid).isChecked = true
@@ -189,10 +187,9 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             GoogleMap.MAP_TYPE_TERRAIN -> menu.findItem(R.id.menu_item_terrain).isChecked = true
             else -> menu.findItem(R.id.menu_item_normal).isChecked = true
         }
-        return super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -222,7 +219,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                 return true
             }
         }
-        return super.onOptionsItemSelected(item)
+        return false
     }
 
     /**

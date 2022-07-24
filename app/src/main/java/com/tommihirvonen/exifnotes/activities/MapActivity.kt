@@ -30,6 +30,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuProvider
 import androidx.preference.PreferenceManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -51,7 +52,7 @@ import kotlin.math.roundToInt
 /**
  * Activity to display all the frames from a list of rolls on a map.
  */
-class MapActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
 
     private class Triple<T, U, V>(val first: T, var second: U, val third: V)
 
@@ -94,6 +95,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         setUiColor(true)
         supportActionBar?.subtitle = intent.getStringExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE)
         supportActionBar?.title = intent.getStringExtra(ExtraKeys.MAPS_ACTIVITY_TITLE)
+
+        addMenuProvider(this)
 
         // Set the bottom sheet
         val bottomSheet = findViewById<View>(R.id.bottom_sheet)
@@ -144,15 +147,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         overridePendingTransition(R.anim.nothing, R.anim.exit_to_right)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_map_activity, menu)
         // If only one roll is displayed, hide the filter icon.
         if (allRolls.size == 1) menu.findItem(R.id.menu_item_filter).isVisible = false
-        return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+    override fun onPrepareMenu(menu: Menu) {
         // If the GoogleMap was not initialized, disable map type menu items.
         // This can happen when Play services are not installed on the device.
         if (googleMap == null) {
@@ -168,10 +170,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             GoogleMap.MAP_TYPE_TERRAIN -> menu.findItem(R.id.menu_item_terrain).isChecked = true
             else -> menu.findItem(R.id.menu_item_normal).isChecked = true
         }
-        return super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
@@ -231,7 +232,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 return true
             }
         }
-        return super.onOptionsItemSelected(item)
+        return false
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {
