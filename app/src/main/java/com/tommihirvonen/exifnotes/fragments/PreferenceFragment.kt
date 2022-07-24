@@ -30,6 +30,7 @@ import android.provider.OpenableColumns
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -49,7 +50,7 @@ import java.io.*
  */
 class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
 
-    private inner class ExportPictures : ActivityResultContracts.CreateDocument() {
+    private inner class ExportPictures : CreateDocument("application/zip") {
         override fun createIntent(context: Context, input: String): Intent {
             val intent = super.createIntent(context, input)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -58,7 +59,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         }
     }
 
-    private inner class ExportDatabase : ActivityResultContracts.CreateDocument() {
+    private inner class ExportDatabase : CreateDocument("*/*") {
         override fun createIntent(context: Context, input: String): Intent {
             val intent = super.createIntent(context, input)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
