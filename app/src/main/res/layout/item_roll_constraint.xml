@@ -25,7 +25,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/item_roll_top_layout"
-    android:background="@color/background_selected"
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,7 +44,7 @@
             android:paddingLeft="@dimen/ItemRollLeftRightPadding"
             android:paddingRight="@dimen/ItemRollLeftRightPadding"
             android:textSize="17sp"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
             android:maxLines="2"
             android:ellipsize="end"
             app:layout_constraintLeft_toLeftOf="@id/item_roll_layout"

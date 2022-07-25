@@ -67,7 +67,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/Make"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -78,6 +78,7 @@
                     android:layout_marginRight="10dp"
                     android:id="@+id/make_editText"
                     android:inputType="textCapSentences"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     />
 
             </LinearLayout>
@@ -101,7 +102,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/Model"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -110,6 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:id="@+id/model_editText"
                     android:inputType="textCapSentences"
                     />
@@ -136,7 +138,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/SerialNumber"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -147,6 +149,7 @@
                     android:layout_marginRight="10dp"
                     android:id="@+id/serialNumber_editText"
                     android:inputType="textCapSentences"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     tools:ignore="TextFields" />
 
             </LinearLayout>
@@ -171,7 +174,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/ShutterSpeedIncrements"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -212,7 +215,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/ShutterRange"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -222,7 +225,7 @@
                     android:paddingBottom="7dp"
                     android:paddingLeft="10dp"
                     android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                     android:textSize="15sp"
                     android:id="@+id/shutter_range_text"
                     android:text="@string/ClickToSet"
@@ -250,7 +253,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/ExposureCompensationIncrements"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -295,7 +298,7 @@
                         android:paddingTop="7dp"
                         android:paddingLeft="10dp"
                         android:text="@string/FixedLens"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -305,7 +308,7 @@
                         android:paddingBottom="7dp"
                         android:paddingLeft="10dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                         android:textSize="15sp"
                         android:id="@+id/fixed_lens_text"
                         android:text="@string/ClickToSet"

@@ -25,7 +25,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:id="@+id/root"
-    android:background="?attr/colorBackgroundFloating"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
 

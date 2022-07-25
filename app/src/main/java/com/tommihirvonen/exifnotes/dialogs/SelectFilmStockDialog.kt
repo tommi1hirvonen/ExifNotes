@@ -22,12 +22,12 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilmManufacturerAdapter
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
@@ -40,7 +40,7 @@ class SelectFilmStockDialog : DialogFragment() {
         val inflater = requireActivity().layoutInflater
         @SuppressLint("InflateParams")
         val view = inflater.inflate(R.layout.dialog_select_film_stock, null)
-        val builder = AlertDialog.Builder(requireActivity())
+        val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectFilmStock)
         builder.setView(view)
         builder.setNegativeButton(R.string.Cancel) { dialog: DialogInterface, _: Int -> dialog.dismiss() }

@@ -25,10 +25,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogRollBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
@@ -139,7 +139,7 @@ class EditRollDialog : BottomSheetDialogFragment() {
             val index = cameraList.indexOfFirst { it == newRoll.camera }
             val checkedItem = if (index == -1) 0 else index + 1
 
-            val builder = AlertDialog.Builder(requireActivity())
+            val builder = MaterialAlertDialogBuilder(requireActivity())
             builder.setTitle(R.string.UsedCamera)
             builder.setSingleChoiceItems(listItems, checkedItem) { dialogInterface: DialogInterface, which: Int ->
                 // listItems also contains the No camera option
@@ -213,7 +213,7 @@ class EditRollDialog : BottomSheetDialogFragment() {
         //ISO PICKER
         binding.isoText.text = if (roll.iso == 0) "" else roll.iso.toString()
         binding.isoLayout.setOnClickListener {
-            val builder = AlertDialog.Builder(requireActivity())
+            val builder = MaterialAlertDialogBuilder(requireActivity())
             val inflater1 = requireActivity().layoutInflater
             @SuppressLint("InflateParams")
             val dialogView = inflater1.inflate(R.layout.dialog_single_numberpicker, null)
