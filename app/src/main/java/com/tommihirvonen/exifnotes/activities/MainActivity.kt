@@ -60,8 +60,6 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
      */
     private var locationPermissionsGranted = false
 
-    private var darkThemeEnabled = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
 
         // Delete all complementary pictures, which are not linked to any frame.
@@ -70,11 +68,6 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
         // don't delete pictures.
         if (savedInstanceState == null) ComplementaryPicturesManager.deleteUnusedPictures(this)
 
-        // Set the activity's UI
-        if (isAppThemeDark) {
-            setTheme(R.style.AppTheme_Dark)
-            darkThemeEnabled = true
-        }
 
         // The point at which super.onCreate() is called is important.
         // Calling it at the end of the method resulted in the back button not appearing
@@ -82,8 +75,6 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         TermsOfUseDialog(this).show()
-        setUiColor(false)
-        if (supportActionBar != null) supportActionBar!!.title = "  " + resources.getString(R.string.MainActivityTitle)
 
         // Check that the application has write permission to the phone's external storage
         // and access to location services.
@@ -133,18 +124,6 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
             supportFragmentManager.beginTransaction()
                     .add(R.id.fragment_container, firstFragment, RollsFragment.ROLLS_FRAGMENT_TAG).commit()
         }
-    }
-
-    public override fun onResume() {
-        super.onResume()
-        // When resuming we have to change the UI colours again.
-        if (isAppThemeDark && !darkThemeEnabled ||
-                !isAppThemeDark && darkThemeEnabled) {
-            recreate()
-            return
-        }
-        setSupportActionBarColor(baseContext.primaryUiColor)
-        setStatusBarColor(baseContext.secondaryUiColor)
     }
 
     public override fun onStart() {

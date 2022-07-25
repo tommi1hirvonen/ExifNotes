@@ -24,7 +24,6 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.*
@@ -32,9 +31,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import androidx.core.content.ContextCompat
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.preference.PreferenceManager
@@ -60,7 +56,7 @@ import com.tommihirvonen.exifnotes.utilities.*
  * RollsFragment is the fragment that is displayed first in MainActivity. It contains
  * a list of rolls the user has saved in the database.
  */
-class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener, MenuProvider {
+class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
 
     companion object {
         /**
@@ -133,22 +129,13 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener, Men
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        // Set the ActionBar title text.
-        val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
-        actionBar?.title = "  " + resources.getString(R.string.MainActivityTitle)
-        actionBar?.setDisplayHomeAsUpEnabled(false)
-
         binding = FragmentRollsBinding.inflate(inflater, container, false)
-
         binding.fab.setOnClickListener(this)
         val layoutManager = LinearLayoutManager(activity)
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
 
-        // Also change the floating action button color. Use the darker secondaryColor for this.
-        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
-
-        (requireActivity() as MenuHost).addMenuProvider(this)
+        binding.topAppBar.setOnMenuItemClickListener(onMenuItemClickListener)
 
         // Use the updateFragment() method to load the film rolls from the database,
         // create an ArrayAdapter to link the list of rolls to the ListView,
@@ -159,119 +146,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener, Men
         return binding.root
     }
 
-    /**
-     * Public method to update the contents of this fragment.
-     */
-    private fun updateFragment(recreateRollAdapter: Boolean) {
-        val sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(requireActivity().baseContext)
-        // Get from preferences which rolls to load from the database.
-        filterMode = RollFilterMode.fromValue(
-                sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, RollFilterMode.ACTIVE.value))
-        sortMode = RollSortMode.fromValue(
-                sharedPreferences.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, RollSortMode.DATE.value))
-
-        // Declare variables for the ActionBar subtitle, which shows the film roll filter status
-        // and the main TextView, which is displayed if no rolls are shown.
-        val subtitleText: String
-        val mainTextViewText: String
-        when (filterMode) {
-            RollFilterMode.ACTIVE -> {
-                subtitleText = resources.getString(R.string.ActiveFilmRolls)
-                mainTextViewText = resources.getString(R.string.NoActiveRolls)
-                binding.fab.show()
-            }
-            RollFilterMode.ARCHIVED -> {
-                subtitleText = resources.getString(R.string.ArchivedFilmRolls)
-                mainTextViewText = resources.getString(R.string.NoArchivedRolls)
-                binding.fab.hide()
-            }
-            RollFilterMode.ALL -> {
-                subtitleText = resources.getString(R.string.AllFilmRolls)
-                mainTextViewText = resources.getString(R.string.NoActiveOrArchivedRolls)
-                binding.fab.show()
-            }
-            else -> {
-                subtitleText = resources.getString(R.string.ActiveFilmRolls)
-                mainTextViewText = resources.getString(R.string.NoActiveRolls)
-                binding.fab.show()
-            }
-        }
-        val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
-        // Set the ActionBar subtitle.
-        actionBar?.subtitle = "   $subtitleText"
-
-        // Set the main TextView text.
-        binding.noAddedRolls.text = mainTextViewText
-
-        // Load the rolls from the database.
-        rollList = database.getRolls(filterMode).toMutableList()
-        //Order the roll list according to preferences.
-        Roll.sortRollList(sortMode, rollList)
-        if (recreateRollAdapter) {
-            // Create an ArrayAdapter for the ListView.
-            rollAdapter = RollAdapter(requireActivity(), rollList, this)
-            // Set the ListView to use the ArrayAdapter.
-            binding.rollsRecyclerView.adapter = rollAdapter
-            // Notify the adapter to update itself.
-        } else {
-            // rollAdapter still references the old rollList. Update its reference.
-            rollAdapter.setRollList(rollList)
-            // Notify the adapter to update itself
-        }
-        rollAdapter.notifyDataSetChanged()
-        if (rollList.isNotEmpty()) mainTextViewAnimateInvisible() else mainTextViewAnimateVisible()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        rollAdapter.notifyDataSetChanged()
-        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
-        // If action mode is enabled, color the status bar dark grey.
-        if (rollAdapter.selectedItemCount > 0 || actionMode != null) {
-            setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.dark_grey))
-        }
-    }
-
-    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.menu_rolls_fragment, menu)
-    }
-
-    override fun onPrepareMenu(menu: Menu) {
-        when (filterMode) {
-            RollFilterMode.ACTIVE -> menu.findItem(R.id.active_rolls_filter).isChecked = true
-            RollFilterMode.ARCHIVED -> menu.findItem(R.id.archived_rolls_filter).isChecked = true
-            RollFilterMode.ALL -> menu.findItem(R.id.all_rolls_filter).isChecked = true
-            else -> menu.findItem(R.id.active_rolls_filter).isChecked = true
-        }
-        when (sortMode) {
-            RollSortMode.DATE -> menu.findItem(R.id.date_sort_mode).isChecked = true
-            RollSortMode.NAME -> menu.findItem(R.id.name_sort_mode).isChecked = true
-            RollSortMode.CAMERA -> menu.findItem(R.id.camera_sort_mode).isChecked = true
-        }
-    }
-
-    private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        // Update fragment after the user navigates back from the GearActivity.
-        // Cameras might have been edited, so they need to be reloaded.
-        updateFragment(true)
-    }
-
-    private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        // If a new database was imported, update the contents of RollsFragment.
-        if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED ==
-            PreferenceActivity.RESULT_DATABASE_IMPORTED) {
-            updateFragment(true)
-        }
-        // If the app theme was changed, recreate activity.
-        if (result.resultCode and PreferenceActivity.RESULT_THEME_CHANGED ==
-            PreferenceActivity.RESULT_THEME_CHANGED) {
-            requireActivity().recreate()
-        }
-    }
-
-    override fun onMenuItemSelected(item: MenuItem): Boolean {
+    private val onMenuItemClickListener = { item: MenuItem ->
         when (item.itemId) {
             R.id.menu_item_gear -> {
                 val gearActivityIntent = Intent(activity, GearActivity::class.java)
@@ -285,18 +160,28 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener, Men
 
                 // Show all frames from all rolls on a map
                 val mapIntent = Intent(activity, MapActivity::class.java)
-                mapIntent.putParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS,
-                        rollList as ArrayList<out Parcelable?>)
+                mapIntent.putParcelableArrayListExtra(
+                    ExtraKeys.ARRAY_LIST_ROLLS,
+                    rollList as ArrayList<out Parcelable?>
+                )
                 mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, getString(R.string.AllRolls))
                 when (filterMode) {
-                    RollFilterMode.ACTIVE -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
-                            getString(R.string.ActiveRolls))
-                    RollFilterMode.ARCHIVED -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
-                            getString(R.string.ArchivedRolls))
-                    RollFilterMode.ALL -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
-                            getString(R.string.AllRolls))
-                    else -> mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
-                            getString(R.string.ActiveRolls))
+                    RollFilterMode.ACTIVE -> mapIntent.putExtra(
+                        ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
+                        getString(R.string.ActiveRolls)
+                    )
+                    RollFilterMode.ARCHIVED -> mapIntent.putExtra(
+                        ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
+                        getString(R.string.ArchivedRolls)
+                    )
+                    RollFilterMode.ALL -> mapIntent.putExtra(
+                        ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
+                        getString(R.string.AllRolls)
+                    )
+                    else -> mapIntent.putExtra(
+                        ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
+                        getString(R.string.ActiveRolls)
+                    )
                 }
                 startActivity(mapIntent)
             }
@@ -325,7 +210,108 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener, Men
                 setSortMode(RollSortMode.CAMERA)
             }
         }
-        return true
+        true
+    }
+
+    /**
+     * Public method to update the contents of this fragment.
+     */
+    private fun updateFragment(recreateRollAdapter: Boolean) {
+        val sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(requireActivity().baseContext)
+        // Get from preferences which rolls to load from the database.
+        filterMode = RollFilterMode.fromValue(
+                sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, RollFilterMode.ACTIVE.value))
+        sortMode = RollSortMode.fromValue(
+                sharedPreferences.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, RollSortMode.DATE.value))
+
+        // Declare variables for the ActionBar subtitle, which shows the film roll filter status
+        // and the main TextView, which is displayed if no rolls are shown.
+        val subtitleText: String
+        val mainTextViewText: String
+        val menu = binding.topAppBar.menu
+        when (filterMode) {
+            RollFilterMode.ACTIVE -> {
+                menu.findItem(R.id.active_rolls_filter).isChecked = true
+                subtitleText = resources.getString(R.string.ActiveFilmRolls)
+                mainTextViewText = resources.getString(R.string.NoActiveRolls)
+                binding.fab.show()
+            }
+            RollFilterMode.ARCHIVED -> {
+                menu.findItem(R.id.archived_rolls_filter).isChecked = true
+                subtitleText = resources.getString(R.string.ArchivedFilmRolls)
+                mainTextViewText = resources.getString(R.string.NoArchivedRolls)
+                binding.fab.hide()
+            }
+            RollFilterMode.ALL -> {
+                menu.findItem(R.id.all_rolls_filter).isChecked = true
+                subtitleText = resources.getString(R.string.AllFilmRolls)
+                mainTextViewText = resources.getString(R.string.NoActiveOrArchivedRolls)
+                binding.fab.show()
+            }
+            else -> {
+                menu.findItem(R.id.active_rolls_filter).isChecked = true
+                subtitleText = resources.getString(R.string.ActiveFilmRolls)
+                mainTextViewText = resources.getString(R.string.NoActiveRolls)
+                binding.fab.show()
+            }
+        }
+        binding.topAppBar.subtitle = subtitleText
+        binding.noAddedRolls.text = mainTextViewText
+
+        when (sortMode) {
+            RollSortMode.DATE -> {
+                menu.findItem(R.id.date_sort_mode).isChecked = true
+            }
+            RollSortMode.NAME -> {
+                menu.findItem(R.id.name_sort_mode).isChecked = true
+            }
+            RollSortMode.CAMERA -> {
+                menu.findItem(R.id.camera_sort_mode).isChecked = true
+            }
+        }
+
+        // Load the rolls from the database.
+        rollList = database.getRolls(filterMode).toMutableList()
+        //Order the roll list according to preferences.
+        Roll.sortRollList(sortMode, rollList)
+        if (recreateRollAdapter) {
+            // Create an ArrayAdapter for the ListView.
+            rollAdapter = RollAdapter(requireActivity(), rollList, this)
+            // Set the ListView to use the ArrayAdapter.
+            binding.rollsRecyclerView.adapter = rollAdapter
+            // Notify the adapter to update itself.
+        } else {
+            // rollAdapter still references the old rollList. Update its reference.
+            rollAdapter.setRollList(rollList)
+            // Notify the adapter to update itself
+        }
+        rollAdapter.notifyDataSetChanged()
+        if (rollList.isNotEmpty()) mainTextViewAnimateInvisible() else mainTextViewAnimateVisible()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        rollAdapter.notifyDataSetChanged()
+    }
+
+    private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        // Update fragment after the user navigates back from the GearActivity.
+        // Cameras might have been edited, so they need to be reloaded.
+        updateFragment(true)
+    }
+
+    private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        // If a new database was imported, update the contents of RollsFragment.
+        if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED ==
+            PreferenceActivity.RESULT_DATABASE_IMPORTED) {
+            updateFragment(true)
+        }
+        // If the app theme was changed, recreate activity.
+        if (result.resultCode and PreferenceActivity.RESULT_THEME_CHANGED ==
+            PreferenceActivity.RESULT_THEME_CHANGED) {
+            requireActivity().recreate()
+        }
     }
 
     /**
@@ -491,9 +477,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener, Men
     private inner class ActionModeCallback : ActionMode.Callback {
         override fun onCreateActionMode(actionMode: ActionMode, menu: Menu): Boolean {
 
-            // Set the status bar color to be dark grey to complement the grey action mode toolbar.
-            setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.dark_grey))
-
             // Hide the floating action button so no new rolls can be added while in action mode.
             binding.fab.hide()
 
@@ -639,8 +622,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener, Men
             rollAdapter.clearSelections()
             actionMode = null
             binding.rollsRecyclerView.post { rollAdapter.resetAnimationIndex() }
-            // Return the status bar to its original color before action mode.
-            setStatusBarColor(secondaryUiColor)
             // Make the floating action bar visible again since action mode is exited.
             binding.fab.show()
         }

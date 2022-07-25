@@ -19,16 +19,15 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="actionModeBackground">@color/grey</item>
-        <item name="android:actionModeBackground">@color/grey</item>
+    <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
+        <item name="menuIconTint">?android:attr/colorForeground</item>
+        <item name="windowActionModeOverlay">true</item>
         <item name="iconTintColorPrimary">@color/grey</item>
         <item name="iconTintColorSecondary">@color/extra_light_grey</item>
         <item name="iconTintColorTertiary">@color/background_frame_light_grey</item>
     </style>
 
-    <style name="AppTheme_Dark" parent="Theme.AppCompat">
+    <style name="AppTheme_Dark" parent="Theme.Material3.Dark">
         <item name="android:windowContentOverlay">@null</item>
         <item name="actionModeBackground">@color/grey</item>
         <item name="android:actionModeBackground">@color/grey</item>
@@ -38,17 +37,12 @@
         <item name="iconTintColorTertiary">@color/background_frame_dark_grey</item>
     </style>
 
-    <style name="AppToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:textColorPrimary">@android:color/white</item>
-        <item name="android:textColorSecondary">@android:color/white</item>
-    </style>
-
-    <style name="MyCustomTabLayout" parent="Widget.Design.TabLayout">
+    <style name="MyCustomTabLayout" parent="Widget.Material3.TabLayout">
         <item name="tabTextAppearance">@style/MyCustomTabText</item>
         <item name="tabSelectedTextColor">@color/white</item>
     </style>
 
-    <style name="MyCustomTabText" parent="TextAppearance.AppCompat.Button">
+    <style name="MyCustomTabText" parent="TextAppearance.Material3.TitleSmall">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/white</item>
     </style>
