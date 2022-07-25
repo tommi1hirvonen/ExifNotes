@@ -19,7 +19,6 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.content.DialogInterface
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
@@ -37,7 +36,6 @@ import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
-import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
 
 class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
 
@@ -71,8 +69,6 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
                               savedInstanceState: Bundle?): View {
         binding = FragmentFilmsBinding.inflate(inflater, container, false)
         binding.fabFilms.setOnClickListener(this)
-        // Also change the floating action button color. Use the darker secondaryColor for this.
-        binding.fabFilms.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
 
         val layoutManager = LinearLayoutManager(activity)
         binding.filmsRecyclerView.layoutManager = layoutManager
@@ -102,7 +98,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.menu_gear_actvity, menu)
+        menuInflater.inflate(R.menu.menu_film_stocks_fragment, menu)
         menu.findItem(R.id.sort_mode_film_stock_name).isChecked = true
     }
 

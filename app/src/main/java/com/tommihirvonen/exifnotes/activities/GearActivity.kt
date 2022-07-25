@@ -23,23 +23,18 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.preference.PreferenceManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.ActivityGearBinding
 import com.tommihirvonen.exifnotes.fragments.CamerasFragment
 import com.tommihirvonen.exifnotes.fragments.FilmStocksFragment
 import com.tommihirvonen.exifnotes.fragments.FiltersFragment
 import com.tommihirvonen.exifnotes.fragments.LensesFragment
-import com.tommihirvonen.exifnotes.utilities.isAppThemeDark
-import com.tommihirvonen.exifnotes.utilities.primaryUiColor
-import com.tommihirvonen.exifnotes.utilities.setUiColor
 import java.lang.IllegalArgumentException
 
 /**
@@ -48,11 +43,6 @@ import java.lang.IllegalArgumentException
 class GearActivity : AppCompatActivity() {
 
     companion object {
-        /**
-         * Tag for the index of the current view to store in SharedPreferences
-         */
-        private const val GEAR_ACTIVITY_SAVED_VIEW = "GEAR_ACTIVITY_SAVED_VIEW"
-
         /**
          * Tag for the index of the current view to store while the activity is paused
          */
@@ -65,11 +55,6 @@ class GearActivity : AppCompatActivity() {
     }
 
     /**
-     * Android TabLayout member
-     */
-    private lateinit var tabLayout: TabLayout
-
-    /**
      * ViewPager is responsible for changing the layout when the user swipes or clicks on a tab.
      */
     private lateinit var viewPager: ViewPager2
@@ -79,38 +64,30 @@ class GearActivity : AppCompatActivity() {
      */
     private lateinit var pagerAdapter: PagerAdapter
 
+    private lateinit var bottomNavigation: BottomNavigationView
+
     // Inflate the activity, set the UI, ViewPager and TabLayout.
     override fun onCreate(savedInstanceState: Bundle?) {
         overridePendingTransition(R.anim.enter_from_right, R.anim.hold)
-        val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
-        if (isAppThemeDark) setTheme(R.style.AppTheme_Dark)
         super.onCreate(savedInstanceState)
-        setUiColor(true)
-        supportActionBar?.setTitle(R.string.Gear)
-        setContentView(R.layout.activity_gear)
+
+        val binding = ActivityGearBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        binding.topAppBar.setNavigationOnClickListener { finish() }
+        setSupportActionBar(binding.topAppBar)
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
-        viewPager = findViewById(R.id.viewpager)
+        viewPager = binding.viewPager
         pagerAdapter = PagerAdapter(this)
         viewPager.adapter = pagerAdapter
+        viewPager.registerOnPageChangeCallback(onPageChangeCallback)
 
-        // Give the TabLayout the ViewPager
-        tabLayout = findViewById(R.id.sliding_tabs)
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            // Set tab title
-            tab.text = when (position) {
-                POSITION_FILMS -> applicationContext.resources.getString(R.string.FilmStocks)
-                POSITION_FILTERS -> applicationContext.resources.getString(R.string.Filters)
-                POSITION_LENSES -> applicationContext.resources.getString(R.string.Lenses)
-                POSITION_CAMERAS -> applicationContext.resources.getString(R.string.Cameras)
-                else -> "Error"
-            }
-        }.attach()
-        tabLayout.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.white))
-        tabLayout.setBackgroundColor(primaryUiColor)
+        bottomNavigation = binding.bottomNavigation
+        bottomNavigation.setOnItemSelectedListener(navigationItemSelectedListener)
 
         //Get the index for the view which was last shown.
-        viewPager.currentItem = prefs.getInt(GEAR_ACTIVITY_SAVED_VIEW, POSITION_CAMERAS)
 
         // Manually handling the back navigation button press enables custom transition animations.
         addMenuProvider(object : MenuProvider{
@@ -125,16 +102,6 @@ class GearActivity : AppCompatActivity() {
         })
     }
 
-    /*
-     * Saves the index of the current fragment so that when returning to this activity,
-     * it will resume from the same fragment.
-     */
-    public override fun onStop() {
-        super.onStop()
-        val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
-        prefs.edit().putInt(GEAR_ACTIVITY_SAVED_VIEW, viewPager.currentItem).apply()
-    }
-
     override fun finish() {
         super.finish()
         overridePendingTransition(R.anim.nothing, R.anim.exit_to_right)
@@ -142,7 +109,7 @@ class GearActivity : AppCompatActivity() {
 
     public override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt(POSITION, tabLayout.selectedTabPosition)
+        outState.putInt(POSITION, viewPager.currentItem)
     }
 
     // Gets the displayed fragment's index from savedInstanceState
@@ -151,7 +118,46 @@ class GearActivity : AppCompatActivity() {
         viewPager.currentItem = savedInstanceState.getInt(POSITION)
     }
 
+    private val navigationItemSelectedListener = { item: MenuItem ->
+        when (item.itemId) {
+            R.id.page_cameras -> {
+                viewPager.currentItem = POSITION_CAMERAS
+                true
+            }
+            R.id.page_lenses -> {
+                viewPager.currentItem = POSITION_LENSES
+                true
+            }
+            R.id.page_filters -> {
+                viewPager.currentItem = POSITION_FILTERS
+                true
+            }
+            R.id.page_film_stocks -> {
+                viewPager.currentItem = POSITION_FILMS
+                true
+            }
+            else -> false
+        }
+    }
 
+    private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            when (position) {
+                POSITION_CAMERAS -> {
+                    bottomNavigation.menu.findItem(R.id.page_cameras).isChecked = true
+                }
+                POSITION_LENSES -> {
+                    bottomNavigation.menu.findItem(R.id.page_lenses).isChecked = true
+                }
+                POSITION_FILTERS -> {
+                    bottomNavigation.menu.findItem(R.id.page_filters).isChecked = true
+                }
+                POSITION_FILMS -> {
+                    bottomNavigation.menu.findItem(R.id.page_film_stocks).isChecked = true
+                }
+            }
+        }
+    }
 
     /**
      * Manages the fragments inside GearActivity.

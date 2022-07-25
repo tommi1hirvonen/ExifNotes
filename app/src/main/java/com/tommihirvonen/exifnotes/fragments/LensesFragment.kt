@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -43,7 +42,6 @@ import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
-import com.tommihirvonen.exifnotes.utilities.secondaryUiColor
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 
 /**
@@ -73,9 +71,6 @@ class LensesFragment : Fragment(), View.OnClickListener {
         val binding = FragmentLensesBinding.inflate(inflater, container, false)
 
         binding.fabLenses.setOnClickListener(this)
-
-        // Also change the floating action button color. Use the darker secondaryColor for this.
-        binding.fabLenses.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
 
         val layoutManager = LinearLayoutManager(activity)
         binding.lensesRecyclerView.layoutManager = layoutManager

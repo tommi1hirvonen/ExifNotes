@@ -24,6 +24,7 @@
         android:title="@string/FilterNoColon"
         android:id="@+id/menu_item_filter"
         android:icon="@drawable/ic_baseline_filter_list_24"
+        app:iconTint="?attr/colorControlNormal"
         app:showAsAction="ifRoom">
 
         <menu>
@@ -68,6 +69,7 @@
         android:title="@string/Sort"
         android:id="@+id/menu_item_sort"
         android:icon="@drawable/ic_baseline_sort_24"
+        app:iconTint="?attr/colorControlNormal"
         app:showAsAction="ifRoom">
 
         <menu>

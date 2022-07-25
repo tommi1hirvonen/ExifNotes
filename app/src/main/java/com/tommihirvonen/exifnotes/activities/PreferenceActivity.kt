@@ -21,8 +21,8 @@ package com.tommihirvonen.exifnotes.activities
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.appbar.MaterialToolbar
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.ActivitySettingsBinding
 import com.tommihirvonen.exifnotes.fragments.PreferenceFragment
 import com.tommihirvonen.exifnotes.utilities.*
 
@@ -61,12 +61,11 @@ class PreferenceActivity : AppCompatActivity() {
         // If the activity was recreated, get the saved result code
         savedInstanceState?.let { resultCode = it.getInt(ExtraKeys.RESULT_CODE) }
 
-        setContentView(R.layout.activity_settings)
+        val binding = ActivitySettingsBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         
-        val topAppBar = findViewById<MaterialToolbar>(R.id.top_app_bar)
-        topAppBar.setNavigationOnClickListener {
-            finish()
-        }
+        binding.topAppBar.setNavigationOnClickListener { finish() }
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().add(R.id.fragment_layout, PreferenceFragment()).commit()

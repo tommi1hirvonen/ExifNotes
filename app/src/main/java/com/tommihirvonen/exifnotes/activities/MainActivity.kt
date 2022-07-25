@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.fragments.RollsFragment
@@ -73,7 +74,11 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
         // Calling it at the end of the method resulted in the back button not appearing
         // when action mode was enabled.
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
         TermsOfUseDialog(this).show()
 
         // Check that the application has write permission to the phone's external storage
