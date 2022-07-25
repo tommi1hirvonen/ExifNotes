@@ -28,10 +28,10 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
 import com.tommihirvonen.exifnotes.datastructures.Roll
@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
      * Prompt the user to jump to device settings to enable GPS.
      */
     private fun showSettingsAlert() {
-        val alertDialog = AlertDialog.Builder(this)
+        val alertDialog = MaterialAlertDialogBuilder(this)
         alertDialog.setTitle(R.string.GPSSettings)
         alertDialog.setMessage(R.string.GPSNotEnabled)
         // Navigate to the device's settings.

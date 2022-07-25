@@ -28,7 +28,6 @@ import android.os.Parcelable
 import android.view.*
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.fragment.app.Fragment
@@ -36,6 +35,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.GearActivity
 import com.tommihirvonen.exifnotes.activities.MapActivity
@@ -503,7 +503,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                     val title =
                             if (selectedItemPositions.size == 1) resources.getString(R.string.ConfirmRollDelete) + " \'" + rollList[selectedItemPositions[0]].name + "\'?"
                             else String.format(resources.getString(R.string.ConfirmRollsDelete), selectedItemPositions.size)
-                    val alertBuilder = AlertDialog.Builder(requireActivity())
+                    val alertBuilder = MaterialAlertDialogBuilder(requireActivity())
                     alertBuilder.setTitle(title)
                     alertBuilder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
                     alertBuilder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
@@ -536,7 +536,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                         showEditRollDialog(selectedItemPositions[0])
                     } else {
                         // Show batch edit features
-                        val builder = AlertDialog.Builder(requireActivity())
+                        val builder = MaterialAlertDialogBuilder(requireActivity())
                         builder.setTitle(String.format(resources
                                 .getString(R.string.BatchEditRollsTitle),
                                 rollAdapter.selectedItemCount))
@@ -550,7 +550,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                                         "SelectFilmStockDialog") { _, bundle ->
                                         val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
                                             ?: return@setFragmentResultListener
-                                        AlertDialog.Builder(requireActivity()).apply {
+                                        MaterialAlertDialogBuilder(requireActivity()).apply {
                                             setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
                                             setNegativeButton(R.string.No) { _: DialogInterface?, _: Int ->
                                                 batchUpdateRollsFilmStock(filmStock, false)
@@ -564,7 +564,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
                                 }
                                 1 -> {
                                     // Clear film stock
-                                    val builder1 = AlertDialog.Builder(requireActivity())
+                                    val builder1 = MaterialAlertDialogBuilder(requireActivity())
                                     builder1.setMessage(R.string.BatchEditRollsCLearFilmStockISOConfirmation)
                                     builder1.setNegativeButton(R.string.No) { _: DialogInterface?, _: Int -> batchUpdateRollsFilmStock(null, false) }
                                     builder1.setPositiveButton(R.string.Yes) { _: DialogInterface?, _: Int -> batchUpdateRollsFilmStock(null, true) }

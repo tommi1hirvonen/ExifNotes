@@ -34,6 +34,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
 import com.tommihirvonen.exifnotes.datastructures.DateTime
@@ -114,7 +115,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         val importComplementaryPictures = findPreference<Preference>(PreferenceConstants.KEY_IMPORT_COMPLEMENTARY_PICTURES)!!
         importComplementaryPictures.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // Show additional message about importing complementary pictures using a separate dialog.
-            val builder = AlertDialog.Builder(requireActivity())
+            val builder = MaterialAlertDialogBuilder(requireActivity())
             builder.setTitle(R.string.ImportDatabaseTitle)
             builder.setMessage(R.string.ImportComplementaryPicturesVerification)
             builder.setPositiveButton(R.string.Continue) { _: DialogInterface?, _: Int ->
@@ -129,7 +130,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         val exportDatabase = findPreference<Preference>(PreferenceConstants.KEY_EXPORT_DATABASE)!!
         exportDatabase.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // Show additional message about exporting the SQL database using a separate dialog.
-            val builder = AlertDialog.Builder(requireActivity())
+            val builder = MaterialAlertDialogBuilder(requireActivity())
             builder.setTitle(R.string.ExportDatabaseTitle)
             builder.setMessage(R.string.ExportDatabaseVerification)
             builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
@@ -145,7 +146,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         val importDatabase = findPreference<Preference>(PreferenceConstants.KEY_IMPORT_DATABASE)!!
         importDatabase.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // Show additional message about importing the database using a separate dialog.
-            val builder = AlertDialog.Builder(requireActivity())
+            val builder = MaterialAlertDialogBuilder(requireActivity())
             builder.setTitle(R.string.ImportDatabaseTitle)
             builder.setMessage(R.string.ImportDatabaseVerification)
             builder.setPositiveButton(R.string.Continue) { _: DialogInterface?, _: Int ->
