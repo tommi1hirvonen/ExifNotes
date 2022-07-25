@@ -31,7 +31,6 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.MenuProvider
 import androidx.preference.PreferenceManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -42,6 +41,7 @@ import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.ActivityMapBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
@@ -53,7 +53,7 @@ import kotlin.math.roundToInt
 /**
  * Activity to display all the frames from a list of rolls on a map.
  */
-class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
+class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private class Triple<T, U, V>(val first: T, var second: U, val third: V)
 
@@ -87,22 +87,21 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
         // savedInstanceState is not null if the activity was continued.
         if (savedInstanceState != null) continueActivity = true
 
-        // Set the UI
-        setContentView(R.layout.activity_map)
+        val binding = ActivityMapBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        supportActionBar?.subtitle = intent.getStringExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE)
-        supportActionBar?.title = intent.getStringExtra(ExtraKeys.MAPS_ACTIVITY_TITLE)
-
-        addMenuProvider(this)
+        binding.topAppBar.subtitle = intent.getStringExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE)
+        binding.topAppBar.title = intent.getStringExtra(ExtraKeys.MAPS_ACTIVITY_TITLE)
+        binding.topAppBar.setNavigationOnClickListener { onBackPressed() }
+        binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
 
         // Set the bottom sheet
-        val bottomSheet = findViewById<View>(R.id.bottom_sheet)
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         val peekHeightOffset = resources.getDimensionPixelSize(R.dimen.MapActivityBottomSheetPeekHeight).toFloat()
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(view: View, i: Int) {}
             override fun onSlide(view: View, v: Float) {
-                val offset = bottomSheet.height * v + peekHeightOffset - peekHeightOffset * v
+                val offset = binding.bottomSheet.height * v + peekHeightOffset - peekHeightOffset * v
                 when (bottomSheetBehavior.state) {
                     BottomSheetBehavior.STATE_DRAGGING, BottomSheetBehavior.STATE_SETTLING -> {
                         googleMap?.setPadding(0, 0, 0, offset.roundToInt())
@@ -117,6 +116,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
 
+        val menu = binding.topAppBar.menu
+        when (mapType) {
+            GoogleMap.MAP_TYPE_NORMAL -> menu.findItem(R.id.menu_item_normal).isChecked = true
+            GoogleMap.MAP_TYPE_HYBRID -> menu.findItem(R.id.menu_item_hybrid).isChecked = true
+            GoogleMap.MAP_TYPE_SATELLITE -> menu.findItem(R.id.menu_item_satellite).isChecked = true
+            GoogleMap.MAP_TYPE_TERRAIN -> menu.findItem(R.id.menu_item_terrain).isChecked = true
+            else -> menu.findItem(R.id.menu_item_normal).isChecked = true
+        }
+
         // Set the roll list and other arrays
         val rolls = intent.getParcelableArrayListExtra<Roll>(ExtraKeys.ARRAY_LIST_ROLLS)
         allRolls = rolls?.map { Triple(it, true, database.getFrames(it)) } ?: emptyList()
@@ -125,6 +133,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
         if (allRolls.size == 1) {
             bottomSheetBehavior.isHideable = true
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            menu.findItem(R.id.menu_item_filter).isVisible = false
         }
         markerBitmaps = markerBitmapList
 
@@ -139,56 +148,27 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
         mapFragment?.getMapAsync(this)
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_map_activity, menu)
-        // If only one roll is displayed, hide the filter icon.
-        if (allRolls.size == 1) menu.findItem(R.id.menu_item_filter).isVisible = false
-    }
-
-    override fun onPrepareMenu(menu: Menu) {
-        // If the GoogleMap was not initialized, disable map type menu items.
-        // This can happen when Play services are not installed on the device.
-        if (googleMap == null) {
-            menu.findItem(R.id.menu_item_normal).isEnabled = false
-            menu.findItem(R.id.menu_item_hybrid).isEnabled = false
-            menu.findItem(R.id.menu_item_satellite).isEnabled = false
-            menu.findItem(R.id.menu_item_terrain).isEnabled = false
-        }
-        when (mapType) {
-            GoogleMap.MAP_TYPE_NORMAL -> menu.findItem(R.id.menu_item_normal).isChecked = true
-            GoogleMap.MAP_TYPE_HYBRID -> menu.findItem(R.id.menu_item_hybrid).isChecked = true
-            GoogleMap.MAP_TYPE_SATELLITE -> menu.findItem(R.id.menu_item_satellite).isChecked = true
-            GoogleMap.MAP_TYPE_TERRAIN -> menu.findItem(R.id.menu_item_terrain).isChecked = true
-            else -> menu.findItem(R.id.menu_item_normal).isChecked = true
-        }
-    }
-
-    override fun onMenuItemSelected(item: MenuItem): Boolean {
+    private val onMenuItemSelected = { item: MenuItem ->
         when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                return true
-            }
             R.id.menu_item_normal -> {
                 item.isChecked = true
                 setMapType(GoogleMap.MAP_TYPE_NORMAL)
-                return true
+                true
             }
             R.id.menu_item_hybrid -> {
                 item.isChecked = true
                 setMapType(GoogleMap.MAP_TYPE_HYBRID)
-                return true
+                true
             }
             R.id.menu_item_satellite -> {
                 item.isChecked = true
                 setMapType(GoogleMap.MAP_TYPE_SATELLITE)
-                return true
+                true
             }
             R.id.menu_item_terrain -> {
                 item.isChecked = true
                 setMapType(GoogleMap.MAP_TYPE_TERRAIN)
-                return true
+                true
             }
             R.id.menu_item_filter -> {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -221,10 +201,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
                     }
                     checkedItems.fill(false)
                 }
-                return true
+                true
             }
+            else -> false
         }
-        return false
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {

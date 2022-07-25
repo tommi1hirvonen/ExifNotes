@@ -20,9 +20,11 @@
 <menu xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item android:id="@+id/action_search"
         android:title="@string/Search"
         android:icon="@drawable/abc_ic_search_api_material"
+        app:iconTint="?attr/colorControlNormal"
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         tools:ignore="PrivateResource" />
@@ -31,6 +33,7 @@
         android:title="@string/MapType"
         android:id="@+id/menu_item_map_type"
         android:icon="@drawable/ic_baseline_map_24"
+        app:iconTint="?attr/colorControlNormal"
         app:showAsAction="always">
         <menu
             xmlns:android="http://schemas.android.com/apk/res/android">

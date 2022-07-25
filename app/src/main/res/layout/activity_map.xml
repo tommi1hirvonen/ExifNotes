@@ -16,7 +16,8 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -24,11 +25,28 @@
     android:orientation="vertical"
     tools:ignore="MergeRootFrame">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/top_app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/top_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_ab_back_material"
+            app:navigationIconTint="?attr/colorControlNormal"
+            app:title="@string/Text"
+            app:subtitle="@string/Text"
+            app:menu="@menu/menu_map_activity"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        >
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <fragment
             android:id="@+id/map"

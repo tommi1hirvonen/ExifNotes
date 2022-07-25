@@ -25,57 +25,57 @@
     android:orientation="vertical"
     >
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/top_app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/top_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_ab_back_material"
+            app:navigationIconTint="?attr/colorControlNormal"
+            app:title="@string/PickLocation"
+            app:menu="@menu/menu_location_pick"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/top_app_bar_layout"
+        android:layout_above="@id/bottom_bar"
         tools:context=".activities.LocationPickActivity" />
-    <View
-        android:id="@+id/shadow"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:background="@drawable/shadow"
-        android:layout_alignParentTop="true"
-        />
 
-    <View
-        android:id="@+id/bottom_shadow"
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:layout_marginBottom="-2dp"
-        android:background="@drawable/shadow_inverse"
-        android:layout_above="@+id/bottom_bar"
-        />
 
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
         android:id="@+id/bottom_bar"
-        android:orientation="vertical"
-        android:background="?android:attr/colorBackground"
-        >
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:background="?attr/colorSurface"
+        android:orientation="vertical">
 
         <TextView
+            android:id="@+id/formatted_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/formatted_address"
+            android:layout_gravity="left|center_vertical"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="80dp"
-            android:layout_gravity="left|center_vertical"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            />
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
         <ProgressBar
+            android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/progress_bar"
-            android:padding="5dp"
-            android:indeterminate="true"
             android:layout_gravity="center"
-            android:visibility="invisible"
-            />
+            android:indeterminate="true"
+            android:padding="5dp"
+            android:visibility="invisible" />
 
     </FrameLayout>
 
@@ -87,10 +87,9 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="-28dp"
+        android:src="@drawable/ic_baseline_done_24"
         app:elevation="6dp"
-        app:pressedTranslationZ="12dp"
-        app:backgroundTint="@color/secondary_color"
-        android:src="@drawable/ic_baseline_done_24" />
+        app:pressedTranslationZ="12dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_current_location"
@@ -100,9 +99,9 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="20dp"
+        android:src="@drawable/ic_my_location_white_48dp"
+        app:backgroundTint="?attr/colorSurface"
         app:elevation="6dp"
-        app:pressedTranslationZ="12dp"
-        app:backgroundTint="@color/light_grey"
-        android:src="@drawable/ic_my_location_white_48dp" />
+        app:pressedTranslationZ="12dp" />
 
 </RelativeLayout>

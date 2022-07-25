@@ -44,7 +44,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityLocationPickBinding
 import com.tommihirvonen.exifnotes.datastructures.Location
@@ -56,7 +55,7 @@ import kotlinx.coroutines.*
  * Allows the user to select a location for a frame on a map.
  */
 class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClickListener,
-    View.OnClickListener, SearchView.OnQueryTextListener, MenuProvider {
+    SearchView.OnQueryTextListener, MenuProvider {
     /**
      * GoogleMap object to show the map and marker
      */
@@ -113,10 +112,19 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         binding = ActivityLocationPickBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        binding.fab.setOnClickListener(this)
-        val currentLocationFab = findViewById<FloatingActionButton>(R.id.fab_current_location)
-        currentLocationFab.setOnClickListener(this)
-        supportActionBar?.title = resources.getString(R.string.PickLocation)
+        binding.fab.setOnClickListener(onLocationSet)
+        binding.fabCurrentLocation.setOnClickListener(onRequestCurrentLocation)
+
+        binding.topAppBar.setNavigationOnClickListener { onBackPressed() }
+        binding.topAppBar.addMenuProvider(this)
+        val menu = binding.topAppBar.menu
+        when (mapType) {
+            GoogleMap.MAP_TYPE_NORMAL -> menu.findItem(R.id.menu_item_normal).isChecked = true
+            GoogleMap.MAP_TYPE_HYBRID -> menu.findItem(R.id.menu_item_hybrid).isChecked = true
+            GoogleMap.MAP_TYPE_SATELLITE -> menu.findItem(R.id.menu_item_satellite).isChecked = true
+            GoogleMap.MAP_TYPE_TERRAIN -> menu.findItem(R.id.menu_item_terrain).isChecked = true
+            else -> menu.findItem(R.id.menu_item_normal).isChecked = true
+        }
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
@@ -163,8 +171,32 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     }
 
+    private val onLocationSet = { _: View ->
+        latLngLocation?.let {
+            val intent = Intent()
+            intent.putExtra(ExtraKeys.LOCATION, Location(it))
+            intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, formattedAddress)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        } ?: Toast.makeText(baseContext, R.string.NoLocation, Toast.LENGTH_SHORT).show()
+    }
+
+    private val onRequestCurrentLocation = { _: View ->
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            fusedLocationClient.lastLocation.addOnSuccessListener(this) { location: android.location.Location? ->
+                if (location != null) {
+                    val position = LatLng(location.latitude, location.longitude)
+                    onMapClick(position)
+                    googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
+                }
+            }
+
+        }
+    }
+
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.menu_location_pick, menu)
         // Retrieve the SearchView and plug it into SearchManager
         val searchView = menu.findItem(R.id.action_search).actionView as SearchView
         // The SearchView's query hint is localization dependant by default.
@@ -173,25 +205,8 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         searchView.setOnQueryTextListener(this)
     }
 
-    override fun onPrepareMenu(menu: Menu) {
-        when (mapType) {
-            GoogleMap.MAP_TYPE_NORMAL -> menu.findItem(R.id.menu_item_normal).isChecked = true
-            GoogleMap.MAP_TYPE_HYBRID -> menu.findItem(R.id.menu_item_hybrid).isChecked = true
-            GoogleMap.MAP_TYPE_SATELLITE -> menu.findItem(R.id.menu_item_satellite).isChecked = true
-            GoogleMap.MAP_TYPE_TERRAIN -> menu.findItem(R.id.menu_item_terrain).isChecked = true
-            else -> menu.findItem(R.id.menu_item_normal).isChecked = true
-        }
-    }
-
     override fun onMenuItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                return true
-            }
             R.id.menu_item_normal -> {
                 item.isChecked = true
                 setMapType(GoogleMap.MAP_TYPE_NORMAL)
@@ -233,6 +248,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
     override fun onMapReady(googleMap_: GoogleMap) {
         googleMap = googleMap_
         googleMap?.let { googleMap ->
+            googleMap.uiSettings.isMyLocationButtonEnabled = false
             googleMap.setOnMapClickListener(this)
             // If night mode is enabled, stylize the map with the custom dark theme.
             when (resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
@@ -325,33 +341,6 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
     override fun onQueryTextChange(newText: String): Boolean {
         // Do nothing
         return false
-    }
-
-    override fun onClick(v: View) {
-        if (v.id == R.id.fab) {
-            latLngLocation?.let {
-                val intent = Intent()
-                intent.putExtra(ExtraKeys.LOCATION, Location(it))
-                intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, formattedAddress)
-                setResult(Activity.RESULT_OK, intent)
-                finish()
-            } ?: Toast.makeText(baseContext, R.string.NoLocation, Toast.LENGTH_SHORT).show()
-        } else if (v.id == R.id.fab_current_location) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling ActivityCompat.requestPermissions()
-                return
-            }
-            fusedLocationClient.lastLocation.addOnSuccessListener(this) { location: android.location.Location? ->
-                if (location != null) {
-                    val position = LatLng(location.latitude, location.longitude)
-                    onMapClick(position)
-                    googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
-                }
-            }
-        }
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {
