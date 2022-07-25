@@ -25,25 +25,21 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.setFragmentResultListener
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter
@@ -62,7 +58,7 @@ import java.io.OutputStreamWriter
  * FramesFragment is the fragment which is called when the user presses on a roll
  * on the ListView in RollsFragment. It displays all the frames from that roll.
  */
-class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAdapterListener, MenuProvider {
+class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAdapterListener {
 
     companion object {
         /**
@@ -221,15 +217,21 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentFramesBinding.inflate(inflater, container, false)
-        val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
-        actionBar?.title = roll.name
-        roll.camera?.let { actionBar?.subtitle = it.name }
-        actionBar?.setDisplayHomeAsUpEnabled(true)
+
+        binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
+        binding.topAppBar.title = roll.name
+        roll.camera?.let { binding.topAppBar.subtitle = it.name }
+        val menu = binding.topAppBar.menu
+        when (sortMode) {
+            FrameSortMode.FRAME_COUNT -> menu.findItem(R.id.frame_count_sort_mode).isChecked = true
+            FrameSortMode.DATE -> menu.findItem(R.id.date_sort_mode).isChecked = true
+            FrameSortMode.F_STOP -> menu.findItem(R.id.f_stop_sort_mode).isChecked = true
+            FrameSortMode.SHUTTER_SPEED -> menu.findItem(R.id.shutter_speed_sort_mode).isChecked = true
+            FrameSortMode.LENS -> menu.findItem(R.id.lens_sort_mode).isChecked = true
+        }
+        binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
 
         binding.fab.setOnClickListener(this)
-
-        // Also change the floating action button color. Use the darker secondaryColor for this.
-        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
 
         frameAdapter = FrameAdapter(requireActivity(), frameList, this)
         val layoutManager = LinearLayoutManager(activity)
@@ -247,27 +249,10 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             binding.framesRecyclerView.scrollToPosition(frameAdapter.itemCount - 1)
         }
 
-        (requireActivity() as MenuHost).addMenuProvider(this)
-
         return binding.root
     }
 
-    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.menu_frames_fragment, menu)
-    }
-
-    override fun onPrepareMenu(menu: Menu) {
-        when (sortMode) {
-            FrameSortMode.FRAME_COUNT -> menu.findItem(R.id.frame_count_sort_mode).isChecked = true
-            FrameSortMode.DATE -> menu.findItem(R.id.date_sort_mode).isChecked = true
-            FrameSortMode.F_STOP -> menu.findItem(R.id.f_stop_sort_mode).isChecked = true
-            FrameSortMode.SHUTTER_SPEED -> menu.findItem(R.id.shutter_speed_sort_mode).isChecked = true
-            FrameSortMode.LENS -> menu.findItem(R.id.lens_sort_mode).isChecked = true
-        }
-    }
-
-    override fun onMenuItemSelected(item: MenuItem): Boolean {
+    private val onMenuItemSelected = { item: MenuItem ->
         when (item.itemId) {
             R.id.frame_count_sort_mode -> {
                 item.isChecked = true
@@ -321,21 +306,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 exportResultLauncher.launch(intent)
             }
         }
-        return true
-    }
-
-    override fun onResume() {
-        super.onResume()
-        binding.fab.backgroundTintList = ColorStateList.valueOf(secondaryUiColor)
-
-        // If action mode is enabled, color the status bar dark grey.
-        if (frameAdapter.selectedItemCount > 0 || actionMode != null) {
-            setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.dark_grey))
-        } else {
-            // Otherwise we can update the frame adapter in case the user has changed the UI color.
-            // This way the frame count text color will be updated according to the changed settings.
-            frameAdapter.notifyDataSetChanged()
-        }
+        true
     }
 
     /**
@@ -585,8 +556,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
      */
     private inner class ActionModeCallback : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            // Set the status bar color to be dark grey to complement the grey action mode toolbar.
-            setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.dark_grey))
             // Hide the floating action button so no new rolls can be added while in action mode.
             binding.fab.hide()
             mode.menuInflater.inflate(R.menu.menu_action_mode_frames, menu)
@@ -602,7 +571,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             val selectedItemPositions = frameAdapter.selectedItemPositions
             return when (item.itemId) {
                 R.id.menu_item_delete -> {
-                    val deleteConfirmDialog = AlertDialog.Builder(requireActivity())
+                    val deleteConfirmDialog = MaterialAlertDialogBuilder(requireActivity())
                     // Separate confirm titles for one or multiple frames
                     val title = resources.getQuantityString(R.plurals.ConfirmFramesDelete, selectedItemPositions.size, selectedItemPositions.size)
                     deleteConfirmDialog.setTitle(title)
@@ -627,7 +596,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                         // Get the first of the selected rolls (only one should be selected anyway)
                         showFrameInfoEditDialog(selectedItemPositions[0])
                     } else {
-                        val builder = AlertDialog.Builder(requireActivity())
+                        val builder = MaterialAlertDialogBuilder(requireActivity())
                         builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), frameAdapter.selectedItemCount))
                         builder.setItems(R.array.FramesBatchEditOptions) { _, i ->
                             when (i) {
@@ -660,7 +629,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 }
                                 // Edit lens
                                 2 -> {
-                                    AlertDialog.Builder(requireContext()).apply {
+                                    MaterialAlertDialogBuilder(requireContext()).apply {
                                         setNegativeButton(R.string.Cancel) { _, _ -> }
                                         val lenses = roll.camera?.let { database.getLinkedLenses(it) }
                                                 ?: database.lenses
@@ -691,7 +660,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                     val view = requireActivity().layoutInflater
                                             .inflate(R.layout.dialog_single_decimal_edit_text, null)
                                     val editText = view.findViewById<EditText>(R.id.edit_text)
-                                    AlertDialog.Builder(requireContext())
+                                    MaterialAlertDialogBuilder(requireContext())
                                             .setView(view)
                                             .setTitle(R.string.EnterCustomerApertureValue)
                                             .setPositiveButton(R.string.OK) { _, _ ->
@@ -708,7 +677,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 }
                                 // Edit shutter speed
                                 4 -> {
-                                    AlertDialog.Builder(requireContext()).apply {
+                                    MaterialAlertDialogBuilder(requireContext()).apply {
                                         setNegativeButton(R.string.Cancel) { _, _ -> }
                                         val listItems =
                                                 roll.camera?.shutterSpeedValues(requireContext())
@@ -734,7 +703,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 5 -> {
                                     val filters = database.filters.map { it to false }.toMutableList()
                                     val listItems = filters.map { it.first.name }.toTypedArray()
-                                    AlertDialog.Builder(requireContext())
+                                    MaterialAlertDialogBuilder(requireContext())
                                             .setMultiChoiceItems(listItems, BooleanArray(listItems.size)) { _, which, isChecked ->
                                                 filters[which] = filters[which].first to isChecked
                                             }
@@ -753,7 +722,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                     val view = requireActivity().layoutInflater
                                             .inflate(R.layout.dialog_single_integer_edit_text, null)
                                     val editText = view.findViewById<EditText>(R.id.edit_text)
-                                    AlertDialog.Builder(requireContext())
+                                    MaterialAlertDialogBuilder(requireContext())
                                             .setView(view)
                                             .setTitle(R.string.EditFocalLength)
                                             .setPositiveButton(R.string.OK) { _, _ ->
@@ -771,7 +740,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 }
                                 // Edit exposure compensation
                                 7 -> {
-                                    AlertDialog.Builder(requireContext()).apply {
+                                    MaterialAlertDialogBuilder(requireContext()).apply {
                                         setNegativeButton(R.string.Cancel) { _, _ -> }
                                         val listItems = roll.camera?.exposureCompValues(requireContext())
                                                 ?: Camera.defaultExposureCompValues(requireContext())
@@ -792,7 +761,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                                 }
                                 // Edit light source
                                 9 -> {
-                                    AlertDialog.Builder(requireContext())
+                                    MaterialAlertDialogBuilder(requireContext())
                                             .setNegativeButton(R.string.Cancel) { _, _ -> }
                                             .setItems(R.array.LightSource) { dialog, which ->
                                                 selectedFrames.forEach {
@@ -861,8 +830,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             frameAdapter.clearSelections()
             actionMode = null
             binding.framesRecyclerView.post { frameAdapter.resetAnimationIndex() }
-            // Return the status bar to its original color before action mode.
-            setStatusBarColor(secondaryUiColor)
             // Make the floating action bar visible again since action mode is exited.
             binding.fab.show()
         }
@@ -871,7 +838,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
          * Private class which creates a dialog builder for a custom dialog.
          * Used to batch edit frame counts.
          */
-        private inner class FrameCountBatchEditDialogBuilder(context: Context) : AlertDialog.Builder(context) {
+        private inner class FrameCountBatchEditDialogBuilder(context: Context)
+            : MaterialAlertDialogBuilder(context) {
             init {
                 setTitle(R.string.EditFrameCountsBy)
                 @SuppressLint("InflateParams")

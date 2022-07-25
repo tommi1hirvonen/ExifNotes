@@ -44,12 +44,12 @@
         android:src="@drawable/background_frame_small"
         android:layout_height="wrap_content"
         android:layout_width="0dp"
-        android:tint="?attr/iconTintColorTertiary"
         app:layout_constraintEnd_toStartOf="@+id/guideline1"
         app:layout_constraintStart_toStartOf="@+id/guideline0"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:ignore="ContentDescription,RtlHardcoded" />
+        tools:ignore="ContentDescription,RtlHardcoded"
+        app:tint="?attr/iconTintColorTertiary" />
 
     <TextView
         android:id="@+id/tvCount"
@@ -57,7 +57,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/Text"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
         android:textSize="25sp"
         android:alpha="0.7"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
@@ -73,7 +73,7 @@
         android:layout_height="24dp"
         android:gravity="center_vertical"
         android:text="@string/Text"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
         android:textSize="15sp"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="@+id/guideline1"
@@ -90,7 +90,7 @@
         android:maxLines="1"
         android:scrollHorizontally="true"
         android:text="@string/Text"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
         android:textSize="15sp"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="@+id/guideline1"
@@ -107,7 +107,7 @@
         android:maxLines="1"
         android:scrollHorizontally="true"
         android:text="@string/Text"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
         android:textSize="13sp"
         android:textStyle="italic"
         app:layout_constraintRight_toLeftOf="@id/picture_image_view"
@@ -122,11 +122,10 @@
         android:id="@+id/picture_image_view"
         android:src="@drawable/ic_baseline_image_24"
         android:layout_marginRight="5dp"
-        android:tint="?attr/iconTintColorPrimary"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
         app:layout_constraintTop_toBottomOf="@id/tvAperture"
         app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:tint="?attr/iconTintColorPrimary" />
 
     <ImageView
         android:layout_width="18dp"
@@ -134,22 +133,21 @@
         android:id="@+id/broken_picture_image_view"
         android:src="@drawable/ic_baseline_broken_image_24"
         android:layout_marginRight="5dp"
-        android:tint="?attr/iconTintColorPrimary"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
         app:layout_constraintTop_toBottomOf="@id/tvAperture"
         app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:tint="?attr/iconTintColorPrimary" />
 
     <ImageView
         android:id="@+id/drawable_clock"
         android:layout_width="18dp"
         android:layout_height="18dp"
-        android:tint="?attr/iconTintColorPrimary"
         android:src="@drawable/ic_baseline_shutter_speed_24"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
         app:layout_constraintBottom_toBottomOf="@id/tvShutter"
         app:layout_constraintTop_toTopOf="@id/tvShutter"
-        tools:ignore="ContentDescription,RtlHardcoded" />
+        tools:ignore="ContentDescription,RtlHardcoded"
+        app:tint="?attr/iconTintColorPrimary" />
 
     <TextView
         android:id="@+id/tvShutter"
@@ -158,7 +156,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="3dp"
         android:text="@string/Text"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/drawable_clock"
@@ -169,12 +167,12 @@
         android:id="@+id/drawable_aperture"
         android:layout_width="18dp"
         android:layout_height="18dp"
-        android:tint="?attr/iconTintColorPrimary"
         android:src="@drawable/ic_baseline_camera_24"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
         app:layout_constraintTop_toTopOf="@id/tvAperture"
         app:layout_constraintBottom_toBottomOf="@id/tvAperture"
-        tools:ignore="ContentDescription,RtlHardcoded" />
+        tools:ignore="ContentDescription,RtlHardcoded"
+        app:tint="?attr/iconTintColorPrimary" />
 
     <TextView
         android:id="@+id/tvAperture"
@@ -183,7 +181,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="3dp"
         android:text="@string/Text"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
         android:textSize="15sp"
         android:maxLines="1"
         android:ellipsize="end"

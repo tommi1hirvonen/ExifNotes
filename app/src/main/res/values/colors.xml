@@ -36,13 +36,4 @@
     <color name="background_selected">#20808080</color>
     <color name="transparent">#00000000</color>
 
-    <color name="ui_blue">#2196F3</color>
-    <color name="ui_cyan">#00838F</color>
-    <color name="ui_green">#43A047</color>
-    <color name="ui_grey">#424242</color>
-    <color name="ui_orange">#ef6c00</color>
-    <color name="ui_pink">#E91E63</color>
-    <color name="ui_purple">#9C27B0</color>
-    <color name="ui_red">#F44336</color>
-
 </resources>

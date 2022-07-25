@@ -17,24 +17,10 @@
   -->
 
 <resources>
-
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
-        <item name="menuIconTint">?android:attr/colorForeground</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="iconTintColorPrimary">@color/grey</item>
         <item name="iconTintColorSecondary">@color/extra_light_grey</item>
         <item name="iconTintColorTertiary">@color/background_frame_light_grey</item>
     </style>
-
-    <style name="AppTheme_Dark" parent="Theme.Material3.Dark">
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="actionModeBackground">@color/grey</item>
-        <item name="android:actionModeBackground">@color/grey</item>
-        <item name="bottomSheetDialogTheme">@style/Theme.Design.BottomSheetDialog</item>
-        <item name="iconTintColorPrimary">@color/light_grey</item>
-        <item name="iconTintColorSecondary">@color/mid_dark_grey</item>
-        <item name="iconTintColorTertiary">@color/background_frame_dark_grey</item>
-    </style>
-
 </resources>

@@ -25,7 +25,6 @@ package com.tommihirvonen.exifnotes.preferences
 object PreferenceConstants {
     const val KEY_DARK_THEME = "DarkTheme"
     const val KEY_MAP_TYPE = "MAP_TYPE"
-    const val KEY_UI_COLOR = "UIColor"
     const val KEY_GPS_UPDATE = "GPSUpdate"
     const val KEY_FRAME_SORT_ORDER = "FrameSortOrder"
     const val KEY_ROLL_SORT_ORDER = "RollSortOrder"

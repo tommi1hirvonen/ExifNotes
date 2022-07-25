@@ -22,7 +22,6 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -30,6 +29,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.activities.GearActivity
 import com.tommihirvonen.exifnotes.adapters.FilmStockAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentFilmsBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
@@ -82,7 +82,8 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
         binding.filmsRecyclerView.adapter = filmStockAdapter
         filmStockAdapter.notifyDataSetChanged()
 
-        (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        val activity = requireActivity() as GearActivity
+        activity.topAppBar.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         return binding.root
     }

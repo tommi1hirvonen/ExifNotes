@@ -35,7 +35,6 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.core.widget.NestedScrollView
 import androidx.exifinterface.media.ExifInterface
@@ -43,6 +42,7 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
 import com.tommihirvonen.exifnotes.databinding.DialogFrameBinding
@@ -185,8 +185,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         val listener = OnScrollChangeListener(binding.nestedScrollView)
         binding.nestedScrollView.setOnScrollChangeListener(listener)
 
-        binding.title.titleLayout.setBackgroundColor(requireContext().primaryUiColor)
-
         // LENS PICK DIALOG
         if (frame.roll.camera?.isNotFixedLens == true) {
             binding.lensText.text = frame.lens?.name ?: ""
@@ -271,7 +269,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            AlertDialog.Builder(requireContext())
+            MaterialAlertDialogBuilder(requireContext())
                     .setView(view)
                     .setTitle(R.string.EnterCustomerApertureValue)
                     .setPositiveButton(R.string.OK) { _, _ ->
@@ -640,7 +638,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 mountableLenses?.indexOfFirst { it == lens }?.plus(1) ?: 0 // account for the 'No lens' option (+1)
             } ?: 0
 
-            val builder = AlertDialog.Builder(requireActivity())
+            val builder = MaterialAlertDialogBuilder(requireActivity())
             builder.setTitle(R.string.UsedLens)
             builder.setSingleChoiceItems(listItems, checkedItem) { dialog: DialogInterface, which: Int ->
                 // Check if the lens was changed
@@ -696,8 +694,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             // Bool array for preselected items in the multi choice list.
             val booleans = filterSelections.map { it.second }.toBooleanArray()
 
-            val builder = AlertDialog.Builder(requireActivity())
-            builder.setTitle(R.string.UsedFilter)
+            val builder = MaterialAlertDialogBuilder(requireActivity())
+            builder.setTitle(R.string.UsedFilters)
             builder.setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
                 filterSelections[which] = filterSelections[which].copy(second = isChecked)
             }
@@ -717,7 +715,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
      */
     private inner class FocalLengthLayoutOnClickListener : View.OnClickListener {
         override fun onClick(view: View) {
-            val builder = AlertDialog.Builder(requireActivity())
+            val builder = MaterialAlertDialogBuilder(requireActivity())
             val inflater = requireActivity().layoutInflater
             @SuppressLint("InflateParams")
             val dialogView = inflater.inflate(R.layout.dialog_seek_bar, null)
@@ -800,7 +798,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
      */
     private inner class PictureLayoutOnClickListener : View.OnClickListener {
         override fun onClick(view: View) {
-            val pictureActionDialogBuilder = AlertDialog.Builder(requireActivity())
+            val pictureActionDialogBuilder = MaterialAlertDialogBuilder(requireActivity())
 
             // If a complementary picture was not set, set only the two first options
             val items: Array<String> = if (newFrame.pictureFilename == null) {

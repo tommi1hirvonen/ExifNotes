@@ -24,6 +24,7 @@
     <item
         android:id="@+id/menu_item_edit"
         android:icon="@drawable/ic_baseline_edit_24"
+        app:iconTint="?attr/colorControlNormal"
         android:title="@string/Edit"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
@@ -31,6 +32,7 @@
     <item
         android:id="@+id/menu_item_copy"
         android:icon="@drawable/ic_baseline_content_copy_24"
+        app:iconTint="?attr/colorControlNormal"
         android:title="@string/Edit"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
@@ -38,6 +40,7 @@
     <item
         android:id="@+id/menu_item_select_all"
         android:icon="@drawable/ic_baseline_select_all_24"
+        app:iconTint="?attr/colorControlNormal"
         android:title="@string/SelectAll"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
@@ -45,6 +48,7 @@
     <item
         android:id="@+id/menu_item_delete"
         android:icon="@drawable/ic_baseline_delete_24"
+        app:iconTint="?attr/colorControlNormal"
         android:title="@string/Delete"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />

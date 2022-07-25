@@ -62,7 +62,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
                     android:text="@string/FrameCount"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     tools:ignore="RtlHardcoded,RtlSymmetry" />
 
@@ -118,7 +118,7 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/Date"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -127,7 +127,7 @@
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textSize="15sp"
                         android:id="@+id/date_text"
                         android:text="@string/ClickToSet"
@@ -156,7 +156,7 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/Time"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -165,7 +165,7 @@
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textSize="15sp"
                         android:id="@+id/time_text"
                         android:text="@string/ClickToSet"
@@ -212,7 +212,7 @@
                         android:id="@+id/aperture_title"
                         android:paddingTop="7dp"
                         android:text="@string/Aperture"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintLeft_toLeftOf="parent"
@@ -244,7 +244,7 @@
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="@id/aperture_spinner"
                         app:layout_constraintBottom_toBottomOf="@id/aperture_spinner"
-                        app:tint="?attr/iconTintColorPrimary" />
+                        app:tint="?attr/colorSecondary" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -267,7 +267,7 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/Shutter"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -306,44 +306,39 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:paddingLeft="@dimen/FrameDialogSidePadding"
-                    android:paddingRight="@dimen/FrameDialogSidePadding"
-                    >
+                    android:paddingRight="@dimen/FrameDialogSidePadding">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/Lens"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:textSize="17sp"
-                        />
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                        android:textSize="17sp" />
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_marginRight="60dp"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
-                        android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        android:textSize="15sp"
                         android:id="@+id/lens_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="95dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="7dp"
                         android:text="@string/ClickToSet"
-                        />
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textSize="15sp" />
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                <Button
                     android:id="@+id/add_lens"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="@dimen/FrameDialogImageMargin"
-                    android:clickable="true"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_baseline_add_circle_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
-                    app:tint="?attr/iconTintColorPrimary" />
+                    android:text="@string/New"
+                    app:icon="@drawable/ic_baseline_add_24" />
 
             </RelativeLayout>
 
@@ -374,17 +369,17 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/FilterOrFilters"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="60dp"
+                        android:layout_marginRight="95dp"
                         android:paddingBottom="7dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textSize="15sp"
                         android:id="@+id/filter_text"
                         android:text="@string/ClickToSet"
@@ -392,18 +387,16 @@
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                <Button
                     android:id="@+id/add_filter"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="@dimen/FrameDialogImageMargin"
-                    android:clickable="true"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_baseline_add_circle_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
-                    app:tint="?attr/iconTintColorPrimary" />
+                    android:text="@string/New"
+                    app:icon="@drawable/ic_baseline_add_24" />
 
             </RelativeLayout>
 
@@ -430,7 +423,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
                     android:text="@string/FocalLengthSingleLine"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -439,7 +432,7 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="7dp"
                     android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textSize="15sp"
                     android:id="@+id/focal_length_text"
                     android:text="@string/ClickToSet"
@@ -473,7 +466,7 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/Location"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -483,7 +476,7 @@
                         android:paddingBottom="7dp"
                         android:paddingTop="5dp"
                         android:layout_marginRight="60dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textSize="15sp"
                         android:id="@+id/location_text"
                         android:text="@string/ClickToSet"
@@ -492,27 +485,24 @@
                 </LinearLayout>
 
                 <ProgressBar
+                    android:id="@+id/location_progress_bar"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:id="@+id/location_progress_bar"
                     android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@+id/clear_location"
                     android:layout_marginRight="15dp"
-                    android:visibility="invisible"
-                    />
+                    android:layout_toLeftOf="@+id/clear_location"
+                    android:visibility="invisible" />
 
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                <Button
                     android:id="@+id/clear_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_close_24"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="@dimen/FrameDialogImageMargin"
-                    android:clickable="true"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_baseline_cancel_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
-                    app:tint="?attr/iconTintColorPrimary" />
+                    android:text="@string/Clear"/>
 
             </RelativeLayout>
 
@@ -552,21 +542,20 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/ExposureComp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         android:maxLines="1"
                         android:ellipsize="end"
                         />
 
                     <Spinner
+                        android:id="@+id/exposure_comp_spinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/exposure_comp_spinner"
-                        android:prompt="@string/ChooseExposureComp"
-                        android:spinnerMode="dropdown"
                         android:layout_marginTop="5dp"
                         android:layout_marginBottom="5dp"
-                        />
+                        android:prompt="@string/ChooseExposureComp"
+                        android:spinnerMode="dropdown" />
 
                 </LinearLayout>
 
@@ -588,7 +577,7 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/NoOfExposuresSingleLine"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -652,16 +641,16 @@
                             android:layout_height="wrap_content"
                             android:paddingTop="7dp"
                             android:text="@string/Flash"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                             android:textSize="17sp"
                             />
 
                     </LinearLayout>
 
                     <CheckBox
+                        android:id="@+id/flash_checkbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/flash_checkbox"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
                         android:layout_marginTop="12dp"
@@ -689,7 +678,7 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/LightSource"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -729,7 +718,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
                     android:text="@string/DescriptionOrNote"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -738,6 +727,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/note_editText"
                     android:inputType="textCapSentences"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     />
 
             </LinearLayout>
@@ -763,7 +753,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
                     android:text="@string/ComplementaryPicture"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -772,7 +762,7 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="7dp"
                     android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textSize="15sp"
                     android:id="@+id/picture_text"
                     />

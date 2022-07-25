@@ -55,7 +55,6 @@ class PreferenceActivity : AppCompatActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        overridePendingTransition(R.anim.enter_from_right, R.anim.hold)
         super.onCreate(savedInstanceState)
 
         // If the activity was recreated, get the saved result code
@@ -64,7 +63,7 @@ class PreferenceActivity : AppCompatActivity() {
         val binding = ActivitySettingsBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        
+
         binding.topAppBar.setNavigationOnClickListener { finish() }
 
         if (savedInstanceState == null) {
@@ -81,11 +80,6 @@ class PreferenceActivity : AppCompatActivity() {
         // Save the result code so that it can be set for this activity's result when recreated
         super.onSaveInstanceState(outState)
         outState.putInt(ExtraKeys.RESULT_CODE, resultCode)
-    }
-
-    override fun finish() {
-        super.finish()
-        overridePendingTransition(R.anim.nothing, R.anim.exit_to_right)
     }
 
 }

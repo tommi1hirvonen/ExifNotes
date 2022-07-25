@@ -668,7 +668,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/note_editText"
                     android:inputType="textCapSentences"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     />
 
             </LinearLayout>

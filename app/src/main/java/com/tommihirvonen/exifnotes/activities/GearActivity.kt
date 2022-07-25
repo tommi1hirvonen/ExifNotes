@@ -19,15 +19,13 @@
 package com.tommihirvonen.exifnotes.activities
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityGearBinding
@@ -54,6 +52,8 @@ class GearActivity : AppCompatActivity() {
         private const val PAGE_COUNT = 4
     }
 
+    lateinit var topAppBar: MaterialToolbar
+
     /**
      * ViewPager is responsible for changing the layout when the user swipes or clicks on a tab.
      */
@@ -68,15 +68,13 @@ class GearActivity : AppCompatActivity() {
 
     // Inflate the activity, set the UI, ViewPager and TabLayout.
     override fun onCreate(savedInstanceState: Bundle?) {
-        overridePendingTransition(R.anim.enter_from_right, R.anim.hold)
         super.onCreate(savedInstanceState)
 
         val binding = ActivityGearBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
 
-        binding.topAppBar.setNavigationOnClickListener { finish() }
-        setSupportActionBar(binding.topAppBar)
+        topAppBar = binding.topAppBar
+        topAppBar.setNavigationOnClickListener { onBackPressed() }
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = binding.viewPager
@@ -86,25 +84,6 @@ class GearActivity : AppCompatActivity() {
 
         bottomNavigation = binding.bottomNavigation
         bottomNavigation.setOnItemSelectedListener(navigationItemSelectedListener)
-
-        //Get the index for the view which was last shown.
-
-        // Manually handling the back navigation button press enables custom transition animations.
-        addMenuProvider(object : MenuProvider{
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) { }
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                if (menuItem.itemId == android.R.id.home) {
-                    onBackPressed()
-                    return true
-                }
-                return false
-            }
-        })
-    }
-
-    override fun finish() {
-        super.finish()
-        overridePendingTransition(R.anim.nothing, R.anim.exit_to_right)
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {

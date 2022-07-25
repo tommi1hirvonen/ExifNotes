@@ -148,7 +148,6 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
         val framesActivityIntent = Intent(this, FramesActivity::class.java)
         framesActivityIntent.putExtra(ExtraKeys.ROLL, roll)
         framesActivityIntent.putExtra(ExtraKeys.LOCATION_ENABLED, locationPermissionsGranted)
-        framesActivityIntent.putExtra(ExtraKeys.OVERRIDE_PENDING_TRANSITION, true)
         startActivity(framesActivityIntent)
     }
 

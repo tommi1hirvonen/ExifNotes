@@ -30,7 +30,6 @@ import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -98,10 +97,6 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         // and also saving the values for you.
         addPreferencesFromResource(R.xml.fragment_preference)
 
-        // Set summaries
-        val uiColor = findPreference<UIColorDialogPreference>(PreferenceConstants.KEY_UI_COLOR)!!
-        uiColor.summary = uiColor.selectedColorName
-
         // OnClickListener to start complementary pictures export.
         val exportComplementaryPictures = findPreference<Preference>(PreferenceConstants.KEY_EXPORT_COMPLEMENTARY_PICTURES)!!
         exportComplementaryPictures.onPreferenceClickListener = Preference.OnPreferenceClickListener {
@@ -160,17 +155,6 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
         when (preference) {
-            is UIColorDialogPreference -> {
-                val dialogFragment = UIColorPreferenceDialogFragment(preference.getKey())
-                // Here we can safely suppress deprecation warnings, because we aren't
-                // actually communicating/passing data between two fragments.
-                // PreferenceDialogFragmentCompat requires target fragment to be set,
-                // which is we setTargetFragment() needs to be called. Currently there
-                // seems to be no other workaround.
-                @Suppress("DEPRECATION")
-                dialogFragment.setTargetFragment(this, 0)
-                dialogFragment.show(parentFragmentManager, null)
-            }
             is AboutDialogPreference -> { showAboutDialog() }
             is HelpDialogPreference -> { showHelpDialog() }
             is PrivacyPolicyDialogPreference -> { showPrivacyPolicyDialog() }

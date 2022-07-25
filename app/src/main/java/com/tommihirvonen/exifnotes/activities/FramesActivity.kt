@@ -39,19 +39,7 @@ class FramesActivity : AppCompatActivity() {
         val intent = intent
         val roll = intent.getParcelableExtra<Roll>(ExtraKeys.ROLL)
         val locationEnabled = intent.getBooleanExtra(ExtraKeys.LOCATION_ENABLED, false)
-        val overridePendingTransition = intent.getBooleanExtra(ExtraKeys.OVERRIDE_PENDING_TRANSITION, false)
         if (roll == null) finish()
-
-        // If the activity was launched from MainActivity, enable custom transition animations.
-        // If the activity was recreated, then custom animations are not enabled during onCreate().
-        if (overridePendingTransition) {
-            overridePendingTransition(R.anim.enter_from_right, R.anim.hold)
-            // Replace the old intent with a modified one, where the OVERRIDE_PENDING_TRANSITION
-            // boolean value has been exhausted and set to false.
-            intent.putExtra(ExtraKeys.OVERRIDE_PENDING_TRANSITION, false)
-            setIntent(intent)
-        }
-        if (isAppThemeDark) setTheme(R.style.AppTheme_Dark)
 
         // The point at which super.onCreate() is called is important.
         // Calling it at the end of the method resulted in the back button not appearing
@@ -73,7 +61,6 @@ class FramesActivity : AppCompatActivity() {
 
         // Use the same activity layout as in MainActivity.
         setContentView(R.layout.activity_main)
-        setUiColor(true)
         if (findViewById<View?>(R.id.fragment_container) != null && savedInstanceState == null) {
 
             // Pass the arguments from MainActivity on to FramesFragment.
@@ -85,20 +72,7 @@ class FramesActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction().add(R.id.fragment_container,
                     framesFragment, FramesFragment.FRAMES_FRAGMENT_TAG).commit()
 
-            // Bring the shadow element from the activity's layout to front.
-            findViewById<View>(R.id.shadow).bringToFront()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setSupportActionBarColor(baseContext.primaryUiColor)
-        setStatusBarColor(baseContext.secondaryUiColor)
-    }
-
-    override fun finish() {
-        super.finish()
-        overridePendingTransition(R.anim.nothing, R.anim.exit_to_right)
     }
 
 }

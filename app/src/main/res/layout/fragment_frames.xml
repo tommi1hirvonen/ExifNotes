@@ -16,21 +16,38 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<FrameLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     >
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/top_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="@string/Text"
+            app:subtitle="@string/Text"
+            app:navigationIcon="@drawable/ic_ab_back_material"
+            app:navigationIconTint="?attr/colorControlNormal"
+            app:menu="@menu/menu_frames_fragment" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <TextView
         android:id="@+id/no_added_frames"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:textSize="20sp"
+        app:layout_anchor="@id/top_app_bar"
+        app:layout_anchorGravity="bottom"
+        android:paddingTop="60dp"
         android:gravity="center"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         android:text="@string/NoFrames"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -40,6 +57,7 @@
         android:paddingBottom="80dp"
         android:clipToPadding="false"
         android:scrollbars="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -52,7 +70,6 @@
         android:layout_marginLeft="20dp"
         app:elevation="6dp"
         app:pressedTranslationZ="12dp"
-        app:backgroundTint="@color/secondary_color"
         android:src="@drawable/ic_add_a_frame_white_48dp" />
 
-</FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

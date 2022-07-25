@@ -21,6 +21,7 @@ package com.tommihirvonen.exifnotes.activities
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -80,11 +81,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
     private lateinit var adapter: RollMarkerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        overridePendingTransition(R.anim.enter_from_right, R.anim.hold)
         super.onCreate(savedInstanceState)
-        if (isAppThemeDark) {
-            setTheme(R.style.Theme_AppCompat)
-        }
 
         // In onSaveInstanceState a dummy boolean was put into outState.
         // savedInstanceState is not null if the activity was continued.
@@ -92,7 +89,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
 
         // Set the UI
         setContentView(R.layout.activity_map)
-        setUiColor(true)
+
         supportActionBar?.subtitle = intent.getStringExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE)
         supportActionBar?.title = intent.getStringExtra(ExtraKeys.MAPS_ACTIVITY_TITLE)
 
@@ -140,11 +137,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
-    }
-
-    override fun finish() {
-        super.finish()
-        overridePendingTransition(R.anim.nothing, R.anim.exit_to_right)
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -254,9 +246,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, MenuProvider {
 
         // If the app's theme is dark, stylize the map with the custom night mode
         val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
-        if (isAppThemeDark) {
-            googleMap?.setMapStyle(MapStyleOptions(resources
-                    .getString(R.string.style_json)))
+        when (resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+            Configuration.UI_MODE_NIGHT_YES -> {
+                googleMap?.setMapStyle(MapStyleOptions(resources.getString(R.string.style_json)))
+            }
         }
         googleMap?.mapType = prefs.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
         updateMarkers()

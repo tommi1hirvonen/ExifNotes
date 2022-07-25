@@ -351,7 +351,7 @@
     <string name="UnloadedOn">Unloaded on</string>
     <string name="UseCustomValue">Use custom value</string>
     <string name="UsedCamera">Choose used camera</string>
-    <string name="UsedFilter">Choose used filter</string>
+    <string name="UsedFilters">Choose used filter(s)</string>
     <string name="UsedLens">Choose used lens</string>
     <string name="UserAdded">User added</string>
     <string name="AboutAndTermsOfUse">Version %s

@@ -22,7 +22,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.*
@@ -107,9 +107,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             @Suppress("DEPRECATION") window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
             @Suppress("DEPRECATION") window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         }
-        if (isAppThemeDark) {
-            setTheme(R.style.Theme_AppCompat)
-        }
+
         if (savedInstanceState != null) continueActivity = true
 
         binding = ActivityLocationPickBinding.inflate(layoutInflater)
@@ -118,11 +116,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         binding.fab.setOnClickListener(this)
         val currentLocationFab = findViewById<FloatingActionButton>(R.id.fab_current_location)
         currentLocationFab.setOnClickListener(this)
-        setUiColor(true)
         supportActionBar?.title = resources.getString(R.string.PickLocation)
-
-        // Also change the floating action button color. Use the darker secondaryColor for this.
-        binding.fab.backgroundTintList = ColorStateList.valueOf(baseContext.secondaryUiColor)
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
@@ -240,9 +234,11 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         googleMap = googleMap_
         googleMap?.let { googleMap ->
             googleMap.setOnMapClickListener(this)
-            // If the app's theme is dark, stylize the map with the custom night mode
-            if (isAppThemeDark) {
-                googleMap.setMapStyle(MapStyleOptions(resources.getString(R.string.style_json)))
+            // If night mode is enabled, stylize the map with the custom dark theme.
+            when (resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+                Configuration.UI_MODE_NIGHT_YES -> {
+                    googleMap.setMapStyle(MapStyleOptions(resources.getString(R.string.style_json)))
+                }
             }
             googleMap.mapType = mapType
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==

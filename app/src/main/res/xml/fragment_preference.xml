@@ -67,13 +67,6 @@
             app:iconSpaceReserved="false"
             />
 
-        <com.tommihirvonen.exifnotes.preferences.UIColorDialogPreference
-            android:key="UIColor"
-            android:title="@string/UIColorTitle"
-            android:defaultValue="#00838F,#006064"
-            app:iconSpaceReserved="false"
-            />
-
         <ListPreference
             android:key="FilesToExport"
             android:title="@string/FilesToExportTitle"
