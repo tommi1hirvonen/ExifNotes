@@ -20,10 +20,10 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.widget.Chronometer
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import com.tommihirvonen.exifnotes.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

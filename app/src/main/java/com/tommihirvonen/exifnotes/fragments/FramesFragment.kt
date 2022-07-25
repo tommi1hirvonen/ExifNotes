@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
@@ -33,6 +32,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.ContextCompat
@@ -602,7 +602,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             val selectedItemPositions = frameAdapter.selectedItemPositions
             return when (item.itemId) {
                 R.id.menu_item_delete -> {
-                    val deleteConfirmDialog = AlertDialog.Builder(activity)
+                    val deleteConfirmDialog = AlertDialog.Builder(requireActivity())
                     // Separate confirm titles for one or multiple frames
                     val title = resources.getQuantityString(R.plurals.ConfirmFramesDelete, selectedItemPositions.size, selectedItemPositions.size)
                     deleteConfirmDialog.setTitle(title)
@@ -627,7 +627,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                         // Get the first of the selected rolls (only one should be selected anyway)
                         showFrameInfoEditDialog(selectedItemPositions[0])
                     } else {
-                        val builder = AlertDialog.Builder(activity)
+                        val builder = AlertDialog.Builder(requireActivity())
                         builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), frameAdapter.selectedItemCount))
                         builder.setItems(R.array.FramesBatchEditOptions) { _, i ->
                             when (i) {

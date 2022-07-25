@@ -18,7 +18,6 @@
 
 package com.tommihirvonen.exifnotes.utilities
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.text.SpannableString
@@ -26,6 +25,7 @@ import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import com.tommihirvonen.exifnotes.R
 
 /**
@@ -33,9 +33,9 @@ import com.tommihirvonen.exifnotes.R
  */
 class GeneralDialogBuilder(context: Context) : AlertDialog.Builder(context) {
 
-    override fun setTitle(title: CharSequence) = apply { super.setTitle(title) }
+    override fun setTitle(title: CharSequence?) = apply { super.setTitle(title) }
 
-    override fun setMessage(message: CharSequence) = apply {
+    override fun setMessage(message: CharSequence?) = apply {
         // If there are URLs embedded in the message, modify them to become links.
         val spannableString = SpannableString(message)
         Linkify.addLinks(spannableString, Linkify.WEB_URLS)
@@ -49,8 +49,8 @@ class GeneralDialogBuilder(context: Context) : AlertDialog.Builder(context) {
         val dialog = super.create()
         dialog.setOnShowListener {
             val textView = dialog.findViewById<TextView>(android.R.id.message)
-            textView.textSize = 14f // Reduce message text size from default
-            textView.movementMethod = LinkMovementMethod.getInstance() // Enable links
+            textView?.textSize = 14f // Reduce message text size from default
+            textView?.movementMethod = LinkMovementMethod.getInstance() // Enable links
         }
         return dialog
     }
