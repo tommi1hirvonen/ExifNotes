@@ -31,6 +31,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogCameraBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
@@ -132,7 +133,7 @@ class EditCameraDialog : DialogFragment() {
         // SHUTTER RANGE BUTTON
         updateShutterRangeTextView()
         binding.shutterRangeLayout.setOnClickListener {
-            val builder = AlertDialog.Builder(requireActivity())
+            val builder = MaterialAlertDialogBuilder(requireActivity())
             val inflater = requireActivity().layoutInflater
             @SuppressLint("InflateParams")
             val dialogView = inflater.inflate(R.layout.dialog_double_numberpicker, null)
@@ -187,7 +188,7 @@ class EditCameraDialog : DialogFragment() {
 
         // FIXED LENS
         binding.fixedLensHelp.setOnClickListener {
-            AlertDialog.Builder(requireContext()).apply {
+            MaterialAlertDialogBuilder(requireContext()).apply {
                 setMessage(R.string.FixedLensHelp)
                 setPositiveButton(R.string.Close) { _: DialogInterface, _: Int -> }
             }.create().show()

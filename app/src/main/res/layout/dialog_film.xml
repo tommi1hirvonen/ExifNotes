@@ -67,7 +67,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/Manufacturer"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -76,6 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:id="@+id/manufacturer_editText"
                     android:inputType="textCapSentences"
                     />
@@ -102,7 +103,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/FilmStock"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -111,6 +112,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:id="@+id/filmStock_editText"
                     android:inputType="textCapSentences"
                     />
@@ -137,7 +139,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/ISO"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -146,6 +148,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:id="@+id/iso_editText"
                     android:inputType="number"
                     android:digits="1234567890"
@@ -172,7 +175,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/FilmType"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -209,7 +212,7 @@
                     android:paddingTop="7dp"
                     android:paddingLeft="10dp"
                     android:text="@string/FilmProcess"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 

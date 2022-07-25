@@ -316,31 +316,29 @@
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                <Button
                     android:id="@+id/lens_clear"
-                    android:layout_toLeftOf="@id/fixed_lens_help"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="@dimen/FrameDialogImageMargin"
-                    android:clickable="true"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_baseline_cancel_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
-                    app:tint="?attr/iconTintColorPrimary" />
+                    android:layout_toLeftOf="@id/fixed_lens_help"
+                    android:text="@string/Clear"
+                    app:icon="@drawable/ic_baseline_close_24" />
 
                 <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
                     android:id="@+id/fixed_lens_help"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="@dimen/FrameDialogImageMargin"
-                    android:clickable="true"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_baseline_help_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
-                    app:tint="?attr/iconTintColorPrimary" />
+                    android:clickable="true"
+                    android:src="@drawable/ic_baseline_info_24"
+                    app:tint="?attr/colorPrimary"
+                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
             </RelativeLayout>
 

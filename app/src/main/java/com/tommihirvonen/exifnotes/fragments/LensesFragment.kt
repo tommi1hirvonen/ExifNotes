@@ -26,12 +26,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.LensAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentLensesBinding
@@ -130,7 +130,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
                                 resources.getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show()
                         return true
                     }
-                    val builder = AlertDialog.Builder(requireActivity())
+                    val builder = MaterialAlertDialogBuilder(requireActivity())
                     builder.setTitle(resources.getString(R.string.ConfirmLensDelete)
                             + " \'" + lens.name + "\'?"
                     )
@@ -210,7 +210,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
         // Create a bool array for preselected items in the multi choice list.
         val booleans = cameraSelections.map { it.beforeState }.toBooleanArray()
 
-        val builder = AlertDialog.Builder(requireActivity())
+        val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectMountableCameras)
                 .setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
                     cameraSelections[which].afterState = isChecked
@@ -252,7 +252,7 @@ class LensesFragment : Fragment(), View.OnClickListener {
         // Create a bool array for preselected items in the multi choice list.
         val booleans = filterSelections.map { it.beforeState }.toBooleanArray()
 
-        val builder = AlertDialog.Builder(requireActivity())
+        val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectMountableFilters)
                 .setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
                     filterSelections[which].afterState = isChecked

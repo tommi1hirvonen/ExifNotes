@@ -28,6 +28,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerBinding
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerButtonsBinding
@@ -131,7 +132,7 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
         newLens.maxAperture = lens.maxAperture
         updateApertureRangeTextView()
         binding.apertureRangeLayout.setOnClickListener {
-            val builder = AlertDialog.Builder(requireActivity())
+            val builder = MaterialAlertDialogBuilder(requireActivity())
             val inflater = requireActivity().layoutInflater
             val binding1 = DialogDoubleNumberpickerBinding.inflate(inflater)
             val maxAperturePicker = binding1.numberPickerOne
@@ -178,7 +179,7 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
         // FOCAL LENGTH RANGE BUTTON
         updateFocalLengthRangeTextView()
         binding.focalLengthRangeLayout.setOnClickListener {
-            val builder = AlertDialog.Builder(requireActivity())
+            val builder = MaterialAlertDialogBuilder(requireActivity())
             val inflater = requireActivity().layoutInflater
             val binding1 = DialogDoubleNumberpickerButtonsBinding.inflate(inflater)
             val minFocalLengthPicker = binding1.numberPickerOne
