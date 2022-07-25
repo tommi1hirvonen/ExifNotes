@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.dialogs
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -36,6 +35,7 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.core.widget.NestedScrollView
 import androidx.exifinterface.media.ExifInterface
@@ -640,7 +640,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 mountableLenses?.indexOfFirst { it == lens }?.plus(1) ?: 0 // account for the 'No lens' option (+1)
             } ?: 0
 
-            val builder = AlertDialog.Builder(activity)
+            val builder = AlertDialog.Builder(requireActivity())
             builder.setTitle(R.string.UsedLens)
             builder.setSingleChoiceItems(listItems, checkedItem) { dialog: DialogInterface, which: Int ->
                 // Check if the lens was changed
@@ -696,7 +696,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             // Bool array for preselected items in the multi choice list.
             val booleans = filterSelections.map { it.second }.toBooleanArray()
 
-            val builder = AlertDialog.Builder(activity)
+            val builder = AlertDialog.Builder(requireActivity())
             builder.setTitle(R.string.UsedFilter)
             builder.setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
                 filterSelections[which] = filterSelections[which].copy(second = isChecked)
@@ -717,7 +717,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
      */
     private inner class FocalLengthLayoutOnClickListener : View.OnClickListener {
         override fun onClick(view: View) {
-            val builder = AlertDialog.Builder(activity)
+            val builder = AlertDialog.Builder(requireActivity())
             val inflater = requireActivity().layoutInflater
             @SuppressLint("InflateParams")
             val dialogView = inflater.inflate(R.layout.dialog_seek_bar, null)
@@ -800,7 +800,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
      */
     private inner class PictureLayoutOnClickListener : View.OnClickListener {
         override fun onClick(view: View) {
-            val pictureActionDialogBuilder = AlertDialog.Builder(activity)
+            val pictureActionDialogBuilder = AlertDialog.Builder(requireActivity())
 
             // If a complementary picture was not set, set only the two first options
             val items: Array<String> = if (newFrame.pictureFilename == null) {

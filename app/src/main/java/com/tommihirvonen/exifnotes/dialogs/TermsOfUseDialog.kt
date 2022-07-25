@@ -19,13 +19,13 @@
 package com.tommihirvonen.exifnotes.dialogs
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Build
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.utilities.packageInfo
@@ -80,8 +80,8 @@ class TermsOfUseDialog(private val activity: Activity) {
             dialog.show()
             //The dialog needs to be shown first. Otherwise textView will be null.
             val textView = dialog.findViewById<TextView>(android.R.id.message)
-            textView.textSize = 14f
-            textView.movementMethod = LinkMovementMethod.getInstance()
+            textView?.textSize = 14f
+            textView?.movementMethod = LinkMovementMethod.getInstance()
         }
     }
 

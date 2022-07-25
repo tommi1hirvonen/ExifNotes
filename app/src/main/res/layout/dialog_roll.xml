@@ -25,6 +25,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:id="@+id/root"
+    android:background="?attr/colorBackgroundFloating"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
 
@@ -63,7 +64,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
                     android:text="@string/Name"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -72,6 +73,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/name_editText"
                     android:inputType="textCapSentences"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     />
 
             </LinearLayout>
@@ -103,7 +105,7 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/FilmStock"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -112,7 +114,7 @@
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textSize="15sp"
                         android:id="@+id/film_stock_text"
                         android:text="@string/ClickToSet"
@@ -120,30 +122,26 @@
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                <Button
                     android:id="@+id/add_film_stock"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:clickable="true"
-                    android:background="?selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_baseline_add_circle_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
-                    app:tint="?attr/iconTintColorPrimary" />
+                    android:text="@string/New"
+                    app:icon="@drawable/ic_baseline_add_24" />
 
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                <Button
                     android:id="@+id/clear_film_stock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_baseline_close_48"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:clickable="true"
-                    android:visibility="gone"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_baseline_cancel_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
-                    app:tint="?attr/iconTintColorPrimary" />
+                    android:text="@string/Clear"/>
 
             </RelativeLayout>
 
@@ -166,7 +164,7 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     android:paddingTop="7dp"
                     android:text="@string/LoadedOn"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -197,7 +195,7 @@
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textSize="15sp"
                         android:id="@+id/date_text"
                         android:text="@string/ClickToSet"
@@ -262,7 +260,7 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     android:paddingTop="7dp"
                     android:text="@string/UnloadedOn"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -293,7 +291,7 @@
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textSize="15sp"
                         android:id="@+id/date_unloaded_text"
                         android:text="@string/ClickToSet"
@@ -336,19 +334,16 @@
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                <Button
                     android:id="@+id/clear_date_unloaded"
-                    android:layout_centerVertical="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_close_24"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:clickable="true"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_baseline_cancel_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
-                    app:tint="?attr/iconTintColorPrimary" />
+                    android:text="@string/Clear"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -370,7 +365,7 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     android:paddingTop="7dp"
                     android:text="@string/DevelopedOn"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -402,7 +397,7 @@
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textSize="15sp"
                         android:id="@+id/date_developed_text"
                         android:text="@string/ClickToSet"
@@ -445,19 +440,16 @@
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                <Button
                     android:id="@+id/clear_date_developed"
-                    android:layout_centerVertical="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_close_24"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:clickable="true"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_baseline_cancel_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
-                    app:tint="?attr/iconTintColorPrimary" />
+                    android:text="@string/Clear"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -488,7 +480,7 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/Camera"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -498,7 +490,7 @@
                         android:layout_height="wrap_content"
                         android:paddingBottom="7dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textSize="15sp"
                         android:id="@+id/camera_text"
                         android:text="@string/ClickToSet"
@@ -506,17 +498,15 @@
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                <Button
                     android:id="@+id/add_camera"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:clickable="true"
-                    android:background="?selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_baseline_add_circle_24"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
-                    app:tint="?attr/iconTintColorPrimary" />
+                    android:text="@string/New"
+                    app:icon="@drawable/ic_baseline_add_24" />
 
             </RelativeLayout>
 
@@ -542,7 +532,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
                     android:text="@string/ISO"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -551,7 +541,7 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="7dp"
                     android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textSize="15sp"
                     android:id="@+id/iso_text"
                     android:text="@string/ClickToSet"
@@ -595,7 +585,7 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/PushPull"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -630,7 +620,7 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="7dp"
                         android:text="@string/Format"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                         android:textSize="17sp"
                         />
 
@@ -670,7 +660,7 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="7dp"
                     android:text="@string/DescriptionOrNote"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     android:textSize="17sp"
                     />
 
@@ -679,6 +669,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/note_editText"
                     android:inputType="textCapSentences"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     />
 
             </LinearLayout>

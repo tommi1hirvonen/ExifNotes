@@ -19,40 +19,42 @@
 
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <RelativeLayout
+        android:id="@+id/layout_manufacturer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/layout_manufacturer"
+        android:background="?android:attr/selectableItemBackground"
         android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:background="?android:attr/selectableItemBackground">
+        android:paddingRight="20dp">
 
         <TextView
+            android:id="@+id/text_view_manufacturer_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/text_view_manufacturer_name"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            android:text="@string/Manufacturer"
-            android:textSize="17sp"
-            android:layout_margin="10dp"
             android:layout_centerVertical="true"
-            />
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/Manufacturer"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textSize="18sp" />
 
         <ImageView
+            android:id="@+id/image_view_expand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/image_view_expand"
-            android:src="@drawable/arrow_down"
-            android:tint="?attr/iconTintColorPrimary"
-            android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_margin="10dp"
-            />
+            android:src="@drawable/arrow_down"
+            app:tint="?attr/iconTintColorPrimary" />
 
     </RelativeLayout>
 
@@ -63,7 +65,6 @@
         android:orientation="vertical"
         android:id="@+id/layout_expand"
         android:layout_below="@id/layout_manufacturer"
-        android:background="@color/background_selected"
         >
 
         <View
@@ -77,8 +78,7 @@
             android:id="@+id/recycler_view_film_stocks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            />
+            android:layout_alignParentTop="true" />
 
         <View
             android:layout_width="match_parent"

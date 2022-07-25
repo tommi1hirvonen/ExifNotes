@@ -242,6 +242,7 @@
     <string name="MountsTo">Mounts to:</string>
     <string name="Name">Name</string>
     <string name="NameNoColon">Name</string>
+    <string name="New">New</string>
     <string name="NewCamera">Add new camera</string>
     <string name="NewFilter">Add new filter</string>
     <string name="NewFrame">Add new frame</string>
@@ -304,6 +305,7 @@
     <string name="RotateLeft90Degrees">Rotate left 90 degrees</string>
     <string name="RotateRight90Degrees">Rotate right 90 degrees</string>
     <string name="Satellite">Satellite</string>
+    <string name="Save">Save</string>
     <string name="Search">Search</string>
     <string name="SearchWEllipsis">Search…</string>
     <string name="SelectAll">Select all</string>

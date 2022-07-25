@@ -19,7 +19,6 @@
 package com.tommihirvonen.exifnotes.dialogs
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
@@ -27,6 +26,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
@@ -73,7 +73,7 @@ class EditCameraDialog : DialogFragment() {
         val layoutInflater = requireActivity().layoutInflater
         binding = DialogCameraBinding.inflate(layoutInflater)
 
-        val alert = AlertDialog.Builder(activity)
+        val alert = AlertDialog.Builder(requireActivity())
         val title = requireArguments().getString(ExtraKeys.TITLE)
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         val camera = requireArguments().getParcelable(ExtraKeys.CAMERA) ?: Camera()
@@ -132,7 +132,7 @@ class EditCameraDialog : DialogFragment() {
         // SHUTTER RANGE BUTTON
         updateShutterRangeTextView()
         binding.shutterRangeLayout.setOnClickListener {
-            val builder = AlertDialog.Builder(activity)
+            val builder = AlertDialog.Builder(requireActivity())
             val inflater = requireActivity().layoutInflater
             @SuppressLint("InflateParams")
             val dialogView = inflater.inflate(R.layout.dialog_double_numberpicker, null)

@@ -18,7 +18,6 @@
 
 package com.tommihirvonen.exifnotes.dialogs
 
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
@@ -26,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import com.tommihirvonen.exifnotes.R
@@ -77,7 +77,7 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
             binding.serialNumberLayout.visibility = View.GONE
         }
 
-        val alert = AlertDialog.Builder(activity)
+        val alert = AlertDialog.Builder(requireActivity())
         val title = requireArguments().getString(ExtraKeys.TITLE)
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         val lens = requireArguments().getParcelable(ExtraKeys.LENS) ?: Lens()
@@ -131,7 +131,7 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
         newLens.maxAperture = lens.maxAperture
         updateApertureRangeTextView()
         binding.apertureRangeLayout.setOnClickListener {
-            val builder = AlertDialog.Builder(activity)
+            val builder = AlertDialog.Builder(requireActivity())
             val inflater = requireActivity().layoutInflater
             val binding1 = DialogDoubleNumberpickerBinding.inflate(inflater)
             val maxAperturePicker = binding1.numberPickerOne
@@ -178,7 +178,7 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
         // FOCAL LENGTH RANGE BUTTON
         updateFocalLengthRangeTextView()
         binding.focalLengthRangeLayout.setOnClickListener {
-            val builder = AlertDialog.Builder(activity)
+            val builder = AlertDialog.Builder(requireActivity())
             val inflater = requireActivity().layoutInflater
             val binding1 = DialogDoubleNumberpickerButtonsBinding.inflate(inflater)
             val minFocalLengthPicker = binding1.numberPickerOne

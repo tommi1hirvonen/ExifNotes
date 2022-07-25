@@ -32,9 +32,10 @@
         android:id="@+id/text_view_film_stock"
         android:textSize="16sp"
         android:text="@string/FilmStock"
-        android:layout_marginLeft="60dp"
+        android:layout_marginLeft="50dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="15dp"
+        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
         android:layout_marginBottom="15dp"
         />
 
