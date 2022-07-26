@@ -22,8 +22,7 @@
     android:layout_height="35dp"
     android:elevation="6dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/circle_fill"
-    android:backgroundTint="?attr/colorTertiaryContainer">
+    android:background="@drawable/circle_fill_tertiary">
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
