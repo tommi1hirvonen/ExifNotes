@@ -19,7 +19,6 @@
 package com.tommihirvonen.exifnotes.activities
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivitySettingsBinding
@@ -56,24 +55,15 @@ class PreferenceActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         // If the activity was recreated, get the saved result code
         savedInstanceState?.let { resultCode = it.getInt(ExtraKeys.RESULT_CODE) }
-
         val binding = ActivitySettingsBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-
         binding.topAppBar.setNavigationOnClickListener { finish() }
-
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().add(R.id.fragment_layout, PreferenceFragment()).commit()
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) finish()
-        return true
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {

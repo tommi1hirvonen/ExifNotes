@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -30,7 +29,9 @@ import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -44,11 +45,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.*
 
+
 /**
  * PreferenceFragment is shown in PreferenceActivity.
  * It is responsible for displaying all the preference options.
  */
-class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
+class PreferenceFragment : PreferenceFragmentCompat() {
 
     private inner class ExportPictures : CreateDocument("application/zip") {
         override fun createIntent(context: Context, input: String): Intent {
@@ -88,6 +90,36 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
             resultUri?.let { importDatabase(it) }
         }
 
+    private var currentListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
+
+    override fun onResume() {
+        super.onResume()
+        currentListener = preferenceChangeListener
+        preferenceScreen.sharedPreferences?.registerOnSharedPreferenceChangeListener(currentListener)
+    }
+
+    override fun onPause() {
+        preferenceScreen.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(currentListener)
+        currentListener = null
+        super.onPause()
+    }
+
+    /**
+     * Creates a new OnSharedPreferenceChangeListener to detect app theme changes.
+     */
+    private val preferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener get() =
+        SharedPreferences.OnSharedPreferenceChangeListener { _: SharedPreferences, key: String ->
+            if (key == PreferenceConstants.KEY_APP_THEME) {
+                val appThemePreference = findPreference<ListPreference>(PreferenceConstants.KEY_APP_THEME)
+                appThemePreference?.summary = appThemePreference?.entry
+                when (appThemePreference?.value) {
+                    "DEFAULT" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    "LIGHT" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    "DARK" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -96,6 +128,10 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         // and Android takes care of the rest for rendering the activity
         // and also saving the values for you.
         addPreferencesFromResource(R.xml.fragment_preference)
+
+        // Update the summary for the theme preference.
+        val appThemePreference = findPreference<ListPreference>(PreferenceConstants.KEY_APP_THEME)
+        appThemePreference?.summary = appThemePreference?.entry
 
         // OnClickListener to start complementary pictures export.
         val exportComplementaryPictures = findPreference<Preference>(PreferenceConstants.KEY_EXPORT_COMPLEMENTARY_PICTURES)!!
@@ -166,28 +202,6 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {}
-
-    override fun onResume() {
-        super.onResume()
-        preferenceManager.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onPause() {
-        preferenceManager.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
-        super.onPause()
-    }
-
-    // TODO: Check that the exiftool and photos path end with a slash.
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        if (key == PreferenceConstants.KEY_DARK_THEME) {
-            requireActivity().recreate()
-            val preferenceActivity = requireActivity() as PreferenceActivity
-            var resultCode = preferenceActivity.resultCode
-            // Preserve previously put result code(s)
-            resultCode = resultCode or PreferenceActivity.RESULT_THEME_CHANGED
-            preferenceActivity.resultCode = resultCode
-        }
-    }
 
     private fun importComplementaryPictures(picturesUri: Uri) {
         val filePath: String = try {

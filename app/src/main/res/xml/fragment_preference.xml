@@ -69,10 +69,12 @@
             android:icon="@drawable/ic_outline_location_searching_24"
             />
 
-        <SwitchPreference
-            android:key="DarkTheme"
-            android:title="@string/DarkTheme"
-            android:defaultValue="false"
+        <ListPreference
+            android:key="AppTheme"
+            android:title="@string/Theme"
+            android:entries="@array/AppThemeOptions"
+            android:entryValues="@array/AppThemeData"
+            android:defaultValue="DEFAULT"
             android:icon="@drawable/ic_outline_dark_mode_24"
             />
 

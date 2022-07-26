@@ -29,6 +29,7 @@ import android.provider.Settings
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -39,7 +40,10 @@ import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.fragments.RollsFragment
 import com.tommihirvonen.exifnotes.fragments.RollsFragment.OnRollSelectedListener
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
-import com.tommihirvonen.exifnotes.utilities.*
+import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.purgeDirectory
+
 
 /**
  * MainActivity is the first activity to be called when the app is launched.
@@ -62,17 +66,20 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
     private var locationPermissionsGranted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         // Delete all complementary pictures, which are not linked to any frame.
         // Do this each time the app is launched to keep the storage consumption to a minimum.
         // If savedInstanceState is not null, then the activity is being recreated. In this case,
         // don't delete pictures.
         if (savedInstanceState == null) ComplementaryPicturesManager.deleteUnusedPictures(this)
 
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
-        // The point at which super.onCreate() is called is important.
-        // Calling it at the end of the method resulted in the back button not appearing
-        // when action mode was enabled.
+        // If the app theme was set in the app's preferences, override the night mode setting.
+        when (prefs.getString(PreferenceConstants.KEY_APP_THEME, "DEFAULT") ?: "DEFAULT") {
+            "LIGHT" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            "DARK" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
+
         super.onCreate(savedInstanceState)
 
         val binding = ActivityMainBinding.inflate(layoutInflater)
@@ -100,7 +107,6 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
 
         // Get from DefaultSharedPreferences whether the user has enabled
         // location updates in the app's settings.
-        val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
         val requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true)
 
         // Getting GPS status

@@ -101,7 +101,6 @@
     <string name="CsvDescription">Text file with the roll\'s data in csv format</string>
     <string name="Cyan">Cyan</string>
     <string name="Dark">Dark</string>
-    <string name="DarkTheme">Dark theme</string>
     <string name="Database">Database</string>
     <string name="DatabaseCopiedSuccessfully">Database copied successfully</string>
     <string name="DatabaseImported">Database imported successfully</string>
@@ -339,10 +338,12 @@
     <string name="SortBy">Sort by</string>
     <string name="SortFilmStocksBy">Sort film stocks by</string>
     <string name="Sunny">Sunny</string>
+    <string name="SystemDefault">System default</string>
     <string name="TakeNewComplementaryPicture">Take new complementary picture</string>
     <string name="TapOnMap">Tap on map to move marker</string>
     <string name="Terrain">Terrain</string>
     <string name="Text">Text</string>
+    <string name="Theme">Theme</string>
     <string name="ThirdPartyOpenSourceLicenses">Third party open source licenses</string>
     <string name="ThirdStop">⅓ stop</string>
     <string name="Time">Time</string>

@@ -23,7 +23,7 @@ package com.tommihirvonen.exifnotes.preferences
  * reading or editing SharedPreferences.
  */
 object PreferenceConstants {
-    const val KEY_DARK_THEME = "DarkTheme"
+    const val KEY_APP_THEME = "AppTheme"
     const val KEY_MAP_TYPE = "MAP_TYPE"
     const val KEY_GPS_UPDATE = "GPSUpdate"
     const val KEY_FRAME_SORT_ORDER = "FrameSortOrder"
