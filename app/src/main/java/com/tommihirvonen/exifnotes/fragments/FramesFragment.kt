@@ -245,9 +245,8 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         if (frameList.size > 0) {
             binding.noAddedFrames.visibility = View.GONE
         }
-        if (frameAdapter.itemCount > 0) {
-            binding.framesRecyclerView.scrollToPosition(frameAdapter.itemCount - 1)
-        }
+
+        binding.framesRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
 
         return binding.root
     }

@@ -70,8 +70,8 @@ data class Frame(
          */
         fun sortFrameList(context: Context, sortMode: FrameSortMode, list: MutableList<Frame>) {
             when (sortMode) {
-                FrameSortMode.FRAME_COUNT -> list.sortWith(compareBy { it.count })
-                FrameSortMode.DATE -> list.sortWith(compareBy { it.date })
+                FrameSortMode.FRAME_COUNT -> list.sortWith(compareByDescending { it.count })
+                FrameSortMode.DATE -> list.sortWith(compareByDescending { it.date })
                 FrameSortMode.LENS -> list.sortWith(compareBy { it.lens?.name })
                 FrameSortMode.F_STOP -> {
                     val allApertureValues = context.resources.getStringArray(R.array.AllApertureValues)
@@ -79,7 +79,7 @@ data class Frame(
                 }
                 FrameSortMode.SHUTTER_SPEED -> {
                     val allShutterValues = context.resources.getStringArray(R.array.AllShutterValues)
-                    list.sortWith(compareBy { allShutterValues.indexOf(it.shutter) })
+                    list.sortWith(compareByDescending { allShutterValues.indexOf(it.shutter) })
                 }
             }
         }
