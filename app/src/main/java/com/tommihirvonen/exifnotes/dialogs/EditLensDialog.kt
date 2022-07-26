@@ -37,7 +37,6 @@ import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.ScrollIndicatorNestedScrollViewListener
-import com.tommihirvonen.exifnotes.utilities.buildCustomDialogTitleTextView
 
 /**
  * Dialog to edit Lens's information
@@ -90,8 +89,7 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
                         binding.scrollIndicatorUp,
                         binding.scrollIndicatorDown)
         )
-        val titleView = buildCustomDialogTitleTextView(title)
-        alert.setCustomTitle(titleView)
+        alert.setTitle(title)
         alert.setView(binding.root)
 
         // EDIT TEXT FIELDS

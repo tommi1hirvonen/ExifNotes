@@ -47,21 +47,6 @@ fun String.illegalCharsRemoved(): String = replace("[|\\\\?*<\":>/]".toRegex(), 
  */
 fun File.purgeDirectory() = this.listFiles()?.filterNot { it.isDirectory }?.forEach { it.delete() }
 
-/**
- * Method to build a custom AlertDialog title TextView. This way we can imitate
- * the default AlertDialog title and its padding.
- */
-fun Fragment.buildCustomDialogTitleTextView(titleText: String?): TextView {
-    val context = requireContext()
-    val titleTextView = TextView(context)
-    TextViewCompat.setTextAppearance(titleTextView, android.R.style.TextAppearance_DeviceDefault_DialogWindowTitle)
-    val dpi = context.resources.displayMetrics.density
-    titleTextView.setPadding((20 * dpi).toInt(), (20 * dpi).toInt(), (20 * dpi).toInt(), (10 * dpi).toInt())
-    titleTextView.text = titleText ?: ""
-    titleTextView.gravity = Gravity.LEFT
-    return titleTextView
-}
-
 fun File.makeDirsIfNotExists() { if (!isDirectory) mkdirs() }
 
 fun List<Gear>.toStringList(): String =

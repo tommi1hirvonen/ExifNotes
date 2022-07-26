@@ -31,6 +31,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
@@ -155,6 +156,12 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 Toast.makeText(activity, R.string.ErrorLocatingSelectedPicture, Toast.LENGTH_SHORT).show()
             }
         }).start()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Disable background dimming behind the dialog.
+        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

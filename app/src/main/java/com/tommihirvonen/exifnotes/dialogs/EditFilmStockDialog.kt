@@ -32,7 +32,6 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilmBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.buildCustomDialogTitleTextView
 
 class EditFilmStockDialog : DialogFragment() {
     @SuppressLint("SetTextI18n", "InflateParams")
@@ -45,8 +44,7 @@ class EditFilmStockDialog : DialogFragment() {
         val filmStock = requireArguments().getParcelable(ExtraKeys.FILM_STOCK) ?: FilmStock()
 
         val builder = AlertDialog.Builder(requireActivity())
-        val titleView = buildCustomDialogTitleTextView(title)
-        builder.setView(binding.root).setCustomTitle(titleView)
+        builder.setView(binding.root).setTitle(title)
 
         binding.manufacturerEditText.setText(filmStock.make)
         binding.filmStockEditText.setText(filmStock.model)

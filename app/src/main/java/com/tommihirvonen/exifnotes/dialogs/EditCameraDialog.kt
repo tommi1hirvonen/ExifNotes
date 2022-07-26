@@ -88,8 +88,7 @@ class EditCameraDialog : DialogFragment() {
                         binding.scrollIndicatorDown)
         )
 
-        val titleView = buildCustomDialogTitleTextView(title)
-        alert.setCustomTitle(titleView)
+        alert.setTitle(title)
         alert.setView(binding.root)
 
         // EDIT TEXT FIELDS

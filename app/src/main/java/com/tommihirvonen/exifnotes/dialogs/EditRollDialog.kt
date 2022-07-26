@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.*
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
@@ -62,6 +63,12 @@ class EditRollDialog : BottomSheetDialogFragment() {
     private lateinit var dateLoadedManager: DateTimeLayoutManager
     private lateinit var dateUnloadedManager: DateTimeLayoutManager
     private lateinit var dateDevelopedManager: DateTimeLayoutManager
+
+    override fun onStart() {
+        super.onStart()
+        // Disable background dimming behind the dialog.
+        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DialogRollBinding.inflate(inflater, container, false)
