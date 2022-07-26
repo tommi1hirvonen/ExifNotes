@@ -22,5 +22,11 @@
         <item name="iconTintColorPrimary">@color/light_grey</item>
         <item name="iconTintColorSecondary">@color/mid_dark_grey</item>
         <item name="iconTintColorTertiary">@color/background_frame_dark_grey</item>
+        <item name="preferenceTheme">@style/PreferenceTheme</item>
+    </style>
+
+    <!-- Custom style to color the settings activity's icons -->
+    <style name="PreferenceTheme" parent="@style/PreferenceThemeOverlay">
+        <item name="android:tint">#E6E1E5</item>
     </style>
 </resources>

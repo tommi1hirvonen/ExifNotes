@@ -71,7 +71,7 @@
     <string name="Close">Close</string>
     <string name="Cloudy">Cloudy</string>
     <string name="ComplementaryPicture">Complementary picture</string>
-    <string name="ComplementaryPicturesCap">COMPLEMENTARY PICTURES</string>
+    <string name="ComplementaryPictures">Complementary pictures</string>
     <plurals name="ComplementaryPicturesExported">
         <item quantity="one">%d picture exported</item>
         <item quantity="other">%d pictures exported</item>
@@ -97,7 +97,7 @@
     <string name="Cyan">Cyan</string>
     <string name="Dark">Dark</string>
     <string name="DarkTheme">Dark theme</string>
-    <string name="DatabaseCap">DATABASE</string>
+    <string name="Database">Database</string>
     <string name="DatabaseCopiedSuccessfully">Database copied successfully</string>
     <string name="DatabaseImported">Database imported successfully</string>
     <string name="Date">Date</string>
@@ -144,7 +144,7 @@
     <string name="ExifToolCommandsDescription">Text file containing the ExifTool commands</string>
     <string name="ExiftoolPathSummary">"If you are using the ExifTool stand-alone executable, you can define its path here ending with '/' or '\\' depending on your OS."</string>
     <string name="ExiftoolPathTitle">ExifTool path</string>
-    <string name="Exiftool_Cap">EXIFTOOL INTEGRATION</string>
+    <string name="ExiftoolIntegration">ExifTool integration</string>
     <string name="ExportComplementaryPicturesSummary">Export complementary pictures as a compressed .zip file</string>
     <string name="ExportComplementaryPicturesTitle">Export complementary pictures</string>
     <string name="ExportDatabaseSummary">Export SQL database as a .db file</string>
@@ -192,7 +192,7 @@
     <string name="GPSUpdateSummary">Keep updating the current location using GPS.</string>
     <string name="GPSUpdateTitle">Location updates</string>
     <string name="Gear">Gear</string>
-    <string name="General_Cap">GENERAL</string>
+    <string name="General">General</string>
     <string name="GoToSettings">Go to settings</string>
     <string name="Green">Green</string>
     <string name="Grey">Grey</string>
@@ -219,6 +219,7 @@
         In this case the old database will be used.
     </string>
     <string name="ImportingComplementaryPicturesPleaseWait">Importing complementary pictures, please wait.\n\nDepending on the size of the .zip file, this can take several minutes.</string>
+    <string name="Information">Information</string>
     <string name="IntegrityCheckFailed">Database integrity check failed. The old database will be used.</string>
     <string name="IsBeingUsed">is being used!</string>
     <string name="Lens">Lens</string>
@@ -367,8 +368,8 @@
         \n-Replaced deprecated methods
         \n
     </string>
-    <string name="VersionHistory">Version history
-        \n\nv1.17.2 2022-07-24:
+    <string name="VersionHistory">Version history</string>
+    <string name="VersionHistoryStatement">v1.17.2 2022-07-24:
         \n-Code refactoring
         \n-Library updates
         \n-Replaced deprecated methods

@@ -22,33 +22,42 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
-    <com.tommihirvonen.exifnotes.preferences.AboutDialogPreference
-        android:title="@string/About"
-        app:iconSpaceReserved="false"
-        />
+    <PreferenceCategory
+        android:title="@string/Information"
+        app:iconSpaceReserved="false">
 
-    <com.tommihirvonen.exifnotes.preferences.HelpDialogPreference
-        android:title="@string/Help"
-        app:iconSpaceReserved="false"
-        />
+        <com.tommihirvonen.exifnotes.preferences.AboutDialogPreference
+            android:title="@string/About"
+            android:icon="@drawable/ic_outline_info_24"
+            />
 
-    <com.tommihirvonen.exifnotes.preferences.PrivacyPolicyDialogPreference
-        android:title="@string/PrivacyPolicy"
-        app:iconSpaceReserved="false"
-        />
+        <com.tommihirvonen.exifnotes.preferences.HelpDialogPreference
+            android:title="@string/Help"
+            android:icon="@drawable/ic_outline_help_outline_24"
+            />
 
-    <com.tommihirvonen.exifnotes.preferences.LicenseDialogPreference
-        android:title="@string/License"
-        app:iconSpaceReserved="false"
-        />
+        <com.tommihirvonen.exifnotes.preferences.VersionHistoryDialogPreference
+            android:title="@string/VersionHistory"
+            android:icon="@drawable/ic_outline_history_24"/>
 
-    <com.tommihirvonen.exifnotes.preferences.ThirdPartyLicensesDialogPreference
-        android:title="@string/ThirdPartyOpenSourceLicenses"
-        app:iconSpaceReserved="false"
-        />
+        <com.tommihirvonen.exifnotes.preferences.PrivacyPolicyDialogPreference
+            android:title="@string/PrivacyPolicy"
+            android:icon="@drawable/ic_outline_policy_24"
+            />
+
+        <com.tommihirvonen.exifnotes.preferences.LicenseDialogPreference
+            android:title="@string/License"
+            android:icon="@drawable/ic_outline_article_24"
+            />
+
+        <com.tommihirvonen.exifnotes.preferences.ThirdPartyLicensesDialogPreference
+            android:title="@string/ThirdPartyOpenSourceLicenses"
+            android:icon="@drawable/ic_outline_library_books_24"
+            />
+    </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/General_Cap"
+        android:title="@string/General"
         app:iconSpaceReserved="false"
         >
 
@@ -57,14 +66,14 @@
             android:title="@string/GPSUpdateTitle"
             android:summary="@string/GPSUpdateSummary"
             android:defaultValue="true"
-            app:iconSpaceReserved="false"
+            android:icon="@drawable/ic_outline_location_searching_24"
             />
 
         <SwitchPreference
             android:key="DarkTheme"
             android:title="@string/DarkTheme"
             android:defaultValue="false"
-            app:iconSpaceReserved="false"
+            android:icon="@drawable/ic_outline_dark_mode_24"
             />
 
         <ListPreference
@@ -74,14 +83,14 @@
             android:entries="@array/FilesToExportOptions"
             android:entryValues="@array/FilesToExportData"
             android:defaultValue="BOTH"
-            app:iconSpaceReserved="false"
+            android:icon="@drawable/ic_outline_upload_file_24"
             />
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/Exiftool_Cap"
-        app:iconSpaceReserved="false"
+        android:title="@string/ExiftoolIntegration"
+        android:icon="@drawable/ic_outline_integration_instructions_24"
         >
 
         <EditTextPreference
@@ -141,8 +150,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/ComplementaryPicturesCap"
-        app:iconSpaceReserved="false"
+        android:title="@string/ComplementaryPictures"
+        android:icon="@drawable/ic_outline_photo_library_24"
         >
 
         <Preference
@@ -162,8 +171,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/DatabaseCap"
-        app:iconSpaceReserved="false"
+        android:title="@string/Database"
+        android:icon="@drawable/ic_outline_storage_24"
         >
 
         <Preference

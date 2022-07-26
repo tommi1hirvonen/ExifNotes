@@ -336,7 +336,7 @@
                     android:layout_marginRight="@dimen/FrameDialogImageMargin"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
-                    android:src="@drawable/ic_baseline_info_24"
+                    android:src="@drawable/ic_outline_info_24"
                     app:tint="?attr/colorPrimary"
                     tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 

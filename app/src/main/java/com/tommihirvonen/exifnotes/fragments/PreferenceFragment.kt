@@ -157,6 +157,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         when (preference) {
             is AboutDialogPreference -> { showAboutDialog() }
             is HelpDialogPreference -> { showHelpDialog() }
+            is VersionHistoryDialogPreference -> { showVersionHistoryDialog() }
             is PrivacyPolicyDialogPreference -> { showPrivacyPolicyDialog() }
             is ThirdPartyLicensesDialogPreference -> { showThirdPartyLicensesDialog() }
             is LicenseDialogPreference -> { showLicenseDialog() }
@@ -337,11 +338,19 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
         val versionInfo = requireContext().packageInfo
         val versionName = if (versionInfo != null) versionInfo.versionName else ""
         val about = this.resources.getString(R.string.AboutAndTermsOfUse, versionName)
-        val versionHistory = this.resources.getString(R.string.VersionHistory)
-        val message = "$about\n\n\n$versionHistory"
-        GeneralDialogBuilder(requireContext())
+        GeneralMaterialDialogBuilder(requireContext())
             .setTitle(title)
-            .setMessage(message)
+            .setMessage(about)
+            .create()
+            .show()
+    }
+
+    private fun showVersionHistoryDialog() {
+        val title = this.resources.getString(R.string.VersionHistory)
+        val versionHistory = this.resources.getString(R.string.VersionHistoryStatement)
+        GeneralMaterialDialogBuilder(requireContext())
+            .setTitle(title)
+            .setMessage(versionHistory)
             .create()
             .show()
     }
@@ -349,7 +358,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
     private fun showHelpDialog() {
         val title = resources.getString(R.string.Help)
         val message = resources.getString(R.string.main_help)
-        GeneralDialogBuilder(requireContext())
+        GeneralMaterialDialogBuilder(requireContext())
             .setTitle(title)
             .setMessage(message)
             .create()
@@ -359,7 +368,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeL
     private fun showPrivacyPolicyDialog() {
         val title = resources.getString(R.string.PrivacyPolicy)
         val message = resources.getText(R.string.PrivacyPolicyStatement)
-        GeneralDialogBuilder(requireContext())
+        GeneralMaterialDialogBuilder(requireContext())
             .setTitle(title)
             .setMessage(message)
             .create()

@@ -23,15 +23,15 @@ import android.content.DialogInterface
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
-import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 
 /**
  * Custom dialog builder to simplify creation of general purpose info dialogs.
  */
-class GeneralDialogBuilder(context: Context) : AlertDialog.Builder(context) {
+class GeneralMaterialDialogBuilder(context: Context) : MaterialAlertDialogBuilder(context) {
 
     override fun setTitle(title: CharSequence?) = apply { super.setTitle(title) }
 
@@ -42,13 +42,12 @@ class GeneralDialogBuilder(context: Context) : AlertDialog.Builder(context) {
         super.setMessage(spannableString)
     }
 
-    override fun setView(view: View) = apply { super.setView(view) }
-
     override fun create(): AlertDialog {
         setNegativeButton(R.string.Close) { _: DialogInterface?, _: Int -> }
         val dialog = super.create()
         dialog.setOnShowListener {
             val textView = dialog.findViewById<TextView>(android.R.id.message)
+            //textView?.textSize = 14f // Reduce message text size from default
             textView?.movementMethod = LinkMovementMethod.getInstance() // Enable links
         }
         return dialog
