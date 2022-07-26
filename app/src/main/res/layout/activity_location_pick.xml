@@ -99,7 +99,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="20dp"
-        android:src="@drawable/ic_my_location_white_48dp"
+        android:src="@drawable/ic_my_location_white_24dp"
         app:fabSize="mini" />
 
 </RelativeLayout>

@@ -19,6 +19,7 @@
 
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,10 +40,10 @@
         android:layout_height="30dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:tint="?attr/iconTintColorPrimary"
         android:src="@drawable/ic_baseline_remove_24"
         android:layout_gravity="center"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"
+        app:tint="?attr/iconTintColorPrimary" />
 
     <NumberPicker
         android:layout_width="wrap_content"
