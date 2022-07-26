@@ -19,11 +19,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/page_cameras"
-        android:icon="@drawable/ic_baseline_camera_alt_24"
+        android:icon="@drawable/ic_outline_camera_alt_24"
         android:title="@string/CamerasNoCap" />
     <item
         android:id="@+id/page_lenses"
-        android:icon="@drawable/ic_baseline_camera_24"
+        android:icon="@drawable/ic_outline_camera_24"
         android:title="@string/LensesNoCap" />
     <item
         android:id="@+id/page_filters"
@@ -31,6 +31,6 @@
         android:title="@string/FiltersNoCap" />
     <item
         android:id="@+id/page_film_stocks"
-        android:icon="@drawable/ic_baseline_camera_roll_24"
+        android:icon="@drawable/ic_outline_camera_roll_24"
         android:title="@string/FilmStocksNoCap" />
 </menu>

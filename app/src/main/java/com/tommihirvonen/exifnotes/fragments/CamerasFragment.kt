@@ -67,6 +67,14 @@ class CamerasFragment : Fragment() {
         val cameraAdapter = CameraAdapter(requireActivity(), onCameraClickListener)
         binding.camerasRecyclerView.adapter = cameraAdapter
 
+        binding.camerasRecyclerView.setOnScrollChangeListener { _, _, y, _, oldY ->
+            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 || y < oldY) {
+                binding.fabCameras.extend()
+            } else {
+                binding.fabCameras.shrink()
+            }
+        }
+
         model.cameras.observe(viewLifecycleOwner) { cameras ->
             this.cameras = cameras
             cameraAdapter.cameras = cameras
@@ -136,7 +144,7 @@ class CamerasFragment : Fragment() {
     private fun openNewCameraDialog() {
         val dialog = EditCameraDialog()
         val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewCamera))
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
         dialog.arguments = arguments
         dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)

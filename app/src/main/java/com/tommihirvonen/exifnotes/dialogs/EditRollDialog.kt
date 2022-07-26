@@ -172,7 +172,7 @@ class EditRollDialog : BottomSheetDialogFragment() {
             binding.nameEditText.clearFocus()
             val dialog = EditCameraDialog()
             val arguments = Bundle()
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewCamera))
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
             dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)

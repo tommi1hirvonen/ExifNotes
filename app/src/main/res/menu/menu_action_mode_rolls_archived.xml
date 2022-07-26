@@ -23,7 +23,7 @@
 
     <item
         android:id="@+id/menu_item_edit"
-        android:icon="@drawable/ic_baseline_edit_24"
+        android:icon="@drawable/ic_outline_edit_24"
         app:iconTint="?attr/colorControlNormal"
         android:title="@string/Edit"
         app:showAsAction="always"
@@ -31,7 +31,7 @@
 
     <item
         android:id="@+id/menu_item_select_all"
-        android:icon="@drawable/ic_baseline_select_all_24"
+        android:icon="@drawable/ic_outline_select_all_24"
         app:iconTint="?attr/colorControlNormal"
         android:title="@string/SelectAll"
         app:showAsAction="always"
@@ -39,7 +39,7 @@
 
     <item
         android:id="@+id/menu_item_unarchive"
-        android:icon="@drawable/ic_baseline_unarchive_24"
+        android:icon="@drawable/ic_outline_unarchive_24"
         app:iconTint="?attr/colorControlNormal"
         android:title="@string/Unarchive"
         app:showAsAction="always"
@@ -47,7 +47,7 @@
 
     <item
         android:id="@+id/menu_item_delete"
-        android:icon="@drawable/ic_baseline_delete_24"
+        android:icon="@drawable/ic_outline_delete_24"
         app:iconTint="?attr/colorControlNormal"
         android:title="@string/Delete"
         app:showAsAction="always"

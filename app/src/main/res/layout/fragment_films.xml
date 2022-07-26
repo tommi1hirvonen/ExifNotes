@@ -34,7 +34,7 @@
         android:scrollbars="vertical"
         />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab_films"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,8 +42,7 @@
         android:layout_marginBottom="100dp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
-        app:elevation="6dp"
-        app:pressedTranslationZ="12dp"
-        android:src="@drawable/ic_add_a_camera_roll_white_48dp" />
+        android:text="@string/NewFilmStock"
+        app:icon="@drawable/ic_baseline_add_24" />
 
 </FrameLayout>

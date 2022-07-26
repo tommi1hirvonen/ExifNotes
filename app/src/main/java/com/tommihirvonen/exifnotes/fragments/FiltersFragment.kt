@@ -65,6 +65,14 @@ class FiltersFragment : Fragment() {
         val filterAdapter = FilterAdapter(requireActivity(), onFilterClickListener)
         binding.filtersRecyclerView.adapter = filterAdapter
 
+        binding.filtersRecyclerView.setOnScrollChangeListener { _, _, y, _, oldY ->
+            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 || y < oldY) {
+                binding.fabFilters.extend()
+            } else {
+                binding.fabFilters.shrink()
+            }
+        }
+
         model.filters.observe(viewLifecycleOwner) { filters ->
             this.filters = filters
             filterAdapter.filters = filters
@@ -90,7 +98,7 @@ class FiltersFragment : Fragment() {
     private val onFabClickListener = { _: View ->
         val dialog = EditFilterDialog()
         val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewFilter))
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
         dialog.arguments = arguments
         dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)

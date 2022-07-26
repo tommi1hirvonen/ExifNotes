@@ -81,6 +81,14 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         binding.filmsRecyclerView.adapter = filmStockAdapter
         filmStockAdapter.notifyDataSetChanged()
 
+        binding.filmsRecyclerView.setOnScrollChangeListener { _, _, y, _, oldY ->
+            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 || y < oldY) {
+                binding.fabFilms.extend()
+            } else {
+                binding.fabFilms.shrink()
+            }
+        }
+
         val activity = requireActivity() as GearActivity
         activity.topAppBar.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 

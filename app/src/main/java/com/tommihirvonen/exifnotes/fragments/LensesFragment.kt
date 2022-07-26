@@ -78,6 +78,14 @@ class LensesFragment : Fragment() {
         val lensAdapter = LensAdapter(requireActivity(), onLensClickListener)
         binding.lensesRecyclerView.adapter = lensAdapter
 
+        binding.lensesRecyclerView.setOnScrollChangeListener { _, _, y, _, oldY ->
+            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 || y < oldY) {
+                binding.fabLenses.extend()
+            } else {
+                binding.fabLenses.shrink()
+            }
+        }
+
         model.lenses.observe(viewLifecycleOwner) { lenses ->
             this.lenses = lenses
             lensAdapter.lenses = lenses
@@ -124,7 +132,7 @@ class LensesFragment : Fragment() {
     private fun openNewLensDialog() {
         val dialog = EditLensDialog(fixedLens = false)
         val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewLens))
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
         dialog.arguments = arguments
         dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)

@@ -476,7 +476,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                     Toast.LENGTH_LONG).show()
             return
         }
-        val title = requireActivity().resources.getString(R.string.NewFrame)
+        val title = requireActivity().resources.getString(R.string.AddNewFrame)
         val positiveButton = requireActivity().resources.getString(R.string.Add)
         val frame = Frame(roll)
         frame.date = DateTime.fromCurrentTime()

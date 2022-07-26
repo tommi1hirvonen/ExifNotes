@@ -81,19 +81,18 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
+        style="?attr/floatingActionButtonTertiaryStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/bottom_bar"
         android:layout_alignParentRight="true"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="-28dp"
-        android:src="@drawable/ic_baseline_done_24"
-        style="?attr/floatingActionButtonTertiaryStyle"
-        app:elevation="6dp"
-        app:pressedTranslationZ="12dp" />
+        android:src="@drawable/ic_baseline_done_24" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_current_location"
+        style="?attr/floatingActionButtonSurfaceStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/fab"
@@ -101,9 +100,6 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="20dp"
         android:src="@drawable/ic_my_location_white_48dp"
-        style="?attr/floatingActionButtonSurfaceStyle"
-        app:elevation="6dp"
-        app:fabSize="mini"
-        app:pressedTranslationZ="12dp" />
+        app:fabSize="mini" />
 
 </RelativeLayout>

@@ -135,6 +135,14 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
 
+        binding.rollsRecyclerView.setOnScrollChangeListener { _, _, y, _, oldY ->
+            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 || y < oldY) {
+                binding.fab.extend()
+            } else {
+                binding.fab.shrink()
+            }
+        }
+
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemClickListener)
 
         // Use the updateFragment() method to load the film rolls from the database,
@@ -415,7 +423,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
     private fun showRollDialog() {
         val dialog = EditRollDialog()
         val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.NewRoll))
+        arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.AddNewRoll))
         dialog.arguments = arguments
         dialog.show(parentFragmentManager.beginTransaction(), EditRollDialog.TAG)
         dialog.setFragmentResultListener("EditRollDialog") { _, bundle ->

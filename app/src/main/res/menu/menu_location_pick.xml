@@ -32,7 +32,7 @@
     <item
         android:title="@string/MapType"
         android:id="@+id/menu_item_map_type"
-        android:icon="@drawable/ic_baseline_map_24"
+        android:icon="@drawable/ic_outline_map_24"
         app:iconTint="?attr/colorControlNormal"
         app:showAsAction="always">
         <menu

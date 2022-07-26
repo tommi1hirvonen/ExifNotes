@@ -202,7 +202,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 binding.noteEditText.clearFocus()
                 val dialog = EditLensDialog(fixedLens = false)
                 val arguments = Bundle()
-                arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewLens))
+                arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
                 arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
                 dialog.arguments = arguments
                 dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
@@ -354,7 +354,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             binding.noteEditText.clearFocus()
             val dialog = EditFilterDialog()
             val arguments = Bundle()
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewFilter))
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
             dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
