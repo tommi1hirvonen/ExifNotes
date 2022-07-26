@@ -18,11 +18,9 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -47,7 +45,7 @@ import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 /**
  * Fragment to display all filters from the database along with details
  */
-class FiltersFragment : Fragment(), View.OnClickListener {
+class FiltersFragment : Fragment() {
 
     private val model: GearViewModel by activityViewModels()
     private var cameras: List<Camera> = emptyList()
@@ -69,14 +67,14 @@ class FiltersFragment : Fragment(), View.OnClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         val binding = FragmentFiltersBinding.inflate(inflater, container, false)
-        binding.fabFilters.setOnClickListener(this)
+        binding.fabFilters.setOnClickListener(onFabClickListener)
 
         val layoutManager = LinearLayoutManager(activity)
         binding.filtersRecyclerView.layoutManager = layoutManager
         binding.filtersRecyclerView.addItemDecoration(DividerItemDecoration(binding.filtersRecyclerView.context,
                 layoutManager.orientation))
 
-        val filterAdapter = FilterAdapter(requireActivity())
+        val filterAdapter = FilterAdapter(requireActivity(), onFilterClickListener)
         binding.filtersRecyclerView.adapter = filterAdapter
 
         model.filters.observe(viewLifecycleOwner) { filters ->
@@ -101,92 +99,49 @@ class FiltersFragment : Fragment(), View.OnClickListener {
         return binding.root
     }
 
-    override fun onClick(v: View) {
-        if (v.id == R.id.fab_filters) {
-            val dialog = EditFilterDialog()
-            val arguments = Bundle()
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewFilter))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-            dialog.arguments = arguments
-            dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
-            dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
-                val filter: Filter = bundle.getParcelable(ExtraKeys.FILTER)
-                    ?: return@setFragmentResultListener
-                if (filter.make?.isNotEmpty() == true && filter.model?.isNotEmpty() == true) {
-                    model.addFilter(filter)
-                }
+    private val onFabClickListener = { _: View ->
+        val dialog = EditFilterDialog()
+        val arguments = Bundle()
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewFilter))
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+        dialog.arguments = arguments
+        dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
+        dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
+            val filter: Filter = bundle.getParcelable(ExtraKeys.FILTER)
+                ?: return@setFragmentResultListener
+            if (filter.make?.isNotEmpty() == true && filter.model?.isNotEmpty() == true) {
+                model.addFilter(filter)
             }
         }
     }
 
-    @SuppressLint("CommitTransaction")
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        // Because of a bug with ViewPager and context menu actions,
-        // we have to check which fragment is visible to the user.
-        if (fragmentVisible) {
-
-            // Use the getOrder() method to unconventionally get the clicked item's position.
-            // This is set to work correctly in the Adapter class.
-            val position = item.order
-            val filter = filters[position]
-            when (item.itemId) {
-                FilterAdapter.MENU_ITEM_SELECT_MOUNTABLE_LENSES -> {
-                    showSelectMountableLensesDialog(position, fixedLensCameras = false)
-                    return true
-                }
-                FilterAdapter.MENU_ITEM_SELECT_MOUNTABLE_CAMERAS -> {
-                    showSelectMountableLensesDialog(position, fixedLensCameras = true)
-                }
-                FilterAdapter.MENU_ITEM_DELETE -> {
-
-                    // Check if the filter is being used with one of the rolls.
-                    if (database.isFilterBeingUsed(filter)) {
-                        Toast.makeText(activity, resources.getString(R.string.FilterNoColon) +
-                                " " + filter.name + " " +
-                                resources.getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show()
-                        return true
-                    }
-                    val builder = MaterialAlertDialogBuilder(requireActivity())
-                    builder.setTitle(resources.getString(R.string.ConfirmFilterDelete)
-                            + " \'" + filter.name + "\'?"
-                    )
-                    builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                    builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-                        model.deleteFilter(filter)
-                    }
-                    builder.create().show()
-                    return true
-                }
-
-                FilterAdapter.MENU_ITEM_EDIT -> {
-                    val dialog = EditFilterDialog()
-                    val arguments = Bundle()
-                    arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilter))
-                    arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-                    arguments.putParcelable(ExtraKeys.FILTER, filter)
-                    dialog.arguments = arguments
-                    dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
-                    dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
-                        val filter1: Filter = bundle.getParcelable(ExtraKeys.FILTER)
-                            ?: return@setFragmentResultListener
-                        if (filter1.make?.isNotEmpty() == true && filter1.model?.isNotEmpty() == true && filter1.id > 0) {
-                            model.updateFilter(filter1)
-                        }
-                    }
-                    return true
-                }
+    private val onFilterClickListener = { filter: Filter ->
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        builder.setTitle(filter.name)
+        val items = arrayOf(
+            requireActivity().getString(R.string.SelectMountableLenses),
+            requireActivity().getString(R.string.SelectMountableFilters),
+            requireActivity().getString(R.string.Edit),
+            requireActivity().getString(R.string.Delete)
+        )
+        builder.setItems(items) { _, which ->
+            when (which) {
+                0 -> { showSelectMountableLensesDialog(filter, fixedLensCameras = false) }
+                1 -> { showSelectMountableLensesDialog(filter, fixedLensCameras = true) }
+                2 -> { openFilterEditDialog(filter) }
+                3 -> { confirmDeleteFilter(filter) }
             }
         }
-        return false
+        builder.setNegativeButton(R.string.Cancel) { dialog, _ -> dialog.dismiss() }
+        builder.create().show()
     }
 
     /**
      * Show dialog where the user can select which lenses can be mounted to the picked filter.
      *
-     * @param position indicates the position of the picked filter in filterList
+     * @param filter Filter object for which lens selections should be made
      */
-    private fun showSelectMountableLensesDialog(position: Int, fixedLensCameras: Boolean) {
-        val filter = filters[position]
+    private fun showSelectMountableLensesDialog(filter: Filter, fixedLensCameras: Boolean) {
         val mountableLenses = if (fixedLensCameras) {
             cameras.mapNotNull { it.lens }
         } else {
@@ -233,6 +188,41 @@ class FiltersFragment : Fragment(), View.OnClickListener {
                 .setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
         val alert = builder.create()
         alert.show()
+    }
+
+    private fun openFilterEditDialog(filter: Filter) {
+        val dialog = EditFilterDialog()
+        val arguments = Bundle()
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilter))
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
+        arguments.putParcelable(ExtraKeys.FILTER, filter)
+        dialog.arguments = arguments
+        dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
+        dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
+            val filter1: Filter = bundle.getParcelable(ExtraKeys.FILTER)
+                ?: return@setFragmentResultListener
+            if (filter1.make?.isNotEmpty() == true && filter1.model?.isNotEmpty() == true && filter1.id > 0) {
+                model.updateFilter(filter1)
+            }
+        }
+    }
+
+    private fun confirmDeleteFilter(filter: Filter) {
+        // Check if the filter is being used with one of the rolls.
+        if (database.isFilterBeingUsed(filter)) {
+            Toast.makeText(activity, resources.getString(R.string.FilterNoColon) +
+                    " " + filter.name + " " +
+                    resources.getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show()
+        }
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        builder.setTitle(resources.getString(R.string.ConfirmFilterDelete)
+                + " \'" + filter.name + "\'?"
+        )
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
+            model.deleteFilter(filter)
+        }
+        builder.create().show()
     }
 
 }
