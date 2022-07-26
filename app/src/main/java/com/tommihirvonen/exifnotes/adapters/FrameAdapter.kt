@@ -135,34 +135,36 @@ class FrameAdapter(private val context: Context,
      * @param position position of the item
      */
     private fun applyCheckBoxAnimation(holder: ViewHolder, position: Int) {
+        val checkbox = holder.binding.checkbox.root
+        val background = holder.binding.greyBackground
         if (selectedItems[position, false]) {
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
-            holder.binding.checkbox.visibility = View.VISIBLE
+            checkbox.visibility = View.VISIBLE
             // Also set a slightly grey background to be visible.
-            holder.binding.greyBackground.visibility = View.VISIBLE
+            background.visibility = View.VISIBLE
 
             // If the item is selected or all items are being selected and the item was not previously selected
             if (currentSelectedIndex == position || animateAll && !animationItemsIndex[position, false]) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_up)
-                holder.binding.checkbox.startAnimation(animation)
+                checkbox.startAnimation(animation)
                 val animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_in)
-                holder.binding.greyBackground.startAnimation(animation1)
+                background.startAnimation(animation1)
                 resetCurrentSelectedIndex()
             }
         } else {
             // First set the check box to be gone. This is the state it will be left in after
             // the animation has finished.
-            holder.binding.checkbox.visibility = View.GONE
+            checkbox.visibility = View.GONE
             // Hide the slightly grey background
-            holder.binding.greyBackground.visibility = View.GONE
+            background.visibility = View.GONE
 
             // If the item is deselected or all selections are undone and the item was previously selected
             if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex[position, false]) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_down)
-                holder.binding.checkbox.startAnimation(animation)
+                checkbox.startAnimation(animation)
                 val animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_out)
-                holder.binding.greyBackground.startAnimation(animation1)
+                background.startAnimation(animation1)
                 resetCurrentSelectedIndex()
             }
         }

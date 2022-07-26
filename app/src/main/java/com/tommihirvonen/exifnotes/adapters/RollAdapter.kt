@@ -172,24 +172,26 @@ class RollAdapter(private val context: Context,
     }
 
     private fun applyCheckBoxAnimation(holder: ViewHolder, position: Int) {
+        val checkbox = holder.binding.checkbox.root
+        val topLayout = holder.binding.itemRollTopLayout
         if (selectedItems[position, false]) {
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
-            holder.binding.checkbox.visibility = View.VISIBLE
+            checkbox.visibility = View.VISIBLE
 
             // Also set a slightly grey background to be visible.
-            holder.binding.itemRollTopLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.background_selected))
+            topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.background_selected))
 
             // If the item is selected or all items are being selected and the item was not previously selected
             if (currentSelectedIndex == position || animateAll && !animationItemsIndex[position, false]) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_up)
-                holder.binding.checkbox.startAnimation(animation)
+                checkbox.startAnimation(animation)
                 val fromColor = ContextCompat.getColor(context, R.color.transparent)
                 val toColor = ContextCompat.getColor(context, R.color.background_selected)
                 val colorAnimation = ValueAnimator.ofArgb(fromColor, toColor)
                 colorAnimation.duration = 500
                 colorAnimation.addUpdateListener { animator: ValueAnimator ->
-                    holder.binding.itemRollTopLayout.setBackgroundColor(animator.animatedValue as Int)
+                    topLayout.setBackgroundColor(animator.animatedValue as Int)
                 }
                 colorAnimation.start()
                 resetCurrentSelectedIndex()
@@ -197,21 +199,21 @@ class RollAdapter(private val context: Context,
         } else {
             // First set the check box to be gone. This is the state it will be left in after
             // the animation has finished.
-            holder.binding.checkbox.visibility = View.GONE
+            checkbox.visibility = View.GONE
 
             // Hide the slightly grey background
-            holder.binding.itemRollTopLayout.setBackgroundResource(0)
+            topLayout.setBackgroundResource(0)
 
             // If the item is deselected or all selections are undone and the item was previously selected
             if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex[position, false]) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_down)
-                holder.binding.checkbox.startAnimation(animation)
+                checkbox.startAnimation(animation)
                 val fromColor = ContextCompat.getColor(context, R.color.background_selected)
                 val toColor = ContextCompat.getColor(context, R.color.transparent)
                 val colorAnimation = ValueAnimator.ofArgb(fromColor, toColor)
                 colorAnimation.duration = 500
                 colorAnimation.addUpdateListener { animator: ValueAnimator ->
-                    holder.binding.itemRollTopLayout.setBackgroundColor(animator.animatedValue as Int)
+                    topLayout.setBackgroundColor(animator.animatedValue as Int)
                 }
                 colorAnimation.start()
                 resetCurrentSelectedIndex()

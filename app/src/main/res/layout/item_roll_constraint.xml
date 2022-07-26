@@ -253,19 +253,16 @@
 
         </LinearLayout>
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_check_box_green"
+        <include
+            layout="@layout/layout_selected_check"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:id="@+id/checkbox"
-            android:visibility="invisible"
-            app:layout_constraintStart_toStartOf="@+id/guideline0"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@+id/guideline2"
             app:layout_constraintTop_toTopOf="@id/guideline3"
             app:layout_constraintBottom_toBottomOf="@+id/guideline3"
-            android:layout_marginLeft="10dp"
-            android:scaleY="0.9"
-            android:scaleX="0.9"
-            tools:ignore="ContentDescription" />
+            android:layout_marginEnd="30dp"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline0"
