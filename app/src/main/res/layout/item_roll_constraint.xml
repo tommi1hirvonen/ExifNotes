@@ -259,10 +259,10 @@
             android:layout_height="32dp"
             android:id="@+id/checkbox"
             android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="@+id/guideline2"
+            app:layout_constraintStart_toStartOf="@+id/guideline0"
             app:layout_constraintTop_toTopOf="@id/guideline3"
             app:layout_constraintBottom_toBottomOf="@+id/guideline3"
-            android:layout_marginEnd="30dp"/>
+            android:layout_marginStart="10dp"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline0"
