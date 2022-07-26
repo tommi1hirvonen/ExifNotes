@@ -35,13 +35,10 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
-import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.fragments.RollsFragment
-import com.tommihirvonen.exifnotes.fragments.RollsFragment.OnRollSelectedListener
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.purgeDirectory
 
 
@@ -50,7 +47,7 @@ import com.tommihirvonen.exifnotes.utilities.purgeDirectory
  * It contains the RollsFragment and FramesFragment fragments.
  * The activity switches between these two fragments.
  */
-class MainActivity : AppCompatActivity(), OnRollSelectedListener {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         /**
@@ -58,12 +55,6 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
          */
         private const val MY_MULTIPLE_PERMISSIONS_REQUEST = 1
     }
-
-    /**
-     * Value to store whether location services should be enabled or not.
-     * Determined by the location permissions granted to the app by the user.
-     */
-    private var locationPermissionsGranted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Delete all complementary pictures, which are not linked to any frame.
@@ -101,8 +92,6 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION),
                     MY_MULTIPLE_PERMISSIONS_REQUEST)
-        } else {
-            locationPermissionsGranted = true
         }
 
         // Get from DefaultSharedPreferences whether the user has enabled
@@ -150,13 +139,6 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
         super.onStart()
     }
 
-    override fun onRollSelected(roll: Roll) {
-        val framesActivityIntent = Intent(this, FramesActivity::class.java)
-        framesActivityIntent.putExtra(ExtraKeys.ROLL, roll)
-        framesActivityIntent.putExtra(ExtraKeys.LOCATION_ENABLED, locationPermissionsGranted)
-        startActivity(framesActivityIntent)
-    }
-
     /**
      * This method is called if GPS is not enabled.
      * Prompt the user to jump to device settings to enable GPS.
@@ -184,15 +166,8 @@ class MainActivity : AppCompatActivity(), OnRollSelectedListener {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
                                             grantResults: IntArray) {
-        // If request is cancelled, the result arrays are empty. Thus we check
         if (requestCode == MY_MULTIPLE_PERMISSIONS_REQUEST) {
-            // the length of grantResults first.
-
-            //Check location permissions
-            if (grantResults.isNotEmpty() && grantResults[1] == PackageManager.PERMISSION_GRANTED && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                locationPermissionsGranted = true
-            }
-
+            // If request is cancelled, the result arrays are empty. Thus we check the length of grantResults first.
             //Check write permissions
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 //In case write permission was denied, inform the user.

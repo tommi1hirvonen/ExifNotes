@@ -24,6 +24,11 @@
         <item name="iconTintColorTertiary">@color/background_frame_light_grey</item>
         <item name="preferenceTheme">@style/PreferenceTheme</item>
         <item name="alertDialogTheme">@style/AppTheme.OldAlertDialog</item>
+        <item name="android:windowContentTransitions">true</item>
+
+        <!-- specify shared element transitions -->
+        <item name="android:windowSharedElementEnterTransition">@transition/shared_element_transition</item>
+        <item name="android:windowSharedElementExitTransition">@transition/shared_element_transition</item>
     </style>
 
     <!-- Custom style to color the settings activity's icons -->

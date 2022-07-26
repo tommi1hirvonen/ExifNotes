@@ -18,14 +18,20 @@
 
 package com.tommihirvonen.exifnotes.activities
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.fragments.FramesFragment
+import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
 
 /**
@@ -34,11 +40,20 @@ import com.tommihirvonen.exifnotes.utilities.*
 class FramesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true)
+
+        val permissionAccessCoarseLocation = ActivityCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val permissionAccessFineLocation = ActivityCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+        val locationEnabled = requestingLocationUpdates
+                && (permissionAccessCoarseLocation || permissionAccessFineLocation)
 
         // Get the arguments from the intent from MainActivity.
         val intent = intent
         val roll = intent.getParcelableExtra<Roll>(ExtraKeys.ROLL)
-        val locationEnabled = intent.getBooleanExtra(ExtraKeys.LOCATION_ENABLED, false)
         if (roll == null) finish()
 
         // The point at which super.onCreate() is called is important.
@@ -61,6 +76,9 @@ class FramesActivity : AppCompatActivity() {
 
         // Use the same activity layout as in MainActivity.
         setContentView(R.layout.activity_main)
+        val container = findViewById<FrameLayout>(R.id.fragment_container)
+        container.transitionName = "roll_transition_${roll?.id}"
+
         if (findViewById<View?>(R.id.fragment_container) != null && savedInstanceState == null) {
 
             // Pass the arguments from MainActivity on to FramesFragment.
@@ -71,7 +89,6 @@ class FramesActivity : AppCompatActivity() {
             framesFragment.arguments = arguments
             supportFragmentManager.beginTransaction().add(R.id.fragment_container,
                     framesFragment, FramesFragment.FRAMES_FRAGMENT_TAG).commit()
-
         }
     }
 

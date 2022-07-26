@@ -19,7 +19,7 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -37,6 +37,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.activities.FramesActivity
 import com.tommihirvonen.exifnotes.activities.GearActivity
 import com.tommihirvonen.exifnotes.activities.MapActivity
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
@@ -56,7 +57,7 @@ import com.tommihirvonen.exifnotes.utilities.*
  * RollsFragment is the fragment that is displayed first in MainActivity. It contains
  * a list of rolls the user has saved in the database.
  */
-class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
+class RollsFragment : Fragment(), RollAdapterListener {
 
     companion object {
         /**
@@ -64,11 +65,6 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
          */
         const val ROLLS_FRAGMENT_TAG = "ROLLS_FRAGMENT"
     }
-
-    /**
-     * Reference to the parent activity's OnRollSelectedListener
-     */
-    private lateinit var callback: OnRollSelectedListener
 
     private lateinit var binding: FragmentRollsBinding
 
@@ -104,33 +100,10 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
      */
     private var sortMode: RollSortMode = RollSortMode.DATE
 
-    interface OnRollSelectedListener {
-        /**
-         * Called when a use has selected a Roll.
-         *
-         * @param roll selected roll object
-         */
-        fun onRollSelected(roll: Roll)
-    }
-
-    // This onAttach() is called before API 23
-    @Deprecated("Deprecated in Java")
-    @Suppress("DEPRECATION")
-    override fun onAttach(a: Activity) {
-        super.onAttach(a)
-        callback = a as OnRollSelectedListener
-    }
-
-    // This onAttach() is called after API 23
-    override fun onAttach(c: Context) {
-        super.onAttach(c)
-        callback = c as OnRollSelectedListener
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentRollsBinding.inflate(inflater, container, false)
-        binding.fab.setOnClickListener(this)
+        binding.fab.setOnClickListener { showRollDialog() }
         val layoutManager = LinearLayoutManager(activity)
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
@@ -343,17 +316,14 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         rollAdapter.notifyDataSetChanged()
     }
 
-    override fun onClick(v: View) {
-        if (v.id == R.id.fab) {
-            showRollDialog()
-        }
-    }
-
-    override fun onItemClick(position: Int) {
+    override fun onItemClick(position: Int, roll: Roll, layout: View) {
         if (rollAdapter.selectedItemCount > 0 || actionMode != null) {
             enableActionMode(position)
         } else {
-            callback.onRollSelected(rollList[position])
+            val framesActivityIntent = Intent(requireActivity(), FramesActivity::class.java)
+            framesActivityIntent.putExtra(ExtraKeys.ROLL, roll)
+            val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), layout, "roll_transition_${roll.id}")
+            startActivity(framesActivityIntent, options.toBundle())
         }
     }
 

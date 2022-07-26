@@ -58,7 +58,7 @@ import java.io.OutputStreamWriter
  * FramesFragment is the fragment which is called when the user presses on a roll
  * on the ListView in RollsFragment. It displays all the frames from that roll.
  */
-class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAdapterListener {
+class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     companion object {
         /**
@@ -231,7 +231,7 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
         }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
 
-        binding.fab.setOnClickListener(this)
+        binding.fab.setOnClickListener { showFrameInfoDialog() }
 
         frameAdapter = FrameAdapter(requireActivity(), frameList, this)
         val layoutManager = LinearLayoutManager(activity)
@@ -281,7 +281,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
                 val preferenceActivityIntent = Intent(activity, PreferenceActivity::class.java)
                 preferenceResultLauncher.launch(preferenceActivityIntent)
             }
-            android.R.id.home -> requireActivity().finish()
             R.id.menu_item_show_on_map -> {
                 val mapIntent = Intent(activity, MapActivity::class.java)
                 val list = ArrayList<Roll>()
@@ -423,12 +422,6 @@ class FramesFragment : LocationUpdatesFragment(), View.OnClickListener, FrameAda
             }
         }
         return shareIntent
-    }
-
-    override fun onClick(v: View) {
-        if (v.id == R.id.fab) {
-            showFrameInfoDialog()
-        }
     }
 
     /**

@@ -55,7 +55,7 @@ class RollAdapter(private val context: Context,
      * Used to send onItemClicked messages back to implementing Activities and/or Fragments.
      */
     interface RollAdapterListener {
-        fun onItemClick(position: Int)
+        fun onItemClick(position: Int, roll: Roll, layout: View)
         fun onItemLongClick(position: Int)
     }
 
@@ -94,7 +94,9 @@ class RollAdapter(private val context: Context,
         val imageViews = listOf(binding.dateImageView, binding.filmStockImageView,
                 binding.cameraImageView, binding.photosImageView, binding.notesImageView)
         init {
-            binding.itemRollLayout.setOnClickListener { listener.onItemClick(bindingAdapterPosition) }
+            binding.itemRollLayout.setOnClickListener {
+                listener.onItemClick(bindingAdapterPosition, rollList[bindingAdapterPosition], binding.itemRollTopLayout)
+            }
             binding.itemRollLayout.setOnLongClickListener {
                 listener.onItemLongClick(bindingAdapterPosition)
                 true
@@ -110,7 +112,7 @@ class RollAdapter(private val context: Context,
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val roll = rollList[position]
         val numberOfFrames = context.database.getNumberOfFrames(roll)
-
+        holder.binding.tvRollName.transitionName = "roll_transition_${roll.id}"
         holder.binding.tvRollDate.text =
                 roll.developed?.dateTimeAsText?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Developed) }
                         ?: roll.unloaded?.dateTimeAsText?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Unloaded) }
