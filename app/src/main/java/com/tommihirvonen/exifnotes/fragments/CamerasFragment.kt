@@ -18,11 +18,9 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -46,29 +44,18 @@ import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 /**
  * Fragment to display all cameras from the database along with details
  */
-class CamerasFragment : Fragment(), View.OnClickListener {
+class CamerasFragment : Fragment() {
 
     private val model: GearViewModel by activityViewModels()
     private var cameras: List<Camera> = emptyList()
     private var lenses: List<Lens> = emptyList()
     private var filters: List<Filter> = emptyList()
 
-    private var fragmentVisible = false
-
-    override fun onResume() {
-        fragmentVisible = true
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        fragmentVisible = false
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         val binding = FragmentCamerasBinding.inflate(inflater, container, false)
-        binding.fabCameras.setOnClickListener(this)
+
+        binding.fabCameras.setOnClickListener { openNewCameraDialog() }
 
         // Access the ListView
         val layoutManager = LinearLayoutManager(activity)
@@ -77,7 +64,7 @@ class CamerasFragment : Fragment(), View.OnClickListener {
                 layoutManager.orientation))
 
         // Create an ArrayAdapter for the ListView
-        val cameraAdapter = CameraAdapter(requireActivity())
+        val cameraAdapter = CameraAdapter(requireActivity(), onCameraClickListener)
         binding.camerasRecyclerView.adapter = cameraAdapter
 
         model.cameras.observe(viewLifecycleOwner) { cameras ->
@@ -102,67 +89,51 @@ class CamerasFragment : Fragment(), View.OnClickListener {
         return binding.root
     }
 
-    @SuppressLint("CommitTransaction")
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        // Because of a bug with ViewPager and context menu actions,
-        // we have to check which fragment is visible to the user.
-        if (fragmentVisible) {
-
-            // Use the getOrder() method to unconventionally get the clicked item's position.
-            // This is set to work correctly in the Adapter class.
-            val position = item.order
-            val camera = cameras[position]
-            when (item.itemId) {
-                CameraAdapter.MENU_ITEM_SELECT_MOUNTABLE_LENSES -> {
-                    showSelectMountableLensesDialog(position)
-                    return true
-                }
-                // Mountable filters can be selected for fixed lens cameras.
-                CameraAdapter.MENU_ITEM_SELECT_MOUNTABLE_FILTERS -> {
-                    showSelectMountableFiltersDialog(position)
-                    return true
-                }
-                CameraAdapter.MENU_ITEM_DELETE -> {
-
-                    // Check if the camera is being used with one of the rolls.
-                    if (database.isCameraBeingUsed(camera)) {
-                        Toast.makeText(activity, resources.getString(R.string.CameraNoColon) +
-                                " " + camera.name + " " +
-                                resources.getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show()
-                        return true
-                    }
-                    val builder = MaterialAlertDialogBuilder(requireActivity())
-                    builder.setTitle(resources.getString(R.string.ConfirmCameraDelete)
-                            + " \'" + camera.name + "\'?"
-                    )
-                    builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                    builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-                        model.deleteCamera(camera)
-                        camera.lens?.let { model.deleteLens(it) }
-                    }
-                    builder.create().show()
-                    return true
-                }
-                CameraAdapter.MENU_ITEM_EDIT -> {
-                    val dialog = EditCameraDialog()
-                    val arguments = Bundle()
-                    arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditCamera))
-                    arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-                    arguments.putParcelable(ExtraKeys.CAMERA, camera)
-                    dialog.arguments = arguments
-                    dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
-                    return true
-                }
+    private val onCameraClickListener = { camera: Camera ->
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        builder.setTitle(camera.name)
+        val items = arrayOf(
+            if (camera.isNotFixedLens) {
+                requireActivity().getString(R.string.SelectMountableLenses)
+            } else {
+                requireActivity().getString(R.string.SelectMountableFilters)
+            },
+            requireActivity().getString(R.string.Edit),
+            requireActivity().getString(R.string.Delete)
+        )
+        builder.setItems(items) { _, which ->
+            when {
+                which == 0 && camera.isNotFixedLens -> { showSelectMountableLensesDialog(camera) }
+                which == 0 && camera.isFixedLens -> { showSelectMountableFiltersDialog(camera) }
+                which == 1 -> { openEditCameraDialog(camera) }
+                which == 2 -> { confirmDeleteCamera(camera) }
             }
         }
-        return false
+        builder.setNegativeButton(R.string.Cancel) { dialog, _ -> dialog.dismiss() }
+        builder.create().show()
     }
 
-    /**
-     * Show EditCameraDialog to add a new camera to the database
-     */
-    @SuppressLint("CommitTransaction")
-    private fun showCameraNameDialog() {
+    private fun confirmDeleteCamera(camera: Camera) {
+        // Check if the camera is being used with one of the rolls.
+        if (database.isCameraBeingUsed(camera)) {
+            Toast.makeText(activity, resources.getString(R.string.CameraNoColon) +
+                    " " + camera.name + " " +
+                    resources.getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        builder.setTitle(resources.getString(R.string.ConfirmCameraDelete)
+                + " \'" + camera.name + "\'?"
+        )
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
+            model.deleteCamera(camera)
+            camera.lens?.let { model.deleteLens(it) }
+        }
+        builder.create().show()
+    }
+
+    private fun openNewCameraDialog() {
         val dialog = EditCameraDialog()
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewCamera))
@@ -171,19 +142,22 @@ class CamerasFragment : Fragment(), View.OnClickListener {
         dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
     }
 
-    override fun onClick(v: View) {
-        if (v.id == R.id.fab_cameras) {
-            showCameraNameDialog()
-        }
+    private fun openEditCameraDialog(camera: Camera) {
+        val dialog = EditCameraDialog()
+        val arguments = Bundle()
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditCamera))
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
+        arguments.putParcelable(ExtraKeys.CAMERA, camera)
+        dialog.arguments = arguments
+        dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
     }
 
     /**
      * Show dialog where the user can select which lenses can be mounted to the picked camera.
      *
-     * @param position indicates the position of the picked camera in cameraList
+     * @param camera Camera object for which mountable lenses should be selected
      */
-    private fun showSelectMountableLensesDialog(position: Int) {
-        val camera = cameras[position]
+    private fun showSelectMountableLensesDialog(camera: Camera) {
         val mountableLenses = lenses.filter { camera.lensIds.contains(it.id) }
         val allLenses = lenses
 
@@ -222,10 +196,9 @@ class CamerasFragment : Fragment(), View.OnClickListener {
     /**
      * Show dialog where the user can select which filters can be mounted to the picked lens.
      *
-     * @param position indicates the position of the picked lens in lensList
+     * @param camera Camera object for which mountable filters should be selected
      */
-    private fun showSelectMountableFiltersDialog(position: Int) {
-        val camera = cameras[position]
+    private fun showSelectMountableFiltersDialog(camera: Camera) {
         val lens = camera.lens ?: return
         val mountableFilters = filters.filter { lens.filterIds.contains(it.id) }
         val allFilters = filters

@@ -18,11 +18,9 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -47,7 +45,7 @@ import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 /**
  * Fragment to display all lenses from the database along with details
  */
-class LensesFragment : Fragment(), View.OnClickListener {
+class LensesFragment : Fragment() {
 
     private val model: GearViewModel by activityViewModels()
     private var cameras: List<Camera> = emptyList()
@@ -70,14 +68,14 @@ class LensesFragment : Fragment(), View.OnClickListener {
                               savedInstanceState: Bundle?): View {
         val binding = FragmentLensesBinding.inflate(inflater, container, false)
 
-        binding.fabLenses.setOnClickListener(this)
+        binding.fabLenses.setOnClickListener { openNewLensDialog() }
 
         val layoutManager = LinearLayoutManager(activity)
         binding.lensesRecyclerView.layoutManager = layoutManager
         binding.lensesRecyclerView.addItemDecoration(DividerItemDecoration(binding.lensesRecyclerView.context,
                 layoutManager.orientation))
 
-        val lensAdapter = LensAdapter(requireActivity())
+        val lensAdapter = LensAdapter(requireActivity(), onLensClickListener)
         binding.lensesRecyclerView.adapter = lensAdapter
 
         model.lenses.observe(viewLifecycleOwner) { lenses ->
@@ -102,73 +100,28 @@ class LensesFragment : Fragment(), View.OnClickListener {
         return binding.root
     }
 
-    @SuppressLint("CommitTransaction")
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        // Because of a bug with ViewPager and context menu actions,
-        // we have to check which fragment is visible to the user.
-        if (fragmentVisible) {
-
-            // Use the getOrder() method to unconventionally get the clicked item's position.
-            // This is set to work correctly in the Adapter class.
-            val position = item.order
-            val lens = lenses[position]
-            when (item.itemId) {
-                LensAdapter.MENU_ITEM_SELECT_MOUNTABLE_CAMERAS -> {
-                    showSelectMountableCamerasDialog(position)
-                    return true
-                }
-                LensAdapter.MENU_ITEM_SELECT_MOUNTABLE_FILTERS -> {
-                    showSelectMountableFiltersDialog(position)
-                    return true
-                }
-                LensAdapter.MENU_ITEM_DELETE -> {
-
-                    // Check if the lens is being used with one of the frames.
-                    if (database.isLensInUse(lens)) {
-                        Toast.makeText(activity, resources.getString(R.string.LensNoColon) +
-                                " " + lens.name + " " +
-                                resources.getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show()
-                        return true
-                    }
-                    val builder = MaterialAlertDialogBuilder(requireActivity())
-                    builder.setTitle(resources.getString(R.string.ConfirmLensDelete)
-                            + " \'" + lens.name + "\'?"
-                    )
-                    builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                    builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-                        model.deleteLens(lens)
-                    }
-                    builder.create().show()
-                    return true
-                }
-                LensAdapter.MENU_ITEM_EDIT -> {
-                    val dialog = EditLensDialog(fixedLens = false)
-                    val arguments = Bundle()
-                    arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditLens))
-                    arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-                    arguments.putParcelable(ExtraKeys.LENS, lens)
-                    arguments.putInt(ExtraKeys.POSITION, position)
-                    dialog.arguments = arguments
-                    dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
-                    dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
-                        val lens1: Lens = bundle.getParcelable(ExtraKeys.LENS)
-                            ?: return@setFragmentResultListener
-                        if (lens1.make?.isNotEmpty() == true && lens1.model?.isNotEmpty() == true && lens1.id > 0) {
-                            model.updateLens(lens1, isFixedLens = false)
-                        }
-                    }
-                    return true
-                }
+    private val onLensClickListener = { lens: Lens ->
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        builder.setTitle(lens.name)
+        val items = arrayOf(
+            requireActivity().getString(R.string.SelectMountableCameras),
+            requireActivity().getString(R.string.SelectMountableFilters),
+            requireActivity().getString(R.string.Edit),
+            requireActivity().getString(R.string.Delete)
+        )
+        builder.setItems(items) { _, which ->
+            when (which) {
+                0 -> { showSelectMountableCamerasDialog(lens) }
+                1 -> { showSelectMountableFiltersDialog(lens) }
+                2 -> { openEditLensDialog(lens) }
+                3 -> { confirmDeleteLens(lens) }
             }
         }
-        return false
+        builder.setNegativeButton(R.string.Cancel) { dialog, _ -> dialog.dismiss() }
+        builder.create().show()
     }
 
-    /**
-     * Show EditLensDialog to add a new lens to the database
-     */
-    @SuppressLint("CommitTransaction")
-    private fun showLensNameDialog() {
+    private fun openNewLensDialog() {
         val dialog = EditLensDialog(fixedLens = false)
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.NewLens))
@@ -184,19 +137,48 @@ class LensesFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    override fun onClick(v: View) {
-        if (v.id == R.id.fab_lenses) {
-            showLensNameDialog()
+    private fun openEditLensDialog(lens: Lens) {
+        val dialog = EditLensDialog(fixedLens = false)
+        val arguments = Bundle()
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditLens))
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
+        arguments.putParcelable(ExtraKeys.LENS, lens)
+        dialog.arguments = arguments
+        dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
+        dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
+            val lens1: Lens = bundle.getParcelable(ExtraKeys.LENS)
+                ?: return@setFragmentResultListener
+            if (lens1.make?.isNotEmpty() == true && lens1.model?.isNotEmpty() == true && lens1.id > 0) {
+                model.updateLens(lens1, isFixedLens = false)
+            }
         }
+    }
+
+    private fun confirmDeleteLens(lens: Lens) {
+        // Check if the lens is being used with one of the frames.
+        if (database.isLensInUse(lens)) {
+            Toast.makeText(activity, resources.getString(R.string.LensNoColon) +
+                    " " + lens.name + " " +
+                    resources.getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        builder.setTitle(resources.getString(R.string.ConfirmLensDelete)
+                + " \'" + lens.name + "\'?"
+        )
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
+            model.deleteLens(lens)
+        }
+        builder.create().show()
     }
 
     /**
      * Show dialog where the user can select which cameras can be mounted to the picked lens.
      *
-     * @param position indicates the position of the picked lens in lensList
+     * @param lens Lens object for which mountable cameras should be selected
      */
-    private fun showSelectMountableCamerasDialog(position: Int) {
-        val lens = lenses[position]
+    private fun showSelectMountableCamerasDialog(lens: Lens) {
         val mountableCameras = cameras.filter { lens.cameraIds.contains(it.id) }
         val allCameras = cameras.filter { it.isNotFixedLens }
 
@@ -235,10 +217,9 @@ class LensesFragment : Fragment(), View.OnClickListener {
     /**
      * Show dialog where the user can select which filters can be mounted to the picked lens.
      *
-     * @param position indicates the position of the picked lens in lensList
+     * @param lens Lens object for which mountable filters should be selected
      */
-    private fun showSelectMountableFiltersDialog(position: Int) {
-        val lens = lenses[position]
+    private fun showSelectMountableFiltersDialog(lens: Lens) {
         val mountableFilters = filters.filter { lens.filterIds.contains(it.id) }
         val allFilters = filters
 

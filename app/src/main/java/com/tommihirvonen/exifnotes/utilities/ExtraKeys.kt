@@ -29,7 +29,6 @@ object ExtraKeys {
     const val LOCATION_ENABLED = "LOCATION_ENABLED"
     const val TITLE = "TITLE"
     const val POSITIVE_BUTTON = "POSITIVE_BUTTON"
-    const val POSITION = "POSITION"
     const val FRAME = "FRAME"
     const val CAMERA = "CAMERA"
     const val FILTER = "FILTER"

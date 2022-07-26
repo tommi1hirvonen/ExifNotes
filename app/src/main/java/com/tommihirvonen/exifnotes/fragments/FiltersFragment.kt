@@ -52,18 +52,6 @@ class FiltersFragment : Fragment() {
     private var lenses: List<Lens> = emptyList()
     private var filters: List<Filter> = emptyList()
 
-    private var fragmentVisible = false
-
-    override fun onResume() {
-        fragmentVisible = true
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        fragmentVisible = false
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         val binding = FragmentFiltersBinding.inflate(inflater, container, false)
@@ -120,7 +108,7 @@ class FiltersFragment : Fragment() {
         builder.setTitle(filter.name)
         val items = arrayOf(
             requireActivity().getString(R.string.SelectMountableLenses),
-            requireActivity().getString(R.string.SelectMountableFilters),
+            requireActivity().getString(R.string.SelectMountableCameras),
             requireActivity().getString(R.string.Edit),
             requireActivity().getString(R.string.Delete)
         )
@@ -169,7 +157,12 @@ class FiltersFragment : Fragment() {
         val booleans = lensSelections.map { it.beforeState }.toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        builder.setTitle(R.string.SelectMountableLenses)
+        val titleId = if (fixedLensCameras) {
+            R.string.SelectMountableCameras
+        } else {
+            R.string.SelectMountableLenses
+        }
+        builder.setTitle(titleId)
                 .setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
                     lensSelections[which].afterState = isChecked
                 }

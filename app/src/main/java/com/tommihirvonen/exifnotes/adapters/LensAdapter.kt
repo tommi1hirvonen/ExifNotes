@@ -19,9 +19,7 @@
 package com.tommihirvonen.exifnotes.adapters
 
 import android.content.Context
-import android.view.ContextMenu
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
@@ -31,21 +29,13 @@ import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.toStringList
 
-class LensAdapter(private val context: Context) : RecyclerView.Adapter<LensAdapter.ViewHolder>() {
+class LensAdapter(
+    private val context: Context,
+    private val onLensClickListener: (Lens) -> Any) : RecyclerView.Adapter<LensAdapter.ViewHolder>() {
 
     var lenses: List<Lens> = emptyList()
     var cameras: List<Camera> = emptyList()
     var filters: List<Filter> = emptyList()
-
-    companion object {
-        // Since we have to manually add the menu items to the context menus to pass the item position
-        // to the implementing class, menu item ids are declared here instead of a menu resource file.
-        // No menu resource file can be referenced here, so we use public constants instead.
-        const val MENU_ITEM_SELECT_MOUNTABLE_CAMERAS = 1
-        const val MENU_ITEM_SELECT_MOUNTABLE_FILTERS = 2
-        const val MENU_ITEM_EDIT = 3
-        const val MENU_ITEM_DELETE = 4
-    }
 
     init {
         // Used to make the RecyclerView perform better and to make our custom animations
@@ -61,24 +51,9 @@ class LensAdapter(private val context: Context) : RecyclerView.Adapter<LensAdapt
      */
     inner class ViewHolder(val binding: ItemGearBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            // Instead of short click perform long click to activate the OnCreateContextMenuListener.
-            binding.itemGearLayout.setOnClickListener { obj: View -> obj.performLongClick() }
-            binding.itemGearLayout.setOnCreateContextMenuListener { contextMenu: ContextMenu, _: View?, _: ContextMenu.ContextMenuInfo? ->
+            binding.itemGearLayout.setOnClickListener {
                 val lens = lenses[bindingAdapterPosition]
-                val name = lens.name
-                contextMenu.setHeaderTitle(name)
-
-                // Use the order parameter (3rd parameter) of the ContextMenu.add() method
-                // to pass the position of the list item which was clicked.
-                // This can be used in the implementing class to retrieve the items position.
-                contextMenu.add(0, MENU_ITEM_SELECT_MOUNTABLE_CAMERAS,
-                    bindingAdapterPosition, R.string.SelectMountableCameras)
-                contextMenu.add(0, MENU_ITEM_SELECT_MOUNTABLE_FILTERS,
-                    bindingAdapterPosition, R.string.SelectMountableFilters)
-                contextMenu.add(0, MENU_ITEM_EDIT,
-                    bindingAdapterPosition, R.string.Edit)
-                contextMenu.add(0, MENU_ITEM_DELETE,
-                    bindingAdapterPosition, R.string.Delete)
+                onLensClickListener(lens)
             }
         }
     }

@@ -21,13 +21,13 @@ package com.tommihirvonen.exifnotes.fragments
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.GearActivity
 import com.tommihirvonen.exifnotes.adapters.FilmStockAdapter
@@ -37,7 +37,7 @@ import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
 
-class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
+class FilmStocksFragment : Fragment(), MenuProvider {
 
     companion object {
         private const val SORT_MODE_NAME = 1
@@ -50,7 +50,6 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
     private lateinit var binding: FragmentFilmsBinding
     private lateinit var allFilmStocks: MutableList<FilmStock>
     private lateinit var filteredFilmStocks: MutableList<FilmStock>
-    private var fragmentVisible = false
     private lateinit var filmStockAdapter: FilmStockAdapter
     private var sortMode = SORT_MODE_NAME
     private var manufacturerFilterList = emptyList<String>().toMutableList()
@@ -68,7 +67,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentFilmsBinding.inflate(inflater, container, false)
-        binding.fabFilms.setOnClickListener(this)
+        binding.fabFilms.setOnClickListener(onFabClickListener)
 
         val layoutManager = LinearLayoutManager(activity)
         binding.filmsRecyclerView.layoutManager = layoutManager
@@ -77,7 +76,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
                         binding.filmsRecyclerView.context, layoutManager.orientation
                 )
         )
-        filmStockAdapter = FilmStockAdapter(requireActivity())
+        filmStockAdapter = FilmStockAdapter(requireActivity(), onFilmStockClickListener)
         filmStockAdapter.filmStocks = filteredFilmStocks
         binding.filmsRecyclerView.adapter = filmStockAdapter
         filmStockAdapter.notifyDataSetChanged()
@@ -86,16 +85,6 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
         activity.topAppBar.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         return binding.root
-    }
-
-    override fun onResume() {
-        fragmentVisible = true
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        fragmentVisible = false
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -150,75 +139,80 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
         return false
     }
 
-    override fun onClick(v: View) {
-        if (v.id == R.id.fab_films) {
-            val dialog = EditFilmStockDialog()
-            val arguments = Bundle()
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-            dialog.arguments = arguments
-            dialog.show(parentFragmentManager.beginTransaction(), null)
-            dialog.setFragmentResultListener("EditFilmStockDialog") { _, bundle ->
-                val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
-                    ?: return@setFragmentResultListener
-                database.addFilmStock(filmStock)
-                // Add the new film stock to both lists.
-                filteredFilmStocks.add(filmStock) // The new film stock is shown immediately regardless of filters.
-                allFilmStocks.add(filmStock) // The new film stock is shown after new filters are applied and they match.
-                sortFilmStocks()
-                val position = filteredFilmStocks.indexOf(filmStock)
-                filmStockAdapter.notifyItemInserted(position)
-                binding.filmsRecyclerView.scrollToPosition(position)
-            }
+    private val onFabClickListener = { _: View ->
+        val dialog = EditFilmStockDialog()
+        val arguments = Bundle()
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+        dialog.arguments = arguments
+        dialog.show(parentFragmentManager.beginTransaction(), null)
+        dialog.setFragmentResultListener("EditFilmStockDialog") { _, bundle ->
+            val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
+                ?: return@setFragmentResultListener
+            database.addFilmStock(filmStock)
+            // Add the new film stock to both lists.
+            filteredFilmStocks.add(filmStock) // The new film stock is shown immediately regardless of filters.
+            allFilmStocks.add(filmStock) // The new film stock is shown after new filters are applied and they match.
+            sortFilmStocks()
+            val position = filteredFilmStocks.indexOf(filmStock)
+            filmStockAdapter.notifyItemInserted(position)
+            binding.filmsRecyclerView.scrollToPosition(position)
         }
     }
 
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        if (fragmentVisible) {
-            val position = item.order
-            val filmStock = filteredFilmStocks[position]
-            when (item.itemId) {
-                FilmStockAdapter.MENU_ITEM_DELETE -> {
-                    val builder = AlertDialog.Builder(requireActivity())
-                    builder.setTitle(
-                            resources.getString(R.string.DeleteFilmStock) + " " + filmStock.name
-                    )
-                    if (database.isFilmStockBeingUsed(filmStock)) {
-                        builder.setMessage(R.string.FilmStockIsInUseConfirmation)
-                    }
-                    builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                    builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-                        database.deleteFilmStock(filmStock)
-                        filteredFilmStocks.remove(filmStock)
-                        allFilmStocks.remove(filmStock)
-                        filmStockAdapter.notifyDataSetChanged()
-                    }
-                    builder.create().show()
-                    return true
-                }
-                FilmStockAdapter.MENU_ITEM_EDIT -> {
-                    val dialog = EditFilmStockDialog()
-                    val arguments = Bundle()
-                    arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilmStock))
-                    arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-                    arguments.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
-                    dialog.arguments = arguments
-                    dialog.show(parentFragmentManager.beginTransaction(), null)
-                    dialog.setFragmentResultListener("EditFilmStockDialog") { _, bundle ->
-                        val filmStock1: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
-                            ?: return@setFragmentResultListener
-                        database.updateFilmStock(filmStock1)
-                        val oldPosition = filteredFilmStocks.indexOf(filmStock1)
-                        sortFilmStocks()
-                        val newPosition = filteredFilmStocks.indexOf(filmStock1)
-                        filmStockAdapter.notifyItemChanged(oldPosition)
-                        filmStockAdapter.notifyItemMoved(oldPosition, newPosition)
-                    }
-                    return true
-                }
+    private val onFilmStockClickListener = { filmStock: FilmStock ->
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        builder.setTitle(filmStock.name)
+        val items = arrayOf(
+            requireActivity().getString(R.string.Edit),
+            requireActivity().getString(R.string.Delete)
+        )
+        builder.setItems(items) { _, which ->
+            when (which) {
+                0 -> { openFilmStockEditDialog(filmStock) }
+                1 -> { confirmDeleteFilmStock(filmStock) }
             }
         }
-        return false
+        builder.setNegativeButton(R.string.Cancel) { dialog, _ -> dialog.dismiss() }
+        builder.create().show()
+    }
+
+    private fun openFilmStockEditDialog(filmStock: FilmStock) {
+        val dialog = EditFilmStockDialog()
+        val arguments = Bundle()
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilmStock))
+        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
+        arguments.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
+        dialog.arguments = arguments
+        dialog.show(parentFragmentManager.beginTransaction(), null)
+        dialog.setFragmentResultListener("EditFilmStockDialog") { _, bundle ->
+            val filmStock1: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
+                ?: return@setFragmentResultListener
+            database.updateFilmStock(filmStock1)
+            val oldPosition = filteredFilmStocks.indexOf(filmStock1)
+            sortFilmStocks()
+            val newPosition = filteredFilmStocks.indexOf(filmStock1)
+            filmStockAdapter.notifyItemChanged(oldPosition)
+            filmStockAdapter.notifyItemMoved(oldPosition, newPosition)
+        }
+    }
+
+    private fun confirmDeleteFilmStock(filmStock: FilmStock) {
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        builder.setTitle(
+            resources.getString(R.string.DeleteFilmStock) + " " + filmStock.name
+        )
+        if (database.isFilmStockBeingUsed(filmStock)) {
+            builder.setMessage(R.string.FilmStockIsInUseConfirmation)
+        }
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
+            database.deleteFilmStock(filmStock)
+            filteredFilmStocks.remove(filmStock)
+            allFilmStocks.remove(filmStock)
+            filmStockAdapter.notifyDataSetChanged()
+        }
+        builder.create().show()
     }
 
     private fun sortFilmStocks() {
@@ -288,7 +282,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
     }.map { it.iso }.distinct().sorted()
 
     private fun showManufacturerFilterDialog() {
-        val builder = AlertDialog.Builder(requireActivity())
+        val builder = MaterialAlertDialogBuilder(requireActivity())
         // Get all filter items.
         val items = database.filmManufacturers.toTypedArray()
         // Create a boolean array of same size with selected items marked true.
@@ -312,7 +306,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
     }
 
     private fun showIsoValuesFilterDialog() {
-        val builder = AlertDialog.Builder(requireActivity())
+        val builder = MaterialAlertDialogBuilder(requireActivity())
         // Get all filter items.
         val items = possibleIsoValues.toTypedArray()
         val itemStrings = items.map { it.toString() }.toTypedArray()
@@ -337,7 +331,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
     }
 
     private fun showFilmTypeFilterDialog() {
-        val builder = AlertDialog.Builder(requireActivity())
+        val builder = MaterialAlertDialogBuilder(requireActivity())
         // Get all filter items.
         val items = resources.getStringArray(R.array.FilmTypes)
         // Create a boolean array of same size with selected items marked true.
@@ -361,7 +355,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
     }
 
     private fun showFilmProcessFilterDialog() {
-        val builder = AlertDialog.Builder(requireActivity())
+        val builder = MaterialAlertDialogBuilder(requireActivity())
         // Get all filter items.
         val items = resources.getStringArray(R.array.FilmProcesses)
         // Create a boolean array of same size with selected items marked true.
@@ -385,7 +379,7 @@ class FilmStocksFragment : Fragment(), View.OnClickListener, MenuProvider {
     }
 
     private fun showAddedByFilterDialog() {
-        val builder = AlertDialog.Builder(requireActivity())
+        val builder = MaterialAlertDialogBuilder(requireActivity())
         val checkedItem: Int
         val filterModeAddedBy = addedByFilterMode
         checkedItem = when (filterModeAddedBy) {

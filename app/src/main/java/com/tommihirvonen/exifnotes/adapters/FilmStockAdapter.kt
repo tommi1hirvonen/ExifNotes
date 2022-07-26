@@ -19,27 +19,18 @@
 package com.tommihirvonen.exifnotes.adapters
 
 import android.content.Context
-import android.view.ContextMenu
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemGearBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 
-class FilmStockAdapter(private val context: Context)
+class FilmStockAdapter(
+    private val context: Context,
+    private val onFilmStockClickListener: (FilmStock) -> Any)
     : RecyclerView.Adapter<FilmStockAdapter.ViewHolder>() {
 
     var filmStocks: List<FilmStock> = emptyList()
-
-    companion object {
-        // Since we have to manually add the menu items to the context menus to pass the item position
-        // to the implementing class, menu item ids are declared here instead of a menu resource file.
-        // No menu resource file can be referenced here, so we use public constants instead.
-        const val MENU_ITEM_EDIT = 1
-        const val MENU_ITEM_DELETE = 2
-    }
 
     init {
         // Used to make the RecyclerView perform better and to make our custom animations
@@ -55,20 +46,9 @@ class FilmStockAdapter(private val context: Context)
      */
     inner class ViewHolder(val binding: ItemGearBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            // Instead of short click perform long click to activate the OnCreateContextMenuListener.
-            binding.itemGearLayout.setOnClickListener { obj: View -> obj.performLongClick() }
-            binding.itemGearLayout.setOnCreateContextMenuListener { contextMenu: ContextMenu, _: View?, _: ContextMenu.ContextMenuInfo? ->
+            binding.itemGearLayout.setOnClickListener {
                 val filmStock = filmStocks[bindingAdapterPosition]
-                val name = filmStock.name
-                contextMenu.setHeaderTitle(name)
-
-                // Use the order parameter (3rd parameter) of the ContextMenu.add() method
-                // to pass the position of the list item which was clicked.
-                // This can be used in the implementing class to retrieve the items position.
-                contextMenu.add(0, MENU_ITEM_EDIT,
-                    bindingAdapterPosition, R.string.Edit)
-                contextMenu.add(0, MENU_ITEM_DELETE,
-                    bindingAdapterPosition, R.string.Delete)
+                onFilmStockClickListener(filmStock)
             }
         }
     }
