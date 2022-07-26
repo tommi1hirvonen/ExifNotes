@@ -39,6 +39,7 @@ import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.OnScrollExtendedFabListener
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 
@@ -65,13 +66,7 @@ class FiltersFragment : Fragment() {
         val filterAdapter = FilterAdapter(requireActivity(), onFilterClickListener)
         binding.filtersRecyclerView.adapter = filterAdapter
 
-        binding.filtersRecyclerView.setOnScrollChangeListener { _, _, y, _, oldY ->
-            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 || y < oldY) {
-                binding.fabFilters.extend()
-            } else {
-                binding.fabFilters.shrink()
-            }
-        }
+        binding.filtersRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fabFilters))
 
         model.filters.observe(viewLifecycleOwner) { filters ->
             this.filters = filters

@@ -135,13 +135,7 @@ class RollsFragment : Fragment(), View.OnClickListener, RollAdapterListener {
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
 
-        binding.rollsRecyclerView.setOnScrollChangeListener { _, _, y, _, oldY ->
-            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 || y < oldY) {
-                binding.fab.extend()
-            } else {
-                binding.fab.shrink()
-            }
-        }
+        binding.rollsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
 
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemClickListener)
 

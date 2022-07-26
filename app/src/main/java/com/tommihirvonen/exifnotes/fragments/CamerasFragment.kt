@@ -38,6 +38,7 @@ import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.OnScrollExtendedFabListener
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 
@@ -67,13 +68,7 @@ class CamerasFragment : Fragment() {
         val cameraAdapter = CameraAdapter(requireActivity(), onCameraClickListener)
         binding.camerasRecyclerView.adapter = cameraAdapter
 
-        binding.camerasRecyclerView.setOnScrollChangeListener { _, _, y, _, oldY ->
-            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 || y < oldY) {
-                binding.fabCameras.extend()
-            } else {
-                binding.fabCameras.shrink()
-            }
-        }
+        binding.camerasRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fabCameras))
 
         model.cameras.observe(viewLifecycleOwner) { cameras ->
             this.cameras = cameras

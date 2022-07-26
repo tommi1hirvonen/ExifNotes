@@ -35,6 +35,7 @@ import com.tommihirvonen.exifnotes.databinding.FragmentFilmsBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.OnScrollExtendedFabListener
 import com.tommihirvonen.exifnotes.utilities.database
 
 class FilmStocksFragment : Fragment(), MenuProvider {
@@ -81,13 +82,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         binding.filmsRecyclerView.adapter = filmStockAdapter
         filmStockAdapter.notifyDataSetChanged()
 
-        binding.filmsRecyclerView.setOnScrollChangeListener { _, _, y, _, oldY ->
-            if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0 || y < oldY) {
-                binding.fabFilms.extend()
-            } else {
-                binding.fabFilms.shrink()
-            }
-        }
+        binding.filmsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fabFilms))
 
         val activity = requireActivity() as GearActivity
         activity.topAppBar.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
