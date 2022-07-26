@@ -38,7 +38,6 @@ import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.OnScrollExtendedFabListener
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 
@@ -67,8 +66,6 @@ class CamerasFragment : Fragment() {
         // Create an ArrayAdapter for the ListView
         val cameraAdapter = CameraAdapter(requireActivity(), onCameraClickListener)
         binding.camerasRecyclerView.adapter = cameraAdapter
-
-        binding.camerasRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fabCameras))
 
         model.cameras.observe(viewLifecycleOwner) { cameras ->
             this.cameras = cameras

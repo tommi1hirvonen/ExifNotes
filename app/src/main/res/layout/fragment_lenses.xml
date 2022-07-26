@@ -45,7 +45,7 @@
         android:scrollbars="vertical"
         />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_lenses"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,7 +53,6 @@
         android:layout_marginBottom="100dp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
-        android:text="@string/NewLens"
-        app:icon="@drawable/ic_baseline_add_24" />
+        android:src="@drawable/ic_baseline_add_24" />
 
 </FrameLayout>

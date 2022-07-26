@@ -39,7 +39,6 @@ import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.OnScrollExtendedFabListener
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 
@@ -78,8 +77,6 @@ class LensesFragment : Fragment() {
 
         val lensAdapter = LensAdapter(requireActivity(), onLensClickListener)
         binding.lensesRecyclerView.adapter = lensAdapter
-
-        binding.lensesRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fabLenses))
 
         model.lenses.observe(viewLifecycleOwner) { lenses ->
             this.lenses = lenses

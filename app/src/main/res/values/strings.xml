@@ -249,11 +249,7 @@
     <string name="Name">Name</string>
     <string name="NameNoColon">Name</string>
     <string name="New">New</string>
-    <string name="NewCamera">New camera</string>
-    <string name="NewFilmStock">New film stock</string>
-    <string name="NewFilter">New filter</string>
     <string name="NewFrame">New frame</string>
-    <string name="NewLens">New lens</string>
     <string name="NewRoll">New roll</string>
     <string name="No">No</string>
     <string name="NoActiveOrArchivedRolls">No active/archived rolls</string>
