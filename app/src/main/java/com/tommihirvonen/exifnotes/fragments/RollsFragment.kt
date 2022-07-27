@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
@@ -133,6 +134,10 @@ class RollsFragment : Fragment(), RollAdapterListener {
                 interpolator = transitionInterpolator
             }
             startPostponedEnterTransition()
+            ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
+                duration = transitionDuration
+                start()
+            }
         }
     }
 
