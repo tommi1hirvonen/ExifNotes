@@ -53,7 +53,7 @@ class FrameAdapter(private val context: Context,
      * Used to send onItemClicked messages back to implementing Activities and/or Fragments.
      */
     interface FrameAdapterListener {
-        fun onItemClick(position: Int)
+        fun onItemClick(position: Int, view: View)
         fun onItemLongClick(position: Int)
     }
 
@@ -90,7 +90,9 @@ class FrameAdapter(private val context: Context,
      */
     inner class ViewHolder(val binding: ItemFrameConstraintBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            binding.itemFrameLayout.setOnClickListener { listener.onItemClick(bindingAdapterPosition) }
+            binding.itemFrameLayout.setOnClickListener {
+                listener.onItemClick(bindingAdapterPosition, binding.root)
+            }
             binding.itemFrameLayout.setOnLongClickListener {
                 listener.onItemLongClick(bindingAdapterPosition)
                 true
@@ -106,6 +108,7 @@ class FrameAdapter(private val context: Context,
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val frame = frameList[position]
+        holder.binding.root.transitionName = "transition_frame_${frame.id}"
         holder.binding.tvFrameText.text = frame.date?.dateTimeAsText
         holder.binding.tvCount.text = "${frame.count}"
         holder.binding.tvFrameText2.text = frame.lens?.name

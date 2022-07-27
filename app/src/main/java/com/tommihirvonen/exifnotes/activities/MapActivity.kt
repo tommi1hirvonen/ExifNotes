@@ -44,8 +44,8 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityMapBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
-import com.tommihirvonen.exifnotes.dialogs.EditFrameDialogCallback
+import com.tommihirvonen.exifnotes.fragments.EditFrameFragment
+import com.tommihirvonen.exifnotes.fragments.EditFrameFragmentCallback
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
 import kotlin.math.roundToInt
@@ -366,25 +366,26 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private inner class OnInfoWindowClickListener : GoogleMap.OnInfoWindowClickListener {
         override fun onInfoWindowClick(marker: Marker) {
-            if (marker.tag is Frame) {
-                val frame = marker.tag as Frame? ?: return
-                val arguments = Bundle()
-                val title = "" + resources.getString(R.string.EditFrame) + frame.count
-                val positiveButton = resources.getString(R.string.OK)
-                arguments.putString(ExtraKeys.TITLE, title)
-                arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-                arguments.putParcelable(ExtraKeys.FRAME, frame)
-                val dialog = EditFrameDialogCallback { intent ->
-                    val editedFrame: Frame = intent.getParcelableExtra(ExtraKeys.FRAME) ?: return@EditFrameDialogCallback
-                    database.updateFrame(editedFrame)
-                    marker.tag = editedFrame
-                    marker.hideInfoWindow()
-                    marker.showInfoWindow()
-                    setResult(RESULT_OK)
-                }
-                dialog.arguments = arguments
-                dialog.show(supportFragmentManager.beginTransaction(), EditFrameDialog.TAG)
-            }
+            // TODO To be refactored
+//            if (marker.tag is Frame) {
+//                val frame = marker.tag as Frame? ?: return
+//                val arguments = Bundle()
+//                val title = "" + resources.getString(R.string.EditFrame) + frame.count
+//                val positiveButton = resources.getString(R.string.OK)
+//                arguments.putString(ExtraKeys.TITLE, title)
+//                arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
+//                arguments.putParcelable(ExtraKeys.FRAME, frame)
+//                val dialog = EditFrameFragmentCallback { intent ->
+//                    val editedFrame: Frame = intent.getParcelableExtra(ExtraKeys.FRAME) ?: return@EditFrameFragmentCallback
+//                    database.updateFrame(editedFrame)
+//                    marker.tag = editedFrame
+//                    marker.hideInfoWindow()
+//                    marker.showInfoWindow()
+//                    setResult(RESULT_OK)
+//                }
+//                dialog.arguments = arguments
+//                dialog.show(supportFragmentManager.beginTransaction(), EditFrameFragment.TAG)
+//            }
         }
     }
 

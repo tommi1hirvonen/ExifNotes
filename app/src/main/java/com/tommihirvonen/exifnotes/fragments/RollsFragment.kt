@@ -107,7 +107,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentRollsBinding.inflate(inflater, container, false)
-        binding.fab.setOnClickListener { showEditRollDialog(null) }
+        binding.fab.setOnClickListener { showEditRollFragment(null) }
         val layoutManager = LinearLayoutManager(activity)
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
@@ -407,7 +407,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
      * @param position the position of the roll in rollList
      */
     @SuppressLint("CommitTransaction")
-    private fun showEditRollDialog(position: Int?) {
+    private fun showEditRollFragment(position: Int?) {
 
         exitTransition = null
         reenterFadeDuration = transitionDurationEditRoll
@@ -568,7 +568,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                         // Get the first of the selected rolls (only one should be selected anyway)
                         // Finish action mode if the user clicked ok when editing the roll ->
                         // this is done in onActivityResult().
-                        showEditRollDialog(selectedItemPositions[0])
+                        showEditRollFragment(selectedItemPositions[0])
                     } else {
                         // Show batch edit features
                         val builder = MaterialAlertDialogBuilder(requireActivity())

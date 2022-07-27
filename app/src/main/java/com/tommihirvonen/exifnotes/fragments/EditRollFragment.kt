@@ -283,8 +283,8 @@ class EditRollFragment : Fragment() {
             e.printStackTrace()
         }
 
-        binding.title.negativeImageView.setOnClickListener { requireActivity().onBackPressed() }
-        binding.title.positiveImageView.setOnClickListener {
+        binding.title.negativeButton.setOnClickListener { requireActivity().onBackPressed() }
+        binding.title.positiveButton.setOnClickListener {
             if (commitChanges()) {
                 val bundle = Bundle()
                 bundle.putParcelable(ExtraKeys.ROLL, roll)

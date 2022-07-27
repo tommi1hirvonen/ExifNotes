@@ -38,9 +38,11 @@ import androidx.core.content.FileProvider
 import androidx.core.view.doOnPreDraw
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.setFragmentResultListener
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
@@ -49,7 +51,6 @@ import com.tommihirvonen.exifnotes.adapters.FrameAdapter.FrameAdapterListener
 import com.tommihirvonen.exifnotes.databinding.FragmentFramesBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode.Companion.fromValue
-import com.tommihirvonen.exifnotes.dialogs.EditFrameDialog
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
 import java.io.File
@@ -99,6 +100,9 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
      * Reference to the (Support)ActionMode, which is launched when a list item is long pressed.
      */
     private var actionMode: ActionMode? = null
+
+    private val transitionInterpolator = FastOutSlowInInterpolator()
+    private val transitionDuration = 250L
 
     private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         // Finish this activity since the selected roll may not be valid anymore.
@@ -226,7 +230,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
 
-        binding.fab.setOnClickListener { showFrameInfoDialog() }
+        binding.fab.setOnClickListener { showEditFrameFragment(null) }
 
         frameAdapter = FrameAdapter(requireActivity(), frameList, this)
         val layoutManager = LinearLayoutManager(activity)
@@ -254,7 +258,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         (view.parent as? ViewGroup)?.doOnPreDraw {
             startPostponedEnterTransition()
             ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
-                duration = 500
+                duration = transitionDuration
                 start()
             }
         }
@@ -438,97 +442,106 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
      *
      * @param position position of the Frame in frameList
      */
-    @SuppressLint("CommitTransaction")
-    private fun showFrameInfoEditDialog(position: Int) {
-        // Edit frame info
-        val frame = frameList[position]
+    private fun showEditFrameFragment(position: Int?, view: View? = null) {
+        val sharedElementTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(transitionInterpolator)
+            .apply { duration = transitionDuration }
+
+        val fragment = EditFrameFragment().apply {
+            sharedElementEnterTransition = sharedElementTransition
+        }
+
         val arguments = Bundle()
-        val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
-        val positiveButton = requireActivity().resources.getString(R.string.OK)
-        arguments.putString(ExtraKeys.TITLE, title)
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-        arguments.putParcelable(ExtraKeys.FRAME, frame)
-        val dialog = EditFrameDialog()
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), EditFrameDialog.TAG)
-        dialog.setFragmentResultListener("EditFrameDialog") { _, bundle ->
+        if (position == null) {
+            // If the frame count is greater than 100, then don't add a new frame.
+            val nextFrameCount = frameList.maxByOrNull { it.count }?.count?.plus(1) ?: 1
+            if (nextFrameCount > 100) {
+                Toast.makeText(activity, resources.getString(R.string.TooManyFrames),
+                    Toast.LENGTH_LONG).show()
+                return
+            }
+            val title = requireActivity().resources.getString(R.string.AddNewFrame)
+            val positiveButton = requireActivity().resources.getString(R.string.Add)
+            val frame = Frame(roll)
+            frame.date = DateTime.fromCurrentTime()
+            frame.count = nextFrameCount
+            frame.noOfExposures = 1
+
+            //Get the location only if the app has location permission (locationPermissionsGranted) and
+            //the user has enabled GPS updates in the app's settings.
+            if (locationPermissionsGranted && requestingLocationUpdates)
+                lastLocation?.let { frame.location = Location(it) }
+            if (frameList.isNotEmpty()) {
+                //Get the information for the last added frame.
+                //The last added frame has the highest id number (database autoincrement).
+                val previousFrame = frameList.maxByOrNull { it.id }
+                // Here we can list the properties we want to bring from the previous frame
+                previousFrame?.let {
+                    frame.lens = previousFrame.lens
+                    frame.shutter = previousFrame.shutter
+                    frame.aperture = previousFrame.aperture
+                    frame.filters = previousFrame.filters
+                    frame.focalLength = previousFrame.focalLength
+                    frame.lightSource = previousFrame.lightSource
+                }
+            }
+            arguments.putString(ExtraKeys.TITLE, title)
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
+            arguments.putParcelable(ExtraKeys.FRAME, frame)
+        } else {
+            val frame = frameList[position]
+            val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
+            val positiveButton = requireActivity().resources.getString(R.string.OK)
+            arguments.putString(ExtraKeys.TITLE, title)
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
+            arguments.putParcelable(ExtraKeys.FRAME, frame)
+        }
+        fragment.arguments = arguments
+
+        // Use the provided view as a primary shared element.
+        // If no view was provided, use the floating action button.
+        val sharedElement = view ?: binding.fab as View
+        requireActivity().supportFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
+            .addSharedElement(sharedElement, "transition_edit_frame")
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
+        fragment.setFragmentResultListener("EditFrameDialog") { _, bundle ->
             actionMode?.finish()
             val frame1: Frame = bundle.getParcelable(ExtraKeys.FRAME)
                 ?: return@setFragmentResultListener
-            database.updateFrame(frame1)
-            val oldPosition = frameList.indexOf(frame1)
-            Frame.sortFrameList(requireActivity(), sortMode, frameList)
-            val newPosition = frameList.indexOf(frame1)
-            frameAdapter.notifyItemChanged(oldPosition)
-            frameAdapter.notifyItemMoved(oldPosition, newPosition)
-        }
-    }
-
-    /**
-     * Called when the user presses the binding.fab.
-     * Show a dialog fragment to add a new frame.
-     */
-    private fun showFrameInfoDialog() {
-
-        // If the frame count is greater than 100, then don't add a new frame.
-        val nextFrameCount = frameList.maxByOrNull { it.count }?.count?.plus(1) ?: 1
-        if (nextFrameCount > 100) {
-            Toast.makeText(activity, resources.getString(R.string.TooManyFrames),
-                    Toast.LENGTH_LONG).show()
-            return
-        }
-        val title = requireActivity().resources.getString(R.string.AddNewFrame)
-        val positiveButton = requireActivity().resources.getString(R.string.Add)
-        val frame = Frame(roll)
-        frame.date = DateTime.fromCurrentTime()
-        frame.count = nextFrameCount
-        frame.noOfExposures = 1
-
-        //Get the location only if the app has location permission (locationPermissionsGranted) and
-        //the user has enabled GPS updates in the app's settings.
-        if (locationPermissionsGranted && requestingLocationUpdates)
-            lastLocation?.let { frame.location = Location(it) }
-        if (frameList.isNotEmpty()) {
-            //Get the information for the last added frame.
-            //The last added frame has the highest id number (database autoincrement).
-            val previousFrame = frameList.maxByOrNull { it.id }
-            // Here we can list the properties we want to bring from the previous frame
-            previousFrame?.let {
-                frame.lens = previousFrame.lens
-                frame.shutter = previousFrame.shutter
-                frame.aperture = previousFrame.aperture
-                frame.filters = previousFrame.filters
-                frame.focalLength = previousFrame.focalLength
-                frame.lightSource = previousFrame.lightSource
+            if (position == null) {
+                database.addFrame(frame1)
+                frameList.add(frame1)
+                Frame.sortFrameList(requireActivity(), sortMode, frameList)
+                frameAdapter.notifyItemInserted(frameList.indexOf(frame1))
+                binding.noAddedFrames.visibility = View.GONE
+                // When the new frame is added jump to view the added entry
+                val pos = frameList.indexOf(frame1)
+                if (pos < frameAdapter.itemCount) binding.framesRecyclerView.scrollToPosition(pos)
+            } else {
+                database.updateFrame(frame1)
+                val oldPosition = frameList.indexOf(frame1)
+                Frame.sortFrameList(requireActivity(), sortMode, frameList)
+                val newPosition = frameList.indexOf(frame1)
+                frameAdapter.notifyItemChanged(oldPosition)
+                frameAdapter.notifyItemMoved(oldPosition, newPosition)
             }
         }
-
-        val dialog = EditFrameDialog()
-        val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, title)
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-        arguments.putParcelable(ExtraKeys.FRAME, frame)
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager, EditFrameDialog.TAG)
-        dialog.setFragmentResultListener("EditFrameDialog") { _, bundle ->
-            val frame1: Frame = bundle.getParcelable(ExtraKeys.FRAME)
-                ?: return@setFragmentResultListener
-            database.addFrame(frame1)
-            frameList.add(frame1)
-            Frame.sortFrameList(requireActivity(), sortMode, frameList)
-            frameAdapter.notifyItemInserted(frameList.indexOf(frame1))
-            binding.noAddedFrames.visibility = View.GONE
-            // When the new frame is added jump to view the added entry
-            val pos = frameList.indexOf(frame1)
-            if (pos < frameAdapter.itemCount) binding.framesRecyclerView.scrollToPosition(pos)
-        }
     }
 
-    override fun onItemClick(position: Int) {
+    override fun onItemClick(position: Int, view: View) {
         if (frameAdapter.selectedItemCount > 0 || actionMode != null) {
             enableActionMode(position)
         } else {
-            showFrameInfoEditDialog(position)
+            showEditFrameFragment(position, view)
         }
     }
 
@@ -594,8 +607,9 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
                     // If only one frame is selected, show frame edit dialog.
                     if (frameAdapter.selectedItemCount == 1) {
+                        mode.finish()
                         // Get the first of the selected rolls (only one should be selected anyway)
-                        showFrameInfoEditDialog(selectedItemPositions[0])
+                        showEditFrameFragment(selectedItemPositions[0])
                     } else {
                         val builder = MaterialAlertDialogBuilder(requireActivity())
                         builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), frameAdapter.selectedItemCount))

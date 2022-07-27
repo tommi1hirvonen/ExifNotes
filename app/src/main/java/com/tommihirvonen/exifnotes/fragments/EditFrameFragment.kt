@@ -16,7 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.dialogs
+/*
+ * Exif Notes
+ * Copyright (C) 2022  Tommi Hirvonen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -24,31 +42,31 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
-import androidx.core.widget.NestedScrollView
+import androidx.core.view.doOnPreDraw
 import androidx.exifinterface.media.ExifInterface
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
-import com.tommihirvonen.exifnotes.databinding.DialogFrameBinding
+import com.tommihirvonen.exifnotes.databinding.FragmentEditFrameBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
+import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog
+import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import kotlinx.coroutines.*
 import java.io.FileNotFoundException
@@ -59,16 +77,9 @@ import kotlin.math.roundToInt
 /**
  * Dialog to edit Frame's information
  */
-open class EditFrameDialog : BottomSheetDialogFragment() {
-
-    companion object {
-        /**
-         * Public constant used to tag the fragment when created
-         */
-        const val TAG = "EditFrameDialog"
-    }
+open class EditFrameFragment : Fragment() {
     
-    internal lateinit var binding: DialogFrameBinding
+    internal lateinit var binding: FragmentEditFrameBinding
         private set
 
     internal lateinit var frame: Frame
@@ -90,8 +101,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
      * then this member's value is ignored and newPictureFilename's value isn't changed.
      */
     private var tempPictureFilename: String? = null
-
-    private var complementaryPictureLoaded: Boolean = false
 
     private val locationResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -125,7 +134,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                     Toast.makeText(activity, R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show()
                 }
                 // Set the complementary picture ImageView on the UI thread.
-                requireActivity().runOnUiThread { setComplementaryPicture(animate = true) }
+                requireActivity().runOnUiThread { setComplementaryPicture() }
             }).start()
         }
     }
@@ -148,7 +157,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                     // Update the member reference and set the complementary picture.
                     newFrame.pictureFilename = pictureFile.name
                     // Set the complementary picture ImageView on the UI thread.
-                    requireActivity().runOnUiThread { setComplementaryPicture(animate = true) }
+                    requireActivity().runOnUiThread { setComplementaryPicture() }
                 } catch (e: IOException) {
                     Toast.makeText(activity, R.string.ErrorSavingSelectedPicture, Toast.LENGTH_SHORT).show()
                 }
@@ -158,22 +167,11 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         }).start()
     }
 
-    override fun onStart() {
-        super.onStart()
-        // Disable background dimming behind the dialog.
-        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DialogFrameBinding.inflate(inflater, container, false)
+        binding = FragmentEditFrameBinding.inflate(inflater, container, false)
+        binding.root.transitionName = "transition_edit_frame"
         binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
-        val frame1: Frame? = requireArguments().getParcelable(ExtraKeys.FRAME)
-        if (frame1 == null) {
-            showsDialog = false
-            dismiss()
-            return null
-        }
-        frame = frame1
+        frame = requireArguments().getParcelable(ExtraKeys.FRAME) ?: return null
         newFrame = frame.copy()
 
         // If the camera used for this roll is a fixed-lens camera, clear the frame's lens.
@@ -187,10 +185,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
         } ?: run {
             mountableLenses = database.lenses.toMutableList()
         }
-
-        // Set a listener to check whether the complementary picture should be loaded and displayed.
-        val listener = OnScrollChangeListener(binding.nestedScrollView)
-        binding.nestedScrollView.setOnScrollChangeListener(listener)
 
         // LENS PICK DIALOG
         if (frame.roll.camera?.isNotFixedLens == true) {
@@ -382,29 +376,25 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
             e.printStackTrace()
         }
 
-        binding.title.negativeImageView.setOnClickListener { dismiss() }
-        binding.title.positiveImageView.setOnClickListener {
+        binding.title.negativeButton.setOnClickListener { requireActivity().onBackPressed() }
+        binding.title.positiveButton.setOnClickListener {
             commitChanges()
             val bundle = Bundle()
             bundle.putParcelable(ExtraKeys.FRAME, frame)
             setFragmentResult("EditFrameDialog", bundle)
-            dismiss()
+            requireActivity().onBackPressed()
         }
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Check whether the complementary picture should be loaded and displayed immediately because
-        // the screen can show the entire content at once and the NestedScrollView cannot be scrolled.
-        dialog?.setOnShowListener {
-            val scrollView = binding.nestedScrollView
-            val childHeight = scrollView.getChildAt(0).height
-            val isScrollable = scrollView.height < childHeight + scrollView.paddingTop + scrollView.paddingBottom
-            if (!isScrollable) {
-                setComplementaryPicture(animate = false)
-                complementaryPictureLoaded = true
-            }
+        super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        // Start the transition once all views have been measured and laid out.
+        (view.parent as ViewGroup).doOnPreDraw {
+            startPostponedEnterTransition()
+            setComplementaryPicture()
         }
     }
 
@@ -460,7 +450,7 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
     /**
      * Set the complementary picture ImageView with the newly selected/taken picture
      */
-    private fun setComplementaryPicture(animate: Boolean) {
+    private fun setComplementaryPicture() {
 
         // If the picture filename was not set, set text and return. Otherwise continue
         val filename = newFrame.pictureFilename
@@ -484,10 +474,9 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 // Get the target ImageView height.
                 // Because the complementary picture ImageView uses subclass SquareImageView,
                 // the ImageView width should also be its height. Because the ImageView's
-                // width is match_parent, we get the dialog's width instead.
-                // If there is a problem getting the dialog window, use the resource dimension instead.
-                val targetH = dialog?.window?.decorView?.width
-                        ?: resources.getDimension(R.dimen.ComplementaryPictureImageViewHeight).toInt()
+                // width is match_parent, we get the Fragment's width instead.
+                // If there is a problem getting the Fragment view, use the resource dimension instead.
+                val targetH = view?.width ?: resources.getDimension(R.dimen.ComplementaryPictureImageViewHeight).toInt()
 
                 // Rotate the complementary picture ImageView if necessary
                 var rotationTemp = 0
@@ -526,10 +515,8 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
                 requireActivity().runOnUiThread {
                     binding.ivPicture.rotation = rotation.toFloat()
                     binding.ivPicture.setImageBitmap(bitmap)
-                    if (animate) {
-                        val animation = AnimationUtils.loadAnimation(activity, R.anim.fade_in_fast)
-                        binding.ivPicture.startAnimation(animation)
-                    }
+                    val animation = AnimationUtils.loadAnimation(activity, R.anim.fade_in_fast)
+                    binding.ivPicture.startAnimation(animation)
                 }
             }.start()
         } else {
@@ -610,25 +597,6 @@ open class EditFrameDialog : BottomSheetDialogFragment() {
 
     private fun updateFocalLengthTextView() {
         binding.focalLengthText.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
-    }
-
-    /**
-     * Scroll change listener used to detect when the binding.pictureLayout is visible.
-     * Only then will the complementary picture be loaded.
-     */
-    private inner class OnScrollChangeListener(
-            nestedScrollView: NestedScrollView) : ScrollIndicatorNestedScrollViewListener(
-            nestedScrollView, null, null) {
-        override fun onScrollChange(v: NestedScrollView, scrollX: Int, scrollY: Int,
-                                    oldScrollX: Int, oldScrollY: Int) {
-            super.onScrollChange(v, scrollX, scrollY, oldScrollX, oldScrollY)
-            val scrollBounds = Rect()
-            v.getHitRect(scrollBounds)
-            if (binding.pictureLayout.getLocalVisibleRect(scrollBounds) && !complementaryPictureLoaded) {
-                setComplementaryPicture(animate = true)
-                complementaryPictureLoaded = true
-            }
-        }
     }
 
     // LISTENER CLASSES USED TO OPEN NEW DIALOGS AFTER ONCLICK EVENTS

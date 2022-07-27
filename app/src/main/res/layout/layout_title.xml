@@ -32,7 +32,7 @@
     >
 
     <Button
-        android:id="@+id/negative_image_view"
+        android:id="@+id/negative_button"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/title_text_view"
@@ -59,7 +59,7 @@
         />
 
     <Button
-        android:id="@+id/positive_image_view"
+        android:id="@+id/positive_button"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/title_text_view"
