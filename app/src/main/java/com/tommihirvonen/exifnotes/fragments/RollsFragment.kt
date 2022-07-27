@@ -28,6 +28,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.preference.PreferenceManager
@@ -114,6 +115,15 @@ class RollsFragment : Fragment(), RollAdapterListener {
         updateFragment(true)
         // Return the inflated view.
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        postponeEnterTransition()
+        // Start the transition once all views have been
+        // measured and laid out
+        (view.parent as? ViewGroup)?.doOnPreDraw {
+            startPostponedEnterTransition()
+        }
     }
 
     private val onMenuItemClickListener = { item: MenuItem ->

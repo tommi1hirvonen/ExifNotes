@@ -213,9 +213,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        postponeEnterTransition()
         binding = FragmentFramesBinding.inflate(inflater, container, false)
-        binding.root.doOnPreDraw { startPostponedEnterTransition() }
         binding.root.transitionName = "transition_target"
         binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
         binding.topAppBar.title = roll.name
@@ -248,6 +246,15 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         binding.framesRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        postponeEnterTransition()
+        // Start the transition once all views have been
+        // measured and laid out
+        (view.parent as? ViewGroup)?.doOnPreDraw {
+            startPostponedEnterTransition()
+        }
     }
 
     private val onMenuItemSelected = { item: MenuItem ->
