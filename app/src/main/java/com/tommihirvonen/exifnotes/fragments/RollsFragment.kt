@@ -19,7 +19,6 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -304,7 +303,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
      * @param sortMode enum type referencing the sorting mode
      */
     private fun setSortMode(sortMode: RollSortMode) {
-        val sharedPreferences = requireActivity().getPreferences(Context.MODE_PRIVATE)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
         val editor = sharedPreferences.edit()
         editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, sortMode.value)
         editor.apply()
