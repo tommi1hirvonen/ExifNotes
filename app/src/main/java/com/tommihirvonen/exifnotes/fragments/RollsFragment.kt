@@ -21,8 +21,10 @@ package com.tommihirvonen.exifnotes.fragments
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.Parcelable
+import android.transition.*
 import android.view.*
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,6 +33,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -96,6 +99,9 @@ class RollsFragment : Fragment(), RollAdapterListener {
      */
     private var sortMode: RollSortMode = RollSortMode.DATE
 
+    private val transitionInterpolator = FastOutSlowInInterpolator()
+    private val transitionDuration = 500L
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentRollsBinding.inflate(inflater, container, false)
@@ -122,6 +128,10 @@ class RollsFragment : Fragment(), RollAdapterListener {
         // Start the transition once all views have been
         // measured and laid out
         (view.parent as? ViewGroup)?.doOnPreDraw {
+            exitTransition = SeparateVertical().apply {
+                duration = transitionDuration
+                interpolator = transitionInterpolator
+            }
             startPostponedEnterTransition()
         }
     }
@@ -325,8 +335,36 @@ class RollsFragment : Fragment(), RollAdapterListener {
         if (rollAdapter.selectedItemCount > 0 || actionMode != null) {
             enableActionMode(position)
         } else {
-            val parentActivity = requireActivity() as MainActivity
-            parentActivity.onRollSelected(roll, layout)
+
+            (exitTransition as Transition).epicenterCallback = object : Transition.EpicenterCallback() {
+                override fun onGetEpicenter(transition: Transition) = Rect().also {
+                    layout.getGlobalVisibleRect(it)
+                }
+            }
+
+            val sharedElementTransition = TransitionSet()
+                .addTransition(ChangeBounds())
+                .addTransition(ChangeTransform())
+                .addTransition(ChangeImageTransform())
+                .setCommonInterpolator(transitionInterpolator)
+                .apply { duration = transitionDuration }
+
+            val framesFragment = FramesFragment().apply {
+                sharedElementEnterTransition = sharedElementTransition
+                sharedElementReturnTransition = sharedElementTransition
+            }
+
+            val arguments = Bundle()
+            arguments.putParcelable(ExtraKeys.ROLL, roll)
+            framesFragment.arguments = arguments
+
+            requireActivity().supportFragmentManager
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .addSharedElement(layout, "transition_target")
+                .addToBackStack(null)
+                .replace(R.id.fragment_container, framesFragment)
+                .commit()
         }
     }
 

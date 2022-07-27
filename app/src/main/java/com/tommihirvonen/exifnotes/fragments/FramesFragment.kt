@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
@@ -40,7 +41,6 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.transition.TransitionInflater
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
@@ -192,8 +192,6 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = TransitionInflater.from(requireContext())
-            .inflateTransition(R.transition.shared_element_transition)
         roll = requireArguments().getParcelable(ExtraKeys.ROLL)!! // Roll must be defined for every Frame
         frameList = database.getFrames(roll).toMutableList()
 
@@ -249,11 +247,16 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.container.alpha = 0f
         postponeEnterTransition()
-        // Start the transition once all views have been
-        // measured and laid out
+        // Start the transition once all views have been measured and laid out.
         (view.parent as? ViewGroup)?.doOnPreDraw {
             startPostponedEnterTransition()
+            ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
+                duration = 500
+                start()
+            }
         }
     }
 

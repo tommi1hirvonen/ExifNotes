@@ -35,15 +35,11 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
-import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
-import com.tommihirvonen.exifnotes.fragments.FramesFragment
 import com.tommihirvonen.exifnotes.fragments.RollsFragment
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.purgeDirectory
-
 
 /**
  * MainActivity is the first activity to be called when the app is launched.
@@ -140,20 +136,6 @@ class MainActivity : AppCompatActivity() {
         externalStorageDir?.purgeDirectory()
         externalCacheDir?.purgeDirectory()
         super.onStart()
-    }
-
-    fun onRollSelected(roll: Roll, layout: View) {
-        val framesFragment = FramesFragment()
-        val arguments = Bundle()
-        arguments.putParcelable(ExtraKeys.ROLL, roll)
-        framesFragment.arguments = arguments
-        supportFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .addSharedElement(layout, "transition_target")
-            .addToBackStack(null)
-            .replace(R.id.fragment_container, framesFragment)
-            .commit()
     }
 
     /**

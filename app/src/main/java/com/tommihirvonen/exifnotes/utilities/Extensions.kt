@@ -21,10 +21,8 @@ package com.tommihirvonen.exifnotes.utilities
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.view.Gravity
-import android.widget.TextView
-import androidx.core.widget.TextViewCompat
-import androidx.fragment.app.Fragment
+import android.transition.TransitionSet
+import android.view.animation.Interpolator
 import com.tommihirvonen.exifnotes.datastructures.Gear
 import java.io.*
 
@@ -51,3 +49,8 @@ fun File.makeDirsIfNotExists() { if (!isDirectory) mkdirs() }
 
 fun List<Gear>.toStringList(): String =
     if (this.isEmpty()) "" else this.joinToString(separator = "\n-", prefix = "\n-") { it.name }
+
+fun TransitionSet.setCommonInterpolator(interpolator: Interpolator): TransitionSet = apply {
+    (0 until transitionCount).map { index -> getTransitionAt(index) }
+        .forEach { transition -> transition.interpolator = interpolator }
+}
