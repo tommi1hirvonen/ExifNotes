@@ -26,7 +26,6 @@ object ExtraKeys {
     const val CONTINUE = "CONTINUE"
     const val LOCATION = "LOCATION"
     const val FORMATTED_ADDRESS = "FORMATTED_ADDRESS"
-    const val LOCATION_ENABLED = "LOCATION_ENABLED"
     const val TITLE = "TITLE"
     const val POSITIVE_BUTTON = "POSITIVE_BUTTON"
     const val FRAME = "FRAME"

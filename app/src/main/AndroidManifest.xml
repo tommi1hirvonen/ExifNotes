@@ -73,16 +73,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.FramesActivity"
-            android:label="FramesActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity"/>
-        </activity>
-        <activity
             android:name=".activities.GearActivity"
             android:label="GearActivity"
             android:parentActivityName=".activities.MainActivity"

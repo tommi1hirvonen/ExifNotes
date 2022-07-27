@@ -27,7 +27,6 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.android.gms.location.*
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 
 abstract class LocationUpdatesFragment : Fragment() {
@@ -41,7 +40,12 @@ abstract class LocationUpdatesFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        locationPermissionsGranted = requireArguments().getBoolean(ExtraKeys.LOCATION_ENABLED, true)
+
+        val permissionAccessCoarseLocation = ActivityCompat.checkSelfPermission(
+            requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val permissionAccessFineLocation = ActivityCompat.checkSelfPermission(
+            requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        locationPermissionsGranted = permissionAccessCoarseLocation || permissionAccessFineLocation
 
         // Activate GPS locating if the user has granted permission.
         if (locationPermissionsGranted) {
@@ -86,20 +90,14 @@ abstract class LocationUpdatesFragment : Fragment() {
     }
 
     private fun startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(requireActivity(),
-                        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(requireActivity(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
-            // Get the last known location immediately when the updates are started.
-            if (lastLocation == null) {
-                fusedLocationClient?.lastLocation?.addOnSuccessListener { location: Location? ->
-                    location?.let { lastLocation = it }
-                }
+        // Get the last known location immediately when the updates are started.
+        if (lastLocation == null) {
+            fusedLocationClient?.lastLocation?.addOnSuccessListener { location: Location? ->
+                location?.let { lastLocation = it }
             }
-            // Start requesting location updates on set time intervals.
-            fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
         }
+        // Start requesting location updates on set time intervals.
+        fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
     private fun stopLocationUpdates() {

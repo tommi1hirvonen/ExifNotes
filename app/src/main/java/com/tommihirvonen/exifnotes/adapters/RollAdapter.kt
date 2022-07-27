@@ -112,7 +112,7 @@ class RollAdapter(private val context: Context,
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val roll = rollList[position]
         val numberOfFrames = context.database.getNumberOfFrames(roll)
-        holder.binding.tvRollName.transitionName = "roll_transition_${roll.id}"
+        holder.binding.itemRollTopLayout.transitionName = "transition_roll_${roll.id}"
         holder.binding.tvRollDate.text =
                 roll.developed?.dateTimeAsText?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Developed) }
                         ?: roll.unloaded?.dateTimeAsText?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Unloaded) }

@@ -34,11 +34,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.FileProvider
+import androidx.core.view.doOnPreDraw
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.setFragmentResultListener
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.TransitionInflater
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
@@ -59,13 +61,6 @@ import java.io.OutputStreamWriter
  * on the ListView in RollsFragment. It displays all the frames from that roll.
  */
 class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
-
-    companion object {
-        /**
-         * Public constant to tag this fragment when it is created.
-         */
-        const val FRAMES_FRAGMENT_TAG = "FRAMES_FRAGMENT"
-    }
     
     private lateinit var binding: FragmentFramesBinding
 
@@ -197,6 +192,8 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = TransitionInflater.from(requireContext())
+            .inflateTransition(R.transition.shared_element_transition)
         roll = requireArguments().getParcelable(ExtraKeys.ROLL)!! // Roll must be defined for every Frame
         frameList = database.getFrames(roll).toMutableList()
 
@@ -216,8 +213,10 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
+        postponeEnterTransition()
         binding = FragmentFramesBinding.inflate(inflater, container, false)
-
+        binding.root.doOnPreDraw { startPostponedEnterTransition() }
+        binding.root.transitionName = "transition_target"
         binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
         binding.topAppBar.title = roll.name
         roll.camera?.let { binding.topAppBar.subtitle = it.name }

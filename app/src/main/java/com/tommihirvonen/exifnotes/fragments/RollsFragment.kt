@@ -19,7 +19,6 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -37,10 +36,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.activities.FramesActivity
-import com.tommihirvonen.exifnotes.activities.GearActivity
-import com.tommihirvonen.exifnotes.activities.MapActivity
-import com.tommihirvonen.exifnotes.activities.PreferenceActivity
+import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.RollAdapter
 import com.tommihirvonen.exifnotes.adapters.RollAdapter.RollAdapterListener
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsBinding
@@ -320,10 +316,8 @@ class RollsFragment : Fragment(), RollAdapterListener {
         if (rollAdapter.selectedItemCount > 0 || actionMode != null) {
             enableActionMode(position)
         } else {
-            val framesActivityIntent = Intent(requireActivity(), FramesActivity::class.java)
-            framesActivityIntent.putExtra(ExtraKeys.ROLL, roll)
-            val options = ActivityOptions.makeSceneTransitionAnimation(requireActivity(), layout, "roll_transition_${roll.id}")
-            startActivity(framesActivityIntent, options.toBundle())
+            val parentActivity = requireActivity() as MainActivity
+            parentActivity.onRollSelected(roll, layout)
         }
     }
 
