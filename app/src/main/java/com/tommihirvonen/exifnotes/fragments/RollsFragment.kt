@@ -468,56 +468,6 @@ class RollsFragment : Fragment(), RollAdapterListener {
     }
 
     /**
-     * Called when the user presses the binding.fab.
-     * Shows a DialogFragment to add a new roll.
-     */
-    @SuppressLint("CommitTransaction")
-    private fun showRollDialog() {
-
-        exitTransition = null
-        reenterFadeDuration = transitionDurationEditRoll
-
-        val sharedElementTransition = TransitionSet()
-            .addTransition(ChangeBounds())
-            .addTransition(ChangeTransform())
-            .addTransition(ChangeImageTransform())
-            .addTransition(Fade())
-            .setCommonInterpolator(transitionInterpolator)
-            .apply { duration = transitionDurationEditRoll }
-
-        val fragment = EditRollFragment().apply {
-            sharedElementEnterTransition = sharedElementTransition
-        }
-
-        val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.AddNewRoll))
-        fragment.arguments = arguments
-
-        val sharedElement = binding.fab as View
-        requireActivity().supportFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, "transition_edit_roll")
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-
-        fragment.setFragmentResultListener("EditRollDialog") { _, bundle ->
-            val roll: Roll = bundle.getParcelable(ExtraKeys.ROLL) ?: return@setFragmentResultListener
-            database.addRoll(roll)
-            mainTextViewSetInvisible()
-            // Add new roll to the top of the list
-            rollList.add(0, roll)
-            Roll.sortRollList(sortMode, rollList)
-            rollAdapter.notifyItemInserted(rollList.indexOf(roll))
-
-            // When the new roll is added jump to view the added entry
-            val pos = rollList.indexOf(roll)
-            if (pos < rollAdapter.itemCount) binding.rollsRecyclerView.scrollToPosition(pos)
-        }
-    }
-
-    /**
      * Update all rolls currently selected in rollAdapter.
      *
      * @param filmStock The rolls will be updated with this film stock. Pass null if you want to
