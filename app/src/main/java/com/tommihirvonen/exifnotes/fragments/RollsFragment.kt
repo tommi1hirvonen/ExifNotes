@@ -25,7 +25,6 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Parcelable
-import android.transition.*
 import android.view.*
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,6 +37,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
@@ -48,7 +48,6 @@ import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.RollFilterMode
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.datastructures.RollSortMode
-import com.tommihirvonen.exifnotes.dialogs.EditRollDialog
 import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
@@ -101,12 +100,14 @@ class RollsFragment : Fragment(), RollAdapterListener {
     private var sortMode: RollSortMode = RollSortMode.DATE
 
     private val transitionInterpolator = FastOutSlowInInterpolator()
-    private val transitionDuration = 500L
+    private val transitionDurationShowFrames = 400L
+    private val transitionDurationEditRoll = 250L
+    private var reenterFadeDuration = 0L
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentRollsBinding.inflate(inflater, container, false)
-        binding.fab.setOnClickListener { showRollDialog() }
+        binding.fab.setOnClickListener { showEditRollDialog(null) }
         val layoutManager = LinearLayoutManager(activity)
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
@@ -129,15 +130,11 @@ class RollsFragment : Fragment(), RollAdapterListener {
         // Start the transition once all views have been
         // measured and laid out
         (view.parent as? ViewGroup)?.doOnPreDraw {
-            exitTransition = SeparateVertical().apply {
-                duration = transitionDuration
-                interpolator = transitionInterpolator
-            }
-            startPostponedEnterTransition()
             ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
-                duration = transitionDuration
+                duration = reenterFadeDuration
                 start()
             }
+            startPostponedEnterTransition()
         }
     }
 
@@ -282,7 +279,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
             // Notify the adapter to update itself
         }
         rollAdapter.notifyDataSetChanged()
-        if (rollList.isNotEmpty()) mainTextViewAnimateInvisible() else mainTextViewAnimateVisible()
+        if (rollList.isNotEmpty()) mainTextViewSetInvisible() else mainTextViewSetVisible()
     }
 
     override fun onResume() {
@@ -341,6 +338,11 @@ class RollsFragment : Fragment(), RollAdapterListener {
             enableActionMode(position)
         } else {
 
+            reenterFadeDuration = transitionDurationShowFrames
+            exitTransition = SeparateVertical().apply {
+                duration = transitionDurationShowFrames
+                interpolator = transitionInterpolator
+            }
             (exitTransition as Transition).epicenterCallback = object : Transition.EpicenterCallback() {
                 override fun onGetEpicenter(transition: Transition) = Rect().also {
                     layout.getGlobalVisibleRect(it)
@@ -352,7 +354,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                 .addTransition(ChangeTransform())
                 .addTransition(ChangeImageTransform())
                 .setCommonInterpolator(transitionInterpolator)
-                .apply { duration = transitionDuration }
+                .apply { duration = transitionDurationShowFrames }
 
             val framesFragment = FramesFragment().apply {
                 sharedElementEnterTransition = sharedElementTransition
@@ -405,23 +407,63 @@ class RollsFragment : Fragment(), RollAdapterListener {
      * @param position the position of the roll in rollList
      */
     @SuppressLint("CommitTransaction")
-    private fun showEditRollDialog(position: Int) {
-        val dialog = EditRollDialog()
+    private fun showEditRollDialog(position: Int?) {
+
+        exitTransition = null
+        reenterFadeDuration = transitionDurationEditRoll
+
+        val sharedElementTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(transitionInterpolator)
+            .apply { duration = transitionDurationEditRoll }
+
+        val fragment = EditRollFragment().apply {
+            sharedElementEnterTransition = sharedElementTransition
+        }
+
         val arguments = Bundle()
-        arguments.putParcelable(ExtraKeys.ROLL, rollList[position])
-        arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), EditRollDialog.TAG)
-        dialog.setFragmentResultListener("EditRollDialog") { _, bundle ->
-            if (actionMode != null) actionMode?.finish()
+        if (position == null) {
+            arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.AddNewRoll))
+        } else {
+            arguments.putParcelable(ExtraKeys.ROLL, rollList[position])
+            arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
+        }
+        fragment.arguments = arguments
+
+        val sharedElement = binding.fab as View
+        requireActivity().supportFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
+            .addSharedElement(sharedElement, "transition_edit_roll")
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
+        fragment.setFragmentResultListener("EditRollDialog") { _, bundle ->
             val roll: Roll = bundle.getParcelable(ExtraKeys.ROLL) ?: return@setFragmentResultListener
-            database.updateRoll(roll)
-            // Notify array adapter that the data set has to be updated
-            val oldPosition = rollList.indexOf(roll)
-            Roll.sortRollList(sortMode, rollList)
-            val newPosition = rollList.indexOf(roll)
-            rollAdapter.notifyItemChanged(oldPosition)
-            rollAdapter.notifyItemMoved(oldPosition, newPosition)
+            if (position == null) {
+                database.addRoll(roll)
+                mainTextViewSetInvisible()
+                // Add new roll to the top of the list
+                rollList.add(0, roll)
+                Roll.sortRollList(sortMode, rollList)
+                rollAdapter.notifyItemInserted(rollList.indexOf(roll))
+
+                // When the new roll is added jump to view the added entry
+                val pos = rollList.indexOf(roll)
+                if (pos < rollAdapter.itemCount) binding.rollsRecyclerView.scrollToPosition(pos)
+            } else {
+                database.updateRoll(roll)
+                // Notify array adapter that the data set has to be updated
+                val oldPosition = rollList.indexOf(roll)
+                Roll.sortRollList(sortMode, rollList)
+                val newPosition = rollList.indexOf(roll)
+                rollAdapter.notifyItemChanged(oldPosition)
+                rollAdapter.notifyItemMoved(oldPosition, newPosition)
+            }
         }
     }
 
@@ -431,15 +473,39 @@ class RollsFragment : Fragment(), RollAdapterListener {
      */
     @SuppressLint("CommitTransaction")
     private fun showRollDialog() {
-        val dialog = EditRollDialog()
+
+        exitTransition = null
+        reenterFadeDuration = transitionDurationEditRoll
+
+        val sharedElementTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(transitionInterpolator)
+            .apply { duration = transitionDurationEditRoll }
+
+        val fragment = EditRollFragment().apply {
+            sharedElementEnterTransition = sharedElementTransition
+        }
+
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.AddNewRoll))
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), EditRollDialog.TAG)
-        dialog.setFragmentResultListener("EditRollDialog") { _, bundle ->
+        fragment.arguments = arguments
+
+        val sharedElement = binding.fab as View
+        requireActivity().supportFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
+            .addSharedElement(sharedElement, "transition_edit_roll")
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
+        fragment.setFragmentResultListener("EditRollDialog") { _, bundle ->
             val roll: Roll = bundle.getParcelable(ExtraKeys.ROLL) ?: return@setFragmentResultListener
             database.addRoll(roll)
-            mainTextViewAnimateInvisible()
+            mainTextViewSetInvisible()
             // Add new roll to the top of the list
             rollList.add(0, roll)
             Roll.sortRollList(sortMode, rollList)
@@ -477,15 +543,15 @@ class RollsFragment : Fragment(), RollAdapterListener {
     /**
      * Method to fade in the main TextView ("No rolls")
      */
-    private fun mainTextViewAnimateVisible() {
-        binding.noAddedRolls.animate().alpha(1.0f).duration = 150
+    private fun mainTextViewSetVisible() {
+        binding.noAddedRolls.visibility = View.VISIBLE
     }
 
     /**
      * Method to fade out the main TextView ("No rolls")
      */
-    private fun mainTextViewAnimateInvisible() {
-        binding.noAddedRolls.animate().alpha(0.0f).duration = 0
+    private fun mainTextViewSetInvisible() {
+        binding.noAddedRolls.visibility = View.GONE
     }
 
     /**
@@ -532,7 +598,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                             database.deleteRoll(roll)
                             // Remove the roll from the rollList. Do this last!
                             rollList.removeAt(position)
-                            if (rollList.isEmpty()) mainTextViewAnimateVisible()
+                            if (rollList.isEmpty()) mainTextViewSetVisible()
                             rollAdapter.notifyItemRemoved(position)
                         }
                         actionMode.finish()
@@ -548,6 +614,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                 }
                 R.id.menu_item_edit -> {
                     if (rollAdapter.selectedItemCount == 1) {
+                        actionMode.finish()
                         // Get the first of the selected rolls (only one should be selected anyway)
                         // Finish action mode if the user clicked ok when editing the roll ->
                         // this is done in onActivityResult().
@@ -609,7 +676,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                             rollAdapter.notifyItemRemoved(position)
                         }
                     }
-                    if (rollList.isEmpty()) mainTextViewAnimateVisible()
+                    if (rollList.isEmpty()) mainTextViewSetVisible()
                     actionMode.finish()
                     Toast.makeText(activity, resources.getString(R.string.RollsArchived), Toast.LENGTH_SHORT).show()
                     true
@@ -627,7 +694,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                             rollAdapter.notifyItemRemoved(position)
                         }
                     }
-                    if (rollList.isEmpty()) mainTextViewAnimateVisible()
+                    if (rollList.isEmpty()) mainTextViewSetVisible()
                     actionMode.finish()
                     Toast.makeText(activity, resources.getString(R.string.RollsActivated), Toast.LENGTH_SHORT).show()
                     true

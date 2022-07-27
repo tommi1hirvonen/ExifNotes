@@ -16,7 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.dialogs
+/*
+ * Exif Notes
+ * Copyright (C) 2022  Tommi Hirvonen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
@@ -24,24 +42,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.*
+import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.databinding.DialogRollBinding
+import com.tommihirvonen.exifnotes.databinding.FragmentEditRollBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
+import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog
+import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
+import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
 
 /**
  * Dialog to edit Roll's information
  */
-class EditRollDialog : BottomSheetDialogFragment() {
+class EditRollFragment : Fragment() {
 
     companion object {
         /**
@@ -50,7 +71,7 @@ class EditRollDialog : BottomSheetDialogFragment() {
         const val TAG = "EditRollDialog"
     }
     
-    private lateinit var binding: DialogRollBinding
+    private lateinit var binding: FragmentEditRollBinding
 
     /**
      * Holds all the cameras in the database
@@ -64,14 +85,9 @@ class EditRollDialog : BottomSheetDialogFragment() {
     private lateinit var dateUnloadedManager: DateTimeLayoutManager
     private lateinit var dateDevelopedManager: DateTimeLayoutManager
 
-    override fun onStart() {
-        super.onStart()
-        // Disable background dimming behind the dialog.
-        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = DialogRollBinding.inflate(inflater, container, false)
+        binding = FragmentEditRollBinding.inflate(inflater, container, false)
+        binding.root.transitionName = "transition_edit_roll"
         binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
 
         roll = requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll()
@@ -267,17 +283,26 @@ class EditRollDialog : BottomSheetDialogFragment() {
             e.printStackTrace()
         }
 
-        binding.title.negativeImageView.setOnClickListener { dismiss() }
+        binding.title.negativeImageView.setOnClickListener { requireActivity().onBackPressed() }
         binding.title.positiveImageView.setOnClickListener {
             if (commitChanges()) {
                 val bundle = Bundle()
                 bundle.putParcelable(ExtraKeys.ROLL, roll)
                 setFragmentResult("EditRollDialog", bundle)
-                dismiss()
+                requireActivity().onBackPressed()
             }
         }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        // Start the transition once all views have been measured and laid out.
+        (view.parent as ViewGroup).doOnPreDraw {
+            startPostponedEnterTransition()
+        }
     }
 
     private fun commitChanges(): Boolean {

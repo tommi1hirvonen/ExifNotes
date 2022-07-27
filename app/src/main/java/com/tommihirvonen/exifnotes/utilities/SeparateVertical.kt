@@ -1,10 +1,10 @@
 package com.tommihirvonen.exifnotes.utilities
 
 import android.animation.ObjectAnimator
-import android.transition.TransitionValues
-import android.transition.Visibility
 import android.view.View
 import android.view.ViewGroup
+import androidx.transition.TransitionValues
+import androidx.transition.Visibility
 
 /**
  * Transition which animates views above the epicenter to translate upwards
@@ -61,8 +61,8 @@ class SeparateVertical : Visibility() {
         val (_, sceneRootY) = IntArray(2).also { sceneRoot.getLocationOnScreen(it) }
         return when {
             epicenter == null -> -sceneRoot.height
-            viewTop <= epicenter.top -> sceneRootY - epicenter.top
-            else -> sceneRootY + sceneRoot.height - epicenter.bottom
+            viewTop <= (epicenter?.top ?: 0) -> sceneRootY - (epicenter?.top ?: 0)
+            else -> sceneRootY + sceneRoot.height - (epicenter?.bottom ?: 0)
         }
     }
 }

@@ -21,8 +21,8 @@ package com.tommihirvonen.exifnotes.utilities
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.transition.TransitionSet
 import android.view.animation.Interpolator
+import androidx.transition.TransitionSet
 import com.tommihirvonen.exifnotes.datastructures.Gear
 import java.io.*
 
@@ -52,5 +52,5 @@ fun List<Gear>.toStringList(): String =
 
 fun TransitionSet.setCommonInterpolator(interpolator: Interpolator): TransitionSet = apply {
     (0 until transitionCount).map { index -> getTransitionAt(index) }
-        .forEach { transition -> transition.interpolator = interpolator }
+        .forEach { transition -> transition?.interpolator = interpolator }
 }
