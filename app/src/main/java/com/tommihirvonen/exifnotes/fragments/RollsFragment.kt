@@ -363,12 +363,13 @@ class RollsFragment : Fragment(), RollAdapterListener {
 
             val arguments = Bundle()
             arguments.putParcelable(ExtraKeys.ROLL, roll)
+            arguments.putString(ExtraKeys.TRANSITION_NAME, layout.transitionName)
             framesFragment.arguments = arguments
 
             requireActivity().supportFragmentManager
                 .beginTransaction()
                 .setReorderingAllowed(true)
-                .addSharedElement(layout, "transition_target")
+                .addSharedElement(layout, layout.transitionName)
                 .addToBackStack(null)
                 .replace(R.id.fragment_container, framesFragment)
                 .commit()
@@ -431,13 +432,14 @@ class RollsFragment : Fragment(), RollAdapterListener {
             arguments.putParcelable(ExtraKeys.ROLL, rollList[position])
             arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
         }
-        fragment.arguments = arguments
 
         val sharedElement = binding.fab as View
+        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+        fragment.arguments = arguments
         requireActivity().supportFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, "transition_edit_roll")
+            .addSharedElement(sharedElement, sharedElement.transitionName)
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()

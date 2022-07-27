@@ -216,7 +216,8 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentFramesBinding.inflate(inflater, container, false)
-        binding.root.transitionName = "transition_target"
+        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
+        binding.root.transitionName = transitionName
         binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
         binding.topAppBar.title = roll.name
         roll.camera?.let { binding.topAppBar.subtitle = it.name }
@@ -500,15 +501,16 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
             arguments.putParcelable(ExtraKeys.FRAME, frame)
         }
-        fragment.arguments = arguments
 
         // Use the provided view as a primary shared element.
         // If no view was provided, use the floating action button.
         val sharedElement = view ?: binding.fab as View
+        arguments.putSerializable(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+        fragment.arguments = arguments
         requireActivity().supportFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, "transition_edit_frame")
+            .addSharedElement(sharedElement, sharedElement.transitionName)
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()

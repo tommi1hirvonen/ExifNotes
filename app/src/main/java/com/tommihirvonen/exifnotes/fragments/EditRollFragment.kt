@@ -63,13 +63,6 @@ import com.tommihirvonen.exifnotes.utilities.*
  * Dialog to edit Roll's information
  */
 class EditRollFragment : Fragment() {
-
-    companion object {
-        /**
-         * Public constant used to tag the fragment when created
-         */
-        const val TAG = "EditRollDialog"
-    }
     
     private lateinit var binding: FragmentEditRollBinding
 
@@ -87,7 +80,8 @@ class EditRollFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentEditRollBinding.inflate(inflater, container, false)
-        binding.root.transitionName = "transition_edit_roll"
+        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
+        binding.root.transitionName = transitionName
         binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
 
         roll = requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll()

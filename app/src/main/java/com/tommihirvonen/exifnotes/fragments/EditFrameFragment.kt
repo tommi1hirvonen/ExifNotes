@@ -169,7 +169,8 @@ open class EditFrameFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentEditFrameBinding.inflate(inflater, container, false)
-        binding.root.transitionName = "transition_edit_frame"
+        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
+        binding.root.transitionName = transitionName
         binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
         frame = requireArguments().getParcelable(ExtraKeys.FRAME) ?: return null
         newFrame = frame.copy()
