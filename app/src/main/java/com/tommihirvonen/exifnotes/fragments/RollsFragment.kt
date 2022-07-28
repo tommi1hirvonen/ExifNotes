@@ -367,17 +367,15 @@ class RollsFragment : Fragment(), RollAdapterListener {
      * reset as well.
      */
     private fun batchUpdateRollsFilmStock(filmStock: FilmStock?, updateIso: Boolean) {
-        val selectedRollsPositions = rollAdapter.selectedItemPositions
-        for (position in selectedRollsPositions) {
-            val roll = rolls[position]
+        val selectedRolls = rollAdapter.selectedItemPositions.map { rolls[it] }
+        selectedRolls.forEach { roll ->
             roll.filmStock = filmStock
-            if (updateIso) roll.iso = filmStock?.iso ?: 0
-            database.updateRoll(roll)
+            if (updateIso) {
+                roll.iso = filmStock?.iso ?: 0
+            }
+            model.updateRoll(roll)
         }
-        if (actionMode != null) {
-            actionMode?.finish()
-        }
-        rollAdapter.notifyDataSetChanged()
+        actionMode?.finish()
     }
 
     /**
