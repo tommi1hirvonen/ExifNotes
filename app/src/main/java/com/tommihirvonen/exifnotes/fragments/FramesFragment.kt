@@ -103,92 +103,6 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     private val transitionInterpolator = FastOutSlowInInterpolator()
     private val transitionDuration = 250L
-
-    private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        // Finish this activity since the selected roll may not be valid anymore.
-        if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED == PreferenceActivity.RESULT_DATABASE_IMPORTED) {
-            requireActivity().setResult(result.resultCode)
-            requireActivity().finish()
-        }
-    }
-
-    private val mapResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            // Update the frame list in case updates were made in MapsActivity.
-            frameList = database.getFrames(roll).toMutableList()
-            frameList.sort(requireActivity(), sortMode)
-            frameAdapter = FrameAdapter(requireActivity(), frameList, this)
-            binding.framesRecyclerView.adapter = frameAdapter
-            frameAdapter.notifyDataSetChanged()
-        }
-    }
-
-    private val locationResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        // Consume the case when the user has edited
-        // the location of several frames in action mode.
-        if (result.resultCode == Activity.RESULT_OK) {
-            val location: Location? =
-                if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                    result.data?.getParcelableExtra(ExtraKeys.LOCATION)
-                } else null
-            val formattedAddress: String? =
-                if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
-                    result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
-                } else null
-            selectedFrames.forEach { frame ->
-                frame.location = location
-                frame.formattedAddress = formattedAddress
-                database.updateFrame(frame)
-            }
-        }
-    }
-
-    private val exportResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            try {
-                val rollName = roll.name?.illegalCharsRemoved()
-                val directoryUri = result.data?.data ?: return@registerForActivityResult
-                val directoryDocumentFile = DocumentFile.fromTreeUri(requireContext(), directoryUri)
-                    ?: return@registerForActivityResult
-
-                //Get the user setting about which files to export. By default, share both files.
-                val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
-                val filesToExport = prefs.getString(
-                    PreferenceConstants.KEY_FILES_TO_EXPORT,
-                    PreferenceConstants.VALUE_BOTH)
-                if (filesToExport == PreferenceConstants.VALUE_BOTH
-                    || filesToExport == PreferenceConstants.VALUE_CSV) {
-                    val csvDocumentFile = directoryDocumentFile.createFile("text/plain",
-                        rollName + "_csv.txt") ?: return@registerForActivityResult
-                    val csvOutputStream = requireActivity().contentResolver
-                        .openOutputStream(csvDocumentFile.uri) ?: return@registerForActivityResult
-                    val csvString = CsvBuilder(requireActivity(), roll).create()
-                    val csvOutputStreamWriter = OutputStreamWriter(csvOutputStream)
-                    csvOutputStreamWriter.write(csvString)
-                    csvOutputStreamWriter.flush()
-                    csvOutputStreamWriter.close()
-                    csvOutputStream.close()
-                }
-                if (filesToExport == PreferenceConstants.VALUE_BOTH
-                    || filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
-                    val cmdDocumentFile = directoryDocumentFile.createFile("text/plain",
-                        rollName + "_ExifToolCmds.txt") ?: return@registerForActivityResult
-                    val cmdOutputStream = requireActivity().contentResolver
-                        .openOutputStream(cmdDocumentFile.uri) ?: return@registerForActivityResult
-                    val cmdString = ExifToolCommandsBuilder(requireActivity(), roll).create()
-                    val cmdOutputStreamWriter = OutputStreamWriter(cmdOutputStream)
-                    cmdOutputStreamWriter.write(cmdString)
-                    cmdOutputStreamWriter.flush()
-                    cmdOutputStreamWriter.close()
-                    cmdOutputStream.close()
-                }
-                Toast.makeText(activity, R.string.ExportedFilesSuccessfully, Toast.LENGTH_SHORT).show()
-            } catch (e: IOException) {
-                e.printStackTrace()
-                Toast.makeText(activity, R.string.ErrorExporting, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -261,177 +175,16 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
     }
 
-    private val onMenuItemSelected = { item: MenuItem ->
-        when (item.itemId) {
-            R.id.frame_count_sort_mode -> {
-                item.isChecked = true
-                setSortMode(FrameSortMode.FRAME_COUNT)
-            }
-            R.id.date_sort_mode -> {
-                item.isChecked = true
-                setSortMode(FrameSortMode.DATE)
-            }
-            R.id.f_stop_sort_mode -> {
-                item.isChecked = true
-                setSortMode(FrameSortMode.F_STOP)
-            }
-            R.id.shutter_speed_sort_mode -> {
-                item.isChecked = true
-                setSortMode(FrameSortMode.SHUTTER_SPEED)
-            }
-            R.id.lens_sort_mode -> {
-                item.isChecked = true
-                setSortMode(FrameSortMode.LENS)
-            }
-            R.id.menu_item_gear -> {
-                val gearActivityIntent = Intent(activity, GearActivity::class.java)
-                startActivity(gearActivityIntent)
-            }
-            R.id.menu_item_preferences -> {
-                val preferenceActivityIntent = Intent(activity, PreferenceActivity::class.java)
-                preferenceResultLauncher.launch(preferenceActivityIntent)
-            }
-            R.id.menu_item_show_on_map -> {
-                val mapIntent = Intent(activity, MapActivity::class.java)
-                val list = ArrayList<Roll>()
-                list.add(roll)
-                mapIntent.putParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS, list)
-                mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, roll.name)
-                roll.camera?.let { mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE, it.name) }
-                mapResultLauncher.launch(mapIntent)
-            }
-            R.id.menu_item_share ->
-                // Getting member shareRollIntent may take a while to run since it
-                // generates the files that will be shared.
-                // -> Run the code on a new thread, which lets the UI thread to finish menu animations.
-                Thread {
-                    val shareIntent = shareRollIntent
-                    shareIntent?.let { startActivity(Intent.createChooser(it, resources.getString(R.string.Share))) }
-                }.start()
-            R.id.menu_item_export -> {
-                val intent = Intent()
-                intent.action = Intent.ACTION_OPEN_DOCUMENT_TREE
-                exportResultLauncher.launch(intent)
-            }
-        }
-        true
-    }
-
-    /**
-     * Change the sort order of frames.
-     *
-     * @param sortMode enum type referencing the sort mode
-     */
-    private fun setSortMode(sortMode: FrameSortMode) {
-        this.sortMode = sortMode
-        val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-        editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, sortMode.value)
-        editor.apply()
-        frameList.sort(requireActivity(), sortMode)
-        frameAdapter.notifyDataSetChanged()
-    }
-
-    /**
-     * Creates an Intent to share exiftool commands and a csv
-     * for the frames of the roll in question.
-     *
-     * @return The intent to be shared.
-     */
-    private val shareRollIntent: Intent? get() {
-
-        //Replace illegal characters from the roll name to make it a valid file name.
-        val rollName = roll.name?.illegalCharsRemoved()
-
-        //Get the user setting about which files to export. By default, share only ExifTool.
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
-        val filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT, PreferenceConstants.VALUE_BOTH)
-
-        //Create the Intent to be shared, no initialization yet
-        val shareIntent: Intent
-
-        //Create the files
-
-        //Get the external storage path (not the same as SD card)
-        val externalStorageDir = requireActivity().getExternalFilesDir(null)
-
-        //Create the file names for the two files to be put in that intent
-        val fileNameCsv = rollName + "_csv" + ".txt"
-        val fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt"
-
-        //Create the strings to be written on those two files
-        val csvString = CsvBuilder(requireActivity(), roll).create()
-        val exifToolCmds = ExifToolCommandsBuilder(requireActivity(), roll).create()
-
-        //Create the files in external storage
-        val fileCsv = File(externalStorageDir, fileNameCsv)
-        val fileExifToolCmds = File(externalStorageDir, fileNameExifToolCmds)
-
-        try {
-            //Write the csv file
-            fileCsv.writeText(csvString)
-
-            //Write the ExifTool commands file
-            fileExifToolCmds.writeText(exifToolCmds)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(activity, "Error creating text files", Toast.LENGTH_SHORT).show()
-            return null
-        }
-
-        //If the user has chosen to export both files
-        if (filesToExport == PreferenceConstants.VALUE_BOTH) {
-            //Create the intent to be shared
-            shareIntent = Intent(Intent.ACTION_SEND_MULTIPLE)
-            shareIntent.type = "text/plain"
-
-            //Create an array with the file names
-            val filesToSend: MutableList<String> = ArrayList()
-            filesToSend.add(externalStorageDir.toString() + "/" + fileNameCsv)
-            filesToSend.add(externalStorageDir.toString() + "/" + fileNameExifToolCmds)
-
-            //Create an ArrayList of files.
-            //NOTE: putParcelableArrayListExtra requires an ArrayList as its argument
-            val files = ArrayList<Uri>()
-            for (path in filesToSend) {
-                val file = File(path)
-                //Android Nougat requires that the file is given via FileProvider
-                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
-                            .packageName + ".provider", file)
-                } else {
-                    Uri.fromFile(file)
-                }
-                files.add(uri)
-            }
-
-            //Add the two files to the Intent as extras
-            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
+    override fun onItemClick(position: Int, view: View) {
+        if (frameAdapter.selectedItemCount > 0 || actionMode != null) {
+            enableActionMode(position)
         } else {
-            shareIntent = Intent(Intent.ACTION_SEND)
-            shareIntent.type = "text/plain"
-            //The user has chosen to export only the csv
-            if (filesToExport == PreferenceConstants.VALUE_CSV) {
-                //Android Nougat requires that the file is given via FileProvider
-                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
-                            .packageName + ".provider", fileCsv)
-                } else {
-                    Uri.fromFile(fileCsv)
-                }
-                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-            } else if (filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
-                //Android Nougat requires that the file is given via FileProvider
-                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
-                            .packageName + ".provider", fileExifToolCmds)
-                } else {
-                    Uri.fromFile(fileExifToolCmds)
-                }
-                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-            }
+            showEditFrameFragment(position, view)
         }
-        return shareIntent
+    }
+
+    override fun onItemLongClick(position: Int) {
+        enableActionMode(position)
     }
 
     /**
@@ -535,16 +288,243 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
     }
 
-    override fun onItemClick(position: Int, view: View) {
-        if (frameAdapter.selectedItemCount > 0 || actionMode != null) {
-            enableActionMode(position)
-        } else {
-            showEditFrameFragment(position, view)
+    private val onMenuItemSelected = { item: MenuItem ->
+        when (item.itemId) {
+            R.id.frame_count_sort_mode -> {
+                item.isChecked = true
+                setSortMode(FrameSortMode.FRAME_COUNT)
+            }
+            R.id.date_sort_mode -> {
+                item.isChecked = true
+                setSortMode(FrameSortMode.DATE)
+            }
+            R.id.f_stop_sort_mode -> {
+                item.isChecked = true
+                setSortMode(FrameSortMode.F_STOP)
+            }
+            R.id.shutter_speed_sort_mode -> {
+                item.isChecked = true
+                setSortMode(FrameSortMode.SHUTTER_SPEED)
+            }
+            R.id.lens_sort_mode -> {
+                item.isChecked = true
+                setSortMode(FrameSortMode.LENS)
+            }
+            R.id.menu_item_gear -> {
+                val gearActivityIntent = Intent(activity, GearActivity::class.java)
+                startActivity(gearActivityIntent)
+            }
+            R.id.menu_item_preferences -> {
+                val preferenceActivityIntent = Intent(activity, PreferenceActivity::class.java)
+                preferenceResultLauncher.launch(preferenceActivityIntent)
+            }
+            R.id.menu_item_show_on_map -> {
+                val mapIntent = Intent(activity, MapActivity::class.java)
+                val list = ArrayList<Roll>()
+                list.add(roll)
+                mapIntent.putParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS, list)
+                mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, roll.name)
+                roll.camera?.let { mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_SUBTITLE, it.name) }
+                mapResultLauncher.launch(mapIntent)
+            }
+            R.id.menu_item_share ->
+                // Getting member shareRollIntent may take a while to run since it
+                // generates the files that will be shared.
+                // -> Run the code on a new thread, which lets the UI thread to finish menu animations.
+                Thread {
+                    val shareIntent = shareRollIntent
+                    shareIntent?.let { startActivity(Intent.createChooser(it, resources.getString(R.string.Share))) }
+                }.start()
+            R.id.menu_item_export -> {
+                val intent = Intent()
+                intent.action = Intent.ACTION_OPEN_DOCUMENT_TREE
+                exportResultLauncher.launch(intent)
+            }
+        }
+        true
+    }
+
+    /**
+     * Change the sort order of frames.
+     *
+     * @param sortMode enum type referencing the sort mode
+     */
+    private fun setSortMode(sortMode: FrameSortMode) {
+        this.sortMode = sortMode
+        val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, sortMode.value)
+        editor.apply()
+        frameList.sort(requireActivity(), sortMode)
+        frameAdapter.notifyDataSetChanged()
+    }
+
+    private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        // Finish this activity since the selected roll may not be valid anymore.
+        if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED == PreferenceActivity.RESULT_DATABASE_IMPORTED) {
+            requireActivity().setResult(result.resultCode)
+            requireActivity().finish()
         }
     }
 
-    override fun onItemLongClick(position: Int) {
-        enableActionMode(position)
+    private val mapResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Update the frame list in case updates were made in MapsActivity.
+            frameList = database.getFrames(roll).toMutableList()
+            frameList.sort(requireActivity(), sortMode)
+            frameAdapter = FrameAdapter(requireActivity(), frameList, this)
+            binding.framesRecyclerView.adapter = frameAdapter
+            frameAdapter.notifyDataSetChanged()
+        }
+    }
+
+    private val exportResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            try {
+                val rollName = roll.name?.illegalCharsRemoved()
+                val directoryUri = result.data?.data ?: return@registerForActivityResult
+                val directoryDocumentFile = DocumentFile.fromTreeUri(requireContext(), directoryUri)
+                    ?: return@registerForActivityResult
+
+                //Get the user setting about which files to export. By default, share both files.
+                val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
+                val filesToExport = prefs.getString(
+                    PreferenceConstants.KEY_FILES_TO_EXPORT,
+                    PreferenceConstants.VALUE_BOTH)
+                if (filesToExport == PreferenceConstants.VALUE_BOTH
+                    || filesToExport == PreferenceConstants.VALUE_CSV) {
+                    val csvDocumentFile = directoryDocumentFile.createFile("text/plain",
+                        rollName + "_csv.txt") ?: return@registerForActivityResult
+                    val csvOutputStream = requireActivity().contentResolver
+                        .openOutputStream(csvDocumentFile.uri) ?: return@registerForActivityResult
+                    val csvString = CsvBuilder(requireActivity(), roll).create()
+                    val csvOutputStreamWriter = OutputStreamWriter(csvOutputStream)
+                    csvOutputStreamWriter.write(csvString)
+                    csvOutputStreamWriter.flush()
+                    csvOutputStreamWriter.close()
+                    csvOutputStream.close()
+                }
+                if (filesToExport == PreferenceConstants.VALUE_BOTH
+                    || filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
+                    val cmdDocumentFile = directoryDocumentFile.createFile("text/plain",
+                        rollName + "_ExifToolCmds.txt") ?: return@registerForActivityResult
+                    val cmdOutputStream = requireActivity().contentResolver
+                        .openOutputStream(cmdDocumentFile.uri) ?: return@registerForActivityResult
+                    val cmdString = ExifToolCommandsBuilder(requireActivity(), roll).create()
+                    val cmdOutputStreamWriter = OutputStreamWriter(cmdOutputStream)
+                    cmdOutputStreamWriter.write(cmdString)
+                    cmdOutputStreamWriter.flush()
+                    cmdOutputStreamWriter.close()
+                    cmdOutputStream.close()
+                }
+                Toast.makeText(activity, R.string.ExportedFilesSuccessfully, Toast.LENGTH_SHORT).show()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                Toast.makeText(activity, R.string.ErrorExporting, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /**
+     * Creates an Intent to share exiftool commands and a csv
+     * for the frames of the roll in question.
+     *
+     * @return The intent to be shared.
+     */
+    private val shareRollIntent: Intent? get() {
+
+        //Replace illegal characters from the roll name to make it a valid file name.
+        val rollName = roll.name?.illegalCharsRemoved()
+
+        //Get the user setting about which files to export. By default, share only ExifTool.
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
+        val filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT, PreferenceConstants.VALUE_BOTH)
+
+        //Create the Intent to be shared, no initialization yet
+        val shareIntent: Intent
+
+        //Create the files
+
+        //Get the external storage path (not the same as SD card)
+        val externalStorageDir = requireActivity().getExternalFilesDir(null)
+
+        //Create the file names for the two files to be put in that intent
+        val fileNameCsv = rollName + "_csv" + ".txt"
+        val fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt"
+
+        //Create the strings to be written on those two files
+        val csvString = CsvBuilder(requireActivity(), roll).create()
+        val exifToolCmds = ExifToolCommandsBuilder(requireActivity(), roll).create()
+
+        //Create the files in external storage
+        val fileCsv = File(externalStorageDir, fileNameCsv)
+        val fileExifToolCmds = File(externalStorageDir, fileNameExifToolCmds)
+
+        try {
+            //Write the csv file
+            fileCsv.writeText(csvString)
+
+            //Write the ExifTool commands file
+            fileExifToolCmds.writeText(exifToolCmds)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(activity, "Error creating text files", Toast.LENGTH_SHORT).show()
+            return null
+        }
+
+        //If the user has chosen to export both files
+        if (filesToExport == PreferenceConstants.VALUE_BOTH) {
+            //Create the intent to be shared
+            shareIntent = Intent(Intent.ACTION_SEND_MULTIPLE)
+            shareIntent.type = "text/plain"
+
+            //Create an array with the file names
+            val filesToSend: MutableList<String> = ArrayList()
+            filesToSend.add(externalStorageDir.toString() + "/" + fileNameCsv)
+            filesToSend.add(externalStorageDir.toString() + "/" + fileNameExifToolCmds)
+
+            //Create an ArrayList of files.
+            //NOTE: putParcelableArrayListExtra requires an ArrayList as its argument
+            val files = ArrayList<Uri>()
+            for (path in filesToSend) {
+                val file = File(path)
+                //Android Nougat requires that the file is given via FileProvider
+                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
+                            .packageName + ".provider", file)
+                } else {
+                    Uri.fromFile(file)
+                }
+                files.add(uri)
+            }
+
+            //Add the two files to the Intent as extras
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
+        } else {
+            shareIntent = Intent(Intent.ACTION_SEND)
+            shareIntent.type = "text/plain"
+            //The user has chosen to export only the csv
+            if (filesToExport == PreferenceConstants.VALUE_CSV) {
+                //Android Nougat requires that the file is given via FileProvider
+                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
+                            .packageName + ".provider", fileCsv)
+                } else {
+                    Uri.fromFile(fileCsv)
+                }
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            } else if (filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
+                //Android Nougat requires that the file is given via FileProvider
+                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
+                            .packageName + ".provider", fileExifToolCmds)
+                } else {
+                    Uri.fromFile(fileExifToolCmds)
+                }
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            }
+        }
+        return shareIntent
     }
 
     /**
@@ -886,6 +866,26 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     // Select the newly added frames based on their positions.
                     positions.forEach { frameAdapter.toggleSelection(it) }
                 }
+            }
+        }
+    }
+
+    private val locationResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        // Consume the case when the user has edited
+        // the location of several frames in action mode.
+        if (result.resultCode == Activity.RESULT_OK) {
+            val location: Location? =
+                if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
+                    result.data?.getParcelableExtra(ExtraKeys.LOCATION)
+                } else null
+            val formattedAddress: String? =
+                if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
+                    result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
+                } else null
+            selectedFrames.forEach { frame ->
+                frame.location = location
+                frame.formattedAddress = formattedAddress
+                database.updateFrame(frame)
             }
         }
     }
