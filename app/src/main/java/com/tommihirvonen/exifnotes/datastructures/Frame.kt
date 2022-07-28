@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.datastructures
 
 import android.content.Context
 import android.os.Parcelable
-import com.tommihirvonen.exifnotes.R
 import kotlinx.parcelize.Parcelize
 
 import java.util.ArrayList
@@ -58,31 +57,10 @@ data class Frame(
     var lightSource: Int
         get() = if (lightSource_ in 0..7) lightSource_ else 0
         set(value) { if (value in 0..7) lightSource_ = value }
-
-    companion object {
-        /**
-         * Sorts a list of Frame objects based on sortMode in place.
-         * This method is called when the user has selected a sorting criteria.
-         *
-         * @param context reference to the parent activity
-         * @param sortMode enum type referencing the frame sort mode
-         * @param list reference to the frame list that is to be sorted
-         */
-        fun sortFrameList(context: Context, sortMode: FrameSortMode, list: MutableList<Frame>) {
-            when (sortMode) {
-                FrameSortMode.FRAME_COUNT -> list.sortWith(compareByDescending { it.count })
-                FrameSortMode.DATE -> list.sortWith(compareByDescending { it.date })
-                FrameSortMode.LENS -> list.sortWith(compareBy { it.lens?.name })
-                FrameSortMode.F_STOP -> {
-                    val allApertureValues = context.resources.getStringArray(R.array.AllApertureValues)
-                    list.sortWith(compareBy { allApertureValues.indexOf(it.aperture) })
-                }
-                FrameSortMode.SHUTTER_SPEED -> {
-                    val allShutterValues = context.resources.getStringArray(R.array.AllShutterValues)
-                    list.sortWith(compareByDescending { allShutterValues.indexOf(it.shutter) })
-                }
-            }
-        }
-    }
-
 }
+
+fun MutableList<Frame>.sort(context: Context, sortMode: FrameSortMode) =
+    sortWith(sortMode.getComparator(context))
+
+fun List<Frame>.sorted(context: Context, sortMode: FrameSortMode): List<Frame> =
+    sortedWith(sortMode.getComparator(context))

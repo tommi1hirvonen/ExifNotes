@@ -18,6 +18,9 @@
 
 package com.tommihirvonen.exifnotes.datastructures
 
+import android.content.Context
+import com.tommihirvonen.exifnotes.R
+
 enum class FrameSortMode constructor(value: Int) {
     FRAME_COUNT(0),
     DATE(1),
@@ -30,6 +33,20 @@ enum class FrameSortMode constructor(value: Int) {
 
     init {
         this.value = value
+    }
+
+    fun getComparator(context: Context): Comparator<Frame> = when (this) {
+        FRAME_COUNT -> compareByDescending { it.count }
+        DATE -> compareByDescending { it.date }
+        LENS -> compareBy { it.lens?.name }
+        F_STOP -> {
+            val allApertureValues = context.resources.getStringArray(R.array.AllApertureValues)
+            compareBy { allApertureValues.indexOf(it.aperture) }
+        }
+        SHUTTER_SPEED -> {
+            val allShutterValues = context.resources.getStringArray(R.array.AllShutterValues)
+            compareByDescending { allShutterValues.indexOf(it.shutter) }
+        }
     }
 
     companion object {

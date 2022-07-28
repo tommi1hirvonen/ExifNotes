@@ -110,17 +110,13 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
             requireActivity().setResult(result.resultCode)
             requireActivity().finish()
         }
-        // If the app theme was changed, recreate activity for changes to take effect.
-        if (result.resultCode and PreferenceActivity.RESULT_THEME_CHANGED == PreferenceActivity.RESULT_THEME_CHANGED) {
-            requireActivity().recreate()
-        }
     }
 
     private val mapResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             // Update the frame list in case updates were made in MapsActivity.
             frameList = database.getFrames(roll).toMutableList()
-            Frame.sortFrameList(requireActivity(), sortMode, frameList)
+            frameList.sort(requireActivity(), sortMode)
             frameAdapter = FrameAdapter(requireActivity(), frameList, this)
             binding.framesRecyclerView.adapter = frameAdapter
             frameAdapter.notifyDataSetChanged()
@@ -210,7 +206,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 FrameSortMode.FRAME_COUNT.value))
 
         //Sort the list according to preferences
-        Frame.sortFrameList(requireActivity(), sortMode, frameList)
+        frameList.sort(requireActivity(), sortMode)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -332,7 +328,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         val editor = sharedPref.edit()
         editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, sortMode.value)
         editor.apply()
-        Frame.sortFrameList(requireActivity(), sortMode, frameList)
+        frameList.sort(requireActivity(), sortMode)
         frameAdapter.notifyDataSetChanged()
     }
 
@@ -522,7 +518,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
             if (position == null) {
                 database.addFrame(frame1)
                 frameList.add(frame1)
-                Frame.sortFrameList(requireActivity(), sortMode, frameList)
+                frameList.sort(requireActivity(), sortMode)
                 frameAdapter.notifyItemInserted(frameList.indexOf(frame1))
                 binding.noAddedFrames.visibility = View.GONE
                 // When the new frame is added jump to view the added entry
@@ -531,7 +527,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
             } else {
                 database.updateFrame(frame1)
                 val oldPosition = frameList.indexOf(frame1)
-                Frame.sortFrameList(requireActivity(), sortMode, frameList)
+                frameList.sort(requireActivity(), sortMode)
                 val newPosition = frameList.indexOf(frame1)
                 frameAdapter.notifyItemChanged(oldPosition)
                 frameAdapter.notifyItemMoved(oldPosition, newPosition)
@@ -799,7 +795,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                         database.updateFrame(frame)
                                     }
                                     if (sortMode == FrameSortMode.FRAME_COUNT) {
-                                        Frame.sortFrameList(requireActivity(), sortMode, frameList)
+                                        frameList.sort(requireActivity(), sortMode)
                                     }
                                     frameAdapter.notifyDataSetChanged()
                                     actionMode?.finish()
@@ -823,7 +819,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                         frameList.add(frame)
                         frame.id
                     }
-                    Frame.sortFrameList(requireActivity(), sortMode, frameList)
+                    frameList.sort(requireActivity(), sortMode)
                     // Capture the positions in the sorted this of the newly added frames.
                     val positions = frameList.mapIndexed { index, frame -> frame.id to index }
                             .filter { newIds.contains(it.first) }.map { it.second }
@@ -881,7 +877,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                         database.updateFrame(frame)
                     }
                     val selectedIds = selectedFrames.map { it.id }
-                    Frame.sortFrameList(requireActivity(), sortMode, frameList)
+                    frameList.sort(requireActivity(), sortMode)
                     // Capture the positions in the sorted this of the newly added frames.
                     val positions = frameList.mapIndexed { index, frame -> frame.id to index }
                             .filter { selectedIds.contains(it.first) }.map { it.second }

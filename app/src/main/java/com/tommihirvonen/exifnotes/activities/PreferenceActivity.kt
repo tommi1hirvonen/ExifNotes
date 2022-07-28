@@ -36,11 +36,6 @@ class PreferenceActivity : AppCompatActivity() {
          * Public constant custom result code used to indicate that a database was imported
          */
         const val RESULT_DATABASE_IMPORTED = 0x10
-
-        /**
-         * Public constant custom result code used to indicate that the app's theme was changed
-         */
-        const val RESULT_THEME_CHANGED = 0x20
     }
 
     /**

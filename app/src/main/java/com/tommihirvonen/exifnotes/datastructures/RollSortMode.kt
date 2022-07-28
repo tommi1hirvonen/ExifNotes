@@ -30,6 +30,12 @@ enum class RollSortMode constructor(value: Int) {
         this.value = value
     }
 
+    val comparator: Comparator<Roll> get() = when (this) {
+        DATE -> compareByDescending { it.date }
+        NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name ?: "" }
+        CAMERA -> compareBy { it.camera }
+    }
+
     companion object {
 
         fun fromValue(value: Int): RollSortMode {

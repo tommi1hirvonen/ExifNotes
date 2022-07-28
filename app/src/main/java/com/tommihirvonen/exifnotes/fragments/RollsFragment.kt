@@ -32,9 +32,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
@@ -44,13 +44,10 @@ import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.RollAdapter
 import com.tommihirvonen.exifnotes.adapters.RollAdapter.RollAdapterListener
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsBinding
-import com.tommihirvonen.exifnotes.datastructures.FilmStock
-import com.tommihirvonen.exifnotes.datastructures.RollFilterMode
-import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.datastructures.RollSortMode
+import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
-import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
+import com.tommihirvonen.exifnotes.viewmodels.RollViewModel
 
 /**
  * RollsFragment is the fragment that is displayed first in MainActivity. It contains
@@ -65,17 +62,11 @@ class RollsFragment : Fragment(), RollAdapterListener {
         const val ROLLS_FRAGMENT_TAG = "ROLLS_FRAGMENT"
     }
 
-    private lateinit var binding: FragmentRollsBinding
-
-    /**
-     * Adapter used to adapt rollList to binding.rollsRecyclerView
-     */
+    private val model by activityViewModels<RollViewModel>()
+    private var rolls = emptyList<Roll>()
     private lateinit var rollAdapter: RollAdapter
 
-    /**
-     * Contains all rolls from the database
-     */
-    private var rollList = mutableListOf<Roll>()
+    private lateinit var binding: FragmentRollsBinding
 
     /**
      * Private callback class which is given as an argument when the SupportActionMode is started.
@@ -86,18 +77,6 @@ class RollsFragment : Fragment(), RollAdapterListener {
      * Reference to the (Support)ActionMode, which is launched when a list item is long pressed.
      */
     private var actionMode: ActionMode? = null
-
-    /**
-     * Holds the roll filter status (archived, active or all rolls).
-     * This way we don't always have to query the value from SharedPreferences.
-     */
-    private var filterMode: RollFilterMode? = null
-
-    /**
-     * Holds the roll sort mode (date, name or camera).
-     * This way we don't always have to query the value from SharedPreferences.
-     */
-    private var sortMode: RollSortMode = RollSortMode.DATE
 
     private val transitionInterpolator = FastOutSlowInInterpolator()
     private val transitionDurationShowFrames = 400L
@@ -111,17 +90,53 @@ class RollsFragment : Fragment(), RollAdapterListener {
         val layoutManager = LinearLayoutManager(activity)
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
-
         binding.rollsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
-
+        rollAdapter = RollAdapter(requireActivity(), this)
+        binding.rollsRecyclerView.adapter = rollAdapter
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemClickListener)
 
-        // Use the updateFragment() method to load the film rolls from the database,
-        // create an ArrayAdapter to link the list of rolls to the ListView,
-        // update the ActionBar subtitle and main TextView and set the main TextView
-        // either visible or hidden.
-        updateFragment(true)
-        // Return the inflated view.
+        val menu = binding.topAppBar.menu
+
+        model.rollFilterMode.observe(viewLifecycleOwner) { mode ->
+            when (mode) {
+                RollFilterMode.ACTIVE -> {
+                    binding.topAppBar.subtitle = resources.getString(R.string.ActiveFilmRolls)
+                    binding.noAddedRolls.text = resources.getString(R.string.NoActiveRolls)
+                    menu.findItem(R.id.active_rolls_filter).isChecked = true
+                    binding.fab.show()
+                }
+                RollFilterMode.ARCHIVED -> {
+                    binding.topAppBar.subtitle = resources.getString(R.string.ArchivedFilmRolls)
+                    binding.noAddedRolls.text = resources.getString(R.string.NoArchivedRolls)
+                    menu.findItem(R.id.archived_rolls_filter).isChecked = true
+                    binding.fab.hide()
+                }
+                RollFilterMode.ALL -> {
+                    binding.topAppBar.subtitle = resources.getString(R.string.AllFilmRolls)
+                    binding.noAddedRolls.text = resources.getString(R.string.NoActiveOrArchivedRolls)
+                    menu.findItem(R.id.all_rolls_filter).isChecked = true
+                    binding.fab.show()
+                }
+                null -> {}
+            }
+        }
+
+        model.rollSortMode.observe(viewLifecycleOwner) { mode ->
+            when (mode) {
+                RollSortMode.DATE -> { menu.findItem(R.id.date_sort_mode).isChecked = true }
+                RollSortMode.NAME -> { menu.findItem(R.id.name_sort_mode).isChecked = true }
+                RollSortMode.CAMERA -> { menu.findItem(R.id.camera_sort_mode).isChecked = true }
+                null -> {}
+            }
+        }
+
+        model.rolls.observe(viewLifecycleOwner) { rolls ->
+            this.rolls = rolls
+            rollAdapter.rolls = rolls
+            binding.noAddedRolls.visibility = if (rolls.isEmpty()) View.VISIBLE else View.GONE
+            rollAdapter.notifyDataSetChanged()
+        }
+
         return binding.root
     }
 
@@ -154,10 +169,10 @@ class RollsFragment : Fragment(), RollAdapterListener {
                 val mapIntent = Intent(activity, MapActivity::class.java)
                 mapIntent.putParcelableArrayListExtra(
                     ExtraKeys.ARRAY_LIST_ROLLS,
-                    rollList as ArrayList<out Parcelable?>
+                    rolls as ArrayList<out Parcelable?>
                 )
                 mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, getString(R.string.AllRolls))
-                when (filterMode) {
+                when (model.rollFilterMode.value) {
                     RollFilterMode.ACTIVE -> mapIntent.putExtra(
                         ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
                         getString(R.string.ActiveRolls)
@@ -170,116 +185,36 @@ class RollsFragment : Fragment(), RollAdapterListener {
                         ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
                         getString(R.string.AllRolls)
                     )
-                    else -> mapIntent.putExtra(
-                        ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
-                        getString(R.string.ActiveRolls)
-                    )
+                    null -> {}
                 }
                 startActivity(mapIntent)
             }
             R.id.active_rolls_filter -> {
                 item.isChecked = true
-                setFilterMode(RollFilterMode.ACTIVE)
+                model.setRollFilterMode(RollFilterMode.ACTIVE)
             }
             R.id.archived_rolls_filter -> {
                 item.isChecked = true
-                setFilterMode(RollFilterMode.ARCHIVED)
+                model.setRollFilterMode(RollFilterMode.ARCHIVED)
             }
             R.id.all_rolls_filter -> {
                 item.isChecked = true
-                setFilterMode(RollFilterMode.ALL)
+                model.setRollFilterMode(RollFilterMode.ALL)
             }
             R.id.date_sort_mode -> {
                 item.isChecked = true
-                setSortMode(RollSortMode.DATE)
+                model.setRollSortMode(RollSortMode.DATE)
             }
             R.id.name_sort_mode -> {
                 item.isChecked = true
-                setSortMode(RollSortMode.NAME)
+                model.setRollSortMode(RollSortMode.NAME)
             }
             R.id.camera_sort_mode -> {
                 item.isChecked = true
-                setSortMode(RollSortMode.CAMERA)
+                model.setRollSortMode(RollSortMode.CAMERA)
             }
         }
         true
-    }
-
-    /**
-     * Public method to update the contents of this fragment.
-     */
-    private fun updateFragment(recreateRollAdapter: Boolean) {
-        val sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(requireActivity().baseContext)
-        // Get from preferences which rolls to load from the database.
-        filterMode = RollFilterMode.fromValue(
-                sharedPreferences.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, RollFilterMode.ACTIVE.value))
-        sortMode = RollSortMode.fromValue(
-                sharedPreferences.getInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, RollSortMode.DATE.value))
-
-        // Declare variables for the ActionBar subtitle, which shows the film roll filter status
-        // and the main TextView, which is displayed if no rolls are shown.
-        val subtitleText: String
-        val mainTextViewText: String
-        val menu = binding.topAppBar.menu
-        when (filterMode) {
-            RollFilterMode.ACTIVE -> {
-                menu.findItem(R.id.active_rolls_filter).isChecked = true
-                subtitleText = resources.getString(R.string.ActiveFilmRolls)
-                mainTextViewText = resources.getString(R.string.NoActiveRolls)
-                binding.fab.show()
-            }
-            RollFilterMode.ARCHIVED -> {
-                menu.findItem(R.id.archived_rolls_filter).isChecked = true
-                subtitleText = resources.getString(R.string.ArchivedFilmRolls)
-                mainTextViewText = resources.getString(R.string.NoArchivedRolls)
-                binding.fab.hide()
-            }
-            RollFilterMode.ALL -> {
-                menu.findItem(R.id.all_rolls_filter).isChecked = true
-                subtitleText = resources.getString(R.string.AllFilmRolls)
-                mainTextViewText = resources.getString(R.string.NoActiveOrArchivedRolls)
-                binding.fab.show()
-            }
-            else -> {
-                menu.findItem(R.id.active_rolls_filter).isChecked = true
-                subtitleText = resources.getString(R.string.ActiveFilmRolls)
-                mainTextViewText = resources.getString(R.string.NoActiveRolls)
-                binding.fab.show()
-            }
-        }
-        binding.topAppBar.subtitle = subtitleText
-        binding.noAddedRolls.text = mainTextViewText
-
-        when (sortMode) {
-            RollSortMode.DATE -> {
-                menu.findItem(R.id.date_sort_mode).isChecked = true
-            }
-            RollSortMode.NAME -> {
-                menu.findItem(R.id.name_sort_mode).isChecked = true
-            }
-            RollSortMode.CAMERA -> {
-                menu.findItem(R.id.camera_sort_mode).isChecked = true
-            }
-        }
-
-        // Load the rolls from the database.
-        rollList = database.getRolls(filterMode).toMutableList()
-        //Order the roll list according to preferences.
-        Roll.sortRollList(sortMode, rollList)
-        if (recreateRollAdapter) {
-            // Create an ArrayAdapter for the ListView.
-            rollAdapter = RollAdapter(requireActivity(), rollList, this)
-            // Set the ListView to use the ArrayAdapter.
-            binding.rollsRecyclerView.adapter = rollAdapter
-            // Notify the adapter to update itself.
-        } else {
-            // rollAdapter still references the old rollList. Update its reference.
-            rollAdapter.setRollList(rollList)
-            // Notify the adapter to update itself
-        }
-        rollAdapter.notifyDataSetChanged()
-        if (rollList.isNotEmpty()) mainTextViewSetInvisible() else mainTextViewSetVisible()
     }
 
     override fun onResume() {
@@ -290,47 +225,15 @@ class RollsFragment : Fragment(), RollAdapterListener {
     private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         // Update fragment after the user navigates back from the GearActivity.
         // Cameras might have been edited, so they need to be reloaded.
-        updateFragment(true)
+        model.loadGear()
     }
 
     private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         // If a new database was imported, update the contents of RollsFragment.
         if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED ==
             PreferenceActivity.RESULT_DATABASE_IMPORTED) {
-            updateFragment(true)
+            model.loadAll()
         }
-        // If the app theme was changed, recreate activity.
-        if (result.resultCode and PreferenceActivity.RESULT_THEME_CHANGED ==
-            PreferenceActivity.RESULT_THEME_CHANGED) {
-            requireActivity().recreate()
-        }
-    }
-
-    /**
-     * Change the way visible rolls are filtered. Update SharedPreferences and the fragment.
-     *
-     * @param filterMode enum type referencing the filtering mode
-     */
-    private fun setFilterMode(filterMode: RollFilterMode) {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
-        val editor = sharedPreferences.edit()
-        editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, filterMode.value)
-        editor.apply()
-        updateFragment(false)
-    }
-
-    /**
-     * Change the sort order of rolls.
-     *
-     * @param sortMode enum type referencing the sorting mode
-     */
-    private fun setSortMode(sortMode: RollSortMode) {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
-        val editor = sharedPreferences.edit()
-        editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, sortMode.value)
-        editor.apply()
-        Roll.sortRollList(sortMode, rollList)
-        rollAdapter.notifyDataSetChanged()
     }
 
     override fun onItemClick(position: Int, roll: Roll, layout: View) {
@@ -429,7 +332,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
         if (position == null) {
             arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.AddNewRoll))
         } else {
-            arguments.putParcelable(ExtraKeys.ROLL, rollList[position])
+            arguments.putParcelable(ExtraKeys.ROLL, rolls[position])
             arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
         }
 
@@ -447,24 +350,9 @@ class RollsFragment : Fragment(), RollAdapterListener {
         fragment.setFragmentResultListener("EditRollDialog") { _, bundle ->
             val roll: Roll = bundle.getParcelable(ExtraKeys.ROLL) ?: return@setFragmentResultListener
             if (position == null) {
-                database.addRoll(roll)
-                mainTextViewSetInvisible()
-                // Add new roll to the top of the list
-                rollList.add(0, roll)
-                Roll.sortRollList(sortMode, rollList)
-                rollAdapter.notifyItemInserted(rollList.indexOf(roll))
-
-                // When the new roll is added jump to view the added entry
-                val pos = rollList.indexOf(roll)
-                if (pos < rollAdapter.itemCount) binding.rollsRecyclerView.scrollToPosition(pos)
+                model.addRoll(roll)
             } else {
-                database.updateRoll(roll)
-                // Notify array adapter that the data set has to be updated
-                val oldPosition = rollList.indexOf(roll)
-                Roll.sortRollList(sortMode, rollList)
-                val newPosition = rollList.indexOf(roll)
-                rollAdapter.notifyItemChanged(oldPosition)
-                rollAdapter.notifyItemMoved(oldPosition, newPosition)
+                model.updateRoll(roll)
             }
         }
     }
@@ -481,7 +369,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
     private fun batchUpdateRollsFilmStock(filmStock: FilmStock?, updateIso: Boolean) {
         val selectedRollsPositions = rollAdapter.selectedItemPositions
         for (position in selectedRollsPositions) {
-            val roll = rollList[position]
+            val roll = rolls[position]
             roll.filmStock = filmStock
             if (updateIso) roll.iso = filmStock?.iso ?: 0
             database.updateRoll(roll)
@@ -490,20 +378,6 @@ class RollsFragment : Fragment(), RollAdapterListener {
             actionMode?.finish()
         }
         rollAdapter.notifyDataSetChanged()
-    }
-
-    /**
-     * Method to fade in the main TextView ("No rolls")
-     */
-    private fun mainTextViewSetVisible() {
-        binding.noAddedRolls.visibility = View.VISIBLE
-    }
-
-    /**
-     * Method to fade out the main TextView ("No rolls")
-     */
-    private fun mainTextViewSetInvisible() {
-        binding.noAddedRolls.visibility = View.GONE
     }
 
     /**
@@ -517,10 +391,11 @@ class RollsFragment : Fragment(), RollAdapterListener {
             binding.fab.hide()
 
             // Use different action mode menu layouts depending on which rolls are shown.
-            when {
-                filterMode === RollFilterMode.ACTIVE -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_active, menu)
-                filterMode === RollFilterMode.ARCHIVED -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_archived, menu)
-                else -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_all, menu)
+            when (model.rollFilterMode.value) {
+                RollFilterMode.ACTIVE -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_active, menu)
+                RollFilterMode.ARCHIVED -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_archived, menu)
+                RollFilterMode.ALL -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_all, menu)
+                null -> {}
             }
             return true
         }
@@ -537,21 +412,15 @@ class RollsFragment : Fragment(), RollAdapterListener {
 
                     // Set the confirm dialog title depending on whether one or more rolls were selected
                     val title =
-                            if (selectedItemPositions.size == 1) resources.getString(R.string.ConfirmRollDelete) + " \'" + rollList[selectedItemPositions[0]].name + "\'?"
+                            if (selectedItemPositions.size == 1) resources.getString(R.string.ConfirmRollDelete) + " \'" + rolls[selectedItemPositions[0]].name + "\'?"
                             else String.format(resources.getString(R.string.ConfirmRollsDelete), selectedItemPositions.size)
                     val alertBuilder = MaterialAlertDialogBuilder(requireActivity())
                     alertBuilder.setTitle(title)
                     alertBuilder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
                     alertBuilder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
                         selectedItemPositions.sortedDescending().forEach { position ->
-                            val roll = rollList[position]
-                            // Delete the roll. Database foreign key rules make sure,
-                            // that any linked frames are deleted as well.
-                            database.deleteRoll(roll)
-                            // Remove the roll from the rollList. Do this last!
-                            rollList.removeAt(position)
-                            if (rollList.isEmpty()) mainTextViewSetVisible()
-                            rollAdapter.notifyItemRemoved(position)
+                            val roll = rolls[position]
+                            model.deleteRoll(roll)
                         }
                         actionMode.finish()
                     }
@@ -616,37 +485,21 @@ class RollsFragment : Fragment(), RollAdapterListener {
                     true
                 }
                 R.id.menu_item_archive -> {
-                    // Iterate the selected rolls based on their index in descending order.
-                    // This way we remove objects starting from the end of the list,
-                    // which means that the indices of objects still to be removed do not change.
-                    selectedItemPositions.sortedDescending().forEach { position ->
-                        val roll = rollList[position]
+                    val toArchive = selectedItemPositions.map { rolls[it] }
+                    toArchive.forEach { roll ->
                         roll.archived = true
-                        database.updateRoll(roll)
-                        if (filterMode === RollFilterMode.ACTIVE) {
-                            rollList.removeAt(position)
-                            rollAdapter.notifyItemRemoved(position)
-                        }
+                        model.updateRoll(roll)
                     }
-                    if (rollList.isEmpty()) mainTextViewSetVisible()
                     actionMode.finish()
                     Toast.makeText(activity, resources.getString(R.string.RollsArchived), Toast.LENGTH_SHORT).show()
                     true
                 }
                 R.id.menu_item_unarchive -> {
-                    // Iterate the selected rolls based on their index in descending order.
-                    // This way we remove objects starting from the end of the list,
-                    // which means that the indices of objects still to be removed do not change.
-                    selectedItemPositions.sortedDescending().forEach { position ->
-                        val roll = rollList[position]
+                    val toUnarchive = selectedItemPositions.map { rolls[it] }
+                    toUnarchive.forEach { roll ->
                         roll.archived = false
-                        database.updateRoll(roll)
-                        if (filterMode === RollFilterMode.ARCHIVED) {
-                            rollList.removeAt(position)
-                            rollAdapter.notifyItemRemoved(position)
-                        }
+                        model.updateRoll(roll)
                     }
-                    if (rollList.isEmpty()) mainTextViewSetVisible()
                     actionMode.finish()
                     Toast.makeText(activity, resources.getString(R.string.RollsActivated), Toast.LENGTH_SHORT).show()
                     true

@@ -36,12 +36,13 @@ import com.tommihirvonen.exifnotes.utilities.database
  * RollAdapter acts as an adapter between a List of rolls and a RecyclerView.
  *
  * @property context Reference to Activity's context. Used to get resources.
- * @property rollList Reference to the main list of Rolls received from implementing class.
+ * @property rolls Reference to the main list of Rolls received from implementing class.
  * @property listener Reference to the implementing class's OnItemClickListener.
  */
 class RollAdapter(private val context: Context,
-        private var rollList: List<Roll>,
         private val listener: RollAdapterListener) : RecyclerView.Adapter<RollAdapter.ViewHolder>() {
+
+    var rolls = emptyList<Roll>()
 
     init {
         // Used to make the RecyclerView perform better and to make our custom animations
@@ -95,7 +96,7 @@ class RollAdapter(private val context: Context,
                 binding.cameraImageView, binding.photosImageView, binding.notesImageView)
         init {
             binding.itemRollLayout.setOnClickListener {
-                listener.onItemClick(bindingAdapterPosition, rollList[bindingAdapterPosition], binding.itemRollTopLayout)
+                listener.onItemClick(bindingAdapterPosition, rolls[bindingAdapterPosition], binding.itemRollTopLayout)
             }
             binding.itemRollLayout.setOnLongClickListener {
                 listener.onItemLongClick(bindingAdapterPosition)
@@ -110,7 +111,7 @@ class RollAdapter(private val context: Context,
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val roll = rollList[position]
+        val roll = rolls[position]
         val numberOfFrames = context.database.getNumberOfFrames(roll)
         holder.binding.itemRollTopLayout.transitionName = "transition_roll_${roll.id}"
         holder.binding.tvRollDate.text =
@@ -223,18 +224,9 @@ class RollAdapter(private val context: Context,
         }
     }
 
-    /**
-     * Method to update the reference to the main list of rolls.
-     *
-     * @param newRollList reference to the new list of rolls
-     */
-    fun setRollList(newRollList: List<Roll>) {
-        rollList = newRollList
-    }
+    override fun getItemCount(): Int = rolls.size
 
-    override fun getItemCount(): Int = rollList.size
-
-    override fun getItemId(position: Int): Long = rollList[position].id
+    override fun getItemId(position: Int): Long = rolls[position].id
 
     /**
      * Sets an items selection status.
