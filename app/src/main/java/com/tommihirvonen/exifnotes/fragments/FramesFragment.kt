@@ -72,12 +72,6 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
     private var frames = emptyList<Frame>()
 
     /**
-     * Utility function to return a list of currently selected frames.
-     */
-    private val selectedFrames get() = frameAdapter.selectedItemPositions
-            .map { frames[it] }.sortedBy { it.count }
-
-    /**
      * Private callback class which is given as an argument when the SupportActionMode is started.
      */
     private val actionModeCallback = ActionModeCallback()
@@ -127,7 +121,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         var transitionCompleted = false
         model.frames.observe(viewLifecycleOwner) { frames ->
             this.frames = frames
-            frameAdapter.frameList = frames
+            frameAdapter.frames = frames
             binding.noAddedFrames.visibility = if (frames.isEmpty()) View.VISIBLE else View.GONE
             frameAdapter.notifyDataSetChanged()
 
@@ -150,24 +144,19 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         postponeEnterTransition()
     }
 
-    override fun onItemClick(position: Int, view: View) {
-        if (frameAdapter.selectedItemCount > 0 || actionMode != null) {
-            enableActionMode(position)
+    override fun onItemClick(frame: Frame, view: View) {
+        if (frameAdapter.selectedFrames.isNotEmpty() || actionMode != null) {
+            enableActionMode(frame)
         } else {
-            showEditFrameFragment(position, view)
+            showEditFrameFragment(frame, view)
         }
     }
 
-    override fun onItemLongClick(position: Int) {
-        enableActionMode(position)
+    override fun onItemLongClick(frame: Frame) {
+        enableActionMode(frame)
     }
 
-    /**
-     * Create new dialog to edit the selected Frame's information
-     *
-     * @param position position of the Frame in frameList
-     */
-    private fun showEditFrameFragment(position: Int?, view: View? = null) {
+    private fun showEditFrameFragment(frame: Frame?, view: View? = null) {
         val sharedElementTransition = TransitionSet()
             .addTransition(ChangeBounds())
             .addTransition(ChangeTransform())
@@ -181,7 +170,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
 
         val arguments = Bundle()
-        if (position == null) {
+        if (frame == null) {
             // If the frame count is greater than 100, then don't add a new frame.
             val nextFrameCount = frames.maxByOrNull { it.count }?.count?.plus(1) ?: 1
             if (nextFrameCount > 100) {
@@ -191,34 +180,33 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
             }
             val title = requireActivity().resources.getString(R.string.AddNewFrame)
             val positiveButton = requireActivity().resources.getString(R.string.Add)
-            val frame = Frame(roll)
-            frame.date = DateTime.fromCurrentTime()
-            frame.count = nextFrameCount
-            frame.noOfExposures = 1
+            val frame1 = Frame(roll)
+            frame1.date = DateTime.fromCurrentTime()
+            frame1.count = nextFrameCount
+            frame1.noOfExposures = 1
 
             //Get the location only if the app has location permission (locationPermissionsGranted) and
             //the user has enabled GPS updates in the app's settings.
             if (locationPermissionsGranted && requestingLocationUpdates)
-                lastLocation?.let { frame.location = Location(it) }
+                lastLocation?.let { frame1.location = Location(it) }
             if (frames.isNotEmpty()) {
                 //Get the information for the last added frame.
                 //The last added frame has the highest id number (database autoincrement).
                 val previousFrame = frames.maxByOrNull { it.id }
                 // Here we can list the properties we want to bring from the previous frame
                 previousFrame?.let {
-                    frame.lens = previousFrame.lens
-                    frame.shutter = previousFrame.shutter
-                    frame.aperture = previousFrame.aperture
-                    frame.filters = previousFrame.filters
-                    frame.focalLength = previousFrame.focalLength
-                    frame.lightSource = previousFrame.lightSource
+                    frame1.lens = it.lens
+                    frame1.shutter = it.shutter
+                    frame1.aperture = it.aperture
+                    frame1.filters = it.filters
+                    frame1.focalLength = it.focalLength
+                    frame1.lightSource = it.lightSource
                 }
             }
             arguments.putString(ExtraKeys.TITLE, title)
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-            arguments.putParcelable(ExtraKeys.FRAME, frame)
+            arguments.putParcelable(ExtraKeys.FRAME, frame1)
         } else {
-            val frame = frames[position]
             val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
             val positiveButton = requireActivity().resources.getString(R.string.OK)
             arguments.putString(ExtraKeys.TITLE, title)
@@ -243,7 +231,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
             actionMode?.finish()
             val frame1: Frame = bundle.getParcelable(ExtraKeys.FRAME)
                 ?: return@setFragmentResultListener
-            if (position == null) {
+            if (frame == null) {
                 model.addFrame(frame1)
             } else {
                 model.updateFrame(frame1)
@@ -337,19 +325,19 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
     }
 
-    /**
-     * Enable action mode if not yet enabled and add item to selected items.
-     *
-     * @param position position of the item in FrameAdapter
-     */
-    private fun enableActionMode(position: Int) {
+    private fun enableActionMode(frame: Frame) {
         if (actionMode == null) {
             actionMode = (requireActivity() as AppCompatActivity).startSupportActionMode(actionModeCallback)
         }
-        frameAdapter.toggleSelection(position)
+        frameAdapter.toggleSelection(frame)
         // If the user deselected the last of the selected items, exit action mode.
-        if (frameAdapter.selectedItemCount == 0) actionMode?.finish()
-        else actionMode?.title = (frameAdapter.selectedItemCount.toString() + "/" + frameAdapter.itemCount)
+        val selectedFrames = frameAdapter.selectedFrames
+        if (frameAdapter.selectedFrames.isEmpty()){
+            actionMode?.finish()
+        }
+        else{
+            actionMode?.title = "${selectedFrames.size}/${frameAdapter.itemCount}"
+        }
     }
 
     /**
@@ -370,12 +358,13 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             // Get the positions in the frameList of selected items.
-            val selectedItemPositions = frameAdapter.selectedItemPositions
+            val selectedFrames = frameAdapter.selectedFrames
             return when (item.itemId) {
                 R.id.menu_item_delete -> {
                     val deleteConfirmDialog = MaterialAlertDialogBuilder(requireActivity())
                     // Separate confirm titles for one or multiple frames
-                    val title = resources.getQuantityString(R.plurals.ConfirmFramesDelete, selectedItemPositions.size, selectedItemPositions.size)
+                    val title = resources.getQuantityString(
+                        R.plurals.ConfirmFramesDelete, selectedFrames.size, selectedFrames.size)
                     deleteConfirmDialog.setTitle(title)
                     deleteConfirmDialog.setNegativeButton(R.string.Cancel) { _, _ -> }
                     deleteConfirmDialog.setPositiveButton(R.string.OK) { _, _ ->
@@ -388,13 +377,13 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 R.id.menu_item_edit -> {
 
                     // If only one frame is selected, show frame edit dialog.
-                    if (frameAdapter.selectedItemCount == 1) {
+                    if (selectedFrames.size == 1) {
                         mode.finish()
                         // Get the first of the selected rolls (only one should be selected anyway)
-                        showEditFrameFragment(selectedItemPositions[0])
+                        showEditFrameFragment(selectedFrames.first())
                     } else {
                         val builder = MaterialAlertDialogBuilder(requireActivity())
-                        builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), frameAdapter.selectedItemCount))
+                        builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), selectedFrames.size))
                         builder.setItems(R.array.FramesBatchEditOptions) { _, i ->
                             when (i) {
                                 // Edit frame counts
@@ -572,7 +561,6 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                         frame.count = frameCountsReversed[index]
                                         model.updateFrame(frame)
                                     }
-                                    actionMode?.finish()
                                 }
                                 else -> { }
                             }
@@ -595,7 +583,9 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 R.id.menu_item_select_all -> {
                     frameAdapter.toggleSelectionAll()
                     binding.framesRecyclerView.post { frameAdapter.resetAnimateAll() }
-                    mode.title = frameAdapter.selectedItemCount.toString() + "/" + frameAdapter.itemCount
+                    // Do not use local variable to get selected count because its size
+                    // may no longer be valid after all items were selected.
+                    mode.title = "${frameAdapter.selectedFrames.size}/${frameAdapter.itemCount}"
                     true
                 }
                 else -> false
@@ -635,7 +625,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
                     // Replace the plus sign because on pre L devices this seems to cause a crash
                     val change = displayedValues[numberPicker.value].replace("+", "").toInt()
-                    selectedFrames.forEach { frame ->
+                    frameAdapter.selectedFrames.forEach { frame ->
                         frame.count += change
                         model.updateFrame(frame)
                     }
@@ -656,7 +646,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
                     result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
                 } else null
-            selectedFrames.forEach { frame ->
+            frameAdapter.selectedFrames.forEach { frame ->
                 frame.location = location
                 frame.formattedAddress = formattedAddress
                 model.updateFrame(frame)

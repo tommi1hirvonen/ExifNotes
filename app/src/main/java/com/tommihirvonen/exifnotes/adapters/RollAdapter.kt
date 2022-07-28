@@ -227,6 +227,7 @@ class RollAdapter(private val context: Context,
 
     override fun getItemCount(): Int = rolls.size
 
+    // Implemented because hasStableIds has been set to true.
     override fun getItemId(position: Int): Long = rolls[position].id
 
     fun toggleSelection(roll: Roll) {

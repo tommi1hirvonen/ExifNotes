@@ -19,7 +19,6 @@
 package com.tommihirvonen.exifnotes.adapters
 
 import android.content.Context
-import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,13 +33,13 @@ import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
  * FrameAdapter acts as an adapter to link an ArrayList of Frames and a RecyclerView together.
  *
  * @property context Reference to Activity's context. Used to get resources.
- * @property frameList Reference to the main list of Frames received from implementing class.
+ * @property frames Reference to the main list of Frames received from implementing class.
  * @property listener Reference to the implementing class's OnItemClickListener.
  */
 class FrameAdapter(private val context: Context,
         private val listener: FrameAdapterListener) : RecyclerView.Adapter<FrameAdapter.ViewHolder>() {
 
-    var frameList = emptyList<Frame>()
+    var frames = emptyList<Frame>()
 
     init {
         // Used to make the RecyclerView perform better and to make our custom animations
@@ -54,20 +53,22 @@ class FrameAdapter(private val context: Context,
      * Used to send onItemClicked messages back to implementing Activities and/or Fragments.
      */
     interface FrameAdapterListener {
-        fun onItemClick(position: Int, view: View)
-        fun onItemLongClick(position: Int)
+        fun onItemClick(frame: Frame, view: View)
+        fun onItemLongClick(frame: Frame)
     }
+
+    val selectedFrames get() = selectedItems.map{ it.key }
 
     /**
      * Used to hold the positions of selected items in the RecyclerView.
      */
-    private val selectedItems: SparseBooleanArray = SparseBooleanArray()
+    private val selectedItems = mutableMapOf<Frame, Boolean>()
 
     /**
      * Used to pass the selected item's position to onBindViewHolder(),
      * so that animations are started only when the item is actually selected.
      */
-    private var currentSelectedIndex = -1
+    private var currentSelectedFrame: Frame? = null
 
     /**
      * Helper boolean used to indicate when all item selections are being undone.
@@ -82,7 +83,7 @@ class FrameAdapter(private val context: Context,
     /**
      * Helper array to keep track of animation statuses.
      */
-    private val animationItemsIndex: SparseBooleanArray = SparseBooleanArray()
+    private val animationItems = mutableMapOf<Frame, Boolean>()
 
     /**
      * Package-private ViewHolder class which can be recycled
@@ -92,10 +93,10 @@ class FrameAdapter(private val context: Context,
     inner class ViewHolder(val binding: ItemFrameConstraintBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.itemFrameLayout.setOnClickListener {
-                listener.onItemClick(bindingAdapterPosition, binding.root)
+                listener.onItemClick(frames[bindingAdapterPosition], binding.root)
             }
             binding.itemFrameLayout.setOnLongClickListener {
-                listener.onItemLongClick(bindingAdapterPosition)
+                listener.onItemLongClick(frames[bindingAdapterPosition])
                 true
             }
         }
@@ -108,7 +109,7 @@ class FrameAdapter(private val context: Context,
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val frame = frameList[position]
+        val frame = frames[position]
         holder.binding.root.transitionName = "transition_frame_${frame.id}"
         holder.binding.tvFrameText.text = frame.date?.dateTimeAsText
         holder.binding.tvCount.text = "${frame.count}"
@@ -128,20 +129,14 @@ class FrameAdapter(private val context: Context,
             else holder.binding.brokenPictureImageView.visibility = View.VISIBLE
         }
 
-        holder.itemView.isActivated = selectedItems[position, false]
-        applyCheckBoxAnimation(holder, position)
+        holder.itemView.isActivated = selectedItems[frame] ?: false
+        applyCheckBoxAnimation(holder, frame)
     }
 
-    /**
-     * Applies check box animations when an item is selected or deselected.
-     *
-     * @param holder reference to the item's holder
-     * @param position position of the item
-     */
-    private fun applyCheckBoxAnimation(holder: ViewHolder, position: Int) {
+    private fun applyCheckBoxAnimation(holder: ViewHolder, frame: Frame) {
         val checkbox = holder.binding.checkbox.root
         val background = holder.binding.greyBackground
-        if (selectedItems[position, false]) {
+        if (selectedItems[frame] == true) {
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
             checkbox.visibility = View.VISIBLE
@@ -149,7 +144,7 @@ class FrameAdapter(private val context: Context,
             background.visibility = View.VISIBLE
 
             // If the item is selected or all items are being selected and the item was not previously selected
-            if (currentSelectedIndex == position || animateAll && !animationItemsIndex[position, false]) {
+            if (currentSelectedFrame == frame || animateAll && animationItems[frame] != true) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_up)
                 checkbox.startAnimation(animation)
                 val animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_in)
@@ -164,7 +159,7 @@ class FrameAdapter(private val context: Context,
             background.visibility = View.GONE
 
             // If the item is deselected or all selections are undone and the item was previously selected
-            if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex[position, false]) {
+            if (currentSelectedFrame == frame || reverseAllAnimations && animationItems[frame] == true) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_down)
                 checkbox.startAnimation(animation)
                 val animation1 = AnimationUtils.loadAnimation(context, R.anim.fade_out)
@@ -174,41 +169,31 @@ class FrameAdapter(private val context: Context,
         }
     }
 
-    override fun getItemCount(): Int = frameList.size
+    override fun getItemCount(): Int = frames.size
 
-    /**
-     * Sets an items selection status.
-     *
-     * @param position position of the item
-     */
-    fun toggleSelection(position: Int) {
-        currentSelectedIndex = position
-        if (selectedItems[position, false]) {
-            selectedItems.delete(position)
-            animationItemsIndex.delete(position)
+    // Implemented because hasStableIds has been set to true.
+    override fun getItemId(position: Int): Long = frames[position].id
+
+    fun toggleSelection(frame: Frame) {
+        currentSelectedFrame = frame
+        if (selectedItems[frame] == true) {
+            selectedItems.remove(frame)
+            animationItems.remove(frame)
         } else {
-            selectedItems.put(position, true)
-            animationItemsIndex.put(position, true)
+            selectedItems[frame] = true
+            animationItems[frame] = true
         }
         notifyDataSetChanged()
     }
 
-    /**
-     * Selects all items
-     */
     fun toggleSelectionAll() {
         resetCurrentSelectedIndex()
         selectedItems.clear()
         animateAll = true
-        for (i in 0 until itemCount) {
-            selectedItems.put(i, true)
-        }
+        frames.forEach { selectedItems[it] = true }
         notifyDataSetChanged()
     }
 
-    /**
-     * Clears all selections
-     */
     fun clearSelections() {
         reverseAllAnimations = true
         selectedItems.clear()
@@ -220,7 +205,7 @@ class FrameAdapter(private val context: Context,
      */
     fun resetAnimationIndex() {
         reverseAllAnimations = false
-        animationItemsIndex.clear()
+        animationItems.clear()
     }
 
     /**
@@ -229,9 +214,7 @@ class FrameAdapter(private val context: Context,
      */
     fun resetAnimateAll() {
         animateAll = false
-        for (i in 0 until itemCount) {
-            animationItemsIndex.put(i, true)
-        }
+        frames.forEach { animationItems[it] = true }
     }
 
     /**
@@ -239,27 +222,7 @@ class FrameAdapter(private val context: Context,
      * item is reset.
      */
     private fun resetCurrentSelectedIndex() {
-        currentSelectedIndex = -1
+        currentSelectedFrame = null
     }
-
-    /**
-     *
-     * @return the number of selected items
-     */
-    val selectedItemCount: Int get() = selectedItems.size()
-
-    /**
-     *
-     * @return List containing the positions of selected items.
-     */
-    val selectedItemPositions: List<Int>
-        get() {
-            val items: MutableList<Int> = ArrayList()
-            for (i in 0 until selectedItems.size()) items.add(selectedItems.keyAt(i))
-            return items
-        }
-
-    // Implemented because hasStableIds has been set to true.
-    override fun getItemId(position: Int): Long = frameList[position].id
 
 }

@@ -57,10 +57,11 @@ data class Frame(
     var lightSource: Int
         get() = if (lightSource_ in 0..7) lightSource_ else 0
         set(value) { if (value in 0..7) lightSource_ = value }
-}
 
-fun MutableList<Frame>.sort(context: Context, sortMode: FrameSortMode) =
-    sortWith(sortMode.getComparator(context))
+    override fun equals(other: Any?) = other is Frame && other.id == id
+
+    override fun hashCode() = id.hashCode()
+}
 
 fun List<Frame>.sorted(context: Context, sortMode: FrameSortMode): List<Frame> =
     sortedWith(sortMode.getComparator(context))
