@@ -37,6 +37,7 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.baseContext)
 
+    val cameras: LiveData<List<Camera>> get() = mCameras
     val rolls: LiveData<List<Roll>> get() = mRolls
     val rollFilterMode: LiveData<RollFilterMode> get() = mRollFilterMode
     val rollSortMode: LiveData<RollSortMode> get() = mRollSortMode
@@ -59,7 +60,13 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
 
     private val mRolls: MutableLiveData<List<Roll>> by lazy {
         MutableLiveData<List<Roll>>().also {
-            loadRolls()
+            viewModelScope.launch { loadRolls() }
+        }
+    }
+
+    private val mCameras: MutableLiveData<List<Camera>> by lazy {
+        MutableLiveData<List<Camera>>().also {
+            viewModelScope.launch { loadCameras() }
         }
     }
 
@@ -68,7 +75,7 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
         editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, rollFilterMode.value)
         editor.commit()
         mRollFilterMode.value = rollFilterMode
-        loadRolls()
+        viewModelScope.launch { loadRolls() }
     }
 
     fun setRollSortMode(rollSortMode: RollSortMode) {
@@ -79,13 +86,16 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
         mRolls.value = mRolls.value?.sorted(rollSortMode)
     }
 
-    fun loadGear() {
-        // TODO: To be implemented
+    fun loadAll() {
+        viewModelScope.launch {
+            loadCameras()
+            loadRolls()
+        }
     }
 
-    fun loadAll() {
-        loadGear()
-        loadRolls()
+    fun addCamera(camera: Camera) {
+        database.addCamera(camera)
+        mCameras.value = mCameras.value?.filterNot { it.id == camera.id }?.plus(camera)?.sorted()
     }
 
     fun addRoll(roll: Roll) {
@@ -112,14 +122,18 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
         mRolls.value = mRolls.value?.filterNot { it.id == roll.id }?.plus(roll)?.sorted(sortMode)
     }
 
-    private fun loadRolls() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val filterMode = rollFilterMode.value ?: RollFilterMode.ACTIVE
-                val sortMode = rollSortMode.value ?: RollSortMode.DATE
-                val rolls = database.getRolls(filterMode).sorted(sortMode)
-                mRolls.postValue(rolls)
-            }
+    private suspend fun loadCameras() {
+        withContext(Dispatchers.IO) {
+            mCameras.postValue(database.cameras)
+        }
+    }
+
+    private suspend fun loadRolls() {
+        withContext(Dispatchers.IO) {
+            val filterMode = rollFilterMode.value ?: RollFilterMode.ACTIVE
+            val sortMode = rollSortMode.value ?: RollSortMode.DATE
+            val rolls = database.getRolls(filterMode).sorted(sortMode)
+            mRolls.postValue(rolls)
         }
     }
 }

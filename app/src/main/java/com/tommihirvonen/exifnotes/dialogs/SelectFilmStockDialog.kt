@@ -18,7 +18,6 @@
 
 package com.tommihirvonen.exifnotes.dialogs
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
@@ -33,12 +32,12 @@ import com.tommihirvonen.exifnotes.adapters.FilmManufacturerAdapter
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.ScrollIndicatorRecyclerViewListener
+import com.tommihirvonen.exifnotes.utilities.database
 
 class SelectFilmStockDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val inflater = requireActivity().layoutInflater
-        @SuppressLint("InflateParams")
         val view = inflater.inflate(R.layout.dialog_select_film_stock, null)
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectFilmStock)
@@ -56,17 +55,19 @@ class SelectFilmStockDialog : DialogFragment() {
                         view.findViewById(R.id.scrollIndicatorDown))
         )
         val dialog = builder.create()
-
-        val adapter = FilmManufacturerAdapter(requireContext()) { filmStock: FilmStock? ->
-            dialog.dismiss()
-            val bundle = Bundle()
-            bundle.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
-            setFragmentResult("SelectFilmStockDialog", bundle)
-        }
-
+        val adapter = FilmManufacturerAdapter(requireContext(), onFilmStockSelected)
         manufacturersRecyclerView.adapter = adapter
+        val filmStocks = database.filmStocks
+        adapter.setFilmStocks(filmStocks)
         adapter.notifyDataSetChanged()
         return dialog
+    }
+
+    private val onFilmStockSelected = { filmStock: FilmStock? ->
+        dismiss()
+        val bundle = Bundle()
+        bundle.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
+        setFragmentResult("SelectFilmStockDialog", bundle)
     }
 
 }

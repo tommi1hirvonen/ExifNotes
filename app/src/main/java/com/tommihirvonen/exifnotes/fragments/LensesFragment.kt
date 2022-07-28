@@ -132,7 +132,7 @@ class LensesFragment : Fragment() {
             val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
                 ?: return@setFragmentResultListener
             if (lens.make?.isNotEmpty() == true && lens.model?.isNotEmpty() == true) {
-                model.addLens(lens, isFixedLens = false)
+                model.addLens(lens)
             }
         }
     }
@@ -149,7 +149,7 @@ class LensesFragment : Fragment() {
             val lens1: Lens = bundle.getParcelable(ExtraKeys.LENS)
                 ?: return@setFragmentResultListener
             if (lens1.make?.isNotEmpty() == true && lens1.model?.isNotEmpty() == true && lens1.id > 0) {
-                model.updateLens(lens1, isFixedLens = false)
+                model.updateLens(lens1)
             }
         }
     }

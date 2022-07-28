@@ -84,16 +84,12 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
         mCameras.value = mCameras.value?.minus(camera)
     }
 
-    fun addLens(lens: Lens, isFixedLens: Boolean) {
+    fun addLens(lens: Lens) {
         database.addLens(lens)
-        if (!isFixedLens) replaceLens(lens)
+        replaceLens(lens)
     }
 
-    fun updateLens(lens: Lens, isFixedLens: Boolean) = database.updateLens(lens).also {
-        if (!isFixedLens) {
-            replaceLens(lens)
-        }
-    }
+    fun updateLens(lens: Lens) = database.updateLens(lens).also { replaceLens(lens) }
 
     private fun replaceLens(lens: Lens) {
         mLenses.value = mLenses.value?.filterNot { it.id == lens.id }?.plus(lens)?.sorted()

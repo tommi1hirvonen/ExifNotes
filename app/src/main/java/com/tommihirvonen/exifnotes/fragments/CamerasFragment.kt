@@ -26,6 +26,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -140,6 +141,11 @@ class CamerasFragment : Fragment() {
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
         dialog.arguments = arguments
         dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
+        dialog.setFragmentResultListener("EditCameraDialog") { _, bundle ->
+            val camera = bundle.getParcelable<Camera>(ExtraKeys.CAMERA)
+                ?: return@setFragmentResultListener
+            model.addCamera(camera)
+        }
     }
 
     private fun openEditCameraDialog(camera: Camera) {
@@ -150,6 +156,11 @@ class CamerasFragment : Fragment() {
         arguments.putParcelable(ExtraKeys.CAMERA, camera)
         dialog.arguments = arguments
         dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
+        dialog.setFragmentResultListener("EditCameraDialog") { _, bundle ->
+            val camera1 = bundle.getParcelable<Camera>(ExtraKeys.CAMERA)
+                ?: return@setFragmentResultListener
+            model.updateCamera(camera1)
+        }
     }
 
     /**

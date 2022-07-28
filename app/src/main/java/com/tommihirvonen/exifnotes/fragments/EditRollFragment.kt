@@ -45,6 +45,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -58,36 +59,46 @@ import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog
 import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
 import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
+import com.tommihirvonen.exifnotes.viewmodels.RollViewModel
 
 /**
  * Dialog to edit Roll's information
  */
 class EditRollFragment : Fragment() {
+
+    private val model by activityViewModels<RollViewModel>()
+    private var cameras = emptyList<Camera>()
     
     private lateinit var binding: FragmentEditRollBinding
 
-    /**
-     * Holds all the cameras in the database
-     */
-    private lateinit var cameraList: MutableList<Camera>
+    private val roll by lazy { requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll() }
+    private val newRoll by lazy { roll.copy() }
 
-    private lateinit var roll: Roll
-    private lateinit var newRoll: Roll
-
-    private lateinit var dateLoadedManager: DateTimeLayoutManager
-    private lateinit var dateUnloadedManager: DateTimeLayoutManager
-    private lateinit var dateDevelopedManager: DateTimeLayoutManager
+    private val dateLoadedManager by lazy {
+        DateTimeLayoutManager(requireActivity(), binding.dateLayout,
+            binding.timeLayout, binding.dateText, binding.timeText, roll.date, null)
+    }
+    private val dateUnloadedManager by lazy {
+        DateTimeLayoutManager(requireActivity(), binding.dateUnloadedLayout,
+            binding.timeUnloadedLayout, binding.dateUnloadedText, binding.timeUnloadedText, roll.unloaded,
+            binding.clearDateUnloaded)
+    }
+    private val dateDevelopedManager by lazy {
+        DateTimeLayoutManager(requireActivity(), binding.dateDevelopedLayout,
+            binding.timeDevelopedLayout, binding.dateDevelopedText, binding.timeDevelopedText, roll.developed,
+            binding.clearDateDeveloped)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        model.cameras.observe(viewLifecycleOwner) { cameras ->
+            this.cameras = cameras
+        }
+
         binding = FragmentEditRollBinding.inflate(inflater, container, false)
+
         val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
         binding.root.transitionName = transitionName
         binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
-
-        roll = requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll()
-        newRoll = roll.copy()
-        cameraList = database.cameras.toMutableList()
-
 
         // NAME EDIT TEXT
         binding.nameEditText.setText(roll.name)
@@ -151,9 +162,9 @@ class EditRollFragment : Fragment() {
         binding.cameraText.text = roll.camera?.name ?: ""
         binding.cameraLayout.setOnClickListener {
             val listItems = listOf(resources.getString(R.string.NoCamera))
-                    .plus(cameraList.map { it.name }).toTypedArray()
+                    .plus(cameras.map { it.name }).toTypedArray()
 
-            val index = cameraList.indexOfFirst { it == newRoll.camera }
+            val index = cameras.indexOfFirst { it == newRoll.camera }
             val checkedItem = if (index == -1) 0 else index + 1
 
             val builder = MaterialAlertDialogBuilder(requireActivity())
@@ -162,7 +173,7 @@ class EditRollFragment : Fragment() {
                 // listItems also contains the No camera option
                 newRoll.camera = if (which > 0) {
                     binding.cameraText.text = listItems[which]
-                    cameraList[which - 1]
+                    cameras[which - 1]
                 } else {
                     binding.cameraText.text = ""
                     null
@@ -189,12 +200,11 @@ class EditRollFragment : Fragment() {
             dialog.setFragmentResultListener("EditCameraDialog") { _, bundle ->
                 val camera: Camera = bundle.getParcelable(ExtraKeys.CAMERA)
                     ?: return@setFragmentResultListener
-                cameraList.add(camera)
+                model.addCamera(camera)
                 binding.cameraText.text = camera.name
                 newRoll.camera = camera
             }
         }
-
 
         // DATE & TIME LOADED PICK DIALOG
 
@@ -204,27 +214,14 @@ class EditRollFragment : Fragment() {
         }
         binding.dateText.text = roll.date?.dateAsText
         binding.timeText.text = roll.date?.timeAsText
-        dateLoadedManager = DateTimeLayoutManager(requireActivity(), binding.dateLayout,
-                binding.timeLayout, binding.dateText, binding.timeText, roll.date, null)
-
-
 
         // DATE & TIME UNLOADED PICK DIALOG
         binding.dateUnloadedText.text = roll.unloaded?.dateAsText
         binding.timeUnloadedText.text = roll.unloaded?.timeAsText
-        dateUnloadedManager = DateTimeLayoutManager(requireActivity(), binding.dateUnloadedLayout,
-                binding.timeUnloadedLayout, binding.dateUnloadedText, binding.timeUnloadedText, roll.unloaded,
-                binding.clearDateUnloaded)
-
-
 
         // DATE & TIME DEVELOPED PICK DIALOG
         binding.dateDevelopedText.text = roll.developed?.dateAsText
         binding.timeDevelopedText.text = roll.developed?.timeAsText
-        dateDevelopedManager = DateTimeLayoutManager(requireActivity(), binding.dateDevelopedLayout,
-                binding.timeDevelopedLayout, binding.dateDevelopedText, binding.timeDevelopedText, roll.developed,
-                binding.clearDateDeveloped)
-
 
 
         //ISO PICKER

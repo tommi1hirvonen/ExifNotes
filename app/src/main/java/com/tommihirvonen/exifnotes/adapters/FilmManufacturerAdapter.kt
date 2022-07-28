@@ -30,7 +30,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.databinding.ItemFilmManufacturerBinding
 import com.tommihirvonen.exifnotes.databinding.ItemFilmStockBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
-import com.tommihirvonen.exifnotes.utilities.database
 import java.util.*
 
 class FilmManufacturerAdapter(
@@ -41,12 +40,17 @@ class FilmManufacturerAdapter(
     private val expandedManufacturers = SparseBooleanArray()
     private val expandAnimations = SparseBooleanArray()
     private var currentExpandedIndex = -1
-    private val filmStocksMap: Map<String?, List<FilmStock>> = context.database.filmStocks.groupBy { it.make }
-    private val manufacturers: List<String?> = filmStocksMap.map { it.key }.sortedBy { it?.lowercase(Locale.ROOT) }
+    private var filmStocksMap: Map<String?, List<FilmStock>> = emptyMap()
+    private var manufacturers: List<String?> = emptyList()
 
     init { setHasStableIds(true) }
 
     inner class ViewHolder(val binding: ItemFilmManufacturerBinding) : RecyclerView.ViewHolder(binding.root)
+
+    fun setFilmStocks(filmStocks: List<FilmStock>) {
+        filmStocksMap = filmStocks.groupBy { it.make }
+        manufacturers = filmStocksMap.map { it.key }.sortedBy { it?.lowercase(Locale.ROOT) }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(context)

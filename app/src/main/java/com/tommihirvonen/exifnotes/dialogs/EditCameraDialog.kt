@@ -28,7 +28,6 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -39,15 +38,11 @@ import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.PartialIncrement
 import com.tommihirvonen.exifnotes.utilities.*
-import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 
 /**
  * Dialog to edit Camera's information
  */
 class EditCameraDialog : DialogFragment() {
-
-    private val model: GearViewModel by activityViewModels()
-    private var lenses: List<Lens> = emptyList()
 
     companion object {
         /**
@@ -67,10 +62,6 @@ class EditCameraDialog : DialogFragment() {
     private lateinit var displayedShutterValues: Array<String>
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
-        model.lenses.observe(this) { lenses ->
-            this.lenses = lenses
-        }
-
         val layoutInflater = requireActivity().layoutInflater
         binding = DialogCameraBinding.inflate(layoutInflater)
 
@@ -260,38 +251,11 @@ class EditCameraDialog : DialogFragment() {
                 camera.minShutter = newCamera.minShutter
                 camera.maxShutter = newCamera.maxShutter
                 camera.exposureCompIncrements = PartialIncrement.from(binding.exposureCompIncrementSpinner.selectedItemPosition)
-                val previousLens = camera.lens
                 camera.lens = newCamera.lens
-                val currentLens = camera.lens
-
-                // If the fixed lens was removed.
-                if (previousLens != null && currentLens == null) {
-                    this.model.deleteLens(previousLens)
-                }
-                // If the fixed lens was set.
-                else if (currentLens != null) {
-                    // Copy make and model properties from camera, since this is a fixed lens.
-                    currentLens.make = camera.make
-                    currentLens.model = camera.model
-                    if (this.model.updateLens(currentLens, isFixedLens = true) == 0) {
-                        // New fixed lens.
-                        this.model.addLens(currentLens, isFixedLens = true)
-                    }
-                    // Remove linked lenses for this camera
-                    // because it was converted to a fixed lens camera.
-                    lenses.filter { camera.lensIds.contains(it.id) }.forEach {
-                        this.model.deleteCameraLensLink(camera, it)
-                    }
-                }
-
-                if (this.model.updateCamera(camera) == 0) {
-                    this.model.addCamera(camera)
-                }
 
                 val bundle = Bundle()
                 bundle.putParcelable(ExtraKeys.CAMERA, camera)
                 setFragmentResult("EditCameraDialog", bundle)
-
                 dialog.dismiss()
             }
         }

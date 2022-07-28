@@ -329,9 +329,13 @@ class Database private constructor(private val context: Context)
      * @param camera the camera to be added to the database
      */
     fun addCamera(camera: Camera): Long {
-        val id = writableDatabase.insert(TABLE_CAMERAS, null, buildCameraContentValues(camera))
-        camera.id = id
-        return id
+        camera.lens?.let { lens ->
+            val lensId = addLens(lens)
+            lens.id = lensId
+        }
+        val cameraId = writableDatabase.insert(TABLE_CAMERAS, null, buildCameraContentValues(camera))
+        camera.id = cameraId
+        return cameraId
     }
 
     /**
@@ -369,9 +373,7 @@ class Database private constructor(private val context: Context)
      */
     fun deleteCamera(camera: Camera): Int {
         // In case of fixed lens cameras, also delete the lens from database.
-        camera.lens?.let {
-            writableDatabase.delete(TABLE_LENSES, "$KEY_LENS_ID = ?", arrayOf(it.id.toString()))
-        }
+        camera.lens?.let { deleteLens(it) }
         return writableDatabase.delete(TABLE_CAMERAS, "$KEY_CAMERA_ID = ?", arrayOf(camera.id.toString()))
     }
 
@@ -391,6 +393,22 @@ class Database private constructor(private val context: Context)
      * @param camera the camera to be updated
      */
     fun updateCamera(camera: Camera): Int {
+        // Check if the camera previously had a fixed lens.
+        val previousLensIdCursor = readableDatabase.query(TABLE_CAMERAS, arrayOf(KEY_LENS_ID),
+        "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()), null, null, null)
+        val previousLensId = previousLensIdCursor.withFirstOrNull {
+            it.getLong(it.getColumnIndexOrThrow(KEY_LENS_ID))
+        } ?: 0
+        // If the camera's current lens is null, delete the old fixed lens from the database.
+        if (previousLensId > 0 && camera.lens == null) {
+            deleteLens(Lens(id = previousLensId))
+        }
+        // If the camera currently has a fixed lens, update/add it to the database.
+        camera.lens?.let { lens ->
+            if (updateLens(lens) == 0) {
+                addLens(lens)
+            }
+        }
         val contentValues = buildCameraContentValues(camera)
         return writableDatabase.update(TABLE_CAMERAS, contentValues, "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()))
     }
