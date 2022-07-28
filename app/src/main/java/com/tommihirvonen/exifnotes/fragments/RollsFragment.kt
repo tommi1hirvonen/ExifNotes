@@ -19,7 +19,6 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.animation.ObjectAnimator
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
@@ -235,9 +234,9 @@ class RollsFragment : Fragment(), RollAdapterListener {
         }
     }
 
-    override fun onItemClick(position: Int, roll: Roll, layout: View) {
-        if (rollAdapter.selectedItemCount > 0 || actionMode != null) {
-            enableActionMode(position)
+    override fun onItemClick(roll: Roll, layout: View) {
+        if (rollAdapter.selectedRolls.isNotEmpty() || actionMode != null) {
+            enableActionMode(roll)
         } else {
 
             reenterFadeDuration = transitionDurationShowFrames
@@ -278,39 +277,26 @@ class RollsFragment : Fragment(), RollAdapterListener {
         }
     }
 
-    override fun onItemLongClick(position: Int) {
-        enableActionMode(position)
+    override fun onItemLongClick(roll: Roll) {
+        enableActionMode(roll)
     }
 
-    /**
-     * Enable ActionMode is not yet enabled and add item to selected items.
-     * Hide edit menu item, if more than one items are selected.
-     *
-     * @param position position of the item in RollAdapter
-     */
-    private fun enableActionMode(position: Int) {
+    private fun enableActionMode(roll: Roll) {
         if (actionMode == null) {
             actionMode = (requireActivity() as AppCompatActivity).startSupportActionMode(actionModeCallback)
         }
-        rollAdapter.toggleSelection(position)
+        rollAdapter.toggleSelection(roll)
         // If the user deselected the last of the selected items, exit action mode.
-        if (rollAdapter.selectedItemCount == 0) {
+        val selectedRolls = rollAdapter.selectedRolls
+        if (selectedRolls.isEmpty()) {
             actionMode?.finish()
         } else {
             // Set the action mode toolbar title to display the number of selected items.
-            actionMode?.title = (rollAdapter.selectedItemCount.toString() + "/" + rollAdapter.itemCount)
+            actionMode?.title = "${selectedRolls.size}/${rollAdapter.itemCount}"
         }
     }
 
-    /**
-     * Called when the user long presses on a roll and chooses
-     * to edit a roll's information. Shows a DialogFragment to edit
-     * the roll's information.
-     *
-     * @param position the position of the roll in rollList
-     */
-    @SuppressLint("CommitTransaction")
-    private fun showEditRollFragment(position: Int?) {
+    private fun showEditRollFragment(roll: Roll?) {
 
         exitTransition = null
         reenterFadeDuration = transitionDurationEditRoll
@@ -328,10 +314,10 @@ class RollsFragment : Fragment(), RollAdapterListener {
         }
 
         val arguments = Bundle()
-        if (position == null) {
+        if (roll == null) {
             arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.AddNewRoll))
         } else {
-            arguments.putParcelable(ExtraKeys.ROLL, rolls[position])
+            arguments.putParcelable(ExtraKeys.ROLL, roll)
             arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
         }
 
@@ -347,11 +333,11 @@ class RollsFragment : Fragment(), RollAdapterListener {
             .commit()
 
         fragment.setFragmentResultListener("EditRollDialog") { _, bundle ->
-            val roll: Roll = bundle.getParcelable(ExtraKeys.ROLL) ?: return@setFragmentResultListener
-            if (position == null) {
-                model.addRoll(roll)
+            val editedRoll: Roll = bundle.getParcelable(ExtraKeys.ROLL) ?: return@setFragmentResultListener
+            if (roll == null) {
+                model.addRoll(editedRoll)
             } else {
-                model.updateRoll(roll)
+                model.updateRoll(editedRoll)
             }
         }
     }
@@ -366,8 +352,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
      * reset as well.
      */
     private fun batchUpdateRollsFilmStock(filmStock: FilmStock?, updateIso: Boolean) {
-        val selectedRolls = rollAdapter.selectedItemPositions.map { rolls[it] }
-        selectedRolls.forEach { roll ->
+        rollAdapter.selectedRolls.forEach { roll ->
             roll.filmStock = filmStock
             if (updateIso) {
                 roll.iso = filmStock?.iso ?: 0
@@ -403,22 +388,18 @@ class RollsFragment : Fragment(), RollAdapterListener {
 
         override fun onActionItemClicked(actionMode: ActionMode, menuItem: MenuItem): Boolean {
             // Get the positions in the rollList of selected items
-            val selectedItemPositions = rollAdapter.selectedItemPositions
+            val selectedRolls = rollAdapter.selectedRolls
             return when (menuItem.itemId) {
                 R.id.menu_item_delete -> {
-
                     // Set the confirm dialog title depending on whether one or more rolls were selected
                     val title =
-                            if (selectedItemPositions.size == 1) resources.getString(R.string.ConfirmRollDelete) + " \'" + rolls[selectedItemPositions[0]].name + "\'?"
-                            else String.format(resources.getString(R.string.ConfirmRollsDelete), selectedItemPositions.size)
+                            if (selectedRolls.size == 1) resources.getString(R.string.ConfirmRollDelete) + " \'" + selectedRolls.first().name + "\'?"
+                            else String.format(resources.getString(R.string.ConfirmRollsDelete), selectedRolls.size)
                     val alertBuilder = MaterialAlertDialogBuilder(requireActivity())
                     alertBuilder.setTitle(title)
                     alertBuilder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
                     alertBuilder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-                        selectedItemPositions.sortedDescending().forEach { position ->
-                            val roll = rolls[position]
-                            model.deleteRoll(roll)
-                        }
+                        selectedRolls.forEach { model.deleteRoll(it) }
                         actionMode.finish()
                     }
                     alertBuilder.create().show()
@@ -427,22 +408,24 @@ class RollsFragment : Fragment(), RollAdapterListener {
                 R.id.menu_item_select_all -> {
                     rollAdapter.toggleSelectionAll()
                     binding.rollsRecyclerView.post { rollAdapter.resetAnimateAll() }
-                    actionMode.title = (rollAdapter.selectedItemCount.toString() + "/" + rollAdapter.itemCount)
+                    // Do not use local variable to get selected count because its size
+                    // may no longer be valid after all items were selected.
+                    actionMode.title = "${rollAdapter.selectedRolls.size}/${rollAdapter.itemCount}"
                     true
                 }
                 R.id.menu_item_edit -> {
-                    if (rollAdapter.selectedItemCount == 1) {
+                    if (selectedRolls.size == 1) {
                         actionMode.finish()
                         // Get the first of the selected rolls (only one should be selected anyway)
                         // Finish action mode if the user clicked ok when editing the roll ->
                         // this is done in onActivityResult().
-                        showEditRollFragment(selectedItemPositions[0])
+                        showEditRollFragment(selectedRolls.first())
                     } else {
                         // Show batch edit features
                         val builder = MaterialAlertDialogBuilder(requireActivity())
                         builder.setTitle(String.format(resources
                                 .getString(R.string.BatchEditRollsTitle),
-                                rollAdapter.selectedItemCount))
+                                selectedRolls.size))
                         builder.setItems(R.array.RollsBatchEditOptions) { _: DialogInterface?, which: Int ->
                             when (which) {
                                 0 -> {
@@ -482,8 +465,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                     true
                 }
                 R.id.menu_item_archive -> {
-                    val toArchive = selectedItemPositions.map { rolls[it] }
-                    toArchive.forEach { roll ->
+                    selectedRolls.forEach { roll ->
                         roll.archived = true
                         model.updateRoll(roll)
                     }
@@ -492,8 +474,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                     true
                 }
                 R.id.menu_item_unarchive -> {
-                    val toUnarchive = selectedItemPositions.map { rolls[it] }
-                    toUnarchive.forEach { roll ->
+                    selectedRolls.forEach { roll ->
                         roll.archived = false
                         model.updateRoll(roll)
                     }

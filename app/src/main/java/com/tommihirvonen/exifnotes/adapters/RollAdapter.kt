@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.adapters
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,20 +55,22 @@ class RollAdapter(private val context: Context,
      * Used to send onItemClicked messages back to implementing Activities and/or Fragments.
      */
     interface RollAdapterListener {
-        fun onItemClick(position: Int, roll: Roll, layout: View)
-        fun onItemLongClick(position: Int)
+        fun onItemClick(roll: Roll, layout: View)
+        fun onItemLongClick(roll: Roll)
     }
+
+    val selectedRolls get() = selectedItems.map { it.key }
 
     /**
      * Used to hold the positions of selected items in the RecyclerView.
      */
-    private val selectedItems: SparseBooleanArray = SparseBooleanArray()
+    private val selectedItems = mutableMapOf<Roll, Boolean>()
 
     /**
      * Used to pass the selected item's position to onBindViewHolder(),
      * so that animations are started only when the item is actually selected.
      */
-    private var currentSelectedIndex = -1
+    private var currentSelectedRoll: Roll? = null
 
     /**
      * Helper boolean used to indicate when all item selections are being undone.
@@ -84,7 +85,7 @@ class RollAdapter(private val context: Context,
     /**
      * Helper array to keep track of animation statuses.
      */
-    private val animationItemsIndex: SparseBooleanArray = SparseBooleanArray()
+    private val animationItems = mutableMapOf<Roll, Boolean>()
 
     /**
      * Package-private ViewHolder class which can be recycled
@@ -96,10 +97,10 @@ class RollAdapter(private val context: Context,
                 binding.cameraImageView, binding.photosImageView, binding.notesImageView)
         init {
             binding.itemRollLayout.setOnClickListener {
-                listener.onItemClick(bindingAdapterPosition, rolls[bindingAdapterPosition], binding.itemRollTopLayout)
+                listener.onItemClick(rolls[bindingAdapterPosition], binding.itemRollTopLayout)
             }
             binding.itemRollLayout.setOnLongClickListener {
-                listener.onItemLongClick(bindingAdapterPosition)
+                listener.onItemLongClick(rolls[bindingAdapterPosition])
                 true
             }
         }
@@ -170,14 +171,14 @@ class RollAdapter(private val context: Context,
             holder.binding.tvPhotos.alpha = noFade
             holder.binding.tvCamera.alpha = noFade
         }
-        holder.itemView.isActivated = selectedItems[position, false]
-        applyCheckBoxAnimation(holder, position)
+        holder.itemView.isActivated = selectedItems[roll] ?: false
+        applyCheckBoxAnimation(holder, roll)
     }
 
-    private fun applyCheckBoxAnimation(holder: ViewHolder, position: Int) {
+    private fun applyCheckBoxAnimation(holder: ViewHolder, roll: Roll) {
         val checkbox = holder.binding.checkbox.root
         val topLayout = holder.binding.itemRollTopLayout
-        if (selectedItems[position, false]) {
+        if (selectedItems[roll] == true) {
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
             checkbox.visibility = View.VISIBLE
@@ -186,7 +187,7 @@ class RollAdapter(private val context: Context,
             topLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.background_selected))
 
             // If the item is selected or all items are being selected and the item was not previously selected
-            if (currentSelectedIndex == position || animateAll && !animationItemsIndex[position, false]) {
+            if (currentSelectedRoll == roll || animateAll && animationItems[roll] != true) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_up)
                 checkbox.startAnimation(animation)
                 val fromColor = ContextCompat.getColor(context, R.color.transparent)
@@ -208,7 +209,7 @@ class RollAdapter(private val context: Context,
             topLayout.setBackgroundResource(0)
 
             // If the item is deselected or all selections are undone and the item was previously selected
-            if (currentSelectedIndex == position || reverseAllAnimations && animationItemsIndex[position, false]) {
+            if (currentSelectedRoll == roll || reverseAllAnimations && animationItems[roll] == true) {
                 val animation = AnimationUtils.loadAnimation(context, R.anim.scale_down)
                 checkbox.startAnimation(animation)
                 val fromColor = ContextCompat.getColor(context, R.color.background_selected)
@@ -228,37 +229,26 @@ class RollAdapter(private val context: Context,
 
     override fun getItemId(position: Int): Long = rolls[position].id
 
-    /**
-     * Sets an items selection status.
-     *
-     * @param position position of the item
-     */
-    fun toggleSelection(position: Int) {
-        currentSelectedIndex = position
-        if (selectedItems[position, false]) {
-            selectedItems.delete(position)
-            animationItemsIndex.delete(position)
+    fun toggleSelection(roll: Roll) {
+        currentSelectedRoll = roll
+        if (selectedItems[roll] == true) {
+            selectedItems.remove(roll)
+            animationItems.remove(roll)
         } else {
-            selectedItems.put(position, true)
-            animationItemsIndex.put(position, true)
+            selectedItems[roll] = true
+            animationItems[roll] = true
         }
         notifyDataSetChanged()
     }
 
-    /**
-     * Selects all items
-     */
     fun toggleSelectionAll() {
         resetCurrentSelectedIndex()
         selectedItems.clear()
         animateAll = true
-        for (i in 0 until itemCount) selectedItems.put(i, true)
+        rolls.forEach { selectedItems[it] = true }
         notifyDataSetChanged()
     }
 
-    /**
-     * Clears all selections
-     */
     fun clearSelections() {
         reverseAllAnimations = true
         selectedItems.clear()
@@ -270,7 +260,7 @@ class RollAdapter(private val context: Context,
      */
     fun resetAnimationIndex() {
         reverseAllAnimations = false
-        animationItemsIndex.clear()
+        animationItems.clear()
     }
 
     /**
@@ -279,9 +269,7 @@ class RollAdapter(private val context: Context,
      */
     fun resetAnimateAll() {
         animateAll = false
-        for (i in 0 until itemCount) {
-            animationItemsIndex.put(i, true)
-        }
+        rolls.forEach { animationItems[it] = true }
     }
 
     /**
@@ -289,23 +277,7 @@ class RollAdapter(private val context: Context,
      * item is reset.
      */
     private fun resetCurrentSelectedIndex() {
-        currentSelectedIndex = -1
-    }
-
-    /**
-     *
-     * @return the number of selected items
-     */
-    val selectedItemCount: Int get() = selectedItems.size()
-
-    /**
-     *
-     * @return List containing the positions of selected items.
-     */
-    val selectedItemPositions: List<Int> get() {
-        val items: MutableList<Int> = ArrayList()
-        for (i in 0 until selectedItems.size()) items.add(selectedItems.keyAt(i))
-        return items
+        currentSelectedRoll = null
     }
 
 }
