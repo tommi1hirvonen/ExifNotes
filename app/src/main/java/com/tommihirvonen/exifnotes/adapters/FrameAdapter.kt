@@ -38,8 +38,9 @@ import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
  * @property listener Reference to the implementing class's OnItemClickListener.
  */
 class FrameAdapter(private val context: Context,
-        private val frameList: List<Frame>,
         private val listener: FrameAdapterListener) : RecyclerView.Adapter<FrameAdapter.ViewHolder>() {
+
+    var frameList = emptyList<Frame>()
 
     init {
         // Used to make the RecyclerView perform better and to make our custom animations

@@ -64,7 +64,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
 
     private val model by activityViewModels<RollViewModel>()
     private var rolls = emptyList<Roll>()
-    private lateinit var rollAdapter: RollAdapter
+    private val rollAdapter by lazy { RollAdapter(requireActivity(), this) }
 
     private lateinit var binding: FragmentRollsBinding
 
@@ -91,7 +91,6 @@ class RollsFragment : Fragment(), RollAdapterListener {
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
         binding.rollsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
-        rollAdapter = RollAdapter(requireActivity(), this)
         binding.rollsRecyclerView.adapter = rollAdapter
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemClickListener)
 
