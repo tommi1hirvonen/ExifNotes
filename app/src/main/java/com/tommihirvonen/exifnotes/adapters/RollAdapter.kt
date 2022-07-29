@@ -22,7 +22,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemRollConstraintBinding
@@ -33,13 +32,14 @@ import com.tommihirvonen.exifnotes.utilities.database
  * RollAdapter acts as an adapter between a List of rolls and a RecyclerView.
  *
  * @property context Reference to Activity's context. Used to get resources.
- * @property rolls Reference to the main list of Rolls received from implementing class.
+ * @property items Reference to the main list of Rolls received from implementing class.
  * @property listener Reference to the implementing class's OnItemClickListener.
  */
-class RollAdapter(private val context: Context,
-        private val listener: RollAdapterListener) : RecyclerView.Adapter<RollAdapter.ViewHolder>() {
-
-    var rolls = emptyList<Roll>()
+class RollAdapter(
+    private val context: Context,
+    private val listener: RollAdapterListener,
+    recyclerView: RecyclerView)
+    : SelectableItemAdapter<Roll, RollAdapter.ViewHolder>(context, recyclerView) {
 
     init {
         // Used to make the RecyclerView perform better and to make our custom animations
@@ -57,33 +57,13 @@ class RollAdapter(private val context: Context,
         fun onItemLongClick(roll: Roll)
     }
 
-    val selectedRolls get() = selectedItems.map { it.key }
+    override val checkboxSelector: (ViewHolder) -> View get() = { holder ->
+        holder.binding.checkbox.root
+    }
 
-    /**
-     * Used to hold the positions of selected items in the RecyclerView.
-     */
-    private val selectedItems = mutableMapOf<Roll, Boolean>()
-
-    /**
-     * Used to pass the selected item's position to onBindViewHolder(),
-     * so that animations are started only when the item is actually selected.
-     */
-    private var currentSelectedRoll: Roll? = null
-
-    /**
-     * Helper boolean used to indicate when all item selections are being undone.
-     */
-    private var reverseAllAnimations = false
-
-    /**
-     * Helper boolean used to indicate when all items are being selected.
-     */
-    private var animateAll = false
-
-    /**
-     * Helper array to keep track of animation statuses.
-     */
-    private val animationItems = mutableMapOf<Roll, Boolean>()
+    override val backgroundSelector: (ViewHolder) -> View get() = { holder ->
+        holder.binding.greyBackground
+    }
 
     /**
      * Package-private ViewHolder class which can be recycled
@@ -95,10 +75,10 @@ class RollAdapter(private val context: Context,
                 binding.cameraImageView, binding.photosImageView, binding.notesImageView)
         init {
             binding.itemRollLayout.setOnClickListener {
-                listener.onItemClick(rolls[bindingAdapterPosition], binding.itemRollTopLayout)
+                listener.onItemClick(this@RollAdapter.items[bindingAdapterPosition], binding.itemRollTopLayout)
             }
             binding.itemRollLayout.setOnLongClickListener {
-                listener.onItemLongClick(rolls[bindingAdapterPosition])
+                listener.onItemLongClick(this@RollAdapter.items[bindingAdapterPosition])
                 true
             }
         }
@@ -110,7 +90,7 @@ class RollAdapter(private val context: Context,
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val roll = rolls[position]
+        val roll = this.items[position]
         val numberOfFrames = context.database.getNumberOfFrames(roll)
         holder.binding.itemRollTopLayout.transitionName = "transition_roll_${roll.id}"
         holder.binding.tvRollDate.text =
@@ -169,102 +149,14 @@ class RollAdapter(private val context: Context,
             holder.binding.tvPhotos.alpha = noFade
             holder.binding.tvCamera.alpha = noFade
         }
-        holder.itemView.isActivated = selectedItems[roll] ?: false
-        applyCheckBoxAnimation(holder, roll)
+
+        // Call to super to handle checkbox animations.
+        super.onBindViewHolder(holder, position)
     }
 
-    private fun applyCheckBoxAnimation(holder: ViewHolder, roll: Roll) {
-        val checkbox = holder.binding.checkbox.root
-        val background = holder.binding.greyBackground
-        if (selectedItems[roll] == true) {
-            // First set the check box to be visible. This is the state it will be left in after
-            // the animation has finished.
-            checkbox.visibility = View.VISIBLE
-
-            // Also set a slightly grey background to be visible.
-            background.visibility = View.VISIBLE
-
-            // If the item is selected or all items are being selected and the item was not previously selected
-            if (currentSelectedRoll == roll || animateAll && animationItems[roll] != true) {
-                val animation = AnimationUtils.loadAnimation(context, R.anim.scale_up)
-                checkbox.startAnimation(animation)
-                val backgroundAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_in)
-                background.startAnimation(backgroundAnimation)
-                resetCurrentSelectedIndex()
-            }
-        } else {
-            // First set the check box to be gone. This is the state it will be left in after
-            // the animation has finished.
-            checkbox.visibility = View.GONE
-
-            // Hide the slightly grey background
-            background.visibility = View.GONE
-
-            // If the item is deselected or all selections are undone and the item was previously selected
-            if (currentSelectedRoll == roll || reverseAllAnimations && animationItems[roll] == true) {
-                val animation = AnimationUtils.loadAnimation(context, R.anim.scale_down)
-                checkbox.startAnimation(animation)
-                val backgroundAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_out)
-                background.startAnimation(backgroundAnimation)
-                resetCurrentSelectedIndex()
-            }
-        }
-    }
-
-    override fun getItemCount(): Int = rolls.size
+    override fun getItemCount(): Int = this.items.size
 
     // Implemented because hasStableIds has been set to true.
-    override fun getItemId(position: Int): Long = rolls[position].id
-
-    fun toggleSelection(roll: Roll) {
-        currentSelectedRoll = roll
-        if (selectedItems[roll] == true) {
-            selectedItems.remove(roll)
-            animationItems.remove(roll)
-        } else {
-            selectedItems[roll] = true
-            animationItems[roll] = true
-        }
-        notifyDataSetChanged()
-    }
-
-    fun toggleSelectionAll() {
-        resetCurrentSelectedIndex()
-        selectedItems.clear()
-        animateAll = true
-        rolls.forEach { selectedItems[it] = true }
-        notifyDataSetChanged()
-    }
-
-    fun clearSelections() {
-        reverseAllAnimations = true
-        selectedItems.clear()
-        notifyDataSetChanged()
-    }
-
-    /**
-     * Called in RollsFragment after all selections have been undone.
-     */
-    fun resetAnimationIndex() {
-        reverseAllAnimations = false
-        animationItems.clear()
-    }
-
-    /**
-     * Called in RollsFragment after all items have been selected using toggleSelectionAll().
-     * Sets animateAll back to false and updates animationItemsIndex to be in line with selectedItems.
-     */
-    fun resetAnimateAll() {
-        animateAll = false
-        rolls.forEach { animationItems[it] = true }
-    }
-
-    /**
-     * When the selection/deselection action has been consumed, the index of the (de)selected
-     * item is reset.
-     */
-    private fun resetCurrentSelectedIndex() {
-        currentSelectedRoll = null
-    }
+    override fun getItemId(position: Int): Long = this.items[position].id
 
 }

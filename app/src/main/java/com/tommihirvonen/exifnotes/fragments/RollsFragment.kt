@@ -63,7 +63,9 @@ class RollsFragment : Fragment(), RollAdapterListener {
 
     private val model by activityViewModels<RollViewModel>()
     private var rolls = emptyList<Roll>()
-    private val rollAdapter by lazy { RollAdapter(requireActivity(), this) }
+    private val rollAdapter by lazy {
+        RollAdapter(requireActivity(), this, binding.rollsRecyclerView)
+    }
 
     private lateinit var binding: FragmentRollsBinding
 
@@ -130,7 +132,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
 
         model.rolls.observe(viewLifecycleOwner) { rolls ->
             this.rolls = rolls
-            rollAdapter.rolls = rolls
+            rollAdapter.items = rolls
             binding.noAddedRolls.visibility = if (rolls.isEmpty()) View.VISIBLE else View.GONE
             rollAdapter.notifyDataSetChanged()
         }
@@ -235,7 +237,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
     }
 
     override fun onItemClick(roll: Roll, layout: View) {
-        if (rollAdapter.selectedRolls.isNotEmpty() || actionMode != null) {
+        if (rollAdapter.selectedItems.isNotEmpty() || actionMode != null) {
             enableActionMode(roll)
         } else {
 
@@ -287,7 +289,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
         }
         rollAdapter.toggleSelection(roll)
         // If the user deselected the last of the selected items, exit action mode.
-        val selectedRolls = rollAdapter.selectedRolls
+        val selectedRolls = rollAdapter.selectedItems
         if (selectedRolls.isEmpty()) {
             actionMode?.finish()
         } else {
@@ -352,7 +354,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
      * reset as well.
      */
     private fun batchUpdateRollsFilmStock(filmStock: FilmStock?, updateIso: Boolean) {
-        rollAdapter.selectedRolls.forEach { roll ->
+        rollAdapter.selectedItems.forEach { roll ->
             roll.filmStock = filmStock
             if (updateIso) {
                 roll.iso = filmStock?.iso ?: 0
@@ -388,7 +390,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
 
         override fun onActionItemClicked(actionMode: ActionMode, menuItem: MenuItem): Boolean {
             // Get the positions in the rollList of selected items
-            val selectedRolls = rollAdapter.selectedRolls
+            val selectedRolls = rollAdapter.selectedItems
             return when (menuItem.itemId) {
                 R.id.menu_item_delete -> {
                     // Set the confirm dialog title depending on whether one or more rolls were selected
@@ -407,10 +409,9 @@ class RollsFragment : Fragment(), RollAdapterListener {
                 }
                 R.id.menu_item_select_all -> {
                     rollAdapter.toggleSelectionAll()
-                    binding.rollsRecyclerView.post { rollAdapter.resetAnimateAll() }
                     // Do not use local variable to get selected count because its size
                     // may no longer be valid after all items were selected.
-                    actionMode.title = "${rollAdapter.selectedRolls.size}/${rollAdapter.itemCount}"
+                    actionMode.title = "${rollAdapter.selectedItems.size}/${rollAdapter.itemCount}"
                     true
                 }
                 R.id.menu_item_edit -> {
@@ -489,7 +490,6 @@ class RollsFragment : Fragment(), RollAdapterListener {
         override fun onDestroyActionMode(mode: ActionMode) {
             rollAdapter.clearSelections()
             actionMode = null
-            binding.rollsRecyclerView.post { rollAdapter.resetAnimationIndex() }
             // Make the floating action bar visible again since action mode is exited.
             binding.fab.show()
         }

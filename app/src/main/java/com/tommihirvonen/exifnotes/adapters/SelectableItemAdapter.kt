@@ -29,10 +29,10 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
     private val recyclerView: RecyclerView
 ) : RecyclerView.Adapter<U>() {
 
+    var items = emptyList<T>()
+
     protected abstract val checkboxSelector: (U) -> View
     protected abstract val backgroundSelector: (U) -> View
-
-    var items = emptyList<T>()
 
     val selectedItems get() = mSelectedItems.map { it.key }
 
@@ -64,6 +64,7 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
 
     override fun onBindViewHolder(holder: U, position: Int) {
         val item = items[position]
+        holder.itemView.isActivated = mSelectedItems[item] ?: false
         val checkbox = checkboxSelector(holder)
         val background = backgroundSelector(holder)
         if (mSelectedItems[item] == true) {
