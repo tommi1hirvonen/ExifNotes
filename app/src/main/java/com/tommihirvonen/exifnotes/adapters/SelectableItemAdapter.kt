@@ -24,6 +24,18 @@ import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 
+/**
+ * Abstract RecyclerView adapter to help handle item selection related
+ * checkbox and background animations. The class also keeps track of selected items.
+ *
+ * @property items Main items list. This property needs to provided and should correspond to the
+ * main list of items drawn by the implementing adapter.
+ * @property checkboxSelector Property getter to map the ViewHolder to a checkbox View
+ * depicting the items selection
+ * @property backgroundSelector Property getter to map the ViewHolder to a background View
+ * depicting the items selection
+ * @property selectedItems Convenience method to get a list of selected items
+ */
 abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
     private val context: Context,
     private val recyclerView: RecyclerView
@@ -128,17 +140,12 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
         mAnimateAll = true
         items.forEach { mSelectedItems[it] = true }
         notifyDataSetChanged()
-        recyclerView.post { resetAnimateAll() }
-    }
-
-    /**
-     * Should be called after all items have been selected using toggleSelectionAll()
-     * and View animations have been completed.
-     * Sets animateAll back to false and updates animationItemsIndex to be in line with selectedItems.
-     */
-    private fun resetAnimateAll() {
-        mAnimateAll = false
-        items.forEach { mAnimationItems[it] = true }
+        recyclerView.post {
+            // Update animation items to be in line with selected items
+            // after RecyclerView animations have completed.
+            mAnimateAll = false
+            items.forEach { mAnimationItems[it] = true }
+        }
     }
 
     /**
@@ -150,21 +157,15 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
         mReverseAllAnimations = true
         mSelectedItems.clear()
         notifyDataSetChanged()
-        recyclerView.post { resetAnimationItems() }
+        recyclerView.post {
+            // Clear animation items after RecyclerView animations have completed.
+            mReverseAllAnimations = false
+            mAnimationItems.clear()
+        }
     }
 
     /**
-     * Should be called after all selections have been undone using clearSelections()
-     * and View animations have been completed.
-     */
-    private fun resetAnimationItems() {
-        mReverseAllAnimations = false
-        mAnimationItems.clear()
-    }
-
-    /**
-     * When the selection/deselection action has been consumed, the index of the (de)selected
-     * item is reset.
+     * Should be called when the selection/deselection action has been consumed.
      */
     private fun resetCurrentSelectedItem() {
         mCurrentSelectedItem = null
