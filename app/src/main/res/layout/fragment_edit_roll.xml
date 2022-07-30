@@ -51,6 +51,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/name_layout"
                 android:layout_marginTop="10dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
                 android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -77,10 +78,9 @@
                     android:id="@+id/film_stock_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
                     android:layout_alignParentLeft="true"
-                    android:layout_toLeftOf="@id/film_stock_button_layout"
-                    app:hint="@string/ClickToSet"/>
+                    android:layout_marginTop="5dp"
+                    android:layout_toLeftOf="@id/film_stock_button_layout" />
 
                 <FrameLayout
                     android:id="@+id/film_stock_button_layout"
@@ -169,10 +169,9 @@
                     android:id="@+id/camera_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
                     android:layout_alignParentLeft="true"
-                    android:layout_toLeftOf="@id/camera_button_layout"
-                    app:hint="@string/ClickToSet"/>
+                    android:layout_marginTop="5dp"
+                    android:layout_toLeftOf="@id/camera_button_layout" />
 
                 <FrameLayout
                     android:id="@+id/camera_button_layout"
@@ -201,6 +200,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:paddingBottom="20dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
                 android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"

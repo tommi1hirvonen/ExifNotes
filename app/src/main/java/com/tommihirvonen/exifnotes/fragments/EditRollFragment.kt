@@ -225,25 +225,28 @@ class EditRollFragment : Fragment() {
 
         //ISO PICKER
         val iso = if (roll.iso == 0) null else roll.iso.toString()
-        binding.isoPushPullFormat.isoMenu.editText?.setText(iso)
+        val isoAutoComplete = binding.isoPushPullFormat.isoMenu.editText as MaterialAutoCompleteTextView
+        isoAutoComplete.setText(iso, false)
         val isoValues = requireActivity().resources.getStringArray(R.array.ISOValues)
-        (binding.isoPushPullFormat.isoMenu.editText as? MaterialAutoCompleteTextView)?.setSimpleItems(isoValues)
+        isoAutoComplete.setSimpleItems(isoValues)
 
 
         //PUSH PULL PICKER
         val pushPullValues = resources.getStringArray(R.array.CompValues)
-        binding.isoPushPullFormat.pushPullMenu.editText?.setText(newRoll.pushPull)
-        (binding.isoPushPullFormat.pushPullMenu.editText as? MaterialAutoCompleteTextView)?.setSimpleItems(pushPullValues)
+        val pushPullAutoComplete = binding.isoPushPullFormat.pushPullMenu.editText as MaterialAutoCompleteTextView
+        pushPullAutoComplete.setText(newRoll.pushPull, false)
+        pushPullAutoComplete.setSimpleItems(pushPullValues)
 
 
         //FORMAT PICKER
         val formats = resources.getStringArray(R.array.FilmFormats)
+        val formatsAutoComplete = binding.isoPushPullFormat.formatMenu.editText as MaterialAutoCompleteTextView
         try {
-            binding.isoPushPullFormat.formatMenu.editText?.setText(formats[newRoll.format])
+            formatsAutoComplete.setText(formats[newRoll.format], false)
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
-        (binding.isoPushPullFormat.formatMenu.editText as? MaterialAutoCompleteTextView)?.setSimpleItems(formats)
+        formatsAutoComplete.setSimpleItems(formats)
 
         binding.title.negativeButton.setOnClickListener { requireActivity().onBackPressed() }
         binding.title.positiveButton.setOnClickListener {
@@ -309,7 +312,8 @@ class EditRollFragment : Fragment() {
         if (filmStock.iso != 0) {
             newRoll.iso = filmStock.iso
             val iso = if (newRoll.iso == 0) null else newRoll.iso.toString()
-            binding.isoPushPullFormat.isoMenu.editText?.setText(iso)
+            val isoAutoComplete = binding.isoPushPullFormat.isoMenu.editText as MaterialAutoCompleteTextView
+            isoAutoComplete.setText(iso, false)
         }
     }
 
