@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Exif Notes
+  ~ Copyright (C) 2022  Tommi Hirvonen
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginTop="15dp"
+    android:paddingHorizontal="@dimen/RollDialogSidePadding"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/iso_label"
+        android:text="@string/ISO"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/push_pull_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+        style="@style/TextAppearance.Material3.BodySmall"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/iso_menu"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/iso_label"
+        app:layout_constraintRight_toLeftOf="@id/push_pull_menu"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginRight="4dp">
+        <AutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/PushPull"
+        android:id="@+id/push_pull_label"
+        android:layout_marginHorizontal="2dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/format_label"
+        app:layout_constraintLeft_toRightOf="@id/iso_label"
+        style="@style/TextAppearance.Material3.BodySmall"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/push_pull_menu"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="2dp"
+        app:layout_constraintTop_toBottomOf="@id/push_pull_label"
+        app:layout_constraintRight_toLeftOf="@id/format_menu"
+        app:layout_constraintLeft_toRightOf="@id/iso_menu">
+        <AutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/Format"
+        android:id="@+id/format_label"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/push_pull_label"
+        app:layout_constraintRight_toRightOf="parent"
+        style="@style/TextAppearance.Material3.BodySmall"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/format_menu"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        app:layout_constraintTop_toBottomOf="@id/format_label"
+        app:layout_constraintLeft_toRightOf="@id/push_pull_menu"
+        app:layout_constraintRight_toRightOf="parent">
+        <AutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            app:simpleItems="@array/FilmFormats"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

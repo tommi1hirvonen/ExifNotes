@@ -56,6 +56,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/name_editText"
+                    android:inputType="textCapSentences"
                     android:hint="@string/Name"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -191,126 +192,21 @@
 
             </RelativeLayout>
 
-            <TextView
+            <include
+                android:id="@+id/iso_push_pull_format"
+                layout="@layout/iso_push_pull_format_layout"/>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/ISO"
                 android:layout_marginTop="15dp"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
-                style="@style/TextAppearance.Material3.BodySmall"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/iso_menu"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:paddingBottom="20dp"
                 android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
-                <AutoCompleteTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/RollDialogSidePadding"
-                android:paddingRight="@dimen/RollDialogSidePadding">
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline_vertical1_005"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.5" />
-
-                <!--PUSH/PULL-->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="@id/guideline_vertical1_005"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:id="@+id/push_pull_layout"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text="@string/PushPull"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp"
-                        />
-
-                    <Spinner
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/push_pull_spinner"
-                        android:entries="@array/CompValues"
-                        android:prompt="@string/PushPull"
-                        android:spinnerMode="dropdown"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="10dp"
-                        />
-
-                </LinearLayout>
-
-
-                <!--FORMAT-->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toLeftOf="@id/guideline_vertical1_005"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:id="@+id/format_layout"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text="@string/Format"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp"
-                        />
-
-                    <Spinner
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/format_spinner"
-                        android:entries="@array/FilmFormats"
-                        android:prompt="@string/ChooseFormat"
-                        android:spinnerMode="dropdown"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="10dp"
-                        />
-
-                </LinearLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="20dp">
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/note_editText"
-                    android:inputType="textMultiLine"
+                    android:inputType="textMultiLine|textCapSentences"
                     android:hint="@string/DescriptionOrNote"/>
             </com.google.android.material.textfield.TextInputLayout>
 

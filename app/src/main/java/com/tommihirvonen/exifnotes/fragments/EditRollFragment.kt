@@ -36,7 +36,6 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -226,30 +225,25 @@ class EditRollFragment : Fragment() {
 
         //ISO PICKER
         val iso = if (roll.iso == 0) null else roll.iso.toString()
-        binding.isoMenu.editText?.setText(iso)
+        binding.isoPushPullFormat.isoMenu.editText?.setText(iso)
         val isoValues = requireActivity().resources.getStringArray(R.array.ISOValues)
-        (binding.isoMenu.editText as? MaterialAutoCompleteTextView)?.setSimpleItems(isoValues)
+        (binding.isoPushPullFormat.isoMenu.editText as? MaterialAutoCompleteTextView)?.setSimpleItems(isoValues)
 
 
         //PUSH PULL PICKER
-        try {
-            if (newRoll.pushPull != null) {
-                val values = resources.getStringArray(R.array.CompValues)
-                binding.pushPullSpinner.setSelection(values.indexOf(newRoll.pushPull))
-            } else {
-                binding.pushPullSpinner.setSelection(9)
-            }
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
+        val pushPullValues = resources.getStringArray(R.array.CompValues)
+        binding.isoPushPullFormat.pushPullMenu.editText?.setText(newRoll.pushPull)
+        (binding.isoPushPullFormat.pushPullMenu.editText as? MaterialAutoCompleteTextView)?.setSimpleItems(pushPullValues)
 
 
         //FORMAT PICKER
+        val formats = resources.getStringArray(R.array.FilmFormats)
         try {
-            binding.formatSpinner.setSelection(newRoll.format)
+            binding.isoPushPullFormat.formatMenu.editText?.setText(formats[newRoll.format])
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
+        (binding.isoPushPullFormat.formatMenu.editText as? MaterialAutoCompleteTextView)?.setSimpleItems(formats)
 
         binding.title.negativeButton.setOnClickListener { requireActivity().onBackPressed() }
         binding.title.positiveButton.setOnClickListener {
@@ -282,10 +276,20 @@ class EditRollFragment : Fragment() {
             roll.date = dateLoadedManager.dateTime
             roll.unloaded = dateUnloadedManager.dateTime
             roll.developed = dateDevelopedManager.dateTime
-            val isoText = binding.isoMenu.editText?.text.toString()
+
+            val isoText = binding.isoPushPullFormat.isoMenu.editText?.text.toString()
             roll.iso = if (isoText.isEmpty()) 0 else isoText.toInt()
-            roll.pushPull = binding.pushPullSpinner.selectedItem as String?
-            roll.format = binding.formatSpinner.selectedItemPosition
+
+            roll.pushPull = binding.isoPushPullFormat.pushPullMenu.editText?.text.toString()
+
+            try {
+                val format = binding.isoPushPullFormat.formatMenu.editText?.text.toString()
+                val formats = resources.getStringArray(R.array.FilmFormats)
+                roll.format = formats.indexOf(format)
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                e.printStackTrace()
+            }
+
             roll.filmStock = newRoll.filmStock
             return true
         } else {
@@ -305,7 +309,7 @@ class EditRollFragment : Fragment() {
         if (filmStock.iso != 0) {
             newRoll.iso = filmStock.iso
             val iso = if (newRoll.iso == 0) null else newRoll.iso.toString()
-            binding.isoMenu.editText?.setText(iso)
+            binding.isoPushPullFormat.isoMenu.editText?.setText(iso)
         }
     }
 
