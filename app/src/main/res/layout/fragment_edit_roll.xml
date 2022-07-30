@@ -44,14 +44,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/name_layout"
-                android:layout_margin="20dp">
+                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -59,89 +59,68 @@
                     android:hint="@string/Name"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <View
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
-
-            <!--FILM STOCK-->
+                android:layout_height="wrap_content"
+                android:text="@string/FilmStock"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                style="@style/TextAppearance.Material3.BodySmall"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/RollDialogSidePadding"
-                android:paddingRight="@dimen/RollDialogSidePadding">
+                android:paddingHorizontal="@dimen/RollDialogSidePadding">
 
-                <LinearLayout
+                <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
                     android:id="@+id/film_stock_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:orientation="vertical"
-                    tools:ignore="KeyboardInaccessibleWidget">
+                    android:layout_marginTop="5dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@id/film_stock_button_layout"
+                    app:hint="@string/ClickToSet"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text="@string/FilmStock"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp" />
-
-                    <TextView
-                        android:id="@+id/film_stock_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="7dp"
-                        android:text="@string/ClickToSet"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textSize="15sp" />
-
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/add_film_stock"
-                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                <FrameLayout
+                    android:id="@+id/film_stock_button_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:text="@string/New"
-                    app:icon="@drawable/ic_baseline_add_24" />
+                    android:layout_alignParentRight="true">
+                    <Button
+                        android:id="@+id/add_film_stock"
+                        style="@style/Widget.Material3.Button.TextButton.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/New"
+                        app:icon="@drawable/ic_baseline_add_24" />
 
-                <Button
-                    android:id="@+id/clear_film_stock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    app:icon="@drawable/ic_baseline_close_24"
-                    style="@style/Widget.Material3.Button.TextButton.Icon"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:text="@string/Clear"/>
+                    <Button
+                        android:id="@+id/clear_film_stock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="visible"
+                        app:icon="@drawable/ic_baseline_close_24"
+                        style="@style/Widget.Material3.Button.TextButton.Icon"
+                        android:text="@string/Clear"/>
+                </FrameLayout>
 
             </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
 
             <com.tommihirvonen.exifnotes.views.DateTimeLayout
                 android:id="@+id/date_loaded_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
                 app:label="@string/LoadedOn"/>
 
             <com.tommihirvonen.exifnotes.views.DateTimeLayout
                 android:id="@+id/date_unloaded_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                android:layout_marginTop="15dp"
                 app:label="@string/UnloadedOn"/>
 
             <Button
@@ -149,7 +128,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
-                android:layout_marginRight="20dp"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
                 android:layout_marginTop="5dp"
                 app:icon="@drawable/ic_baseline_close_24"
                 style="@style/Widget.Material3.Button.TextButton.Icon"
@@ -159,7 +138,7 @@
                 android:id="@+id/date_developed_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
                 app:label="@string/Developed"/>
 
             <Button
@@ -167,66 +146,48 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
-                android:layout_marginRight="20dp"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
                 android:layout_marginTop="5dp"
                 app:icon="@drawable/ic_baseline_close_24"
                 style="@style/Widget.Material3.Button.TextButton.Icon"
                 android:text="@string/Clear"/>
 
-            <View
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary"/>
+                android:layout_height="wrap_content"
+                android:text="@string/Camera"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                style="@style/TextAppearance.Material3.BodySmall"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/RollDialogSidePadding"
-                android:paddingRight="@dimen/RollDialogSidePadding"
-                >
+                android:paddingHorizontal="@dimen/RollDialogSidePadding">
 
-                <!--CAMERA-->
-                <LinearLayout
+                <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
+                    android:id="@+id/camera_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:clickable="true"
-                    android:id="@+id/camera_layout"
-                    android:background="?android:attr/selectableItemBackground"
-                    tools:ignore="KeyboardInaccessibleWidget">
+                    android:layout_marginTop="5dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@id/camera_button_layout"
+                    app:hint="@string/ClickToSet"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text="@string/Camera"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp"
-                        />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_marginRight="60dp"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
-                        android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textSize="15sp"
-                        android:id="@+id/camera_text"
-                        android:text="@string/ClickToSet"
-                        />
-
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/add_camera"
-                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                <FrameLayout
+                    android:id="@+id/camera_button_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:text="@string/New"
-                    app:icon="@drawable/ic_baseline_add_24" />
+                    android:layout_alignParentRight="true">
+                    <Button
+                        android:id="@+id/add_camera"
+                        style="@style/Widget.Material3.Button.TextButton.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/New"
+                        app:icon="@drawable/ic_baseline_add_24" />
+
+                </FrameLayout>
 
             </RelativeLayout>
 

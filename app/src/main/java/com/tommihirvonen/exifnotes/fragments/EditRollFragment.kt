@@ -106,19 +106,17 @@ class EditRollFragment : Fragment() {
 
         // FILM STOCK PICK DIALOG
         roll.filmStock?.let {
-            binding.filmStockText.text = it.name
-            binding.nameEditText.hint = it.name
+            binding.filmStockLayout.text = it.name
             binding.addFilmStock.visibility = View.GONE
             binding.clearFilmStock.visibility = View.VISIBLE
         } ?: run {
-            binding.filmStockText.text = ""
+            binding.filmStockLayout.text = null
             binding.clearFilmStock.visibility = View.GONE
             binding.addFilmStock.visibility = View.VISIBLE
         }
         binding.clearFilmStock.setOnClickListener {
             newRoll.filmStock = null
-            binding.nameEditText.hint = ""
-            binding.filmStockText.text = ""
+            binding.filmStockLayout.text = null
             binding.clearFilmStock.visibility = View.GONE
             binding.addFilmStock.visibility = View.VISIBLE
         }
@@ -150,7 +148,7 @@ class EditRollFragment : Fragment() {
 
 
         // CAMERA PICK DIALOG
-        binding.cameraText.text = roll.camera?.name ?: ""
+        binding.cameraLayout.text = roll.camera?.name
         binding.cameraLayout.setOnClickListener {
             val listItems = listOf(resources.getString(R.string.NoCamera))
                     .plus(cameras.map { it.name }).toTypedArray()
@@ -163,10 +161,10 @@ class EditRollFragment : Fragment() {
             builder.setSingleChoiceItems(listItems, checkedItem) { dialogInterface: DialogInterface, which: Int ->
                 // listItems also contains the No camera option
                 newRoll.camera = if (which > 0) {
-                    binding.cameraText.text = listItems[which]
+                    binding.cameraLayout.text = listItems[which]
                     cameras[which - 1]
                 } else {
-                    binding.cameraText.text = ""
+                    binding.cameraLayout.text = null
                     null
                 }
                 dialogInterface.dismiss()
@@ -192,7 +190,7 @@ class EditRollFragment : Fragment() {
                 val camera: Camera = bundle.getParcelable(ExtraKeys.CAMERA)
                     ?: return@setFragmentResultListener
                 model.addCamera(camera)
-                binding.cameraText.text = camera.name
+                binding.cameraLayout.text = camera.name
                 newRoll.camera = camera
             }
         }
@@ -298,12 +296,7 @@ class EditRollFragment : Fragment() {
     }
 
     private fun commitChanges(): Boolean {
-        var name = binding.nameEditText.text.toString()
-
-        // Check if name is not set and if name can be replaced with the film stock's name.
-        if (name.isEmpty()) name = newRoll.filmStock?.name ?: ""
-
-        // Check the length again.
+        val name = binding.nameEditText.text.toString()
         if (name.isNotEmpty()) {
             roll.name = name
             roll.note = binding.noteEditText.text.toString()
@@ -325,8 +318,7 @@ class EditRollFragment : Fragment() {
     }
 
     private fun setFilmStock(filmStock: FilmStock) {
-        binding.filmStockText.text = filmStock.name
-        binding.nameEditText.hint = filmStock.name
+        binding.filmStockLayout.text = filmStock.name
         newRoll.filmStock = filmStock
         binding.addFilmStock.visibility = View.GONE
         binding.clearFilmStock.visibility = View.VISIBLE
