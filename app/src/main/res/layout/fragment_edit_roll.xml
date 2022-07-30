@@ -191,49 +191,26 @@
 
             </RelativeLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
-
-            <!--ISO-->
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:id="@+id/iso_layout"
-                android:background="?android:attr/selectableItemBackground"
-                tools:ignore="KeyboardInaccessibleWidget"
-                android:paddingLeft="@dimen/RollDialogSidePadding"
-                android:paddingRight="@dimen/RollDialogSidePadding">
+                android:text="@string/ISO"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                style="@style/TextAppearance.Material3.BodySmall"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:text="@string/ISO"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="7dp"
-                    android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textSize="15sp"
-                    android:id="@+id/iso_text"
-                    android:text="@string/ClickToSet"
-                    />
-
-            </LinearLayout>
-
-            <View
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iso_menu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
+                <AutoCompleteTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

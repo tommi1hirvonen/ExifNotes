@@ -50,6 +50,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentEditRollBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
@@ -224,33 +225,10 @@ class EditRollFragment : Fragment() {
 
 
         //ISO PICKER
-        binding.isoText.text = if (roll.iso == 0) "" else roll.iso.toString()
-        binding.isoLayout.setOnClickListener {
-            val builder = MaterialAlertDialogBuilder(requireActivity())
-            val inflater1 = requireActivity().layoutInflater
-            @SuppressLint("InflateParams")
-            val dialogView = inflater1.inflate(R.layout.dialog_single_numberpicker, null)
-            val isoPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
-            val isoValues = requireActivity().resources.getStringArray(R.array.ISOValues)
-            isoPicker.minValue = 0
-            isoPicker.maxValue = isoValues.size - 1
-            isoPicker.displayedValues = isoValues
-            isoPicker.value = 0
-            val initialValue = isoValues.indexOfFirst { it.toInt() == newRoll.iso }
-            if (initialValue != -1) isoPicker.value = initialValue
-
-            //To prevent text edit
-            isoPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            builder.setView(dialogView)
-            builder.setTitle(resources.getString(R.string.ChooseISO))
-            builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                newRoll.iso = isoValues[isoPicker.value].toInt()
-                binding.isoText.text = if (newRoll.iso == 0) "" else newRoll.iso.toString()
-            }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
-        }
+        val iso = if (roll.iso == 0) null else roll.iso.toString()
+        binding.isoMenu.editText?.setText(iso)
+        val isoValues = requireActivity().resources.getStringArray(R.array.ISOValues)
+        (binding.isoMenu.editText as? MaterialAutoCompleteTextView)?.setSimpleItems(isoValues)
 
 
         //PUSH PULL PICKER
@@ -304,7 +282,8 @@ class EditRollFragment : Fragment() {
             roll.date = dateLoadedManager.dateTime
             roll.unloaded = dateUnloadedManager.dateTime
             roll.developed = dateDevelopedManager.dateTime
-            roll.iso = newRoll.iso
+            val isoText = binding.isoMenu.editText?.text.toString()
+            roll.iso = if (isoText.isEmpty()) 0 else isoText.toInt()
             roll.pushPull = binding.pushPullSpinner.selectedItem as String?
             roll.format = binding.formatSpinner.selectedItemPosition
             roll.filmStock = newRoll.filmStock
@@ -325,7 +304,8 @@ class EditRollFragment : Fragment() {
         // If the film stock ISO is defined, set the ISO
         if (filmStock.iso != 0) {
             newRoll.iso = filmStock.iso
-            binding.isoText.text = if (newRoll.iso == 0) "" else newRoll.iso.toString()
+            val iso = if (newRoll.iso == 0) null else newRoll.iso.toString()
+            binding.isoMenu.editText?.setText(iso)
         }
     }
 
