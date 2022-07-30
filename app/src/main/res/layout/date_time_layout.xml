@@ -39,18 +39,18 @@
         style="@style/TextAppearance.Material3.BodySmall"/>
 
     <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
-        android:id="@+id/date_layout"
+        android:id="@+id/date_time_layout_date_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
-        tools:text="Date"
+        app:hint="@string/Date"
         app:layout_constraintTop_toBottomOf="@id/label"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/guideline"/>
 
     <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
-        android:id="@+id/time_layout"
+        android:id="@+id/date_time_layout_time_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
@@ -58,6 +58,6 @@
         app:layout_constraintTop_toBottomOf="@id/label"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toRightOf="@id/guideline"
-        tools:text="Time"/>
+        app:hint="@string/Time"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

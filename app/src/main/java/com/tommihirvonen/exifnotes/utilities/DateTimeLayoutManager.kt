@@ -23,11 +23,10 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.view.View
 import android.widget.DatePicker
-import android.widget.TextView
 import android.widget.TimePicker
-import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.DateTime.Companion.fromCurrentTime
+import com.tommihirvonen.exifnotes.views.DateTimeLayout
 
 /**
  * Helper class to manage the date and time layout onClick events.
@@ -37,32 +36,29 @@ import com.tommihirvonen.exifnotes.datastructures.DateTime.Companion.fromCurrent
  */
 class DateTimeLayoutManager(
         activity: Activity,
-        dateLayout: View,
-        timeLayout: View,
-        dateTextView: TextView,
-        timeTextView: TextView,
+        dateTimeLayout: DateTimeLayout,
         var dateTime: DateTime?,
         clearLayout: View?
 ) {
 
     init {
-        dateLayout.setOnClickListener {
+        dateTimeLayout.dateLayout.setOnClickListener {
             val dateTimeTemp = dateTime ?: fromCurrentTime()
             val dialog = DatePickerDialog(activity, { _: DatePicker?, year: Int, month: Int, dayOfMonth: Int ->
                 val dateTime = DateTime(year, month + 1, dayOfMonth, dateTimeTemp.hour, dateTimeTemp.minute)
-                dateTextView.text = dateTime.dateAsText
-                timeTextView.text = dateTime.timeAsText
+                dateTimeLayout.dateLayout.text = dateTime.dateAsText
+                dateTimeLayout.timeLayout.text = dateTime.timeAsText
                 this.dateTime = dateTime
             }, dateTimeTemp.year, dateTimeTemp.month - 1, dateTimeTemp.day)
             dialog.show()
         }
 
-        timeLayout.setOnClickListener {
+        dateTimeLayout.timeLayout.setOnClickListener {
             val dateTimeTemp = dateTime ?: fromCurrentTime()
             val dialog = TimePickerDialog(activity, { _: TimePicker?, hourOfDay: Int, minute: Int ->
                 val dateTime = DateTime(dateTimeTemp.year, dateTimeTemp.month, dateTimeTemp.day, hourOfDay, minute)
-                dateTextView.text = dateTime.dateAsText
-                timeTextView.text = dateTime.timeAsText
+                dateTimeLayout.dateLayout.text = dateTime.dateAsText
+                dateTimeLayout.timeLayout.text = dateTime.timeAsText
                 this.dateTime = dateTime
             }, dateTimeTemp.hour, dateTimeTemp.minute, true)
             dialog.show()
@@ -70,12 +66,12 @@ class DateTimeLayoutManager(
 
         clearLayout?.setOnClickListener {
             dateTime = null
-            dateTextView.text = activity.getString(R.string.Date)
-            timeTextView.text = activity.getString(R.string.Time)
+            dateTimeLayout.dateLayout.text = null
+            dateTimeLayout.timeLayout.text = null
         }
 
-        dateTextView.text = dateTime?.dateAsText ?: activity.getString(R.string.Date)
-        timeTextView.text = dateTime?.timeAsText ?: activity.getString(R.string.Time)
+        dateTimeLayout.dateLayout.text = dateTime?.dateAsText
+        dateTimeLayout.timeLayout.text = dateTime?.timeAsText
     }
 
 }

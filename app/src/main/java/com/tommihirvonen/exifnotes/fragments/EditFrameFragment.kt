@@ -226,10 +226,8 @@ open class EditFrameFragment : Fragment() {
         // DATE & TIME PICK DIALOG
         if (frame.date == null) frame.date = DateTime.fromCurrentTime()
         val dateTime = frame.date
-        binding.dateText.text = dateTime?.dateAsText
-        binding.timeText.text = dateTime?.timeAsText
         dateTimeLayoutManager = DateTimeLayoutManager(
-                requireActivity(), binding.dateLayout, binding.timeLayout, binding.dateText, binding.timeText, dateTime, null
+                requireActivity(), binding.dateLayout, dateTime, null
         )
 
         //NOTES FIELD

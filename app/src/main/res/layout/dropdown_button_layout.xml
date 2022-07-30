@@ -39,10 +39,26 @@
         android:paddingHorizontal="16dp"
         android:gravity="center_vertical"
         android:textSize="16sp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:background="?android:attr/selectableItemBackground"
+        android:id="@+id/hint"
+        android:visibility="visible"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="Hint placeholder"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="16dp"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
         android:textColor="?attr/colorOnSurface"
         android:background="?android:attr/selectableItemBackground"
         android:id="@+id/text"
-        android:inputType="none"
-        tools:text="Text placeholder"/>
+        android:visibility="visible"
+        android:ellipsize="end"
+        android:maxLines="1"/>
 
 </FrameLayout>

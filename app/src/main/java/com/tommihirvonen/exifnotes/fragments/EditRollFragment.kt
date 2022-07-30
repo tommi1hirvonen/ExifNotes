@@ -206,30 +206,21 @@ class EditRollFragment : Fragment() {
 
         dateLoadedManager = DateTimeLayoutManager(
             requireActivity(),
-            binding.dateLoadedLayout.dateText,
-            binding.dateLoadedLayout.timeText,
-            binding.dateLoadedLayout.dateText,
-            binding.dateLoadedLayout.timeText,
+            binding.dateLoadedLayout,
             roll.date,
             null)
 
         // DATE & TIME UNLOADED PICK DIALOG
         dateUnloadedManager = DateTimeLayoutManager(
             requireActivity(),
-            binding.dateUnloadedLayout.dateText,
-            binding.dateUnloadedLayout.timeText,
-            binding.dateUnloadedLayout.dateText,
-            binding.dateUnloadedLayout.timeText,
+            binding.dateUnloadedLayout,
             roll.unloaded,
             binding.clearDateUnloaded)
 
         // DATE & TIME DEVELOPED PICK DIALOG
         dateDevelopedManager = DateTimeLayoutManager(
             requireActivity(),
-            binding.dateDevelopedLayout.dateText,
-            binding.dateDevelopedLayout.timeText,
-            binding.dateDevelopedLayout.dateText,
-            binding.dateDevelopedLayout.timeText,
+            binding.dateDevelopedLayout,
             roll.developed,
             binding.clearDateDeveloped)
 

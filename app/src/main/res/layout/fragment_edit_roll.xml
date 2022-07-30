@@ -134,8 +134,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                app:dateText="@string/Date"
-                app:timeText="@string/Time"
                 app:label="@string/LoadedOn"/>
 
             <com.tommihirvonen.exifnotes.views.DateTimeLayout
@@ -144,8 +142,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="10dp"
-                app:dateText="@string/Date"
-                app:timeText="@string/Time"
                 app:label="@string/UnloadedOn"/>
 
             <Button
@@ -164,8 +160,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                app:dateText="@string/Date"
-                app:timeText="@string/Time"
                 app:label="@string/Developed"/>
 
             <Button
