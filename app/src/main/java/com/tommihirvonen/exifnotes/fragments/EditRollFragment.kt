@@ -88,7 +88,7 @@ class EditRollFragment : Fragment() {
 
         val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
         binding.root.transitionName = transitionName
-        binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
+        binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
 
         // NAME EDIT TEXT
         binding.nameEditText.addTextChangedListener { binding.nameLayout.error = null }
@@ -248,8 +248,9 @@ class EditRollFragment : Fragment() {
         }
         formatsAutoComplete.setSimpleItems(formats)
 
-        binding.title.negativeButton.setOnClickListener { requireActivity().onBackPressed() }
-        binding.title.positiveButton.setOnClickListener {
+        //binding.title.negativeButton.setOnClickListener { requireActivity().onBackPressed() }
+        binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
+        binding.positiveButton.setOnClickListener {
             if (commitChanges()) {
                 val bundle = Bundle()
                 bundle.putParcelable(ExtraKeys.ROLL, roll)
