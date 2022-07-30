@@ -171,7 +171,7 @@ open class EditFrameFragment : Fragment() {
         binding = FragmentEditFrameBinding.inflate(inflater, container, false)
         val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
         binding.root.transitionName = transitionName
-        binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
+        binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
         frame = requireArguments().getParcelable(ExtraKeys.FRAME) ?: return null
         newFrame = frame.copy()
 
@@ -375,8 +375,8 @@ open class EditFrameFragment : Fragment() {
             e.printStackTrace()
         }
 
-        binding.title.negativeButton.setOnClickListener { requireActivity().onBackPressed() }
-        binding.title.positiveButton.setOnClickListener {
+        binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
+        binding.positiveButton.setOnClickListener {
             commitChanges()
             val bundle = Bundle()
             bundle.putParcelable(ExtraKeys.FRAME, frame)

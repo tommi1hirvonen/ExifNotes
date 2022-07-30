@@ -44,7 +44,7 @@ import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 class EditFrameFragmentCallback(val positiveButtonClicked: (Intent) -> Unit) : EditFrameFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.title.positiveButton.setOnClickListener {
+        binding.positiveButton.setOnClickListener {
             commitChanges()
             val intent = Intent()
             intent.putExtra(ExtraKeys.FRAME, frame)
