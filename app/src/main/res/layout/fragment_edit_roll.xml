@@ -47,33 +47,17 @@
             android:orientation="vertical"
             >
 
-            <!--NAME-->
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingLeft="@dimen/RollDialogSidePadding"
-                android:paddingRight="@dimen/RollDialogSidePadding"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:text="@string/Name"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <EditText
+                android:id="@+id/name_layout"
+                android:layout_margin="20dp">
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/name_editText"
-                    android:inputType="textCapSentences"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                    />
-
-            </LinearLayout>
+                    android:hint="@string/Name"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -89,12 +73,12 @@
                 android:paddingRight="@dimen/RollDialogSidePadding">
 
                 <LinearLayout
+                    android:id="@+id/film_stock_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:clickable="true"
-                    android:id="@+id/film_stock_layout"
                     android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:orientation="vertical"
                     tools:ignore="KeyboardInaccessibleWidget">
 
                     <TextView
@@ -103,19 +87,17 @@
                         android:paddingTop="7dp"
                         android:text="@string/FilmStock"
                         android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp"
-                        />
+                        android:textSize="17sp" />
 
                     <TextView
+                        android:id="@+id/film_stock_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textSize="15sp"
-                        android:id="@+id/film_stock_text"
+                        android:paddingBottom="7dp"
                         android:text="@string/ClickToSet"
-                        />
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textSize="15sp" />
 
                 </LinearLayout>
 
@@ -147,308 +129,55 @@
                 android:layout_height="1dp"
                 android:background="?attr/iconTintColorSecondary" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <com.tommihirvonen.exifnotes.views.DateTimeLayout
+                android:id="@+id/date_loaded_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/RollDialogSidePadding"
-                android:paddingRight="@dimen/RollDialogSidePadding"
-                >
+                android:layout_marginHorizontal="20dp"
+                app:dateText="@string/Date"
+                app:timeText="@string/Time"
+                app:label="@string/LoadedOn"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    android:paddingTop="7dp"
-                    android:text="@string/LoadedOn"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <!--DATE-->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toLeftOf="@+id/time_layout"
-                    android:clickable="true"
-                    android:id="@+id/date_layout"
-                    android:background="?android:attr/selectableItemBackground"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text=""
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:textSize="17sp"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
-                        android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textSize="15sp"
-                        android:id="@+id/date_text"
-                        android:text="@string/ClickToSet"
-                        />
-
-                </LinearLayout>
-
-                <!--TIME-->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:clickable="true"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toRightOf="@+id/date_layout"
-                    android:id="@+id/time_layout"
-                    android:background="?android:attr/selectableItemBackground"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text=""
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:textSize="17sp"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
-                        android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        android:textSize="15sp"
-                        android:id="@+id/time_text"
-                        android:text=""
-                        />
-
-                </LinearLayout>
-
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary"
-                />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <com.tommihirvonen.exifnotes.views.DateTimeLayout
+                android:id="@+id/date_unloaded_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/RollDialogSidePadding"
-                android:paddingRight="@dimen/RollDialogSidePadding">
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="10dp"
+                app:dateText="@string/Date"
+                app:timeText="@string/Time"
+                app:label="@string/UnloadedOn"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    android:paddingTop="7dp"
-                    android:text="@string/UnloadedOn"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
+            <Button
+                android:id="@+id/clear_date_unloaded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="5dp"
+                app:icon="@drawable/ic_baseline_close_24"
+                style="@style/Widget.Material3.Button.TextButton.Icon"
+                android:text="@string/Clear"/>
 
-                <!--DATE-->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toLeftOf="@+id/time_unloaded_layout"
-                    android:clickable="true"
-                    android:id="@+id/date_unloaded_layout"
-                    android:background="?android:attr/selectableItemBackground"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text=""
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:textSize="17sp"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
-                        android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textSize="15sp"
-                        android:id="@+id/date_unloaded_text"
-                        android:text="@string/ClickToSet"
-                        />
-
-                </LinearLayout>
-
-                <!--TIME-->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:clickable="true"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toRightOf="@+id/date_unloaded_layout"
-                    android:id="@+id/time_unloaded_layout"
-                    android:background="?android:attr/selectableItemBackground"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text=""
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:textSize="17sp"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
-                        android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        android:textSize="15sp"
-                        android:id="@+id/time_unloaded_text"
-                        android:text=""
-                        />
-
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/clear_date_unloaded"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_baseline_close_24"
-                    style="@style/Widget.Material3.Button.TextButton.Icon"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:text="@string/Clear"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary"/>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <com.tommihirvonen.exifnotes.views.DateTimeLayout
+                android:id="@+id/date_developed_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/RollDialogSidePadding"
-                android:paddingRight="@dimen/RollDialogSidePadding">
+                android:layout_marginHorizontal="20dp"
+                app:dateText="@string/Date"
+                app:timeText="@string/Time"
+                app:label="@string/Developed"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    android:paddingTop="7dp"
-                    android:text="@string/DevelopedOn"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <!--DATE-->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toLeftOf="@+id/time_developed_layout"
-                    android:clickable="true"
-                    android:id="@+id/date_developed_layout"
-                    android:background="?android:attr/selectableItemBackground"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text=""
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:textSize="17sp"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
-                        android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textSize="15sp"
-                        android:id="@+id/date_developed_text"
-                        android:text="@string/ClickToSet"
-                        />
-
-                </LinearLayout>
-
-                <!--TIME-->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:clickable="true"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toRightOf="@+id/date_developed_layout"
-                    android:id="@+id/time_developed_layout"
-                    android:background="?android:attr/selectableItemBackground"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text=""
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:textSize="17sp"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
-                        android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        android:textSize="15sp"
-                        android:id="@+id/time_developed_text"
-                        android:text=""
-                        />
-
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/clear_date_developed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_baseline_close_24"
-                    style="@style/Widget.Material3.Button.TextButton.Icon"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:text="@string/Clear"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            <Button
+                android:id="@+id/clear_date_developed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="5dp"
+                app:icon="@drawable/ic_baseline_close_24"
+                style="@style/Widget.Material3.Button.TextButton.Icon"
+                android:text="@string/Clear"/>
 
             <View
                 android:layout_width="match_parent"
@@ -641,34 +370,17 @@
                 android:layout_height="1dp"
                 android:background="?attr/iconTintColorSecondary" />
 
-            <!--NOTE-->
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:id="@+id/note_layout"
-                android:paddingLeft="@dimen/RollDialogSidePadding"
-                android:paddingRight="@dimen/RollDialogSidePadding"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:text="@string/DescriptionOrNote"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <EditText
+                android:layout_margin="20dp">
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/note_editText"
-                    android:inputType="textCapSentences"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                    />
-
-            </LinearLayout>
+                    android:inputType="textMultiLine"
+                    android:hint="@string/DescriptionOrNote"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 

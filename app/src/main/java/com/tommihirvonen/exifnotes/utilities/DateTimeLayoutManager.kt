@@ -25,6 +25,7 @@ import android.view.View
 import android.widget.DatePicker
 import android.widget.TextView
 import android.widget.TimePicker
+import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.DateTime.Companion.fromCurrentTime
 
@@ -69,9 +70,12 @@ class DateTimeLayoutManager(
 
         clearLayout?.setOnClickListener {
             dateTime = null
-            dateTextView.text = ""
-            timeTextView.text = ""
+            dateTextView.text = activity.getString(R.string.Date)
+            timeTextView.text = activity.getString(R.string.Time)
         }
+
+        dateTextView.text = dateTime?.dateAsText ?: activity.getString(R.string.Date)
+        timeTextView.text = dateTime?.timeAsText ?: activity.getString(R.string.Time)
     }
 
 }

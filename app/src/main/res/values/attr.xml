@@ -21,4 +21,14 @@
     <attr name="iconTintColorPrimary" format="color" />
     <attr name="iconTintColorSecondary" format="color" />
     <attr name="iconTintColorTertiary" format="color" />
+
+    <declare-styleable name="DateTimeLayout">
+        <attr name="label" format="string"/>
+        <attr name="dateText" format="string"/>
+        <attr name="timeText" format="string"/>
+    </declare-styleable>
+
+    <declare-styleable name="DropdownButtonLayout">
+        <attr name="text" format="string"/>
+    </declare-styleable>
 </resources>

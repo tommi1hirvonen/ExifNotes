@@ -269,8 +269,8 @@
     <string name="NoMakeOrModel">No make or model was set!</string>
     <string name="NoMinOrMaxAperture">One end of the aperture range was empty!</string>
     <string name="NoMinOrMaxShutter">One end of the shutter range was empty!</string>
-    <string name="NoModel">No model was set!</string>
-    <string name="NoName">No name was set!</string>
+    <string name="NoModel">No model was set</string>
+    <string name="NoName">No name was set</string>
     <string name="NoOfExposuresSingleLine">No. of exposures</string>
     <string name="NoPhotos">No photos</string>
     <string name="NoPicturesExported">No pictures were exported</string>

@@ -44,6 +44,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.doOnPreDraw
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
@@ -74,20 +75,9 @@ class EditRollFragment : Fragment() {
     private val roll by lazy { requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll() }
     private val newRoll by lazy { roll.copy() }
 
-    private val dateLoadedManager by lazy {
-        DateTimeLayoutManager(requireActivity(), binding.dateLayout,
-            binding.timeLayout, binding.dateText, binding.timeText, roll.date, null)
-    }
-    private val dateUnloadedManager by lazy {
-        DateTimeLayoutManager(requireActivity(), binding.dateUnloadedLayout,
-            binding.timeUnloadedLayout, binding.dateUnloadedText, binding.timeUnloadedText, roll.unloaded,
-            binding.clearDateUnloaded)
-    }
-    private val dateDevelopedManager by lazy {
-        DateTimeLayoutManager(requireActivity(), binding.dateDevelopedLayout,
-            binding.timeDevelopedLayout, binding.dateDevelopedText, binding.timeDevelopedText, roll.developed,
-            binding.clearDateDeveloped)
-    }
+    private lateinit var dateLoadedManager: DateTimeLayoutManager
+    private lateinit var dateUnloadedManager: DateTimeLayoutManager
+    private lateinit var dateDevelopedManager: DateTimeLayoutManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         model.cameras.observe(viewLifecycleOwner) { cameras ->
@@ -101,16 +91,17 @@ class EditRollFragment : Fragment() {
         binding.title.titleTextView.text = requireArguments().getString(ExtraKeys.TITLE)
 
         // NAME EDIT TEXT
+        binding.nameEditText.addTextChangedListener { binding.nameLayout.error = null }
         binding.nameEditText.setText(roll.name)
         // Place the cursor at the end of the input field
-        binding.nameEditText.setSelection(binding.nameEditText.text.length)
+        binding.nameEditText.setSelection(binding.nameEditText.text?.length ?: 0)
         binding.nameEditText.isSingleLine = false
 
 
         // NOTE EDIT TEXT
         binding.noteEditText.isSingleLine = false
         binding.noteEditText.setText(roll.note)
-        binding.noteEditText.setSelection(binding.noteEditText.text.length)
+        binding.noteEditText.setSelection(binding.noteEditText.text?.length ?: 0)
 
 
         // FILM STOCK PICK DIALOG
@@ -212,16 +203,35 @@ class EditRollFragment : Fragment() {
         if (roll.date == null) {
             roll.date = DateTime.fromCurrentTime()
         }
-        binding.dateText.text = roll.date?.dateAsText
-        binding.timeText.text = roll.date?.timeAsText
+
+        dateLoadedManager = DateTimeLayoutManager(
+            requireActivity(),
+            binding.dateLoadedLayout.dateText,
+            binding.dateLoadedLayout.timeText,
+            binding.dateLoadedLayout.dateText,
+            binding.dateLoadedLayout.timeText,
+            roll.date,
+            null)
 
         // DATE & TIME UNLOADED PICK DIALOG
-        binding.dateUnloadedText.text = roll.unloaded?.dateAsText
-        binding.timeUnloadedText.text = roll.unloaded?.timeAsText
+        dateUnloadedManager = DateTimeLayoutManager(
+            requireActivity(),
+            binding.dateUnloadedLayout.dateText,
+            binding.dateUnloadedLayout.timeText,
+            binding.dateUnloadedLayout.dateText,
+            binding.dateUnloadedLayout.timeText,
+            roll.unloaded,
+            binding.clearDateUnloaded)
 
         // DATE & TIME DEVELOPED PICK DIALOG
-        binding.dateDevelopedText.text = roll.developed?.dateAsText
-        binding.timeDevelopedText.text = roll.developed?.timeAsText
+        dateDevelopedManager = DateTimeLayoutManager(
+            requireActivity(),
+            binding.dateDevelopedLayout.dateText,
+            binding.dateDevelopedLayout.timeText,
+            binding.dateDevelopedLayout.dateText,
+            binding.dateDevelopedLayout.timeText,
+            roll.developed,
+            binding.clearDateDeveloped)
 
 
         //ISO PICKER
@@ -316,6 +326,7 @@ class EditRollFragment : Fragment() {
             roll.filmStock = newRoll.filmStock
             return true
         } else {
+            binding.nameLayout.error = getString(R.string.NoName)
             Toast.makeText(activity, resources.getString(R.string.NoName),
                     Toast.LENGTH_SHORT).show()
             return false
