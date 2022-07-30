@@ -229,6 +229,15 @@ class EditRollFragment : Fragment() {
         isoAutoComplete.setText(iso, false)
         val isoValues = requireActivity().resources.getStringArray(R.array.ISOValues)
         isoAutoComplete.setSimpleItems(isoValues)
+        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
+        // However in that case, the AutoCompleteTextView onClick method is not called.
+        // By setting the endIconOnClickListener to null onClick events are propagated
+        // to AutoCompleteTextView. This way we can force the preselection of the current item.
+        binding.isoPushPullFormat.isoMenu.setEndIconOnClickListener(null)
+        isoAutoComplete.setOnClickListener {
+            val currentIndex = isoValues.indexOf(isoAutoComplete.text.toString())
+            if (currentIndex >= 0) isoAutoComplete.listSelection = currentIndex
+        }
 
 
         //PUSH PULL PICKER
@@ -236,6 +245,15 @@ class EditRollFragment : Fragment() {
         val pushPullAutoComplete = binding.isoPushPullFormat.pushPullMenu.editText as MaterialAutoCompleteTextView
         pushPullAutoComplete.setText(newRoll.pushPull, false)
         pushPullAutoComplete.setSimpleItems(pushPullValues)
+        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
+        // However in that case, the AutoCompleteTextView onClick method is not called.
+        // By setting the endIconOnClickListener to null onClick events are propagated
+        // to AutoCompleteTextView. This way we can force the preselection of the current item.
+        binding.isoPushPullFormat.pushPullMenu.setEndIconOnClickListener(null)
+        pushPullAutoComplete.setOnClickListener {
+            val currentIndex = pushPullValues.indexOf(pushPullAutoComplete.text.toString())
+            if (currentIndex >= 0) pushPullAutoComplete.listSelection = currentIndex
+        }
 
 
         //FORMAT PICKER

@@ -68,160 +68,127 @@
             android:orientation="vertical"
             >
 
-            <!--FRAME COUNT-->
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingLeft="@dimen/FrameDialogSidePadding"
-                android:paddingRight="@dimen/FrameDialogSidePadding"
-                android:id="@+id/frame_count_layout"
-                tools:ignore="KeyboardInaccessibleWidget">
+                android:text="@string/FrameCount"
+                android:layout_marginTop="5dp"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
+                style="@style/TextAppearance.Material3.BodySmall"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:text="@string/FrameCount"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    tools:ignore="RtlHardcoded,RtlSymmetry" />
-
-                <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/frame_count_spinner"
-                    android:prompt="@string/ChooseFrameCount"
-                    android:spinnerMode="dropdown"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
-                    />
-
-            </LinearLayout>
-
-
-            <View
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
-
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
+                <androidx.constraintlayout.widget.Guideline
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:id="@+id/guideline"
+                    app:layout_constraintGuide_percent="0.5"
+                    android:orientation="vertical"/>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/frame_count_menu"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintRight_toRightOf="@id/guideline"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent">
+                    <AutoCompleteTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.tommihirvonen.exifnotes.views.DateTimeLayout
                 android:id="@+id/date_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
                 android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
                 app:label="@string/Date"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                >
-
+                android:layout_marginTop="15dp"
+                android:paddingHorizontal="@dimen/FrameDialogSidePadding">
                 <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline_vertical_005"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.5" />
-
-                <!--APERTURE-->
-                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:orientation="vertical"
-                    android:id="@+id/aperture_layout"
-                    android:paddingLeft="@dimen/FrameDialogSidePadding"
-                    android:paddingRight="@dimen/FrameDialogSidePadding"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="@id/guideline_vertical_005"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/aperture_title"
-                        android:paddingTop="7dp"
-                        android:text="@string/Aperture"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        />
-
-                    <Spinner
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/aperture_spinner"
-                        android:prompt="@string/ChooseApertureValue"
-                        android:spinnerMode="dropdown"
-
-                        android:layout_marginTop="5dp"
-                        android:layout_marginBottom="10dp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/aperture_title"
-                        app:layout_constraintRight_toLeftOf="@id/aperture_edit_image_view"
-                        />
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:clickable="true"
-                        android:background="?android:attr/selectableItemBackgroundBorderless"
-                        android:id="@+id/aperture_edit_image_view"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginLeft="10dp"
-                        android:src="@drawable/ic_outline_edit_24"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/aperture_spinner"
-                        app:layout_constraintBottom_toBottomOf="@id/aperture_spinner"
-                        app:tint="?attr/colorSecondary" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <!--SHUTTER SPEED-->
-                <LinearLayout
+                    android:id="@+id/guideline_aperture_shutter"
+                    app:layout_constraintGuide_percent="0.55"/>
+                <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:id="@+id/shutter_layout"
-                    android:paddingLeft="@dimen/FrameDialogSidePadding"
-                    android:paddingRight="@dimen/FrameDialogSidePadding"
+                    android:id="@+id/aperture_label"
+                    android:text="@string/Aperture"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toLeftOf="@id/guideline_vertical_005"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    tools:ignore="KeyboardInaccessibleWidget">
+                    app:layout_constraintRight_toLeftOf="@id/guideline_aperture_shutter"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text="@string/Shutter"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp"
-                        />
-
-                    <Spinner
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/aperture_menu"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/aperture_label"
+                    app:layout_constraintRight_toLeftOf="@id/aperture_edit_image_view"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:layout_marginRight="10dp">
+                    <AutoCompleteTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/shutter_speed_spinner"
-                        android:prompt="@string/ChooseShutterSpeed"
-                        android:spinnerMode="dropdown"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginBottom="10dp"
+                        android:inputType="none"
                         />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                </LinearLayout>
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:clickable="true"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:id="@+id/aperture_edit_image_view"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginTop="5dp"
+                    android:src="@drawable/ic_outline_edit_24"
+                    app:layout_constraintTop_toTopOf="@id/aperture_menu"
+                    app:layout_constraintBottom_toBottomOf="@id/aperture_menu"
+                    app:layout_constraintRight_toRightOf="@id/guideline_aperture_shutter"
+                    app:tint="?attr/colorSecondary" />
 
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ShutterSpeed"
+                    android:id="@+id/shutter_speed_label"
+                    android:layout_marginHorizontal="2dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/guideline_aperture_shutter"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/shutter_speed_menu"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    app:layout_constraintTop_toBottomOf="@id/shutter_speed_label"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/guideline_aperture_shutter">
+                    <AutoCompleteTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
 
             <RelativeLayout
@@ -640,40 +607,21 @@
                 android:layout_height="1dp"
                 android:background="?attr/iconTintColorSecondary" />
 
-            <!--NOTE-->
-            <LinearLayout
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:id="@+id/note_layout"
-                android:background="?android:attr/selectableItemBackground"
-                android:paddingLeft="@dimen/FrameDialogSidePadding"
-                android:paddingRight="@dimen/FrameDialogSidePadding"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:text="@string/DescriptionOrNote"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <EditText
+                android:layout_marginTop="15dp"
+                android:paddingBottom="20dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/note_editText"
-                    android:inputType="textCapSentences"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                    />
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:hint="@string/DescriptionOrNote"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!--COMPLEMENTARY PICTURE-->
             <LinearLayout

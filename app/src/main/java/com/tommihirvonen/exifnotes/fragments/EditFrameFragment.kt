@@ -60,6 +60,7 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
 import com.tommihirvonen.exifnotes.databinding.FragmentEditFrameBinding
@@ -210,7 +211,7 @@ open class EditFrameFragment : Fragment() {
                         mountableLenses?.add(lens)
                     }
                     binding.lensText.text = lens.name
-                    initializeApertureSpinner()
+                    initializeApertureMenu()
                     if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
                     else if (newFrame.focalLength < lens.minFocalLength) newFrame.focalLength = lens.minFocalLength
                     newFrame.lens = lens
@@ -233,33 +234,27 @@ open class EditFrameFragment : Fragment() {
         //NOTES FIELD
         binding.noteEditText.isSingleLine = false
         binding.noteEditText.setText(frame.note)
-        binding.noteEditText.setSelection(binding.noteEditText.text.length)
+        binding.noteEditText.setSelection(binding.noteEditText.text?.length ?: 0)
 
         //COUNT BUTTON
-        val frameCountValues = IntArray(100) { it + 1 }.toTypedArray()
-        ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, frameCountValues)
-                .also { adapter ->
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    binding.frameCountSpinner.adapter = adapter
-                }
-        try {
-            binding.frameCountSpinner.setSelection(newFrame.count - 1)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        val frameCountValues = IntArray(100) { it + 1 }.map { it.toString() }.toTypedArray()
+        val frameCountMenu = binding.frameCountMenu.editText as MaterialAutoCompleteTextView
+        frameCountMenu.setSimpleItems(frameCountValues)
+        frameCountMenu.setText(newFrame.count.toString(), false)
+        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
+        // However in that case, the AutoCompleteTextView onClick method is not called.
+        // By setting the endIconOnClickListener to null onClick events are propagated
+        // to AutoCompleteTextView. This way we can force the preselection of the current item.
+        binding.frameCountMenu.setEndIconOnClickListener(null)
+        frameCountMenu.setOnClickListener {
+            frameCountMenu.listSelection = frameCountMenu.text.toString().toInt() - 1
         }
 
         //SHUTTER SPEED BUTTON
-        initializeShutterSpeedSpinner()
+        initializeShutterSpeedMenu()
 
         //APERTURE BUTTON
-        initializeApertureSpinner(allowCustomValue = true)
-        binding.apertureSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) { }
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val aperture = parent?.adapter?.getItem(position) as String
-                newFrame.aperture = if (aperture != resources.getString(R.string.NoValue)) aperture else null
-            }
-        }
+        initializeApertureMenu(allowCustomValue = true)
         binding.apertureEditImageView.setOnClickListener {
             val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
             val editText = view.findViewById<EditText>(R.id.edit_text)
@@ -274,7 +269,7 @@ open class EditFrameFragment : Fragment() {
                     .setTitle(R.string.EnterCustomerApertureValue)
                     .setPositiveButton(R.string.OK) { _, _ ->
                         newFrame.aperture = editText.text.toString()
-                        initializeApertureSpinner(allowCustomValue = true)
+                        initializeApertureMenu(allowCustomValue = true)
                     }
                     .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
                     .create()
@@ -427,11 +422,13 @@ open class EditFrameFragment : Fragment() {
     }
 
     internal fun commitChanges() {
-        val shutter = binding.shutterSpeedSpinner.selectedItem as String
+        val shutter = binding.shutterSpeedMenu.editText?.text.toString()
         frame.shutter = if (shutter != resources.getString(R.string.NoValue)) shutter else null
 
-        frame.aperture = newFrame.aperture
-        frame.count = binding.frameCountSpinner.selectedItem as Int
+        val aperture = binding.apertureMenu.editText?.text.toString()
+        frame.aperture = if (aperture != resources.getString(R.string.NoValue)) aperture else null
+
+        frame.count = binding.frameCountMenu.editText?.text.toString().toInt()
         frame.note = binding.noteEditText.text.toString()
         frame.date = dateTimeLayoutManager.dateTime
         frame.lens = newFrame.lens // null if the camera is a fixed-lens camera
@@ -523,7 +520,7 @@ open class EditFrameFragment : Fragment() {
         }
     }
 
-    private fun initializeApertureSpinner(allowCustomValue: Boolean = false) {
+    private fun initializeApertureMenu(allowCustomValue: Boolean = false) {
         val aperture = newFrame.aperture
         val displayedApertureValues = (
                 lens?.apertureValues(requireContext())
@@ -537,35 +534,34 @@ open class EditFrameFragment : Fragment() {
                         it
                     }
                 }
-        ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, displayedApertureValues)
-                .also { adapter ->
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    binding.apertureSpinner.adapter = adapter
-                }
-        try {
-            val initialValue = displayedApertureValues.indexOfFirst { it == aperture }
-            if (initialValue != -1) binding.apertureSpinner.setSelection(initialValue)
-            else binding.apertureSpinner.setSelection(displayedApertureValues.size - 1)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        val autoComplete = binding.apertureMenu.editText as MaterialAutoCompleteTextView
+        autoComplete.setSimpleItems(displayedApertureValues)
+        autoComplete.setText(aperture, false)
+        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
+        // However in that case, the AutoCompleteTextView onClick method is not called.
+        // By setting the endIconOnClickListener to null onClick events are propagated
+        // to AutoCompleteTextView. This way we can force the preselection of the current item.
+        binding.apertureMenu.setEndIconOnClickListener(null)
+        autoComplete.setOnClickListener {
+            val currentIndex = displayedApertureValues.indexOf(autoComplete.text.toString())
+            if (currentIndex >= 0) autoComplete.listSelection = currentIndex
         }
     }
 
-    private fun initializeShutterSpeedSpinner() {
+    private fun initializeShutterSpeedMenu() {
         val displayedShutterValues = frame.roll.camera?.shutterSpeedValues(requireContext())
                 ?: Camera.defaultShutterSpeedValues(requireContext())
-
-        ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, displayedShutterValues)
-                .also { adapter ->
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    binding.shutterSpeedSpinner.adapter = adapter
-                }
-        try {
-            val initialValue = displayedShutterValues.indexOfFirst { it == newFrame.shutter }
-            if (initialValue != -1) binding.shutterSpeedSpinner.setSelection(initialValue)
-            else binding.shutterSpeedSpinner.setSelection(displayedShutterValues.size - 1)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        val autoComplete = binding.shutterSpeedMenu.editText as MaterialAutoCompleteTextView
+        autoComplete.setSimpleItems(displayedShutterValues)
+        autoComplete.setText(newFrame.shutter, false)
+        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
+        // However in that case, the AutoCompleteTextView onClick method is not called.
+        // By setting the endIconOnClickListener to null onClick events are propagated
+        // to AutoCompleteTextView. This way we can force the preselection of the current item.
+        binding.shutterSpeedMenu.setEndIconOnClickListener(null)
+        autoComplete.setOnClickListener {
+            val currentIndex = displayedShutterValues.indexOf(autoComplete.text.toString())
+            if (currentIndex >= 0) autoComplete.listSelection = currentIndex
         }
     }
 
@@ -629,7 +625,7 @@ open class EditFrameFragment : Fragment() {
                     binding.focalLengthText.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
 
                     //Check the aperture value's validity against the new lens' properties.
-                    initializeApertureSpinner()
+                    initializeApertureMenu()
                     // The lens was changed, reset filters
                     resetFilters()
                 } else {
@@ -637,7 +633,7 @@ open class EditFrameFragment : Fragment() {
                     newFrame.lens = null
                     newFrame.focalLength = 0
                     updateFocalLengthTextView()
-                    initializeApertureSpinner()
+                    initializeApertureMenu()
                     resetFilters()
                 }
                 dialog.dismiss()
