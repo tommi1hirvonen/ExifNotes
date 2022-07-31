@@ -280,6 +280,7 @@
     <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
     <string name="Normal">Normal</string>
     <string name="OK">OK</string>
+    <string name="Options">Options</string>
     <string name="Orange">Orange</string>
     <plurals name="PhotosAmount">
         <item quantity="one">%d photo</item>

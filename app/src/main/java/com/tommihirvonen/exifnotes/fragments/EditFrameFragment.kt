@@ -365,7 +365,8 @@ open class EditFrameFragment : Fragment() {
         }
 
         //COMPLEMENTARY PICTURE
-        binding.pictureLayout.setOnClickListener(PictureLayoutOnClickListener())
+        binding.complementaryPicturesOptionsButton
+            .setOnClickListener(PictureLayoutOnClickListener())
 
         //FLASH
         binding.flashCheckbox.isChecked = frame.flashUsed
@@ -465,7 +466,7 @@ open class EditFrameFragment : Fragment() {
         // If the picture filename was not set, set text and return. Otherwise continue
         val filename = newFrame.pictureFilename
         if (filename == null) {
-            binding.pictureText.setText(R.string.ClickToAdd)
+            binding.pictureText.text = null
             return
         }
         val pictureFile = ComplementaryPicturesManager.getPictureFile(requireActivity(), filename)
@@ -826,7 +827,7 @@ open class EditFrameFragment : Fragment() {
                         newFrame.pictureFilename = null
                         binding.ivPicture.visibility = View.GONE
                         binding.pictureText.visibility = View.VISIBLE
-                        binding.pictureText.setText(R.string.ClickToAdd)
+                        binding.pictureText.text = null
                         dialogInterface.dismiss()
                     }
                 }
