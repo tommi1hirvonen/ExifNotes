@@ -480,111 +480,61 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                >
-
+                android:layout_marginTop="15dp"
+                android:paddingHorizontal="@dimen/FrameDialogSidePadding">
                 <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline_vertical3_005"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.5" />
-
-                <!--FLASH-->
-                <RelativeLayout
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:id="@+id/flash_layout"
-                    android:clickable="true"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:paddingLeft="@dimen/FrameDialogSidePadding"
-                    android:paddingRight="@dimen/FrameDialogSidePadding"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="@id/guideline_vertical3_005"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    tools:ignore="KeyboardInaccessibleWidget"
-                    >
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_alignParentTop="true"
-                        >
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingTop="7dp"
-                            android:text="@string/Flash"
-                            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                            android:textSize="17sp"
-                            />
-
-                    </LinearLayout>
-
-                    <CheckBox
-                        android:id="@+id/flash_checkbox"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="12dp">
-
-                    </CheckBox>
-
-                </RelativeLayout>
-
-                <!--LIGHT SOURCE-->
-                <LinearLayout
+                    android:orientation="vertical"
+                    android:id="@+id/guideline_flash_light"
+                    app:layout_constraintGuide_percent="0.5"/>
+                <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingLeft="@dimen/FrameDialogSidePadding"
-                    android:paddingRight="@dimen/FrameDialogSidePadding"
+                    android:id="@+id/flash_label"
+                    android:text="@string/Flash"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/guideline_flash_light"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
+
+                <CheckBox
+                    android:id="@+id/flash_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="40dp"
+                    app:layout_constraintTop_toBottomOf="@id/flash_label"
+                    app:layout_constraintRight_toLeftOf="@id/guideline_flash_light" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/LightSource"
+                    android:id="@+id/light_source_label"
+                    android:layout_marginLeft="5dp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toLeftOf="@id/guideline_vertical3_005"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    >
+                    app:layout_constraintLeft_toRightOf="@id/guideline_flash_light"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text="@string/LightSource"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp"
-                        />
-
-                    <Spinner
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/light_source_menu"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    app:layout_constraintTop_toBottomOf="@id/light_source_label"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/guideline_flash_light">
+                    <AutoCompleteTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/light_source_spinner"
-                        android:entries="@array/LightSource"
-                        android:prompt="@string/LightSource"
-                        android:spinnerMode="dropdown"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginBottom="5dp"
-                        />
-
-                </LinearLayout>
-
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
 
 
             <com.google.android.material.textfield.TextInputLayout

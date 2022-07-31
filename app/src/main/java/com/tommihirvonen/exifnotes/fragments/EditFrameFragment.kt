@@ -287,6 +287,10 @@ open class EditFrameFragment : Fragment() {
         val exposureCompMenu = binding.exposureCompMenu.editText as MaterialAutoCompleteTextView
         exposureCompMenu.setSimpleItems(exposureCompValues)
         exposureCompMenu.setText(newFrame.exposureComp, false)
+        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
+        // However in that case, the AutoCompleteTextView onClick method is not called.
+        // By setting the endIconOnClickListener to null onClick events are propagated
+        // to AutoCompleteTextView. This way we can force the preselection of the current item.
         binding.exposureCompMenu.setEndIconOnClickListener(null)
         exposureCompMenu.setOnClickListener {
             val currentIndex = exposureCompValues.indexOf(newFrame.exposureComp ?: "0")
@@ -365,14 +369,17 @@ open class EditFrameFragment : Fragment() {
 
         //FLASH
         binding.flashCheckbox.isChecked = frame.flashUsed
-        binding.flashLayout.setOnClickListener { binding.flashCheckbox.isChecked = !binding.flashCheckbox.isChecked }
 
         //LIGHT SOURCE
+        val lightSourceValues = resources.getStringArray(R.array.LightSource)
+        val lightSourceMenu = binding.lightSourceMenu.editText as MaterialAutoCompleteTextView
+        lightSourceMenu.setSimpleItems(lightSourceValues)
         try {
-            binding.lightSourceSpinner.setSelection(newFrame.lightSource)
+            lightSourceMenu.setText(lightSourceValues[newFrame.lightSource], false)
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
+
 
         binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
         binding.positiveButton.setOnClickListener {
@@ -443,8 +450,11 @@ open class EditFrameFragment : Fragment() {
         frame.focalLength = newFrame.focalLength
         frame.pictureFilename = newFrame.pictureFilename
         frame.filters = newFrame.filters
-        frame.lightSource = binding.lightSourceSpinner.selectedItemPosition
         frame.flashUsed = binding.flashCheckbox.isChecked
+
+        val lightSourceValues = resources.getStringArray(R.array.LightSource)
+        val lightSourceIndex = lightSourceValues.indexOf(binding.lightSourceMenu.editText?.text.toString())
+        frame.lightSource = if (lightSourceIndex >= 0) lightSourceIndex else 0
     }
 
     /**
