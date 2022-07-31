@@ -32,6 +32,7 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.view.doOnPreDraw
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -85,6 +86,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     private val transitionInterpolator = FastOutSlowInInterpolator()
     private val transitionDuration = 250L
+    private var returningFromFrameEdit = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -127,7 +129,10 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
             binding.noAddedFrames.visibility = if (frames.isEmpty()) View.VISIBLE else View.GONE
             frameAdapter.notifyDataSetChanged()
 
-            if (!transitionCompleted) {
+            // Only apply transitions on ViewModel changes if they haven't already been applied.
+            // Also check that we are not returning from EditFrameFragment.
+            // In that case transitions are handled in onViewCreated() instead.
+            if (!transitionCompleted && !returningFromFrameEdit) {
                 startPostponedEnterTransition()
                 ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
                     duration = transitionDuration
@@ -144,6 +149,18 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         super.onViewCreated(view, savedInstanceState)
         binding.container.alpha = 0f
         postponeEnterTransition()
+        // If returning from EditFrameFragment, handle transitions here.
+        if (returningFromFrameEdit) {
+            // Start the transition once all views have been measured and laid out.
+            (view.parent as? ViewGroup)?.doOnPreDraw {
+                startPostponedEnterTransition()
+                ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
+                    duration = transitionDuration
+                    start()
+                }
+                returningFromFrameEdit = false
+            }
+        }
     }
 
     override fun onItemClick(frame: Frame, view: View) {
@@ -215,6 +232,8 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
             arguments.putParcelable(ExtraKeys.FRAME, frame)
         }
+
+        returningFromFrameEdit = true
 
         // Use the provided view as a primary shared element.
         // If no view was provided, use the floating action button.
