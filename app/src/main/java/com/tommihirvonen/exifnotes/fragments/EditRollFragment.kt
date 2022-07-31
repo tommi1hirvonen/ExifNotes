@@ -302,7 +302,7 @@ class EditRollFragment : Fragment() {
             val isoText = binding.isoPushPullFormat.isoMenu.editText?.text.toString()
             roll.iso = if (isoText.isEmpty()) 0 else isoText.toInt()
 
-            roll.pushPull = binding.isoPushPullFormat.pushPullMenu.editText?.text.toString()
+            roll.pushPull = binding.isoPushPullFormat.pushPullMenu.editText?.text.toString().ifEmpty { null }
 
             try {
                 val format = binding.isoPushPullFormat.formatMenu.editText?.text.toString()

@@ -284,24 +284,28 @@ open class EditFrameFragment : Fragment() {
         //EXPOSURE COMP BUTTON
         val exposureCompValues = frame.roll.camera?.exposureCompValues(requireContext())
                 ?: Camera.defaultExposureCompValues(requireContext())
-        ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, exposureCompValues)
-                .also { adapter ->
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    binding.exposureCompSpinner.adapter = adapter
-                }
-        try {
-            val exposureComp = frame.exposureComp
-            if (exposureComp != null) binding.exposureCompSpinner.setSelection(exposureCompValues.indexOf(exposureComp))
-            else binding.exposureCompSpinner.setSelection(exposureCompValues.indexOf("0"))
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            e.printStackTrace()
+        val exposureCompMenu = binding.exposureCompMenu.editText as MaterialAutoCompleteTextView
+        exposureCompMenu.setSimpleItems(exposureCompValues)
+        exposureCompMenu.setText(newFrame.exposureComp, false)
+        binding.exposureCompMenu.setEndIconOnClickListener(null)
+        exposureCompMenu.setOnClickListener {
+            val currentIndex = exposureCompValues.indexOf(newFrame.exposureComp ?: "0")
+            if (currentIndex >= 0) exposureCompMenu.listSelection = currentIndex
         }
 
         //NO OF EXPOSURES BUTTON
-        try {
-            binding.noOfExposuresSpinner.setSelection(newFrame.noOfExposures - 1)
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            e.printStackTrace()
+        val noOfExposuresValues = IntArray(10) { it + 1 }.map { it.toString() }.toTypedArray()
+        val noOfExposuresMenu = binding.noOfExposuresMenu.editText as MaterialAutoCompleteTextView
+        noOfExposuresMenu.setSimpleItems(noOfExposuresValues)
+        noOfExposuresMenu.setText(newFrame.noOfExposures.toString(), false)
+        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
+        // However in that case, the AutoCompleteTextView onClick method is not called.
+        // By setting the endIconOnClickListener to null onClick events are propagated
+        // to AutoCompleteTextView. This way we can force the preselection of the current item.
+        binding.noOfExposuresMenu.setEndIconOnClickListener(null)
+        noOfExposuresMenu.setOnClickListener {
+            val currentIndex = noOfExposuresValues.indexOf(newFrame.noOfExposures.toString())
+            if (currentIndex >= 0) noOfExposuresMenu.listSelection = currentIndex
         }
 
         // LOCATION PICK DIALOG
@@ -422,10 +426,10 @@ open class EditFrameFragment : Fragment() {
     }
 
     internal fun commitChanges() {
-        val shutter = binding.shutterSpeedMenu.editText?.text.toString()
+        val shutter = binding.shutterSpeedMenu.editText?.text.toString().ifEmpty { null }
         frame.shutter = if (shutter != resources.getString(R.string.NoValue)) shutter else null
 
-        val aperture = binding.apertureMenu.editText?.text.toString()
+        val aperture = binding.apertureMenu.editText?.text.toString().ifEmpty { null }
         frame.aperture = if (aperture != resources.getString(R.string.NoValue)) aperture else null
 
         frame.count = binding.frameCountMenu.editText?.text.toString().toInt()
@@ -434,8 +438,8 @@ open class EditFrameFragment : Fragment() {
         frame.lens = newFrame.lens // null if the camera is a fixed-lens camera
         frame.location = newFrame.location
         frame.formattedAddress = newFrame.formattedAddress
-        frame.exposureComp = binding.exposureCompSpinner.selectedItem as String
-        frame.noOfExposures = (binding.noOfExposuresSpinner.selectedItem as String).toInt()
+        frame.exposureComp = binding.exposureCompMenu.editText?.text.toString().ifEmpty { null }
+        frame.noOfExposures = binding.noOfExposuresMenu.editText?.text.toString().toInt()
         frame.focalLength = newFrame.focalLength
         frame.pictureFilename = newFrame.pictureFilename
         frame.filters = newFrame.filters
