@@ -36,7 +36,6 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -48,7 +47,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentEditRollBinding
@@ -69,6 +67,8 @@ class EditRollFragment : Fragment() {
 
     private val model by activityViewModels<RollViewModel>()
     private var cameras = emptyList<Camera>()
+    private val cameraItems get() = listOf(resources.getString(R.string.NoCamera))
+        .plus(cameras.map { it.name }).toTypedArray()
     
     private lateinit var binding: FragmentEditRollBinding
 
@@ -80,15 +80,17 @@ class EditRollFragment : Fragment() {
     private lateinit var dateDevelopedManager: DateTimeLayoutManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        model.cameras.observe(viewLifecycleOwner) { cameras ->
-            this.cameras = cameras
-        }
-
         binding = FragmentEditRollBinding.inflate(inflater, container, false)
 
         val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
         binding.root.transitionName = transitionName
         binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
+
+        val cameraAutoComplete = binding.cameraMenu.editText as MaterialAutoCompleteTextView
+        model.cameras.observe(viewLifecycleOwner) { cameras ->
+            this.cameras = cameras
+            cameraAutoComplete.setSimpleItems(cameraItems)
+        }
 
         // NAME EDIT TEXT
         binding.nameEditText.addTextChangedListener { binding.nameLayout.error = null }
@@ -148,32 +150,16 @@ class EditRollFragment : Fragment() {
 
 
         // CAMERA PICK DIALOG
-        binding.cameraLayout.text = roll.camera?.name
-        binding.cameraLayout.setOnClickListener {
-            val listItems = listOf(resources.getString(R.string.NoCamera))
-                    .plus(cameras.map { it.name }).toTypedArray()
-
-            val index = cameras.indexOfFirst { it == newRoll.camera }
-            val checkedItem = if (index == -1) 0 else index + 1
-
-            val builder = MaterialAlertDialogBuilder(requireActivity())
-            builder.setTitle(R.string.UsedCamera)
-            builder.setSingleChoiceItems(listItems, checkedItem) { dialogInterface: DialogInterface, which: Int ->
-                // listItems also contains the No camera option
-                newRoll.camera = if (which > 0) {
-                    binding.cameraLayout.text = listItems[which]
-                    cameras[which - 1]
-                } else {
-                    binding.cameraLayout.text = null
-                    null
-                }
-                dialogInterface.dismiss()
+        cameraAutoComplete.setText(roll.camera?.name, false)
+        cameraAutoComplete.setSimpleItems(cameraItems)
+        cameraAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            newRoll.camera = if (position > 0) {
+                cameras[position - 1].also { cameraAutoComplete.setText(it.name, false) }
+            } else {
+                cameraAutoComplete.setText(null, false)
+                null
             }
-            builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-            val alert1 = builder.create()
-            alert1.show()
         }
-
 
         // CAMERA ADD DIALOG
         binding.addCamera.isClickable = true
@@ -190,7 +176,8 @@ class EditRollFragment : Fragment() {
                 val camera: Camera = bundle.getParcelable(ExtraKeys.CAMERA)
                     ?: return@setFragmentResultListener
                 model.addCamera(camera)
-                binding.cameraLayout.text = camera.name
+                cameraAutoComplete.setSimpleItems(cameraItems)
+                cameraAutoComplete.setText(camera.name)
                 newRoll.camera = camera
             }
         }

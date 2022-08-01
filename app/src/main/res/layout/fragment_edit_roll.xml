@@ -188,19 +188,27 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="@dimen/RollDialogSidePadding">
 
-                <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
-                    android:id="@+id/camera_layout"
-                    android:layout_width="match_parent"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/camera_menu"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_marginTop="5dp"
-                    android:layout_toLeftOf="@id/camera_button_layout" />
+                    android:layout_toLeftOf="@id/camera_button_layout">
+                    <AutoCompleteTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <FrameLayout
                     android:id="@+id/camera_button_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_alignParentBottom="true"
                     android:layout_alignParentRight="true">
                     <Button
                         android:id="@+id/add_camera"
