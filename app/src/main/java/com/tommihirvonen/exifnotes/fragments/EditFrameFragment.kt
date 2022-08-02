@@ -188,39 +188,71 @@ open class EditFrameFragment : Fragment() {
             mountableLenses = database.lenses.toMutableList()
         }
 
-        // LENS PICK DIALOG
-        if (frame.roll.camera?.isNotFixedLens == true) {
-            binding.lensText.text = frame.lens?.name ?: ""
-            binding.lensLayout.setOnClickListener(LensLayoutOnClickListener())
-            // LENS ADD DIALOG
-            binding.addLens.isClickable = true
-            binding.addLens.setOnClickListener {
-                binding.noteEditText.clearFocus()
-                val dialog = EditLensDialog(fixedLens = false)
-                val arguments = Bundle()
-                arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
-                arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-                dialog.arguments = arguments
-                dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
-                dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
-                    val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
-                        ?: return@setFragmentResultListener
-                    database.addLens(lens)
-                    frame.roll.camera?.let {
-                        database.addCameraLensLink(it, lens)
-                        mountableLenses?.add(lens)
-                    }
-                    binding.lensText.text = lens.name
-                    initializeApertureMenu()
-                    if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
-                    else if (newFrame.focalLength < lens.minFocalLength) newFrame.focalLength = lens.minFocalLength
-                    newFrame.lens = lens
-                    updateFocalLengthTextView()
-                    resetFilters()
-                }
-            }
-        } else {
+        // LENS MENU
+        if (frame.roll.camera?.isFixedLens == true) {
             binding.lensLayout.visibility = View.GONE
+        }
+
+        val lensAutoComplete = binding.lensMenu.editText as MaterialAutoCompleteTextView
+        val lensItems = listOf(resources.getString(R.string.NoLens))
+            .plus(mountableLenses?.map { it.name } ?: emptyList()).toTypedArray()
+        lensAutoComplete.setSimpleItems(lensItems)
+        lensAutoComplete.setText(frame.lens?.name, false)
+        lensAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            if (position > 0) {
+                // Get the new lens, also account for the 'No lens' option (which - 1).
+                val lens = mountableLenses?.get(position - 1) ?: return@OnItemClickListener
+                lensAutoComplete.setText(lens.name, false)
+                newFrame.lens = lens
+                if (newFrame.focalLength > lens.maxFocalLength) {
+                    newFrame.focalLength = lens.maxFocalLength
+                } else if (newFrame.focalLength < lens.minFocalLength) {
+                    newFrame.focalLength = lens.minFocalLength
+                }
+                binding.focalLengthButton.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
+
+                //Check the aperture value's validity against the new lens' properties.
+                initializeApertureMenu()
+                // The lens was changed, reset filters
+                resetFilters()
+            } else {
+                lensAutoComplete.setText(null, false)
+                newFrame.lens = null
+                newFrame.focalLength = 0
+                updateFocalLengthTextView()
+                initializeApertureMenu()
+                resetFilters()
+            }
+        }
+
+        binding.addLens.setOnClickListener {
+            binding.noteEditText.clearFocus()
+            val dialog = EditLensDialog(fixedLens = false)
+            val arguments = Bundle()
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+            dialog.arguments = arguments
+            dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
+            dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
+                val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
+                    ?: return@setFragmentResultListener
+                database.addLens(lens)
+                frame.roll.camera?.let {
+                    database.addCameraLensLink(it, lens)
+                    mountableLenses?.add(lens)
+
+                    val lensItems1 = listOf(resources.getString(R.string.NoLens))
+                        .plus(mountableLenses?.map { l -> l.name } ?: emptyList()).toTypedArray()
+                    lensAutoComplete.setSimpleItems(lensItems1)
+                }
+                lensAutoComplete.setText(lens.name, false)
+                initializeApertureMenu()
+                if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
+                else if (newFrame.focalLength < lens.minFocalLength) newFrame.focalLength = lens.minFocalLength
+                newFrame.lens = lens
+                updateFocalLengthTextView()
+                resetFilters()
+            }
         }
 
 
@@ -609,54 +641,6 @@ open class EditFrameFragment : Fragment() {
     }
 
     // LISTENER CLASSES USED TO OPEN NEW DIALOGS AFTER ONCLICK EVENTS
-    /**
-     * Listener class attached to lens layout.
-     * Opens a new dialog to display lens options for current camera.
-     * Check the validity of aperture value, focal length and filter after lens has been changed.
-     */
-    private inner class LensLayoutOnClickListener : View.OnClickListener {
-        override fun onClick(view: View) {
-            val listItems = listOf(resources.getString(R.string.NoLens))
-                    .plus(mountableLenses?.map { it.name } ?: emptyList()).toTypedArray()
-            val checkedItem = newFrame.lens?.let { lens ->
-                mountableLenses?.indexOfFirst { it == lens }?.plus(1) ?: 0 // account for the 'No lens' option (+1)
-            } ?: 0
-
-            val builder = MaterialAlertDialogBuilder(requireActivity())
-            builder.setTitle(R.string.UsedLens)
-            builder.setSingleChoiceItems(listItems, checkedItem) { dialog: DialogInterface, which: Int ->
-                // Check if the lens was changed
-                if (which > 0) {
-                    // Get the new lens, also account for the 'No lens' option (which - 1).
-                    val lens = mountableLenses?.get(which - 1) ?: return@setSingleChoiceItems
-                    binding.lensText.text = lens.name
-                    newFrame.lens = lens
-                    if (newFrame.focalLength > lens.maxFocalLength) {
-                        newFrame.focalLength = lens.maxFocalLength
-                    } else if (newFrame.focalLength < lens.minFocalLength) {
-                        newFrame.focalLength = lens.minFocalLength
-                    }
-                    binding.focalLengthButton.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
-
-                    //Check the aperture value's validity against the new lens' properties.
-                    initializeApertureMenu()
-                    // The lens was changed, reset filters
-                    resetFilters()
-                } else {
-                    binding.lensText.text = ""
-                    newFrame.lens = null
-                    newFrame.focalLength = 0
-                    updateFocalLengthTextView()
-                    initializeApertureMenu()
-                    resetFilters()
-                }
-                dialog.dismiss()
-            }
-            builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-            val alert = builder.create()
-            alert.show()
-        }
-    }
 
     /**
      * Listener class attached to filter layout.
