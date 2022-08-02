@@ -74,8 +74,11 @@ class DropdownButtonLayout(context: Context, attrs: AttributeSet): FrameLayout(c
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.DropdownButtonLayout)
         val text = attributes.getString(R.styleable.DropdownButtonLayout_text)
         val hint = attributes.getString(R.styleable.DropdownButtonLayout_hint)
+        val maxLines = attributes.getInt(R.styleable.DropdownButtonLayout_maxLines, 1)
         textView.text = text
         hintView.text = hint
+        textView.maxLines = maxLines
+        hintView.maxLines = maxLines
         if (text.isNullOrEmpty()) {
             textView.visibility = View.GONE
             hintView.visibility = View.VISIBLE

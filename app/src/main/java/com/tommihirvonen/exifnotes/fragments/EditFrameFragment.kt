@@ -333,7 +333,7 @@ open class EditFrameFragment : Fragment() {
             newFrame.formattedAddress = null
             updateLocationTextView()
         }
-        binding.locationLayout.setOnClickListener {
+        binding.locationButton.setOnClickListener {
             val intent = Intent(activity, LocationPickActivity::class.java)
             intent.putExtra(ExtraKeys.LOCATION, newFrame.location)
             intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, newFrame.formattedAddress)
@@ -593,14 +593,13 @@ open class EditFrameFragment : Fragment() {
      */
     private fun updateLocationTextView() {
         when {
-            newFrame.formattedAddress?.isNotEmpty() == true -> binding.locationText.text = newFrame.formattedAddress
+            newFrame.formattedAddress?.isNotEmpty() == true -> binding.locationButton.text = newFrame.formattedAddress
             newFrame.location != null -> {
-                binding.locationText.text = newFrame.location?.readableLocation
+                binding.locationButton.text = newFrame.location?.readableLocation
                         ?.replace("N ", "N\n")?.replace("S ", "S\n")
             }
             else -> {
-                @SuppressLint("SetTextI18n")
-                binding.locationText.text = " \n "
+                binding.locationButton.text = null
             }
         }
     }

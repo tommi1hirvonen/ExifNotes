@@ -18,7 +18,7 @@
   -->
 
 <FrameLayout android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/border"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -35,8 +35,9 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"
+        android:paddingVertical="13dp"
         android:gravity="center_vertical"
         android:textSize="16sp"
         android:textColor="?attr/colorOnSurfaceVariant"
@@ -44,14 +45,14 @@
         android:id="@+id/hint"
         android:visibility="visible"
         android:ellipsize="end"
-        android:maxLines="1"
         tools:text="Hint placeholder"
         />
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"
+        android:paddingVertical="13dp"
         android:gravity="center_vertical"
         android:textSize="16sp"
         android:textColor="?attr/colorOnSurface"
@@ -59,6 +60,6 @@
         android:id="@+id/text"
         android:visibility="visible"
         android:ellipsize="end"
-        android:maxLines="1"/>
+        />
 
 </FrameLayout>

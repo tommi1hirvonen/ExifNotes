@@ -350,52 +350,38 @@
                 android:layout_height="1dp"
                 android:background="?attr/iconTintColorSecondary" />
 
-            <RelativeLayout
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:text="@string/Location"
+                android:layout_marginTop="5dp"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
+                style="@style/TextAppearance.Material3.BodySmall"/>
 
-                <!--LOCATION-->
-                <LinearLayout
-                    android:layout_width="match_parent"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
+
+                <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:clickable="true"
-                    android:id="@+id/location_layout"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:paddingLeft="@dimen/FrameDialogSidePadding"
-                    android:paddingRight="@dimen/FrameDialogSidePadding"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
-                        android:text="@string/Location"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp"
-                        />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
-                        android:paddingTop="5dp"
-                        android:layout_marginRight="95dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textSize="15sp"
-                        android:id="@+id/location_text"
-                        android:text="@string/ClickToSet"
-                        />
-
-                </LinearLayout>
+                    android:id="@+id/location_button"
+                    tools:text="This is my long location description text"
+                    app:maxLines="2"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/location_progress_bar"/>
 
                 <ProgressBar
                     android:id="@+id/location_progress_bar"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="15dp"
-                    android:layout_toLeftOf="@+id/clear_location"
+                    app:layout_constraintRight_toLeftOf="@id/clear_location"
+                    app:layout_constraintTop_toTopOf="@id/location_button"
+                    app:layout_constraintBottom_toBottomOf="@id/location_button"
                     android:visibility="invisible" />
 
                 <Button
@@ -403,18 +389,14 @@
                     style="@style/Widget.Material3.Button.TextButton.Icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="@dimen/FrameDialogImageMargin"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/location_button"
+                    app:layout_constraintBottom_toBottomOf="@id/location_button"
                     android:text="@string/Clear"
                     app:icon="@drawable/ic_baseline_close_24" />
 
-            </RelativeLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/iconTintColorSecondary" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

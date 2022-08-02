@@ -31,5 +31,6 @@
     <declare-styleable name="DropdownButtonLayout">
         <attr name="text" format="string"/>
         <attr name="hint" format="string"/>
+        <attr name="maxLines" format="integer"/>
     </declare-styleable>
 </resources>
