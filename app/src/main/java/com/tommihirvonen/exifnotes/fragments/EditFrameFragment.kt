@@ -279,7 +279,7 @@ open class EditFrameFragment : Fragment() {
 
         //FOCAL LENGTH BUTTON
         updateFocalLengthTextView()
-        binding.focalLengthLayout.setOnClickListener(FocalLengthLayoutOnClickListener())
+        binding.focalLengthButton.setOnClickListener(FocalLengthLayoutOnClickListener())
 
         //EXPOSURE COMP BUTTON
         val exposureCompValues = frame.roll.camera?.exposureCompValues(requireContext())
@@ -605,7 +605,7 @@ open class EditFrameFragment : Fragment() {
     }
 
     private fun updateFocalLengthTextView() {
-        binding.focalLengthText.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
+        binding.focalLengthButton.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
     }
 
     // LISTENER CLASSES USED TO OPEN NEW DIALOGS AFTER ONCLICK EVENTS
@@ -636,7 +636,7 @@ open class EditFrameFragment : Fragment() {
                     } else if (newFrame.focalLength < lens.minFocalLength) {
                         newFrame.focalLength = lens.minFocalLength
                     }
-                    binding.focalLengthText.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
+                    binding.focalLengthButton.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
 
                     //Check the aperture value's validity against the new lens' properties.
                     initializeApertureMenu()
