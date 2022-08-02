@@ -374,7 +374,7 @@ open class EditFrameFragment : Fragment() {
 
         // FILTER PICK DIALOG
         updateFiltersTextView()
-        binding.filterLayout.setOnClickListener(FilterLayoutOnClickListener())
+        binding.filtersButton.setOnClickListener(FilterLayoutOnClickListener())
 
         // FILTER ADD DIALOG
         binding.addFilter.isClickable = true
@@ -462,7 +462,7 @@ open class EditFrameFragment : Fragment() {
      * Updates the filters TextView
      */
     private fun updateFiltersTextView() {
-        binding.filterText.text = newFrame.filters.joinToString(separator = "\n") { "-${it.name}" }
+        binding.filtersButton.text = newFrame.filters.joinToString(separator = "\n") { "-${it.name}" }
     }
 
     internal fun commitChanges() {
@@ -617,7 +617,7 @@ open class EditFrameFragment : Fragment() {
      */
     private fun resetFilters() {
         newFrame.filters.clear()
-        binding.filterText.text = ""
+        binding.filtersButton.text = null
     }
 
     /**
