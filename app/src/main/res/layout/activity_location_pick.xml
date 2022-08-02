@@ -54,19 +54,20 @@
     <FrameLayout
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="80dp"
         android:layout_alignParentBottom="true"
-        android:background="?attr/colorSurface"
+        android:background="?attr/colorSurfaceVariant"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/formatted_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="80dp"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="10dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            tools:text="Formatted address" />
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -86,8 +87,8 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/bottom_bar"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="-28dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
         android:src="@drawable/ic_baseline_done_24" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -95,10 +96,10 @@
         style="?attr/floatingActionButtonSurfaceStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/fab"
+        android:layout_above="@id/fab"
         android:layout_alignParentRight="true"
         android:layout_marginRight="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="24dp"
         android:src="@drawable/ic_my_location_white_24dp"
         app:fabSize="mini" />
 
