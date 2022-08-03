@@ -31,6 +31,16 @@
         <item name="android:windowSharedElementExitTransition">@transition/shared_element_transition</item>
     </style>
 
+    <style name="IconButton.Outline" parent="Widget.Material3.Button.IconButton">
+        <item name="strokeColor">?attr/colorPrimary</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="IconButton.Tonal" parent="Widget.Material3.Button.IconButton">
+        <item name="backgroundTint">?attr/colorPrimaryContainer</item>
+        <item name="iconTint">?attr/colorOnPrimaryContainer</item>
+    </style>
+
     <!-- Custom style to color the settings activity's icons -->
     <style name="PreferenceTheme" parent="@style/PreferenceThemeOverlay">
         <item name="android:tint">#1C1B1F</item>

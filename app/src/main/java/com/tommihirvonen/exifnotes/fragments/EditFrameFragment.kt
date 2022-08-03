@@ -287,7 +287,7 @@ open class EditFrameFragment : Fragment() {
 
         //APERTURE BUTTON
         initializeApertureMenu(allowCustomValue = true)
-        binding.apertureEditImageView.setOnClickListener {
+        binding.apertureEditButton.setOnClickListener {
             val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
             val editText = view.findViewById<EditText>(R.id.edit_text)
             try {

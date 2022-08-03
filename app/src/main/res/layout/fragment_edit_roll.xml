@@ -45,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginEnd="10dp"
-                style="@style/Widget.Material3.Button.TextButton.Icon"
+                style="@style/Widget.Material3.Button.Icon"
                 app:icon="@drawable/ic_baseline_done_24"
                 app:iconGravity="textStart"
                 android:text="@string/Save"
@@ -103,20 +103,20 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
                     android:layout_toLeftOf="@id/film_stock_button_layout" />
 
                 <FrameLayout
                     android:id="@+id/film_stock_button_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
+                    android:layout_alignParentBottom="true"
                     android:layout_alignParentRight="true">
                     <Button
                         android:id="@+id/add_film_stock"
-                        style="@style/Widget.Material3.Button.TextButton.Icon"
+                        style="@style/IconButton.Tonal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/New"
                         app:icon="@drawable/ic_baseline_add_24" />
 
                     <Button
@@ -125,8 +125,8 @@
                         android:layout_height="wrap_content"
                         android:visibility="visible"
                         app:icon="@drawable/ic_baseline_close_24"
-                        style="@style/Widget.Material3.Button.TextButton.Icon"
-                        android:text="@string/Clear"/>
+                        style="@style/IconButton.Tonal"
+                        />
                 </FrameLayout>
 
             </RelativeLayout>
@@ -137,50 +137,68 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                android:paddingRight="54dp"
                 app:label="@string/LoadedOn"/>
 
-            <com.tommihirvonen.exifnotes.views.DateTimeLayout
-                android:id="@+id/date_unloaded_layout"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                android:layout_marginTop="15dp">
+                <com.tommihirvonen.exifnotes.views.DateTimeLayout
+                    android:id="@+id/date_unloaded_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    app:label="@string/UnloadedOn"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/clear_date_unloaded"/>
+                <Button
+                    android:id="@+id/clear_date_unloaded"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_close_24"
+                    style="@style/IconButton.Tonal"
+                    app:layout_constraintLeft_toRightOf="@id/date_unloaded_layout"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                app:label="@string/UnloadedOn"/>
-
-            <Button
-                android:id="@+id/clear_date_unloaded"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
-                android:layout_marginTop="5dp"
-                app:icon="@drawable/ic_baseline_close_24"
-                style="@style/Widget.Material3.Button.TextButton.Icon"
-                android:text="@string/Clear"/>
-
-            <com.tommihirvonen.exifnotes.views.DateTimeLayout
-                android:id="@+id/date_developed_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
-                app:label="@string/Developed"/>
-
-            <Button
-                android:id="@+id/clear_date_developed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
-                android:layout_marginTop="5dp"
-                app:icon="@drawable/ic_baseline_close_24"
-                style="@style/Widget.Material3.Button.TextButton.Icon"
-                android:text="@string/Clear"/>
+                android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
+                <com.tommihirvonen.exifnotes.views.DateTimeLayout
+                    android:id="@+id/date_developed_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    app:label="@string/Developed"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/clear_date_developed"/>
+                <Button
+                    android:id="@+id/clear_date_developed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_close_24"
+                    style="@style/IconButton.Tonal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/date_developed_layout"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/Camera"
                 android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                android:layout_marginTop="15dp"
                 style="@style/TextAppearance.Material3.BodySmall"/>
 
             <RelativeLayout
@@ -212,12 +230,10 @@
                     android:layout_alignParentRight="true">
                     <Button
                         android:id="@+id/add_camera"
-                        style="@style/Widget.Material3.Button.TextButton.Icon"
+                        style="@style/IconButton.Tonal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/New"
                         app:icon="@drawable/ic_baseline_add_24" />
-
                 </FrameLayout>
 
             </RelativeLayout>
