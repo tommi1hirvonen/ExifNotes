@@ -44,7 +44,7 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
     var items = emptyList<T>()
 
     protected abstract val checkboxSelector: (U) -> View
-    protected abstract val backgroundSelector: (U) -> View
+    protected open val backgroundSelector: (U) -> View? = { null }
 
     val selectedItems get() = mSelectedItems.map { it.key }
 
@@ -85,14 +85,14 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
             checkbox.visibility = View.VISIBLE
 
             // Also set a slightly grey background to be visible.
-            background.visibility = View.VISIBLE
+            background?.visibility = View.VISIBLE
 
             // If the item is selected or all items are being selected and the item was not previously selected
             if (mCurrentSelectedItem == item || mAnimateAll && mAnimationItems[item] != true) {
                 val checkboxAnimation = AnimationUtils.loadAnimation(context, R.anim.scale_up)
                 checkbox.startAnimation(checkboxAnimation)
                 val backgroundAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_in)
-                background.startAnimation(backgroundAnimation)
+                background?.startAnimation(backgroundAnimation)
                 resetCurrentSelectedItem()
             }
         } else {
@@ -101,14 +101,14 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
             checkbox.visibility = View.GONE
 
             // Hide the slightly grey background
-            background.visibility = View.GONE
+            background?.visibility = View.GONE
 
             // If the item is deselected or all selections are undone and the item was previously selected
             if (mCurrentSelectedItem == item || mReverseAllAnimations && mAnimationItems[item] == true) {
                 val checkboxAnimation = AnimationUtils.loadAnimation(context, R.anim.scale_down)
                 checkbox.startAnimation(checkboxAnimation)
                 val backgroundAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_out)
-                background.startAnimation(backgroundAnimation)
+                background?.startAnimation(backgroundAnimation)
                 resetCurrentSelectedItem()
             }
         }

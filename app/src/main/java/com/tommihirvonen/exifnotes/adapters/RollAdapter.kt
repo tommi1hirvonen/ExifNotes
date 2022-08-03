@@ -61,18 +61,12 @@ class RollAdapter(
         holder.binding.checkbox.root
     }
 
-    override val backgroundSelector: (ViewHolder) -> View get() = { holder ->
-        holder.binding.greyBackground
-    }
-
     /**
      * Package-private ViewHolder class which can be recycled
      * for better performance and memory management.
      * All common view elements for all items are initialized here.
      */
     inner class ViewHolder(val binding: ItemRollConstraintBinding) : RecyclerView.ViewHolder(binding.root) {
-        val imageViews = listOf(binding.dateImageView, binding.filmStockImageView,
-                binding.cameraImageView, binding.photosImageView, binding.notesImageView)
         init {
             binding.itemRollLayout.setOnClickListener {
                 listener.onItemClick(this@RollAdapter.items[bindingAdapterPosition], binding.itemRollTopLayout)
@@ -122,32 +116,6 @@ class RollAdapter(
         } else {
             holder.binding.tvPhotos.text = context.resources.getQuantityString(
                     R.plurals.PhotosAmount, numberOfFrames, numberOfFrames)
-        }
-
-        val noFade = 1.0f
-        val lightFade = 0.9f
-        val moderateFade = 0.5f
-        val heavyFade = 0.4f
-
-        // If the roll is archived, fade the text somewhat
-        if (roll.archived) {
-            holder.imageViews.forEach { it.alpha = heavyFade }
-            holder.binding.tvRollName.alpha = heavyFade
-            holder.binding.tvFilmStock.alpha = heavyFade
-            holder.binding.tvRollDate.alpha = moderateFade
-            holder.binding.statusTextView.alpha = moderateFade
-            holder.binding.tvRollNote.alpha = moderateFade
-            holder.binding.tvPhotos.alpha = moderateFade
-            holder.binding.tvCamera.alpha = moderateFade
-        } else {
-            holder.imageViews.forEach { it.alpha = lightFade }
-            holder.binding.tvRollName.alpha = lightFade
-            holder.binding.tvFilmStock.alpha = lightFade
-            holder.binding.tvRollDate.alpha = noFade
-            holder.binding.statusTextView.alpha = noFade
-            holder.binding.tvRollNote.alpha = noFade
-            holder.binding.tvPhotos.alpha = noFade
-            holder.binding.tvCamera.alpha = noFade
         }
 
         // Call to super to handle checkbox animations.

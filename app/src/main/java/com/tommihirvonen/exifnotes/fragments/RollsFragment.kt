@@ -90,7 +90,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
         binding.fab.setOnClickListener { showEditRollFragment(null, binding.fab) }
         val layoutManager = LinearLayoutManager(activity)
         binding.rollsRecyclerView.layoutManager = layoutManager
-        binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
+        //binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
         binding.rollsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
         binding.rollsRecyclerView.adapter = rollAdapter
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemClickListener)

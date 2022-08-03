@@ -25,37 +25,30 @@
     android:layout_height="wrap_content"
     android:id="@+id/item_roll_top_layout">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/item_roll_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/item_roll_layout"
-        android:background="?android:attr/selectableItemBackground">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:id="@+id/grey_background"
-            android:visibility="visible"
-            android:background="@color/background_selected"
-            />
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="5dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:strokeWidth="0dp"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:paddingVertical="8dp">
+            android:paddingVertical="5dp"
+            android:paddingHorizontal="10dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_roll_name"
                 android:text="@string/Text"
-                android:paddingLeft="@dimen/ItemRollLeftRightPadding"
-                android:paddingRight="@dimen/ItemRollLeftRightPadding"
-                android:textSize="17sp"
-                android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:maxLines="2"
                 android:ellipsize="end"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -74,10 +67,9 @@
 
                 <ImageView
                     android:id="@+id/film_stock_image_view"
-                    android:layout_width="13dp"
-                    android:layout_height="13dp"
-                    app:tint="?attr/iconTintColorPrimary"
-                    android:layout_marginLeft="@dimen/ItemRollLeftRightPadding"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    app:tint="?attr/colorControlNormal"
                     android:src="@drawable/ic_baseline_camera_roll_24"
                     android:layout_gravity="center_vertical"
                     />
@@ -89,10 +81,9 @@
                     android:text="@string/Text"
                     android:paddingLeft="5dp"
                     android:paddingRight="@dimen/ItemRollLeftRightPadding"
-                    android:textSize="15sp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:layout_gravity="center_vertical"
                     />
 
@@ -115,12 +106,11 @@
                     app:layout_constraintGuide_percent="0.5" />
 
                 <ImageView
-                    android:layout_width="13dp"
-                    android:layout_height="13dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:id="@+id/date_image_view"
-                    app:tint="?attr/iconTintColorPrimary"
+                    app:tint="?attr/colorControlNormal"
                     android:src="@drawable/ic_baseline_calendar_today_24"
-                    android:layout_marginLeft="@dimen/ItemRollLeftRightPadding"
                     android:layout_gravity="center_vertical"
                     app:layout_constraintLeft_toLeftOf="@+id/date_layout"
                     app:layout_constraintTop_toTopOf="@+id/date_layout"
@@ -134,8 +124,7 @@
                     android:text="@string/Text"
                     android:paddingLeft="5dp"
                     android:paddingRight="@dimen/ItemRollLeftRightPadding"
-                    android:textSize="15sp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:layout_gravity="center_vertical"
                     app:layout_constraintLeft_toRightOf="@+id/date_image_view"
                     app:layout_constraintTop_toTopOf="@+id/date_layout"
@@ -147,8 +136,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/status_text_view"
                     android:text="@string/Text"
-                    android:textSize="13sp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     app:layout_constraintTop_toTopOf="@+id/date_layout"
                     app:layout_constraintBottom_toBottomOf="@+id/date_layout"
                     app:layout_constraintLeft_toLeftOf="@+id/date_layout_guideline1"
@@ -169,10 +157,10 @@
                 >
 
                 <ImageView
-                    android:layout_width="13dp"
-                    android:layout_height="13dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:id="@+id/photos_image_view"
-                    app:tint="?attr/iconTintColorPrimary"
+                    app:tint="?attr/colorControlNormal"
                     android:src="@drawable/ic_baseline_theaters_24"
                     android:layout_gravity="center_vertical"
                     />
@@ -184,8 +172,7 @@
                     android:text="@string/Text"
                     android:paddingLeft="5dp"
                     android:paddingRight="10dp"
-                    android:textSize="15sp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:layout_gravity="center_vertical"
                     />
 
@@ -202,11 +189,10 @@
 
                 <ImageView
                     android:id="@+id/camera_image_view"
-                    android:layout_width="13dp"
-                    android:layout_height="13dp"
-                    app:tint="?attr/iconTintColorPrimary"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    app:tint="?attr/colorControlNormal"
                     android:src="@drawable/ic_baseline_camera_alt_24"
-                    android:layout_marginLeft="@dimen/ItemRollLeftRightPadding"
                     android:layout_gravity="center_vertical"
                     />
 
@@ -218,8 +204,7 @@
                     android:paddingLeft="5dp"
                     android:paddingRight="@dimen/ItemRollLeftRightPadding"
                     android:gravity="center_vertical"
-                    android:textSize="15sp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:scrollHorizontally="true"
                     android:ellipsize="end"
                     android:maxLines="1"
@@ -237,11 +222,10 @@
                 >
 
                 <ImageView
-                    android:layout_width="13dp"
-                    android:layout_height="13dp"
-                    android:layout_marginLeft="@dimen/ItemRollLeftRightPadding"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
                     android:id="@+id/notes_image_view"
-                    app:tint="?attr/iconTintColorPrimary"
+                    app:tint="?attr/colorControlNormal"
                     android:layout_gravity="center_vertical"
                     android:src="@drawable/ic_baseline_notes_24"
                     />
@@ -250,10 +234,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="5dp"
-                    android:paddingRight="10dp"
                     android:id="@+id/tv_roll_note"
                     android:text="@string/Text"
-                    android:textSize="13sp"
                     android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                     android:layout_gravity="center_vertical"
                     android:scrollHorizontally="true"
@@ -268,12 +250,12 @@
                 layout="@layout/layout_selected_check"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:layout_margin="8dp"
                 android:id="@+id/checkbox"
                 android:visibility="visible"
-                app:layout_constraintStart_toStartOf="@+id/guideline0"
-                app:layout_constraintTop_toTopOf="@id/guideline3"
-                app:layout_constraintBottom_toBottomOf="@+id/guideline3"
-                android:layout_marginStart="10dp"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline0"
@@ -305,6 +287,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </FrameLayout>
