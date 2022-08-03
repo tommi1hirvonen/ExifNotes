@@ -94,12 +94,13 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
         binding.root.transitionName = transitionName
 
+        binding.topAppBar.transitionName = "frames_top_app_bar_transition"
         binding.topAppBar.title = roll.name
         roll.camera?.let { binding.topAppBar.subtitle = it.name }
 
         binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
-        binding.fab.setOnClickListener { showEditFrameFragment(null) }
+        binding.fab.setOnClickListener { showEditFrameFragment(null, binding.fab) }
 
         val layoutManager = LinearLayoutManager(activity)
         binding.framesRecyclerView.layoutManager = layoutManager
@@ -175,7 +176,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         enableActionMode(frame)
     }
 
-    private fun showEditFrameFragment(frame: Frame?, view: View? = null) {
+    private fun showEditFrameFragment(frame: Frame?, sharedElement: View) {
         val sharedElementTransition = TransitionSet()
             .addTransition(ChangeBounds())
             .addTransition(ChangeTransform())
@@ -237,7 +238,6 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
         // Use the provided view as a primary shared element.
         // If no view was provided, use the floating action button.
-        val sharedElement = view ?: binding.fab as View
         arguments.putSerializable(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
         fragment.arguments = arguments
         requireActivity().supportFragmentManager
@@ -401,7 +401,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     if (selectedFrames.size == 1) {
                         mode.finish()
                         // Get the first of the selected rolls (only one should be selected anyway)
-                        showEditFrameFragment(selectedFrames.first())
+                        showEditFrameFragment(selectedFrames.first(), binding.topAppBar)
                     } else {
                         val builder = MaterialAlertDialogBuilder(requireActivity())
                         builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), selectedFrames.size))

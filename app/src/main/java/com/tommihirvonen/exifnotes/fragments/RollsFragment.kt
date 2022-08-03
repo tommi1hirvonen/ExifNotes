@@ -87,7 +87,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentRollsBinding.inflate(inflater, container, false)
-        binding.fab.setOnClickListener { showEditRollFragment(null) }
+        binding.fab.setOnClickListener { showEditRollFragment(null, binding.fab) }
         val layoutManager = LinearLayoutManager(activity)
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
@@ -95,6 +95,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
         binding.rollsRecyclerView.adapter = rollAdapter
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemClickListener)
 
+        binding.topAppBar.transitionName = "rolls_top_app_bar_transition"
         val menu = binding.topAppBar.menu
 
         model.rollFilterMode.observe(viewLifecycleOwner) { mode ->
@@ -298,7 +299,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
         }
     }
 
-    private fun showEditRollFragment(roll: Roll?) {
+    private fun showEditRollFragment(roll: Roll?, sharedElement: View) {
 
         exitTransition = null
         reenterFadeDuration = transitionDurationEditRoll
@@ -323,7 +324,6 @@ class RollsFragment : Fragment(), RollAdapterListener {
             arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
         }
 
-        val sharedElement = binding.fab as View
         arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
         fragment.arguments = arguments
         requireActivity().supportFragmentManager
@@ -420,7 +420,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                         // Get the first of the selected rolls (only one should be selected anyway)
                         // Finish action mode if the user clicked ok when editing the roll ->
                         // this is done in onActivityResult().
-                        showEditRollFragment(selectedRolls.first())
+                        showEditRollFragment(selectedRolls.first(), binding.topAppBar)
                     } else {
                         // Show batch edit features
                         val builder = MaterialAlertDialogBuilder(requireActivity())
