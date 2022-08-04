@@ -34,7 +34,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -63,10 +62,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
 
     private val model by activityViewModels<RollViewModel>()
     private var rolls = emptyList<Roll>()
-    private val rollAdapter by lazy {
-        RollAdapter(requireActivity(), this, binding.rollsRecyclerView)
-    }
-
+    private lateinit var rollAdapter: RollAdapter
     private lateinit var binding: FragmentRollsBinding
 
     /**
@@ -90,8 +86,8 @@ class RollsFragment : Fragment(), RollAdapterListener {
         binding.fab.setOnClickListener { showEditRollFragment(null, binding.fab) }
         val layoutManager = LinearLayoutManager(activity)
         binding.rollsRecyclerView.layoutManager = layoutManager
-        //binding.rollsRecyclerView.addItemDecoration(DividerItemDecoration(binding.rollsRecyclerView.context, layoutManager.orientation))
         binding.rollsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
+        rollAdapter = RollAdapter(requireActivity(), this, binding.rollsRecyclerView)
         binding.rollsRecyclerView.adapter = rollAdapter
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemClickListener)
 
