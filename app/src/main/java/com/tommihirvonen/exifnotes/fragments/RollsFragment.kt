@@ -96,6 +96,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
         val menu = binding.topAppBar.menu
 
         model.rollFilterMode.observe(viewLifecycleOwner) { mode ->
+            binding.noAddedRolls.visibility = View.GONE
             when (mode) {
                 RollFilterMode.ACTIVE -> {
                     binding.topAppBar.subtitle = resources.getString(R.string.ActiveFilmRolls)

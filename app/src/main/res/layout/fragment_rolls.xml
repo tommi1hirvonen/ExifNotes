@@ -45,6 +45,7 @@
         app:layout_anchorGravity="bottom"
         android:paddingTop="70dp"
         android:gravity="center"
+        android:visibility="gone"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         android:text="@string/NoRolls"/>
 
@@ -53,6 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="70dp"
+        android:visibility="gone"
         app:layout_anchor="@id/top_app_bar"
         app:layout_anchorGravity="bottom"/>
 
