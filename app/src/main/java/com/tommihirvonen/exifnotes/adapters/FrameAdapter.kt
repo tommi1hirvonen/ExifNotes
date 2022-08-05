@@ -62,7 +62,7 @@ class FrameAdapter(
     }
 
     override val backgroundSelector: (ViewHolder) -> View get() = { holder ->
-        holder.binding.greyBackground
+        holder.binding.selectedBackground
     }
 
     /**

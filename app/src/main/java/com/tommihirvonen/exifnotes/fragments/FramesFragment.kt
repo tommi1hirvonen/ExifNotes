@@ -37,7 +37,6 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -67,9 +66,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
         ViewModelProvider(this, factory)[FrameViewModel::class.java]
     }
 
-    private val frameAdapter by lazy {
-        FrameAdapter(requireActivity(), this, binding.framesRecyclerView)
-    }
+    private lateinit var frameAdapter: FrameAdapter
 
     private lateinit var binding: FragmentFramesBinding
     private var frames = emptyList<Frame>()
@@ -103,10 +100,8 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
         val layoutManager = LinearLayoutManager(activity)
         binding.framesRecyclerView.layoutManager = layoutManager
-        // Add dividers for list items.
-        binding.framesRecyclerView.addItemDecoration(
-            DividerItemDecoration(binding.framesRecyclerView.context, layoutManager.orientation))
 
+        frameAdapter = FrameAdapter(requireActivity(), this, binding.framesRecyclerView)
         binding.framesRecyclerView.adapter = frameAdapter
         binding.framesRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
 
