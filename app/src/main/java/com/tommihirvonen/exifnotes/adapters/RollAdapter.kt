@@ -61,6 +61,10 @@ class RollAdapter(
         holder.binding.checkbox.root
     }
 
+    override val backgroundSelector: (ViewHolder) -> View? get() = { holder ->
+        holder.binding.selectedBackground
+    }
+
     /**
      * Package-private ViewHolder class which can be recycled
      * for better performance and memory management.
