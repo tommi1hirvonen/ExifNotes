@@ -23,7 +23,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.*
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -179,7 +178,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                 val mapIntent = Intent(activity, MapActivity::class.java)
                 mapIntent.putParcelableArrayListExtra(
                     ExtraKeys.ARRAY_LIST_ROLLS,
-                    rolls as ArrayList<out Parcelable?>
+                    ArrayList(rolls)
                 )
                 mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, getString(R.string.AllRolls))
                 when (model.rollFilterMode.value) {
