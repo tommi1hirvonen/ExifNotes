@@ -60,12 +60,12 @@ class FilmStockAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val filmStock = filmStocks[position]
-        holder.binding.tvGearName.text = filmStock.name
+        holder.binding.title.text = filmStock.name
         val stringBuilder = StringBuilder()
         stringBuilder.append("ISO:").append("\t\t\t\t\t\t\t").append(filmStock.iso).append("\n")
             .append("Type:").append("\t\t\t\t\t\t").append(filmStock.getTypeName(context)).append("\n")
             .append("Process:").append("\t\t\t").append(filmStock.getProcessName(context))
-        holder.binding.tvMountables.text = stringBuilder.toString()
+        holder.binding.description.text = stringBuilder.toString()
     }
 
     override fun getItemCount(): Int = filmStocks.size

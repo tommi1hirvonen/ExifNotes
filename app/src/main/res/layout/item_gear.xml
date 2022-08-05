@@ -17,43 +17,52 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:id="@+id/item_gear_layout"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/tv_gear_name"
-        android:text="@string/Text"
-        android:paddingLeft="@dimen/ItemGearLeftRightPadding"
-        android:paddingRight="@dimen/ItemGearLeftRightPadding"
-        android:gravity="bottom"
-        android:paddingTop="8dp"
-        android:layout_marginBottom="2dp"
-        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-        android:textSize="17sp"
-        android:scrollHorizontally="true"
-        android:ellipsize="end"
-        android:maxLines="1"
-        />
+        android:layout_marginVertical="5dp"
+        android:layout_marginHorizontal="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:strokeWidth="0dp"
+        >
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/tv_mountables"
-        android:text="@string/Text"
-        android:paddingLeft="@dimen/ItemGearLeftRightPadding"
-        android:paddingRight="@dimen/ItemGearLeftRightPadding"
-        android:paddingBottom="12dp"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:gravity="center_vertical"
-        android:textSize="13sp"
-        />
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/item_gear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10dp"
+            android:paddingHorizontal="10dp"
+            android:background="?android:attr/selectableItemBackground">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/title"
+                android:text="@string/Text"
+                android:gravity="bottom"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:scrollHorizontally="true"
+                android:ellipsize="end"
+                android:maxLines="1"
+                />
 
-</LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/description"
+                android:text="@string/Text"
+                android:layout_marginTop="2dp"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:gravity="center_vertical"
+                />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

@@ -25,7 +25,6 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
@@ -71,11 +70,6 @@ class FilmStocksFragment : Fragment(), MenuProvider {
 
         val layoutManager = LinearLayoutManager(activity)
         binding.filmsRecyclerView.layoutManager = layoutManager
-        binding.filmsRecyclerView.addItemDecoration(
-                DividerItemDecoration(
-                        binding.filmsRecyclerView.context, layoutManager.orientation
-                )
-        )
         filmStockAdapter = FilmStockAdapter(requireActivity(), onFilmStockClickListener)
         filmStockAdapter.filmStocks = filteredFilmStocks
         binding.filmsRecyclerView.adapter = filmStockAdapter

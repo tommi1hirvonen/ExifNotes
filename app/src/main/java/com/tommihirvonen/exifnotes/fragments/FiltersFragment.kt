@@ -27,7 +27,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
@@ -59,8 +58,6 @@ class FiltersFragment : Fragment() {
 
         val layoutManager = LinearLayoutManager(activity)
         binding.filtersRecyclerView.layoutManager = layoutManager
-        binding.filtersRecyclerView.addItemDecoration(DividerItemDecoration(binding.filtersRecyclerView.context,
-                layoutManager.orientation))
 
         val filterAdapter = FilterAdapter(requireActivity(), onFilterClickListener)
         binding.filtersRecyclerView.adapter = filterAdapter

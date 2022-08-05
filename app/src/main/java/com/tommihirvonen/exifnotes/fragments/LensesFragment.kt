@@ -27,7 +27,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
@@ -72,8 +71,6 @@ class LensesFragment : Fragment() {
 
         val layoutManager = LinearLayoutManager(activity)
         binding.lensesRecyclerView.layoutManager = layoutManager
-        binding.lensesRecyclerView.addItemDecoration(DividerItemDecoration(binding.lensesRecyclerView.context,
-                layoutManager.orientation))
 
         val lensAdapter = LensAdapter(requireActivity(), onLensClickListener)
         binding.lensesRecyclerView.adapter = lensAdapter

@@ -66,7 +66,7 @@ class CameraAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val camera = cameras[position]
-        holder.binding.tvGearName.text = camera.name
+        holder.binding.title.text = camera.name
         val stringBuilder = StringBuilder()
         if (camera.isFixedLens) {
             camera.lens?.let { lens ->
@@ -81,7 +81,7 @@ class CameraAdapter(
             stringBuilder.append(context.getString(R.string.LensesNoCap)).append(":")
                 .append(lenses.toStringList())
         }
-        holder.binding.tvMountables.text = stringBuilder.toString()
+        holder.binding.description.text = stringBuilder.toString()
     }
 
     override fun getItemCount(): Int = cameras.size

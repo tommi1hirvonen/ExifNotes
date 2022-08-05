@@ -65,7 +65,7 @@ class FilterAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val filter = filters[position]
-        holder.binding.tvGearName.text = filter.name
+        holder.binding.title.text = filter.name
         val stringBuilder = StringBuilder()
         val mountableLenses = lenses.filter { filter.lensIds.contains(it.id) }
         val mountableCameras = cameras.mapNotNull { it.lens }.filter { filter.lensIds.contains(it.id) }
@@ -73,7 +73,7 @@ class FilterAdapter(
             .append(mountableLenses.toStringList()).append("\n\n")
             .append(context.getString(R.string.CamerasNoCap)).append(":")
             .append(mountableCameras.toStringList())
-        holder.binding.tvMountables.text = stringBuilder.toString()
+        holder.binding.description.text = stringBuilder.toString()
     }
 
     override fun getItemCount(): Int = filters.size
