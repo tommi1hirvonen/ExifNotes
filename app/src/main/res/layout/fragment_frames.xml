@@ -25,17 +25,29 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/top_app_bar"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            style="?attr/collapsingToolbarLayoutLargeStyle"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            tools:title="Text"
-            tools:subtitle="Text"
-            app:navigationIcon="@drawable/ic_ab_back_material"
-            app:navigationIconTint="?attr/colorControlNormal"
-            app:menu="@menu/menu_frames_fragment" />
+            app:maxLines="3"
+            android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/top_app_bar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:elevation="0dp"
+                tools:title="Text"
+                tools:subtitle="Text"
+                app:layout_collapseMode="pin"
+                app:navigationIcon="@drawable/ic_ab_back_material"
+                app:navigationIconTint="?attr/colorControlNormal"
+                app:menu="@menu/menu_frames_fragment" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -45,7 +57,7 @@
         android:layout_height="wrap_content"
         app:layout_anchor="@id/top_app_bar"
         app:layout_anchorGravity="bottom"
-        android:paddingTop="60dp"
+        android:paddingTop="140dp"
         android:gravity="center"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         android:text="@string/NoFrames"/>

@@ -96,7 +96,6 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
         binding.topAppBar.transitionName = "frames_top_app_bar_transition"
         binding.topAppBar.title = roll.name
-        roll.camera?.let { binding.topAppBar.subtitle = it.name }
 
         binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
