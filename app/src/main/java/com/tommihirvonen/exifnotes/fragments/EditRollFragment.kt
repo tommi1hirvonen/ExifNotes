@@ -41,6 +41,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -190,21 +191,21 @@ class EditRollFragment : Fragment() {
         }
 
         dateLoadedManager = DateTimeLayoutManager(
-            requireActivity(),
+            requireActivity() as AppCompatActivity,
             binding.dateLoadedLayout,
             roll.date,
             null)
 
         // DATE & TIME UNLOADED PICK DIALOG
         dateUnloadedManager = DateTimeLayoutManager(
-            requireActivity(),
+            requireActivity() as AppCompatActivity,
             binding.dateUnloadedLayout,
             roll.unloaded,
             binding.clearDateUnloaded)
 
         // DATE & TIME DEVELOPED PICK DIALOG
         dateDevelopedManager = DateTimeLayoutManager(
-            requireActivity(),
+            requireActivity() as AppCompatActivity,
             binding.dateDevelopedLayout,
             roll.developed,
             binding.clearDateDeveloped)

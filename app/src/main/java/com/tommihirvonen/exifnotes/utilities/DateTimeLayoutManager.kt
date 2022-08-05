@@ -18,15 +18,15 @@
 
 package com.tommihirvonen.exifnotes.utilities
 
-import android.app.Activity
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.view.View
-import android.widget.DatePicker
-import android.widget.TimePicker
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.DateTime.Companion.fromCurrentTime
 import com.tommihirvonen.exifnotes.views.DateTimeLayout
+import java.util.*
 
 /**
  * Helper class to manage the date and time layout onClick events.
@@ -35,7 +35,7 @@ import com.tommihirvonen.exifnotes.views.DateTimeLayout
  * The DateTime member is managed inside the class.
  */
 class DateTimeLayoutManager(
-        activity: Activity,
+        activity: AppCompatActivity,
         dateTimeLayout: DateTimeLayout,
         var dateTime: DateTime?,
         clearLayout: View?
@@ -43,25 +43,39 @@ class DateTimeLayoutManager(
 
     init {
         dateTimeLayout.dateLayout.setOnClickListener {
-            val dateTimeTemp = dateTime ?: fromCurrentTime()
-            val dialog = DatePickerDialog(activity, { _: DatePicker?, year: Int, month: Int, dayOfMonth: Int ->
-                val dateTime = DateTime(year, month + 1, dayOfMonth, dateTimeTemp.hour, dateTimeTemp.minute)
+            val dt = dateTime ?: fromCurrentTime()
+            val cal = Calendar.getInstance()
+            cal.set(dt.year, dt.month - 1, dt.day)
+            val picker = MaterialDatePicker.Builder.datePicker()
+                .setSelection(cal.timeInMillis)
+                .build()
+            picker.addOnPositiveButtonClickListener {
+                cal.timeInMillis = picker.selection ?: cal.timeInMillis
+                val dateTime = DateTime(cal[Calendar.YEAR], cal[Calendar.MONTH] + 1, cal[Calendar.DATE],
+                    dt.hour, dt.minute)
                 dateTimeLayout.dateLayout.text = dateTime.dateAsText
                 dateTimeLayout.timeLayout.text = dateTime.timeAsText
                 this.dateTime = dateTime
-            }, dateTimeTemp.year, dateTimeTemp.month - 1, dateTimeTemp.day)
-            dialog.show()
+            }
+            picker.show(activity.supportFragmentManager, null)
         }
 
         dateTimeLayout.timeLayout.setOnClickListener {
-            val dateTimeTemp = dateTime ?: fromCurrentTime()
-            val dialog = TimePickerDialog(activity, { _: TimePicker?, hourOfDay: Int, minute: Int ->
-                val dateTime = DateTime(dateTimeTemp.year, dateTimeTemp.month, dateTimeTemp.day, hourOfDay, minute)
+            val dt = dateTime ?: fromCurrentTime()
+            val picker = MaterialTimePicker.Builder()
+                .setHour(dt.hour)
+                .setMinute(dt.minute)
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .build()
+
+            picker.addOnPositiveButtonClickListener {
+                val dateTime = DateTime(dt.year, dt.month, dt.day,
+                    picker.hour, picker.minute)
                 dateTimeLayout.dateLayout.text = dateTime.dateAsText
                 dateTimeLayout.timeLayout.text = dateTime.timeAsText
                 this.dateTime = dateTime
-            }, dateTimeTemp.hour, dateTimeTemp.minute, true)
-            dialog.show()
+            }
+            picker.show(activity.supportFragmentManager, null)
         }
 
         clearLayout?.setOnClickListener {

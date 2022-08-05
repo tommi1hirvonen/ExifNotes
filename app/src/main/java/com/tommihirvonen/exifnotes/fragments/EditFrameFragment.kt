@@ -52,6 +52,7 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.doOnPreDraw
 import androidx.exifinterface.media.ExifInterface
@@ -260,7 +261,10 @@ open class EditFrameFragment : Fragment() {
         if (frame.date == null) frame.date = DateTime.fromCurrentTime()
         val dateTime = frame.date
         dateTimeLayoutManager = DateTimeLayoutManager(
-                requireActivity(), binding.dateLayout, dateTime, null
+            requireActivity() as AppCompatActivity,
+            binding.dateLayout,
+            dateTime,
+            null
         )
 
         //NOTES FIELD
