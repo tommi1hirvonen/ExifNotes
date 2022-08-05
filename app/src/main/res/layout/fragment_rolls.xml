@@ -43,10 +43,18 @@
         android:layout_height="wrap_content"
         app:layout_anchor="@id/top_app_bar"
         app:layout_anchorGravity="bottom"
-        android:paddingTop="60dp"
+        android:paddingTop="70dp"
         android:gravity="center"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         android:text="@string/NoRolls"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="70dp"
+        app:layout_anchor="@id/top_app_bar"
+        app:layout_anchorGravity="bottom"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rolls_recycler_view"

@@ -46,6 +46,7 @@ import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollViewModel
+import com.tommihirvonen.exifnotes.viewmodels.State
 
 /**
  * RollsFragment is the fragment that is displayed first in MainActivity. It contains
@@ -127,10 +128,21 @@ class RollsFragment : Fragment(), RollAdapterListener {
             }
         }
 
-        model.rolls.observe(viewLifecycleOwner) { rolls ->
-            this.rolls = rolls
-            rollAdapter.items = rolls
-            binding.noAddedRolls.visibility = if (rolls.isEmpty()) View.VISIBLE else View.GONE
+        model.rolls.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is State.InProgress -> {
+                    binding.noAddedRolls.visibility = View.GONE
+                    binding.progressBar.visibility = View.VISIBLE
+                    rolls = emptyList()
+                    rollAdapter.items = rolls
+                }
+                is State.Success -> {
+                    rolls = state.data
+                    rollAdapter.items = rolls
+                    binding.progressBar.visibility = View.GONE
+                    binding.noAddedRolls.visibility = if (rolls.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
             rollAdapter.notifyDataSetChanged()
         }
 

@@ -38,7 +38,7 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
         .getDefaultSharedPreferences(application.baseContext)
 
     val cameras: LiveData<List<Camera>> get() = mCameras
-    val rolls: LiveData<List<Roll>> get() = mRolls
+    val rolls: LiveData<State<List<Roll>>> get() = mRolls
     val rollFilterMode: LiveData<RollFilterMode> get() = mRollFilterMode
     val rollSortMode: LiveData<RollSortMode> get() = mRollSortMode
 
@@ -58,11 +58,13 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val mRolls: MutableLiveData<List<Roll>> by lazy {
-        MutableLiveData<List<Roll>>().also {
+    private val mRolls: MutableLiveData<State<List<Roll>>> by lazy {
+        MutableLiveData<State<List<Roll>>>().also {
             viewModelScope.launch { loadRolls() }
         }
     }
+
+    private var rollList = emptyList<Roll>()
 
     private val mCameras: MutableLiveData<List<Camera>> by lazy {
         MutableLiveData<List<Camera>>().also {
@@ -83,7 +85,8 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
         editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, rollSortMode.value)
         editor.commit()
         mRollSortMode.value = rollSortMode
-        mRolls.value = mRolls.value?.sorted(rollSortMode)
+        rollList = rollList.sorted(rollSortMode)
+        mRolls.value = State.Success(rollList)
     }
 
     fun loadAll() {
@@ -107,19 +110,22 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
         val rows = database.updateRoll(roll)
         if (mRollFilterMode.value == RollFilterMode.ACTIVE && roll.archived
             || mRollFilterMode.value == RollFilterMode.ARCHIVED && !roll.archived) {
-            mRolls.value = mRolls.value?.minus(roll)
+            rollList = rollList.minus(roll)
+            mRolls.value = State.Success(rollList)
         }
         return rows
     }
 
     fun deleteRoll(roll: Roll) {
         database.deleteRoll(roll)
-        mRolls.value = mRolls.value?.minus(roll)
+        rollList = rollList.minus(roll)
+        mRolls.value = State.Success(rollList)
     }
 
     private fun replaceRoll(roll: Roll) {
         val sortMode = mRollSortMode.value ?: RollSortMode.DATE
-        mRolls.value = mRolls.value?.filterNot { it.id == roll.id }?.plus(roll)?.sorted(sortMode)
+        rollList = rollList.filterNot { it.id == roll.id }.plus(roll).sorted(sortMode)
+        mRolls.value = State.Success(rollList)
     }
 
     private suspend fun loadCameras() {
@@ -130,10 +136,11 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun loadRolls() {
         withContext(Dispatchers.IO) {
+            mRolls.postValue(State.InProgress())
             val filterMode = rollFilterMode.value ?: RollFilterMode.ACTIVE
             val sortMode = rollSortMode.value ?: RollSortMode.DATE
-            val rolls = database.getRolls(filterMode).sorted(sortMode)
-            mRolls.postValue(rolls)
+            rollList = database.getRolls(filterMode).sorted(sortMode)
+            mRolls.postValue(State.Success(rollList))
         }
     }
 }
