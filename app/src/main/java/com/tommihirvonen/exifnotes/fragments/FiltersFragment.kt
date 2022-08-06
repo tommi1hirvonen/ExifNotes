@@ -40,6 +40,7 @@ import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
+import com.tommihirvonen.exifnotes.viewmodels.State
 
 /**
  * Fragment to display all filters from the database along with details
@@ -75,10 +76,12 @@ class FiltersFragment : Fragment() {
             filterAdapter.notifyDataSetChanged()
         }
 
-        model.cameras.observe(viewLifecycleOwner) { cameras ->
-            this.cameras = cameras
-            filterAdapter.cameras = cameras
-            filterAdapter.notifyDataSetChanged()
+        model.cameras.observe(viewLifecycleOwner) { state ->
+            if (state is State.Success) {
+                cameras = state.data
+                filterAdapter.cameras = cameras
+                filterAdapter.notifyDataSetChanged()
+            }
         }
 
         return binding.root

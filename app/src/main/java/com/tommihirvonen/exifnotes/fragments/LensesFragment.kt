@@ -40,6 +40,7 @@ import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
+import com.tommihirvonen.exifnotes.viewmodels.State
 
 /**
  * Fragment to display all lenses from the database along with details
@@ -82,10 +83,12 @@ class LensesFragment : Fragment() {
             lensAdapter.notifyDataSetChanged()
         }
 
-        model.cameras.observe(viewLifecycleOwner) { cameras ->
-            this.cameras = cameras
-            lensAdapter.cameras = cameras
-            lensAdapter.notifyDataSetChanged()
+        model.cameras.observe(viewLifecycleOwner) { state ->
+            if (state is State.Success) {
+                cameras = state.data
+                lensAdapter.cameras = cameras
+                lensAdapter.notifyDataSetChanged()
+            }
         }
 
         model.filters.observe(viewLifecycleOwner) { filters ->

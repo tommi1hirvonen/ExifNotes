@@ -40,6 +40,7 @@ import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
+import com.tommihirvonen.exifnotes.viewmodels.State
 
 /**
  * Fragment to display all cameras from the database along with details
@@ -65,10 +66,21 @@ class CamerasFragment : Fragment() {
         val cameraAdapter = CameraAdapter(requireActivity(), onCameraClickListener)
         binding.camerasRecyclerView.adapter = cameraAdapter
 
-        model.cameras.observe(viewLifecycleOwner) { cameras ->
-            this.cameras = cameras
-            cameraAdapter.cameras = cameras
-            binding.noAddedCameras.visibility = if (cameras.isEmpty()) View.VISIBLE else View.GONE
+        model.cameras.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is State.InProgress -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.noAddedCameras.visibility = View.GONE
+                    cameras = emptyList()
+                    cameraAdapter.cameras = cameras
+                }
+                is State.Success -> {
+                    cameras = state.data
+                    cameraAdapter.cameras = cameras
+                    binding.progressBar.visibility = View.GONE
+                    binding.noAddedCameras.visibility = if (cameras.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
             cameraAdapter.notifyDataSetChanged()
         }
 

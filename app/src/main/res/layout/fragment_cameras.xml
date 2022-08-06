@@ -26,14 +26,23 @@
     tools:context=".activities.GearActivity"
     >
 
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progress_bar"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:layout_marginTop="60dp"/>
 
     <TextView
         android:id="@+id/no_added_cameras"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:textSize="20sp"
+        android:layout_marginTop="70dp"
         android:gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
         android:text="@string/NoCameras"/>
 
     <androidx.recyclerview.widget.RecyclerView

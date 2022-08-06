@@ -34,19 +34,23 @@ import kotlinx.coroutines.withContext
 class GearViewModel(application: Application) : AndroidViewModel(application) {
     private val database = application.database
 
-    val cameras: LiveData<List<Camera>> get() = mCameras
+    val cameras: LiveData<State<List<Camera>>> get() = mCameras
     val lenses: LiveData<List<Lens>> get() = mLenses
     val filters: LiveData<List<Filter>> get() = mFilters
 
-    private val mCameras: MutableLiveData<List<Camera>> by lazy {
-        MutableLiveData<List<Camera>>().apply {
+    private val mCameras: MutableLiveData<State<List<Camera>>> by lazy {
+        MutableLiveData<State<List<Camera>>>().apply {
             viewModelScope.launch {
                 withContext(Dispatchers.IO) {
-                    postValue(database.cameras.sorted())
+                    postValue(State.InProgress())
+                    cameraList = database.cameras.sorted()
+                    postValue(State.Success(cameraList))
                 }
             }
         }
     }
+
+    private var cameraList = emptyList<Camera>()
 
     private val mLenses: MutableLiveData<List<Lens>> by lazy {
         MutableLiveData<List<Lens>>().apply {
@@ -76,12 +80,14 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
     fun updateCamera(camera: Camera) = database.updateCamera(camera).also { replaceCamera(camera) }
 
     private fun replaceCamera(camera: Camera) {
-        mCameras.value = mCameras.value?.filterNot { it.id == camera.id }?.plus(camera)?.sorted()
+        cameraList = cameraList.filterNot { it.id == camera.id }.plus(camera).sorted()
+        mCameras.value = State.Success(cameraList)
     }
 
     fun deleteCamera(camera: Camera) {
         database.deleteCamera(camera)
-        mCameras.value = mCameras.value?.minus(camera)
+        cameraList = cameraList.minus(camera)
+        mCameras.value = State.Success(cameraList)
     }
 
     fun addLens(lens: Lens) {
