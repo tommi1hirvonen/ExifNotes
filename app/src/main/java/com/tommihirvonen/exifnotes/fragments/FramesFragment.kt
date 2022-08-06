@@ -285,7 +285,7 @@ class FramesFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 preferenceResultLauncher.launch(preferenceActivityIntent)
             }
             R.id.menu_item_show_on_map -> {
-                val mapIntent = Intent(activity, MapActivity::class.java)
+                val mapIntent = Intent(activity, MapFragment::class.java)
                 val list = ArrayList<Roll>()
                 list.add(roll)
                 mapIntent.putParcelableArrayListExtra(ExtraKeys.ARRAY_LIST_ROLLS, list)

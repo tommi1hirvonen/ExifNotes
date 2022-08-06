@@ -30,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -173,30 +174,13 @@ class RollsFragment : Fragment(), RollAdapterListener {
                 preferenceResultLauncher.launch(preferenceActivityIntent)
             }
             R.id.menu_item_show_on_map -> {
-
-                // Show all frames from all rolls on a map
-                val mapIntent = Intent(activity, MapActivity::class.java)
-                mapIntent.putParcelableArrayListExtra(
-                    ExtraKeys.ARRAY_LIST_ROLLS,
-                    ArrayList(rolls)
-                )
-                mapIntent.putExtra(ExtraKeys.MAPS_ACTIVITY_TITLE, getString(R.string.AllRolls))
-                when (model.rollFilterMode.value) {
-                    RollFilterMode.ACTIVE -> mapIntent.putExtra(
-                        ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
-                        getString(R.string.ActiveRolls)
-                    )
-                    RollFilterMode.ARCHIVED -> mapIntent.putExtra(
-                        ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
-                        getString(R.string.ArchivedRolls)
-                    )
-                    RollFilterMode.ALL -> mapIntent.putExtra(
-                        ExtraKeys.MAPS_ACTIVITY_SUBTITLE,
-                        getString(R.string.AllRolls)
-                    )
-                    null -> {}
-                }
-                startActivity(mapIntent)
+                val fragment = MapFragment()
+                requireActivity().supportFragmentManager
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .addToBackStack(null)
+                    .replace(R.id.fragment_container, fragment)
+                    .commit()
             }
             R.id.active_rolls_filter -> {
                 item.isChecked = true

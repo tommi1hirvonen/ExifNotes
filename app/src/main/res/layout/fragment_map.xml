@@ -36,8 +36,7 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_ab_back_material"
             app:navigationIconTint="?attr/colorControlNormal"
-            app:title="@string/Text"
-            app:subtitle="@string/Text"
+            tools:title="@string/Text"
             app:menu="@menu/menu_map_activity"/>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -48,12 +47,11 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".activities.MapActivity" />
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 
@@ -71,6 +69,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             app:cardElevation="1dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
             >
 
             <androidx.constraintlayout.widget.ConstraintLayout
