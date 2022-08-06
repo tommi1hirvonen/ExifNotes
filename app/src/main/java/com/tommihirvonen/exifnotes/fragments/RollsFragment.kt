@@ -30,7 +30,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -174,7 +173,7 @@ class RollsFragment : Fragment(), RollAdapterListener {
                 preferenceResultLauncher.launch(preferenceActivityIntent)
             }
             R.id.menu_item_show_on_map -> {
-                val fragment = MapFragment()
+                val fragment = RollsMapFragment()
                 requireActivity().supportFragmentManager
                     .beginTransaction()
                     .setReorderingAllowed(true)

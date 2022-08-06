@@ -41,20 +41,20 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.databinding.FragmentMapBinding
+import com.tommihirvonen.exifnotes.databinding.FragmentRollsMapBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.datastructures.RollFilterMode
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
-import com.tommihirvonen.exifnotes.viewmodels.MapViewModel
-import com.tommihirvonen.exifnotes.viewmodels.MapViewModelFactory
+import com.tommihirvonen.exifnotes.viewmodels.RollsMapViewModel
+import com.tommihirvonen.exifnotes.viewmodels.RollsMapViewModelFactory
 import kotlin.math.roundToInt
 
 /**
  * Activity to display all the frames from a list of rolls on a map.
  */
-class MapFragment : Fragment(), OnMapReadyCallback {
+class RollsMapFragment : Fragment(), OnMapReadyCallback {
 
     private val filterMode by lazy {
         val activity = requireActivity()
@@ -65,8 +65,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private val model by lazy {
         val activity = requireActivity()
-        val factory = MapViewModelFactory(activity.application, filterMode)
-        ViewModelProvider(this, factory)[MapViewModel::class.java]
+        val factory = RollsMapViewModelFactory(activity.application, filterMode)
+        ViewModelProvider(this, factory)[RollsMapViewModel::class.java]
     }
 
     private var rollSelections = emptyList<Pair<Roll, Boolean>>()
@@ -76,17 +76,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
      */
     private var googleMap: GoogleMap? = null
 
-    /**
-     * Holds reference to the GoogleMap map type
-     */
-    private var mapType = 0
     private val markerList = mutableListOf<Marker>()
-    private lateinit var binding: FragmentMapBinding
+    private lateinit var binding: FragmentRollsMapBinding
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        binding = FragmentMapBinding.inflate(layoutInflater)
+        binding = FragmentRollsMapBinding.inflate(layoutInflater)
 
         val title = when (filterMode) {
             RollFilterMode.ACTIVE -> resources.getString(R.string.ActiveRolls)
@@ -117,7 +113,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // Get map type from preferences
         val sharedPreferences = PreferenceManager
             .getDefaultSharedPreferences(requireActivity().baseContext)
-        mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
+        val mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
 
         val menu = binding.topAppBar.menu
         when (mapType) {
@@ -194,13 +190,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        // Insert dummy boolean so that outState is not null.
-        outState.putBoolean(ExtraKeys.CONTINUE, true)
-    }
-
     override fun onMapReady(googleMap_: GoogleMap) {
         googleMap = googleMap_
 
@@ -272,7 +261,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
      * @param mapType One of the map type constants from class GoogleMap
      */
     private fun setMapType(mapType: Int) {
-        this.mapType = mapType
         googleMap?.mapType = mapType
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val editor = preferences.edit()

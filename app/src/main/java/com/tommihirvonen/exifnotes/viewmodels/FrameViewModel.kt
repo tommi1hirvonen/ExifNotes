@@ -34,7 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FrameViewModel(application: Application, private val roll: Roll) : AndroidViewModel(application) {
+class FrameViewModel(application: Application, val roll: Roll) : AndroidViewModel(application) {
     private val database = application.database
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.baseContext)
@@ -77,10 +77,10 @@ class FrameViewModel(application: Application, private val roll: Roll) : Android
         mFrames.value = mFrames.value?.minus(frame)
     }
 
-    fun loadFrames() {
+    private fun loadFrames() {
+        val sortMode = mFrameSortMode.value ?: FrameSortMode.FRAME_COUNT
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val sortMode = mFrameSortMode.value ?: FrameSortMode.FRAME_COUNT
                 mFrames.postValue(database.getFrames(roll).sorted(getApplication(), sortMode))
             }
         }

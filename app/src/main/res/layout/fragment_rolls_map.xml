@@ -37,7 +37,7 @@
             app:navigationIcon="@drawable/ic_ab_back_material"
             app:navigationIconTint="?attr/colorControlNormal"
             tools:title="@string/Text"
-            app:menu="@menu/menu_map_activity"/>
+            app:menu="@menu/menu_map_fragment_multi_roll"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 

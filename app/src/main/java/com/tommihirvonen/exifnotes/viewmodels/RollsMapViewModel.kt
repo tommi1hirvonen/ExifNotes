@@ -32,7 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MapViewModel(application: Application, private val filterMode: RollFilterMode)
+class RollsMapViewModel(application: Application, private val filterMode: RollFilterMode)
     : AndroidViewModel(application) {
 
     private val database = application.database

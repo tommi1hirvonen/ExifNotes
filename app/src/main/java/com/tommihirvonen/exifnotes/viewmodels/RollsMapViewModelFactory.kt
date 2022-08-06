@@ -23,14 +23,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.tommihirvonen.exifnotes.datastructures.RollFilterMode
 
-class MapViewModelFactory(
+class RollsMapViewModelFactory(
     private val application: Application,
     private val filterMode: RollFilterMode) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
-            return MapViewModel(application, filterMode) as T
+        if (modelClass.isAssignableFrom(RollsMapViewModel::class.java)) {
+            return RollsMapViewModel(application, filterMode) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

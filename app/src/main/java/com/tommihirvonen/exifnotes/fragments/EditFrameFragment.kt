@@ -418,13 +418,15 @@ open class EditFrameFragment : Fragment() {
         }
 
 
-        binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
+        binding.topAppBar.setNavigationOnClickListener {
+            requireParentFragment().childFragmentManager.popBackStack()
+        }
         binding.positiveButton.setOnClickListener {
             commitChanges()
             val bundle = Bundle()
             bundle.putParcelable(ExtraKeys.FRAME, frame)
             setFragmentResult("EditFrameDialog", bundle)
-            requireActivity().onBackPressed()
+            requireParentFragment().childFragmentManager.popBackStack()
         }
 
         return binding.root
@@ -469,7 +471,7 @@ open class EditFrameFragment : Fragment() {
         binding.filtersButton.text = newFrame.filters.joinToString(separator = "\n") { "-${it.name}" }
     }
 
-    internal fun commitChanges() {
+    private fun commitChanges() {
         val shutter = binding.shutterSpeedMenu.editText?.text.toString().ifEmpty { null }
         frame.shutter = if (shutter != resources.getString(R.string.NoValue)) shutter else null
 

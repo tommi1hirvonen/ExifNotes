@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Exif Notes
+  ~ Copyright (C) 2022  Tommi Hirvonen
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:title="@string/MapType"
+        android:id="@+id/menu_item_map_type"
+        android:icon="@drawable/ic_outline_map_24"
+        app:iconTint="?attr/colorControlNormal"
+        app:showAsAction="always">
+        <menu
+            xmlns:android="http://schemas.android.com/apk/res/android">
+            <group
+                android:checkableBehavior="single" >
+                <item
+                    android:id="@+id/menu_item_normal"
+                    android:title="@string/Normal"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/menu_item_hybrid"
+                    android:title="@string/Hybrid"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/menu_item_satellite"
+                    android:title="@string/Satellite"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/menu_item_terrain"
+                    android:title="@string/Terrain"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+
+</menu>

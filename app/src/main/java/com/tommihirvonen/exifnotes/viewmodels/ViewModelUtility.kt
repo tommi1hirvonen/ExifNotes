@@ -26,7 +26,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.tommihirvonen.exifnotes.R
 
-internal object ViewModelUtility {
+object ViewModelUtility {
 
     fun getMarkerBitmaps(context: Context): List<Bitmap?> = arrayListOf(
         getMarkerBitmap(context),
