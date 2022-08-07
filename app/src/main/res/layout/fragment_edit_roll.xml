@@ -23,7 +23,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:descendantFocusability="beforeDescendants"
-    android:focusableInTouchMode="true">
+    android:focusableInTouchMode="true"
+    android:background="?attr/colorSurface">
 
     <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
      doesn't get focus when the Dialog is first shown. -->

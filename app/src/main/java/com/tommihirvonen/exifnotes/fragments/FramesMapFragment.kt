@@ -98,6 +98,10 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        postponeEnterTransition()
+    }
+
     private val onMenuItemSelected = { item: MenuItem ->
         when (item.itemId) {
             R.id.menu_item_normal -> {
@@ -127,9 +131,6 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap_: GoogleMap) {
         googleMap = googleMap_
 
-        val peekHeightOffset = resources.getDimensionPixelSize(R.dimen.MapActivityBottomSheetPeekHeight)
-        googleMap?.setPadding(0, 0, 0, peekHeightOffset)
-
         // If the app's theme is dark, stylize the map with the custom night mode
         when (resources.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
             Configuration.UI_MODE_NIGHT_YES -> {
@@ -140,6 +141,8 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
         googleMap?.mapType = prefs.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
         googleMap?.setInfoWindowAdapter(InfoWindowAdapterSingleRoll())
         googleMap?.setOnInfoWindowClickListener(OnInfoWindowClickListener())
+
+        startPostponedEnterTransition()
 
         model.frames.observe(viewLifecycleOwner) { frames ->
             markers.forEach { it.remove() }
@@ -237,8 +240,9 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
                 fragment.arguments = arguments
                 requireParentFragment().childFragmentManager
                     .beginTransaction()
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
                     .setReorderingAllowed(true)
-                    .replace(R.id.fragment_container, fragment)
+                    .add(R.id.frames_fragment_container, fragment)
                     .addToBackStack(null)
                     .commit()
                 fragment.setFragmentResultListener("EditFrameDialog") { _, bundle ->

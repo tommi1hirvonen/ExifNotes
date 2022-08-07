@@ -142,6 +142,10 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        postponeEnterTransition()
+    }
+
     private val onMenuItemSelected = { item: MenuItem ->
         when (item.itemId) {
             R.id.menu_item_normal -> {
@@ -217,6 +221,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         googleMap?.setInfoWindowAdapter(InfoWindowAdapterMultipleRolls())
         googleMap?.setOnInfoWindowClickListener(OnInfoWindowClickListener())
 
+        startPostponedEnterTransition()
         model.rolls.observe(viewLifecycleOwner) { rolls ->
             rollSelections = rolls.map { it.roll to it.selected }
 
@@ -320,10 +325,11 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                 arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
                 arguments.putParcelable(ExtraKeys.FRAME, frame)
                 fragment.arguments = arguments
-                requireActivity().supportFragmentManager
+                requireParentFragment().childFragmentManager
                     .beginTransaction()
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
                     .setReorderingAllowed(true)
-                    .replace(R.id.fragment_container, fragment)
+                    .add(R.id.rolls_fragment_container, fragment)
                     .addToBackStack(null)
                     .commit()
                 fragment.setFragmentResultListener("EditFrameDialog") { _, bundle ->

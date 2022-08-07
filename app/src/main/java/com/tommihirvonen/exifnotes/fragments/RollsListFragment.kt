@@ -176,9 +176,10 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 val fragment = RollsMapFragment()
                 requireParentFragment().childFragmentManager
                     .beginTransaction()
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
                     .setReorderingAllowed(true)
                     .addToBackStack(null)
-                    .replace(R.id.rolls_fragment_container, fragment)
+                    .add(R.id.rolls_fragment_container, fragment)
                     .commit()
             }
             R.id.active_rolls_filter -> {

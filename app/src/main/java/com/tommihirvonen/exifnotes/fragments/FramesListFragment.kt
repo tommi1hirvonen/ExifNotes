@@ -271,9 +271,10 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 val fragment = FramesMapFragment()
                 requireParentFragment().childFragmentManager
                     .beginTransaction()
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
                     .setReorderingAllowed(true)
                     .addToBackStack(null)
-                    .replace(R.id.frames_fragment_container, fragment)
+                    .add(R.id.frames_fragment_container, fragment)
                     .commit()
             }
             R.id.menu_item_share ->
