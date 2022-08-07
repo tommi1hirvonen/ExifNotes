@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Exif Notes
   ~ Copyright (C) 2022  Tommi Hirvonen
@@ -16,67 +17,18 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/container">
+    android:orientation="vertical"
+    tools:ignore="MergeRootFrame">
 
-    <com.google.android.material.appbar.AppBarLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/top_app_bar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="@string/MainActivityTitle"
-            app:subtitle="@string/AllFilmRolls"
-            app:menu="@menu/menu_rolls_fragment" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <TextView
-        android:id="@+id/no_added_rolls"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        app:layout_anchor="@id/top_app_bar"
-        app:layout_anchorGravity="bottom"
-        android:paddingTop="70dp"
-        android:gravity="center"
-        android:visibility="gone"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-        android:text="@string/NoRolls"/>
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="70dp"
-        android:visibility="gone"
-        app:layout_anchor="@id/top_app_bar"
-        app:layout_anchorGravity="bottom"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rolls_recycler_view"
+    <FrameLayout
+        android:id="@+id/rolls_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="80dp"
-        android:clipToPadding="false"
-        android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fab"
-        android:transitionName="transition_edit_roll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_marginBottom="16dp"
-        android:layout_marginHorizontal="16dp"
-        android:text="@string/NewRoll"
-        app:icon="@drawable/ic_baseline_add_24" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

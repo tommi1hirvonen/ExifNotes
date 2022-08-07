@@ -41,6 +41,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.core.widget.addTextChangedListener
@@ -64,7 +65,7 @@ import com.tommihirvonen.exifnotes.viewmodels.RollViewModel
 /**
  * Dialog to edit Roll's information
  */
-class EditRollFragment : Fragment() {
+class RollEditFragment : Fragment() {
 
     private val model by activityViewModels<RollViewModel>()
     private var cameras = emptyList<Camera>()
@@ -79,6 +80,13 @@ class EditRollFragment : Fragment() {
     private lateinit var dateLoadedManager: DateTimeLayoutManager
     private lateinit var dateUnloadedManager: DateTimeLayoutManager
     private lateinit var dateDevelopedManager: DateTimeLayoutManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            requireParentFragment().childFragmentManager.popBackStack()
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentEditRollBinding.inflate(inflater, container, false)
@@ -254,8 +262,9 @@ class EditRollFragment : Fragment() {
         }
         formatsAutoComplete.setSimpleItems(formats)
 
-        //binding.title.negativeButton.setOnClickListener { requireActivity().onBackPressed() }
-        binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
+        binding.topAppBar.setNavigationOnClickListener {
+            requireParentFragment().childFragmentManager.popBackStack()
+        }
         binding.positiveButton.setOnClickListener {
             if (commitChanges()) {
                 val bundle = Bundle()

@@ -51,6 +51,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -79,7 +80,7 @@ import kotlin.math.roundToInt
 /**
  * Dialog to edit Frame's information
  */
-open class EditFrameFragment : Fragment() {
+open class FrameEditFragment : Fragment() {
     
     internal lateinit var binding: FragmentEditFrameBinding
         private set
@@ -167,6 +168,13 @@ open class EditFrameFragment : Fragment() {
                 Toast.makeText(activity, R.string.ErrorLocatingSelectedPicture, Toast.LENGTH_SHORT).show()
             }
         }).start()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            requireParentFragment().childFragmentManager.popBackStack()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

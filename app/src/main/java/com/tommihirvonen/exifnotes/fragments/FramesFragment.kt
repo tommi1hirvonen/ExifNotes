@@ -25,7 +25,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
+import com.tommihirvonen.exifnotes.databinding.FragmentFramesBinding
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.viewmodels.FrameViewModel
@@ -50,7 +50,7 @@ class FramesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = ActivityMainBinding.inflate(layoutInflater)
+        val binding = FragmentFramesBinding.inflate(layoutInflater)
         val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
         binding.root.transitionName = transitionName
         model.frames.observe(viewLifecycleOwner) {
@@ -72,7 +72,7 @@ class FramesFragment : Fragment() {
         childFragmentManager
             .beginTransaction()
             .addToBackStack(null)
-            .add(R.id.fragment_container, fragment)
+            .add(R.id.frames_fragment_container, fragment)
             .commit()
     }
 

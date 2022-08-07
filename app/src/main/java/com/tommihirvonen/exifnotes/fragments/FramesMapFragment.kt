@@ -23,6 +23,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -58,12 +59,21 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
     private var firstDraw = true
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            requireParentFragment().childFragmentManager.popBackStack()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         val binding = FragmentFramesMapBinding.inflate(layoutInflater)
 
         binding.topAppBar.title = model.roll.name
-        binding.topAppBar.setNavigationOnClickListener { parentFragment?.childFragmentManager?.popBackStackImmediate() }
+        binding.topAppBar.setNavigationOnClickListener {
+            requireParentFragment().childFragmentManager.popBackStack()
+        }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
 
         // Get map type from preferences
@@ -217,7 +227,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
         override fun onInfoWindowClick(marker: Marker) {
             if (marker.tag is Frame) {
                 val frame = marker.tag as Frame? ?: return
-                val fragment = EditFrameFragment()
+                val fragment = FrameEditFragment()
                 val arguments = Bundle()
                 val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
                 val positiveButton = requireActivity().resources.getString(R.string.OK)

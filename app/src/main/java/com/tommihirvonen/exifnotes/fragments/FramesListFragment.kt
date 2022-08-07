@@ -29,6 +29,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -44,7 +45,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter.FrameAdapterListener
-import com.tommihirvonen.exifnotes.databinding.FragmentFramesBinding
+import com.tommihirvonen.exifnotes.databinding.FragmentFramesListBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FrameViewModel
@@ -63,7 +64,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     private lateinit var frameAdapter: FrameAdapter
 
-    private lateinit var binding: FragmentFramesBinding
+    private lateinit var binding: FragmentFramesListBinding
     private var frames = emptyList<Frame>()
 
     /**
@@ -79,14 +80,23 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
     private val transitionInterpolator = FastOutSlowInInterpolator()
     private val transitionDuration = 250L
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            requireParentFragment().requireParentFragment().childFragmentManager.popBackStack()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        binding = FragmentFramesBinding.inflate(inflater, container, false)
+        binding = FragmentFramesListBinding.inflate(inflater, container, false)
 
         binding.topAppBar.transitionName = "frames_top_app_bar_transition"
         binding.topAppBar.title = roll.name
 
-        binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
+        binding.topAppBar.setNavigationOnClickListener {
+            requireParentFragment().requireParentFragment().childFragmentManager.popBackStack()
+        }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
         binding.fab.setOnClickListener { showEditFrameFragment(null, binding.fab) }
 
@@ -154,7 +164,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             .setCommonInterpolator(transitionInterpolator)
             .apply { duration = transitionDuration }
 
-        val fragment = EditFrameFragment().apply {
+        val fragment = FrameEditFragment().apply {
             sharedElementEnterTransition = sharedElementTransition
         }
 
@@ -211,7 +221,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.fragment_container, fragment)
+            .replace(R.id.frames_fragment_container, fragment)
             .addToBackStack(null)
             .commit()
 
@@ -263,7 +273,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     .beginTransaction()
                     .setReorderingAllowed(true)
                     .addToBackStack(null)
-                    .replace(R.id.fragment_container, fragment)
+                    .replace(R.id.frames_fragment_container, fragment)
                     .commit()
             }
             R.id.menu_item_share ->

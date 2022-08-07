@@ -37,6 +37,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.fragments.RollsFragment
+import com.tommihirvonen.exifnotes.fragments.RollsListFragment
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.utilities.purgeDirectory
@@ -54,6 +55,8 @@ class MainActivity : AppCompatActivity() {
          */
         private const val MY_MULTIPLE_PERMISSIONS_REQUEST = 1
     }
+
+    private lateinit var rollsFragment: RollsFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Delete all complementary pictures, which are not linked to any frame.
@@ -118,10 +121,12 @@ class MainActivity : AppCompatActivity() {
                 return
             }
             // Create a new Fragment to be placed in the activity layout
-            val firstFragment = RollsFragment()
+            rollsFragment = RollsFragment()
             // Add the fragment to the 'fragment_container' FrameLayout
-            supportFragmentManager.beginTransaction()
-                    .add(R.id.fragment_container, firstFragment, RollsFragment.ROLLS_FRAGMENT_TAG).commit()
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.fragment_container, rollsFragment, RollsListFragment.ROLLS_FRAGMENT_TAG)
+                .commit()
         }
     }
 

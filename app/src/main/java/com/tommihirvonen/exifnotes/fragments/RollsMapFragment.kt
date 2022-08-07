@@ -26,6 +26,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -80,6 +81,13 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentRollsMapBinding
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            requireParentFragment().childFragmentManager.popBackStack()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentRollsMapBinding.inflate(layoutInflater)
@@ -90,7 +98,9 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
             RollFilterMode.ALL -> resources.getString(R.string.AllRolls)
         }
         binding.topAppBar.title = title
-        binding.topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
+        binding.topAppBar.setNavigationOnClickListener {
+            requireParentFragment().childFragmentManager.popBackStack()
+        }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
 
         // Set the bottom sheet
@@ -302,7 +312,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         override fun onInfoWindowClick(marker: Marker) {
             if (marker.tag is Frame) {
                 val frame = marker.tag as Frame? ?: return
-                val fragment = EditFrameFragment()
+                val fragment = FrameEditFragment()
                 val arguments = Bundle()
                 val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
                 val positiveButton = requireActivity().resources.getString(R.string.OK)
