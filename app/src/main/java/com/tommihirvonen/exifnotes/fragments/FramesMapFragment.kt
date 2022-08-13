@@ -59,6 +59,8 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
     private var firstDraw = true
 
+    private lateinit var binding: FragmentFramesMapBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(this) {
@@ -68,7 +70,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        val binding = FragmentFramesMapBinding.inflate(layoutInflater)
+        binding = FragmentFramesMapBinding.inflate(layoutInflater)
 
         binding.topAppBar.title = model.roll.name
         binding.topAppBar.setNavigationOnClickListener {
@@ -180,7 +182,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
                 val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
                 googleMap?.moveCamera(cameraUpdate)
             } else if (markers.isEmpty()) {
-                Toast.makeText(requireContext(), resources.getString(R.string.NoFramesToShow), Toast.LENGTH_LONG).show()
+                binding.root.snackbar(R.string.NoFramesToShow)
             }
         }
     }

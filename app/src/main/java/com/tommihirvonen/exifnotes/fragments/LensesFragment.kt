@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
@@ -39,6 +38,7 @@ import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.snackbar
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
 
@@ -54,6 +54,8 @@ class LensesFragment : Fragment() {
 
     private var fragmentVisible = false
 
+    private lateinit var binding:FragmentLensesBinding
+
     override fun onResume() {
         fragmentVisible = true
         super.onResume()
@@ -66,7 +68,7 @@ class LensesFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        val binding = FragmentLensesBinding.inflate(inflater, container, false)
+        binding = FragmentLensesBinding.inflate(inflater, container, false)
 
         binding.fabLenses.setOnClickListener { openNewLensDialog() }
 
@@ -157,9 +159,10 @@ class LensesFragment : Fragment() {
     private fun confirmDeleteLens(lens: Lens) {
         // Check if the lens is being used with one of the frames.
         if (database.isLensInUse(lens)) {
-            Toast.makeText(activity, resources.getString(R.string.LensNoColon) +
+            val message = resources.getString(R.string.LensNoColon) +
                     " " + lens.name + " " +
-                    resources.getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show()
+                    resources.getString(R.string.IsBeingUsed)
+            binding.root.snackbar(message, binding.fabLenses)
             return
         }
         val builder = MaterialAlertDialogBuilder(requireActivity())

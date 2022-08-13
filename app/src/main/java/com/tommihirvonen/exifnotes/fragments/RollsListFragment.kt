@@ -24,7 +24,6 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -36,6 +35,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.RollAdapter
@@ -101,19 +101,16 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     binding.topAppBar.subtitle = resources.getString(R.string.ActiveFilmRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveRolls)
                     menu.findItem(R.id.active_rolls_filter).isChecked = true
-                    binding.fab.show()
                 }
                 RollFilterMode.ARCHIVED -> {
                     binding.topAppBar.subtitle = resources.getString(R.string.ArchivedFilmRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoArchivedRolls)
                     menu.findItem(R.id.archived_rolls_filter).isChecked = true
-                    binding.fab.hide()
                 }
                 RollFilterMode.ALL -> {
                     binding.topAppBar.subtitle = resources.getString(R.string.AllFilmRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveOrArchivedRolls)
                     menu.findItem(R.id.all_rolls_filter).isChecked = true
-                    binding.fab.show()
                 }
                 null -> {}
             }
@@ -292,6 +289,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     }
 
     private fun showEditRollFragment(roll: Roll?, sharedElement: View) {
+        actionMode?.finish()
 
         exitTransition = null
         reenterFadeDuration = transitionDurationEditRoll
@@ -363,10 +361,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
      */
     private inner class ActionModeCallback : ActionMode.Callback {
         override fun onCreateActionMode(actionMode: ActionMode, menu: Menu): Boolean {
-
-            // Hide the floating action button so no new rolls can be added while in action mode.
-            binding.fab.hide()
-
             // Use different action mode menu layouts depending on which rolls are shown.
             when (model.rollFilterMode.value) {
                 RollFilterMode.ACTIVE -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_active, menu)
@@ -464,7 +458,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         model.updateRoll(roll)
                     }
                     actionMode.finish()
-                    Toast.makeText(activity, resources.getString(R.string.RollsArchived), Toast.LENGTH_SHORT).show()
+                    binding.container
+                        .snackbar(R.string.RollsArchived, binding.fab, Snackbar.LENGTH_SHORT)
                     true
                 }
                 R.id.menu_item_unarchive -> {
@@ -473,7 +468,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         model.updateRoll(roll)
                     }
                     actionMode.finish()
-                    Toast.makeText(activity, resources.getString(R.string.RollsActivated), Toast.LENGTH_SHORT).show()
+                    binding.container
+                        .snackbar(R.string.RollsActivated, binding.fab, Snackbar.LENGTH_SHORT)
                     true
                 }
                 else -> false
@@ -483,8 +479,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         override fun onDestroyActionMode(mode: ActionMode) {
             rollAdapter.clearSelections()
             actionMode = null
-            // Make the floating action bar visible again since action mode is exited.
-            binding.fab.show()
         }
     }
 

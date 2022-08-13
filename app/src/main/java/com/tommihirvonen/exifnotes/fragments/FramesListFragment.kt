@@ -21,14 +21,13 @@ package com.tommihirvonen.exifnotes.fragments
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import android.widget.*
+import android.widget.EditText
+import android.widget.NumberPicker
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -40,7 +39,11 @@ import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter
@@ -50,6 +53,7 @@ import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FrameViewModel
 import java.io.IOException
+import java.util.*
 
 /**
  * FramesFragment is the fragment which is called when the user presses on a roll
@@ -173,8 +177,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             // If the frame count is greater than 100, then don't add a new frame.
             val nextFrameCount = frames.maxByOrNull { it.count }?.count?.plus(1) ?: 1
             if (nextFrameCount > 100) {
-                Toast.makeText(activity, resources.getString(R.string.TooManyFrames),
-                    Toast.LENGTH_LONG).show()
+                binding.container.snackbar(R.string.TooManyFrames, binding.fab)
                 return
             }
             val title = requireActivity().resources.getString(R.string.AddNewFrame)
@@ -309,10 +312,10 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 val directoryDocumentFile = DocumentFile.fromTreeUri(requireContext(), directoryUri)
                     ?: return@registerForActivityResult
                 RollExportHelper(requireActivity(), roll, directoryDocumentFile).export()
-                Toast.makeText(activity, R.string.ExportedFilesSuccessfully, Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.ExportedFilesSuccessfully, binding.fab)
             } catch (e: IOException) {
                 e.printStackTrace()
-                Toast.makeText(activity, R.string.ErrorExporting, Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.ErrorExporting, binding.fab)
             }
         }
     }
@@ -382,28 +385,32 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 0 -> FrameCountBatchEditDialogBuilder(requireActivity()).create().show()
                                 // Edit date and time
                                 1 -> {
-                                    val dateTimeTemp = DateTime.fromCurrentTime()
-                                    // Show date dialog.
-                                    val dateDialog = DatePickerDialog(requireActivity(),
-                                            { _: DatePicker?, year: Int, month: Int, dayOfMonth: Int ->
-                                        // If date was set, show time dialog.
-                                        val dateTime = DateTime(year, month + 1, dayOfMonth,
-                                                dateTimeTemp.hour, dateTimeTemp.minute)
-                                        val timeDialog = TimePickerDialog(requireActivity(),
-                                                { _: TimePicker?, hourOfDay: Int, minute: Int ->
-                                            // If time was set, update selected frames.
-                                            dateTime.hour = hourOfDay
-                                            dateTime.minute = minute
+                                    val dt = DateTime.fromCurrentTime()
+                                    val cal = Calendar.getInstance()
+                                    cal.set(dt.year, dt.month - 1, dt.day)
+                                    val datePicker = MaterialDatePicker.Builder.datePicker()
+                                        .setSelection(cal.timeInMillis)
+                                        .build()
+                                    datePicker.addOnPositiveButtonClickListener {
+                                        cal.timeInMillis = datePicker.selection ?: cal.timeInMillis
+                                        val dateTime = DateTime(cal[Calendar.YEAR], cal[Calendar.MONTH] + 1, cal[Calendar.DATE],
+                                            dt.hour, dt.minute)
+                                        val timePicker = MaterialTimePicker.Builder()
+                                            .setHour(dt.hour)
+                                            .setMinute(dt.minute)
+                                            .setTimeFormat(TimeFormat.CLOCK_24H)
+                                            .build()
+                                        timePicker.addOnPositiveButtonClickListener {
+                                            dateTime.hour = timePicker.hour
+                                            dateTime.minute = timePicker.minute
                                             selectedFrames.forEach {
                                                 it.date = dateTime
                                                 model.updateFrame(it)
                                             }
-                                            frameAdapter.notifyDataSetChanged()
-                                        }, dateTimeTemp.hour, dateTimeTemp.minute, true)
-                                        timeDialog.show()
-
-                                    }, dateTimeTemp.year, dateTimeTemp.month - 1, dateTimeTemp.day)
-                                    dateDialog.show()
+                                        }
+                                        timePicker.show(childFragmentManager, null)
+                                    }
+                                    datePicker.show(childFragmentManager, null)
                                 }
                                 // Edit lens
                                 2 -> {

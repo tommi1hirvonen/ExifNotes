@@ -21,8 +21,11 @@ package com.tommihirvonen.exifnotes.utilities
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.view.View
 import android.view.animation.Interpolator
+import androidx.annotation.StringRes
 import androidx.transition.TransitionSet
+import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.datastructures.Gear
 import java.io.*
 
@@ -54,3 +57,15 @@ fun TransitionSet.setCommonInterpolator(interpolator: Interpolator): TransitionS
     (0 until transitionCount).map { index -> getTransitionAt(index) }
         .forEach { transition -> transition?.interpolator = interpolator }
 }
+
+fun View.snackbar(@StringRes resId: Int, duration: Int = Snackbar.LENGTH_LONG) =
+    Snackbar.make(this, resId, duration).show()
+
+fun View.snackbar(text: CharSequence, duration: Int = Snackbar.LENGTH_LONG) =
+    Snackbar.make(this, text, duration).show()
+
+fun View.snackbar(@StringRes resId: Int, anchorView: View, duration: Int = Snackbar.LENGTH_LONG) =
+    Snackbar.make(this, resId, duration).setAnchorView(anchorView).show()
+
+fun View.snackbar(text: CharSequence, anchorView: View, duration: Int = Snackbar.LENGTH_LONG) =
+    Snackbar.make(this, text, duration).setAnchorView(anchorView).show()

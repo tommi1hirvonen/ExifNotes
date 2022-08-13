@@ -29,6 +29,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerBinding
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerButtonsBinding
@@ -37,6 +38,7 @@ import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.ScrollIndicatorNestedScrollViewListener
+import com.tommihirvonen.exifnotes.utilities.snackbar
 
 /**
  * Dialog to edit Lens's information
@@ -154,8 +156,7 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
                         minAperturePicker.value != displayedApertureValues.size - 1 &&
                         maxAperturePicker.value == displayedApertureValues.size - 1) {
                     // No min or max shutter was set
-                    Toast.makeText(activity, resources.getString(R.string.NoMinOrMaxAperture),
-                            Toast.LENGTH_LONG).show()
+                    binding.root.snackbar(R.string.NoMinOrMaxAperture)
                 } else {
                     if (minAperturePicker.value == displayedApertureValues.size - 1 &&
                             maxAperturePicker.value == displayedApertureValues.size - 1) {
@@ -244,8 +245,7 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
             val serialNumber = binding.serialNumberEditText.text.toString()
             if ((make.isEmpty() || model.isEmpty()) && !fixedLens) {
                 // No make or model was set
-                Toast.makeText(activity, resources.getString(R.string.MakeAndOrModelIsEmpty),
-                        Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.MakeAndOrModelIsEmpty)
             } else {
                 //All the required information was given. Save.
                 lens.make = make

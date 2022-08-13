@@ -31,6 +31,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogCameraBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
@@ -148,8 +149,7 @@ class EditCameraDialog : DialogFragment() {
                         minShutterPicker.value != displayedShutterValues.size - 1 &&
                         maxShutterPicker.value == displayedShutterValues.size - 1) {
                     // No min or max shutter was set
-                    Toast.makeText(activity, resources.getString(R.string.NoMinOrMaxShutter),
-                            Toast.LENGTH_LONG).show()
+                    binding.root.snackbar(R.string.NoMinOrMaxShutter)
                 } else {
                     if (minShutterPicker.value == displayedShutterValues.size - 1 &&
                             maxShutterPicker.value == displayedShutterValues.size - 1) {
@@ -235,13 +235,13 @@ class EditCameraDialog : DialogFragment() {
             val serialNumber = binding.serialNumberEditText.text.toString()
             if (make.isEmpty() && model.isEmpty()) {
                 // No make or model was set
-                Toast.makeText(activity, resources.getString(R.string.NoMakeOrModel), Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.NoMakeOrModel)
             } else if (make.isNotEmpty() && model.isEmpty()) {
                 // No model was set
-                Toast.makeText(activity, resources.getString(R.string.NoModel), Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.NoModel)
             } else if (make.isEmpty()) {
                 // No make was set
-                Toast.makeText(activity, resources.getString(R.string.NoMake), Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.NoMake)
             } else {
 
                 camera.make = make

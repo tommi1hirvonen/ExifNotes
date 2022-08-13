@@ -23,12 +23,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.CameraAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentCamerasBinding
@@ -39,6 +39,7 @@ import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.snackbar
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
 
@@ -52,9 +53,11 @@ class CamerasFragment : Fragment() {
     private var lenses: List<Lens> = emptyList()
     private var filters: List<Filter> = emptyList()
 
+    private lateinit var binding: FragmentCamerasBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        val binding = FragmentCamerasBinding.inflate(inflater, container, false)
+        binding = FragmentCamerasBinding.inflate(inflater, container, false)
 
         binding.fabCameras.setOnClickListener { openNewCameraDialog() }
 
@@ -126,9 +129,10 @@ class CamerasFragment : Fragment() {
     private fun confirmDeleteCamera(camera: Camera) {
         // Check if the camera is being used with one of the rolls.
         if (database.isCameraBeingUsed(camera)) {
-            Toast.makeText(activity, resources.getString(R.string.CameraNoColon) +
+            val message = resources.getString(R.string.CameraNoColon) +
                     " " + camera.name + " " +
-                    resources.getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show()
+                    resources.getString(R.string.IsBeingUsed)
+            binding.root.snackbar(message, binding.fabCameras, Snackbar.LENGTH_SHORT)
             return
         }
         val builder = MaterialAlertDialogBuilder(requireActivity())

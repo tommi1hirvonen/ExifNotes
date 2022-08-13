@@ -27,7 +27,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
@@ -41,6 +40,7 @@ import com.tommihirvonen.exifnotes.fragments.RollsListFragment
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.utilities.purgeDirectory
+import com.tommihirvonen.exifnotes.utilities.snackbar
 
 /**
  * MainActivity is the first activity to be called when the app is launched.
@@ -57,6 +57,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var rollsFragment: RollsFragment
+
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Delete all complementary pictures, which are not linked to any frame.
@@ -75,7 +77,7 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
-        val binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
@@ -175,7 +177,7 @@ class MainActivity : AppCompatActivity() {
             //Check write permissions
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 //In case write permission was denied, inform the user.
-                Toast.makeText(this, R.string.NoWritePermission, Toast.LENGTH_LONG).show()
+                binding.root.snackbar(R.string.NoWritePermission)
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

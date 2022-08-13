@@ -26,7 +26,6 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
@@ -44,6 +43,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityLocationPickBinding
 import com.tommihirvonen.exifnotes.datastructures.Location
@@ -178,13 +178,13 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, formattedAddress)
             setResult(Activity.RESULT_OK, intent)
             finish()
-        } ?: Toast.makeText(baseContext, R.string.NoLocation, Toast.LENGTH_SHORT).show()
+        } ?: binding.root.snackbar(R.string.NoLocation, binding.fabCurrentLocation,
+            Snackbar.LENGTH_SHORT)
     }
 
     private val onRequestCurrentLocation = { _: View ->
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
             || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
             fusedLocationClient.lastLocation.addOnSuccessListener(this) { location: android.location.Location? ->
                 if (location != null) {
                     val position = LatLng(location.latitude, location.longitude)
@@ -192,7 +192,6 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                     googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
                 }
             }
-
         }
     }
 
@@ -267,7 +266,8 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                 marker = googleMap.addMarker(MarkerOptions().position(latLngLocation))
                 if (!continueActivity) {
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngLocation, 15f))
-                    Toast.makeText(baseContext, resources.getString(R.string.TapOnMap), Toast.LENGTH_SHORT).show()
+                    binding.root.snackbar(R.string.TapOnMap, binding.fabCurrentLocation,
+                        Snackbar.LENGTH_SHORT)
                 }
             }
         }

@@ -23,12 +23,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilterAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentFiltersBinding
@@ -39,6 +39,7 @@ import com.tommihirvonen.exifnotes.datastructures.MountableState
 import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.snackbar
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
 
@@ -52,9 +53,11 @@ class FiltersFragment : Fragment() {
     private var lenses: List<Lens> = emptyList()
     private var filters: List<Filter> = emptyList()
 
+    private lateinit var binding: FragmentFiltersBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        val binding = FragmentFiltersBinding.inflate(inflater, container, false)
+        binding = FragmentFiltersBinding.inflate(inflater, container, false)
         binding.fabFilters.setOnClickListener(onFabClickListener)
 
         val layoutManager = LinearLayoutManager(activity)
@@ -203,9 +206,11 @@ class FiltersFragment : Fragment() {
     private fun confirmDeleteFilter(filter: Filter) {
         // Check if the filter is being used with one of the rolls.
         if (database.isFilterBeingUsed(filter)) {
-            Toast.makeText(activity, resources.getString(R.string.FilterNoColon) +
+            val message = resources.getString(R.string.FilterNoColon) +
                     " " + filter.name + " " +
-                    resources.getString(R.string.IsBeingUsed), Toast.LENGTH_SHORT).show()
+                    resources.getString(R.string.IsBeingUsed)
+            binding.root.snackbar(message, binding.fabFilters, Snackbar.LENGTH_SHORT)
+            return
         }
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(resources.getString(R.string.ConfirmFilterDelete)

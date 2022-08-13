@@ -24,14 +24,15 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.Spanned
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
+import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilmBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.snackbar
 
 class EditFilmStockDialog : DialogFragment() {
     @SuppressLint("SetTextI18n", "InflateParams")
@@ -70,8 +71,7 @@ class EditFilmStockDialog : DialogFragment() {
             val manufacturerName = binding.manufacturerEditText.text.toString()
             val filmStockName = binding.filmStockEditText.text.toString()
             if (manufacturerName.isEmpty() || filmStockName.isEmpty()) {
-                Toast.makeText(requireActivity(), R.string.ManufacturerOrFilmStockNameCannotBeEmpty,
-                        Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.ManufacturerOrFilmStockNameCannotBeEmpty)
             } else {
                 filmStock.make = manufacturerName
                 filmStock.model = filmStockName

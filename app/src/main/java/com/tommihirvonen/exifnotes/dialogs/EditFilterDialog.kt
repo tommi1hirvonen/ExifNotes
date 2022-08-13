@@ -22,14 +22,15 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
+import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilterBinding
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.snackbar
 
 /**
  * Dialog to edit a Filter's information
@@ -74,14 +75,13 @@ class EditFilterDialog : DialogFragment() {
             val model = binding.modelEditText.text.toString()
             if (make.isEmpty() && model.isEmpty()) {
                 // No make or model was set
-                Toast.makeText(activity, resources.getString(R.string.NoMakeOrModel),
-                        Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.NoMakeOrModel)
             } else if (make.isNotEmpty() && model.isEmpty()) {
                 // No model was set
-                Toast.makeText(activity, resources.getString(R.string.NoModel), Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.NoModel)
             } else if (make.isEmpty()) {
                 // No make was set
-                Toast.makeText(activity, resources.getString(R.string.NoMake), Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.NoMake)
             } else {
                 filter.make = make
                 filter.model = model

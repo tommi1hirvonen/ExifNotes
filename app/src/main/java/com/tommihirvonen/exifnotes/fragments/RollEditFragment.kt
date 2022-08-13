@@ -49,6 +49,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentEditRollBinding
@@ -313,8 +314,7 @@ class RollEditFragment : Fragment() {
             return true
         } else {
             binding.nameLayout.error = getString(R.string.NoName)
-            Toast.makeText(activity, resources.getString(R.string.NoName),
-                    Toast.LENGTH_SHORT).show()
+            binding.root.snackbar(R.string.NoName)
             return false
         }
     }

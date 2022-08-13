@@ -265,7 +265,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                 val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
                 googleMap?.moveCamera(cameraUpdate)
             } else {
-                Toast.makeText(requireContext(), resources.getString(R.string.NoFramesToShow), Toast.LENGTH_LONG).show()
+                binding.root.snackbar(R.string.NoFramesToShow, binding.bottomSheet)
             }
         }
     }

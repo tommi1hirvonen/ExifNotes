@@ -134,7 +134,7 @@ open class FrameEditFragment : Fragment() {
                 try {
                     ComplementaryPicturesManager.compressPictureFile(requireActivity(), filename)
                 } catch (e: IOException) {
-                    Toast.makeText(activity, R.string.ErrorCompressingComplementaryPicture, Toast.LENGTH_SHORT).show()
+                    binding.root.snackbar(R.string.ErrorCompressingComplementaryPicture)
                 }
                 // Set the complementary picture ImageView on the UI thread.
                 requireActivity().runOnUiThread { setComplementaryPicture() }
@@ -162,10 +162,10 @@ open class FrameEditFragment : Fragment() {
                     // Set the complementary picture ImageView on the UI thread.
                     requireActivity().runOnUiThread { setComplementaryPicture() }
                 } catch (e: IOException) {
-                    Toast.makeText(activity, R.string.ErrorSavingSelectedPicture, Toast.LENGTH_SHORT).show()
+                    binding.root.snackbar(R.string.ErrorSavingSelectedPicture)
                 }
             } catch (e: FileNotFoundException) {
-                Toast.makeText(activity, R.string.ErrorLocatingSelectedPicture, Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.ErrorLocatingSelectedPicture)
             }
         }).start()
     }
@@ -812,9 +812,9 @@ open class FrameEditFragment : Fragment() {
                     2 -> {
                         try {
                             ComplementaryPicturesManager.addPictureToGallery(requireActivity(), newFrame.pictureFilename)
-                            Toast.makeText(activity, R.string.PictureAddedToGallery, Toast.LENGTH_SHORT).show()
+                            binding.root.snackbar(R.string.PictureAddedToGallery)
                         } catch (e: Exception) {
-                            Toast.makeText(activity, R.string.ErrorAddingPictureToGallery, Toast.LENGTH_LONG).show()
+                            binding.root.snackbar(R.string.ErrorAddingPictureToGallery)
                         }
                         dialogInterface.dismiss()
                     }
@@ -841,7 +841,7 @@ open class FrameEditFragment : Fragment() {
         private fun startPictureActivity() {
             // Check if the camera feature is available
             if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-                Toast.makeText(activity, R.string.NoCameraFeatureWasFound, Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.NoCameraFeatureWasFound)
                 return
             }
 
@@ -872,7 +872,7 @@ open class FrameEditFragment : Fragment() {
                 val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_right)
                 binding.ivPicture.startAnimation(animation)
             } catch (e: IOException) {
-                Toast.makeText(activity, R.string.ErrorWhileEditingPicturesExifData, Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.ErrorWhileEditingPicturesExifData)
             }
         }
 
@@ -888,7 +888,7 @@ open class FrameEditFragment : Fragment() {
                 val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_left)
                 binding.ivPicture.startAnimation(animation)
             } catch (e: IOException) {
-                Toast.makeText(activity, R.string.ErrorWhileEditingPicturesExifData, Toast.LENGTH_SHORT).show()
+                binding.root.snackbar(R.string.ErrorWhileEditingPicturesExifData)
             }
         }
     }

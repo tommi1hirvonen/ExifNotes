@@ -26,7 +26,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.webkit.WebView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.appcompat.app.AppCompatDelegate
@@ -224,12 +223,13 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
             if (success) {
                 if (completedEntries == 0) {
-                    Toast.makeText(activity, R.string.NoPicturesImported, Toast.LENGTH_LONG).show()
+                    view?.snackbar(R.string.NoPicturesImported)
                 } else {
-                    Toast.makeText(activity, resources.getQuantityString(R.plurals.ComplementaryPicturesImported, completedEntries, completedEntries), Toast.LENGTH_LONG).show()
+                    val message = resources.getQuantityString(R.plurals.ComplementaryPicturesImported, completedEntries, completedEntries)
+                    view?.snackbar(message)
                 }
             } else {
-                Toast.makeText(activity, R.string.ErrorImportingComplementaryPictures, Toast.LENGTH_LONG).show()
+                view?.snackbar(R.string.ErrorImportingComplementaryPictures)
             }
         }
     }
@@ -242,9 +242,9 @@ class PreferenceFragment : PreferenceFragmentCompat() {
             val cursor = requireContext().contentResolver.query(databaseUri,
                     null, null, null, null)
             cursor!!.moveToFirst()
-            val name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+            val name = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
             if (File(name).extension != "db") {
-                Toast.makeText(context, "Not a valid .db file!", Toast.LENGTH_SHORT).show()
+                view?.snackbar("Not a valid .db file!")
                 return
             }
             cursor.close()
@@ -266,10 +266,9 @@ class PreferenceFragment : PreferenceFragmentCompat() {
                 val importSuccess: Boolean = try {
                     database.importDatabase(requireActivity(), filePath)
                 } catch (e: IOException) {
-                    Toast.makeText(activity,
-                            resources.getString(R.string.ErrorImportingDatabaseFrom) +
-                                    filePath,
-                            Toast.LENGTH_LONG).show()
+                    val message = resources.getString(R.string.ErrorImportingDatabaseFrom) +
+                            filePath
+                    view?.snackbar(message)
                     return
                 }
                 if (importSuccess) {
@@ -281,11 +280,9 @@ class PreferenceFragment : PreferenceFragmentCompat() {
                     // Preserve the previously put result code(s)
                     result = result or PreferenceActivity.RESULT_DATABASE_IMPORTED
                     preferenceActivity.resultCode = result
-                    Toast.makeText(activity,
-                            resources.getString(R.string.DatabaseImported),
-                            Toast.LENGTH_LONG).show()
+                    view?.snackbar(R.string.DatabaseImported)
                 } else {
-                    Toast.makeText(activity, "Import failed", Toast.LENGTH_SHORT).show()
+                    view?.snackbar("Import failed")
                 }
             }
         } catch (e: IOException) {
@@ -304,7 +301,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
             if (success) {
                 if (completedEntries == 0) {
-                    Toast.makeText(activity, R.string.NoPicturesExported, Toast.LENGTH_LONG).show()
+                    view?.snackbar(R.string.NoPicturesExported)
                 } else {
                     try {
                         @Suppress("BlockingMethodInNonBlockingContext")
@@ -314,15 +311,17 @@ class PreferenceFragment : PreferenceFragmentCompat() {
                             inputStream.close()
                             outputStream.close()
                         }
-                        Toast.makeText(activity, resources.getQuantityString(R.plurals.ComplementaryPicturesExported, completedEntries, completedEntries), Toast.LENGTH_LONG).show()
+                        val message = resources.getQuantityString(
+                            R.plurals.ComplementaryPicturesExported,
+                            completedEntries, completedEntries)
+                        view?.snackbar(message)
                     } catch (e: IOException) {
                         e.printStackTrace()
-                        Toast.makeText(activity, R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show()
+                        view?.snackbar(R.string.ErrorExportingComplementaryPictures)
                     }
                 }
             } else {
-                Toast.makeText(activity,
-                        R.string.ErrorExportingComplementaryPictures, Toast.LENGTH_LONG).show()
+                view?.snackbar(R.string.ErrorExportingComplementaryPictures)
             }
         }
 
@@ -336,14 +335,10 @@ class PreferenceFragment : PreferenceFragmentCompat() {
             inputStream.copyTo(outputStream!!)
             inputStream.close()
             outputStream.close()
-            Toast.makeText(activity,
-                    resources.getString(R.string.DatabaseCopiedSuccessfully),
-                    Toast.LENGTH_LONG).show()
+            view?.snackbar(R.string.DatabaseCopiedSuccessfully)
         } catch (e: IOException) {
             e.printStackTrace()
-            Toast.makeText(activity,
-                    resources.getString(R.string.ErrorExportingDatabase),
-                    Toast.LENGTH_LONG).show()
+            view?.snackbar(R.string.ErrorExportingDatabase)
         }
     }
 
