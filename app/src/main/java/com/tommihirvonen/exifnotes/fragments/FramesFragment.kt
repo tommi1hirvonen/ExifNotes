@@ -72,7 +72,7 @@ class FramesFragment : Fragment() {
         childFragmentManager
             .beginTransaction()
             .addToBackStack(null)
-            .add(R.id.frames_fragment_container, fragment)
+            .replace(R.id.frames_fragment_container, fragment)
             .commit()
     }
 

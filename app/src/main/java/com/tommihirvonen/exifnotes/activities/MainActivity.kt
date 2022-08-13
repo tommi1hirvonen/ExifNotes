@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         private const val MY_MULTIPLE_PERMISSIONS_REQUEST = 1
     }
 
-    private lateinit var rollsFragment: RollsFragment
+    private val rollsFragment = RollsFragment()
 
     private lateinit var binding: ActivityMainBinding
 
@@ -122,12 +122,11 @@ class MainActivity : AppCompatActivity() {
             if (savedInstanceState != null) {
                 return
             }
-            // Create a new Fragment to be placed in the activity layout
-            rollsFragment = RollsFragment()
+
             // Add the fragment to the 'fragment_container' FrameLayout
             supportFragmentManager
                 .beginTransaction()
-                .add(R.id.fragment_container, rollsFragment, RollsListFragment.ROLLS_FRAGMENT_TAG)
+                .replace(R.id.fragment_container, rollsFragment, RollsListFragment.ROLLS_FRAGMENT_TAG)
                 .commit()
         }
     }

@@ -41,7 +41,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.tommihirvonen.exifnotes.R
@@ -300,8 +299,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
     private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         // Finish this activity since the selected roll may not be valid anymore.
         if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED == PreferenceActivity.RESULT_DATABASE_IMPORTED) {
-            requireActivity().setResult(result.resultCode)
-            requireActivity().finish()
+            requireActivity().recreate()
         }
     }
 

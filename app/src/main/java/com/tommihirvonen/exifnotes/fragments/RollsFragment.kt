@@ -27,6 +27,9 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsBinding
 
 class RollsFragment : Fragment() {
+
+    private val rollsListFragment = RollsListFragment()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,11 +40,10 @@ class RollsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val fragment = RollsListFragment()
         childFragmentManager
             .beginTransaction()
             .addToBackStack(null)
-            .add(R.id.rolls_fragment_container, fragment)
+            .replace(R.id.rolls_fragment_container, rollsListFragment)
             .commit()
     }
 }
