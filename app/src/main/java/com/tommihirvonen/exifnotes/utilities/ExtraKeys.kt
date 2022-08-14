@@ -35,4 +35,5 @@ object ExtraKeys {
     const val FILM_STOCK = "FILM_STOCK"
     const val RESULT_CODE = "RESULT_CODE"
     const val TRANSITION_NAME = "TRANSITION_NAME"
+    const val FIXED_LENS = "FIXED_LENS"
 }

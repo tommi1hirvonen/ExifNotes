@@ -16,24 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
- * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package com.tommihirvonen.exifnotes.fragments
 
 import android.content.DialogInterface
@@ -48,6 +30,8 @@ import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentCameraEditBinding
@@ -55,7 +39,6 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.PartialIncrement
-import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.*
 
 /**
@@ -83,8 +66,7 @@ class CameraEditFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val layoutInflater = requireActivity().layoutInflater
-        binding = FragmentCameraEditBinding.inflate(layoutInflater)
+        binding = FragmentCameraEditBinding.inflate(inflater)
 
         val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
         binding.root.transitionName = transitionName
@@ -196,22 +178,7 @@ class CameraEditFragment : Fragment() {
             binding.lensClear.visibility = View.GONE
         }
         binding.fixedLensLayout.setOnClickListener {
-            val dialog = EditLensDialog(fixedLens = true)
-            val arguments = Bundle()
-            newCamera.lens?.let {
-                arguments.putParcelable(ExtraKeys.LENS, it)
-            }
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.SetFixedLens))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-            dialog.arguments = arguments
-            dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
-            dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
-                val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
-                    ?: return@setFragmentResultListener
-                newCamera.lens = lens
-                binding.fixedLensText.text = resources.getString(R.string.ClickToEdit)
-                binding.lensClear.visibility = View.VISIBLE
-            }
+            showFixedLensFragment()
         }
         binding.lensClear.setOnClickListener {
             newCamera.lens = null
@@ -265,6 +232,44 @@ class CameraEditFragment : Fragment() {
 
     private fun navigateBack() =
         requireParentFragment().childFragmentManager.popBackStack()
+
+    private fun showFixedLensFragment() {
+        val sharedElementTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(FastOutSlowInInterpolator())
+            .apply { duration = 250L }
+        val fragment = LensEditFragment().apply {
+            sharedElementEnterTransition = sharedElementTransition
+        }
+        val arguments = Bundle()
+        arguments.putBoolean(ExtraKeys.FIXED_LENS, true)
+        newCamera.lens?.let {
+            arguments.putParcelable(ExtraKeys.LENS, it)
+        }
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.SetFixedLens))
+        val sharedElement = binding.fixedLensLayout
+        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+        fragment.arguments = arguments
+
+        requireParentFragment().childFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
+            .addSharedElement(sharedElement, sharedElement.transitionName)
+            .replace(R.id.gear_fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
+        fragment.setFragmentResultListener("LensEditFragment") { _, bundle ->
+            val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
+                ?: return@setFragmentResultListener
+            newCamera.lens = lens
+            binding.fixedLensText.text = resources.getString(R.string.ClickToEdit)
+            binding.lensClear.visibility = View.VISIBLE
+        }
+    }
 
     /**
      * Called when the shutter speed range dialog is opened.

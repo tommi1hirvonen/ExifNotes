@@ -16,41 +16,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.dialogs
+package com.tommihirvonen.exifnotes.fragments
 
-import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.DialogFragment
+import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerBinding
 import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerButtonsBinding
-import com.tommihirvonen.exifnotes.databinding.DialogLensBinding
+import com.tommihirvonen.exifnotes.databinding.FragmentLensEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.ScrollIndicatorNestedScrollViewListener
 import com.tommihirvonen.exifnotes.utilities.snackbar
 
 /**
  * Dialog to edit Lens's information
  */
-class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
+class LensEditFragment : Fragment() {
 
     companion object {
-        /**
-         * Public constant used to tag the fragment when created
-         */
-        const val TAG = "EditLensDialog"
-
         /**
          * Constant used to indicate the maximum possible focal length.
          * Could theoretically be anything above zero.
@@ -58,9 +52,11 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
         private const val MAX_FOCAL_LENGTH = 1500
     }
 
-    private lateinit var binding: DialogLensBinding
+    private val fixedLens by lazy { requireArguments().getBoolean(ExtraKeys.FIXED_LENS) }
+    private val lens by lazy { requireArguments().getParcelable(ExtraKeys.LENS) ?: Lens() }
+    private val newLens by lazy { lens.copy() }
 
-    private lateinit var newLens: Lens
+    private lateinit var binding: FragmentLensEditBinding
 
     /**
      * Stores the currently displayed aperture values.
@@ -68,9 +64,15 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
      */
     private lateinit var displayedApertureValues: Array<String>
 
-    override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
-        val layoutInflater = requireActivity().layoutInflater
-        binding = DialogLensBinding.inflate(layoutInflater)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            navigateBack()
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentLensEditBinding.inflate(inflater)
 
         // Hide certain layouts for fixed lenses. Make and model are later derived from camera.
         if (fixedLens) {
@@ -79,20 +81,9 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
             binding.serialNumberLayout.visibility = View.GONE
         }
 
-        val alert = AlertDialog.Builder(requireActivity())
-        val title = requireArguments().getString(ExtraKeys.TITLE)
-        val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
-        val lens = requireArguments().getParcelable(ExtraKeys.LENS) ?: Lens()
-        newLens = lens.copy()
-
-        binding.nestedScrollView.setOnScrollChangeListener(
-                ScrollIndicatorNestedScrollViewListener(
-                        binding.nestedScrollView,
-                        binding.scrollIndicatorUp,
-                        binding.scrollIndicatorDown)
-        )
-        alert.setTitle(title)
-        alert.setView(binding.root)
+        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
+        binding.root.transitionName = transitionName
+        binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
 
         // EDIT TEXT FIELDS
         binding.makeEditText.setText(lens.make)
@@ -133,7 +124,6 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
         updateApertureRangeTextView()
         binding.apertureRangeLayout.setOnClickListener {
             val builder = MaterialAlertDialogBuilder(requireActivity())
-            val inflater = requireActivity().layoutInflater
             val binding1 = DialogDoubleNumberpickerBinding.inflate(inflater)
             val maxAperturePicker = binding1.numberPickerOne
             val minAperturePicker = binding1.numberPickerTwo
@@ -179,7 +169,6 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
         updateFocalLengthRangeTextView()
         binding.focalLengthRangeLayout.setOnClickListener {
             val builder = MaterialAlertDialogBuilder(requireActivity())
-            val inflater = requireActivity().layoutInflater
             val binding1 = DialogDoubleNumberpickerButtonsBinding.inflate(inflater)
             val minFocalLengthPicker = binding1.numberPickerOne
             val maxFocalLengthPicker = binding1.numberPickerTwo
@@ -223,23 +212,8 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
             }
         }
 
-        // FINALISE BUILDING THE DIALOG
-        alert.setPositiveButton(positiveButton, null)
-        alert.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
-            setFragmentResult("EditLensDialog", Bundle())
-        }
-        val dialog = alert.create()
-
-        // SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
-        // so it doesn't need to deal with resizing
-        // but just panned by the framework to ensure the current input focus is visible
-        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-
-        dialog.show()
-
-        // Override the positive button onClick so that we can dismiss the dialog
-        // only when both make and model are set.
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        binding.topAppBar.setNavigationOnClickListener { navigateBack() }
+        binding.positiveButton.setOnClickListener {
             val make = binding.makeEditText.text.toString()
             val model = binding.modelEditText.text.toString()
             val serialNumber = binding.serialNumberEditText.text.toString()
@@ -260,12 +234,24 @@ class EditLensDialog(val fixedLens: Boolean) : DialogFragment() {
                 // Return the new entered name to the calling activity
                 val bundle = Bundle()
                 bundle.putParcelable(ExtraKeys.LENS, lens)
-                setFragmentResult("EditLensDialog", bundle)
-                dialog.dismiss()
+                setFragmentResult("LensEditFragment", bundle)
+                navigateBack()
             }
         }
-        return dialog
+        return binding.root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        // Start the transition once all views have been measured and laid out.
+        (view.parent as ViewGroup).doOnPreDraw {
+            startPostponedEnterTransition()
+        }
+    }
+
+    private fun navigateBack() =
+        requireParentFragment().childFragmentManager.popBackStack()
 
     /**
      * Called when the aperture range dialog is opened.

@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
@@ -31,7 +32,7 @@ import com.tommihirvonen.exifnotes.utilities.toStringList
 
 class LensAdapter(
     private val context: Context,
-    private val onLensClickListener: (Lens) -> Any) : RecyclerView.Adapter<LensAdapter.ViewHolder>() {
+    private val onLensClickListener: (Lens, View) -> Any) : RecyclerView.Adapter<LensAdapter.ViewHolder>() {
 
     var lenses: List<Lens> = emptyList()
     var cameras: List<Camera> = emptyList()
@@ -53,7 +54,7 @@ class LensAdapter(
         init {
             binding.itemGearLayout.setOnClickListener {
                 val lens = lenses[bindingAdapterPosition]
-                onLensClickListener(lens)
+                onLensClickListener(lens, binding.root)
             }
         }
     }
@@ -66,6 +67,7 @@ class LensAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val lens = lenses[position]
         holder.binding.title.text = lens.name
+        holder.binding.root.transitionName = "transition_lens_${lens.id}"
         val stringBuilder = StringBuilder()
         val mountableCameras = cameras.filter { lens.cameraIds.contains(it.id) }
         val mountableFilters = filters.filter { lens.filterIds.contains(it.id) }

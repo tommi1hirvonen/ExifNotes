@@ -39,7 +39,7 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_baseline_close_24"
             app:navigationIconTint="?attr/colorControlNormal"
-            app:title="@string/EditRoll">
+            tools:title="@string/EditCamera">
             <Button
                 android:id="@+id/positive_button"
                 android:layout_height="wrap_content"
@@ -296,12 +296,13 @@
                 >
 
                 <LinearLayout
+                    android:id="@+id/fixed_lens_layout"
+                    android:transitionName="transition_edit_lens"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:clickable="true"
-                    android:id="@+id/fixed_lens_layout"
                     android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:orientation="vertical"
                     tools:ignore="KeyboardInaccessibleWidget">
 
                     <View
@@ -312,24 +313,22 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingTop="7dp"
                         android:paddingLeft="10dp"
+                        android:paddingTop="7dp"
                         android:text="@string/FixedLens"
                         android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp"
-                        />
+                        android:textSize="17sp" />
 
                     <TextView
+                        android:id="@+id/fixed_lens_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="7dp"
                         android:paddingLeft="10dp"
                         android:paddingTop="5dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textSize="15sp"
-                        android:id="@+id/fixed_lens_text"
+                        android:paddingBottom="7dp"
                         android:text="@string/ClickToSet"
-                        />
+                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                        android:textSize="15sp" />
 
                 </LinearLayout>
 

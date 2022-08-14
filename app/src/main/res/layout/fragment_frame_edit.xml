@@ -220,6 +220,7 @@
 
                 <Button
                     android:id="@+id/add_lens"
+                    android:transitionName="transition_add_lens"
                     style="@style/IconButton.Tonal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

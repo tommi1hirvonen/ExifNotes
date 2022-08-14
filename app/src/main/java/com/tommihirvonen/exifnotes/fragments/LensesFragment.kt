@@ -26,7 +26,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.LensAdapter
@@ -35,9 +37,9 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
-import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.setCommonInterpolator
 import com.tommihirvonen.exifnotes.utilities.snackbar
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
@@ -70,7 +72,7 @@ class LensesFragment : Fragment() {
                               savedInstanceState: Bundle?): View {
         binding = FragmentLensesBinding.inflate(inflater, container, false)
 
-        binding.fabLenses.setOnClickListener { openNewLensDialog() }
+        binding.fabLenses.setOnClickListener { showEditLensFragment(binding.fabLenses, null) }
 
         val layoutManager = LinearLayoutManager(activity)
         binding.lensesRecyclerView.layoutManager = layoutManager
@@ -102,7 +104,7 @@ class LensesFragment : Fragment() {
         return binding.root
     }
 
-    private val onLensClickListener = { lens: Lens ->
+    private val onLensClickListener = { lens: Lens, view: View ->
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(lens.name)
         val items = arrayOf(
@@ -115,7 +117,7 @@ class LensesFragment : Fragment() {
             when (which) {
                 0 -> { showSelectMountableCamerasDialog(lens) }
                 1 -> { showSelectMountableFiltersDialog(lens) }
-                2 -> { openEditLensDialog(lens) }
+                2 -> { showEditLensFragment(view, lens) }
                 3 -> { confirmDeleteLens(lens) }
             }
         }
@@ -123,34 +125,44 @@ class LensesFragment : Fragment() {
         builder.create().show()
     }
 
-    private fun openNewLensDialog() {
-        val dialog = EditLensDialog(fixedLens = false)
-        val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
-        dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
-            val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
-                ?: return@setFragmentResultListener
-            if (lens.make?.isNotEmpty() == true && lens.model?.isNotEmpty() == true) {
-                model.addLens(lens)
-            }
+    private fun showEditLensFragment(sharedElement: View, lens: Lens?) {
+        val sharedElementTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(FastOutSlowInInterpolator())
+            .apply { duration = 250L }
+        val fragment = LensEditFragment().apply {
+            sharedElementEnterTransition = sharedElementTransition
         }
-    }
-
-    private fun openEditLensDialog(lens: Lens) {
-        val dialog = EditLensDialog(fixedLens = false)
         val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditLens))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-        arguments.putParcelable(ExtraKeys.LENS, lens)
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
-        dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
-            val lens1: Lens = bundle.getParcelable(ExtraKeys.LENS)
+        arguments.putBoolean(ExtraKeys.FIXED_LENS, false)
+        if (lens == null) {
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
+        } else {
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditLens))
+            arguments.putParcelable(ExtraKeys.LENS, lens)
+        }
+
+        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+        fragment.arguments = arguments
+
+        val gearFragment = requireParentFragment().requireParentFragment()
+        gearFragment.childFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
+            .addSharedElement(sharedElement, sharedElement.transitionName)
+            .replace(R.id.gear_fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
+        fragment.setFragmentResultListener("LensEditFragment") { _, bundle ->
+            val lens1 = bundle.getParcelable<Lens>(ExtraKeys.LENS)
                 ?: return@setFragmentResultListener
-            if (lens1.make?.isNotEmpty() == true && lens1.model?.isNotEmpty() == true && lens1.id > 0) {
+            if (lens == null) {
+                model.addLens(lens1)
+            } else {
                 model.updateLens(lens1)
             }
         }

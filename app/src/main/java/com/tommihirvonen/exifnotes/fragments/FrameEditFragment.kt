@@ -62,7 +62,9 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
+import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
@@ -71,7 +73,6 @@ import com.tommihirvonen.exifnotes.databinding.FragmentFrameEditBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog
-import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import kotlinx.coroutines.*
 import java.io.FileNotFoundException
@@ -238,32 +239,7 @@ open class FrameEditFragment : Fragment() {
 
         binding.addLens.setOnClickListener {
             binding.noteEditText.clearFocus()
-            val dialog = EditLensDialog(fixedLens = false)
-            val arguments = Bundle()
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-            dialog.arguments = arguments
-            dialog.show(parentFragmentManager.beginTransaction(), EditLensDialog.TAG)
-            dialog.setFragmentResultListener("EditLensDialog") { _, bundle ->
-                val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
-                    ?: return@setFragmentResultListener
-                database.addLens(lens)
-                frame.roll.camera?.let {
-                    database.addCameraLensLink(it, lens)
-                    mountableLenses?.add(lens)
-
-                    val lensItems1 = listOf(resources.getString(R.string.NoLens))
-                        .plus(mountableLenses?.map { l -> l.name } ?: emptyList()).toTypedArray()
-                    lensAutoComplete.setSimpleItems(lensItems1)
-                }
-                lensAutoComplete.setText(lens.name, false)
-                initializeApertureMenu()
-                if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
-                else if (newFrame.focalLength < lens.minFocalLength) newFrame.focalLength = lens.minFocalLength
-                newFrame.lens = lens
-                updateFocalLengthTextView()
-                resetFilters()
-            }
+            showNewLensFragment(lensAutoComplete)
         }
 
 
@@ -654,6 +630,54 @@ open class FrameEditFragment : Fragment() {
 
     private fun updateFocalLengthTextView() {
         binding.focalLengthButton.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
+    }
+
+    private fun showNewLensFragment(lensAutoComplete: MaterialAutoCompleteTextView) {
+        val sharedElementTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(FastOutSlowInInterpolator())
+            .apply { duration = 250L }
+        val fragment = LensEditFragment().apply {
+            sharedElementEnterTransition = sharedElementTransition
+        }
+        val arguments = Bundle()
+        arguments.putBoolean(ExtraKeys.FIXED_LENS, false)
+        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
+        val sharedElement = binding.addLens
+        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+        fragment.arguments = arguments
+
+        requireParentFragment().childFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
+            .addSharedElement(sharedElement, sharedElement.transitionName)
+            .replace(R.id.frames_fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
+        fragment.setFragmentResultListener("LensEditFragment") { _, bundle ->
+            val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
+                ?: return@setFragmentResultListener
+            database.addLens(lens)
+            frame.roll.camera?.let {
+                database.addCameraLensLink(it, lens)
+                mountableLenses?.add(lens)
+
+                val lensItems1 = listOf(resources.getString(R.string.NoLens))
+                    .plus(mountableLenses?.map { l -> l.name } ?: emptyList()).toTypedArray()
+                lensAutoComplete.setSimpleItems(lensItems1)
+            }
+            lensAutoComplete.setText(lens.name, false)
+            initializeApertureMenu()
+            if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
+            else if (newFrame.focalLength < lens.minFocalLength) newFrame.focalLength = lens.minFocalLength
+            newFrame.lens = lens
+            updateFocalLengthTextView()
+            resetFilters()
+        }
     }
 
     // LISTENER CLASSES USED TO OPEN NEW DIALOGS AFTER ONCLICK EVENTS
