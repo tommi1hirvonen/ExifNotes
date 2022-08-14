@@ -29,15 +29,6 @@
     <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
      doesn't get focus when the Dialog is first shown. -->
 
-    <View
-        android:id="@+id/scrollIndicatorUp"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_gravity="center_horizontal|top"
-        android:background="?attr/iconTintColorSecondary"
-        android:visibility="gone"
-        tools:visibility="visible"
-        />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -52,89 +43,38 @@
             android:orientation="vertical"
             >
 
-
-            <!--MAKE-->
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="?android:attr/selectableItemBackground"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/Make"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <EditText
+                android:id="@+id/make_layout"
+                android:layout_marginTop="15dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginHorizontal="15dp">
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:id="@+id/make_editText"
                     android:inputType="textCapSentences"
-                    />
+                    android:hint="@string/Make"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
-
-
-            <!--MODEL-->
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="?android:attr/selectableItemBackground"
-                >
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/Model"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <EditText
+                android:id="@+id/model_layout"
+                android:layout_marginTop="15dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginHorizontal="15dp">
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:id="@+id/model_editText"
                     android:inputType="textCapSentences"
-                    />
-
-            </LinearLayout>
-
-
-
-
+                    android:hint="@string/Model"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
-
-    <View
-        android:id="@+id/scrollIndicatorDown"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_gravity="center_horizontal|bottom"
-        android:background="?attr/iconTintColorSecondary"
-        android:visibility="gone"
-        tools:visibility="visible"
-        />
 
 </FrameLayout>
