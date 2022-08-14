@@ -231,6 +231,7 @@
                     android:layout_alignParentRight="true">
                     <Button
                         android:id="@+id/add_camera"
+                        android:transitionName="transition_add_camera"
                         style="@style/IconButton.Tonal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

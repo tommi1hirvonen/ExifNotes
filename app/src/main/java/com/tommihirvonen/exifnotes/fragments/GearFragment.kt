@@ -16,26 +16,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.activities
+package com.tommihirvonen.exifnotes.fragments
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.databinding.ActivityGearBinding
-import com.tommihirvonen.exifnotes.fragments.GearFragment
-import com.tommihirvonen.exifnotes.fragments.RollsListFragment
+import com.tommihirvonen.exifnotes.databinding.FragmentGearBinding
 
-class GearActivity : AppCompatActivity() {
+class GearFragment : Fragment() {
 
-    private val gearFragment = GearFragment()
+    private val gearPagerFragment = GearPagerFragment()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val binding = ActivityGearBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        supportFragmentManager
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val binding = FragmentGearBinding.inflate(layoutInflater)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        childFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, gearFragment, null)
+            .addToBackStack(null)
+            .replace(R.id.gear_fragment_container, gearPagerFragment)
             .commit()
     }
 }

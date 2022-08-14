@@ -16,45 +16,58 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.dialogs
+/*
+ * Exif Notes
+ * Copyright (C) 2022  Tommi Hirvonen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-import android.annotation.SuppressLint
-import android.app.Dialog
+package com.tommihirvonen.exifnotes.fragments
+
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.DialogFragment
+import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.databinding.DialogCameraBinding
+import com.tommihirvonen.exifnotes.databinding.FragmentCameraEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.PartialIncrement
+import com.tommihirvonen.exifnotes.dialogs.EditLensDialog
 import com.tommihirvonen.exifnotes.utilities.*
 
 /**
  * Dialog to edit Camera's information
  */
-class EditCameraDialog : DialogFragment() {
+class CameraEditFragment : Fragment() {
 
-    companion object {
-        /**
-         * Public constant used to tag the fragment when created
-         */
-        const val TAG = "EditCameraDialog"
-    }
+    private lateinit var binding: FragmentCameraEditBinding
 
-    private lateinit var binding: DialogCameraBinding
+    private val camera by lazy { requireArguments().getParcelable(ExtraKeys.CAMERA) ?: Camera() }
 
-    private lateinit var newCamera: Camera
+    private val newCamera by lazy { camera.copy() }
 
     /**
      * Stores the currently displayed shutter speed values.
@@ -62,26 +75,20 @@ class EditCameraDialog : DialogFragment() {
      */
     private lateinit var displayedShutterValues: Array<String>
 
-    override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            navigateBack()
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val layoutInflater = requireActivity().layoutInflater
-        binding = DialogCameraBinding.inflate(layoutInflater)
+        binding = FragmentCameraEditBinding.inflate(layoutInflater)
 
-        val alert = AlertDialog.Builder(requireActivity())
-        val title = requireArguments().getString(ExtraKeys.TITLE)
-        val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
-        val camera = requireArguments().getParcelable(ExtraKeys.CAMERA) ?: Camera()
-        newCamera = camera.copy()
-
-        val nestedScrollView = binding.nestedScrollView
-        nestedScrollView.setOnScrollChangeListener(
-                ScrollIndicatorNestedScrollViewListener(
-                        nestedScrollView,
-                        binding.scrollIndicatorUp,
-                        binding.scrollIndicatorDown)
-        )
-
-        alert.setTitle(title)
-        alert.setView(binding.root)
+        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
+        binding.root.transitionName = transitionName
+        binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
 
         // EDIT TEXT FIELDS
         binding.makeEditText.setText(camera.make)
@@ -125,8 +132,6 @@ class EditCameraDialog : DialogFragment() {
         updateShutterRangeTextView()
         binding.shutterRangeLayout.setOnClickListener {
             val builder = MaterialAlertDialogBuilder(requireActivity())
-            val inflater = requireActivity().layoutInflater
-            @SuppressLint("InflateParams")
             val dialogView = inflater.inflate(R.layout.dialog_double_numberpicker, null)
             val minShutterPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_one)
             val maxShutterPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_two)
@@ -214,22 +219,9 @@ class EditCameraDialog : DialogFragment() {
             binding.lensClear.visibility = View.GONE
         }
 
+        binding.topAppBar.setNavigationOnClickListener { navigateBack() }
 
-        // FINALISE BUILDING THE DIALOG
-        alert.setPositiveButton(positiveButton, null)
-        alert.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-        val dialog = alert.create()
-
-        // SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
-        // so it doesn't need to deal with resizing
-        // but just panned by the framework to ensure the current input focus is visible
-        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-
-        dialog.show()
-
-        // We override the positive button onClick so that we can dismiss the dialog
-        // only when both make and model are set.
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        binding.positiveButton.setOnClickListener {
             val make = binding.makeEditText.text.toString()
             val model = binding.modelEditText.text.toString()
             val serialNumber = binding.serialNumberEditText.text.toString()
@@ -255,12 +247,24 @@ class EditCameraDialog : DialogFragment() {
 
                 val bundle = Bundle()
                 bundle.putParcelable(ExtraKeys.CAMERA, camera)
-                setFragmentResult("EditCameraDialog", bundle)
-                dialog.dismiss()
+                setFragmentResult("CameraEditFragment", bundle)
+                navigateBack()
             }
         }
-        return dialog
+        return binding.root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        // Start the transition once all views have been measured and laid out.
+        (view.parent as ViewGroup).doOnPreDraw {
+            startPostponedEnterTransition()
+        }
+    }
+
+    private fun navigateBack() =
+        requireParentFragment().childFragmentManager.popBackStack()
 
     /**
      * Called when the shutter speed range dialog is opened.

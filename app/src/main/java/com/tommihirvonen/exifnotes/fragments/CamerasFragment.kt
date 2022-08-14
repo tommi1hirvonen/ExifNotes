@@ -26,19 +26,18 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.CameraAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentCamerasBinding
-import com.tommihirvonen.exifnotes.datastructures.Camera
-import com.tommihirvonen.exifnotes.datastructures.Filter
-import com.tommihirvonen.exifnotes.datastructures.Lens
-import com.tommihirvonen.exifnotes.datastructures.MountableState
-import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog
+import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.setCommonInterpolator
 import com.tommihirvonen.exifnotes.utilities.snackbar
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
@@ -59,7 +58,7 @@ class CamerasFragment : Fragment() {
                               savedInstanceState: Bundle?): View {
         binding = FragmentCamerasBinding.inflate(inflater, container, false)
 
-        binding.fabCameras.setOnClickListener { openNewCameraDialog() }
+        binding.fabCameras.setOnClickListener { showEditCameraFragment(null) }
 
         // Access the ListView
         val layoutManager = LinearLayoutManager(activity)
@@ -118,7 +117,7 @@ class CamerasFragment : Fragment() {
             when {
                 which == 0 && camera.isNotFixedLens -> { showSelectMountableLensesDialog(camera) }
                 which == 0 && camera.isFixedLens -> { showSelectMountableFiltersDialog(camera) }
-                which == 1 -> { openEditCameraDialog(camera) }
+                which == 1 -> { showEditCameraFragment(camera) }
                 which == 2 -> { confirmDeleteCamera(camera) }
             }
         }
@@ -147,34 +146,51 @@ class CamerasFragment : Fragment() {
         builder.create().show()
     }
 
-    private fun openNewCameraDialog() {
-        val dialog = EditCameraDialog()
+    private fun showEditCameraFragment(camera: Camera?) {
+        val sharedElementTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(FastOutSlowInInterpolator())
+            .apply { duration = 250L }
+
+        val fragment = CameraEditFragment().apply {
+            sharedElementEnterTransition = sharedElementTransition
+        }
+
         val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
-        dialog.setFragmentResultListener("EditCameraDialog") { _, bundle ->
-            val camera = bundle.getParcelable<Camera>(ExtraKeys.CAMERA)
+        if (camera == null) {
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
+        } else {
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditCamera))
+            arguments.putParcelable(ExtraKeys.CAMERA, camera)
+        }
+
+        val sharedElement = binding.fabCameras
+        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+        fragment.arguments = arguments
+
+        val gearFragment = requireParentFragment().requireParentFragment()
+        gearFragment.childFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
+            .addSharedElement(sharedElement, sharedElement.transitionName)
+            .replace(R.id.gear_fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
+        fragment.setFragmentResultListener("CameraEditFragment") { _, bundle ->
+            val camera1 = bundle.getParcelable<Camera>(ExtraKeys.CAMERA)
                 ?: return@setFragmentResultListener
-            model.addCamera(camera)
+            if (camera == null) {
+                model.addCamera(camera1)
+            } else {
+                model.updateCamera(camera1)
+            }
         }
     }
 
-    private fun openEditCameraDialog(camera: Camera) {
-        val dialog = EditCameraDialog()
-        val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditCamera))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-        arguments.putParcelable(ExtraKeys.CAMERA, camera)
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
-        dialog.setFragmentResultListener("EditCameraDialog") { _, bundle ->
-            val camera1 = bundle.getParcelable<Camera>(ExtraKeys.CAMERA)
-                ?: return@setFragmentResultListener
-            model.updateCamera(camera1)
-        }
-    }
 
     /**
      * Show dialog where the user can select which lenses can be mounted to the picked camera.

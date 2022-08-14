@@ -49,15 +49,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
-import com.google.android.material.snackbar.Snackbar
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.transition.*
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.databinding.FragmentEditRollBinding
+import com.tommihirvonen.exifnotes.databinding.FragmentRollEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.dialogs.EditCameraDialog
 import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
 import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
@@ -73,7 +73,7 @@ class RollEditFragment : Fragment() {
     private val cameraItems get() = listOf(resources.getString(R.string.NoCamera))
         .plus(cameras.map { it.name }).toTypedArray()
     
-    private lateinit var binding: FragmentEditRollBinding
+    private lateinit var binding: FragmentRollEditBinding
 
     private val roll by lazy { requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll() }
     private val newRoll by lazy { roll.copy() }
@@ -90,7 +90,7 @@ class RollEditFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentEditRollBinding.inflate(inflater, container, false)
+        binding = FragmentRollEditBinding.inflate(inflater, container, false)
 
         val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
         binding.root.transitionName = transitionName
@@ -174,15 +174,31 @@ class RollEditFragment : Fragment() {
         // CAMERA ADD DIALOG
         binding.addCamera.isClickable = true
         binding.addCamera.setOnClickListener {
-            binding.noteEditText.clearFocus()
-            binding.nameEditText.clearFocus()
-            val dialog = EditCameraDialog()
+            val sharedElementTransition = TransitionSet()
+                .addTransition(ChangeBounds())
+                .addTransition(ChangeTransform())
+                .addTransition(ChangeImageTransform())
+                .addTransition(Fade())
+                .setCommonInterpolator(FastOutSlowInInterpolator())
+                .apply { duration = 250L }
+            val fragment = CameraEditFragment().apply {
+                sharedElementEnterTransition = sharedElementTransition
+            }
             val arguments = Bundle()
+            val sharedElement = binding.addCamera
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-            dialog.arguments = arguments
-            dialog.show(parentFragmentManager.beginTransaction(), EditCameraDialog.TAG)
-            dialog.setFragmentResultListener("EditCameraDialog") { _, bundle ->
+            arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+            fragment.arguments = arguments
+
+            requireParentFragment().childFragmentManager
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .addSharedElement(sharedElement, sharedElement.transitionName)
+                .replace(R.id.rolls_fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+
+            fragment.setFragmentResultListener("CameraEditFragment") { _, bundle ->
                 val camera: Camera = bundle.getParcelable(ExtraKeys.CAMERA)
                     ?: return@setFragmentResultListener
                 model.addCamera(camera)

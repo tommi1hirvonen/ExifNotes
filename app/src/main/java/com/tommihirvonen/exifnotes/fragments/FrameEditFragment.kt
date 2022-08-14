@@ -65,7 +65,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
-import com.tommihirvonen.exifnotes.databinding.FragmentEditFrameBinding
+import com.tommihirvonen.exifnotes.databinding.FragmentFrameEditBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog
@@ -82,7 +82,7 @@ import kotlin.math.roundToInt
  */
 open class FrameEditFragment : Fragment() {
     
-    internal lateinit var binding: FragmentEditFrameBinding
+    internal lateinit var binding: FragmentFrameEditBinding
         private set
 
     internal lateinit var frame: Frame
@@ -178,7 +178,7 @@ open class FrameEditFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentEditFrameBinding.inflate(inflater, container, false)
+        binding = FragmentFrameEditBinding.inflate(inflater, container, false)
         val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
         binding.root.transitionName = transitionName
         binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
