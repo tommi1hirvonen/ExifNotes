@@ -30,7 +30,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilterBinding
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.snackbar
+import com.tommihirvonen.exifnotes.utilities.toast
 
 /**
  * Dialog to edit a Filter's information
@@ -75,19 +75,19 @@ class EditFilterDialog : DialogFragment() {
             val model = binding.modelEditText.text.toString()
             if (make.isEmpty() && model.isEmpty()) {
                 // No make or model was set
-                binding.root.snackbar(R.string.NoMakeOrModel)
+                requireContext().toast(R.string.NoMakeOrModel)
             } else if (make.isNotEmpty() && model.isEmpty()) {
                 // No model was set
-                binding.root.snackbar(R.string.NoModel)
+                requireContext().toast(R.string.NoModel)
             } else if (make.isEmpty()) {
                 // No make was set
-                binding.root.snackbar(R.string.NoMake)
+                requireContext().toast(R.string.NoMake)
             } else {
                 filter.make = make
                 filter.model = model
                 // Return the new entered name to the calling activity
                 val bundle = Bundle()
-                bundle.putParcelable("FILTER", filter)
+                bundle.putParcelable(ExtraKeys.FILTER, filter)
                 setFragmentResult("EditFilterDialog", bundle)
                 dialog.dismiss()
             }
