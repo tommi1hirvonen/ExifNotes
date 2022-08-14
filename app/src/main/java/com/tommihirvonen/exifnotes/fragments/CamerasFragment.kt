@@ -58,7 +58,9 @@ class CamerasFragment : Fragment() {
                               savedInstanceState: Bundle?): View {
         binding = FragmentCamerasBinding.inflate(inflater, container, false)
 
-        binding.fabCameras.setOnClickListener { showEditCameraFragment(null) }
+        binding.fabCameras.setOnClickListener {
+            showEditCameraFragment(binding.fabCameras, null)
+        }
 
         // Access the ListView
         val layoutManager = LinearLayoutManager(activity)
@@ -101,7 +103,7 @@ class CamerasFragment : Fragment() {
         return binding.root
     }
 
-    private val onCameraClickListener = { camera: Camera ->
+    private val onCameraClickListener = { camera: Camera, view: View ->
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(camera.name)
         val items = arrayOf(
@@ -117,7 +119,7 @@ class CamerasFragment : Fragment() {
             when {
                 which == 0 && camera.isNotFixedLens -> { showSelectMountableLensesDialog(camera) }
                 which == 0 && camera.isFixedLens -> { showSelectMountableFiltersDialog(camera) }
-                which == 1 -> { showEditCameraFragment(camera) }
+                which == 1 -> { showEditCameraFragment(view, camera) }
                 which == 2 -> { confirmDeleteCamera(camera) }
             }
         }
@@ -146,7 +148,7 @@ class CamerasFragment : Fragment() {
         builder.create().show()
     }
 
-    private fun showEditCameraFragment(camera: Camera?) {
+    private fun showEditCameraFragment(sharedElement: View, camera: Camera?) {
         val sharedElementTransition = TransitionSet()
             .addTransition(ChangeBounds())
             .addTransition(ChangeTransform())
@@ -167,7 +169,6 @@ class CamerasFragment : Fragment() {
             arguments.putParcelable(ExtraKeys.CAMERA, camera)
         }
 
-        val sharedElement = binding.fabCameras
         arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
         fragment.arguments = arguments
 

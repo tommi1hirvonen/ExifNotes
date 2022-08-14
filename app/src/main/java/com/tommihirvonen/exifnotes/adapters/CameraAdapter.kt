@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
@@ -31,7 +32,7 @@ import com.tommihirvonen.exifnotes.utilities.toStringList
 
 class CameraAdapter(
     private val context: Context,
-    private val onCameraClickListener: (Camera) -> Any)
+    private val onCameraClickListener: (Camera, View) -> Any)
     : RecyclerView.Adapter<CameraAdapter.ViewHolder>() {
 
     var cameras: List<Camera> = emptyList()
@@ -54,7 +55,7 @@ class CameraAdapter(
         init {
             binding.itemGearLayout.setOnClickListener {
                 val camera = cameras[bindingAdapterPosition]
-                onCameraClickListener(camera)
+                onCameraClickListener(camera, binding.root)
             }
         }
     }
@@ -67,6 +68,7 @@ class CameraAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val camera = cameras[position]
         holder.binding.title.text = camera.name
+        holder.binding.root.transitionName = "transition_camera_${camera.id}"
         val stringBuilder = StringBuilder()
         if (camera.isFixedLens) {
             camera.lens?.let { lens ->
