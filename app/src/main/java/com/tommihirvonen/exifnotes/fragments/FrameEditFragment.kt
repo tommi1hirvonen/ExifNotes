@@ -46,6 +46,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
@@ -54,6 +55,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.FileProvider
 import androidx.core.view.doOnPreDraw
 import androidx.exifinterface.media.ExifInterface
@@ -410,7 +412,7 @@ open class FrameEditFragment : Fragment() {
 
         //COMPLEMENTARY PICTURE
         binding.complementaryPicturesOptionsButton
-            .setOnClickListener(PictureLayoutOnClickListener())
+            .setOnClickListener(ComplementaryPictureOptionsListener())
 
         //FLASH
         binding.flashCheckbox.isChecked = frame.flashUsed
@@ -778,10 +780,9 @@ open class FrameEditFragment : Fragment() {
      * Listener class attached to complementary picture layout.
      * Shows various actions regarding the complementary picture.
      */
-    private inner class PictureLayoutOnClickListener : View.OnClickListener {
+    private inner class ComplementaryPictureOptionsListener : View.OnClickListener {
         override fun onClick(view: View) {
-            val pictureActionDialogBuilder = MaterialAlertDialogBuilder(requireActivity())
-
+            val popupMenu = PopupMenu(requireContext(), view)
             // If a complementary picture was not set, set only the two first options
             val items: Array<String> = if (newFrame.pictureFilename == null) {
                 arrayOf(
@@ -798,12 +799,12 @@ open class FrameEditFragment : Fragment() {
                         getString(R.string.Clear)
                 )
             }
-
-            // Add the items and the listener
-            pictureActionDialogBuilder.setItems(items) { dialogInterface: DialogInterface, i: Int ->
-                when (i) {
+            items.forEachIndexed { index, text ->
+                popupMenu.menu.add(Menu.NONE, index, Menu.NONE, text)
+            }
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
                     0 -> {
-                        dialogInterface.dismiss()
                         startPictureActivity()
                     }
                     1 -> {
@@ -816,7 +817,6 @@ open class FrameEditFragment : Fragment() {
                         } catch (e: Exception) {
                             binding.root.snackbar(R.string.ErrorAddingPictureToGallery)
                         }
-                        dialogInterface.dismiss()
                     }
                     3 -> rotateComplementaryPictureRight()
                     4 -> rotateComplementaryPictureLeft()
@@ -825,14 +825,11 @@ open class FrameEditFragment : Fragment() {
                         binding.ivPicture.visibility = View.GONE
                         binding.pictureText.visibility = View.VISIBLE
                         binding.pictureText.text = null
-                        dialogInterface.dismiss()
                     }
                 }
+                return@setOnMenuItemClickListener true
             }
-            pictureActionDialogBuilder.setNegativeButton(R.string.Cancel) { dialogInterface: DialogInterface, _: Int ->
-                dialogInterface.dismiss()
-            }
-            pictureActionDialogBuilder.create().show()
+            popupMenu.show()
         }
 
         /**
