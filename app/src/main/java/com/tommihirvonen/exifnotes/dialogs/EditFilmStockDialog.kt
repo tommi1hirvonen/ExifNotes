@@ -27,12 +27,13 @@ import android.text.Spanned
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilmBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.snackbar
+import com.tommihirvonen.exifnotes.utilities.toast
 
 class EditFilmStockDialog : DialogFragment() {
     @SuppressLint("SetTextI18n", "InflateParams")
@@ -44,7 +45,7 @@ class EditFilmStockDialog : DialogFragment() {
         val positiveButtonText = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         val filmStock = requireArguments().getParcelable(ExtraKeys.FILM_STOCK) ?: FilmStock()
 
-        val builder = AlertDialog.Builder(requireActivity())
+        val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setView(binding.root).setTitle(title)
 
         binding.manufacturerEditText.setText(filmStock.make)
@@ -52,13 +53,23 @@ class EditFilmStockDialog : DialogFragment() {
         binding.isoEditText.setText(filmStock.iso.toString())
         binding.isoEditText.filters = arrayOf<InputFilter>(IsoInputFilter())
 
-        try {
-            binding.spinnerFilmType.setSelection(filmStock.type)
-        } catch (ignore: ArrayIndexOutOfBoundsException) {}
+        val filmTypeValues = resources.getStringArray(R.array.FilmTypes)
+        val filmTypeMenu = binding.filmTypeMenu.editText as MaterialAutoCompleteTextView
+        filmTypeMenu.setSimpleItems(filmTypeValues)
+        try{
+            filmTypeMenu.setText(filmTypeValues[filmStock.type], false)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
 
+        val filmProcessValues = resources.getStringArray(R.array.FilmProcesses)
+        val filmProcessMenu = binding.filmProcessMenu.editText as MaterialAutoCompleteTextView
+        filmProcessMenu.setSimpleItems(filmProcessValues)
         try {
-            binding.spinnerFilmProcess.setSelection(filmStock.process)
-        } catch (ignore: ArrayIndexOutOfBoundsException) {}
+            filmProcessMenu.setText(filmProcessValues[filmStock.process], false)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
 
         builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
             setFragmentResult("EditFilmStockDialog", Bundle())
@@ -71,7 +82,7 @@ class EditFilmStockDialog : DialogFragment() {
             val manufacturerName = binding.manufacturerEditText.text.toString()
             val filmStockName = binding.filmStockEditText.text.toString()
             if (manufacturerName.isEmpty() || filmStockName.isEmpty()) {
-                binding.root.snackbar(R.string.ManufacturerOrFilmStockNameCannotBeEmpty)
+                requireContext().toast(R.string.ManufacturerOrFilmStockNameCannotBeEmpty)
             } else {
                 filmStock.make = manufacturerName
                 filmStock.model = filmStockName
@@ -80,8 +91,11 @@ class EditFilmStockDialog : DialogFragment() {
                 } catch (ignored: NumberFormatException) {
                     filmStock.iso = 0
                 }
-                filmStock.type = binding.spinnerFilmType.selectedItemPosition
-                filmStock.process = binding.spinnerFilmProcess.selectedItemPosition
+
+                val filmTypeIndex = filmTypeValues.indexOf(filmTypeMenu.text.toString())
+                filmStock.type = filmTypeIndex
+                val filmProcessIndex = filmProcessValues.indexOf(filmProcessMenu.text.toString())
+                filmStock.process = filmProcessIndex
 
                 dialog.dismiss()
                 val bundle = Bundle()
