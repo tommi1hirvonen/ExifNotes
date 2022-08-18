@@ -89,28 +89,31 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         binding.rollsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
         rollAdapter = RollAdapter(requireActivity(), this, binding.rollsRecyclerView)
         binding.rollsRecyclerView.adapter = rollAdapter
-        binding.topAppBar.setOnMenuItemClickListener(onMenuItemClickListener)
-
-        binding.topAppBar.transitionName = "rolls_top_app_bar_transition"
-        val menu = binding.topAppBar.menu
+        binding.topAppBar.setNavigationOnClickListener {
+            binding.drawerLayout.open()
+        }
+        binding.topAppBar.setOnMenuItemClickListener(onTopMenuItemClickListener)
+        binding.navigationView.setNavigationItemSelectedListener(onDrawerMenuItemClickListener)
+        val navigationMenu = binding.navigationView.menu
+        val topMenu = binding.topAppBar.menu
 
         model.rollFilterMode.observe(viewLifecycleOwner) { mode ->
             binding.noAddedRolls.visibility = View.GONE
             when (mode) {
                 RollFilterMode.ACTIVE -> {
-                    binding.topAppBar.subtitle = resources.getString(R.string.ActiveFilmRolls)
+                    binding.topAppBar.subtitle = resources.getString(R.string.ActiveRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveRolls)
-                    menu.findItem(R.id.active_rolls_filter).isChecked = true
+                    navigationMenu.findItem(R.id.active_rolls_filter).isChecked = true
                 }
                 RollFilterMode.ARCHIVED -> {
-                    binding.topAppBar.subtitle = resources.getString(R.string.ArchivedFilmRolls)
+                    binding.topAppBar.subtitle = resources.getString(R.string.ArchivedRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoArchivedRolls)
-                    menu.findItem(R.id.archived_rolls_filter).isChecked = true
+                    navigationMenu.findItem(R.id.archived_rolls_filter).isChecked = true
                 }
                 RollFilterMode.ALL -> {
-                    binding.topAppBar.subtitle = resources.getString(R.string.AllFilmRolls)
+                    binding.topAppBar.subtitle = resources.getString(R.string.AllRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveOrArchivedRolls)
-                    menu.findItem(R.id.all_rolls_filter).isChecked = true
+                    navigationMenu.findItem(R.id.all_rolls_filter).isChecked = true
                 }
                 null -> {}
             }
@@ -118,9 +121,9 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
         model.rollSortMode.observe(viewLifecycleOwner) { mode ->
             when (mode) {
-                RollSortMode.DATE -> { menu.findItem(R.id.date_sort_mode).isChecked = true }
-                RollSortMode.NAME -> { menu.findItem(R.id.name_sort_mode).isChecked = true }
-                RollSortMode.CAMERA -> { menu.findItem(R.id.camera_sort_mode).isChecked = true }
+                RollSortMode.DATE -> { topMenu.findItem(R.id.date_sort_mode).isChecked = true }
+                RollSortMode.NAME -> { topMenu.findItem(R.id.name_sort_mode).isChecked = true }
+                RollSortMode.CAMERA -> { topMenu.findItem(R.id.camera_sort_mode).isChecked = true }
                 null -> {}
             }
         }
@@ -159,7 +162,26 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         }
     }
 
-    private val onMenuItemClickListener = { item: MenuItem ->
+    private val onTopMenuItemClickListener = { item: MenuItem ->
+        when (item.itemId) {
+            R.id.date_sort_mode -> {
+                item.isChecked = true
+                model.setRollSortMode(RollSortMode.DATE)
+            }
+            R.id.name_sort_mode -> {
+                item.isChecked = true
+                model.setRollSortMode(RollSortMode.NAME)
+            }
+            R.id.camera_sort_mode -> {
+                item.isChecked = true
+                model.setRollSortMode(RollSortMode.CAMERA)
+            }
+        }
+        true
+    }
+
+    private val onDrawerMenuItemClickListener = { item: MenuItem ->
+        val navigationMenu = binding.navigationView.menu
         when (item.itemId) {
             R.id.menu_item_gear -> {
                 val gearActivityIntent = Intent(activity, GearActivity::class.java)
@@ -181,29 +203,24 @@ class RollsListFragment : Fragment(), RollAdapterListener {
             }
             R.id.active_rolls_filter -> {
                 item.isChecked = true
+                navigationMenu.findItem(R.id.all_rolls_filter).isChecked = false
+                navigationMenu.findItem(R.id.archived_rolls_filter).isChecked = false
                 model.setRollFilterMode(RollFilterMode.ACTIVE)
             }
             R.id.archived_rolls_filter -> {
                 item.isChecked = true
+                navigationMenu.findItem(R.id.active_rolls_filter).isChecked = false
+                navigationMenu.findItem(R.id.all_rolls_filter).isChecked = false
                 model.setRollFilterMode(RollFilterMode.ARCHIVED)
             }
             R.id.all_rolls_filter -> {
                 item.isChecked = true
+                navigationMenu.findItem(R.id.active_rolls_filter).isChecked = false
+                navigationMenu.findItem(R.id.archived_rolls_filter).isChecked = false
                 model.setRollFilterMode(RollFilterMode.ALL)
             }
-            R.id.date_sort_mode -> {
-                item.isChecked = true
-                model.setRollSortMode(RollSortMode.DATE)
-            }
-            R.id.name_sort_mode -> {
-                item.isChecked = true
-                model.setRollSortMode(RollSortMode.NAME)
-            }
-            R.id.camera_sort_mode -> {
-                item.isChecked = true
-                model.setRollSortMode(RollSortMode.CAMERA)
-            }
         }
+        binding.drawerLayout.close()
         true
     }
 

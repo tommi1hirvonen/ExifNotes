@@ -19,7 +19,7 @@
 
 <resources>
     <string name="About">About</string>
-    <string name="ActiveFilmRolls">Active</string>
+    <string name="Active">Active</string>
     <string name="ActiveRolls">Active rolls</string>
     <string name="Add">Add</string>
     <string name="AddedBy">Added by</string>
@@ -32,7 +32,7 @@
     <string name="AddPictureToGallery">Add current picture to gallery</string>
     <string name="AddressNotFound">Address not found</string>
     <string name="Agree">Agree</string>
-    <string name="AllFilmRolls">All</string>
+    <string name="All">All</string>
     <string name="AllFrames">All frames</string>
     <string name="AllRolls">All rolls</string>
     <string name="Aperture">Aperture value</string>
@@ -40,7 +40,7 @@
     <string name="ApertureRange">Aperture range</string>
     <string name="AppThemeTitle">App theme</string>
     <string name="Archive">Archive</string>
-    <string name="ArchivedFilmRolls">Archived</string>
+    <string name="Archived">Archived</string>
     <string name="ArchivedRolls">Archived rolls</string>
     <string name="ArtistName">Artist name</string>
     <string name="ArtistNameSummary">Artist name information to be stored under the artist tag in the file\'s exif</string>
@@ -242,6 +242,7 @@
     <string name="MakeAndOrModelIsEmpty">Make and/or model is empty</string>
     <string name="Manufacturer">Manufacturer</string>
     <string name="ManufacturerOrFilmStockNameCannotBeEmpty">Manufacturer or film stock name cannot be empty</string>
+    <string name="Map">Map</string>
     <string name="MapType">Map type</string>
     <string name="Minus50">-50</string>
     <string name="Model">Model</string>
@@ -326,7 +327,6 @@
     <string name="Shade">Shade</string>
     <string name="Share">Share</string>
     <string name="Sheet">Sheet</string>
-    <string name="ShowOnMap">Show on map</string>
     <string name="Shutter">Shutter speed</string>
     <string name="ShutterRange">Shutter speed range</string>
     <string name="ShutterSpeed">Shutter speed</string>

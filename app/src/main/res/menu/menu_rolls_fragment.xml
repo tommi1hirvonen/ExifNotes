@@ -21,31 +21,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:title="@string/VisibleRolls"
-        android:id="@+id/menu_item_filter"
-        android:icon="@drawable/ic_outline_filter_list_24"
-        app:iconTint="?attr/colorControlNormal"
-        app:showAsAction="ifRoom">
-        <menu>
-            <group
-                android:checkableBehavior="single">
-                <item
-                    android:id="@+id/active_rolls_filter"
-                    android:title="@string/ActiveRolls"
-                    app:showAsAction="never" />
-                <item
-                    android:id="@+id/archived_rolls_filter"
-                    android:title="@string/ArchivedRolls"
-                    app:showAsAction="never" />
-                <item
-                    android:id="@+id/all_rolls_filter"
-                    android:title="@string/AllRolls"
-                    app:showAsAction="never" />
-            </group>
-        </menu>
-    </item>
-
-    <item
         android:title="@string/SortBy"
         android:id="@+id/menu_item_sort"
         android:icon="@drawable/ic_outline_sort_24"
@@ -69,23 +44,5 @@
             </group>
         </menu>
     </item>
-
-    <item
-        android:id="@+id/menu_item_gear"
-        android:title="@string/Gear"
-        app:showAsAction="never"
-        />
-
-    <item
-        android:id="@+id/menu_item_show_on_map"
-        android:title="@string/ShowOnMap"
-        app:showAsAction="never"
-        />
-
-    <item
-        android:id="@+id/menu_item_preferences"
-        android:title="@string/Settings"
-        app:showAsAction="never"
-        />
 
 </menu>
