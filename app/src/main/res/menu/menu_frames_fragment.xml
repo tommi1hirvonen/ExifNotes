@@ -61,7 +61,7 @@
 
     <item
         android:id="@+id/menu_item_show_on_map"
-        android:title="@string/ShowOnMap"
+        android:title="@string/Map"
         app:showAsAction="never"
         />
 

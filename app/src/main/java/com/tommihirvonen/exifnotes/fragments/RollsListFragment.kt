@@ -32,6 +32,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -46,6 +47,8 @@ import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * RollsFragment is the fragment that is displayed first in MainActivity. It contains
@@ -181,25 +184,41 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     }
 
     private val onDrawerMenuItemClickListener = { item: MenuItem ->
+        binding.drawerLayout.close()
         val navigationMenu = binding.navigationView.menu
         when (item.itemId) {
             R.id.menu_item_gear -> {
                 val gearActivityIntent = Intent(activity, GearActivity::class.java)
-                gearResultLauncher.launch(gearActivityIntent)
+                viewLifecycleOwner.lifecycleScope.launch {
+                    // Small delay so that the drawer has enough time to close
+                    // before a new activity is started.
+                    delay(200)
+                    gearResultLauncher.launch(gearActivityIntent)
+                }
             }
             R.id.menu_item_preferences -> {
                 val preferenceActivityIntent = Intent(activity, PreferenceActivity::class.java)
-                preferenceResultLauncher.launch(preferenceActivityIntent)
+                viewLifecycleOwner.lifecycleScope.launch {
+                    // Small delay so that the drawer has enough time to close
+                    // before a new activity is started.
+                    delay(200)
+                    gearResultLauncher.launch(preferenceActivityIntent)
+                }
             }
             R.id.menu_item_show_on_map -> {
                 val fragment = RollsMapFragment()
-                requireParentFragment().childFragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
-                    .setReorderingAllowed(true)
-                    .addToBackStack(null)
-                    .add(R.id.rolls_fragment_container, fragment)
-                    .commit()
+                viewLifecycleOwner.lifecycleScope.launch {
+                    // Small delay so that the drawer has enough time to close
+                    // before a new fragment is started.
+                    delay(200)
+                    requireParentFragment().childFragmentManager
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
+                        .setReorderingAllowed(true)
+                        .addToBackStack(null)
+                        .add(R.id.rolls_fragment_container, fragment)
+                        .commit()
+                }
             }
             R.id.active_rolls_filter -> {
                 item.isChecked = true
@@ -220,7 +239,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 model.setRollFilterMode(RollFilterMode.ALL)
             }
         }
-        binding.drawerLayout.close()
         true
     }
 
