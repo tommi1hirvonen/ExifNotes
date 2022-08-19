@@ -72,229 +72,252 @@
             android:orientation="vertical"
             >
 
-            <!--MAKE-->
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:id="@+id/make_layout"
-                android:background="?android:attr/selectableItemBackground"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/Make"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <EditText
+                android:layout_marginTop="15dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginHorizontal="15dp">
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
                     android:id="@+id/make_editText"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:inputType="textCapSentences"
-                    />
+                    android:hint="@string/Make"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
-
-            </LinearLayout>
-
-
-            <!--MODEL-->
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:id="@+id/model_layout"
-                android:background="?android:attr/selectableItemBackground"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/Model"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <EditText
+                android:layout_marginTop="15dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginHorizontal="15dp">
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
                     android:id="@+id/model_editText"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:inputType="textCapSentences"
-                    />
+                    android:hint="@string/Model"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
-
-            </LinearLayout>
-
-
-            <!--SERIAL NUMBER-->
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:id="@+id/serial_number_layout"
-                android:background="?android:attr/selectableItemBackground"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/SerialNumber"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <EditText
+                android:layout_marginTop="15dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginHorizontal="15dp">
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
                     android:id="@+id/serialNumber_editText"
                     android:inputType="textCapSentences"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                    tools:ignore="TextFields" />
+                    android:hint="@string/SerialNumber"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
-
-            </LinearLayout>
-
-
-            <!--APERTURE INCREMENTS-->
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:id="@+id/increment_layout"
-                tools:ignore="KeyboardInaccessibleWidget">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/ApertureIncrements"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
-
-                <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/increment_spinner"
-                    android:entries="@array/StopIncrements"
-                    android:prompt="@string/ChooseIncrements"
-                    android:spinnerMode="dropdown"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
-
-            </LinearLayout>
-
-
-            <!--APERTURE RANGE-->
-            <LinearLayout
+                android:text="@string/ApertureIncrements"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
+                style="@style/TextAppearance.Material3.BodySmall"/>
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:id="@+id/aperture_range_layout"
-                android:background="?android:attr/selectableItemBackground"
-                tools:ignore="KeyboardInaccessibleWidget">
-
-                <TextView
-                    android:layout_width="wrap_content"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
+                <androidx.constraintlayout.widget.Guideline
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:id="@+id/guideline"
+                    app:layout_constraintGuide_percent="0.5"
+                    android:orientation="vertical"/>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/aperture_increments_menu"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/ApertureRange"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
+                    app:layout_constraintRight_toRightOf="@id/guideline"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent">
+                    <AutoCompleteTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="7dp"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textSize="15sp"
-                    android:id="@+id/aperture_range_text"
-                    android:text="@string/ClickToSet"
-                    />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/iconTintColorSecondary" />
-
-            </LinearLayout>
-
-
-            <!--FOCAL LENGTH RANGE-->
-            <LinearLayout
+            <!--
+            The min and max layouts are reversed on purpose (max on the left and min on the right).
+            Large aperture values mean a small aperture and vice versa.
+            However, it is more intuitive to think of apertures in numbers.
+             -->
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:id="@+id/focal_length_range_layout"
-                android:background="?android:attr/selectableItemBackground"
-                tools:ignore="KeyboardInaccessibleWidget">
+                android:text="@string/ApertureRange"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
+                style="@style/TextAppearance.Material3.BodySmall"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:paddingTop="7dp"
-                    android:paddingLeft="10dp"
-                    android:text="@string/FocalLengthRange"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                    android:textSize="17sp"
-                    />
+                    android:text="@string/From"
+                    android:id="@+id/aperture_max_label"
+                    android:layout_marginRight="5dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/aperture_min_label"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/max_aperture_menu"
+                    android:layout_marginRight="5dp"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                    app:layout_constraintRight_toLeftOf="@id/min_aperture_menu"
+                    app:layout_constraintTop_toBottomOf="@id/aperture_max_label"
+                    app:layout_constraintLeft_toLeftOf="parent">
+                    <AutoCompleteTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/To"
+                    android:id="@+id/aperture_min_label"
+                    android:layout_marginLeft="5dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/aperture_max_label"
+                    app:layout_constraintRight_toLeftOf="@id/clear_aperture_range"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/min_aperture_menu"
+                    android:layout_marginLeft="5dp"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                    app:layout_constraintRight_toLeftOf="@id/clear_aperture_range"
+                    app:layout_constraintTop_toBottomOf="@id/aperture_min_label"
+                    app:layout_constraintLeft_toRightOf="@id/max_aperture_menu">
+                    <AutoCompleteTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Button
+                    android:id="@+id/clear_aperture_range"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="7dp"
-                    android:paddingLeft="10dp"
-                    android:paddingTop="5dp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textSize="15sp"
-                    android:id="@+id/focal_length_range_text"
-                    android:text="@string/ClickToSet"
+                    android:layout_marginLeft="5dp"
+                    app:icon="@drawable/ic_baseline_close_24"
+                    style="@style/IconButton.Tonal"
+                    app:layout_constraintLeft_toRightOf="@id/min_aperture_menu"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
                     />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/FocalLengthRange"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
+                style="@style/TextAppearance.Material3.BodySmall"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:id="@+id/guideline_focal_length"
+                    app:layout_constraintGuide_percent="0.5"
+                    android:orientation="vertical"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/From"
+                    android:id="@+id/focal_length_min_label"
+                    android:layout_marginRight="5dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="@id/guideline_focal_length"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/min_focal_length_layout"
+                    android:layout_marginRight="5dp"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    app:layout_constraintRight_toRightOf="@id/guideline_focal_length"
+                    app:layout_constraintTop_toBottomOf="@id/focal_length_min_label"
+                    app:layout_constraintLeft_toLeftOf="parent">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/min_focal_length_editText"
+                        android:inputType="number"
+                        android:digits="1234567890"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/To"
+                    android:id="@+id/focal_length_max_label"
+                    android:layout_marginLeft="5dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="@id/guideline_focal_length"
+                    app:layout_constraintRight_toRightOf="parent"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/max_focal_length_layout"
+                    android:layout_marginLeft="5dp"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/focal_length_max_label"
+                    app:layout_constraintLeft_toLeftOf="@id/guideline_focal_length">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/max_focal_length_editText"
+                        android:inputType="number"
+                        android:digits="1234567890"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 

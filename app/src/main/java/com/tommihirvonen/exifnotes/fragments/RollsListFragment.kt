@@ -92,10 +92,14 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         binding.rollsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
         rollAdapter = RollAdapter(requireActivity(), this, binding.rollsRecyclerView)
         binding.rollsRecyclerView.adapter = rollAdapter
+
+        // Transition named used when editing frame via ActionMode menu.
+        binding.topAppBar.transitionName = "rolls_top_app_bar_transition"
         binding.topAppBar.setNavigationOnClickListener {
             binding.drawerLayout.open()
         }
         binding.topAppBar.setOnMenuItemClickListener(onTopMenuItemClickListener)
+
         binding.navigationView.setNavigationItemSelectedListener(onDrawerMenuItemClickListener)
         val navigationMenu = binding.navigationView.menu
         val topMenu = binding.topAppBar.menu

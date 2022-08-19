@@ -190,6 +190,7 @@
     <string name="Format">Format</string>
     <string name="FrameCount">Frame count</string>
     <string name="FrameCountNoColon">Frame count</string>
+    <string name="From">From</string>
     <string name="FullStop">1 stop</string>
     <string name="GPSNotEnabled">You have location updates enabled in the app\'s settings, but GPS is disabled in system settings.\n\nDo you want to go to system settings to enable GPS?</string>
     <string name="GPSSettings">GPS Settings</string>
@@ -245,6 +246,8 @@
     <string name="Map">Map</string>
     <string name="MapType">Map type</string>
     <string name="Minus50">-50</string>
+    <string name="MinApertureGreaterThanMax">Min aperture cannot be greater than max</string>
+    <string name="MinFocalLengthGreaterThanMax">Min focal length cannot be greater than max</string>
     <string name="Model">Model</string>
     <string name="MountsTo">Mounts to:</string>
     <string name="Name">Name</string>
@@ -347,6 +350,7 @@
     <string name="TimeDeveloped">Time developed</string>
     <string name="TimeLoaded">Time loaded</string>
     <string name="TimeUnloaded">Time unloaded</string>
+    <string name="To">To</string>
     <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
     <string name="Tungsten">Tungsten</string>
     <string name="UIColorTitle">User interface color </string>

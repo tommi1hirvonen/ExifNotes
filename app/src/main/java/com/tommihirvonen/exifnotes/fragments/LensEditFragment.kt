@@ -18,51 +18,36 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
-import android.content.DialogInterface
 import android.os.Bundle
+import android.text.InputFilter
+import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.addCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerBinding
-import com.tommihirvonen.exifnotes.databinding.DialogDoubleNumberpickerButtonsBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentLensEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.snackbar
+import com.tommihirvonen.exifnotes.utilities.validate
 
 /**
  * Dialog to edit Lens's information
  */
 class LensEditFragment : Fragment() {
 
-    companion object {
-        /**
-         * Constant used to indicate the maximum possible focal length.
-         * Could theoretically be anything above zero.
-         */
-        private const val MAX_FOCAL_LENGTH = 1500
-    }
-
     private val fixedLens by lazy { requireArguments().getBoolean(ExtraKeys.FIXED_LENS) }
     private val lens by lazy { requireArguments().getParcelable(ExtraKeys.LENS) ?: Lens() }
     private val newLens by lazy { lens.copy() }
 
-    private lateinit var binding: FragmentLensEditBinding
-
-    /**
-     * Stores the currently displayed aperture values.
-     * Changes depending on the currently selected aperture value increments.
-     */
-    private lateinit var displayedApertureValues: Array<String>
+    private lateinit var apertureValueOptions: Array<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,7 +57,7 @@ class LensEditFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentLensEditBinding.inflate(inflater)
+        val binding = FragmentLensEditBinding.inflate(inflater)
 
         // Hide certain layouts for fixed lenses. Make and model are later derived from camera.
         if (fixedLens) {
@@ -92,150 +77,133 @@ class LensEditFragment : Fragment() {
 
 
         // APERTURE INCREMENTS
+        val minApertureMenu = binding.minApertureMenu.editText as MaterialAutoCompleteTextView
+        val maxApertureMenu = binding.maxApertureMenu.editText as MaterialAutoCompleteTextView
+
+        val apertureIncrementsValues = resources.getStringArray(R.array.StopIncrements)
+        val apertureIncrementsMenu =
+            binding.apertureIncrementsMenu.editText as MaterialAutoCompleteTextView
+        apertureIncrementsMenu.setSimpleItems(apertureIncrementsValues)
+
         try {
-            binding.incrementSpinner.setSelection(newLens.apertureIncrements.ordinal)
+            val text = apertureIncrementsValues[lens.apertureIncrements.ordinal]
+            apertureIncrementsMenu.setText(text, false)
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
-        binding.incrementSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                //Check if the new increments include both min and max values.
-                //Otherwise reset them to null
-                displayedApertureValues = when (newLens.apertureIncrements) {
-                    Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
-                    Increment.HALF -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
-                    Increment.FULL -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
-                }
-                val minFound = displayedApertureValues.contains(newLens.minAperture)
-                val maxFound = displayedApertureValues.contains(newLens.maxAperture)
-                // If either one wasn't found in the new values array, null them.
-                if (!minFound || !maxFound) {
-                    newLens.minAperture = null
-                    newLens.maxAperture = null
-                    updateApertureRangeTextView()
-                }
+
+        apertureValueOptions = getApertureValueOptions()
+
+        apertureIncrementsMenu.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            newLens.apertureIncrements = Increment.from(position)
+            apertureValueOptions = getApertureValueOptions()
+            minApertureMenu.setSimpleItems(apertureValueOptions)
+            maxApertureMenu.setSimpleItems(apertureValueOptions)
+            val minFound = apertureValueOptions.contains(newLens.minAperture)
+            val maxFound = apertureValueOptions.contains(newLens.maxAperture)
+            // If either one wasn't found in the new values array, null them.
+            if (!minFound || !maxFound) {
+                newLens.minAperture = null
+                newLens.maxAperture = null
+                minApertureMenu.setText(null, false)
+                maxApertureMenu.setText(null, false)
             }
         }
 
         // APERTURE RANGE BUTTON
         newLens.minAperture = lens.minAperture
         newLens.maxAperture = lens.maxAperture
-        updateApertureRangeTextView()
-        binding.apertureRangeLayout.setOnClickListener {
-            val builder = MaterialAlertDialogBuilder(requireActivity())
-            val binding1 = DialogDoubleNumberpickerBinding.inflate(inflater)
-            val maxAperturePicker = binding1.numberPickerOne
-            val minAperturePicker = binding1.numberPickerTwo
+        binding.clearApertureRange.setOnClickListener {
+            newLens.minAperture = null
+            newLens.maxAperture = null
+            minApertureMenu.setText(null, false)
+            maxApertureMenu.setText(null, false)
+        }
+        minApertureMenu.setSimpleItems(apertureValueOptions)
+        maxApertureMenu.setSimpleItems(apertureValueOptions)
+        minApertureMenu.setText(newLens.minAperture, false)
+        maxApertureMenu.setText(newLens.maxAperture, false)
 
-            //To prevent text edit
-            minAperturePicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            maxAperturePicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            initialiseApertureRangePickers(minAperturePicker, maxAperturePicker)
-            builder.setView(binding1.root)
-            builder.setTitle(resources.getString(R.string.ChooseApertureRange))
-            builder.setPositiveButton(resources.getString(R.string.OK), null)
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
-            //Override the positiveButton to check the range before accepting.
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                if (minAperturePicker.value == displayedApertureValues.size - 1 &&
-                        maxAperturePicker.value != displayedApertureValues.size - 1
-                        ||
-                        minAperturePicker.value != displayedApertureValues.size - 1 &&
-                        maxAperturePicker.value == displayedApertureValues.size - 1) {
-                    // No min or max shutter was set
-                    binding.root.snackbar(R.string.NoMinOrMaxAperture)
-                } else {
-                    if (minAperturePicker.value == displayedApertureValues.size - 1 &&
-                            maxAperturePicker.value == displayedApertureValues.size - 1) {
-                        newLens.minAperture = null
-                        newLens.maxAperture = null
-                    } else if (minAperturePicker.value < maxAperturePicker.value) {
-                        newLens.minAperture = displayedApertureValues[minAperturePicker.value]
-                        newLens.maxAperture = displayedApertureValues[maxAperturePicker.value]
-                    } else {
-                        newLens.minAperture = displayedApertureValues[maxAperturePicker.value]
-                        newLens.maxAperture = displayedApertureValues[minAperturePicker.value]
-                    }
-                    updateApertureRangeTextView()
-                }
-                dialog.dismiss()
+        minApertureMenu.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            if (position > 0) {
+                newLens.minAperture = apertureValueOptions[position]
             }
+            else {
+                newLens.minAperture = null
+                minApertureMenu.setText(null, false)
+            }
+        }
+        maxApertureMenu.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            if (position > 0) {
+                newLens.maxAperture = apertureValueOptions[position]
+            }
+            else {
+                newLens.maxAperture = null
+                maxApertureMenu.setText(null, false)
+            }
+        }
+
+        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
+        // However in that case, the AutoCompleteTextView onClick method is not called.
+        // By setting the endIconOnClickListener to null onClick events are propagated
+        // to AutoCompleteTextView. This way we can force the preselection of the current item.
+        binding.minApertureMenu.setEndIconOnClickListener(null)
+        minApertureMenu.setOnClickListener {
+            val currentIndex = apertureValueOptions.indexOf(minApertureMenu.text.toString())
+            if (currentIndex >= 0) minApertureMenu.listSelection = currentIndex
+        }
+        binding.maxApertureMenu.setEndIconOnClickListener(null)
+        maxApertureMenu.setOnClickListener {
+            val currentIndex = apertureValueOptions.indexOf(maxApertureMenu.text.toString())
+            if (currentIndex >= 0) maxApertureMenu.listSelection = currentIndex
         }
 
         // FOCAL LENGTH RANGE BUTTON
-        updateFocalLengthRangeTextView()
-        binding.focalLengthRangeLayout.setOnClickListener {
-            val builder = MaterialAlertDialogBuilder(requireActivity())
-            val binding1 = DialogDoubleNumberpickerButtonsBinding.inflate(inflater)
-            val minFocalLengthPicker = binding1.numberPickerOne
-            val maxFocalLengthPicker = binding1.numberPickerTwo
-            val jumpAmount = 50
-            val minFocalLengthFastRewind = binding1.pickerOneFastRewind
-            val minFocalLengthFastForward = binding1.pickerOneFastForward
-            val maxFocalLengthFastRewind = binding1.pickerTwoFastRewind
-            val maxFocalLengthFastForward = binding1.pickerTwoFastForward
-
-            // To prevent text edit
-            minFocalLengthPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            maxFocalLengthPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            initialiseFocalLengthRangePickers(minFocalLengthPicker, maxFocalLengthPicker)
-            minFocalLengthFastRewind.setOnClickListener { minFocalLengthPicker.value = minFocalLengthPicker.value - jumpAmount }
-            minFocalLengthFastForward.setOnClickListener { minFocalLengthPicker.value = minFocalLengthPicker.value + jumpAmount }
-            maxFocalLengthFastRewind.setOnClickListener { maxFocalLengthPicker.value = maxFocalLengthPicker.value - jumpAmount }
-            maxFocalLengthFastForward.setOnClickListener { maxFocalLengthPicker.value = maxFocalLengthPicker.value + jumpAmount }
-            builder.setView(binding1.root)
-            builder.setTitle(resources.getString(R.string.ChooseFocalLengthRange))
-            builder.setPositiveButton(resources.getString(R.string.OK), null)
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
-
-            // Override the positiveButton to check the range before accepting.
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                // Set the max and min focal lengths. Check which is smaller and set it to be
-                // min and vice versa.
-                if (minFocalLengthPicker.value == 0 || maxFocalLengthPicker.value == 0) {
-                    newLens.minFocalLength = 0
-                    newLens.maxFocalLength = 0
-                } else if (minFocalLengthPicker.value < maxFocalLengthPicker.value) {
-                    newLens.minFocalLength = minFocalLengthPicker.value
-                    newLens.maxFocalLength = maxFocalLengthPicker.value
-                } else {
-                    newLens.maxFocalLength = minFocalLengthPicker.value
-                    newLens.minFocalLength = maxFocalLengthPicker.value
-                }
-                updateFocalLengthRangeTextView()
-                dialog.dismiss()
-            }
-        }
+        binding.minFocalLengthEditText.filters = arrayOf<InputFilter>(FocalLengthInputFilter())
+        binding.minFocalLengthEditText.setText(newLens.minFocalLength.toString())
+        binding.maxFocalLengthEditText.filters = arrayOf<InputFilter>(FocalLengthInputFilter())
+        binding.maxFocalLengthEditText.setText(newLens.maxFocalLength.toString())
 
         binding.topAppBar.setNavigationOnClickListener { navigateBack() }
         binding.positiveButton.setOnClickListener {
             val make = binding.makeEditText.text.toString()
             val model = binding.modelEditText.text.toString()
             val serialNumber = binding.serialNumberEditText.text.toString()
-            if ((make.isEmpty() || model.isEmpty()) && !fixedLens) {
-                // No make or model was set
-                binding.root.snackbar(R.string.MakeAndOrModelIsEmpty)
-            } else {
+            val minFocalLength = binding.minFocalLengthEditText.text.toString().toInt()
+            val maxFocalLength = binding.maxFocalLengthEditText.text.toString().toInt()
+
+            val nameValidation = { _: Lens -> (make.isNotEmpty() && model.isNotEmpty() && !fixedLens) to
+                    resources.getString(R.string.MakeAndOrModelIsEmpty)
+            }
+            val focalLengthValidation = { _: Lens -> (minFocalLength <= maxFocalLength) to
+                    resources.getString(R.string.MinFocalLengthGreaterThanMax)
+            }
+            val apertureRangeValidation = { l: Lens -> validateApertureRange(l) }
+
+            val (validationResult, validationMessage) = newLens.validate(
+                nameValidation, focalLengthValidation, apertureRangeValidation)
+
+            if (validationResult) {
                 //All the required information was given. Save.
                 lens.make = make
                 lens.model = model
                 lens.serialNumber = serialNumber
-                lens.apertureIncrements = Increment.from(binding.incrementSpinner.selectedItemPosition)
                 lens.minAperture = newLens.minAperture
                 lens.maxAperture = newLens.maxAperture
-                lens.minFocalLength = newLens.minFocalLength
-                lens.maxFocalLength = newLens.maxFocalLength
+                lens.minFocalLength = minFocalLength
+                lens.maxFocalLength = maxFocalLength
+
+                val incrementIndex = apertureIncrementsValues
+                    .indexOf(apertureIncrementsMenu.text.toString())
+                lens.apertureIncrements = Increment.from(incrementIndex)
 
                 // Return the new entered name to the calling activity
                 val bundle = Bundle()
                 bundle.putParcelable(ExtraKeys.LENS, lens)
                 setFragmentResult("LensEditFragment", bundle)
                 navigateBack()
+            } else {
+                binding.root.snackbar(validationMessage)
             }
         }
         return binding.root
@@ -253,81 +221,40 @@ class LensEditFragment : Fragment() {
     private fun navigateBack() =
         requireParentFragment().childFragmentManager.popBackStack()
 
-    /**
-     * Called when the aperture range dialog is opened.
-     * Sets the values for the NumberPickers.
-     *
-     * @param minAperturePicker NumberPicker associated with the minimum aperture value
-     * @param maxAperturePicker NumberPicker associated with the maximum aperture value
-     */
-    private fun initialiseApertureRangePickers(minAperturePicker: NumberPicker,
-                                               maxAperturePicker: NumberPicker) {
-        displayedApertureValues = when (newLens.apertureIncrements) {
-            Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
-            Increment.HALF -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
-            Increment.FULL -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
+    private fun getApertureValueOptions() = when (newLens.apertureIncrements) {
+        Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ApertureValuesThird)
+        Increment.HALF -> requireActivity().resources.getStringArray(R.array.ApertureValuesHalf)
+        Increment.FULL -> requireActivity().resources.getStringArray(R.array.ApertureValuesFull)
+    }
+
+    private fun validateApertureRange(lens: Lens): Pair<Boolean, String> {
+        if (lens.minAperture == null && lens.maxAperture != null ||
+            lens.minAperture != null && lens.maxAperture == null) {
+            return false to resources.getString(R.string.NoMinOrMaxAperture)
         }
-        if (displayedApertureValues[0] == resources.getString(R.string.NoValue)) {
-            displayedApertureValues.reverse()
+        val min = lens.minAperture?.toDoubleOrNull() ?: 0.0
+        val max = lens.maxAperture?.toDoubleOrNull() ?: 0.0
+        // Note, that the minimum aperture should actually be smaller in numeric value than the max.
+        // Small aperture values mean a large opening and vice versa.
+        if (min < max) {
+            return false to resources.getString(R.string.MinApertureGreaterThanMax)
         }
-        minAperturePicker.minValue = 0
-        maxAperturePicker.minValue = 0
-        minAperturePicker.maxValue = displayedApertureValues.size - 1
-        maxAperturePicker.maxValue = displayedApertureValues.size - 1
-        minAperturePicker.displayedValues = displayedApertureValues
-        maxAperturePicker.displayedValues = displayedApertureValues
-        minAperturePicker.value = displayedApertureValues.size - 1
-        maxAperturePicker.value = displayedApertureValues.size - 1
-        val initialMinValue = displayedApertureValues.indexOfFirst { it == newLens.minAperture }
-        if (initialMinValue != -1) minAperturePicker.value = initialMinValue
-        val initialMaxValue = displayedApertureValues.indexOfFirst { it == newLens.maxAperture }
-        if (initialMaxValue != -1) maxAperturePicker.value = initialMaxValue
+        return true to ""
     }
 
     /**
-     * Called when the focal length range dialog is opened.
-     * Sets the values for the NumberPickers.
-     *
-     * @param minFocalLengthPicker NumberPicker associated with the minimum focal length
-     * @param maxFocalLengthPicker NumberPicker associated with the maximum focal length
+     * Private InputFilter class used to make sure user entered focal length values are
+     * between 0 and 1000000
      */
-    private fun initialiseFocalLengthRangePickers(minFocalLengthPicker: NumberPicker,
-                                                  maxFocalLengthPicker: NumberPicker) {
-        minFocalLengthPicker.minValue = 0
-        maxFocalLengthPicker.minValue = 0
-        minFocalLengthPicker.maxValue = MAX_FOCAL_LENGTH
-        maxFocalLengthPicker.maxValue = MAX_FOCAL_LENGTH
-        minFocalLengthPicker.value = 50
-        maxFocalLengthPicker.value = 50
-        val range = 0..MAX_FOCAL_LENGTH
-        val initialMinValue = range.indexOfFirst { it == newLens.minFocalLength }
-        if (initialMinValue != -1) minFocalLengthPicker.value = initialMinValue
-        val initialMaxValue = range.indexOfFirst { it == newLens.maxFocalLength }
-        if (initialMaxValue != -1) maxFocalLengthPicker.value = initialMaxValue
-    }
-
-    /**
-     * Update the aperture range button's text
-     */
-    private fun updateApertureRangeTextView() {
-        binding.apertureRangeText.text =
-                if (newLens.minAperture == null || newLens.maxAperture == null) resources.getString(R.string.ClickToSet)
-                else "f/${newLens.maxAperture} - f/${newLens.minAperture}"
-    }
-
-    /**
-     * Update the focal length range button's text
-     */
-    private fun updateFocalLengthRangeTextView() {
-        val text: String =
-                if (newLens.minFocalLength == 0 || newLens.maxFocalLength == 0) {
-                    resources.getString(R.string.ClickToSet)
-                } else if (newLens.minFocalLength == newLens.maxFocalLength) {
-                    "" + newLens.minFocalLength
-                } else {
-                    "${newLens.minFocalLength} - ${newLens.maxFocalLength}"
-                }
-        binding.focalLengthRangeText.text = text
+    private inner class FocalLengthInputFilter : InputFilter {
+        override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int,
+                            dend: Int): CharSequence? {
+            try {
+                val input = (dest.toString() + source.toString()).toInt()
+                if (input in 0..1500) return null
+            } catch (ignored: NumberFormatException) { }
+            return ""
+        }
     }
 
 }

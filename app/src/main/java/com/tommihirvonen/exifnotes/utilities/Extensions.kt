@@ -30,6 +30,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.datastructures.Gear
 import java.io.*
 
+fun <T> T.validate(vararg validations: (T) -> (Pair<Boolean, String>)): Pair<Boolean, String> =
+    validations.map { it(this) }.firstOrNull { !it.first } ?: (true to "")
+
+
 val Context.packageInfo: PackageInfo? get() {
     try {
         return packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
