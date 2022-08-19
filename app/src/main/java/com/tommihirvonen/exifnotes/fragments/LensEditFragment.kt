@@ -172,8 +172,9 @@ class LensEditFragment : Fragment() {
             val minFocalLength = binding.minFocalLengthEditText.text.toString().toInt()
             val maxFocalLength = binding.maxFocalLengthEditText.text.toString().toInt()
 
-            val nameValidation = { _: Lens -> (make.isNotEmpty() && model.isNotEmpty() && !fixedLens) to
-                    resources.getString(R.string.MakeAndOrModelIsEmpty)
+            val nameValidation = { _: Lens ->
+                (make.isNotEmpty() && model.isNotEmpty() || fixedLens) to
+                        resources.getString(R.string.MakeAndOrModelIsEmpty)
             }
             val focalLengthValidation = { _: Lens -> (minFocalLength <= maxFocalLength) to
                     resources.getString(R.string.MinFocalLengthGreaterThanMax)
