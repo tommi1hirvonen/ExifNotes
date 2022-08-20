@@ -33,6 +33,8 @@ import java.io.*
 fun <T> T.validate(vararg validations: (T) -> (Pair<Boolean, String>)): Pair<Boolean, String> =
     validations.map { it(this) }.firstOrNull { !it.first } ?: (true to "")
 
+fun <T> T.validate(vararg validations: (T) -> (Boolean)): Boolean =
+    validations.map { it(this) }.all { it }
 
 val Context.packageInfo: PackageInfo? get() {
     try {

@@ -30,19 +30,12 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilterBinding
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.toast
+import com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModel
 
 /**
  * Dialog to edit a Filter's information
  */
 class EditFilterDialog : DialogFragment() {
-
-    companion object {
-        /**
-         * Public constant used to tag this fragment when it is created
-         */
-        const val TAG = "EditFilterDialog"
-    }
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
         val layoutInflater = requireActivity().layoutInflater
@@ -52,8 +45,8 @@ class EditFilterDialog : DialogFragment() {
         builder.setTitle(title)
         builder.setView(binding.root)
         val filter = requireArguments().getParcelable(ExtraKeys.FILTER) ?: Filter()
-        binding.makeEditText.setText(filter.make)
-        binding.modelEditText.setText(filter.model)
+        val model = FilterEditViewModel(filter.copy())
+        binding.viewmodel = model
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         builder.setPositiveButton(positiveButton, null)
         builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
@@ -65,26 +58,13 @@ class EditFilterDialog : DialogFragment() {
         // so it doesn't need to deal with resizing
         // but just panned by the framework to ensure the current input focus is visible
         dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-
         dialog.show()
-
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val make = binding.makeEditText.text.toString()
-            val model = binding.modelEditText.text.toString()
-            if (make.isEmpty() && model.isEmpty()) {
-                // No make or model was set
-                requireContext().toast(R.string.NoMakeOrModel)
-            } else if (make.isNotEmpty() && model.isEmpty()) {
-                // No model was set
-                requireContext().toast(R.string.NoModel)
-            } else if (make.isEmpty()) {
-                // No make was set
-                requireContext().toast(R.string.NoMake)
-            } else {
-                filter.make = make
-                filter.model = model
+            if (model.validate(requireContext())) {
+                filter.make = model.filter.make
+                filter.model = model.filter.model
                 // Return the new entered name to the calling activity
                 val bundle = Bundle()
                 bundle.putParcelable(ExtraKeys.FILTER, filter)

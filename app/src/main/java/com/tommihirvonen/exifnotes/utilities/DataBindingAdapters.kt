@@ -16,13 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.utilities
 
-import kotlinx.parcelize.Parcelize
+import androidx.databinding.BindingAdapter
+import com.google.android.material.textfield.TextInputLayout
 
-@Parcelize
-data class Filter(
-        override var id: Long = 0,
-        override var make: String? = null,
-        override var model: String? = null,
-        var lensIds: HashSet<Long> = HashSet()) : Gear(id, make, model), Comparable<Gear>
+object DataBindingAdapters {
+    @BindingAdapter("errorText")
+    @JvmStatic
+     fun setErrorText(view: TextInputLayout, errorText: String?) {
+        view.error = errorText
+    }
+}

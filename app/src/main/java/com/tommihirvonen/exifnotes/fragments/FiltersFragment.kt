@@ -96,7 +96,7 @@ class FiltersFragment : Fragment() {
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
         dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
+        dialog.show(parentFragmentManager.beginTransaction(), null)
         dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
             val filter: Filter = bundle.getParcelable(ExtraKeys.FILTER)
                 ?: return@setFragmentResultListener
@@ -193,7 +193,7 @@ class FiltersFragment : Fragment() {
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
         arguments.putParcelable(ExtraKeys.FILTER, filter)
         dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), EditFilterDialog.TAG)
+        dialog.show(parentFragmentManager.beginTransaction(), null)
         dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
             val filter1: Filter = bundle.getParcelable(ExtraKeys.FILTER)
                 ?: return@setFragmentResultListener

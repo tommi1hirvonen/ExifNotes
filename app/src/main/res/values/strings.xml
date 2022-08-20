@@ -240,6 +240,7 @@
     <string name="Location">Location</string>
     <string name="MainActivityTitle">Film rolls</string>
     <string name="Make">Make</string>
+    <string name="MakeIsRequired">Make is required</string>
     <string name="MakeAndOrModelIsEmpty">Make and/or model is empty</string>
     <string name="Manufacturer">Manufacturer</string>
     <string name="ManufacturerOrFilmStockNameCannotBeEmpty">Manufacturer or film stock name cannot be empty</string>
@@ -250,6 +251,7 @@
     <string name="MinFocalLengthGreaterThanMax">Min focal length cannot be greater than max</string>
     <string name="MinShutterSpeedGreaterThanMax">Min shutter speed cannot be greater than max</string>
     <string name="Model">Model</string>
+    <string name="ModelIsRequired">Model is required</string>
     <string name="MountsTo">Mounts to:</string>
     <string name="Name">Name</string>
     <string name="NameNoColon">Name</string>

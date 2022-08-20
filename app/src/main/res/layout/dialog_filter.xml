@@ -16,65 +16,72 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
-
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:id="@+id/root"
-    android:descendantFocusability="beforeDescendants"
-    android:focusableInTouchMode="true">
-
-    <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
-     doesn't get focus when the Dialog is first shown. -->
-
-
-    <androidx.core.widget.NestedScrollView
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="viewmodel"
+            type="com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModel" />
+    </data>
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:id="@+id/nested_scroll_view"
-        >
+        android:layout_height="match_parent"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical"
+        android:id="@+id/root"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true">
 
-        <LinearLayout
+        <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
+         doesn't get focus when the Dialog is first shown. -->
+
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:fillViewport="true"
+            android:id="@+id/nested_scroll_view">
 
-            <com.google.android.material.textfield.TextInputLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/make_layout"
-                android:layout_marginTop="15dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
-                android:layout_marginHorizontal="15dp">
-                <com.google.android.material.textfield.TextInputEditText
+                android:orientation="vertical">
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/make_editText"
-                    android:inputType="textCapSentences"
-                    android:hint="@string/Make"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:id="@+id/make_layout"
+                    android:layout_marginTop="15dp"
+                    errorText="@{viewmodel.makeError}"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_marginHorizontal="15dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/make_editText"
+                        android:inputType="textCapSentences"
+                        android:afterTextChanged="@{(editable) -> viewmodel.setMakeError(``)}"
+                        android:text="@={viewmodel.make}"
+                        android:hint="@string/Make"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/model_layout"
-                android:layout_marginTop="15dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
-                android:layout_marginHorizontal="15dp">
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/model_editText"
-                    android:inputType="textCapSentences"
-                    android:hint="@string/Model"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:id="@+id/model_layout"
+                    android:layout_marginTop="15dp"
+                    errorText="@{viewmodel.modelError}"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_marginHorizontal="15dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/model_editText"
+                        android:inputType="textCapSentences"
+                        android:afterTextChanged="@{(editable) -> viewmodel.setModelError(``)}"
+                        android:text="@={viewmodel.model}"
+                        android:hint="@string/Model"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
-
-</FrameLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
+</layout>

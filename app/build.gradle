@@ -20,6 +20,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'com.jaredsburrows.license'
 
 android {
@@ -88,6 +89,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
 
     compileOptions {
@@ -114,6 +116,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     implementation 'org.apache.commons:commons-text:1.9'
     implementation 'androidx.fragment:fragment-ktx:1.5.2'
+    implementation 'androidx.databinding:databinding-runtime:7.2.2'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
     androidTestImplementation 'androidx.test:core-ktx:1.4.0'
 }
