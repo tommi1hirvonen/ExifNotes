@@ -27,7 +27,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.EditText
-import android.widget.NumberPicker
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -41,12 +40,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter.FrameAdapterListener
+import com.tommihirvonen.exifnotes.databinding.DialogSingleDropdownBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFramesListBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.utilities.*
@@ -604,22 +605,22 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             init {
                 setTitle(R.string.EditFrameCountsBy)
                 @SuppressLint("InflateParams")
-                val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_numberpicker, null)
-                val numberPicker = view.findViewById<NumberPicker>(R.id.number_picker)
-                numberPicker.maxValue = 200
-                numberPicker.minValue = 0
-                // Use the NumberPicker.setDisplayedValues() method to set custom
-                // values ranging from -100 to +100.
+                val binding = DialogSingleDropdownBinding.inflate(requireActivity().layoutInflater)
+                val menu = binding.dropdownMenu.editText as MaterialAutoCompleteTextView
+                menu.setText("0", false)
                 val displayedValues = (-100..100).map { if (it > 0) "+$it" else it.toString() }
-                numberPicker.displayedValues = displayedValues.toTypedArray()
-                numberPicker.value = 100
-                // Block the NumberPicker from activating the cursor.
-                numberPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-                setView(view)
+                    .toTypedArray()
+                menu.setSimpleItems(displayedValues)
+                binding.dropdownMenu.setEndIconOnClickListener(null)
+                menu.setOnClickListener {
+                    val currentIndex = displayedValues.indexOf(menu.text.toString())
+                    if (currentIndex >= 0) menu.listSelection = currentIndex
+                }
+                setView(binding.root)
                 setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
                 setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
                     // Replace the plus sign because on pre L devices this seems to cause a crash
-                    val change = displayedValues[numberPicker.value].replace("+", "").toInt()
+                    val change = menu.text.toString().replace("+", "").toInt()
                     frameAdapter.selectedItems.forEach { frame ->
                         frame.count += change
                         model.updateFrame(frame)
