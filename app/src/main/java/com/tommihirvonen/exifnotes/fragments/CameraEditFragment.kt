@@ -25,7 +25,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.addCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
@@ -33,6 +32,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentCameraEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
@@ -52,11 +52,7 @@ class CameraEditFragment : Fragment() {
 
     private val newCamera by lazy { camera.copy() }
 
-    /**
-     * Stores the currently displayed shutter speed values.
-     * Changes depending on the currently selected shutter increments
-     */
-    private lateinit var displayedShutterValues: Array<String>
+    private lateinit var shutterValueOptions: Array<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,89 +74,97 @@ class CameraEditFragment : Fragment() {
         binding.serialNumberEditText.setText(camera.serialNumber)
 
         // SHUTTER SPEED INCREMENTS
+        val minShutterMenu = binding.minShutterMenu.editText as MaterialAutoCompleteTextView
+        val maxShutterMenu = binding.maxShutterMenu.editText as MaterialAutoCompleteTextView
+
+        val shutterIncrementValues = resources.getStringArray(R.array.StopIncrements)
+        val shutterIncrementMenu =
+            binding.shutterSpeedIncrementsMenu.editText as MaterialAutoCompleteTextView
+        shutterIncrementMenu.setSimpleItems(shutterIncrementValues)
         try {
-            binding.shutterSpeedIncrementSpinner.setSelection(newCamera.shutterIncrements.ordinal)
+            val text = shutterIncrementValues[camera.shutterIncrements.ordinal]
+            shutterIncrementMenu.setText(text, false)
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
         }
-        binding.shutterSpeedIncrementSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                //Shutter speed increments were changed, make update
-                //Check if the new increments include both min and max values.
-                //Otherwise reset them to null
-                var minFound = false
-                var maxFound = false
-                displayedShutterValues = when (newCamera.shutterIncrements) {
-                    Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
-                    Increment.HALF -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
-                    Increment.FULL -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
-                }
-                for (string in displayedShutterValues) {
-                    if (!minFound && string == newCamera.minShutter) minFound = true
-                    if (!maxFound && string == newCamera.maxShutter) maxFound = true
-                    if (minFound && maxFound) break
-                }
-                //If either one wasn't found in the new values array, null them.
-                if (!minFound || !maxFound) {
-                    newCamera.minShutter = null
-                    newCamera.maxShutter = null
-                    updateShutterRangeTextView()
-                }
+        shutterIncrementMenu.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            newCamera.shutterIncrements = Increment.from(position)
+        }
+
+        shutterValueOptions = getShutterValueOptions()
+
+        shutterIncrementMenu.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            newCamera.shutterIncrements = Increment.from(position)
+            shutterValueOptions = getShutterValueOptions()
+            minShutterMenu.setSimpleItems(shutterValueOptions)
+            maxShutterMenu.setSimpleItems(shutterValueOptions)
+            val minFound = shutterValueOptions.contains(newCamera.minShutter)
+            val maxFound = shutterValueOptions.contains(newCamera.maxShutter)
+            if (!minFound || !maxFound) {
+                newCamera.minShutter = null
+                newCamera.maxShutter = null
+                minShutterMenu.setText(null, false)
+                maxShutterMenu.setText(null, false)
             }
         }
 
-        // SHUTTER RANGE BUTTON
-        updateShutterRangeTextView()
-        binding.shutterRangeLayout.setOnClickListener {
-            val builder = MaterialAlertDialogBuilder(requireActivity())
-            val dialogView = inflater.inflate(R.layout.dialog_double_numberpicker, null)
-            val minShutterPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_one)
-            val maxShutterPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker_two)
+        binding.clearShutterRange.setOnClickListener {
+            newCamera.minShutter = null
+            newCamera.maxShutter = null
+            minShutterMenu.setText(null, false)
+            maxShutterMenu.setText(null, false)
+        }
+        minShutterMenu.setSimpleItems(shutterValueOptions)
+        maxShutterMenu.setSimpleItems(shutterValueOptions)
+        minShutterMenu.setText(newCamera.minShutter, false)
+        maxShutterMenu.setText(newCamera.maxShutter, false)
 
-            // To prevent text edit
-            minShutterPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            maxShutterPicker.descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            initialiseShutterRangePickers(minShutterPicker, maxShutterPicker)
-            builder.setView(dialogView)
-            builder.setTitle(resources.getString(R.string.ChooseShutterRange))
-            builder.setPositiveButton(resources.getString(R.string.OK), null)
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
-            // Override the positiveButton to check the range before accepting.
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                if (minShutterPicker.value == displayedShutterValues.size - 1 &&
-                        maxShutterPicker.value != displayedShutterValues.size - 1
-                        ||
-                        minShutterPicker.value != displayedShutterValues.size - 1 &&
-                        maxShutterPicker.value == displayedShutterValues.size - 1) {
-                    // No min or max shutter was set
-                    binding.root.snackbar(R.string.NoMinOrMaxShutter)
-                } else {
-                    if (minShutterPicker.value == displayedShutterValues.size - 1 &&
-                            maxShutterPicker.value == displayedShutterValues.size - 1) {
-                        newCamera.minShutter = null
-                        newCamera.maxShutter = null
-                    } else if (minShutterPicker.value < maxShutterPicker.value) {
-                        newCamera.minShutter = displayedShutterValues[minShutterPicker.value]
-                        newCamera.maxShutter = displayedShutterValues[maxShutterPicker.value]
-                    } else {
-                        newCamera.minShutter = displayedShutterValues[maxShutterPicker.value]
-                        newCamera.maxShutter = displayedShutterValues[minShutterPicker.value]
-                    }
-                    updateShutterRangeTextView()
-                }
-                dialog.dismiss()
+        minShutterMenu.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            if (position > 0) {
+                newCamera.minShutter = shutterValueOptions[position]
+            } else {
+                newCamera.minShutter = null
+                minShutterMenu.setText(null, false)
             }
+        }
+        maxShutterMenu.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            if (position > 0) {
+                newCamera.maxShutter = shutterValueOptions[position]
+            } else {
+                newCamera.maxShutter = null
+                maxShutterMenu.setText(null, false)
+            }
+        }
+
+        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
+        // However in that case, the AutoCompleteTextView onClick method is not called.
+        // By setting the endIconOnClickListener to null onClick events are propagated
+        // to AutoCompleteTextView. This way we can force the preselection of the current item.
+        binding.minShutterMenu.setEndIconOnClickListener(null)
+        minShutterMenu.setOnClickListener {
+            val currentIndex = shutterValueOptions.indexOf(minShutterMenu.text.toString())
+            if (currentIndex >= 0) minShutterMenu.listSelection = currentIndex
+        }
+        binding.maxShutterMenu.setEndIconOnClickListener(null)
+        maxShutterMenu.setOnClickListener {
+            val currentIndex = shutterValueOptions.indexOf(maxShutterMenu.text.toString())
+            if (currentIndex >= 0) maxShutterMenu.listSelection = currentIndex
         }
 
 
         // EXPOSURE COMPENSATION INCREMENTS
+        val exposureCompIncrementValues = resources.getStringArray(R.array.ExposureCompIncrements)
+        val exposureCompIncrementMenu =
+            binding.expCompIncrementsMenu.editText as MaterialAutoCompleteTextView
+        exposureCompIncrementMenu.setSimpleItems(exposureCompIncrementValues)
         try {
-            binding.exposureCompIncrementSpinner.setSelection(newCamera.exposureCompIncrements.ordinal)
+            val text = exposureCompIncrementValues[camera.exposureCompIncrements.ordinal]
+            exposureCompIncrementMenu.setText(text, false)
         } catch (e: ArrayIndexOutOfBoundsException) {
             e.printStackTrace()
+        }
+        exposureCompIncrementMenu.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            newCamera.exposureCompIncrements = PartialIncrement.from(position)
         }
 
         // FIXED LENS
@@ -192,30 +196,43 @@ class CameraEditFragment : Fragment() {
             val make = binding.makeEditText.text.toString()
             val model = binding.modelEditText.text.toString()
             val serialNumber = binding.serialNumberEditText.text.toString()
-            if (make.isEmpty() && model.isEmpty()) {
-                // No make or model was set
-                binding.root.snackbar(R.string.NoMakeOrModel)
-            } else if (make.isNotEmpty() && model.isEmpty()) {
-                // No model was set
-                binding.root.snackbar(R.string.NoModel)
-            } else if (make.isEmpty()) {
-                // No make was set
-                binding.root.snackbar(R.string.NoMake)
-            } else {
 
+            val nameValidation = { _: Camera ->
+                (make.isNotEmpty() && model.isNotEmpty()) to
+                        resources.getString(R.string.MakeAndOrModelIsEmpty)
+            }
+            val shutterRangeValidation1 = { c: Camera ->
+                (c.minShutter == null && c.maxShutter == null
+                        || c.minShutter != null && c.maxShutter != null) to
+                        resources.getString(R.string.NoMinOrMaxShutter)
+            }
+            val shutterRangeValidation2 = { c: Camera ->
+                if (c.minShutter == null && c.maxShutter == null) {
+                    true to ""
+                } else {
+                    val minIndex = shutterValueOptions.indexOf(c.minShutter)
+                    val maxIndex = shutterValueOptions.indexOf(c.maxShutter)
+                    (maxIndex >= minIndex) to resources.getString(R.string.MinShutterSpeedGreaterThanMax)
+                }
+            }
+            val (validationResult, validationMessage) = newCamera.validate(
+                nameValidation, shutterRangeValidation1, shutterRangeValidation2)
+
+            if (validationResult) {
                 camera.make = make
                 camera.model = model
                 camera.serialNumber = serialNumber
-                camera.shutterIncrements = Increment.from(binding.shutterSpeedIncrementSpinner.selectedItemPosition)
+                camera.shutterIncrements = newCamera.shutterIncrements
                 camera.minShutter = newCamera.minShutter
                 camera.maxShutter = newCamera.maxShutter
-                camera.exposureCompIncrements = PartialIncrement.from(binding.exposureCompIncrementSpinner.selectedItemPosition)
+                camera.exposureCompIncrements = newCamera.exposureCompIncrements
                 camera.lens = newCamera.lens
-
                 val bundle = Bundle()
                 bundle.putParcelable(ExtraKeys.CAMERA, camera)
                 setFragmentResult("CameraEditFragment", bundle)
                 navigateBack()
+            } else {
+                binding.root.snackbar(validationMessage)
             }
         }
         return binding.root
@@ -232,6 +249,12 @@ class CameraEditFragment : Fragment() {
 
     private fun navigateBack() =
         requireParentFragment().childFragmentManager.popBackStack()
+
+    private fun getShutterValueOptions() = when (newCamera.shutterIncrements) {
+        Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
+        Increment.HALF -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
+        Increment.FULL -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
+    }.reversedArray()
 
     private fun showFixedLensFragment() {
         val sharedElementTransition = TransitionSet()
@@ -269,46 +292,6 @@ class CameraEditFragment : Fragment() {
             binding.fixedLensText.text = resources.getString(R.string.ClickToEdit)
             binding.lensClear.visibility = View.VISIBLE
         }
-    }
-
-    /**
-     * Called when the shutter speed range dialog is opened.
-     * Sets the values for the NumberPickers.
-     *
-     * @param minShutterPicker NumberPicker associated with the minimum shutter speed
-     * @param maxShutterPicker NumberPicker associated with the maximum shutter speed
-     */
-    private fun initialiseShutterRangePickers(minShutterPicker: NumberPicker,
-                                              maxShutterPicker: NumberPicker) {
-        displayedShutterValues = when (newCamera.shutterIncrements) {
-            Increment.THIRD -> requireActivity().resources.getStringArray(R.array.ShutterValuesThird)
-            Increment.HALF -> requireActivity().resources.getStringArray(R.array.ShutterValuesHalf)
-            Increment.FULL -> requireActivity().resources.getStringArray(R.array.ShutterValuesFull)
-        }
-        if (displayedShutterValues[0] == resources.getString(R.string.NoValue)) {
-            displayedShutterValues.reverse()
-        }
-        minShutterPicker.minValue = 0
-        maxShutterPicker.minValue = 0
-        minShutterPicker.maxValue = displayedShutterValues.size - 1
-        maxShutterPicker.maxValue = displayedShutterValues.size - 1
-        minShutterPicker.displayedValues = displayedShutterValues
-        maxShutterPicker.displayedValues = displayedShutterValues
-        minShutterPicker.value = displayedShutterValues.size - 1
-        maxShutterPicker.value = displayedShutterValues.size - 1
-        val initialMinValue = displayedShutterValues.indexOfFirst { it == newCamera.minShutter }
-        if (initialMinValue != -1) minShutterPicker.value = initialMinValue
-        val initialMaxValue = displayedShutterValues.indexOfFirst { it == newCamera.maxShutter }
-        if (initialMaxValue != -1) maxShutterPicker.value = initialMaxValue
-    }
-
-    /**
-     * Update the shutter speed range Button to display the currently selected shutter speed range.
-     */
-    private fun updateShutterRangeTextView() {
-        binding.shutterRangeText.text =
-                if (newCamera.minShutter == null || newCamera.maxShutter == null) resources.getString(R.string.ClickToSet)
-                else "${newCamera.minShutter} - ${newCamera.maxShutter}"
     }
 
 }

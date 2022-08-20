@@ -248,6 +248,7 @@
     <string name="Minus50">-50</string>
     <string name="MinApertureGreaterThanMax">Min aperture cannot be greater than max</string>
     <string name="MinFocalLengthGreaterThanMax">Min focal length cannot be greater than max</string>
+    <string name="MinShutterSpeedGreaterThanMax">Min shutter speed cannot be greater than max</string>
     <string name="Model">Model</string>
     <string name="MountsTo">Mounts to:</string>
     <string name="Name">Name</string>

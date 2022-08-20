@@ -110,9 +110,6 @@ class LensEditFragment : Fragment() {
             }
         }
 
-        // APERTURE RANGE BUTTON
-        newLens.minAperture = lens.minAperture
-        newLens.maxAperture = lens.maxAperture
         binding.clearApertureRange.setOnClickListener {
             newLens.minAperture = null
             newLens.maxAperture = null
@@ -127,8 +124,7 @@ class LensEditFragment : Fragment() {
         minApertureMenu.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             if (position > 0) {
                 newLens.minAperture = apertureValueOptions[position]
-            }
-            else {
+            } else {
                 newLens.minAperture = null
                 minApertureMenu.setText(null, false)
             }
@@ -136,8 +132,7 @@ class LensEditFragment : Fragment() {
         maxApertureMenu.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             if (position > 0) {
                 newLens.maxAperture = apertureValueOptions[position]
-            }
-            else {
+            } else {
                 newLens.maxAperture = null
                 maxApertureMenu.setText(null, false)
             }
