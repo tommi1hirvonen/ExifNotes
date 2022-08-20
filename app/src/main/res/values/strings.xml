@@ -240,10 +240,8 @@
     <string name="Location">Location</string>
     <string name="MainActivityTitle">Film rolls</string>
     <string name="Make">Make</string>
-    <string name="MakeIsRequired">Make is required</string>
     <string name="MakeAndOrModelIsEmpty">Make and/or model is empty</string>
     <string name="Manufacturer">Manufacturer</string>
-    <string name="ManufacturerOrFilmStockNameCannotBeEmpty">Manufacturer or film stock name cannot be empty</string>
     <string name="Map">Map</string>
     <string name="MapType">Map type</string>
     <string name="Minus50">-50</string>
@@ -251,7 +249,6 @@
     <string name="MinFocalLengthGreaterThanMax">Min focal length cannot be greater than max</string>
     <string name="MinShutterSpeedGreaterThanMax">Min shutter speed cannot be greater than max</string>
     <string name="Model">Model</string>
-    <string name="ModelIsRequired">Model is required</string>
     <string name="MountsTo">Mounts to:</string>
     <string name="Name">Name</string>
     <string name="NameNoColon">Name</string>
@@ -309,6 +306,7 @@
     <string name="Red">Red</string>
     <string name="RemoveCameraMappingsMessage">This camera is set as a fixed lens camera, but it has other lens mappings. Do you want to remove these mappings?</string>
     <string name="RemoveLensMappingsMessage">This lens has mountable camera mappings. Do you want to remove these mappings? No cameras or lenses will be deleted, only the links between them.</string>
+    <string name="Required">Required</string>
     <string name="Reset">Reset</string>
     <string name="ReverseFrameCounts">Reverse frame counts</string>
     <string name="RollsActivated">Roll(s) unarchived</string>

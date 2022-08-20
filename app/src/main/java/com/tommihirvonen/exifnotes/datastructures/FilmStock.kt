@@ -23,7 +23,7 @@ import com.tommihirvonen.exifnotes.R
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-class FilmStock(
+data class FilmStock(
         override var id: Long = 0,
         override var make: String? = null,
         override var model: String? = null,

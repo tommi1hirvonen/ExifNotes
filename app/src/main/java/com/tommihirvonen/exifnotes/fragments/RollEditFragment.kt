@@ -58,7 +58,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
+import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
 import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollViewModel
@@ -135,7 +135,7 @@ class RollEditFragment : Fragment() {
         binding.addFilmStock.setOnClickListener {
             binding.noteEditText.clearFocus()
             binding.nameEditText.clearFocus()
-            val dialog = EditFilmStockDialog()
+            val dialog = FilmStockEditDialog()
             val arguments = Bundle()
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))

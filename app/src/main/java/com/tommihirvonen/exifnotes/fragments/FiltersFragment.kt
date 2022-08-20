@@ -36,7 +36,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
-import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog
+import com.tommihirvonen.exifnotes.dialogs.FilterEditDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.utilities.snackbar
@@ -91,7 +91,7 @@ class FiltersFragment : Fragment() {
     }
 
     private val onFabClickListener = { _: View ->
-        val dialog = EditFilterDialog()
+        val dialog = FilterEditDialog()
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
@@ -187,7 +187,7 @@ class FiltersFragment : Fragment() {
     }
 
     private fun openFilterEditDialog(filter: Filter) {
-        val dialog = EditFilterDialog()
+        val dialog = FilterEditDialog()
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilter))
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))

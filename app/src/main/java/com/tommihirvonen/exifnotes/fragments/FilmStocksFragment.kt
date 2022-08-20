@@ -31,7 +31,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilmStockAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentFilmsBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
-import com.tommihirvonen.exifnotes.dialogs.EditFilmStockDialog
+import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
 
@@ -133,7 +133,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
     }
 
     private val onFabClickListener = { _: View ->
-        val dialog = EditFilmStockDialog()
+        val dialog = FilmStockEditDialog()
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
@@ -171,7 +171,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
     }
 
     private fun openFilmStockEditDialog(filmStock: FilmStock) {
-        val dialog = EditFilmStockDialog()
+        val dialog = FilmStockEditDialog()
         val arguments = Bundle()
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilmStock))
         arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))

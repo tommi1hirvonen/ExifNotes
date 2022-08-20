@@ -19,6 +19,9 @@
 package com.tommihirvonen.exifnotes.viewmodels
 
 import android.app.Application
+import android.text.InputFilter
+import android.text.Spanned
+import android.widget.AdapterView
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.lifecycle.AndroidViewModel
@@ -26,18 +29,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.datastructures.Filter
+import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.validate
 
-class FilterEditViewModel(application: Application, val filter: Filter)
+class FilmStockEditViewModel(application: Application, val filmStock: FilmStock)
     : AndroidViewModel(application) {
-
-    val observable = Observable()
 
     val context get() = getApplication<Application>()
 
+    val observable = Observable()
+
     fun validate(): Boolean {
-        val makeValidation = { f: Filter ->
+        val makeValidation = { f: FilmStock ->
             if (f.make?.isNotEmpty() == true) {
                 true
             } else {
@@ -45,7 +48,7 @@ class FilterEditViewModel(application: Application, val filter: Filter)
                 false
             }
         }
-        val modelValidation = { f: Filter ->
+        val modelValidation = { f: FilmStock ->
             if (f.model?.isNotEmpty() == true) {
                 true
             } else {
@@ -53,29 +56,54 @@ class FilterEditViewModel(application: Application, val filter: Filter)
                 false
             }
         }
-        return filter.validate(makeValidation, modelValidation)
+        return filmStock.validate(makeValidation, modelValidation)
     }
 
     inner class Observable : BaseObservable() {
         @Bindable
-        fun getMake() = filter.make
+        fun getMake() = filmStock.make
 
         fun setMake(value: String?) {
-            if (value != filter.make) {
-                filter.make = value
+            if (value != filmStock.make) {
+                filmStock.make = value
                 notifyPropertyChanged(BR.make)
             }
         }
 
         @Bindable
-        fun getModel() = filter.model
+        fun getModel() = filmStock.model
 
         fun setModel(value: String?) {
-            if (value != filter.model) {
-                filter.model = value
-                notifyPropertyChanged(BR.make)
+            if (value != filmStock.model) {
+                filmStock.model = value
+                notifyPropertyChanged(BR.model)
             }
         }
+
+        @Bindable
+        fun getIso() = filmStock.iso.toString()
+
+        fun setIso(value: String) {
+            if (value.toIntOrNull() != filmStock.iso) {
+                filmStock.iso = value.toIntOrNull() ?: 0
+                notifyPropertyChanged(BR.iso)
+            }
+        }
+
+        val filmType = filmStock.getTypeName(context)
+        val filmProcess = filmStock.getProcessName(context)
+
+        val isoInputFilter = IsoInputFilter()
+
+        val filmTypeOnClickListener =
+            AdapterView.OnItemClickListener { _, _, position, _ ->
+                filmStock.type = position
+            }
+
+        val filmProcessOnClickListener =
+            AdapterView.OnItemClickListener { _, _, position, _ ->
+                filmStock.process = position
+            }
 
         @Bindable
         var makeError: String? = null
@@ -90,15 +118,29 @@ class FilterEditViewModel(application: Application, val filter: Filter)
                 field = value?.ifEmpty { null }
                 notifyPropertyChanged(BR.modelError)
             }
+
+        inner class IsoInputFilter : InputFilter {
+            override fun filter(
+                source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int,
+                dend: Int
+            ): CharSequence? {
+                try {
+                    val input = (dest.toString() + source.toString()).toInt()
+                    if (input in 0..1000000) return null
+                } catch (ignored: NumberFormatException) {
+                }
+                return ""
+            }
+        }
     }
 }
 
-class FilterEditViewModelFactory(private val application: Application, private val filter: Filter)
-    : ViewModelProvider.Factory {
+class FilmStockEditViewModelFactory(private val application: Application,
+                                    private val filmStock: FilmStock) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        if (modelClass.isAssignableFrom(FilterEditViewModel::class.java)) {
-            return FilterEditViewModel(application, filter) as T
+        if (modelClass.isAssignableFrom(FilmStockEditViewModel::class.java)) {
+            return FilmStockEditViewModel(application, filmStock) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

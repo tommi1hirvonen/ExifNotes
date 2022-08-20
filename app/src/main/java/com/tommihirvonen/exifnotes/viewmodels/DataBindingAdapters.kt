@@ -16,9 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.utilities
+package com.tommihirvonen.exifnotes.viewmodels
 
+import android.text.InputFilter
+import android.widget.AdapterView
 import androidx.databinding.BindingAdapter
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
 object DataBindingAdapters {
@@ -26,5 +30,24 @@ object DataBindingAdapters {
     @JvmStatic
      fun setErrorText(view: TextInputLayout, errorText: String?) {
         view.error = errorText
+    }
+
+    @BindingAdapter("inputFilter")
+    @JvmStatic
+    fun setInputFilter(view: TextInputEditText, filter: InputFilter) {
+        view.filters = arrayOf(filter)
+    }
+
+    @BindingAdapter("onItemClick")
+    @JvmStatic
+    fun setOnItemClickListener(view: MaterialAutoCompleteTextView,
+                                  listener: AdapterView.OnItemClickListener) {
+        view.onItemClickListener = listener
+    }
+
+    @BindingAdapter("textNoFilter")
+    @JvmStatic
+    fun setText(view: MaterialAutoCompleteTextView, text: String?) {
+        view.setText(text, false)
     }
 }

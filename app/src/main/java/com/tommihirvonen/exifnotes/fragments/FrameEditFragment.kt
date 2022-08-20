@@ -72,7 +72,7 @@ import com.tommihirvonen.exifnotes.activities.LocationPickActivity
 import com.tommihirvonen.exifnotes.databinding.FragmentFrameEditBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
-import com.tommihirvonen.exifnotes.dialogs.EditFilterDialog
+import com.tommihirvonen.exifnotes.dialogs.FilterEditDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import kotlinx.coroutines.*
 import java.io.FileNotFoundException
@@ -370,7 +370,7 @@ open class FrameEditFragment : Fragment() {
         binding.addFilter.isClickable = true
         binding.addFilter.setOnClickListener {
             binding.noteEditText.clearFocus()
-            val dialog = EditFilterDialog()
+            val dialog = FilterEditDialog()
             val arguments = Bundle()
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))

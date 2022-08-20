@@ -17,119 +17,141 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:descendantFocusability="beforeDescendants"
-    android:focusableInTouchMode="true">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="viewmodel"
+            type="com.tommihirvonen.exifnotes.viewmodels.FilmStockEditViewModel.Observable" />
+    </data>
 
-    <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
-     doesn't get focus when the Dialog is first shown. -->
-
-    <androidx.core.widget.NestedScrollView
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:id="@+id/nested_scroll_view"
-        >
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true">
 
-        <LinearLayout
+        <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
+         doesn't get focus when the Dialog is first shown. -->
+
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:fillViewport="true"
+            android:id="@+id/nested_scroll_view"
             >
 
-            <com.google.android.material.textfield.TextInputLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/manufacturer_layout"
-                android:layout_marginTop="15dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
-                android:layout_marginHorizontal="15dp">
-                <com.google.android.material.textfield.TextInputEditText
+                android:orientation="vertical"
+                >
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/manufacturer_editText"
-                    android:inputType="textCapSentences"
-                    android:hint="@string/Manufacturer"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:id="@+id/manufacturer_layout"
+                    android:layout_marginTop="15dp"
+                    errorText="@{viewmodel.makeError}"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_marginHorizontal="15dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/manufacturer_editText"
+                        android:inputType="textCapSentences"
+                        android:afterTextChanged="@{(editable) -> viewmodel.setMakeError(``)}"
+                        android:text="@={viewmodel.make}"
+                        android:hint="@string/Manufacturer"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/filmStock_layout"
-                android:layout_marginTop="15dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
-                android:layout_marginHorizontal="15dp">
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/filmStock_editText"
-                    android:inputType="textCapSentences"
-                    android:hint="@string/FilmStock"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:id="@+id/filmStock_layout"
+                    android:layout_marginTop="15dp"
+                    errorText="@{viewmodel.modelError}"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_marginHorizontal="15dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/filmStock_editText"
+                        android:inputType="textCapSentences"
+                        android:afterTextChanged="@{(editable) -> viewmodel.setModelError(``)}"
+                        android:text="@={viewmodel.model}"
+                        android:hint="@string/FilmStock"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/iso_layout"
-                android:layout_marginTop="15dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
-                android:layout_marginHorizontal="15dp">
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/iso_editText"
-                    android:inputType="number"
-                    android:digits="1234567890"
-                    android:hint="@string/ISO"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:id="@+id/iso_layout"
+                    android:layout_marginTop="15dp"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_marginHorizontal="15dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/iso_editText"
+                        android:inputType="number"
+                        android:digits="1234567890"
+                        inputFilter="@{viewmodel.isoInputFilter}"
+                        android:text="@={viewmodel.iso}"
+                        android:hint="@string/ISO"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/FilmType"
-                android:id="@+id/film_type_label"
-                android:layout_marginHorizontal="15dp"
-                android:layout_marginTop="15dp"
-                style="@style/TextAppearance.Material3.BodySmall"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/film_type_menu"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="15dp">
-                <AutoCompleteTextView
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:text="@string/FilmType"
+                    android:id="@+id/film_type_label"
+                    android:layout_marginHorizontal="15dp"
+                    android:layout_marginTop="15dp"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/FilmProcess"
-                android:id="@+id/film_process_label"
-                android:layout_marginHorizontal="15dp"
-                android:layout_marginTop="15dp"
-                style="@style/TextAppearance.Material3.BodySmall"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/film_process_menu"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="15dp">
-                <AutoCompleteTextView
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/film_type_menu"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginHorizontal="15dp">
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        app:simpleItems="@array/FilmTypes"
+                        onItemClick="@{viewmodel.filmTypeOnClickListener}"
+                        textNoFilter="@{viewmodel.filmType}"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/FilmProcess"
+                    android:id="@+id/film_process_label"
+                    android:layout_marginHorizontal="15dp"
+                    android:layout_marginTop="15dp"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
 
-    </androidx.core.widget.NestedScrollView>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/film_process_menu"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="15dp">
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        app:simpleItems="@array/FilmProcesses"
+                        onItemClick="@{viewmodel.filmProcessOnClickListener}"
+                        textNoFilter="@{viewmodel.filmProcess}"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-</FrameLayout>
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </FrameLayout>
+</layout>

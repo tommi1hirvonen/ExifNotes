@@ -25,17 +25,26 @@ import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilterBinding
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModel
+import com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModelFactory
 
 /**
  * Dialog to edit a Filter's information
  */
-class EditFilterDialog : DialogFragment() {
+class FilterEditDialog : DialogFragment() {
+
+    val filter by lazy { requireArguments().getParcelable(ExtraKeys.FILTER) ?: Filter() }
+
+    val model by lazy {
+        val factory = FilterEditViewModelFactory(requireActivity().application, filter.copy())
+        ViewModelProvider(this, factory)[FilterEditViewModel::class.java]
+    }
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
         val layoutInflater = requireActivity().layoutInflater
@@ -44,9 +53,7 @@ class EditFilterDialog : DialogFragment() {
         val title = requireArguments().getString(ExtraKeys.TITLE)
         builder.setTitle(title)
         builder.setView(binding.root)
-        val filter = requireArguments().getParcelable(ExtraKeys.FILTER) ?: Filter()
-        val model = FilterEditViewModel(filter.copy())
-        binding.viewmodel = model
+        binding.viewmodel = model.observable
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         builder.setPositiveButton(positiveButton, null)
         builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
@@ -62,7 +69,7 @@ class EditFilterDialog : DialogFragment() {
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            if (model.validate(requireContext())) {
+            if (model.validate()) {
                 filter.make = model.filter.make
                 filter.model = model.filter.model
                 // Return the new entered name to the calling activity
