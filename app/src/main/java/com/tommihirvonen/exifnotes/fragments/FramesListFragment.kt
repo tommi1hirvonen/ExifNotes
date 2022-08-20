@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.doOnPreDraw
 import androidx.documentfile.provider.DocumentFile
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -52,6 +53,7 @@ import com.tommihirvonen.exifnotes.databinding.FragmentFramesListBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FrameViewModel
+import com.tommihirvonen.exifnotes.viewmodels.RollViewModel
 import java.io.IOException
 import java.util.*
 
@@ -65,6 +67,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     // The ViewModel has been instantiated using a factory by the parent fragment.
     private val model by viewModels<FrameViewModel>(ownerProducer = { requireParentFragment() })
+
+    private val rollModel by activityViewModels<RollViewModel>()
 
     private lateinit var frameAdapter: FrameAdapter
 
@@ -101,24 +105,24 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         binding.topAppBar.setNavigationOnClickListener {
             requireParentFragment().requireParentFragment().childFragmentManager.popBackStack()
         }
-        binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
-        binding.fab.setOnClickListener { showEditFrameFragment(null, binding.fab) }
+        binding.topAppBar.setOnMenuItemClickListener(onTopMenuItemClick)
+        binding.bottomAppBar.setOnMenuItemClickListener(onBottomMenuItemSelected)
+        binding.fab.setOnClickListener { showEditFrameFragment(null, binding.bottomAppBar) }
 
         val layoutManager = LinearLayoutManager(activity)
         binding.framesRecyclerView.layoutManager = layoutManager
 
         frameAdapter = FrameAdapter(requireActivity(), this, binding.framesRecyclerView)
         binding.framesRecyclerView.adapter = frameAdapter
-        binding.framesRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
 
-        val menu = binding.topAppBar.menu
+        val bottomMenu = binding.bottomAppBar.menu
         model.frameSortMode.observe(viewLifecycleOwner) { mode ->
             when (mode) {
-                FrameSortMode.FRAME_COUNT -> menu.findItem(R.id.frame_count_sort_mode).isChecked = true
-                FrameSortMode.DATE -> menu.findItem(R.id.date_sort_mode).isChecked = true
-                FrameSortMode.F_STOP -> menu.findItem(R.id.f_stop_sort_mode).isChecked = true
-                FrameSortMode.SHUTTER_SPEED -> menu.findItem(R.id.shutter_speed_sort_mode).isChecked = true
-                FrameSortMode.LENS -> menu.findItem(R.id.lens_sort_mode).isChecked = true
+                FrameSortMode.FRAME_COUNT -> bottomMenu.findItem(R.id.frame_count_sort_mode).isChecked = true
+                FrameSortMode.DATE -> bottomMenu.findItem(R.id.date_sort_mode).isChecked = true
+                FrameSortMode.F_STOP -> bottomMenu.findItem(R.id.f_stop_sort_mode).isChecked = true
+                FrameSortMode.SHUTTER_SPEED -> bottomMenu.findItem(R.id.shutter_speed_sort_mode).isChecked = true
+                FrameSortMode.LENS -> bottomMenu.findItem(R.id.lens_sort_mode).isChecked = true
                 null -> {}
             }
         }
@@ -240,7 +244,14 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
     }
 
-    private val onMenuItemSelected = { item: MenuItem ->
+    private val onTopMenuItemClick = { item: MenuItem ->
+        when (item.itemId) {
+            R.id.menu_item_edit -> showRollEditFragment()
+        }
+        true
+    }
+
+    private val onBottomMenuItemSelected = { item: MenuItem ->
         when (item.itemId) {
             R.id.frame_count_sort_mode -> {
                 item.isChecked = true
@@ -280,7 +291,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     .add(R.id.frames_fragment_container, fragment)
                     .commit()
             }
-            R.id.menu_item_share ->
+            R.id.menu_item_share_intent ->
                 // Getting member shareRollIntent may take a while to run since it
                 // generates the files that will be shared.
                 // -> Run the code on a new thread, which lets the UI thread to finish menu animations.
@@ -316,6 +327,38 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 e.printStackTrace()
                 binding.root.snackbar(R.string.ErrorExporting, binding.fab)
             }
+        }
+    }
+
+    private fun showRollEditFragment() {
+        val sharedElement = binding.topAppBar
+        val sharedElementTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(transitionInterpolator)
+            .apply { duration = transitionDuration }
+        val args = Bundle().apply {
+            putParcelable(ExtraKeys.ROLL, roll)
+            putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
+            putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+        }
+        val fragment = RollEditFragment().apply {
+            sharedElementEnterTransition = sharedElementTransition
+            arguments = args
+        }
+        requireParentFragment().childFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
+            .addSharedElement(sharedElement, sharedElement.transitionName)
+            .replace(R.id.frames_fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+        fragment.setFragmentResultListener("EditRollDialog") { _, bundle ->
+            val editedRoll: Roll = bundle.getParcelable(ExtraKeys.ROLL)
+                ?: return@setFragmentResultListener
+            rollModel.updateRoll(editedRoll)
         }
     }
 

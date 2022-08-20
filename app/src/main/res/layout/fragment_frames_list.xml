@@ -24,6 +24,7 @@
     android:id="@+id/container">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/top_app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
@@ -40,12 +41,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:elevation="0dp"
+                android:transitionName="transition_roll_edit"
                 tools:title="Text"
                 tools:subtitle="Text"
                 app:layout_collapseMode="pin"
                 app:navigationIcon="@drawable/ic_ab_back_material"
                 app:navigationIconTint="?attr/colorControlNormal"
-                app:menu="@menu/menu_frames_fragment" />
+                app:menu="@menu/menu_frames_fragment_top"/>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
@@ -72,14 +74,23 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fab"
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottomAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        style="@style/Widget.Material3.BottomAppBar"
+        app:menu="@menu/menu_frames_fragment_bottom"
         android:transitionName="transition_edit_frame"
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
+        app:layout_anchor="@id/bottomAppBar"
         android:layout_margin="16dp"
         android:text="@string/NewFrame"
-        app:icon="@drawable/ic_baseline_add_24" />
+        app:srcCompat="@drawable/ic_baseline_add_24" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

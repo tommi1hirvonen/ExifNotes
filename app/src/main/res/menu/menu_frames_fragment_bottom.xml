@@ -25,7 +25,7 @@
         android:id="@+id/menu_item_sort"
         android:icon="@drawable/ic_outline_sort_24"
         app:iconTint="?attr/colorControlNormal"
-        app:showAsAction="ifRoom">
+        app:showAsAction="always">
         <menu>
             <group
                 android:checkableBehavior="single">
@@ -54,26 +54,36 @@
     </item>
 
     <item
-        android:id="@+id/menu_item_gear"
-        android:title="@string/Gear"
-        app:showAsAction="never"
-        />
-
-    <item
         android:id="@+id/menu_item_show_on_map"
         android:title="@string/Map"
-        app:showAsAction="never"
+        android:icon="@drawable/ic_outline_map_24"
+        app:iconTint="?attr/colorControlNormal"
+        app:showAsAction="always"
         />
 
     <item
         android:id="@+id/menu_item_share"
-        android:title="@string/ExportOrShare"
-        app:showAsAction="never"
-        />
+        android:title="@string/Share"
+        android:icon="@drawable/ic_outline_share_24"
+        app:iconTint="?attr/colorControlNormal"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/menu_item_share_intent"
+                android:title="@string/ExportOrShare"
+                app:showAsAction="never"
+                />
+            <item
+                android:id="@+id/menu_item_export"
+                android:title="@string/ExportToDevice"
+                app:showAsAction="never"
+                />
+        </menu>
+    </item>
 
     <item
-        android:id="@+id/menu_item_export"
-        android:title="@string/ExportToDevice"
+        android:id="@+id/menu_item_gear"
+        android:title="@string/Gear"
         app:showAsAction="never"
         />
 
