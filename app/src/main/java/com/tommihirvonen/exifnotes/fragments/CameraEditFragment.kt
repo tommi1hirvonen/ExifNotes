@@ -175,19 +175,19 @@ class CameraEditFragment : Fragment() {
             }.create().show()
         }
         newCamera.lens?.let {
-            binding.fixedLensText.text = resources.getString(R.string.ClickToEdit)
+            binding.fixedLensLayout.text = resources.getString(R.string.ClickToEdit)
             binding.lensClear.visibility = View.VISIBLE
         } ?: run {
-            binding.fixedLensText.text = resources.getString(R.string.ClickToSet)
-            binding.lensClear.visibility = View.GONE
+            binding.fixedLensLayout.text = resources.getString(R.string.ClickToSet)
+            binding.lensClear.visibility = View.INVISIBLE
         }
         binding.fixedLensLayout.setOnClickListener {
             showFixedLensFragment()
         }
         binding.lensClear.setOnClickListener {
             newCamera.lens = null
-            binding.fixedLensText.text = resources.getString(R.string.ClickToSet)
-            binding.lensClear.visibility = View.GONE
+            binding.fixedLensLayout.text = resources.getString(R.string.ClickToSet)
+            binding.lensClear.visibility = View.INVISIBLE
         }
 
         binding.topAppBar.setNavigationOnClickListener { navigateBack() }
@@ -289,7 +289,7 @@ class CameraEditFragment : Fragment() {
             val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
                 ?: return@setFragmentResultListener
             newCamera.lens = lens
-            binding.fixedLensText.text = resources.getString(R.string.ClickToEdit)
+            binding.fixedLensLayout.text = resources.getString(R.string.ClickToEdit)
             binding.lensClear.visibility = View.VISIBLE
         }
     }

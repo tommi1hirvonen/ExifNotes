@@ -266,66 +266,47 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!--FIXED LENS-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/FixedLens"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
+                style="@style/TextAppearance.Material3.BodySmall"/>
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                >
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginTop="5dp">
 
-                <LinearLayout
+                <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
                     android:id="@+id/fixed_lens_layout"
-                    android:transitionName="transition_edit_lens"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:orientation="vertical"
-                    tools:ignore="KeyboardInaccessibleWidget">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="10dp"
-                        android:paddingTop="7dp"
-                        android:text="@string/FixedLens"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                        android:textSize="17sp" />
-
-                    <TextView
-                        android:id="@+id/fixed_lens_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="10dp"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="7dp"
-                        android:text="@string/ClickToSet"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textSize="15sp" />
-
-                </LinearLayout>
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@id/lens_clear"
+                    android:transitionName="transition_edit_lens" />
 
                 <Button
                     android:id="@+id/lens_clear"
-                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    style="@style/IconButton.Tonal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="@dimen/FrameDialogImageMargin"
+                    android:layout_marginRight="10dp"
                     android:layout_toLeftOf="@id/fixed_lens_help"
-                    android:text="@string/Clear"
                     app:icon="@drawable/ic_baseline_close_24" />
 
-                <ImageView
+                <Button
                     android:id="@+id/fixed_lens_help"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    style="@style/IconButton.Tonal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="@dimen/FrameDialogImageMargin"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:src="@drawable/ic_outline_info_24"
-                    app:tint="?attr/colorPrimary"
-                    tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
+                    app:icon="@drawable/ic_outline_info_24" />
 
             </RelativeLayout>
 
