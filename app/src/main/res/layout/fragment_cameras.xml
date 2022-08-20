@@ -41,7 +41,7 @@
         android:layout_marginTop="70dp"
         android:gravity="center"
         android:visibility="gone"
-        tools:visibility="visible"
+        tools:visibility="invisible"
         android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
         android:text="@string/NoCameras"/>
 
