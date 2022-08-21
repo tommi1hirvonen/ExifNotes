@@ -35,8 +35,8 @@ import com.tommihirvonen.exifnotes.viewmodels.FilmStockEditViewModelFactory
 
 class FilmStockEditDialog : DialogFragment() {
 
-    val filmStock by lazy { requireArguments().getParcelable(ExtraKeys.FILM_STOCK) ?: FilmStock() }
-    val model by lazy {
+    private val filmStock by lazy { requireArguments().getParcelable(ExtraKeys.FILM_STOCK) ?: FilmStock() }
+    private val model by lazy {
         val factory = FilmStockEditViewModelFactory(requireActivity().application, filmStock.copy())
         ViewModelProvider(this, factory)[FilmStockEditViewModel::class.java]
     }

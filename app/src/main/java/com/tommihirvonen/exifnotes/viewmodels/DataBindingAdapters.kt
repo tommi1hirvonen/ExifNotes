@@ -19,8 +19,12 @@
 package com.tommihirvonen.exifnotes.viewmodels
 
 import android.text.InputFilter
+import android.view.View
 import android.widget.AdapterView
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.BindingAdapter
+import androidx.databinding.InverseBindingAdapter
+import androidx.databinding.InverseBindingListener
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -45,9 +49,40 @@ object DataBindingAdapters {
         view.onItemClickListener = listener
     }
 
+    /**
+     * Custom adapter to prevent the AutoCompleteTextView
+     * from filtering options based on input text.
+     */
     @BindingAdapter("textNoFilter")
     @JvmStatic
     fun setText(view: MaterialAutoCompleteTextView, text: String?) {
-        view.setText(text, false)
+        if (view.text.toString() != (text ?: "")) {
+            view.setText(text, false)
+        }
+    }
+
+    /**
+     * Custom inverse adapter to achieve two-way binding with textNoFilter attribute.
+     */
+    @InverseBindingAdapter(attribute = "textNoFilter")
+    @JvmStatic
+    fun getText(view: MaterialAutoCompleteTextView): String {
+        return view.text.toString()
+    }
+
+    @BindingAdapter("textNoFilterAttrChanged")
+    @JvmStatic
+    fun setListeners(view: MaterialAutoCompleteTextView, attrChange: InverseBindingListener) {
+        view.addTextChangedListener { attrChange.onChange() }
+    }
+
+    // The end icon of TextInputLayout can be used to toggle the contained menu open/closed.
+    // However in that case, the AutoCompleteTextView onClick method is not called.
+    // By setting the endIconOnClickListener to null onClick events are propagated
+    // to AutoCompleteTextView. This way we can force the preselection of the current item.
+    @BindingAdapter("endIconOnClick")
+    @JvmStatic
+    fun setEndIconOnClickListener(view: TextInputLayout, listener: View.OnClickListener?) {
+        view.setEndIconOnClickListener(listener)
     }
 }

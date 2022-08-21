@@ -93,8 +93,6 @@ class FilmStockEditViewModel(application: Application, val filmStock: FilmStock)
         val filmType = filmStock.getTypeName(context)
         val filmProcess = filmStock.getProcessName(context)
 
-        val isoInputFilter = IsoInputFilter()
-
         val filmTypeOnClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
                 filmStock.type = position
@@ -119,7 +117,7 @@ class FilmStockEditViewModel(application: Application, val filmStock: FilmStock)
                 notifyPropertyChanged(BR.modelError)
             }
 
-        inner class IsoInputFilter : InputFilter {
+        val isoInputFilter = object : InputFilter {
             override fun filter(
                 source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int,
                 dend: Int
