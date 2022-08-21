@@ -112,6 +112,8 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
             || mRollFilterMode.value == RollFilterMode.ARCHIVED && !roll.archived) {
             rollList = rollList.minus(roll)
             mRolls.value = State.Success(rollList)
+        } else {
+            replaceRoll(roll)
         }
         return rows
     }

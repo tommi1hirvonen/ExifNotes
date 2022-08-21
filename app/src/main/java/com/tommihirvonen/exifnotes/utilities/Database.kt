@@ -681,9 +681,9 @@ class Database private constructor(private val context: Context)
     fun deleteFilmStock(filmStock: FilmStock) =
             writableDatabase.delete(TABLE_FILM_STOCKS, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
 
-    fun updateFilmStock(filmStock: FilmStock) {
+    fun updateFilmStock(filmStock: FilmStock): Int {
         val contentValues = buildFilmStockContentValues(filmStock)
-        writableDatabase.update(TABLE_FILM_STOCKS, contentValues, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
+        return writableDatabase.update(TABLE_FILM_STOCKS, contentValues, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
     }
 
     //*********************** METHODS TO GET OBJECTS FROM CURSOR **********************************

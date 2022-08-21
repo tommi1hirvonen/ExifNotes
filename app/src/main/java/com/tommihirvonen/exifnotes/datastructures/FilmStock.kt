@@ -58,3 +58,6 @@ data class FilmStock(
     }
 
 }
+
+fun List<FilmStock>.sorted(sortMode: FilmStockSortMode): List<FilmStock> =
+    sortedWith(sortMode.comparator)
