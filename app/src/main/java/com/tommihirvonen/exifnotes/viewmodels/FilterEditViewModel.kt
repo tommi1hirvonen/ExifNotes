@@ -77,14 +77,14 @@ class FilterEditViewModel(application: Application, val filter: Filter)
             }
         }
 
-        @Bindable
+        @get:Bindable
         var makeError: String? = null
             set(value) {
                 field = value?.ifEmpty { null }
                 notifyPropertyChanged(BR.makeError)
             }
 
-        @Bindable
+        @get:Bindable
         var modelError: String? = null
             set(value) {
                 field = value?.ifEmpty { null }
