@@ -52,8 +52,8 @@ import com.tommihirvonen.exifnotes.databinding.DialogSingleDropdownBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFramesListBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.utilities.*
-import com.tommihirvonen.exifnotes.viewmodels.FrameViewModel
-import com.tommihirvonen.exifnotes.viewmodels.RollViewModel
+import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
+import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 import java.io.IOException
 import java.util.*
 
@@ -66,9 +66,9 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
     private val roll get() = model.roll
 
     // The ViewModel has been instantiated using a factory by the parent fragment.
-    private val model by viewModels<FrameViewModel>(ownerProducer = { requireParentFragment() })
+    private val model by viewModels<FramesViewModel>(ownerProducer = { requireParentFragment() })
 
-    private val rollModel by activityViewModels<RollViewModel>()
+    private val rollModel by activityViewModels<RollsViewModel>()
 
     private lateinit var frameAdapter: FrameAdapter
 

@@ -31,7 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class RollViewModel(application: Application) : AndroidViewModel(application) {
+class RollsViewModel(application: Application) : AndroidViewModel(application) {
     private val database = application.database
 
     private val sharedPreferences = PreferenceManager

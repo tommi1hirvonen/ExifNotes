@@ -38,11 +38,11 @@ import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.viewmodels.FilmStockFilterSet
-import com.tommihirvonen.exifnotes.viewmodels.FilmStockViewModel
+import com.tommihirvonen.exifnotes.viewmodels.FilmStocksViewModel
 
 class FilmStocksFragment : Fragment(), MenuProvider {
 
-    private val model by viewModels<FilmStockViewModel>()
+    private val model by viewModels<FilmStocksViewModel>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {

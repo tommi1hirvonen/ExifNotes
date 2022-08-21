@@ -61,14 +61,14 @@ import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
 import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
-import com.tommihirvonen.exifnotes.viewmodels.RollViewModel
+import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 
 /**
  * Dialog to edit Roll's information
  */
 class RollEditFragment : Fragment() {
 
-    private val model by activityViewModels<RollViewModel>()
+    private val model by activityViewModels<RollsViewModel>()
     private var cameras = emptyList<Camera>()
     private val cameraItems get() = listOf(resources.getString(R.string.NoCamera))
         .plus(cameras.map { it.name }).toTypedArray()

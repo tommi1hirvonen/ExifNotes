@@ -31,7 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FrameViewModel(application: Application, val roll: Roll) : AndroidViewModel(application) {
+class FramesViewModel(application: Application, val roll: Roll) : AndroidViewModel(application) {
     private val database = application.database
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.baseContext)
@@ -92,12 +92,12 @@ class FrameViewModel(application: Application, val roll: Roll) : AndroidViewMode
     }
 }
 
-class FrameViewModelFactory(private val application: Application, private val roll: Roll)
+class FramesViewModelFactory(private val application: Application, private val roll: Roll)
     : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        if (modelClass.isAssignableFrom(FrameViewModel::class.java)) {
-            return FrameViewModel(application, roll) as T
+        if (modelClass.isAssignableFrom(FramesViewModel::class.java)) {
+            return FramesViewModel(application, roll) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -28,8 +28,8 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentFramesBinding
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.viewmodels.FrameViewModel
-import com.tommihirvonen.exifnotes.viewmodels.FrameViewModelFactory
+import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
+import com.tommihirvonen.exifnotes.viewmodels.FramesViewModelFactory
 
 class FramesFragment : Fragment() {
 
@@ -41,8 +41,8 @@ class FramesFragment : Fragment() {
      * ViewModel shared by child fragments FramesListFragment and FramesMapFragment.
      */
     private val model by lazy {
-        val factory = FrameViewModelFactory(requireActivity().application, roll)
-        ViewModelProvider(this, factory)[FrameViewModel::class.java]
+        val factory = FramesViewModelFactory(requireActivity().application, roll)
+        ViewModelProvider(this, factory)[FramesViewModel::class.java]
     }
 
     override fun onCreateView(

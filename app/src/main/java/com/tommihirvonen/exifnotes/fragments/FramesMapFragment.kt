@@ -39,7 +39,7 @@ import com.tommihirvonen.exifnotes.databinding.FragmentFramesMapBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
-import com.tommihirvonen.exifnotes.viewmodels.FrameViewModel
+import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
 import com.tommihirvonen.exifnotes.viewmodels.ViewModelUtility
 
 /**
@@ -48,7 +48,7 @@ import com.tommihirvonen.exifnotes.viewmodels.ViewModelUtility
 class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
     // The ViewModel has been instantiated using a factory by the parent fragment.
-    private val model by viewModels<FrameViewModel>(ownerProducer = { requireParentFragment() })
+    private val model by viewModels<FramesViewModel>(ownerProducer = { requireParentFragment() })
 
     /**
      * GoogleMap object to show the map and to hold all the markers for all frames

@@ -31,7 +31,7 @@ import com.tommihirvonen.exifnotes.utilities.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class FilmStockViewModel(application: Application) : AndroidViewModel(application) {
+class FilmStocksViewModel(application: Application) : AndroidViewModel(application) {
 
     val filmStocks get() = filmStocksData as LiveData<List<FilmStock>>
     val sortMode get() = _sortMode as LiveData<FilmStockSortMode>
