@@ -20,10 +20,7 @@ package com.tommihirvonen.exifnotes.viewmodels
 
 import android.app.Application
 import android.graphics.Bitmap
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.datastructures.RollFilterMode
@@ -79,3 +76,15 @@ data class RollData(
     val selected: Boolean,
     var marker: Bitmap?,
     val frames: List<Frame>)
+
+class RollsMapViewModelFactory(
+    private val application: Application,
+    private val filterMode: RollFilterMode) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        if (modelClass.isAssignableFrom(RollsMapViewModel::class.java)) {
+            return RollsMapViewModel(application, filterMode) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}

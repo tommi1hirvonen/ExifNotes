@@ -75,7 +75,7 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
     fun setRollFilterMode(rollFilterMode: RollFilterMode) {
         val editor = sharedPreferences.edit()
         editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, rollFilterMode.value)
-        editor.commit()
+        editor.apply()
         mRollFilterMode.value = rollFilterMode
         viewModelScope.launch { loadRolls() }
     }
@@ -83,7 +83,7 @@ class RollViewModel(application: Application) : AndroidViewModel(application) {
     fun setRollSortMode(rollSortMode: RollSortMode) {
         val editor = sharedPreferences.edit()
         editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, rollSortMode.value)
-        editor.commit()
+        editor.apply()
         mRollSortMode.value = rollSortMode
         rollList = rollList.sorted(rollSortMode)
         mRolls.value = State.Success(rollList)

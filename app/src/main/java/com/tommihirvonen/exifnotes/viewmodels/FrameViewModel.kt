@@ -19,10 +19,7 @@
 package com.tommihirvonen.exifnotes.viewmodels
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.datastructures.FrameSortMode
@@ -57,7 +54,7 @@ class FrameViewModel(application: Application, val roll: Roll) : AndroidViewMode
     fun setFrameSortMode(mode: FrameSortMode) {
         val editor = sharedPreferences.edit()
         editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, mode.value)
-        editor.commit()
+        editor.apply()
         mFrameSortMode.value = mode
         mFrames.value = mFrames.value?.sorted(getApplication(), mode)
     }
@@ -92,5 +89,16 @@ class FrameViewModel(application: Application, val roll: Roll) : AndroidViewMode
             ?.filterNot { it.id == frame.id }
             ?.plus(frame)
             ?.sorted(getApplication(), sortMode)
+    }
+}
+
+class FrameViewModelFactory(private val application: Application, private val roll: Roll)
+    : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        if (modelClass.isAssignableFrom(FrameViewModel::class.java)) {
+            return FrameViewModel(application, roll) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
