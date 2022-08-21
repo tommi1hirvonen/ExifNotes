@@ -666,12 +666,6 @@ class Database private constructor(private val context: Context)
         return cursor.map { getFilmStockFromCursor(it) }
     }
 
-    val filmManufacturers: List<String> get() {
-        val cursor = readableDatabase.query(true, TABLE_FILM_STOCKS, arrayOf(KEY_FILM_MANUFACTURER_NAME),
-                null, null, null, null, "$KEY_FILM_MANUFACTURER_NAME collate nocase", null)
-        return cursor.map { it.getString(it.getColumnIndexOrThrow(KEY_FILM_MANUFACTURER_NAME)) }
-    }
-
     fun isFilmStockBeingUsed(filmStock: FilmStock): Boolean {
         val cursor = readableDatabase.query(TABLE_ROLLS, arrayOf(KEY_FILM_STOCK_ID),
                 "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()), null, null, null)
