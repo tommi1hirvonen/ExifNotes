@@ -92,6 +92,7 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/make_editText"
                         android:inputType="textCapSentences"
+                        android:afterTextChanged="@{(editable) -> viewmodel.setMakeError(``)}"
                         android:text="@={viewmodel.make}"
                         android:hint="@string/Make"/>
                 </com.google.android.material.textfield.TextInputLayout>
@@ -111,6 +112,7 @@
                         android:id="@+id/model_editText"
                         android:inputType="textCapSentences"
                         android:text="@={viewmodel.model}"
+                        android:afterTextChanged="@{(editable) -> viewmodel.setModelError(``)}"
                         android:hint="@string/Model"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
