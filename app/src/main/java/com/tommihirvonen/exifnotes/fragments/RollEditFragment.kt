@@ -22,18 +22,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.ViewModelProvider
 import androidx.transition.*
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentRollEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
@@ -43,6 +41,8 @@ import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
 import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
+import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModel
+import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModelFactory
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 
 /**
@@ -50,19 +50,12 @@ import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
  */
 class RollEditFragment : Fragment() {
 
-    private val model by activityViewModels<RollsViewModel>()
-    private var cameras = emptyList<Camera>()
-    private val cameraItems get() = listOf(resources.getString(R.string.NoCamera))
-        .plus(cameras.map { it.name }).toTypedArray()
-    
-    private lateinit var binding: FragmentRollEditBinding
-
+    private val rollsModel by activityViewModels<RollsViewModel>()
     private val roll by lazy { requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll() }
-    private val newRoll by lazy { roll.copy() }
-
-    private lateinit var dateLoadedManager: DateTimeLayoutManager
-    private lateinit var dateUnloadedManager: DateTimeLayoutManager
-    private lateinit var dateDevelopedManager: DateTimeLayoutManager
+    private val model by lazy {
+        val factory = RollEditViewModelFactory(requireActivity().application, roll.copy())
+        ViewModelProvider(this, factory)[RollEditViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,48 +65,21 @@ class RollEditFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentRollEditBinding.inflate(inflater, container, false)
+        val binding = FragmentRollEditBinding.inflate(inflater, container, false)
 
         val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
         binding.root.transitionName = transitionName
         binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
-
-        val cameraAutoComplete = binding.cameraMenu.editText as MaterialAutoCompleteTextView
-        model.cameras.observe(viewLifecycleOwner) { cameras ->
-            this.cameras = cameras
-            cameraAutoComplete.setSimpleItems(cameraItems)
+        binding.topAppBar.setNavigationOnClickListener {
+            requireParentFragment().childFragmentManager.popBackStack()
         }
 
-        // NAME EDIT TEXT
-        binding.nameEditText.addTextChangedListener { binding.nameLayout.error = null }
-        binding.nameEditText.setText(roll.name)
-        // Place the cursor at the end of the input field
-        binding.nameEditText.setSelection(binding.nameEditText.text?.length ?: 0)
-        binding.nameEditText.isSingleLine = false
+        binding.viewmodel = model.observable
 
-
-        // NOTE EDIT TEXT
-        binding.noteEditText.isSingleLine = false
-        binding.noteEditText.setText(roll.note)
-        binding.noteEditText.setSelection(binding.noteEditText.text?.length ?: 0)
-
-
-        // FILM STOCK PICK DIALOG
-        roll.filmStock?.let {
-            binding.filmStockLayout.text = it.name
-            binding.addFilmStock.visibility = View.GONE
-            binding.clearFilmStock.visibility = View.VISIBLE
-        } ?: run {
-            binding.filmStockLayout.text = null
-            binding.clearFilmStock.visibility = View.GONE
-            binding.addFilmStock.visibility = View.VISIBLE
+        rollsModel.cameras.observe(viewLifecycleOwner) { cameras ->
+            model.cameras = cameras
         }
-        binding.clearFilmStock.setOnClickListener {
-            newRoll.filmStock = null
-            binding.filmStockLayout.text = null
-            binding.clearFilmStock.visibility = View.GONE
-            binding.addFilmStock.visibility = View.VISIBLE
-        }
+
         binding.addFilmStock.setOnClickListener {
             binding.noteEditText.clearFocus()
             binding.nameEditText.clearFocus()
@@ -130,6 +96,7 @@ class RollEditFragment : Fragment() {
                 setFilmStock(filmStock)
             }
         }
+
         binding.filmStockLayout.setOnClickListener {
             val dialog = SelectFilmStockDialog()
             dialog.show(parentFragmentManager.beginTransaction(), null)
@@ -140,21 +107,6 @@ class RollEditFragment : Fragment() {
             }
         }
 
-
-        // CAMERA PICK DIALOG
-        cameraAutoComplete.setText(roll.camera?.name, false)
-        cameraAutoComplete.setSimpleItems(cameraItems)
-        cameraAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            newRoll.camera = if (position > 0) {
-                cameras[position - 1].also { cameraAutoComplete.setText(it.name, false) }
-            } else {
-                cameraAutoComplete.setText(null, false)
-                null
-            }
-        }
-
-        // CAMERA ADD DIALOG
-        binding.addCamera.isClickable = true
         binding.addCamera.setOnClickListener {
             val sharedElementTransition = TransitionSet()
                 .addTransition(ChangeBounds())
@@ -183,89 +135,47 @@ class RollEditFragment : Fragment() {
             fragment.setFragmentResultListener("CameraEditFragment") { _, bundle ->
                 val camera: Camera = bundle.getParcelable(ExtraKeys.CAMERA)
                     ?: return@setFragmentResultListener
-                model.addCamera(camera)
-                cameraAutoComplete.setSimpleItems(cameraItems)
-                cameraAutoComplete.setText(camera.name)
-                newRoll.camera = camera
+                rollsModel.addCamera(camera)
+                model.observable.setCamera(camera)
             }
         }
 
-        // DATE & TIME LOADED PICK DIALOG
-
         // DATE
         if (roll.date == null) {
-            roll.date = DateTime.fromCurrentTime()
+            model.observable.setLoadedOn(DateTime.fromCurrentTime())
         }
 
-        dateLoadedManager = DateTimeLayoutManager(
+        DateTimeLayoutManager2(
             requireActivity() as AppCompatActivity,
             binding.dateLoadedLayout,
-            roll.date,
-            null)
+            { roll.date },
+            model.observable::setLoadedOn)
 
-        // DATE & TIME UNLOADED PICK DIALOG
-        dateUnloadedManager = DateTimeLayoutManager(
+        DateTimeLayoutManager2(
             requireActivity() as AppCompatActivity,
             binding.dateUnloadedLayout,
-            roll.unloaded,
-            binding.clearDateUnloaded)
+            { roll.unloaded },
+            model.observable::setUnloadedOn)
 
-        // DATE & TIME DEVELOPED PICK DIALOG
-        dateDevelopedManager = DateTimeLayoutManager(
+        DateTimeLayoutManager2(
             requireActivity() as AppCompatActivity,
             binding.dateDevelopedLayout,
-            roll.developed,
-            binding.clearDateDeveloped)
+            { roll.developed },
+            model.observable::setDevelopedOn)
 
-
-        //ISO PICKER
-        val iso = if (roll.iso == 0) null else roll.iso.toString()
-        val isoAutoComplete = binding.isoPushPullFormat.isoMenu.editText as MaterialAutoCompleteTextView
-        isoAutoComplete.setText(iso, false)
-        val isoValues = requireActivity().resources.getStringArray(R.array.ISOValues)
-        isoAutoComplete.setSimpleItems(isoValues)
-        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
-        // However in that case, the AutoCompleteTextView onClick method is not called.
-        // By setting the endIconOnClickListener to null onClick events are propagated
-        // to AutoCompleteTextView. This way we can force the preselection of the current item.
-        binding.isoPushPullFormat.isoMenu.setEndIconOnClickListener(null)
-        isoAutoComplete.setOnClickListener {
-            val currentIndex = isoValues.indexOf(isoAutoComplete.text.toString())
-            if (currentIndex >= 0) isoAutoComplete.listSelection = currentIndex
-        }
-
-
-        //PUSH PULL PICKER
-        val pushPullValues = resources.getStringArray(R.array.CompValues)
-        val pushPullAutoComplete = binding.isoPushPullFormat.pushPullMenu.editText as MaterialAutoCompleteTextView
-        pushPullAutoComplete.setText(newRoll.pushPull, false)
-        pushPullAutoComplete.setSimpleItems(pushPullValues)
-        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
-        // However in that case, the AutoCompleteTextView onClick method is not called.
-        // By setting the endIconOnClickListener to null onClick events are propagated
-        // to AutoCompleteTextView. This way we can force the preselection of the current item.
-        binding.isoPushPullFormat.pushPullMenu.setEndIconOnClickListener(null)
-        pushPullAutoComplete.setOnClickListener {
-            val currentIndex = pushPullValues.indexOf(pushPullAutoComplete.text.toString())
-            if (currentIndex >= 0) pushPullAutoComplete.listSelection = currentIndex
-        }
-
-
-        //FORMAT PICKER
-        val formats = resources.getStringArray(R.array.FilmFormats)
-        val formatsAutoComplete = binding.isoPushPullFormat.formatMenu.editText as MaterialAutoCompleteTextView
-        try {
-            formatsAutoComplete.setText(formats[newRoll.format], false)
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
-        formatsAutoComplete.setSimpleItems(formats)
-
-        binding.topAppBar.setNavigationOnClickListener {
-            requireParentFragment().childFragmentManager.popBackStack()
-        }
         binding.positiveButton.setOnClickListener {
-            if (commitChanges()) {
+            if (model.validate()) {
+                roll.name = model.roll.name
+                roll.note = model.roll.note
+                roll.camera = model.roll.camera
+                roll.date = model.roll.date
+                roll.unloaded = model.roll.unloaded
+                roll.developed = model.roll.developed
+                roll.iso = model.roll.iso
+                roll.format = model.roll.format
+                roll.pushPull = model.roll.pushPull
+                roll.filmStock = model.roll.filmStock
+
                 val bundle = Bundle()
                 bundle.putParcelable(ExtraKeys.ROLL, roll)
                 setFragmentResult("EditRollDialog", bundle)
@@ -285,49 +195,11 @@ class RollEditFragment : Fragment() {
         }
     }
 
-    private fun commitChanges(): Boolean {
-        val name = binding.nameEditText.text.toString()
-        if (name.isNotEmpty()) {
-            roll.name = name
-            roll.note = binding.noteEditText.text.toString()
-            roll.camera = newRoll.camera
-            roll.date = dateLoadedManager.dateTime
-            roll.unloaded = dateUnloadedManager.dateTime
-            roll.developed = dateDevelopedManager.dateTime
-
-            val isoText = binding.isoPushPullFormat.isoMenu.editText?.text.toString()
-            roll.iso = if (isoText.isEmpty()) 0 else isoText.toInt()
-
-            roll.pushPull = binding.isoPushPullFormat.pushPullMenu.editText?.text.toString().ifEmpty { null }
-
-            try {
-                val format = binding.isoPushPullFormat.formatMenu.editText?.text.toString()
-                val formats = resources.getStringArray(R.array.FilmFormats)
-                roll.format = formats.indexOf(format)
-            } catch (e: ArrayIndexOutOfBoundsException) {
-                e.printStackTrace()
-            }
-
-            roll.filmStock = newRoll.filmStock
-            return true
-        } else {
-            binding.nameLayout.error = getString(R.string.NoName)
-            binding.root.snackbar(R.string.NoName)
-            return false
-        }
-    }
-
     private fun setFilmStock(filmStock: FilmStock) {
-        binding.filmStockLayout.text = filmStock.name
-        newRoll.filmStock = filmStock
-        binding.addFilmStock.visibility = View.GONE
-        binding.clearFilmStock.visibility = View.VISIBLE
+        model.observable.setFilmStock(filmStock)
         // If the film stock ISO is defined, set the ISO
         if (filmStock.iso != 0) {
-            newRoll.iso = filmStock.iso
-            val iso = if (newRoll.iso == 0) null else newRoll.iso.toString()
-            val isoAutoComplete = binding.isoPushPullFormat.isoMenu.editText as MaterialAutoCompleteTextView
-            isoAutoComplete.setText(iso, false)
+            model.observable.setIso(filmStock.iso.toString())
         }
     }
 

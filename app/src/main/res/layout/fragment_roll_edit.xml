@@ -17,250 +17,277 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:descendantFocusability="beforeDescendants"
-    android:focusableInTouchMode="true"
-    android:background="?attr/colorSurface">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
-     doesn't get focus when the Dialog is first shown. -->
+    <data>
+        <variable
+            name="viewmodel"
+            type="com.tommihirvonen.exifnotes.viewmodels.RollEditViewModel.Observable" />
+    </data>
 
-    <com.google.android.material.appbar.AppBarLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
+        android:background="?attr/colorSurface">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/top_app_bar"
+        <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
+         doesn't get focus when the Dialog is first shown. -->
+
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_baseline_close_24"
-            app:navigationIconTint="?attr/colorControlNormal"
-            app:title="@string/EditRoll">
-            <Button
-                android:id="@+id/positive_button"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginEnd="10dp"
-                style="@style/Widget.Material3.Button.Icon"
-                app:icon="@drawable/ic_baseline_done_24"
-                app:iconGravity="textStart"
-                android:text="@string/Save"
-                />
-        </com.google.android.material.appbar.MaterialToolbar>
+            android:layout_height="wrap_content">
 
-    </com.google.android.material.appbar.AppBarLayout>
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/top_app_bar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:navigationIcon="@drawable/ic_baseline_close_24"
+                app:navigationIconTint="?attr/colorControlNormal"
+                app:title="@string/EditRoll">
+                <Button
+                    android:id="@+id/positive_button"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="10dp"
+                    style="@style/Widget.Material3.Button.Icon"
+                    app:icon="@drawable/ic_baseline_done_24"
+                    app:iconGravity="textStart"
+                    android:text="@string/Save"
+                    />
+            </com.google.android.material.appbar.MaterialToolbar>
+
+        </com.google.android.material.appbar.AppBarLayout>
 
 
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:id="@+id/nested_scroll_view"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        >
-
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:fillViewport="true"
+            android:id="@+id/nested_scroll_view"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            >
 
-            <com.google.android.material.textfield.TextInputLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/name_layout"
-                android:layout_marginTop="5dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/name_editText"
-                    android:inputType="textCapSentences"
-                    android:hint="@string/Name"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/FilmStock"
-                android:layout_marginTop="15dp"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
-                style="@style/TextAppearance.Material3.BodySmall"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/RollDialogSidePadding">
-
-                <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
-                    android:id="@+id/film_stock_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_toLeftOf="@id/film_stock_button_layout" />
-
-                <FrameLayout
-                    android:id="@+id/film_stock_button_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentRight="true">
-                    <Button
-                        android:id="@+id/add_film_stock"
-                        style="@style/IconButton.Tonal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:icon="@drawable/ic_baseline_add_24" />
-
-                    <Button
-                        android:id="@+id/clear_film_stock"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="visible"
-                        app:icon="@drawable/ic_baseline_close_24"
-                        style="@style/IconButton.Tonal"
-                        />
-                </FrameLayout>
-
-            </RelativeLayout>
-
-            <com.tommihirvonen.exifnotes.views.DateTimeLayout
-                android:id="@+id/date_loaded_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
-                android:paddingRight="54dp"
-                app:label="@string/LoadedOn"/>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
-                android:layout_marginTop="15dp">
-                <com.tommihirvonen.exifnotes.views.DateTimeLayout
-                    android:id="@+id/date_unloaded_layout"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="5dp"
-                    app:label="@string/UnloadedOn"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/clear_date_unloaded"/>
-                <Button
-                    android:id="@+id/clear_date_unloaded"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_baseline_close_24"
-                    style="@style/IconButton.Tonal"
-                    app:layout_constraintLeft_toRightOf="@id/date_unloaded_layout"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
-                <com.tommihirvonen.exifnotes.views.DateTimeLayout
-                    android:id="@+id/date_developed_layout"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="5dp"
-                    app:label="@string/Developed"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/clear_date_developed"/>
-                <Button
-                    android:id="@+id/clear_date_developed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_baseline_close_24"
-                    style="@style/IconButton.Tonal"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/date_developed_layout"
-                    />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/Camera"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
-                android:layout_marginTop="15dp"
-                style="@style/TextAppearance.Material3.BodySmall"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/RollDialogSidePadding">
+                android:orientation="vertical">
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/camera_menu"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginTop="5dp"
-                    android:layout_toLeftOf="@id/camera_button_layout">
-                    <AutoCompleteTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="none"
-                        />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <FrameLayout
-                    android:id="@+id/camera_button_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentRight="true">
-                    <Button
-                        android:id="@+id/add_camera"
-                        android:transitionName="transition_add_camera"
-                        style="@style/IconButton.Tonal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:icon="@drawable/ic_baseline_add_24" />
-                </FrameLayout>
-
-            </RelativeLayout>
-
-            <include
-                android:id="@+id/iso_push_pull_format"
-                layout="@layout/iso_push_pull_format_layout"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:paddingBottom="20dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
-                android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
-                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/note_editText"
-                    android:inputType="textMultiLine|textCapSentences"
-                    android:hint="@string/DescriptionOrNote"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:id="@+id/name_layout"
+                    android:layout_marginTop="5dp"
+                    errorText="@{viewmodel.nameError}"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/name_editText"
+                        android:inputType="textCapSentences"
+                        android:maxLines="10"
+                        android:text="@={viewmodel.name}"
+                        android:afterTextChanged="@{(editable) -> viewmodel.setNameError(``)}"
+                        android:hint="@string/Name"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/FilmStock"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
 
-    </androidx.core.widget.NestedScrollView>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/RollDialogSidePadding">
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+                    <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
+                        android:id="@+id/film_stock_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_toLeftOf="@id/film_stock_button_layout"
+                        app:text="@{viewmodel.filmStock}" />
+
+                    <FrameLayout
+                        android:id="@+id/film_stock_button_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true">
+                        <Button
+                            android:id="@+id/add_film_stock"
+                            style="@style/IconButton.Tonal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="@{viewmodel.addFilmStockVisibility}"
+                            app:icon="@drawable/ic_baseline_add_24" />
+
+                        <Button
+                            android:id="@+id/clear_film_stock"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="@{viewmodel.clearFilmStockVisibility}"
+                            android:onClick="@{(view) -> viewmodel.setFilmStock((com.tommihirvonen.exifnotes.datastructures.FilmStock)null)}"
+                            app:icon="@drawable/ic_baseline_close_24"
+                            style="@style/IconButton.Tonal"
+                            />
+                    </FrameLayout>
+
+                </RelativeLayout>
+
+                <com.tommihirvonen.exifnotes.views.DateTimeLayout
+                    android:id="@+id/date_loaded_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                    dateTime="@{viewmodel.loadedOn}"
+                    android:paddingRight="54dp"
+                    app:label="@string/LoadedOn"/>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                    android:layout_marginTop="15dp">
+                    <com.tommihirvonen.exifnotes.views.DateTimeLayout
+                        android:id="@+id/date_unloaded_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        app:label="@string/UnloadedOn"
+                        dateTime="@{viewmodel.unloadedOn}"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@id/clear_date_unloaded"/>
+                    <Button
+                        android:id="@+id/clear_date_unloaded"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="@{(view) -> viewmodel.setUnloadedOn((com.tommihirvonen.exifnotes.datastructures.DateTime)null)}"
+                        app:icon="@drawable/ic_baseline_close_24"
+                        style="@style/IconButton.Tonal"
+                        app:layout_constraintLeft_toRightOf="@id/date_unloaded_layout"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
+                    <com.tommihirvonen.exifnotes.views.DateTimeLayout
+                        android:id="@+id/date_developed_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        app:label="@string/Developed"
+                        dateTime="@{viewmodel.developedOn}"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@id/clear_date_developed"/>
+                    <Button
+                        android:id="@+id/clear_date_developed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/ic_baseline_close_24"
+                        style="@style/IconButton.Tonal"
+                        android:onClick="@{(view) -> viewmodel.setDevelopedOn((com.tommihirvonen.exifnotes.datastructures.DateTime)null)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/date_developed_layout"
+                        />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/Camera"
+                    android:layout_marginHorizontal="@dimen/RollDialogSidePadding"
+                    android:layout_marginTop="15dp"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/RollDialogSidePadding">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/camera_menu"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginTop="5dp"
+                        android:layout_toLeftOf="@id/camera_button_layout">
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            textNoFilter="@{viewmodel.camera}"
+                            app:simpleItems="@{viewmodel.cameraItems}"
+                            onItemClick="@{viewmodel.onCameraItemClickListener}"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <FrameLayout
+                        android:id="@+id/camera_button_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true">
+                        <Button
+                            android:id="@+id/add_camera"
+                            android:transitionName="transition_add_camera"
+                            style="@style/IconButton.Tonal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:icon="@drawable/ic_baseline_add_24" />
+                    </FrameLayout>
+
+                </RelativeLayout>
+
+                <include
+                    android:id="@+id/iso_push_pull_format"
+                    app:viewmodel="@{viewmodel}"
+                    layout="@layout/iso_push_pull_format_layout"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:paddingBottom="20dp"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_marginHorizontal="@dimen/RollDialogSidePadding">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:maxLines="50"
+                        android:id="@+id/note_editText"
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:text="@={viewmodel.note}"
+                        android:hint="@string/DescriptionOrNote"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

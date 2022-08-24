@@ -28,6 +28,8 @@ import androidx.databinding.InverseBindingListener
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.tommihirvonen.exifnotes.datastructures.DateTime
+import com.tommihirvonen.exifnotes.views.DateTimeLayout
 
 object DataBindingAdapters {
     @BindingAdapter("errorText")
@@ -84,5 +86,12 @@ object DataBindingAdapters {
     @JvmStatic
     fun setEndIconOnClickListener(view: TextInputLayout, listener: View.OnClickListener?) {
         view.setEndIconOnClickListener(listener)
+    }
+
+    @BindingAdapter("dateTime")
+    @JvmStatic
+    fun setDateTime(view: DateTimeLayout, dateTime: DateTime?) {
+        view.dateLayout.text = dateTime?.dateAsText
+        view.timeLayout.text = dateTime?.timeAsText
     }
 }
