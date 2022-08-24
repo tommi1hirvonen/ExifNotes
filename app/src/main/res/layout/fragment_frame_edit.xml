@@ -523,7 +523,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     android:text="@string/Options"/>
-                <com.tommihirvonen.exifnotes.utilities.SquareImageView
+                <com.tommihirvonen.exifnotes.views.SquareImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:visibility="gone"
