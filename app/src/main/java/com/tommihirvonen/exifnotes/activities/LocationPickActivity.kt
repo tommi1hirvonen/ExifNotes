@@ -118,6 +118,8 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         binding.topAppBar.setNavigationOnClickListener { onBackPressed() }
         binding.topAppBar.addMenuProvider(this)
         val menu = binding.topAppBar.menu
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
+        mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
         when (mapType) {
             GoogleMap.MAP_TYPE_NORMAL -> menu.findItem(R.id.menu_item_normal).isChecked = true
             GoogleMap.MAP_TYPE_HYBRID -> menu.findItem(R.id.menu_item_hybrid).isChecked = true
@@ -125,9 +127,6 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             GoogleMap.MAP_TYPE_TERRAIN -> menu.findItem(R.id.menu_item_terrain).isChecked = true
             else -> menu.findItem(R.id.menu_item_normal).isChecked = true
         }
-
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
-        mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager

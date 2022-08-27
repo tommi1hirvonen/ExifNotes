@@ -96,9 +96,7 @@
         </activity>
         <activity
             android:name=".activities.LocationPickActivity"
-            android:label="LocationPickActivity"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".activities.MainActivity">
+            android:label="LocationPickActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
