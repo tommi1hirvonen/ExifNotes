@@ -32,10 +32,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilterAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentFiltersBinding
-import com.tommihirvonen.exifnotes.datastructures.Camera
-import com.tommihirvonen.exifnotes.datastructures.Filter
-import com.tommihirvonen.exifnotes.datastructures.Lens
-import com.tommihirvonen.exifnotes.datastructures.MountableState
+import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.dialogs.FilterEditDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
@@ -49,16 +46,32 @@ import com.tommihirvonen.exifnotes.viewmodels.State
 class FiltersFragment : Fragment() {
 
     private val model: GearViewModel by activityViewModels()
+    private val gearFragment by lazy {
+        requireParentFragment().requireParentFragment() as GearFragment
+    }
+
     private var cameras: List<Camera> = emptyList()
     private var lenses: List<Lens> = emptyList()
     private var filters: List<Filter> = emptyList()
 
     private lateinit var binding: FragmentFiltersBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Check if an existing filter edit dialog is open after configuration change
+        // and attach listener if so.
+        val editDialog = gearFragment.childFragmentManager.findFragmentByTag(FilterEditDialog.TAG)
+        editDialog?.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Filter>(ExtraKeys.FILTER)?.let(model::submitFilter)
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentFiltersBinding.inflate(inflater, container, false)
-        binding.fabFilters.setOnClickListener(onFabClickListener)
+        binding.fabFilters.setOnClickListener { openFilterEditDialog(null) }
 
         val layoutManager = LinearLayoutManager(activity)
         binding.filtersRecyclerView.layoutManager = layoutManager
@@ -88,22 +101,6 @@ class FiltersFragment : Fragment() {
         }
 
         return binding.root
-    }
-
-    private val onFabClickListener = { _: View ->
-        val dialog = FilterEditDialog()
-        val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), null)
-        dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
-            val filter: Filter = bundle.getParcelable(ExtraKeys.FILTER)
-                ?: return@setFragmentResultListener
-            if (filter.make?.isNotEmpty() == true && filter.model?.isNotEmpty() == true) {
-                model.addFilter(filter)
-            }
-        }
     }
 
     private val onFilterClickListener = { filter: Filter ->
@@ -186,20 +183,24 @@ class FiltersFragment : Fragment() {
         alert.show()
     }
 
-    private fun openFilterEditDialog(filter: Filter) {
+    private fun openFilterEditDialog(filter: Filter?) {
         val dialog = FilterEditDialog()
         val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilter))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-        arguments.putParcelable(ExtraKeys.FILTER, filter)
+        if (filter != null) {
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilter))
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
+            arguments.putParcelable(ExtraKeys.FILTER, filter)
+        } else {
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+        }
         dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), null)
-        dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
-            val filter1: Filter = bundle.getParcelable(ExtraKeys.FILTER)
-                ?: return@setFragmentResultListener
-            if (filter1.make?.isNotEmpty() == true && filter1.model?.isNotEmpty() == true && filter1.id > 0) {
-                model.updateFilter(filter1)
-            }
+        val transaction = gearFragment.childFragmentManager
+            .beginTransaction()
+            .addToBackStack(GearFragment.BACKSTACK_NAME)
+        dialog.show(transaction, FilterEditDialog.TAG)
+        dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Filter>(ExtraKeys.FILTER)?.let(model::submitFilter)
         }
     }
 

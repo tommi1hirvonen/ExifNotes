@@ -47,12 +47,25 @@ import com.tommihirvonen.exifnotes.viewmodels.State
  */
 class CamerasFragment : Fragment() {
 
+    private val gearFragment by lazy {
+        requireParentFragment().requireParentFragment() as GearFragment
+    }
     private val model: GearViewModel by activityViewModels()
     private var cameras: List<Camera> = emptyList()
     private var lenses: List<Lens> = emptyList()
     private var filters: List<Filter> = emptyList()
 
     private lateinit var binding: FragmentCamerasBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Check if an existing camera edit fragment is open after configuration change
+        // and attach listener if so.
+        val fragment = gearFragment.childFragmentManager.findFragmentByTag(CameraEditFragment.TAG)
+        fragment?.setFragmentResultListener(CameraEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Camera>(ExtraKeys.CAMERA)?.let(model::submitCamera)
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -172,26 +185,17 @@ class CamerasFragment : Fragment() {
         arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
         fragment.arguments = arguments
 
-        val gearFragment = requireParentFragment().requireParentFragment()
         gearFragment.childFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.gear_fragment_container, fragment)
-            .addToBackStack(null)
+            .replace(R.id.gear_fragment_container, fragment, CameraEditFragment.TAG)
+            .addToBackStack(GearFragment.BACKSTACK_NAME)
             .commit()
-
-        fragment.setFragmentResultListener("CameraEditFragment") { _, bundle ->
-            val camera1 = bundle.getParcelable<Camera>(ExtraKeys.CAMERA)
-                ?: return@setFragmentResultListener
-            if (camera == null) {
-                model.addCamera(camera1)
-            } else {
-                model.updateCamera(camera1)
-            }
+        fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Camera>(ExtraKeys.CAMERA)?.let(model::submitCamera)
         }
     }
-
 
     /**
      * Show dialog where the user can select which lenses can be mounted to the picked camera.

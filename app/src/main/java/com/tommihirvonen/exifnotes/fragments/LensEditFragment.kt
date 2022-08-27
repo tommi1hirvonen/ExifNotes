@@ -38,9 +38,14 @@ import com.tommihirvonen.exifnotes.viewmodels.LensEditViewModelFactory
  */
 class LensEditFragment : Fragment() {
 
-    private val lens by lazy { requireArguments().getParcelable(ExtraKeys.LENS) ?: Lens() }
+    companion object {
+        const val TAG = "LENS_EDIT_FRAGMENT"
+        const val REQUEST_KEY = TAG
+    }
+
     private val model by lazy {
         val fixedLens = requireArguments().getBoolean(ExtraKeys.FIXED_LENS)
+        val lens = requireArguments().getParcelable<Lens>(ExtraKeys.LENS)?.copy() ?: Lens()
         val factory = LensEditViewModelFactory(requireActivity().application, fixedLens, lens.copy())
         ViewModelProvider(this, factory)[LensEditViewModel::class.java]
     }
@@ -61,20 +66,10 @@ class LensEditFragment : Fragment() {
         binding.topAppBar.setNavigationOnClickListener { navigateBack() }
         binding.positiveButton.setOnClickListener {
             if (model.validate()) {
-                //All the required information was given. Save.
-                lens.make = model.lens.make
-                lens.model = model.lens.model
-                lens.serialNumber = model.lens.serialNumber
-                lens.minAperture = model.lens.minAperture
-                lens.maxAperture = model.lens.maxAperture
-                lens.minFocalLength = model.lens.minFocalLength
-                lens.maxFocalLength = model.lens.maxFocalLength
-                lens.apertureIncrements = model.lens.apertureIncrements
-
-                // Return the new entered name to the calling activity
-                val bundle = Bundle()
-                bundle.putParcelable(ExtraKeys.LENS, lens)
-                setFragmentResult("LensEditFragment", bundle)
+                val bundle = Bundle().apply {
+                    putParcelable(ExtraKeys.LENS, model.lens)
+                }
+                setFragmentResult(REQUEST_KEY, bundle)
                 navigateBack()
             }
         }

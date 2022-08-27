@@ -23,8 +23,8 @@ import android.os.Bundle
 import android.view.*
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -42,12 +42,25 @@ import com.tommihirvonen.exifnotes.viewmodels.FilmStocksViewModel
 
 class FilmStocksFragment : Fragment(), MenuProvider {
 
-    private val model by viewModels<FilmStocksViewModel>()
+    private val model by activityViewModels<FilmStocksViewModel>()
+    private val gearFragment by lazy {
+        requireParentFragment().requireParentFragment() as GearFragment
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Check if an existing film stock edit dialog is open after configuration change
+        // and attach listener if so.
+        val dialog = gearFragment.childFragmentManager.findFragmentByTag(FilmStockEditDialog.TAG)
+        dialog?.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::submitFilmStock)
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         val binding = FragmentFilmsBinding.inflate(inflater, container, false)
-        binding.fabFilms.setOnClickListener(onFabClickListener)
+        binding.fabFilms.setOnClickListener { openFilmStockEditDialog(null) }
 
         binding.filmsRecyclerView.layoutManager = LinearLayoutManager(activity)
         val adapter = FilmStockAdapter(requireActivity(), onFilmStockClickListener)
@@ -117,20 +130,6 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         return false
     }
 
-    private val onFabClickListener = { _: View ->
-        val dialog = FilmStockEditDialog()
-        val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-        dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), null)
-        dialog.setFragmentResultListener("EditFilmStockDialog") { _, bundle ->
-            val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
-                ?: return@setFragmentResultListener
-            model.addFilmStock(filmStock)
-        }
-    }
-
     private val onFilmStockClickListener = { filmStock: FilmStock ->
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(filmStock.name)
@@ -148,18 +147,25 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         builder.create().show()
     }
 
-    private fun openFilmStockEditDialog(filmStock: FilmStock) {
+    private fun openFilmStockEditDialog(filmStock: FilmStock?) {
         val dialog = FilmStockEditDialog()
         val arguments = Bundle()
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilmStock))
-        arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-        arguments.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
+        if (filmStock != null) {
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilmStock))
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
+            arguments.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
+        } else {
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+        }
         dialog.arguments = arguments
-        dialog.show(parentFragmentManager.beginTransaction(), null)
-        dialog.setFragmentResultListener("EditFilmStockDialog") { _, bundle ->
-            val filmStock1: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
-                ?: return@setFragmentResultListener
-            model.updateFilmStock(filmStock1)
+
+        val transaction = gearFragment.childFragmentManager
+            .beginTransaction()
+            .addToBackStack(GearFragment.BACKSTACK_NAME)
+        dialog.show(transaction, FilmStockEditDialog.TAG)
+        dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::submitFilmStock)
         }
     }
 

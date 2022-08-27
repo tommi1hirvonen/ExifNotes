@@ -23,19 +23,18 @@ import androidx.appcompat.app.AppCompatActivity
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityGearBinding
 import com.tommihirvonen.exifnotes.fragments.GearFragment
-import com.tommihirvonen.exifnotes.fragments.RollsListFragment
 
 class GearActivity : AppCompatActivity() {
-
-    private val gearFragment = GearFragment()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityGearBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val tag = GearFragment.TAG
+        // Check if the GearFragment is already in the fragment manager and restore it if so.
+        val existing = supportFragmentManager.findFragmentByTag(tag)
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, gearFragment, null)
+            .replace(R.id.fragment_container, existing ?: GearFragment(), tag)
             .commit()
     }
 }

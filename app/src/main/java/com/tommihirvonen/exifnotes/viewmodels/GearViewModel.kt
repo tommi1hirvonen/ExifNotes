@@ -72,12 +72,12 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addCamera(camera: Camera) {
-        database.addCamera(camera)
+    fun submitCamera(camera: Camera) {
+        if (database.updateCamera(camera) == 0) {
+            database.addCamera(camera)
+        }
         replaceCamera(camera)
     }
-
-    fun updateCamera(camera: Camera) = database.updateCamera(camera).also { replaceCamera(camera) }
 
     private fun replaceCamera(camera: Camera) {
         cameraList = cameraList.filterNot { it.id == camera.id }.plus(camera).sorted()
@@ -90,12 +90,12 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
         mCameras.value = State.Success(cameraList)
     }
 
-    fun addLens(lens: Lens) {
-        database.addLens(lens)
+    fun submitLens(lens: Lens) {
+        if (database.updateLens(lens) == 0) {
+            database.addLens(lens)
+        }
         replaceLens(lens)
     }
-
-    fun updateLens(lens: Lens) = database.updateLens(lens).also { replaceLens(lens) }
 
     private fun replaceLens(lens: Lens) {
         mLenses.value = mLenses.value?.filterNot { it.id == lens.id }?.plus(lens)?.sorted()
@@ -106,12 +106,12 @@ class GearViewModel(application: Application) : AndroidViewModel(application) {
         mLenses.value = mLenses.value?.minus(lens)
     }
 
-    fun addFilter(filter: Filter) {
-        database.addFilter(filter)
+    fun submitFilter(filter: Filter) {
+        if (database.updateFilter(filter) == 0) {
+            database.addFilter(filter)
+        }
         replaceFilter(filter)
     }
-
-    fun updateFilter(filter: Filter) = database.updateFilter(filter).also { replaceFilter(filter) }
 
     private fun replaceFilter(filter: Filter) {
         mFilters.value = mFilters.value?.filterNot { it.id == filter.id }?.plus(filter)?.sorted()

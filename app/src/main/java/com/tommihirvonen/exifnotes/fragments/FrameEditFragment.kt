@@ -150,7 +150,7 @@ class FrameEditFragment : Fragment() {
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
             dialog.show(parentFragmentManager.beginTransaction(), null)
-            dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
+            dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
                 val filter: Filter = bundle.getParcelable(ExtraKeys.FILTER)
                     ?: return@setFragmentResultListener
                 model.addFilter(filter)
@@ -389,7 +389,7 @@ class FrameEditFragment : Fragment() {
             .addToBackStack(null)
             .commit()
 
-        fragment.setFragmentResultListener("LensEditFragment") { _, bundle ->
+        fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
             val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
                 ?: return@setFragmentResultListener
             model.addLens(lens)

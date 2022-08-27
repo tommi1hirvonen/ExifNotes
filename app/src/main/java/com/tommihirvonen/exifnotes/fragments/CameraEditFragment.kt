@@ -45,9 +45,14 @@ import com.tommihirvonen.exifnotes.viewmodels.CameraEditViewModelFactory
  */
 class CameraEditFragment : Fragment() {
 
-    private val camera by lazy { requireArguments().getParcelable(ExtraKeys.CAMERA) ?: Camera() }
-    private val model by lazy {
-        val factory = CameraEditViewModelFactory(requireActivity().application, camera.copy())
+    companion object {
+        const val TAG = "CAMERA_EDIT_FRAGMENT"
+        const val REQUEST_KEY = TAG
+    }
+
+    private val editModel by lazy {
+        val camera = requireArguments().getParcelable<Camera>(ExtraKeys.CAMERA)?.copy() ?: Camera()
+        val factory = CameraEditViewModelFactory(requireActivity().application, camera)
         ViewModelProvider(this, factory)[CameraEditViewModel::class.java]
     }
 
@@ -55,6 +60,13 @@ class CameraEditFragment : Fragment() {
         super.onCreate(savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             navigateBack()
+        }
+        // Check if the lens edit fragment was left open due to a configuration change.
+        // Attach listener in that case.
+        val fragment = requireParentFragment().childFragmentManager
+            .findFragmentByTag(LensEditFragment.TAG)
+        fragment?.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(editModel.observable::setLens)
         }
     }
 
@@ -65,7 +77,7 @@ class CameraEditFragment : Fragment() {
         binding.root.transitionName = transitionName
         binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
         binding.topAppBar.setNavigationOnClickListener { navigateBack() }
-        binding.viewmodel = model.observable
+        binding.viewmodel = editModel.observable
 
         // FIXED LENS
         binding.fixedLensHelp.setOnClickListener {
@@ -78,18 +90,11 @@ class CameraEditFragment : Fragment() {
             showFixedLensFragment(binding.fixedLensLayout)
         }
         binding.positiveButton.setOnClickListener {
-            if (model.validate()) {
-                camera.make = model.camera.make
-                camera.model = model.camera.model
-                camera.serialNumber = model.camera.serialNumber
-                camera.shutterIncrements = model.camera.shutterIncrements
-                camera.minShutter = model.camera.minShutter
-                camera.maxShutter = model.camera.maxShutter
-                camera.exposureCompIncrements = model.camera.exposureCompIncrements
-                camera.lens = model.camera.lens
-                val bundle = Bundle()
-                bundle.putParcelable(ExtraKeys.CAMERA, camera)
-                setFragmentResult("CameraEditFragment", bundle)
+            if (editModel.validate()) {
+                val bundle = Bundle().apply {
+                    putParcelable(ExtraKeys.CAMERA, editModel.camera)
+                }
+                setFragmentResult(REQUEST_KEY, bundle)
                 navigateBack()
             }
         }
@@ -121,7 +126,7 @@ class CameraEditFragment : Fragment() {
         }
         val arguments = Bundle()
         arguments.putBoolean(ExtraKeys.FIXED_LENS, true)
-        model.camera.lens?.let {
+        editModel.camera.lens?.let {
             arguments.putParcelable(ExtraKeys.LENS, it)
         }
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.SetFixedLens))
@@ -132,14 +137,12 @@ class CameraEditFragment : Fragment() {
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.gear_fragment_container, fragment)
-            .addToBackStack(null)
+            .replace(R.id.gear_fragment_container, fragment, LensEditFragment.TAG)
+            .addToBackStack(GearFragment.BACKSTACK_NAME)
             .commit()
 
-        fragment.setFragmentResultListener("LensEditFragment") { _, bundle ->
-            val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
-                ?: return@setFragmentResultListener
-            model.observable.setLens(lens)
+        fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(editModel.observable::setLens)
         }
     }
 

@@ -39,10 +39,14 @@ import com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModelFactory
  */
 class FilterEditDialog : DialogFragment() {
 
-    val filter by lazy { requireArguments().getParcelable(ExtraKeys.FILTER) ?: Filter() }
+    companion object {
+        const val TAG = "FILTER_EDIT_DIALOG"
+        const val REQUEST_KEY: String = TAG
+    }
 
-    val model by lazy {
-        val factory = FilterEditViewModelFactory(requireActivity().application, filter.copy())
+    private val editModel by lazy {
+        val filter = requireArguments().getParcelable<Filter>(ExtraKeys.FILTER)?.copy() ?: Filter()
+        val factory = FilterEditViewModelFactory(requireActivity().application, filter)
         ViewModelProvider(this, factory)[FilterEditViewModel::class.java]
     }
 
@@ -53,12 +57,10 @@ class FilterEditDialog : DialogFragment() {
         val title = requireArguments().getString(ExtraKeys.TITLE)
         builder.setTitle(title)
         builder.setView(binding.root)
-        binding.viewmodel = model.observable
+        binding.viewmodel = editModel.observable
         val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
         builder.setPositiveButton(positiveButton, null)
-        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
-            setFragmentResult("EditFilterDialog", Bundle())
-        }
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
         val dialog = builder.create()
 
         // SOFT_INPUT_ADJUST_PAN: set to have a window pan when an input method is shown,
@@ -69,13 +71,11 @@ class FilterEditDialog : DialogFragment() {
         // We override the positive button onClick so that we can dismiss the dialog
         // only when both make and model are set.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            if (model.validate()) {
-                filter.make = model.filter.make
-                filter.model = model.filter.model
-                // Return the new entered name to the calling activity
-                val bundle = Bundle()
-                bundle.putParcelable(ExtraKeys.FILTER, filter)
-                setFragmentResult("EditFilterDialog", bundle)
+            if (editModel.validate()) {
+                val bundle = Bundle().apply {
+                    putParcelable(ExtraKeys.FILTER, editModel.filter)
+                }
+                setFragmentResult(REQUEST_KEY, bundle)
                 dialog.dismiss()
             }
         }

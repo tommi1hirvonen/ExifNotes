@@ -49,23 +49,24 @@ import com.tommihirvonen.exifnotes.viewmodels.State
  */
 class LensesFragment : Fragment() {
 
+    private val gearFragment by lazy {
+        requireParentFragment().requireParentFragment() as GearFragment
+    }
     private val model: GearViewModel by activityViewModels()
     private var cameras: List<Camera> = emptyList()
     private var lenses: List<Lens> = emptyList()
     private var filters: List<Filter> = emptyList()
 
-    private var fragmentVisible = false
-
     private lateinit var binding:FragmentLensesBinding
 
-    override fun onResume() {
-        fragmentVisible = true
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        fragmentVisible = false
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Check if an existing lens edit fragment is open after configuration change
+        // and attach listener if so.
+        val fragment = gearFragment.childFragmentManager.findFragmentByTag(LensEditFragment.TAG)
+        fragment?.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(model::submitLens)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -148,23 +149,16 @@ class LensesFragment : Fragment() {
         arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
         fragment.arguments = arguments
 
-        val gearFragment = requireParentFragment().requireParentFragment()
         gearFragment.childFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.gear_fragment_container, fragment)
-            .addToBackStack(null)
+            .replace(R.id.gear_fragment_container, fragment, LensEditFragment.TAG)
+            .addToBackStack(GearFragment.BACKSTACK_NAME)
             .commit()
 
-        fragment.setFragmentResultListener("LensEditFragment") { _, bundle ->
-            val lens1 = bundle.getParcelable<Lens>(ExtraKeys.LENS)
-                ?: return@setFragmentResultListener
-            if (lens == null) {
-                model.addLens(lens1)
-            } else {
-                model.updateLens(lens1)
-            }
+        fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(model::submitLens)
         }
     }
 

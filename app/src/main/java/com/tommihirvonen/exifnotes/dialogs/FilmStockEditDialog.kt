@@ -35,8 +35,14 @@ import com.tommihirvonen.exifnotes.viewmodels.FilmStockEditViewModelFactory
 
 class FilmStockEditDialog : DialogFragment() {
 
-    private val filmStock by lazy { requireArguments().getParcelable(ExtraKeys.FILM_STOCK) ?: FilmStock() }
-    private val model by lazy {
+    companion object {
+        const val TAG = "FILM_STOCK_EDIT_DIALOG"
+        const val REQUEST_KEY = TAG
+    }
+
+    private val editModel by lazy {
+        val filmStock = requireArguments().getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.copy()
+            ?: FilmStock()
         val factory = FilmStockEditViewModelFactory(requireActivity().application, filmStock.copy())
         ViewModelProvider(this, factory)[FilmStockEditViewModel::class.java]
     }
@@ -50,24 +56,17 @@ class FilmStockEditDialog : DialogFragment() {
             .setView(binding.root)
             .setTitle(title)
             .setPositiveButton(positiveButtonText, null)
-            .setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int ->
-                setFragmentResult("EditFilmStockDialog", Bundle())
-            }
-        binding.viewmodel = model.observable
+            .setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        binding.viewmodel = editModel.observable
         val dialog = builder.create()
         dialog.show()
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            if (model.validate()) {
-                filmStock.make = model.filmStock.make
-                filmStock.model = model.filmStock.model
-                filmStock.iso = model.filmStock.iso
-                filmStock.type = model.filmStock.type
-                filmStock.process = model.filmStock.process
-
+            if (editModel.validate()) {
+                val bundle = Bundle().apply {
+                    putParcelable(ExtraKeys.FILM_STOCK, editModel.filmStock)
+                }
+                setFragmentResult(REQUEST_KEY, bundle)
                 dialog.dismiss()
-                val bundle = Bundle()
-                bundle.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
-                setFragmentResult("EditFilmStockDialog", bundle)
             }
         }
         return dialog

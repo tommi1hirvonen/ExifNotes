@@ -67,17 +67,11 @@ class FilmStocksViewModel(application: Application) : AndroidViewModel(applicati
         filmStocksData.value = filteredFilmStocks
     }
 
-    fun addFilmStock(filmStock: FilmStock) {
-        database.addFilmStock(filmStock)
+    fun submitFilmStock(filmStock: FilmStock) {
+        if (database.updateFilmStock(filmStock) == 0) {
+            database.addFilmStock(filmStock)
+        }
         replaceFilmStock(filmStock)
-    }
-
-    fun updateFilmStock(filmStock: FilmStock): Int {
-        val rows = database.updateFilmStock(filmStock)
-        val sortMode = _sortMode.value ?: FilmStockSortMode.NAME
-        filteredFilmStocks = filteredFilmStocks.sorted(sortMode)
-        filmStocksData.value = filteredFilmStocks
-        return rows
     }
 
     fun deleteFilmStock(filmStock: FilmStock) {

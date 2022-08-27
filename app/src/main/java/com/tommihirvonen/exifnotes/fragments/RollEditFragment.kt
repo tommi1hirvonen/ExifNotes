@@ -89,7 +89,7 @@ class RollEditFragment : Fragment() {
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
             dialog.show(parentFragmentManager.beginTransaction(), null)
-            dialog.setFragmentResultListener("EditFilmStockDialog") { _, bundle ->
+            dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY) { _, bundle ->
                 val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
                     ?: return@setFragmentResultListener
                 database.addFilmStock(filmStock)
@@ -132,7 +132,7 @@ class RollEditFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
 
-            fragment.setFragmentResultListener("CameraEditFragment") { _, bundle ->
+            fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY) { _, bundle ->
                 val camera: Camera = bundle.getParcelable(ExtraKeys.CAMERA)
                     ?: return@setFragmentResultListener
                 rollsModel.addCamera(camera)

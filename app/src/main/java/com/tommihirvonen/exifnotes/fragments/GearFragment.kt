@@ -28,7 +28,10 @@ import com.tommihirvonen.exifnotes.databinding.FragmentGearBinding
 
 class GearFragment : Fragment() {
 
-    private val gearPagerFragment = GearPagerFragment()
+    companion object {
+        const val BACKSTACK_NAME = "GEAR_BACKSTACK"
+        const val TAG = "GEAR_FRAGMENT"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,10 +43,14 @@ class GearFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        childFragmentManager
-            .beginTransaction()
-            .addToBackStack(null)
-            .replace(R.id.gear_fragment_container, gearPagerFragment)
-            .commit()
+        if (childFragmentManager.backStackEntryCount > 0) {
+            childFragmentManager.restoreBackStack(BACKSTACK_NAME)
+        } else {
+            childFragmentManager
+                .beginTransaction()
+                .addToBackStack(BACKSTACK_NAME)
+                .replace(R.id.gear_fragment_container, GearPagerFragment(), GearPagerFragment.TAG)
+                .commit()
+        }
     }
 }

@@ -37,6 +37,7 @@ import java.lang.IllegalArgumentException
 class GearPagerFragment : Fragment() {
 
     companion object {
+        const val TAG = "GEAR_PAGER_FRAGMENT"
         private const val POSITION_CAMERAS = 0
         private const val POSITION_LENSES = 1
         private const val POSITION_FILTERS = 2
@@ -129,6 +130,7 @@ class GearPagerFragment : Fragment() {
                     bottomNavigation.menu.findItem(R.id.page_film_stocks).isChecked = true
                 }
             }
+            super.onPageSelected(position)
         }
     }
 
@@ -136,23 +138,15 @@ class GearPagerFragment : Fragment() {
      * Manages the fragments inside GearActivity.
      */
     private inner class PagerAdapter : FragmentStateAdapter(this) {
-
-        val fragments: MutableMap<Int, Fragment> = mutableMapOf()
-
         override fun getItemCount(): Int = PAGE_COUNT
 
-        override fun createFragment(position: Int): Fragment {
-            val fragment = when (position) {
-                POSITION_FILMS -> FilmStocksFragment()
-                POSITION_FILTERS -> FiltersFragment()
-                POSITION_LENSES -> LensesFragment()
-                POSITION_CAMERAS -> CamerasFragment()
-                else -> throw IllegalArgumentException("Illegal fragment position $position")
-            }
-            fragments[position] = fragment
-            return fragment
+        override fun createFragment(position: Int): Fragment = when (position) {
+            POSITION_FILMS -> FilmStocksFragment()
+            POSITION_FILTERS -> FiltersFragment()
+            POSITION_LENSES -> LensesFragment()
+            POSITION_CAMERAS -> CamerasFragment()
+            else -> throw IllegalArgumentException("Illegal fragment position $position")
         }
-
     }
 
 }
