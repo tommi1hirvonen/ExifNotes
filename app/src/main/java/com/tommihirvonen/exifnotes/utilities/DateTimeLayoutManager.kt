@@ -33,7 +33,7 @@ import java.util.*
  * When the time layout is clicked, a time picker dialog is shown.
  * The DateTime member is managed inside the class.
  */
-class DateTimeLayoutManager2(
+class DateTimeLayoutManager(
         activity: AppCompatActivity,
         dateTimeLayout: DateTimeLayout,
         initialDateTimeDelegate: () -> (DateTime?),

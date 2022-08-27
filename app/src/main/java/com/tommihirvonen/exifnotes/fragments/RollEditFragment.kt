@@ -145,19 +145,19 @@ class RollEditFragment : Fragment() {
             model.observable.setLoadedOn(DateTime.fromCurrentTime())
         }
 
-        DateTimeLayoutManager2(
+        DateTimeLayoutManager(
             requireActivity() as AppCompatActivity,
             binding.dateLoadedLayout,
             { model.roll.date },
             model.observable::setLoadedOn)
 
-        DateTimeLayoutManager2(
+        DateTimeLayoutManager(
             requireActivity() as AppCompatActivity,
             binding.dateUnloadedLayout,
             { model.roll.unloaded },
             model.observable::setUnloadedOn)
 
-        DateTimeLayoutManager2(
+        DateTimeLayoutManager(
             requireActivity() as AppCompatActivity,
             binding.dateDevelopedLayout,
             { model.roll.developed },

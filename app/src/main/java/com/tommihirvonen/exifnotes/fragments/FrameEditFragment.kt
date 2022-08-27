@@ -104,7 +104,7 @@ class FrameEditFragment : Fragment() {
         binding.viewmodel = model.observable
         binding.addLens.setOnClickListener { showNewLensFragment() }
 
-        DateTimeLayoutManager2(
+        DateTimeLayoutManager(
             requireActivity() as AppCompatActivity,
             binding.dateLayout,
             { model.frame.date },
