@@ -23,15 +23,11 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.view.View
 import android.view.animation.Interpolator
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.transition.TransitionSet
 import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.datastructures.Gear
 import java.io.*
-
-fun <T> T.validate(vararg validations: (T) -> (Pair<Boolean, String>)): Pair<Boolean, String> =
-    validations.map { it(this) }.firstOrNull { !it.first } ?: (true to "")
 
 fun <T> T.validate(vararg validations: (T) -> (Boolean)): Boolean =
     validations.map { it(this) }.all { it }
@@ -76,6 +72,3 @@ fun View.snackbar(@StringRes resId: Int, anchorView: View, duration: Int = Snack
 
 fun View.snackbar(text: CharSequence, anchorView: View, duration: Int = Snackbar.LENGTH_LONG) =
     Snackbar.make(this, text, duration).setAnchorView(anchorView).show()
-
-fun Context.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) =
-    Toast.makeText(this, resId, duration).show()

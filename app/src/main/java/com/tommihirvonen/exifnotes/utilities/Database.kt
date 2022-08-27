@@ -405,6 +405,8 @@ class Database private constructor(private val context: Context)
         }
         // If the camera currently has a fixed lens, update/add it to the database.
         camera.lens?.let { lens ->
+            lens.make = camera.make
+            lens.model = camera.model
             if (updateLens(lens) == 0) {
                 addLens(lens)
             }
@@ -712,7 +714,7 @@ class Database private constructor(private val context: Context)
         formattedAddress = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FORMATTED_ADDRESS))
         pictureFilename = cursor.getString(cursor.getColumnIndexOrThrow(KEY_PICTURE_FILENAME))
         lightSource = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LIGHT_SOURCE))
-        filters = getLinkedFilters(this).toMutableList()
+        filters = getLinkedFilters(this)
     }
 
     /**

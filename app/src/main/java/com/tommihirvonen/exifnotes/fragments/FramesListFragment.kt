@@ -535,7 +535,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                             .setPositiveButton(R.string.OK) { _, _ ->
                                                 selectedFrames.forEach { frame ->
                                                     frame.filters = filters.filter { it.second }
-                                                            .map { it.first }.toMutableList()
+                                                            .map { it.first }
                                                     model.updateFrame(frame)
                                                 }
                                             }

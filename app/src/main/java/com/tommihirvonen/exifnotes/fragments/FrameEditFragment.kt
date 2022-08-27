@@ -45,10 +45,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
 import com.tommihirvonen.exifnotes.databinding.FragmentFrameEditBinding
@@ -56,7 +55,8 @@ import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.dialogs.FilterEditDialog
 import com.tommihirvonen.exifnotes.utilities.*
-import kotlinx.coroutines.*
+import com.tommihirvonen.exifnotes.viewmodels.FrameEditViewModel
+import com.tommihirvonen.exifnotes.viewmodels.FrameEditViewModelFactory
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.lang.Runnable
@@ -65,23 +65,19 @@ import kotlin.math.roundToInt
 /**
  * Dialog to edit Frame's information
  */
-open class FrameEditFragment : Fragment() {
+class FrameEditFragment : Fragment() {
     
-    internal lateinit var binding: FragmentFrameEditBinding
-        private set
+    private lateinit var binding: FragmentFrameEditBinding
 
-    internal lateinit var frame: Frame
+    private val frame by lazy {
+        requireArguments().getParcelable<Frame>(ExtraKeys.FRAME)
+            ?: throw IllegalArgumentException("Frame is a required argument for fragment FrameEditFragment")
+    }
 
-    private lateinit var newFrame: Frame
-
-    private val lens get() = newFrame.roll.camera?.lens ?: newFrame.lens
-
-    /**
-     * Holds all the lenses that can be mounted to the used camera
-     */
-    private var mountableLenses: MutableList<Lens>? = null
-
-    private lateinit var dateTimeLayoutManager: DateTimeLayoutManager
+    private val model by lazy {
+        val factory = FrameEditViewModelFactory(requireActivity().application, frame.copy())
+        ViewModelProvider(this, factory)[FrameEditViewModel::class.java]
+    }
 
     /**
      * Used to temporarily store the possible new picture name. newPictureFilename is only set,
@@ -90,17 +86,130 @@ open class FrameEditFragment : Fragment() {
      */
     private var tempPictureFilename: String? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            requireParentFragment().childFragmentManager.popBackStack()
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentFrameEditBinding.inflate(inflater, container, false)
+        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
+        binding.root.transitionName = transitionName
+        binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
+        binding.topAppBar.setNavigationOnClickListener {
+            requireParentFragment().childFragmentManager.popBackStack()
+        }
+        binding.viewmodel = model.observable
+        binding.addLens.setOnClickListener { showNewLensFragment() }
+
+        DateTimeLayoutManager2(
+            requireActivity() as AppCompatActivity,
+            binding.dateLayout,
+            { model.frame.date },
+            model.observable::setDate)
+
+        binding.apertureEditButton.setOnClickListener {
+            val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
+            val editText = view.findViewById<EditText>(R.id.edit_text)
+            try {
+                val num = model.frame.aperture?.toDouble()
+                num?.let { editText.setText(num.toString()) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            MaterialAlertDialogBuilder(requireContext())
+                    .setView(view)
+                    .setTitle(R.string.EnterCustomerApertureValue)
+                    .setPositiveButton(R.string.OK) { _, _ ->
+                        model.observable.setAperture(editText.text.toString())
+                    }
+                    .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
+                    .create()
+                    .show()
+            editText.requestFocus()
+        }
+
+        binding.focalLengthButton.setOnClickListener(focalLengthButtonOnClickListener)
+
+        binding.locationButton.setOnClickListener {
+            val intent = Intent(activity, LocationPickActivity::class.java)
+            intent.putExtra(ExtraKeys.LOCATION, model.frame.location)
+            intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, model.frame.formattedAddress)
+            locationResultLauncher.launch(intent)
+        }
+
+        binding.filtersButton.setOnClickListener(filtersButtonOnClickListener)
+
+        binding.addFilter.setOnClickListener {
+            binding.noteEditText.clearFocus()
+            val dialog = FilterEditDialog()
+            val arguments = Bundle()
+            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
+            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+            dialog.arguments = arguments
+            dialog.show(parentFragmentManager.beginTransaction(), null)
+            dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
+                val filter: Filter = bundle.getParcelable(ExtraKeys.FILTER)
+                    ?: return@setFragmentResultListener
+                model.addFilter(filter)
+            }
+        }
+
+        binding.complementaryPicturesOptionsButton
+            .setOnClickListener(ComplementaryPictureOptionsListener())
+
+        binding.positiveButton.setOnClickListener {
+            if (model.validate()) {
+                frame.shutter = model.frame.shutter
+                frame.aperture = model.frame.aperture
+                frame.count = model.frame.count
+                frame.note = model.frame.note
+                frame.date = model.frame.date
+                frame.lens = model.frame.lens
+                frame.location = model.frame.location
+                frame.formattedAddress = model.frame.formattedAddress
+                frame.exposureComp = model.frame.exposureComp
+                frame.noOfExposures = model.frame.noOfExposures
+                frame.focalLength = model.frame.focalLength
+                frame.pictureFilename = model.frame.pictureFilename
+                frame.filters = model.frame.filters
+                frame.flashUsed = model.frame.flashUsed
+                frame.lightSource = model.frame.lightSource
+                val bundle = Bundle()
+                bundle.putParcelable(ExtraKeys.FRAME, frame)
+                setFragmentResult("EditFrameDialog", bundle)
+                requireParentFragment().childFragmentManager.popBackStack()
+            }
+        }
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
+        // Start the transition once all views have been measured and laid out.
+        (view.parent as ViewGroup).doOnPreDraw {
+            startPostponedEnterTransition()
+            setComplementaryPicture()
+        }
+    }
+
     private val locationResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            // Set the location
-            if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                newFrame.location = result.data?.getParcelableExtra(ExtraKeys.LOCATION)
+            val location = if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
+                result.data?.getParcelableExtra<Location>(ExtraKeys.LOCATION)
+            } else {
+                null
             }
-            // Set the formatted address
-            if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
-                newFrame.formattedAddress = result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
+            val formattedAddress = if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
+                result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
+            } else {
+                null
             }
-            updateLocationTextView()
+            model.observable.setLocation(location, formattedAddress)
         }
     }
 
@@ -114,7 +223,7 @@ open class FrameEditFragment : Fragment() {
                 // The user has taken a new complementary picture. Update the possible new filename,
                 // notify gallery app and set the complementary picture bitmap.
                 val filename = tempPictureFilename ?: return@Runnable
-                newFrame.pictureFilename = tempPictureFilename
+                model.frame.pictureFilename = tempPictureFilename
                 // Compress the picture file
                 try {
                     ComplementaryPicturesManager.compressPictureFile(requireActivity(), filename)
@@ -143,7 +252,7 @@ open class FrameEditFragment : Fragment() {
                     // Save the compressed bitmap to the placeholder file.
                     ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile)
                     // Update the member reference and set the complementary picture.
-                    newFrame.pictureFilename = pictureFile.name
+                    model.frame.pictureFilename = pictureFile.name
                     // Set the complementary picture ImageView on the UI thread.
                     requireActivity().runOnUiThread { setComplementaryPicture() }
                 } catch (e: IOException) {
@@ -153,261 +262,6 @@ open class FrameEditFragment : Fragment() {
                 binding.root.snackbar(R.string.ErrorLocatingSelectedPicture)
             }
         }).start()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            requireParentFragment().childFragmentManager.popBackStack()
-        }
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentFrameEditBinding.inflate(inflater, container, false)
-        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
-        binding.root.transitionName = transitionName
-        binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
-        frame = requireArguments().getParcelable(ExtraKeys.FRAME) ?: return null
-        newFrame = frame.copy()
-
-        // If the camera used for this roll is a fixed-lens camera, clear the frame's lens.
-        if (newFrame.roll.camera?.isFixedLens == true) {
-            newFrame.lens = null
-        }
-
-        // Get mountable lenses based on the roll's camera. If no camera was set, get all lenses.
-        frame.roll.camera?.let {
-            mountableLenses = database.getLinkedLenses(it).toMutableList()
-        } ?: run {
-            mountableLenses = database.lenses.toMutableList()
-        }
-
-        // LENS MENU
-        if (frame.roll.camera?.isFixedLens == true) {
-            binding.lensLayout.visibility = View.GONE
-        }
-
-        val lensAutoComplete = binding.lensMenu.editText as MaterialAutoCompleteTextView
-        val lensItems = listOf(resources.getString(R.string.NoLens))
-            .plus(mountableLenses?.map { it.name } ?: emptyList()).toTypedArray()
-        lensAutoComplete.setSimpleItems(lensItems)
-        lensAutoComplete.setText(frame.lens?.name, false)
-        lensAutoComplete.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            if (position > 0) {
-                // Get the new lens, also account for the 'No lens' option (which - 1).
-                val lens = mountableLenses?.get(position - 1) ?: return@OnItemClickListener
-                lensAutoComplete.setText(lens.name, false)
-                newFrame.lens = lens
-                if (newFrame.focalLength > lens.maxFocalLength) {
-                    newFrame.focalLength = lens.maxFocalLength
-                } else if (newFrame.focalLength < lens.minFocalLength) {
-                    newFrame.focalLength = lens.minFocalLength
-                }
-                binding.focalLengthButton.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
-
-                //Check the aperture value's validity against the new lens' properties.
-                initializeApertureMenu()
-                // The lens was changed, reset filters
-                resetFilters()
-            } else {
-                lensAutoComplete.setText(null, false)
-                newFrame.lens = null
-                newFrame.focalLength = 0
-                updateFocalLengthTextView()
-                initializeApertureMenu()
-                resetFilters()
-            }
-        }
-
-        binding.addLens.setOnClickListener {
-            binding.noteEditText.clearFocus()
-            showNewLensFragment(lensAutoComplete)
-        }
-
-
-        // DATE & TIME PICK DIALOG
-        if (frame.date == null) frame.date = DateTime.fromCurrentTime()
-        val dateTime = frame.date
-        dateTimeLayoutManager = DateTimeLayoutManager(
-            requireActivity() as AppCompatActivity,
-            binding.dateLayout,
-            dateTime,
-            null
-        )
-
-        //NOTES FIELD
-        binding.noteEditText.isSingleLine = false
-        binding.noteEditText.setText(frame.note)
-        binding.noteEditText.setSelection(binding.noteEditText.text?.length ?: 0)
-
-        //COUNT BUTTON
-        val frameCountValues = IntArray(100) { it + 1 }.map { it.toString() }.toTypedArray()
-        val frameCountMenu = binding.frameCountMenu.editText as MaterialAutoCompleteTextView
-        frameCountMenu.setSimpleItems(frameCountValues)
-        frameCountMenu.setText(newFrame.count.toString(), false)
-        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
-        // However in that case, the AutoCompleteTextView onClick method is not called.
-        // By setting the endIconOnClickListener to null onClick events are propagated
-        // to AutoCompleteTextView. This way we can force the preselection of the current item.
-        binding.frameCountMenu.setEndIconOnClickListener(null)
-        frameCountMenu.setOnClickListener {
-            frameCountMenu.listSelection = frameCountMenu.text.toString().toInt() - 1
-        }
-
-        //SHUTTER SPEED BUTTON
-        initializeShutterSpeedMenu()
-
-        //APERTURE BUTTON
-        initializeApertureMenu(allowCustomValue = true)
-        binding.apertureEditButton.setOnClickListener {
-            val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
-            val editText = view.findViewById<EditText>(R.id.edit_text)
-            try {
-                val num = newFrame.aperture?.toDouble()
-                num?.let { editText.setText(num.toString()) }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            MaterialAlertDialogBuilder(requireContext())
-                    .setView(view)
-                    .setTitle(R.string.EnterCustomerApertureValue)
-                    .setPositiveButton(R.string.OK) { _, _ ->
-                        newFrame.aperture = editText.text.toString()
-                        initializeApertureMenu(allowCustomValue = true)
-                    }
-                    .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
-                    .create()
-                    .show()
-            editText.requestFocus()
-        }
-
-        //FOCAL LENGTH BUTTON
-        updateFocalLengthTextView()
-        binding.focalLengthButton.setOnClickListener(FocalLengthLayoutOnClickListener())
-
-        //EXPOSURE COMP BUTTON
-        val exposureCompValues = frame.roll.camera?.exposureCompValues(requireContext())
-                ?: Camera.defaultExposureCompValues(requireContext())
-        val exposureCompMenu = binding.exposureCompMenu.editText as MaterialAutoCompleteTextView
-        exposureCompMenu.setSimpleItems(exposureCompValues)
-        exposureCompMenu.setText(newFrame.exposureComp, false)
-        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
-        // However in that case, the AutoCompleteTextView onClick method is not called.
-        // By setting the endIconOnClickListener to null onClick events are propagated
-        // to AutoCompleteTextView. This way we can force the preselection of the current item.
-        binding.exposureCompMenu.setEndIconOnClickListener(null)
-        exposureCompMenu.setOnClickListener {
-            val currentIndex = exposureCompValues.indexOf(newFrame.exposureComp ?: "0")
-            if (currentIndex >= 0) exposureCompMenu.listSelection = currentIndex
-        }
-
-        //NO OF EXPOSURES BUTTON
-        val noOfExposuresValues = IntArray(10) { it + 1 }.map { it.toString() }.toTypedArray()
-        val noOfExposuresMenu = binding.noOfExposuresMenu.editText as MaterialAutoCompleteTextView
-        noOfExposuresMenu.setSimpleItems(noOfExposuresValues)
-        noOfExposuresMenu.setText(newFrame.noOfExposures.toString(), false)
-        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
-        // However in that case, the AutoCompleteTextView onClick method is not called.
-        // By setting the endIconOnClickListener to null onClick events are propagated
-        // to AutoCompleteTextView. This way we can force the preselection of the current item.
-        binding.noOfExposuresMenu.setEndIconOnClickListener(null)
-        noOfExposuresMenu.setOnClickListener {
-            val currentIndex = noOfExposuresValues.indexOf(newFrame.noOfExposures.toString())
-            if (currentIndex >= 0) noOfExposuresMenu.listSelection = currentIndex
-        }
-
-        // LOCATION PICK DIALOG
-        updateLocationTextView()
-        // If location is set but the formatted address is empty, try to find it
-        newFrame.location?.let { location ->
-            if (newFrame.formattedAddress == null || newFrame.formattedAddress?.isEmpty() == true) {
-                // Make the ProgressBar visible to indicate that a query is being executed
-                binding.locationProgressBar.visibility = View.VISIBLE
-                // Start a coroutine to asynchronously fetch the formatted address.
-                viewLifecycleOwner.lifecycleScope.launch {
-                    val (_, addressResult) = Geocoder(requireContext()).getData(location.decimalLocation)
-                    newFrame.formattedAddress = addressResult.ifEmpty { null }
-                    binding.locationProgressBar.visibility = View.INVISIBLE
-                    updateLocationTextView()
-                }
-            }
-        }
-        binding.clearLocation.setOnClickListener {
-            newFrame.location = null
-            newFrame.formattedAddress = null
-            updateLocationTextView()
-        }
-        binding.locationButton.setOnClickListener {
-            val intent = Intent(activity, LocationPickActivity::class.java)
-            intent.putExtra(ExtraKeys.LOCATION, newFrame.location)
-            intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, newFrame.formattedAddress)
-            locationResultLauncher.launch(intent)
-        }
-
-        // FILTER PICK DIALOG
-        updateFiltersTextView()
-        binding.filtersButton.setOnClickListener(FilterLayoutOnClickListener())
-
-        // FILTER ADD DIALOG
-        binding.addFilter.isClickable = true
-        binding.addFilter.setOnClickListener {
-            binding.noteEditText.clearFocus()
-            val dialog = FilterEditDialog()
-            val arguments = Bundle()
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-            dialog.arguments = arguments
-            dialog.show(parentFragmentManager.beginTransaction(), null)
-            dialog.setFragmentResultListener("EditFilterDialog") { _, bundle ->
-                val filter: Filter = bundle.getParcelable(ExtraKeys.FILTER)
-                    ?: return@setFragmentResultListener
-                database.addFilter(filter)
-                lens?.let { database.addLensFilterLink(filter, it) }
-                newFrame.filters.add(filter)
-                updateFiltersTextView()
-            }
-        }
-
-        //COMPLEMENTARY PICTURE
-        binding.complementaryPicturesOptionsButton
-            .setOnClickListener(ComplementaryPictureOptionsListener())
-
-        //FLASH
-        binding.flashCheckbox.isChecked = frame.flashUsed
-
-        //LIGHT SOURCE
-        val lightSourceValues = resources.getStringArray(R.array.LightSource)
-        val lightSourceMenu = binding.lightSourceMenu.editText as MaterialAutoCompleteTextView
-        lightSourceMenu.setSimpleItems(lightSourceValues)
-        try {
-            lightSourceMenu.setText(lightSourceValues[newFrame.lightSource], false)
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
-
-
-        binding.topAppBar.setNavigationOnClickListener {
-            requireParentFragment().childFragmentManager.popBackStack()
-        }
-        binding.positiveButton.setOnClickListener {
-            commitChanges()
-            val bundle = Bundle()
-            bundle.putParcelable(ExtraKeys.FRAME, frame)
-            setFragmentResult("EditFrameDialog", bundle)
-            requireParentFragment().childFragmentManager.popBackStack()
-        }
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        postponeEnterTransition()
-        // Start the transition once all views have been measured and laid out.
-        (view.parent as ViewGroup).doOnPreDraw {
-            startPostponedEnterTransition()
-            setComplementaryPicture()
-        }
     }
 
     /**
@@ -433,44 +287,12 @@ open class FrameEditFragment : Fragment() {
     }
 
     /**
-     * Updates the filters TextView
-     */
-    private fun updateFiltersTextView() {
-        binding.filtersButton.text = newFrame.filters.joinToString(separator = "\n") { "-${it.name}" }
-    }
-
-    private fun commitChanges() {
-        val shutter = binding.shutterSpeedMenu.editText?.text.toString().ifEmpty { null }
-        frame.shutter = if (shutter != resources.getString(R.string.NoValue)) shutter else null
-
-        val aperture = binding.apertureMenu.editText?.text.toString().ifEmpty { null }
-        frame.aperture = if (aperture != resources.getString(R.string.NoValue)) aperture else null
-
-        frame.count = binding.frameCountMenu.editText?.text.toString().toInt()
-        frame.note = binding.noteEditText.text.toString()
-        frame.date = dateTimeLayoutManager.dateTime
-        frame.lens = newFrame.lens // null if the camera is a fixed-lens camera
-        frame.location = newFrame.location
-        frame.formattedAddress = newFrame.formattedAddress
-        frame.exposureComp = binding.exposureCompMenu.editText?.text.toString().ifEmpty { null }
-        frame.noOfExposures = binding.noOfExposuresMenu.editText?.text.toString().toInt()
-        frame.focalLength = newFrame.focalLength
-        frame.pictureFilename = newFrame.pictureFilename
-        frame.filters = newFrame.filters
-        frame.flashUsed = binding.flashCheckbox.isChecked
-
-        val lightSourceValues = resources.getStringArray(R.array.LightSource)
-        val lightSourceIndex = lightSourceValues.indexOf(binding.lightSourceMenu.editText?.text.toString())
-        frame.lightSource = if (lightSourceIndex >= 0) lightSourceIndex else 0
-    }
-
-    /**
      * Set the complementary picture ImageView with the newly selected/taken picture
      */
     private fun setComplementaryPicture() {
 
         // If the picture filename was not set, set text and return. Otherwise continue
-        val filename = newFrame.pictureFilename
+        val filename = model.frame.pictureFilename
         if (filename == null) {
             binding.pictureText.text = null
             return
@@ -541,80 +363,7 @@ open class FrameEditFragment : Fragment() {
         }
     }
 
-    private fun initializeApertureMenu(allowCustomValue: Boolean = false) {
-        val aperture = newFrame.aperture
-        val displayedApertureValues = (
-                lens?.apertureValues(requireContext())
-                ?: Lens.defaultApertureValues(requireContext())
-                ).let {
-                    // If a custom aperture value is set and it's not included in the list,
-                    // add it to the list.
-                    if (aperture != null && !it.contains(aperture) && allowCustomValue) {
-                        it.plus(aperture)
-                    } else {
-                        it
-                    }
-                }
-        val autoComplete = binding.apertureMenu.editText as MaterialAutoCompleteTextView
-        autoComplete.setSimpleItems(displayedApertureValues)
-        autoComplete.setText(aperture, false)
-        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
-        // However in that case, the AutoCompleteTextView onClick method is not called.
-        // By setting the endIconOnClickListener to null onClick events are propagated
-        // to AutoCompleteTextView. This way we can force the preselection of the current item.
-        binding.apertureMenu.setEndIconOnClickListener(null)
-        autoComplete.setOnClickListener {
-            val currentIndex = displayedApertureValues.indexOf(autoComplete.text.toString())
-            if (currentIndex >= 0) autoComplete.listSelection = currentIndex
-        }
-    }
-
-    private fun initializeShutterSpeedMenu() {
-        val displayedShutterValues = frame.roll.camera?.shutterSpeedValues(requireContext())
-                ?: Camera.defaultShutterSpeedValues(requireContext())
-        val autoComplete = binding.shutterSpeedMenu.editText as MaterialAutoCompleteTextView
-        autoComplete.setSimpleItems(displayedShutterValues)
-        autoComplete.setText(newFrame.shutter, false)
-        // The end icon of TextInputLayout can be used to toggle the menu open/closed.
-        // However in that case, the AutoCompleteTextView onClick method is not called.
-        // By setting the endIconOnClickListener to null onClick events are propagated
-        // to AutoCompleteTextView. This way we can force the preselection of the current item.
-        binding.shutterSpeedMenu.setEndIconOnClickListener(null)
-        autoComplete.setOnClickListener {
-            val currentIndex = displayedShutterValues.indexOf(autoComplete.text.toString())
-            if (currentIndex >= 0) autoComplete.listSelection = currentIndex
-        }
-    }
-
-    /**
-     * Reset filters and update the filter button's text.
-     */
-    private fun resetFilters() {
-        newFrame.filters.clear()
-        binding.filtersButton.text = null
-    }
-
-    /**
-     * Updates the location button's text.
-     */
-    private fun updateLocationTextView() {
-        when {
-            newFrame.formattedAddress?.isNotEmpty() == true -> binding.locationButton.text = newFrame.formattedAddress
-            newFrame.location != null -> {
-                binding.locationButton.text = newFrame.location?.readableLocation
-                        ?.replace("N ", "N\n")?.replace("S ", "S\n")
-            }
-            else -> {
-                binding.locationButton.text = null
-            }
-        }
-    }
-
-    private fun updateFocalLengthTextView() {
-        binding.focalLengthButton.text = if (newFrame.focalLength == 0) "" else newFrame.focalLength.toString()
-    }
-
-    private fun showNewLensFragment(lensAutoComplete: MaterialAutoCompleteTextView) {
+    private fun showNewLensFragment() {
         val sharedElementTransition = TransitionSet()
             .addTransition(ChangeBounds())
             .addTransition(ChangeTransform())
@@ -643,22 +392,7 @@ open class FrameEditFragment : Fragment() {
         fragment.setFragmentResultListener("LensEditFragment") { _, bundle ->
             val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
                 ?: return@setFragmentResultListener
-            database.addLens(lens)
-            frame.roll.camera?.let {
-                database.addCameraLensLink(it, lens)
-                mountableLenses?.add(lens)
-
-                val lensItems1 = listOf(resources.getString(R.string.NoLens))
-                    .plus(mountableLenses?.map { l -> l.name } ?: emptyList()).toTypedArray()
-                lensAutoComplete.setSimpleItems(lensItems1)
-            }
-            lensAutoComplete.setText(lens.name, false)
-            initializeApertureMenu()
-            if (newFrame.focalLength > lens.maxFocalLength) newFrame.focalLength = lens.maxFocalLength
-            else if (newFrame.focalLength < lens.minFocalLength) newFrame.focalLength = lens.minFocalLength
-            newFrame.lens = lens
-            updateFocalLengthTextView()
-            resetFilters()
+            model.addLens(lens)
         }
     }
 
@@ -668,118 +402,104 @@ open class FrameEditFragment : Fragment() {
      * Listener class attached to filter layout.
      * Opens a new dialog to display filter options for current lens.
      */
-    private inner class FilterLayoutOnClickListener : View.OnClickListener {
-        override fun onClick(view: View) {
-            // Get list of possible filters that can be selected.
-            // If current lens is defined, use that to get linked filters.
-            // Otherwise get all filters from database.
-            val possibleFilters: List<Filter> =
-                    lens?.let { database.getLinkedFilters(it) } ?: database.filters
-            // Create a list with filter names to be shown on the multi choice dialog.
-            val listItems = possibleFilters.map { it.name }.toTypedArray()
-            // List where the mountable selections are stored.
-            val filterSelections = possibleFilters.map {
-                it to newFrame.filters.contains(it)
-            }.toMutableList()
-            // Bool array for preselected items in the multi choice list.
-            val booleans = filterSelections.map { it.second }.toBooleanArray()
+    private val filtersButtonOnClickListener = View.OnClickListener {
+        val possibleFilters = model.filters
+        // Create a list with filter names to be shown on the multi choice dialog.
+        val listItems = possibleFilters.map { it.name }.toTypedArray()
+        // List where the mountable selections are stored.
+        val filterSelections = possibleFilters.map {
+            it to model.frame.filters.contains(it)
+        }.toMutableList()
+        // Bool array for preselected items in the multi choice list.
+        val booleans = filterSelections.map { it.second }.toBooleanArray()
 
-            val builder = MaterialAlertDialogBuilder(requireActivity())
-            builder.setTitle(R.string.UsedFilters)
-            builder.setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
-                filterSelections[which] = filterSelections[which].copy(second = isChecked)
-            }
-            builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-                newFrame.filters = filterSelections.filter { it.second }.map { it.first }.toMutableList()
-                updateFiltersTextView()
-            }
-            builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-            val alert = builder.create()
-            alert.show()
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        builder.setTitle(R.string.UsedFilters)
+        builder.setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+            filterSelections[which] = filterSelections[which].copy(second = isChecked)
         }
+        builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
+            val filters = filterSelections.filter { it.second }.map { it.first }
+            model.observable.setFilters(filters)
+        }
+        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        val alert = builder.create()
+        alert.show()
     }
 
     /**
      * Listener class attached to focal length layout.
      * Opens a new dialog to display focal length options.
      */
-    private inner class FocalLengthLayoutOnClickListener : View.OnClickListener {
-        override fun onClick(view: View) {
-            val builder = MaterialAlertDialogBuilder(requireActivity())
-            val inflater = requireActivity().layoutInflater
-            @SuppressLint("InflateParams")
-            val dialogView = inflater.inflate(R.layout.dialog_seek_bar, null)
-            val focalLengthSeekBar = dialogView.findViewById<SeekBar>(R.id.seek_bar)
-            val focalLengthText = dialogView.findViewById<TextView>(R.id.value_text_view)
+    private val focalLengthButtonOnClickListener = View.OnClickListener {
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        val inflater = requireActivity().layoutInflater
+        @SuppressLint("InflateParams")
+        val dialogView = inflater.inflate(R.layout.dialog_seek_bar, null)
+        val focalLengthSeekBar = dialogView.findViewById<SeekBar>(R.id.seek_bar)
+        val focalLengthText = dialogView.findViewById<TextView>(R.id.value_text_view)
 
-            // Get the min and max focal lengths
-            val minValue: Int = lens?.minFocalLength ?: 0
-            val maxValue: Int = lens?.maxFocalLength ?: 500
+        // Get the min and max focal lengths
+        val minValue: Int = model.lens?.minFocalLength ?: 0
+        val maxValue: Int = model.lens?.maxFocalLength ?: 500
 
-            // Set the SeekBar progress percent
-            when {
-                newFrame.focalLength > maxValue -> {
-                    focalLengthSeekBar.progress = 100
-                    focalLengthText.text = maxValue.toString()
-                }
-                newFrame.focalLength < minValue -> {
-                    focalLengthSeekBar.progress = 0
-                    focalLengthText.text = minValue.toString()
-                }
-                minValue == maxValue -> {
-                    focalLengthSeekBar.progress = 50
-                    focalLengthText.text = minValue.toString()
-                }
-                else -> {
-                    focalLengthSeekBar.progress = calculateProgress(newFrame.focalLength, minValue, maxValue)
-                    focalLengthText.text = newFrame.focalLength.toString()
-                }
+        // Set the SeekBar progress percent
+        when {
+            model.frame.focalLength > maxValue -> {
+                focalLengthSeekBar.progress = 100
+                focalLengthText.text = maxValue.toString()
             }
-
-            // When the user scrolls the SeekBar, change the TextView to indicate
-            // the current focal length converted from the progress (int i)
-            focalLengthSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
-                    val focalLength = minValue + (maxValue - minValue) * i / 100
-                    focalLengthText.text = focalLength.toString()
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar) {
-                    // Do nothing
-                }
-
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    // Do nothing
-                }
-            })
-            val increaseFocalLength = dialogView.findViewById<TextView>(R.id.increase_focal_length)
-            val decreaseFocalLength = dialogView.findViewById<TextView>(R.id.decrease_focal_length)
-            increaseFocalLength.setOnClickListener {
-                var focalLength = focalLengthText.text.toString().toInt()
-                if (focalLength < maxValue) {
-                    ++focalLength
-                    focalLengthSeekBar.progress = calculateProgress(focalLength, minValue, maxValue)
-                    focalLengthText.text = focalLength.toString()
-                }
+            model.frame.focalLength < minValue -> {
+                focalLengthSeekBar.progress = 0
+                focalLengthText.text = minValue.toString()
             }
-            decreaseFocalLength.setOnClickListener {
-                var focalLength = focalLengthText.text.toString().toInt()
-                if (focalLength > minValue) {
-                    --focalLength
-                    focalLengthSeekBar.progress = calculateProgress(focalLength, minValue, maxValue)
-                    focalLengthText.text = focalLength.toString()
-                }
+            minValue == maxValue -> {
+                focalLengthSeekBar.progress = 50
+                focalLengthText.text = minValue.toString()
             }
-            builder.setView(dialogView)
-            builder.setTitle(resources.getString(R.string.ChooseFocalLength))
-            builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
-                newFrame.focalLength = focalLengthText.text.toString().toInt()
-                updateFocalLengthTextView()
+            else -> {
+                focalLengthSeekBar.progress =
+                    calculateProgress(model.frame.focalLength, minValue, maxValue)
+                focalLengthText.text = model.frame.focalLength.toString()
             }
-            builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
-            val dialog = builder.create()
-            dialog.show()
         }
+
+        // When the user scrolls the SeekBar, change the TextView to indicate
+        // the current focal length converted from the progress (int i)
+        focalLengthSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+                val focalLength = minValue + (maxValue - minValue) * i / 100
+                focalLengthText.text = focalLength.toString()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+        val increaseFocalLength = dialogView.findViewById<TextView>(R.id.increase_focal_length)
+        val decreaseFocalLength = dialogView.findViewById<TextView>(R.id.decrease_focal_length)
+        increaseFocalLength.setOnClickListener {
+            var focalLength = focalLengthText.text.toString().toInt()
+            if (focalLength < maxValue) {
+                ++focalLength
+                focalLengthSeekBar.progress = calculateProgress(focalLength, minValue, maxValue)
+                focalLengthText.text = focalLength.toString()
+            }
+        }
+        decreaseFocalLength.setOnClickListener {
+            var focalLength = focalLengthText.text.toString().toInt()
+            if (focalLength > minValue) {
+                --focalLength
+                focalLengthSeekBar.progress = calculateProgress(focalLength, minValue, maxValue)
+                focalLengthText.text = focalLength.toString()
+            }
+        }
+        builder.setView(dialogView)
+        builder.setTitle(resources.getString(R.string.ChooseFocalLength))
+        builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
+            model.observable.setFocalLength(focalLengthText.text.toString().toInt())
+        }
+        builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
+        val dialog = builder.create()
+        dialog.show()
     }
 
     /**
@@ -790,7 +510,7 @@ open class FrameEditFragment : Fragment() {
         override fun onClick(view: View) {
             val popupMenu = PopupMenu(requireContext(), view)
             // If a complementary picture was not set, set only the two first options
-            val items: Array<String> = if (newFrame.pictureFilename == null) {
+            val items: Array<String> = if (model.frame.pictureFilename == null) {
                 arrayOf(
                         getString(R.string.TakeNewComplementaryPicture),
                         getString(R.string.SelectPictureFromGallery)
@@ -818,7 +538,8 @@ open class FrameEditFragment : Fragment() {
                     }
                     2 -> {
                         try {
-                            ComplementaryPicturesManager.addPictureToGallery(requireActivity(), newFrame.pictureFilename)
+                            ComplementaryPicturesManager
+                                .addPictureToGallery(requireActivity(), model.frame.pictureFilename)
                             binding.root.snackbar(R.string.PictureAddedToGallery)
                         } catch (e: Exception) {
                             binding.root.snackbar(R.string.ErrorAddingPictureToGallery)
@@ -827,7 +548,7 @@ open class FrameEditFragment : Fragment() {
                     3 -> rotateComplementaryPictureRight()
                     4 -> rotateComplementaryPictureLeft()
                     5 -> {
-                        newFrame.pictureFilename = null
+                        model.frame.pictureFilename = null
                         binding.ivPicture.visibility = View.GONE
                         binding.pictureText.visibility = View.VISIBLE
                         binding.pictureText.text = null
@@ -868,7 +589,7 @@ open class FrameEditFragment : Fragment() {
          * set the complementary picture orientation with ComplementaryPicturesManager.
          */
         private fun rotateComplementaryPictureRight() {
-            val filename = newFrame.pictureFilename ?: return
+            val filename = model.frame.pictureFilename ?: return
             try {
                 ComplementaryPicturesManager.rotatePictureRight(requireActivity(), filename)
                 binding.ivPicture.rotation = binding.ivPicture.rotation + 90
@@ -884,7 +605,7 @@ open class FrameEditFragment : Fragment() {
          * the complementary picture orientation with ComplementaryPicturesManager.
          */
         private fun rotateComplementaryPictureLeft() {
-            val filename = newFrame.pictureFilename ?: return
+            val filename = model.frame.pictureFilename ?: return
             try {
                 ComplementaryPicturesManager.rotatePictureLeft(requireActivity(), filename)
                 binding.ivPicture.rotation = binding.ivPicture.rotation - 90
@@ -895,5 +616,4 @@ open class FrameEditFragment : Fragment() {
             }
         }
     }
-
 }

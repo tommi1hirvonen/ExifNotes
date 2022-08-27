@@ -45,7 +45,7 @@ data class Frame(
         var pictureFilename: String? = null,
         private var lightSource_: Int = 0,
         var lens: Lens? = null,
-        var filters: MutableList<Filter> = ArrayList()
+        var filters: List<Filter> = ArrayList()
 ) : Parcelable {
 
     constructor(roll_: Roll) : this(roll = roll_)
