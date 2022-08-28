@@ -132,13 +132,13 @@ class CameraEditFragment : Fragment() {
         arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.SetFixedLens))
         arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
         fragment.arguments = arguments
-
+        val backStack = requireArguments().getString(ExtraKeys.BACKSTACK_NAME)
         requireParentFragment().childFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
             .replace(R.id.gear_fragment_container, fragment, LensEditFragment.TAG)
-            .addToBackStack(GearFragment.BACKSTACK_NAME)
+            .addToBackStack(backStack)
             .commit()
 
         fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->

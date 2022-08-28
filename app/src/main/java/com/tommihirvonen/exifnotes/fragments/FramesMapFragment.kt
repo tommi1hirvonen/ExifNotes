@@ -47,6 +47,10 @@ import com.tommihirvonen.exifnotes.viewmodels.ViewModelUtility
  */
 class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
+    companion object {
+        const val TAG = "FRAMES_MAP_FRAGMENT"
+    }
+
     // The ViewModel has been instantiated using a factory by the parent fragment.
     private val model by viewModels<FramesViewModel>(ownerProducer = { requireParentFragment() })
 
@@ -61,18 +65,26 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var binding: FragmentFramesMapBinding
 
+    private var fragmentRestored = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             requireParentFragment().childFragmentManager.popBackStack()
+        }
+        fragmentRestored = savedInstanceState != null
+
+        val fragment = requireParentFragment().childFragmentManager
+            .findFragmentByTag(FrameEditFragment.TAG)
+        fragment?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentFramesMapBinding.inflate(layoutInflater)
-
-        binding.topAppBar.title = model.roll.name
+        binding.viewmodel = model
         binding.topAppBar.setNavigationOnClickListener {
             requireParentFragment().childFragmentManager.popBackStack()
         }
@@ -155,7 +167,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
             frames.forEach frames@ { frame ->
                 val location = frame.location ?: return@frames
                 val position = location.latLng ?: return@frames
-                val rollName = model.roll.name
+                val rollName = model.roll.value?.name
                 val frameCount = "#" + frame.count
                 val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bitmap)
                 val marker = googleMap?.addMarker(MarkerOptions()
@@ -168,21 +180,23 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
                 marker.tag = frame
                 markers.add(marker)
             }
-            if (markers.isNotEmpty() && firstDraw) {
-                firstDraw = false
-                val builder = LatLngBounds.Builder()
-                markers.forEach { builder.include(it.position) }
-                val bounds = builder.build()
-                val width = resources.displayMetrics.widthPixels
-                val height = resources.displayMetrics.heightPixels
-                val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
-                // We use this command where the map's dimensions are specified.
-                // This is because on some devices, the map's layout may not have yet occurred
-                // (map size is 0).
-                val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
-                googleMap?.moveCamera(cameraUpdate)
-            } else if (markers.isEmpty()) {
-                binding.root.snackbar(R.string.NoFramesToShow)
+            if (!fragmentRestored) {
+                if (markers.isNotEmpty() && firstDraw) {
+                    firstDraw = false
+                    val builder = LatLngBounds.Builder()
+                    markers.forEach { builder.include(it.position) }
+                    val bounds = builder.build()
+                    val width = resources.displayMetrics.widthPixels
+                    val height = resources.displayMetrics.heightPixels
+                    val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
+                    // We use this command where the map's dimensions are specified.
+                    // This is because on some devices, the map's layout may not have yet occurred
+                    // (map size is 0).
+                    val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
+                    googleMap?.moveCamera(cameraUpdate)
+                } else if (markers.isEmpty()) {
+                    binding.root.snackbar(R.string.NoFramesToShow)
+                }
             }
         }
     }
@@ -239,18 +253,18 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
                 arguments.putString(ExtraKeys.TITLE, title)
                 arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
                 arguments.putParcelable(ExtraKeys.FRAME, frame)
+                arguments.putString(ExtraKeys.BACKSTACK_NAME, FramesFragment.BACKSTACK_NAME)
+                arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.frames_fragment_container)
                 fragment.arguments = arguments
                 requireParentFragment().childFragmentManager
                     .beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
                     .setReorderingAllowed(true)
-                    .add(R.id.frames_fragment_container, fragment)
-                    .addToBackStack(null)
+                    .add(R.id.frames_fragment_container, fragment, FrameEditFragment.TAG)
+                    .addToBackStack(FramesFragment.BACKSTACK_NAME)
                     .commit()
-                fragment.setFragmentResultListener("EditFrameDialog") { _, bundle ->
-                    val frame1: Frame = bundle.getParcelable(ExtraKeys.FRAME)
-                        ?: return@setFragmentResultListener
-                    model.updateFrame(frame1)
+                fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
+                    bundle.getParcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
                 }
             }
         }

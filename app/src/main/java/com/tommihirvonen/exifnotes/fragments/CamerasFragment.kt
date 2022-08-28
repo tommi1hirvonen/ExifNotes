@@ -183,6 +183,7 @@ class CamerasFragment : Fragment() {
         }
 
         arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+        arguments.putString(ExtraKeys.BACKSTACK_NAME, GearFragment.BACKSTACK_NAME)
         fragment.arguments = arguments
 
         gearFragment.childFragmentManager

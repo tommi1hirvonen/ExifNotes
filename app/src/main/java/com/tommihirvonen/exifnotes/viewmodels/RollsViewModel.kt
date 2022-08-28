@@ -101,13 +101,10 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
         mCameras.value = mCameras.value?.filterNot { it.id == camera.id }?.plus(camera)?.sorted()
     }
 
-    fun addRoll(roll: Roll) {
-        database.addRoll(roll)
-        replaceRoll(roll)
-    }
-
-    fun updateRoll(roll: Roll): Int {
-        val rows = database.updateRoll(roll)
+    fun submitRoll(roll: Roll) {
+        if (database.updateRoll(roll) == 0) {
+            database.addRoll(roll)
+        }
         if (mRollFilterMode.value == RollFilterMode.ACTIVE && roll.archived
             || mRollFilterMode.value == RollFilterMode.ARCHIVED && !roll.archived) {
             rollList = rollList.minus(roll)
@@ -115,7 +112,6 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             replaceRoll(roll)
         }
-        return rows
     }
 
     fun deleteRoll(roll: Roll) {

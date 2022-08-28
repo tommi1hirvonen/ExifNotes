@@ -28,7 +28,10 @@ import com.tommihirvonen.exifnotes.databinding.FragmentRollsBinding
 
 class RollsFragment : Fragment() {
 
-    private val rollsListFragment = RollsListFragment()
+    companion object {
+        const val TAG = "ROLLS_FRAGMENT"
+        const val BACKSTACK_NAME = "ROLLS_BACKSTACK"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,10 +43,14 @@ class RollsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        childFragmentManager
-            .beginTransaction()
-            .addToBackStack(null)
-            .replace(R.id.rolls_fragment_container, rollsListFragment)
-            .commit()
+        if (childFragmentManager.backStackEntryCount > 0) {
+            childFragmentManager.restoreBackStack(BACKSTACK_NAME)
+        } else {
+            childFragmentManager
+                .beginTransaction()
+                .addToBackStack(BACKSTACK_NAME)
+                .replace(R.id.rolls_fragment_container, RollsListFragment(), RollsListFragment.TAG)
+                .commit()
+        }
     }
 }

@@ -57,6 +57,10 @@ import kotlin.math.roundToInt
  */
 class RollsMapFragment : Fragment(), OnMapReadyCallback {
 
+    companion object {
+        const val TAG = "ROLLS_MAP_FRAGMENT"
+    }
+
     private val filterMode by lazy {
         val activity = requireActivity()
         val prefs = PreferenceManager.getDefaultSharedPreferences(activity.baseContext)
@@ -81,10 +85,21 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentRollsMapBinding
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
+    private var fragmentRestored = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             requireParentFragment().childFragmentManager.popBackStack()
+        }
+        fragmentRestored = savedInstanceState != null
+
+        // Check if a frame edit fragment was left open after configuration change.
+        // If so, reattach the fragment result listener.
+        val fragment = requireParentFragment().childFragmentManager
+            .findFragmentByTag(FrameEditFragment.TAG)
+        fragment?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
         }
     }
 
@@ -252,20 +267,22 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                     markerList.add(marker)
                 }
             }
-            if (markerList.isNotEmpty()) {
-                val builder = LatLngBounds.Builder()
-                markerList.forEach { builder.include(it.position) }
-                val bounds = builder.build()
-                val width = resources.displayMetrics.widthPixels
-                val height = resources.displayMetrics.heightPixels
-                val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
-                // We use this command where the map's dimensions are specified.
-                // This is because on some devices, the map's layout may not have yet occurred
-                // (map size is 0).
-                val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
-                googleMap?.moveCamera(cameraUpdate)
-            } else {
-                binding.root.snackbar(R.string.NoFramesToShow, binding.bottomSheet)
+            if (!fragmentRestored) {
+                if (markerList.isNotEmpty()) {
+                    val builder = LatLngBounds.Builder()
+                    markerList.forEach { builder.include(it.position) }
+                    val bounds = builder.build()
+                    val width = resources.displayMetrics.widthPixels
+                    val height = resources.displayMetrics.heightPixels
+                    val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
+                    // We use this command where the map's dimensions are specified.
+                    // This is because on some devices, the map's layout may not have yet occurred
+                    // (map size is 0).
+                    val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
+                    googleMap?.moveCamera(cameraUpdate)
+                } else {
+                    binding.root.snackbar(R.string.NoFramesToShow, binding.bottomSheet)
+                }
             }
         }
     }
@@ -324,18 +341,18 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                 arguments.putString(ExtraKeys.TITLE, title)
                 arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
                 arguments.putParcelable(ExtraKeys.FRAME, frame)
+                arguments.putString(ExtraKeys.BACKSTACK_NAME, RollsFragment.BACKSTACK_NAME)
+                arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.rolls_fragment_container)
                 fragment.arguments = arguments
                 requireParentFragment().childFragmentManager
                     .beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
                     .setReorderingAllowed(true)
-                    .add(R.id.rolls_fragment_container, fragment)
-                    .addToBackStack(null)
+                    .add(R.id.rolls_fragment_container, fragment, FrameEditFragment.TAG)
+                    .addToBackStack(RollsFragment.BACKSTACK_NAME)
                     .commit()
-                fragment.setFragmentResultListener("EditFrameDialog") { _, bundle ->
-                    val frame1: Frame = bundle.getParcelable(ExtraKeys.FRAME)
-                        ?: return@setFragmentResultListener
-                    database.updateFrame(frame1)
+                fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
+                    bundle.getParcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
                 }
             }
         }

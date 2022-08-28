@@ -25,10 +25,7 @@ import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.*
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
 import androidx.transition.*
@@ -50,6 +47,18 @@ import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
  */
 class RollEditFragment : Fragment() {
 
+    companion object {
+        const val TAG = "ROLL_EDIT_FRAGMENT"
+        const val REQUEST_KEY = TAG
+    }
+
+    private val backStackName by lazy {
+        requireArguments().getString(ExtraKeys.BACKSTACK_NAME)
+    }
+    private val fragmentContainerId by lazy {
+        requireArguments().getInt(ExtraKeys.FRAGMENT_CONTAINER_ID)
+    }
+
     private val rollsModel by activityViewModels<RollsViewModel>()
     private val roll by lazy { requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll() }
     private val model by lazy {
@@ -62,6 +71,20 @@ class RollEditFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             requireParentFragment().childFragmentManager.popBackStack()
         }
+
+        val addFilmStockFragment = requireParentFragment().childFragmentManager
+            .findFragmentByTag(FilmStockEditDialog.TAG)
+        addFilmStockFragment
+            ?.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY, onFilmStockAdded)
+
+        val addCameraFragment = requireParentFragment().childFragmentManager
+            .findFragmentByTag(CameraEditFragment.TAG)
+        addCameraFragment?.setFragmentResultListener(CameraEditFragment.REQUEST_KEY, onCameraAdded)
+
+        val selectFilmStockDialog = requireParentFragment().childFragmentManager
+            .findFragmentByTag(SelectFilmStockDialog.TAG)
+        selectFilmStockDialog
+            ?.setFragmentResultListener(SelectFilmStockDialog.REQUEST_KEY, onFilmStockSelected)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -88,23 +111,19 @@ class RollEditFragment : Fragment() {
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
-            dialog.show(parentFragmentManager.beginTransaction(), null)
-            dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY) { _, bundle ->
-                val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
-                    ?: return@setFragmentResultListener
-                database.addFilmStock(filmStock)
-                setFilmStock(filmStock)
-            }
+            val transaction = requireParentFragment().childFragmentManager
+                .beginTransaction()
+                .addToBackStack(backStackName)
+            dialog.show(transaction, FilmStockEditDialog.TAG)
+            dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY, onFilmStockAdded)
         }
 
         binding.filmStockLayout.setOnClickListener {
             val dialog = SelectFilmStockDialog()
-            dialog.show(parentFragmentManager.beginTransaction(), null)
-            dialog.setFragmentResultListener("SelectFilmStockDialog") { _, bundle ->
-                val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
-                    ?: return@setFragmentResultListener
-                setFilmStock(filmStock)
-            }
+            val transaction = requireParentFragment().childFragmentManager
+                .beginTransaction().addToBackStack(backStackName)
+            dialog.show(transaction, SelectFilmStockDialog.TAG)
+            dialog.setFragmentResultListener(SelectFilmStockDialog.REQUEST_KEY, onFilmStockSelected)
         }
 
         binding.addCamera.setOnClickListener {
@@ -118,26 +137,22 @@ class RollEditFragment : Fragment() {
             val fragment = CameraEditFragment().apply {
                 sharedElementEnterTransition = sharedElementTransition
             }
-            val arguments = Bundle()
             val sharedElement = binding.addCamera
+            val arguments = Bundle()
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
             arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+            arguments.putString(ExtraKeys.BACKSTACK_NAME, backStackName)
             fragment.arguments = arguments
 
             requireParentFragment().childFragmentManager
                 .beginTransaction()
                 .setReorderingAllowed(true)
                 .addSharedElement(sharedElement, sharedElement.transitionName)
-                .replace(R.id.rolls_fragment_container, fragment)
-                .addToBackStack(null)
+                .replace(fragmentContainerId, fragment, CameraEditFragment.TAG)
+                .addToBackStack(backStackName)
                 .commit()
 
-            fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY) { _, bundle ->
-                val camera: Camera = bundle.getParcelable(ExtraKeys.CAMERA)
-                    ?: return@setFragmentResultListener
-                rollsModel.addCamera(camera)
-                model.observable.setCamera(camera)
-            }
+            fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY, onCameraAdded)
         }
 
         // DATE
@@ -165,20 +180,10 @@ class RollEditFragment : Fragment() {
 
         binding.positiveButton.setOnClickListener {
             if (model.validate()) {
-                roll.name = model.roll.name
-                roll.note = model.roll.note
-                roll.camera = model.roll.camera
-                roll.date = model.roll.date
-                roll.unloaded = model.roll.unloaded
-                roll.developed = model.roll.developed
-                roll.iso = model.roll.iso
-                roll.format = model.roll.format
-                roll.pushPull = model.roll.pushPull
-                roll.filmStock = model.roll.filmStock
-
-                val bundle = Bundle()
-                bundle.putParcelable(ExtraKeys.ROLL, roll)
-                setFragmentResult("EditRollDialog", bundle)
+                val bundle = Bundle().apply {
+                    putParcelable(ExtraKeys.ROLL, model.roll)
+                }
+                setFragmentResult(REQUEST_KEY, bundle)
                 requireActivity().onBackPressed()
             }
         }
@@ -195,12 +200,18 @@ class RollEditFragment : Fragment() {
         }
     }
 
-    private fun setFilmStock(filmStock: FilmStock) {
-        model.observable.setFilmStock(filmStock)
-        // If the film stock ISO is defined, set the ISO
-        if (filmStock.iso != 0) {
-            model.observable.setIso(filmStock.iso.toString())
-        }
+    private val onFilmStockSelected: (String, Bundle) -> Unit = { _, bundle ->
+        bundle.getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model.observable::setFilmStock)
     }
 
+    private val onFilmStockAdded: (String, Bundle) -> Unit = { _, bundle ->
+        bundle.getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::addFilmStock)
+    }
+
+    private val onCameraAdded: (String, Bundle) -> Unit = { _, bundle ->
+        bundle.getParcelable<Camera>(ExtraKeys.CAMERA)?.let { camera ->
+            rollsModel.addCamera(camera)
+            model.observable.setCamera(camera)
+        }
+    }
 }

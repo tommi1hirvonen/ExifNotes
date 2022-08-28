@@ -36,6 +36,11 @@ import com.tommihirvonen.exifnotes.utilities.database
 
 class SelectFilmStockDialog : DialogFragment() {
 
+    companion object {
+        const val TAG = "SELECT_FILM_STOCK_DIALOG"
+        const val REQUEST_KEY = TAG
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val inflater = requireActivity().layoutInflater
         val view = inflater.inflate(R.layout.dialog_select_film_stock, null)
@@ -67,7 +72,7 @@ class SelectFilmStockDialog : DialogFragment() {
         dismiss()
         val bundle = Bundle()
         bundle.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
-        setFragmentResult("SelectFilmStockDialog", bundle)
+        setFragmentResult(REQUEST_KEY, bundle)
     }
 
 }

@@ -41,7 +41,7 @@ abstract class Gear(open var id: Long, open var make: String?, open var model: S
             gear = other
         else
             return false
-        return gear.id == this.id && gear.make == this.make && gear.model == this.model
+        return gear.id == this.id
     }
 
     override fun hashCode(): Int {

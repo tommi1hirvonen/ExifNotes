@@ -57,10 +57,7 @@ import kotlinx.coroutines.launch
 class RollsListFragment : Fragment(), RollAdapterListener {
 
     companion object {
-        /**
-         * Public constant used to tag the fragment when created
-         */
-        const val ROLLS_FRAGMENT_TAG = "ROLLS_FRAGMENT"
+        const val TAG = "ROLLS_LIST_FRAGMENT"
     }
 
     private val model by activityViewModels<RollsViewModel>()
@@ -82,6 +79,17 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     private val transitionDurationShowFrames = 400L
     private val transitionDurationEditRoll = 250L
     private var reenterFadeDuration = 0L
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Check if the roll edit fragment was left open after configuration change.
+        // If so, reattach the fragment result listener.
+        val fragment = requireParentFragment().childFragmentManager
+            .findFragmentByTag(RollEditFragment.TAG)
+        fragment?.setFragmentResultListener(RollEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Roll>(ExtraKeys.ROLL)?.let(model::submitRoll)
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -206,7 +214,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     // Small delay so that the drawer has enough time to close
                     // before a new activity is started.
                     delay(200)
-                    gearResultLauncher.launch(preferenceActivityIntent)
+                    preferenceResultLauncher.launch(preferenceActivityIntent)
                 }
             }
             R.id.menu_item_show_on_map -> {
@@ -219,8 +227,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         .beginTransaction()
                         .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
                         .setReorderingAllowed(true)
-                        .addToBackStack(null)
-                        .add(R.id.rolls_fragment_container, fragment)
+                        .addToBackStack(RollsFragment.BACKSTACK_NAME)
+                        .add(R.id.rolls_fragment_container, fragment, RollsMapFragment.TAG)
                         .commit()
                 }
             }
@@ -302,8 +310,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 .beginTransaction()
                 .setReorderingAllowed(true)
                 .addSharedElement(layout, layout.transitionName)
-                .addToBackStack(null)
-                .replace(R.id.rolls_fragment_container, framesFragment)
+                .addToBackStack(RollsFragment.BACKSTACK_NAME)
+                .replace(R.id.rolls_fragment_container, framesFragment, FramesFragment.TAG)
                 .commit()
         }
     }
@@ -354,23 +362,20 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         }
 
         arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+        arguments.putString(ExtraKeys.BACKSTACK_NAME, RollsFragment.BACKSTACK_NAME)
+        arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.rolls_fragment_container)
         fragment.arguments = arguments
 
         requireParentFragment().childFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.rolls_fragment_container, fragment)
-            .addToBackStack(null)
+            .replace(R.id.rolls_fragment_container, fragment, RollEditFragment.TAG)
+            .addToBackStack(RollsFragment.BACKSTACK_NAME)
             .commit()
 
-        fragment.setFragmentResultListener("EditRollDialog") { _, bundle ->
-            val editedRoll: Roll = bundle.getParcelable(ExtraKeys.ROLL) ?: return@setFragmentResultListener
-            if (roll == null) {
-                model.addRoll(editedRoll)
-            } else {
-                model.updateRoll(editedRoll)
-            }
+        fragment.setFragmentResultListener(RollEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Roll>(ExtraKeys.ROLL)?.let(model::submitRoll)
         }
     }
 
@@ -389,7 +394,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
             if (updateIso) {
                 roll.iso = filmStock?.iso ?: 0
             }
-            model.updateRoll(roll)
+            model.submitRoll(roll)
         }
         actionMode?.finish()
     }
@@ -458,9 +463,11 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                                 0 -> {
                                     // Edit film stock
                                     val filmStockDialog = SelectFilmStockDialog()
-                                    filmStockDialog.show(parentFragmentManager.beginTransaction(), null)
+                                    val transaction = requireParentFragment().childFragmentManager
+                                        .beginTransaction().addToBackStack(RollsFragment.BACKSTACK_NAME)
+                                    filmStockDialog.show(transaction, SelectFilmStockDialog.TAG)
                                     filmStockDialog.setFragmentResultListener(
-                                        "SelectFilmStockDialog") { _, bundle ->
+                                        SelectFilmStockDialog.REQUEST_KEY) { _, bundle ->
                                         val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
                                             ?: return@setFragmentResultListener
                                         MaterialAlertDialogBuilder(requireActivity()).apply {
@@ -494,7 +501,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 R.id.menu_item_archive -> {
                     selectedRolls.forEach { roll ->
                         roll.archived = true
-                        model.updateRoll(roll)
+                        model.submitRoll(roll)
                     }
                     actionMode.finish()
                     binding.container
@@ -504,7 +511,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 R.id.menu_item_unarchive -> {
                     selectedRolls.forEach { roll ->
                         roll.archived = false
-                        model.updateRoll(roll)
+                        model.submitRoll(roll)
                     }
                     actionMode.finish()
                     binding.container

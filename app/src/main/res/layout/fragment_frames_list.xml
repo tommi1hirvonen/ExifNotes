@@ -16,81 +16,91 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/top_app_bar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+    <data>
+        <variable
+            name="viewmodel"
+            type="com.tommihirvonen.exifnotes.viewmodels.FramesViewModel" />
+    </data>
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            style="?attr/collapsingToolbarLayoutLargeStyle"
-            android:layout_width="match_parent"
-            app:maxLines="3"
-            android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/top_app_bar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:elevation="0dp"
-                android:transitionName="transition_roll_edit"
-                tools:title="Text"
-                tools:subtitle="Text"
-                app:layout_collapseMode="pin"
-                app:navigationIcon="@drawable/ic_ab_back_material"
-                app:navigationIconTint="?attr/colorControlNormal"
-                app:menu="@menu/menu_frames_fragment_top"/>
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <TextView
-        android:id="@+id/no_added_frames"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        app:layout_anchor="@id/top_app_bar"
-        app:layout_anchorGravity="bottom"
-        android:paddingTop="140dp"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-        android:text="@string/NoFrames"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/frames_recycler_view"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="80dp"
-        android:clipToPadding="false"
-        android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
+        android:id="@+id/container">
 
-    <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/bottomAppBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        style="@style/Widget.Material3.BottomAppBar"
-        app:menu="@menu/menu_frames_fragment_bottom"
-        android:transitionName="transition_edit_frame"
-        />
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/top_app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_anchor="@id/bottomAppBar"
-        android:layout_margin="16dp"
-        android:text="@string/NewFrame"
-        app:srcCompat="@drawable/ic_baseline_add_24" />
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                style="?attr/collapsingToolbarLayoutLargeStyle"
+                android:layout_width="match_parent"
+                app:maxLines="3"
+                android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/top_app_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:elevation="0dp"
+                    android:transitionName="transition_roll_edit"
+                    app:title="@{viewmodel.roll.name}"
+                    tools:title="Text"
+                    app:layout_collapseMode="pin"
+                    app:navigationIcon="@drawable/ic_ab_back_material"
+                    app:navigationIconTint="?attr/colorControlNormal"
+                    app:menu="@menu/menu_frames_fragment_top"/>
+
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <TextView
+            android:id="@+id/no_added_frames"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            app:layout_anchor="@id/top_app_bar"
+            app:layout_anchorGravity="bottom"
+            android:paddingTop="140dp"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+            android:text="@string/NoFrames"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/frames_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="80dp"
+            android:clipToPadding="false"
+            android:scrollbars="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            />
+
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:id="@+id/bottomAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            style="@style/Widget.Material3.BottomAppBar"
+            app:menu="@menu/menu_frames_fragment_bottom"
+            android:transitionName="transition_edit_frame"
+            />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_anchor="@id/bottomAppBar"
+            android:layout_margin="16dp"
+            android:text="@string/NewFrame"
+            app:srcCompat="@drawable/ic_baseline_add_24" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

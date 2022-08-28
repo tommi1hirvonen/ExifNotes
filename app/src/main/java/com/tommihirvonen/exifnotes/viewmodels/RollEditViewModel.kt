@@ -33,6 +33,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
+import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.utilities.validate
 
 class RollEditViewModel(application: Application, val roll: Roll)
@@ -57,6 +58,11 @@ class RollEditViewModel(application: Application, val roll: Roll)
         } else {
             true
         }
+    }
+
+    fun addFilmStock(filmStock: FilmStock) {
+        context.database.addFilmStock(filmStock)
+        observable.setFilmStock(filmStock)
     }
 
     inner class Observable : BaseObservable() {
@@ -88,12 +94,15 @@ class RollEditViewModel(application: Application, val roll: Roll)
             }
 
         @Bindable
-        fun getFilmStock() = roll.filmStock?.name
+        fun getFilmStock() = roll.filmStock?.name ?: ""
         fun setFilmStock(filmStock: FilmStock?) {
             roll.filmStock = filmStock
             notifyPropertyChanged(BR.filmStock)
             notifyPropertyChanged(BR.clearFilmStockVisibility)
             notifyPropertyChanged(BR.addFilmStockVisibility)
+            if (filmStock != null && filmStock.iso != 0) {
+                setIso(filmStock.iso.toString())
+            }
         }
 
         @Bindable
@@ -159,11 +168,11 @@ class RollEditViewModel(application: Application, val roll: Roll)
             context.resources.getStringArray(R.array.FilmFormats)[roll.format]
 
         @get:Bindable
-        val clearFilmStockVisibility: Int =
+        val clearFilmStockVisibility: Int get() =
             if (roll.filmStock == null) View.INVISIBLE else View.VISIBLE
 
         @get:Bindable
-        val addFilmStockVisibility: Int =
+        val addFilmStockVisibility: Int get() =
             if (roll.filmStock != null) View.INVISIBLE else View.VISIBLE
 
         val onCameraItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->

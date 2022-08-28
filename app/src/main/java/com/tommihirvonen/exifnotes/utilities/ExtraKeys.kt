@@ -36,4 +36,6 @@ object ExtraKeys {
     const val RESULT_CODE = "RESULT_CODE"
     const val TRANSITION_NAME = "TRANSITION_NAME"
     const val FIXED_LENS = "FIXED_LENS"
+    const val BACKSTACK_NAME = "BACKSTACK_NAME"
+    const val FRAGMENT_CONTAINER_ID = "FRAGMENT_CONTAINER_ID"
 }

@@ -31,16 +31,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FramesViewModel(application: Application, val roll: Roll) : AndroidViewModel(application) {
+class FramesViewModel(application: Application, roll: Roll) : AndroidViewModel(application) {
     private val database = application.database
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.baseContext)
 
+    val roll get() = mRoll as LiveData<Roll>
     val frames get() = mFrames as LiveData<List<Frame>>
     val frameSortMode get() = mFrameSortMode as LiveData<FrameSortMode>
 
+    private val mRoll = MutableLiveData<Roll>().apply { value = roll }
+
     private val mFrames by lazy {
-        MutableLiveData<List<Frame>>().also { loadFrames() }
+        MutableLiveData<List<Frame>>().also { loadFrames(roll) }
     }
 
     private val mFrameSortMode by lazy {
@@ -51,6 +54,10 @@ class FramesViewModel(application: Application, val roll: Roll) : AndroidViewMod
         }
     }
 
+    fun setRoll(roll: Roll) {
+        mRoll.value = roll
+    }
+
     fun setFrameSortMode(mode: FrameSortMode) {
         val editor = sharedPreferences.edit()
         editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, mode.value)
@@ -59,14 +66,15 @@ class FramesViewModel(application: Application, val roll: Roll) : AndroidViewMod
         mFrames.value = mFrames.value?.sorted(getApplication(), mode)
     }
 
-    fun addFrame(frame: Frame) {
-        database.addFrame(frame)
-        replaceFrame(frame)
-    }
-
-    fun updateFrame(frame: Frame) {
-        database.updateFrame(frame)
-        replaceFrame(frame)
+    fun submitFrame(frame: Frame) {
+        if (database.updateFrame(frame) == 0) {
+            database.addFrame(frame)
+        }
+        val sortMode = mFrameSortMode.value ?: FrameSortMode.FRAME_COUNT
+        mFrames.value = mFrames.value
+            ?.filterNot { it.id == frame.id }
+            ?.plus(frame)
+            ?.sorted(getApplication(), sortMode)
     }
 
     fun deleteFrame(frame: Frame) {
@@ -74,21 +82,13 @@ class FramesViewModel(application: Application, val roll: Roll) : AndroidViewMod
         mFrames.value = mFrames.value?.minus(frame)
     }
 
-    private fun loadFrames() {
+    private fun loadFrames(roll: Roll) {
         val sortMode = mFrameSortMode.value ?: FrameSortMode.FRAME_COUNT
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 mFrames.postValue(database.getFrames(roll).sorted(getApplication(), sortMode))
             }
         }
-    }
-
-    private fun replaceFrame(frame: Frame) {
-        val sortMode = mFrameSortMode.value ?: FrameSortMode.FRAME_COUNT
-        mFrames.value = mFrames.value
-            ?.filterNot { it.id == frame.id }
-            ?.plus(frame)
-            ?.sorted(getApplication(), sortMode)
     }
 }
 

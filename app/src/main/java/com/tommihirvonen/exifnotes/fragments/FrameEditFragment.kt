@@ -66,8 +66,21 @@ import kotlin.math.roundToInt
  * Dialog to edit Frame's information
  */
 class FrameEditFragment : Fragment() {
+
+    companion object {
+        const val TAG = "FRAME_EDIT_FRAGMENT"
+        const val REQUEST_KEY = TAG
+    }
     
     private lateinit var binding: FragmentFrameEditBinding
+
+    private val backStackName by lazy {
+        requireArguments().getString(ExtraKeys.BACKSTACK_NAME)
+    }
+
+    private val fragmentContainerId by lazy {
+        requireArguments().getInt(ExtraKeys.FRAGMENT_CONTAINER_ID)
+    }
 
     private val frame by lazy {
         requireArguments().getParcelable<Frame>(ExtraKeys.FRAME)
@@ -90,6 +103,18 @@ class FrameEditFragment : Fragment() {
         super.onCreate(savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             requireParentFragment().childFragmentManager.popBackStack()
+        }
+
+        val addFilterDialog = requireParentFragment().childFragmentManager
+            .findFragmentByTag(FilterEditDialog.TAG)
+        addFilterDialog?.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
+        }
+
+        val addLensFragment = requireParentFragment().childFragmentManager
+            .findFragmentByTag(LensEditFragment.TAG)
+        addLensFragment?.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
+            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
         }
     }
 
@@ -149,11 +174,12 @@ class FrameEditFragment : Fragment() {
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
             dialog.arguments = arguments
-            dialog.show(parentFragmentManager.beginTransaction(), null)
+            val transaction = requireParentFragment().childFragmentManager
+                .beginTransaction()
+                .addToBackStack(backStackName)
+            dialog.show(transaction, FilterEditDialog.TAG)
             dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-                val filter: Filter = bundle.getParcelable(ExtraKeys.FILTER)
-                    ?: return@setFragmentResultListener
-                model.addFilter(filter)
+                bundle.getParcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
             }
         }
 
@@ -162,24 +188,10 @@ class FrameEditFragment : Fragment() {
 
         binding.positiveButton.setOnClickListener {
             if (model.validate()) {
-                frame.shutter = model.frame.shutter
-                frame.aperture = model.frame.aperture
-                frame.count = model.frame.count
-                frame.note = model.frame.note
-                frame.date = model.frame.date
-                frame.lens = model.frame.lens
-                frame.location = model.frame.location
-                frame.formattedAddress = model.frame.formattedAddress
-                frame.exposureComp = model.frame.exposureComp
-                frame.noOfExposures = model.frame.noOfExposures
-                frame.focalLength = model.frame.focalLength
-                frame.pictureFilename = model.frame.pictureFilename
-                frame.filters = model.frame.filters
-                frame.flashUsed = model.frame.flashUsed
-                frame.lightSource = model.frame.lightSource
-                val bundle = Bundle()
-                bundle.putParcelable(ExtraKeys.FRAME, frame)
-                setFragmentResult("EditFrameDialog", bundle)
+                val bundle = Bundle().apply {
+                    putParcelable(ExtraKeys.FRAME, model.frame)
+                }
+                setFragmentResult(REQUEST_KEY, bundle)
                 requireParentFragment().childFragmentManager.popBackStack()
             }
         }
@@ -380,19 +392,16 @@ class FrameEditFragment : Fragment() {
         val sharedElement = binding.addLens
         arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
         fragment.arguments = arguments
-
         requireParentFragment().childFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.frames_fragment_container, fragment)
-            .addToBackStack(null)
+            .replace(fragmentContainerId, fragment, LensEditFragment.TAG)
+            .addToBackStack(backStackName)
             .commit()
 
         fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            val lens: Lens = bundle.getParcelable(ExtraKeys.LENS)
-                ?: return@setFragmentResultListener
-            model.addLens(lens)
+            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
         }
     }
 

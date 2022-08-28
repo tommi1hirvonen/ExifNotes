@@ -63,15 +63,17 @@ import java.util.*
  */
 class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
-    private val roll get() = model.roll
+    companion object {
+        const val TAG = "FRAMES_LIST_FRAGMENT"
+    }
 
     // The ViewModel has been instantiated using a factory by the parent fragment.
     private val model by viewModels<FramesViewModel>(ownerProducer = { requireParentFragment() })
-
     private val rollModel by activityViewModels<RollsViewModel>()
 
-    private lateinit var frameAdapter: FrameAdapter
+    private val roll get() = model.roll.value!!
 
+    private lateinit var frameAdapter: FrameAdapter
     private lateinit var binding: FragmentFramesListBinding
     private var frames = emptyList<Frame>()
 
@@ -93,15 +95,23 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             requireParentFragment().requireParentFragment().childFragmentManager.popBackStack()
         }
+
+        val rollEditFragment = requireParentFragment().childFragmentManager
+            .findFragmentByTag(RollEditFragment.TAG)
+        rollEditFragment
+            ?.setFragmentResultListener(RollEditFragment.REQUEST_KEY, onRollEditListener)
+
+        val frameEditFragment = requireParentFragment().childFragmentManager
+            .findFragmentByTag(FrameEditFragment.TAG)
+        frameEditFragment
+            ?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY, onFrameEditListener)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentFramesListBinding.inflate(inflater, container, false)
-
         binding.topAppBar.transitionName = "frames_top_app_bar_transition"
-        binding.topAppBar.title = roll.name
-
+        binding.viewmodel = model
         binding.topAppBar.setNavigationOnClickListener {
             requireParentFragment().requireParentFragment().childFragmentManager.popBackStack()
         }
@@ -223,24 +233,29 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         // Use the provided view as a primary shared element.
         // If no view was provided, use the floating action button.
         arguments.putSerializable(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+        arguments.putString(ExtraKeys.BACKSTACK_NAME, FramesFragment.BACKSTACK_NAME)
+        arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.frames_fragment_container)
         fragment.arguments = arguments
         requireParentFragment().childFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.frames_fragment_container, fragment)
-            .addToBackStack(null)
+            .replace(R.id.frames_fragment_container, fragment, FrameEditFragment.TAG)
+            .addToBackStack(FramesFragment.BACKSTACK_NAME)
             .commit()
 
-        fragment.setFragmentResultListener("EditFrameDialog") { _, bundle ->
-            actionMode?.finish()
-            val frame1: Frame = bundle.getParcelable(ExtraKeys.FRAME)
-                ?: return@setFragmentResultListener
-            if (frame == null) {
-                model.addFrame(frame1)
-            } else {
-                model.updateFrame(frame1)
-            }
+        fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY, onFrameEditListener)
+    }
+
+    private val onFrameEditListener: (String, Bundle) -> Unit = { _, bundle ->
+        actionMode?.finish()
+        bundle.getParcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
+    }
+
+    private val onRollEditListener: (String, Bundle) -> Unit = { _, bundle ->
+        bundle.getParcelable<Roll>(ExtraKeys.ROLL)?.let{
+            rollModel.submitRoll(it)
+            model.setRoll(it)
         }
     }
 
@@ -287,8 +302,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     .beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
                     .setReorderingAllowed(true)
-                    .addToBackStack(null)
-                    .add(R.id.frames_fragment_container, fragment)
+                    .addToBackStack(FramesFragment.BACKSTACK_NAME)
+                    .add(R.id.frames_fragment_container, fragment, FramesMapFragment.TAG)
                     .commit()
             }
             R.id.menu_item_share_intent ->
@@ -343,6 +358,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             putParcelable(ExtraKeys.ROLL, roll)
             putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
             putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+            putString(ExtraKeys.BACKSTACK_NAME, FramesFragment.BACKSTACK_NAME)
+            putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.frames_fragment_container)
         }
         val fragment = RollEditFragment().apply {
             sharedElementEnterTransition = sharedElementTransition
@@ -352,14 +369,10 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.frames_fragment_container, fragment)
-            .addToBackStack(null)
+            .replace(R.id.frames_fragment_container, fragment, RollEditFragment.TAG)
+            .addToBackStack(FramesFragment.BACKSTACK_NAME)
             .commit()
-        fragment.setFragmentResultListener("EditRollDialog") { _, bundle ->
-            val editedRoll: Roll = bundle.getParcelable(ExtraKeys.ROLL)
-                ?: return@setFragmentResultListener
-            rollModel.updateRoll(editedRoll)
-        }
+        fragment.setFragmentResultListener(RollEditFragment.REQUEST_KEY, onRollEditListener)
     }
 
     private fun enableActionMode(frame: Frame) {
@@ -447,7 +460,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                             dateTime.minute = timePicker.minute
                                             selectedFrames.forEach {
                                                 it.date = dateTime
-                                                model.updateFrame(it)
+                                                model.submitFrame(it)
                                             }
                                         }
                                         timePicker.show(childFragmentManager, null)
@@ -468,13 +481,13 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                                 // No lens was selected
                                                 selectedFrames.forEach {
                                                     it.lens = null
-                                                    model.updateFrame(it)
+                                                    model.submitFrame(it)
                                                 }
                                             } else {
                                                 val lens = lenses[which - 1]
                                                 selectedFrames.forEach {
                                                     it.lens = lens
-                                                    model.updateFrame(it)
+                                                    model.submitFrame(it)
                                                 }
                                             }
                                             dialog.dismiss()
@@ -492,7 +505,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                             .setPositiveButton(R.string.OK) { _, _ ->
                                                 selectedFrames.forEach {
                                                     it.aperture = editText.text.toString()
-                                                    model.updateFrame(it)
+                                                    model.submitFrame(it)
                                                 }
                                             }
                                             .setNegativeButton(R.string.Cancel) { _, _ -> }
@@ -511,12 +524,12 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                             if (which == 0) {
                                                 selectedFrames.forEach {
                                                     it.shutter = null
-                                                    model.updateFrame(it)
+                                                    model.submitFrame(it)
                                                 }
                                             } else {
                                                 selectedFrames.forEach {
                                                     it.shutter = listItems[which]
-                                                    model.updateFrame(it)
+                                                    model.submitFrame(it)
                                                 }
                                             }
                                             dialog.dismiss()
@@ -536,7 +549,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                                 selectedFrames.forEach { frame ->
                                                     frame.filters = filters.filter { it.second }
                                                             .map { it.first }
-                                                    model.updateFrame(frame)
+                                                    model.submitFrame(frame)
                                                 }
                                             }
                                             .create().show()
@@ -553,7 +566,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                                 selectedFrames.forEach {
                                                     it.focalLength = editText.text.toString()
                                                             .toIntOrNull() ?: it.focalLength
-                                                    model.updateFrame(it)
+                                                    model.submitFrame(it)
                                                 }
                                             }
                                             .setNegativeButton(R.string.Cancel) { _, _ -> }
@@ -570,7 +583,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                         setItems(listItems) { dialog, which ->
                                             selectedFrames.forEach {
                                                 it.exposureComp = listItems[which]
-                                                model.updateFrame(it)
+                                                model.submitFrame(it)
                                             }
                                             dialog.dismiss()
                                         }
@@ -588,7 +601,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                             .setItems(R.array.LightSource) { dialog, which ->
                                                 selectedFrames.forEach {
                                                     it.lightSource = which
-                                                    model.updateFrame(it)
+                                                    model.submitFrame(it)
                                                 }
                                                 dialog.dismiss()
                                             }
@@ -600,7 +613,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                     val frameCountsReversed = selectedFrames.map { it.count }.reversed()
                                     selectedFrames.forEachIndexed { index, frame ->
                                         frame.count = frameCountsReversed[index]
-                                        model.updateFrame(frame)
+                                        model.submitFrame(frame)
                                     }
                                 }
                                 else -> { }
@@ -617,7 +630,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 R.id.menu_item_copy -> {
                     selectedFrames.forEach {
                         val frame = it.copy()
-                        model.addFrame(frame)
+                        model.submitFrame(frame)
                     }
                     true
                 }
@@ -666,7 +679,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     val change = menu.text.toString().replace("+", "").toInt()
                     frameAdapter.selectedItems.forEach { frame ->
                         frame.count += change
-                        model.updateFrame(frame)
+                        model.submitFrame(frame)
                     }
                 }
             }
@@ -688,7 +701,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             frameAdapter.selectedItems.forEach { frame ->
                 frame.location = location
                 frame.formattedAddress = formattedAddress
-                model.updateFrame(frame)
+                model.submitFrame(frame)
             }
         }
     }

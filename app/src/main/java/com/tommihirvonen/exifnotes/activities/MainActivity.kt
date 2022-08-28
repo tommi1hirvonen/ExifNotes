@@ -26,7 +26,6 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
@@ -36,7 +35,6 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.fragments.RollsFragment
-import com.tommihirvonen.exifnotes.fragments.RollsListFragment
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.utilities.purgeDirectory
@@ -55,8 +53,6 @@ class MainActivity : AppCompatActivity() {
          */
         private const val MY_MULTIPLE_PERMISSIONS_REQUEST = 1
     }
-
-    private val rollsFragment = RollsFragment()
 
     private lateinit var binding: ActivityMainBinding
 
@@ -81,54 +77,43 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        TermsOfUseDialog(this).show()
+        if (savedInstanceState == null) {
+            TermsOfUseDialog(this).show()
 
-        // Check that the application has write permission to the phone's external storage
-        // and access to location services.
-        val permissionWriteExternalStorage = ActivityCompat.checkSelfPermission(
+            // Check that the application has write permission to the phone's external storage
+            // and access to location services.
+            val permissionWriteExternalStorage = ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        val permissionAccessCoarseLocation = ActivityCompat.checkSelfPermission(
+            val permissionAccessCoarseLocation = ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        val permissionAccessFineLocation = ActivityCompat.checkSelfPermission(
+            val permissionAccessFineLocation = ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        if (!permissionWriteExternalStorage || !permissionAccessCoarseLocation || !permissionAccessFineLocation) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            if (!permissionWriteExternalStorage || !permissionAccessCoarseLocation || !permissionAccessFineLocation) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION),
                     MY_MULTIPLE_PERMISSIONS_REQUEST)
-        }
-
-        // Get from DefaultSharedPreferences whether the user has enabled
-        // location updates in the app's settings.
-        val requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true)
-
-        // Getting GPS status
-        val locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-
-        // Show a dialog to go to settings only if GPS is not enabled in system settings
-        // but location updates are enabled in the app's settings.
-        if (!isGPSEnabled && requestingLocationUpdates) showSettingsAlert()
-
-
-        // Set the Fragment to the activity's fragment container
-
-        // Check that the activity is using the layout version with
-        // the fragment_container FrameLayout
-        if (findViewById<View?>(R.id.fragment_container) != null) {
-            // However, if we're being restored from a previous state,
-            // then we don't need to do anything and should return or else
-            // we could end up with overlapping fragments.
-            if (savedInstanceState != null) {
-                return
             }
 
-            // Add the fragment to the 'fragment_container' FrameLayout
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, rollsFragment, RollsListFragment.ROLLS_FRAGMENT_TAG)
-                .commit()
+            // Get from DefaultSharedPreferences whether the user has enabled
+            // location updates in the app's settings.
+            val requestingLocationUpdates = prefs.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true)
+
+            // Getting GPS status
+            val locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+
+            // Show a dialog to go to settings only if GPS is not enabled in system settings
+            // but location updates are enabled in the app's settings.
+            if (!isGPSEnabled && requestingLocationUpdates) showSettingsAlert()
         }
+
+        val tag = RollsFragment.TAG
+        val existing = supportFragmentManager.findFragmentByTag(tag)
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, existing ?: RollsFragment(), tag)
+            .commit()
     }
 
     override fun onStart() {

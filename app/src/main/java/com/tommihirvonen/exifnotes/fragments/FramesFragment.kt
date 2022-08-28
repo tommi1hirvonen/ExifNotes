@@ -33,14 +33,16 @@ import com.tommihirvonen.exifnotes.viewmodels.FramesViewModelFactory
 
 class FramesFragment : Fragment() {
 
-    private val roll by lazy<Roll> {
-        requireArguments().getParcelable(ExtraKeys.ROLL)!!
+    companion object {
+        const val TAG = "FRAMES_FRAGMENT"
+        const val BACKSTACK_NAME = "FRAMES_BACKSTACK"
     }
 
     /**
      * ViewModel shared by child fragments FramesListFragment and FramesMapFragment.
      */
     private val model by lazy {
+        val roll = requireArguments().getParcelable<Roll>(ExtraKeys.ROLL)!!
         val factory = FramesViewModelFactory(requireActivity().application, roll)
         ViewModelProvider(this, factory)[FramesViewModel::class.java]
     }
@@ -61,19 +63,22 @@ class FramesFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Postpone enter transition animation until frames have been loaded from the database.
-        // Transition is started from the ViewModel callback in onCreateView().
-        postponeEnterTransition()
-        val fragment = FramesListFragment()
-        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
-        val arguments = Bundle()
-        arguments.putString(ExtraKeys.TRANSITION_NAME, transitionName)
-        fragment.arguments = arguments
-        childFragmentManager
-            .beginTransaction()
-            .addToBackStack(null)
-            .replace(R.id.frames_fragment_container, fragment)
-            .commit()
+        if (childFragmentManager.backStackEntryCount > 0) {
+            childFragmentManager.restoreBackStack(BACKSTACK_NAME)
+        } else {
+            // Postpone enter transition animation until frames have been loaded from the database.
+            // Transition is started from the ViewModel callback in onCreateView().
+            postponeEnterTransition()
+            val fragment = FramesListFragment()
+            val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
+            val arguments = Bundle()
+            arguments.putString(ExtraKeys.TRANSITION_NAME, transitionName)
+            fragment.arguments = arguments
+            childFragmentManager
+                .beginTransaction()
+                .addToBackStack(BACKSTACK_NAME)
+                .replace(R.id.frames_fragment_container, fragment, FramesListFragment.TAG)
+                .commit()
+        }
     }
-
 }
