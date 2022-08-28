@@ -50,7 +50,7 @@ object ComplementaryPicturesManager {
      * @param context activity's context
      * @return directory File for the location of complementary pictures
      */
-    private fun getComplementaryPicturesDirectory(context: Context): File? {
+    fun getComplementaryPicturesDirectory(context: Context): File? {
         return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     }
 
@@ -331,29 +331,6 @@ object ComplementaryPicturesManager {
                 }
             }
         }
-    }
-
-    /**
-     * Exports all linked complementary pictures to a zip in the target directory.
-     *
-     * @param activity activity
-     * @param targetFile the directory where the zip file should be saved
-     */
-    suspend fun exportComplementaryPictures(activity: Activity, targetFile: File): Pair<Boolean, Int> {
-        val complementaryPictureFilenames = activity.database.complementaryPictureFilenames
-        val picturesDirectory = getComplementaryPicturesDirectory(activity)
-        if (picturesDirectory == null) {
-            Toast.makeText(activity, activity.resources.getString(R.string.ErrorSharedStorageNotAvailable), Toast.LENGTH_SHORT).show()
-            return false to 0
-        }
-        val filter = FilenameFilter { _: File?, s: String? -> complementaryPictureFilenames.contains(s) }
-        val files = picturesDirectory.listFiles(filter) ?: emptyArray()
-        // If files is empty, no zip file will be created in ZipFileCreatorAsyncTask
-        if (files.isNotEmpty()) {
-            val message = activity.getString(R.string.ExportingComplementaryPicturesPleaseWait)
-            return ZipFileWriter(activity).setMessage(message).export(files, targetFile)
-        }
-        return true to 0
     }
 
     /**

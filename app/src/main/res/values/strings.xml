@@ -161,7 +161,6 @@
     <string name="ExportOrShare">Export/share files</string>
     <string name="ExportToDevice">Export files to storage</string>
     <string name="ExportedFilesSuccessfully">Files exported successfully</string>
-    <string name="ExportingComplementaryPicturesPleaseWait">Exporting complementary pictures, please wait.\n\nDepending on the number of complementary pictures, this can take several minutes.</string>
     <string name="ExposureComp">Exposure comp.</string>
     <string name="ExposureCompSingleLine">Exposure compensation</string>
     <string name="ExposureCompensationIncrements">Exposure compensation increments</string>
@@ -280,6 +279,13 @@
     <string name="NoPicturesExported">No pictures were exported</string>
     <string name="NoPicturesImported">No pictures were imported</string>
     <string name="NoRolls">No added rolls</string>
+    <string name="NotificationComplementaryPicturesExportName">Complementary Pictures Export</string>
+    <string name="NotificationComplementaryPicturesExportDescription">Progress notification for complementary pictures export</string>
+    <string name="NotificationComplementaryPicturesExportFailMessage">Complementary pictures export failed</string>
+    <string name="NotificationComplementaryPicturesExportFailTitle">Export failed</string>
+    <string name="NotificationComplementaryPicturesExportSuccessMessage">Pictures exported successfully</string>
+    <string name="NotificationComplementaryPicturesExportSuccessTitle">Complementary pictures exported</string>
+    <string name="NotificationComplementaryPicturesExportTitle">Exporting complementary pictures</string>
     <string name="NoValue">&lt;empty&gt;</string>
     <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
     <string name="Normal">Normal</string>
@@ -338,6 +344,7 @@
     <string name="Sort">Sort</string>
     <string name="SortBy">Sort by</string>
     <string name="SortFilmStocksBy">Sort film stocks by</string>
+    <string name="StartedExportingComplementaryPictures">Started exporting complementary pictures. Check notifications for progress.</string>
     <string name="Sunny">Sunny</string>
     <string name="SystemDefault">System default</string>
     <string name="TakeNewComplementaryPicture">Take new complementary picture</string>

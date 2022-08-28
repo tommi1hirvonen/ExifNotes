@@ -33,17 +33,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.work.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.preferences.*
 import com.tommihirvonen.exifnotes.utilities.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.*
-
 
 /**
  * PreferenceFragment is shown in PreferenceActivity.
@@ -291,40 +289,14 @@ class PreferenceFragment : PreferenceFragmentCompat() {
     }
 
     private fun exportComplementaryPictures(picturesUri: Uri) {
-        val outputStream = requireContext().contentResolver.openOutputStream(picturesUri)
-        val inputDir = requireContext().externalCacheDir
-        val inputFile = File.createTempFile("complementary_pictures", ".zip", inputDir)
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            val (success, completedEntries) = ComplementaryPicturesManager
-                    .exportComplementaryPictures(requireActivity(), inputFile)
-
-            if (success) {
-                if (completedEntries == 0) {
-                    view?.snackbar(R.string.NoPicturesExported)
-                } else {
-                    try {
-                        @Suppress("BlockingMethodInNonBlockingContext")
-                        withContext(Dispatchers.IO) {
-                            val inputStream: InputStream = FileInputStream(inputFile)
-                            inputStream.copyTo(outputStream!!)
-                            inputStream.close()
-                            outputStream.close()
-                        }
-                        val message = resources.getQuantityString(
-                            R.plurals.ComplementaryPicturesExported,
-                            completedEntries, completedEntries)
-                        view?.snackbar(message)
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                        view?.snackbar(R.string.ErrorExportingComplementaryPictures)
-                    }
-                }
-            } else {
-                view?.snackbar(R.string.ErrorExportingComplementaryPictures)
-            }
-        }
-
+        val data = Data.Builder()
+            .putString(ExtraKeys.TARGET_URI, picturesUri.toString())
+            .build()
+        val request = OneTimeWorkRequestBuilder<ComplementaryPicturesExportWorker>()
+            .setInputData(data)
+            .build()
+        WorkManager.getInstance(requireContext()).enqueue(request)
+        view?.snackbar(R.string.StartedExportingComplementaryPictures)
     }
 
     private fun exportDatabase(destinationUri: Uri) {

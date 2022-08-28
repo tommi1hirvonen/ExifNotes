@@ -38,4 +38,5 @@ object ExtraKeys {
     const val FIXED_LENS = "FIXED_LENS"
     const val BACKSTACK_NAME = "BACKSTACK_NAME"
     const val FRAGMENT_CONTAINER_ID = "FRAGMENT_CONTAINER_ID"
+    const val TARGET_URI = "TARGET_URI"
 }
