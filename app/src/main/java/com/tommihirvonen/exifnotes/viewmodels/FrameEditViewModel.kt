@@ -63,17 +63,14 @@ class FrameEditViewModel(application: Application, val frame: Frame)
         }
     }
 
-    private var lenses: List<Lens> = frame.roll.camera?.let {
-        database.getLinkedLenses(it)
-    } ?: database.lenses
+    private var lenses: List<Lens> =
+        frame.roll.camera?.let(database::getLinkedLenses) ?: database.lenses
         set(value) {
             field = value
             observable.notifyPropertyChanged(BR.lensItems)
         }
 
-    var filters: List<Filter> = lens?.let {
-        database.getLinkedFilters(it)
-    } ?: database.filters
+    var filters: List<Filter> = lens?.let(database::getLinkedFilters) ?: database.filters
 
     fun addLens(lens: Lens) {
         database.addLens(lens)
@@ -107,7 +104,7 @@ class FrameEditViewModel(application: Application, val frame: Frame)
 
         @get:Bindable
         val lensItems get() = listOf(context.resources.getString(R.string.NoLens))
-            .plus(lenses.map { it.name }).toTypedArray()
+            .plus(lenses.map(Lens::name)).toTypedArray()
 
         @get:Bindable
         val shutterSpeedItems = frame.roll.camera?.shutterSpeedValues(context)

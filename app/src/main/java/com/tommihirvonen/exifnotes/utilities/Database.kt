@@ -239,8 +239,8 @@ class Database private constructor(private val context: Context)
      * Adds a new lens to the database.
      * @param lens the lens to be added to the database
      */
-    fun addLens(lens: Lens): Long {
-        val id = writableDatabase.insert(TABLE_LENSES, null, buildLensContentValues(lens))
+    fun addLens(lens: Lens, database: SQLiteDatabase = writableDatabase): Long {
+        val id = database.insert(TABLE_LENSES, null, buildLensContentValues(lens))
         lens.id = id
         return id
     }
@@ -300,8 +300,8 @@ class Database private constructor(private val context: Context)
      * Deletes Lens from the database.
      * @param lens the Lens to be deleted
      */
-    fun deleteLens(lens: Lens): Int =
-            writableDatabase.delete(TABLE_LENSES, "$KEY_LENS_ID = ?", arrayOf(lens.id.toString()))
+    fun deleteLens(lens: Lens, database: SQLiteDatabase = writableDatabase): Int =
+            database.delete(TABLE_LENSES, "$KEY_LENS_ID = ?", arrayOf(lens.id.toString()))
 
     /**
      * Checks if the lens is being used in some frame.
@@ -318,9 +318,9 @@ class Database private constructor(private val context: Context)
      * Updates the information of a lens
      * @param lens the Lens to be updated
      */
-    fun updateLens(lens: Lens): Int {
+    fun updateLens(lens: Lens, database: SQLiteDatabase = writableDatabase): Int {
         val contentValues = buildLensContentValues(lens)
-        return writableDatabase.update(TABLE_LENSES, contentValues, "$KEY_LENS_ID=?", arrayOf(lens.id.toString()))
+        return database.update(TABLE_LENSES, contentValues, "$KEY_LENS_ID=?", arrayOf(lens.id.toString()))
     }
 
     // ******************** CRUD operations for the cameras table ********************
@@ -330,6 +330,8 @@ class Database private constructor(private val context: Context)
      */
     fun addCamera(camera: Camera): Long {
         camera.lens?.let { lens ->
+            lens.make = camera.make
+            lens.model = camera.model
             val lensId = addLens(lens)
             lens.id = lensId
         }
@@ -373,7 +375,7 @@ class Database private constructor(private val context: Context)
      */
     fun deleteCamera(camera: Camera): Int {
         // In case of fixed lens cameras, also delete the lens from database.
-        camera.lens?.let { deleteLens(it) }
+        camera.lens?.let(::deleteLens)
         return writableDatabase.delete(TABLE_CAMERAS, "$KEY_CAMERA_ID = ?", arrayOf(camera.id.toString()))
     }
 
@@ -399,20 +401,39 @@ class Database private constructor(private val context: Context)
         val previousLensId = previousLensIdCursor.withFirstOrNull {
             it.getLong(it.getColumnIndexOrThrow(KEY_LENS_ID))
         } ?: 0
-        // If the camera's current lens is null, delete the old fixed lens from the database.
-        if (previousLensId > 0 && camera.lens == null) {
-            deleteLens(Lens(id = previousLensId))
-        }
-        // If the camera currently has a fixed lens, update/add it to the database.
-        camera.lens?.let { lens ->
-            lens.make = camera.make
-            lens.model = camera.model
-            if (updateLens(lens) == 0) {
-                addLens(lens)
+
+        val database = writableDatabase
+        database.beginTransaction()
+        try {
+            // If the camera currently has a fixed lens, update/add it to the database.
+            // This needs to be done first since the cameras table references the lenses table.
+            camera.lens?.let { lens ->
+                lens.make = camera.make
+                lens.model = camera.model
+                if (updateLens(lens, database) == 0) {
+                    addLens(lens, database)
+                }
             }
+            val contentValues = buildCameraContentValues(camera)
+            val affectedRows = database.update(TABLE_CAMERAS, contentValues, "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()))
+            if (affectedRows == 0) {
+                // If there are no affected rows, then the camera does not yet exist
+                // in the database. Returning here rolls back the transaction.
+                return affectedRows
+            }
+
+            // If the camera's current lens is null, delete the old fixed lens from the database.
+            if (previousLensId > 0 && camera.lens == null) {
+                deleteLens(Lens(id = previousLensId), database)
+            }
+
+            // Camera and possible fixed lens were updated completely.
+            // Commit transaction and return affected row count.
+            database.setTransactionSuccessful()
+            return affectedRows
+        } finally {
+            database.endTransaction()
         }
-        val contentValues = buildCameraContentValues(camera)
-        return writableDatabase.update(TABLE_CAMERAS, contentValues, "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()))
     }
 
     // ******************** CRUD operations for the camera-lens link table ********************

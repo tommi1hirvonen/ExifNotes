@@ -19,7 +19,6 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.animation.ObjectAnimator
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
@@ -225,7 +224,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     delay(200)
                     requireParentFragment().childFragmentManager
                         .beginTransaction()
-                        .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
+                        .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right,
+                            R.anim.enter_from_right, R.anim.exit_to_right)
                         .setReorderingAllowed(true)
                         .addToBackStack(RollsFragment.BACKSTACK_NAME)
                         .add(R.id.rolls_fragment_container, fragment, RollsMapFragment.TAG)
@@ -430,9 +430,9 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                             else String.format(resources.getString(R.string.ConfirmRollsDelete), selectedRolls.size)
                     val alertBuilder = MaterialAlertDialogBuilder(requireActivity())
                     alertBuilder.setTitle(title)
-                    alertBuilder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                    alertBuilder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-                        selectedRolls.forEach { model.deleteRoll(it) }
+                    alertBuilder.setNegativeButton(R.string.Cancel) { _, _ -> }
+                    alertBuilder.setPositiveButton(R.string.OK) { _, _ ->
+                        selectedRolls.forEach(model::deleteRoll)
                         actionMode.finish()
                     }
                     alertBuilder.create().show()
@@ -458,7 +458,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         builder.setTitle(String.format(resources
                                 .getString(R.string.BatchEditRollsTitle),
                                 selectedRolls.size))
-                        builder.setItems(R.array.RollsBatchEditOptions) { _: DialogInterface?, which: Int ->
+                        builder.setItems(R.array.RollsBatchEditOptions) { _, which ->
                             when (which) {
                                 0 -> {
                                     // Edit film stock
@@ -472,13 +472,13 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                                             ?: return@setFragmentResultListener
                                         MaterialAlertDialogBuilder(requireActivity()).apply {
                                             setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
-                                            setNegativeButton(R.string.No) { _: DialogInterface?, _: Int ->
+                                            setNegativeButton(R.string.No) { _, _ ->
                                                 batchUpdateRollsFilmStock(filmStock, false)
                                             }
-                                            setPositiveButton(R.string.Yes) { _: DialogInterface?, _: Int ->
+                                            setPositiveButton(R.string.Yes) { _, _ ->
                                                 batchUpdateRollsFilmStock(filmStock, true)
                                             }
-                                            setNeutralButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+                                            setNeutralButton(R.string.Cancel) { _, _ -> }
                                         }.create().show()
                                     }
                                 }
@@ -486,14 +486,18 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                                     // Clear film stock
                                     val builder1 = MaterialAlertDialogBuilder(requireActivity())
                                     builder1.setMessage(R.string.BatchEditRollsCLearFilmStockISOConfirmation)
-                                    builder1.setNegativeButton(R.string.No) { _: DialogInterface?, _: Int -> batchUpdateRollsFilmStock(null, false) }
-                                    builder1.setPositiveButton(R.string.Yes) { _: DialogInterface?, _: Int -> batchUpdateRollsFilmStock(null, true) }
-                                    builder1.setNeutralButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+                                    builder1.setNegativeButton(R.string.No) { _, _ ->
+                                        batchUpdateRollsFilmStock(null, false)
+                                    }
+                                    builder1.setPositiveButton(R.string.Yes) { _, _ ->
+                                        batchUpdateRollsFilmStock(null, true)
+                                    }
+                                    builder1.setNeutralButton(R.string.Cancel) { _, _ -> }
                                     builder1.create().show()
                                 }
                             }
                         }
-                        builder.setNegativeButton(R.string.Cancel) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+                        builder.setNegativeButton(R.string.Cancel) { dialog, _ -> dialog.dismiss() }
                         builder.create().show()
                     }
                     true

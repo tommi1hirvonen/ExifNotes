@@ -159,8 +159,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
         startPostponedEnterTransition()
 
         model.frames.observe(viewLifecycleOwner) { frames ->
-            markers.forEach { it.remove() }
-            markers.clear()
+            markers.onEach { it.remove() }.clear()
 
             val bitmap = ViewModelUtility.getMarkerBitmaps(requireContext()).first()
                 ?: return@observe
@@ -184,7 +183,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
                 if (markers.isNotEmpty() && firstDraw) {
                     firstDraw = false
                     val builder = LatLngBounds.Builder()
-                    markers.forEach { builder.include(it.position) }
+                    markers.map(Marker::getPosition).forEach(builder::include)
                     val bounds = builder.build()
                     val width = resources.displayMetrics.widthPixels
                     val height = resources.displayMetrics.heightPixels
@@ -258,7 +257,8 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
                 fragment.arguments = arguments
                 requireParentFragment().childFragmentManager
                     .beginTransaction()
-                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right,
+                        R.anim.enter_from_right, R.anim.exit_to_right)
                     .setReorderingAllowed(true)
                     .add(R.id.frames_fragment_container, fragment, FrameEditFragment.TAG)
                     .addToBackStack(FramesFragment.BACKSTACK_NAME)

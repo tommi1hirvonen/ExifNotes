@@ -25,8 +25,8 @@ import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.preference.PreferenceManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.utilities.packageInfo
 
@@ -61,7 +61,7 @@ class TermsOfUseDialog(private val activity: Activity) {
             val message = "${activity.getString(R.string.AboutAndTermsOfUse, versionName)}\n\n\n${activity.getString(R.string.Updates)}"
             val spannableString = SpannableString(message)
             Linkify.addLinks(spannableString, Linkify.WEB_URLS)
-            val builder = AlertDialog.Builder(activity)
+            val builder = MaterialAlertDialogBuilder(activity)
                     .setCancelable(false)
                     .setTitle(title)
                     .setMessage(spannableString)

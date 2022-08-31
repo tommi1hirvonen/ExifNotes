@@ -49,16 +49,20 @@ fun String.illegalCharsRemoved(): String = replace("[|\\\\?*<\":>/]".toRegex(), 
 /**
  * Remove all files in a directory. Subdirectories are skipped.
  */
-fun File.purgeDirectory() = this.listFiles()?.filterNot { it.isDirectory }?.forEach { it.delete() }
+fun File.purgeDirectory() = this.listFiles()?.filterNot(File::isDirectory)?.forEach { it.delete() }
 
 fun File.makeDirsIfNotExists() { if (!isDirectory) mkdirs() }
 
-fun List<Gear>.toStringList(): String =
-    if (this.isEmpty()) "" else this.joinToString(separator = "\n-", prefix = "\n-") { it.name }
+fun List<Gear>.toStringList(): String = if (this.isEmpty()) {
+    ""
+} else {
+    this.joinToString(separator = "\n-", prefix = "\n-", transform = Gear::name)
+}
 
 fun TransitionSet.setCommonInterpolator(interpolator: Interpolator): TransitionSet = apply {
-    (0 until transitionCount).map { index -> getTransitionAt(index) }
-        .forEach { transition -> transition?.interpolator = interpolator }
+    (0 until transitionCount).map(::getTransitionAt).forEach { transition ->
+        transition?.interpolator = interpolator
+    }
 }
 
 fun View.snackbar(@StringRes resId: Int, duration: Int = Snackbar.LENGTH_LONG) =
@@ -72,3 +76,11 @@ fun View.snackbar(@StringRes resId: Int, anchorView: View, duration: Int = Snack
 
 fun View.snackbar(text: CharSequence, anchorView: View, duration: Int = Snackbar.LENGTH_LONG) =
     Snackbar.make(this, text, duration).setAnchorView(anchorView).show()
+
+fun <T> List<T>.isEmptyOrContains(value: T): Boolean = contains(value) || isEmpty()
+
+fun <T> List<T>.applyPredicates(vararg predicates: ((T) -> (Boolean))): List<T> =
+    filter { item -> predicates.all { p -> p(item) } }
+
+fun <T, U : Comparable<U>> List<T>.mapDistinct(transform: (T) -> U): List<U> =
+    map(transform).distinct().sorted()

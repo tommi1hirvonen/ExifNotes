@@ -22,7 +22,6 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -187,42 +186,44 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
 
         val arguments = Bundle()
+        // New frame is being added.
         if (frame == null) {
             // If the frame count is greater than 100, then don't add a new frame.
-            val nextFrameCount = frames.maxByOrNull { it.count }?.count?.plus(1) ?: 1
+            val nextFrameCount = frames.maxOfOrNull(Frame::count)?.plus(1) ?: 1
             if (nextFrameCount > 100) {
                 binding.container.snackbar(R.string.TooManyFrames, binding.fab)
                 return
             }
-            val title = requireActivity().resources.getString(R.string.AddNewFrame)
-            val positiveButton = requireActivity().resources.getString(R.string.Add)
-            val frame1 = Frame(roll)
-            frame1.date = DateTime.fromCurrentTime()
-            frame1.count = nextFrameCount
-            frame1.noOfExposures = 1
-
-            //Get the location only if the app has location permission (locationPermissionsGranted) and
-            //the user has enabled GPS updates in the app's settings.
-            if (locationPermissionsGranted && requestingLocationUpdates)
-                lastLocation?.let { frame1.location = Location(it) }
-            if (frames.isNotEmpty()) {
+            val newFrame = Frame(roll).apply {
+                date = DateTime.fromCurrentTime()
+                count = nextFrameCount
+                noOfExposures = 1
+                //Get the location only if the app has location permission (locationPermissionsGranted) and
+                //the user has enabled GPS updates in the app's settings.
+                if (locationPermissionsGranted && requestingLocationUpdates) {
+                    lastLocation?.let { location = Location(it) }
+                }
                 //Get the information for the last added frame.
                 //The last added frame has the highest id number (database autoincrement).
-                val previousFrame = frames.maxByOrNull { it.id }
+                val previousFrame = frames.maxByOrNull(Frame::id)
                 // Here we can list the properties we want to bring from the previous frame
                 previousFrame?.let {
-                    frame1.lens = it.lens
-                    frame1.shutter = it.shutter
-                    frame1.aperture = it.aperture
-                    frame1.filters = it.filters
-                    frame1.focalLength = it.focalLength
-                    frame1.lightSource = it.lightSource
+                    lens = it.lens
+                    shutter = it.shutter
+                    aperture = it.aperture
+                    filters = it.filters
+                    focalLength = it.focalLength
+                    lightSource = it.lightSource
                 }
             }
+            val title = requireActivity().resources.getString(R.string.AddNewFrame)
+            val positiveButton = requireActivity().resources.getString(R.string.Add)
             arguments.putString(ExtraKeys.TITLE, title)
             arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-            arguments.putParcelable(ExtraKeys.FRAME, frame1)
-        } else {
+            arguments.putParcelable(ExtraKeys.FRAME, newFrame)
+        }
+        // Existing frame is being edited.
+        else {
             val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
             val positiveButton = requireActivity().resources.getString(R.string.OK)
             arguments.putString(ExtraKeys.TITLE, title)
@@ -315,8 +316,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     shareIntent?.let { startActivity(Intent.createChooser(it, resources.getString(R.string.Share))) }
                 }.start()
             R.id.menu_item_export -> {
-                val intent = Intent()
-                intent.action = Intent.ACTION_OPEN_DOCUMENT_TREE
+                val intent = Intent().apply { action = Intent.ACTION_OPEN_DOCUMENT_TREE }
                 exportResultLauncher.launch(intent)
             }
         }
@@ -377,7 +377,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     private fun enableActionMode(frame: Frame) {
         if (actionMode == null) {
-            actionMode = (requireActivity() as AppCompatActivity).startSupportActionMode(actionModeCallback)
+            actionMode = (requireActivity() as AppCompatActivity)
+                .startSupportActionMode(actionModeCallback)
         }
         frameAdapter.toggleSelection(frame)
         // If the user deselected the last of the selected items, exit action mode.
@@ -411,17 +412,17 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             val selectedFrames = frameAdapter.selectedItems
             return when (item.itemId) {
                 R.id.menu_item_delete -> {
-                    val deleteConfirmDialog = MaterialAlertDialogBuilder(requireActivity())
                     // Separate confirm titles for one or multiple frames
                     val title = resources.getQuantityString(
                         R.plurals.ConfirmFramesDelete, selectedFrames.size, selectedFrames.size)
-                    deleteConfirmDialog.setTitle(title)
-                    deleteConfirmDialog.setNegativeButton(R.string.Cancel) { _, _ -> }
-                    deleteConfirmDialog.setPositiveButton(R.string.OK) { _, _ ->
-                        selectedFrames.forEach { model.deleteFrame(it) }
-                        mode.finish()
-                    }
-                    deleteConfirmDialog.create().show()
+                    MaterialAlertDialogBuilder(requireActivity())
+                        .setTitle(title)
+                        .setNegativeButton(R.string.Cancel) { _, _ -> }
+                        .setPositiveButton(R.string.OK) { _, _ ->
+                            selectedFrames.forEach(model::deleteFrame)
+                            mode.finish()
+                        }
+                        .create().show()
                     true
                 }
                 R.id.menu_item_edit -> {
@@ -471,11 +472,10 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 2 -> {
                                     MaterialAlertDialogBuilder(requireContext()).apply {
                                         setNegativeButton(R.string.Cancel) { _, _ -> }
-                                        val lenses = roll.camera?.let { database.getLinkedLenses(it) }
-                                                ?: database.lenses
+                                        val lenses = roll.camera?.let(database::getLinkedLenses)
+                                            ?: database.lenses
                                         val listItems = listOf(resources.getString(R.string.NoLens))
-                                                .plus(lenses.map { it.name })
-                                                .toTypedArray()
+                                            .plus(lenses.map(Lens::name)).toTypedArray()
                                         setItems(listItems) { dialog, which ->
                                             if (which == 0) {
                                                 // No lens was selected
@@ -538,17 +538,21 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 }
                                 // Edit filters
                                 5 -> {
-                                    val filters = database.filters.map { it to false }.toMutableList()
-                                    val listItems = filters.map { it.first.name }.toTypedArray()
+                                    val filters = database.filters
+                                    val listItems = filters.map(Filter::name).toTypedArray()
+                                    val selections = BooleanArray(filters.size)
                                     MaterialAlertDialogBuilder(requireContext())
-                                            .setMultiChoiceItems(listItems, BooleanArray(listItems.size)) { _, which, isChecked ->
-                                                filters[which] = filters[which].first to isChecked
+                                            .setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
+                                                selections[which] = isChecked
                                             }
                                             .setNegativeButton(R.string.Cancel) { _, _ -> }
                                             .setPositiveButton(R.string.OK) { _, _ ->
+                                                val selectedFilters = selections.zip(filters)
+                                                    .mapNotNull { (selected, filter) ->
+                                                        if (selected) filter else null
+                                                    }
                                                 selectedFrames.forEach { frame ->
-                                                    frame.filters = filters.filter { it.second }
-                                                            .map { it.first }
+                                                    frame.filters = selectedFilters
                                                     model.submitFrame(frame)
                                                 }
                                             }
@@ -610,16 +614,18 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 // Reverse frame counts
                                 10 -> {
                                     // Create a list of frame counts in reversed order
-                                    val frameCountsReversed = selectedFrames.map { it.count }.reversed()
-                                    selectedFrames.forEachIndexed { index, frame ->
-                                        frame.count = frameCountsReversed[index]
+                                    val frameCountsReversed = selectedFrames
+                                        .map(Frame::count)
+                                        .reversed()
+                                    selectedFrames.zip(frameCountsReversed) { frame, count ->
+                                        frame.count = count
                                         model.submitFrame(frame)
                                     }
                                 }
                                 else -> { }
                             }
                         }
-                        builder.setNegativeButton(R.string.Cancel) { dialogInterface: DialogInterface, _: Int ->
+                        builder.setNegativeButton(R.string.Cancel) { dialogInterface, _ ->
                             // Do nothing
                             dialogInterface.dismiss()
                         }
@@ -673,8 +679,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     if (currentIndex >= 0) menu.listSelection = currentIndex
                 }
                 setView(binding.root)
-                setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
+                setNegativeButton(R.string.Cancel) { _, _ -> }
+                setPositiveButton(R.string.OK) { _, _ ->
                     // Replace the plus sign because on pre L devices this seems to cause a crash
                     val change = menu.text.toString().replace("+", "").toInt()
                     frameAdapter.selectedItems.forEach { frame ->
@@ -686,24 +692,24 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
     }
 
-    private val locationResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        // Consume the case when the user has edited
-        // the location of several frames in action mode.
-        if (result.resultCode == Activity.RESULT_OK) {
-            val location: Location? =
-                if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                    result.data?.getParcelableExtra(ExtraKeys.LOCATION)
-                } else null
-            val formattedAddress: String? =
-                if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
-                    result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
-                } else null
-            frameAdapter.selectedItems.forEach { frame ->
-                frame.location = location
-                frame.formattedAddress = formattedAddress
-                model.submitFrame(frame)
+    private val locationResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            // Consume the case when the user has edited
+            // the location of several frames in action mode.
+            if (result.resultCode == Activity.RESULT_OK) {
+                val location: Location? =
+                    if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
+                        result.data?.getParcelableExtra(ExtraKeys.LOCATION)
+                    } else null
+                val formattedAddress: String? =
+                    if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
+                        result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
+                    } else null
+                frameAdapter.selectedItems.forEach { frame ->
+                    frame.location = location
+                    frame.formattedAddress = formattedAddress
+                    model.submitFrame(frame)
+                }
             }
         }
-    }
-
 }

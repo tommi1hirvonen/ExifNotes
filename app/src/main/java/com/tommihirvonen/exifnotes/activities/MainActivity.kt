@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         private const val MY_MULTIPLE_PERMISSIONS_REQUEST = 1
     }
 
-    private lateinit var binding: ActivityMainBinding
+    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Delete all complementary pictures, which are not linked to any frame.
@@ -73,9 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
 
         if (savedInstanceState == null) {
             TermsOfUseDialog(this).show()
@@ -109,10 +107,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         val tag = RollsFragment.TAG
-        val existing = supportFragmentManager.findFragmentByTag(tag)
+        val fragment = supportFragmentManager.findFragmentByTag(tag) ?: RollsFragment()
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, existing ?: RollsFragment(), tag)
+            .replace(R.id.fragment_container, fragment, tag)
             .commit()
     }
 
@@ -133,26 +131,24 @@ class MainActivity : AppCompatActivity() {
      * This method is called if GPS is not enabled.
      * Prompt the user to jump to device settings to enable GPS.
      */
-    private fun showSettingsAlert() {
-        val alertDialog = MaterialAlertDialogBuilder(this)
-        alertDialog.setTitle(R.string.GPSSettings)
-        alertDialog.setMessage(R.string.GPSNotEnabled)
+    private fun showSettingsAlert() = MaterialAlertDialogBuilder(this)
+        .setTitle(R.string.GPSSettings)
+        .setMessage(R.string.GPSNotEnabled)
         // Navigate to the device's settings.
-        alertDialog.setPositiveButton(R.string.GoToSettings) { _: DialogInterface?, _: Int ->
+        .setPositiveButton(R.string.GoToSettings) { _: DialogInterface?, _: Int ->
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             startActivity(intent)
         }
         // Disable location tracking in the application's settings.
-        alertDialog.setNegativeButton(R.string.DisableInApp) { dialogInterface: DialogInterface, _: Int ->
+        .setNegativeButton(R.string.DisableInApp) { dialogInterface: DialogInterface, _: Int ->
             val prefs = PreferenceManager.getDefaultSharedPreferences(baseContext)
             val prefsEditor = prefs.edit()
             prefsEditor.putBoolean(PreferenceConstants.KEY_GPS_UPDATE, false)
             prefsEditor.apply()
             dialogInterface.dismiss()
         }
-        alertDialog.setNeutralButton(R.string.Cancel) { dialog: DialogInterface, _: Int -> dialog.cancel() }
-        alertDialog.show()
-    }
+        .setNeutralButton(R.string.Cancel) { dialog: DialogInterface, _: Int -> dialog.cancel() }
+        .show()
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
                                             grantResults: IntArray) {

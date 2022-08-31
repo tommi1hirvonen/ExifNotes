@@ -48,8 +48,8 @@ class FilmManufacturerAdapter(
     inner class ViewHolder(val binding: ItemFilmManufacturerBinding) : RecyclerView.ViewHolder(binding.root)
 
     fun setFilmStocks(filmStocks: List<FilmStock>) {
-        filmStocksMap = filmStocks.groupBy { it.make }
-        manufacturers = filmStocksMap.map { it.key }.sortedBy { it?.lowercase(Locale.ROOT) }
+        filmStocksMap = filmStocks.groupBy(FilmStock::make)
+        manufacturers = filmStocksMap.keys.sortedBy { it?.lowercase(Locale.ROOT) }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -121,14 +121,9 @@ class FilmManufacturerAdapter(
             holder.binding.layoutFilmStock.setOnClickListener { listener(filmStock) }
         }
 
-        override fun getItemCount(): Int {
-            return filmStocks.size
-        }
+        override fun getItemCount(): Int = filmStocks.size
 
-        override fun getItemId(position: Int): Long {
-            return filmStocks[position].id
-        }
-
+        override fun getItemId(position: Int): Long = filmStocks[position].id
     }
 
     companion object {
@@ -182,7 +177,7 @@ class FilmManufacturerAdapter(
         private fun collapse(view: View, animate: Boolean) {
             if (animate) {
                 val actualHeight = view.measuredHeight
-                val animation: Animation = object : Animation() {
+                val animation = object : Animation() {
                     override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
                         // interpolatedTime == 1 => the animation has reached its end
                         if (interpolatedTime == 1f) {

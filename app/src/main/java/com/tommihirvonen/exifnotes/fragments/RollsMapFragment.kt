@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.DialogInterface
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -48,6 +47,7 @@ import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.datastructures.RollFilterMode
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
+import com.tommihirvonen.exifnotes.viewmodels.RollData
 import com.tommihirvonen.exifnotes.viewmodels.RollsMapViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollsMapViewModelFactory
 import kotlin.math.roundToInt
@@ -74,7 +74,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         ViewModelProvider(this, factory)[RollsMapViewModel::class.java]
     }
 
-    private var rollSelections = emptyList<Pair<Roll, Boolean>>()
+    private var rollSelections = emptyList<RollData>()
 
     /**
      * GoogleMap object to show the map and to hold all the markers for all frames
@@ -186,15 +186,15 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
             R.id.menu_item_filter -> {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 val builder = MaterialAlertDialogBuilder(requireContext())
-                val listItems = rollSelections.map { it.first.name }.toTypedArray()
-                val checkedItems = rollSelections.map { it.second }.toBooleanArray()
-                builder.setMultiChoiceItems(listItems, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+                val listItems = rollSelections.map { it.roll.name }.toTypedArray()
+                val checkedItems = rollSelections.map { it.selected }.toBooleanArray()
+                builder.setMultiChoiceItems(listItems, checkedItems) { _, which, isChecked ->
                     checkedItems[which] = isChecked
                 }
-                builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-                builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
+                builder.setNegativeButton(R.string.Cancel) { _, _ -> }
+                builder.setPositiveButton(R.string.FilterNoColon) { _, _ ->
                     val newSelections = rollSelections.mapIndexed { index, roll ->
-                        roll.first to checkedItems[index]
+                        roll.roll to checkedItems[index]
                     }.filter { it.second }.map { it.first }
                     model.setSelections(newSelections)
                 }
@@ -238,17 +238,16 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
 
         startPostponedEnterTransition()
         model.rolls.observe(viewLifecycleOwner) { rolls ->
-            rollSelections = rolls.map { it.roll to it.selected }
+            rollSelections = rolls
 
-            markerList.forEach { it.remove() }
-            markerList.clear()
+            markerList.onEach { it.remove() }.clear()
 
-            val listRolls = rolls.filter { it.selected }.map { it.roll to it.marker }
+            val listRolls = rolls.filter(RollData::selected).map { it.roll to it.marker }
             val adapter = RollMarkerAdapter(requireContext(), listRolls)
             binding.rollsListView.adapter = adapter
             adapter.notifyDataSetChanged()
 
-            rolls.filter { it.selected }.forEach { data ->
+            rolls.filter(RollData::selected).forEach { data ->
                 val bitmap = data.marker ?: return@forEach
                 data.frames.forEach frames@ { frame ->
                     val location = frame.location ?: return@frames
@@ -270,7 +269,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
             if (!fragmentRestored) {
                 if (markerList.isNotEmpty()) {
                     val builder = LatLngBounds.Builder()
-                    markerList.forEach { builder.include(it.position) }
+                    markerList.map(Marker::getPosition).forEach(builder::include)
                     val bounds = builder.build()
                     val width = resources.displayMetrics.widthPixels
                     val height = resources.displayMetrics.heightPixels

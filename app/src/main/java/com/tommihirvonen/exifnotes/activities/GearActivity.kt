@@ -31,10 +31,10 @@ class GearActivity : AppCompatActivity() {
         setContentView(binding.root)
         val tag = GearFragment.TAG
         // Check if the GearFragment is already in the fragment manager and restore it if so.
-        val existing = supportFragmentManager.findFragmentByTag(tag)
+        val fragment = supportFragmentManager.findFragmentByTag(tag) ?: GearFragment()
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, existing ?: GearFragment(), tag)
+            .replace(R.id.fragment_container, fragment, tag)
             .commit()
     }
 }

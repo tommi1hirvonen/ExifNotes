@@ -19,7 +19,6 @@
 package com.tommihirvonen.exifnotes.dialogs
 
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
@@ -31,7 +30,6 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilmManufacturerAdapter
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.ScrollIndicatorRecyclerViewListener
 import com.tommihirvonen.exifnotes.utilities.database
 
 class SelectFilmStockDialog : DialogFragment() {
@@ -47,18 +45,12 @@ class SelectFilmStockDialog : DialogFragment() {
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectFilmStock)
         builder.setView(view)
-        builder.setNegativeButton(R.string.Cancel) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+        builder.setNegativeButton(R.string.Cancel) { dialog, _ -> dialog.dismiss() }
         val manufacturersRecyclerView: RecyclerView = view.findViewById(R.id.recycler_view_manufacturers)
         val layoutManager = LinearLayoutManager(requireActivity())
         manufacturersRecyclerView.layoutManager = layoutManager
         manufacturersRecyclerView.addItemDecoration(DividerItemDecoration(
                 manufacturersRecyclerView.context, layoutManager.orientation))
-        manufacturersRecyclerView.addOnScrollListener(
-                ScrollIndicatorRecyclerViewListener(
-                        manufacturersRecyclerView,
-                        view.findViewById(R.id.scrollIndicatorUp),
-                        view.findViewById(R.id.scrollIndicatorDown))
-        )
         val dialog = builder.create()
         val adapter = FilmManufacturerAdapter(requireContext(), onFilmStockSelected)
         manufacturersRecyclerView.adapter = adapter

@@ -163,19 +163,19 @@ class RollEditFragment : Fragment() {
         DateTimeLayoutManager(
             requireActivity() as AppCompatActivity,
             binding.dateLoadedLayout,
-            { model.roll.date },
+            model.roll::date,
             model.observable::setLoadedOn)
 
         DateTimeLayoutManager(
             requireActivity() as AppCompatActivity,
             binding.dateUnloadedLayout,
-            { model.roll.unloaded },
+            model.roll::unloaded,
             model.observable::setUnloadedOn)
 
         DateTimeLayoutManager(
             requireActivity() as AppCompatActivity,
             binding.dateDevelopedLayout,
-            { model.roll.developed },
+            model.roll::developed,
             model.observable::setDevelopedOn)
 
         binding.positiveButton.setOnClickListener {

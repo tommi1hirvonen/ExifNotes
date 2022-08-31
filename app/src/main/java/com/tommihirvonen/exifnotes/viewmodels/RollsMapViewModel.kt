@@ -50,7 +50,7 @@ class RollsMapViewModel(application: Application, private val filterMode: RollFi
             val selected = selections.contains(it.roll)
             it.copy(selected = selected)
         }
-        updated.filter { it.selected }.forEachIndexed { index, data ->
+        updated.filter(RollData::selected).forEachIndexed { index, data ->
            val i = index % markerBitmaps.size
            data.marker = markerBitmaps[i]
         }

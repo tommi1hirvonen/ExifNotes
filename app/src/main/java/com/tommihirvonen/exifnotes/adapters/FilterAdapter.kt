@@ -67,8 +67,10 @@ class FilterAdapter(
         val filter = filters[position]
         holder.binding.title.text = filter.name
         val stringBuilder = StringBuilder()
-        val mountableLenses = lenses.filter { filter.lensIds.contains(it.id) }
-        val mountableCameras = cameras.mapNotNull { it.lens }.filter { filter.lensIds.contains(it.id) }
+        val mountableLenses = lenses.filter { lens -> filter.lensIds.contains(lens.id) }
+        val mountableCameras = cameras.mapNotNull(Camera::lens).filter { fixedLens ->
+            filter.lensIds.contains(fixedLens.id)
+        }
         stringBuilder.append(context.getString(R.string.LensesNoCap)).append(":")
             .append(mountableLenses.toStringList()).append("\n\n")
             .append(context.getString(R.string.CamerasNoCap)).append(":")

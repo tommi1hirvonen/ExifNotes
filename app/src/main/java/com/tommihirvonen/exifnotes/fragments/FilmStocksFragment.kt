@@ -177,8 +177,8 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         if (database.isFilmStockBeingUsed(filmStock)) {
             builder.setMessage(R.string.FilmStockIsInUseConfirmation)
         }
-        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-        builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
+        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
+        builder.setPositiveButton(R.string.OK) { _, _ ->
             model.deleteFilmStock(filmStock)
         }
         builder.create().show()
@@ -186,24 +186,20 @@ class FilmStocksFragment : Fragment(), MenuProvider {
 
     private fun showManufacturerFilterDialog() {
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        // Get all filter items.
-        val items = model.filteredManufacturers.toTypedArray()
-        // Create a boolean array of same size with selected items marked true.
-        val checkedItems = items
-            .map { model.filterSet.manufacturers.contains(it) }
-            .toBooleanArray()
-        builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+        val manufacturers = model.filteredManufacturers.toTypedArray()
+        val checkedItems = manufacturers.map(model.filterSet.manufacturers::contains).toBooleanArray()
+
+        builder.setMultiChoiceItems(manufacturers, checkedItems) { _, which, isChecked ->
             checkedItems[which] = isChecked
         }
-        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-        builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
+        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
+        builder.setPositiveButton(R.string.FilterNoColon) { _, _ ->
             // Get the indices of items that were marked true and their corresponding strings.
-            val selectedManufacturers = checkedItems
-                    .mapIndexed { index, selected -> index to selected }
-                    .filter { it.second }.map { it.first }.map { items[it] }
+            val selectedManufacturers = checkedItems.zip(manufacturers)
+                .mapNotNull { (selected, manufacturer) -> if (selected) manufacturer else null }
             model.filterSet = model.filterSet.copy(manufacturers = selectedManufacturers)
         }
-        builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
+        builder.setNeutralButton(R.string.Reset) { _, _ ->
             model.filterSet = model.filterSet.copy(manufacturers = emptyList())
         }
         builder.create().show()
@@ -211,25 +207,21 @@ class FilmStocksFragment : Fragment(), MenuProvider {
 
     private fun showIsoValuesFilterDialog() {
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        // Get all filter items.
-        val items = model.filteredIsoValues
-        val itemStrings = items.map { it.toString() }.toTypedArray()
-        // Create a boolean array of same size with selected items marked true.
-        val checkedItems = items
-            .map { model.filterSet.isoValues.contains(it) }
-            .toBooleanArray()
-        builder.setMultiChoiceItems(itemStrings, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+        val isoValues = model.filteredIsoValues
+        val itemStrings = isoValues.map(Int::toString).toTypedArray()
+        val checkedItems = isoValues.map(model.filterSet.isoValues::contains).toBooleanArray()
+
+        builder.setMultiChoiceItems(itemStrings, checkedItems) { _, which, isChecked ->
             checkedItems[which] = isChecked
         }
-        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-        builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
+        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
+        builder.setPositiveButton(R.string.FilterNoColon) { _, _ ->
             // Get the indices of items that were marked true and their corresponding int values.
-            val selectedIsoValues = checkedItems
-                    .mapIndexed { index, selected -> index to selected }
-                    .filter { it.second }.map { it.first }.map { items[it] }
+            val selectedIsoValues = checkedItems.zip(isoValues)
+                .mapNotNull { (selected, isoValue) -> if (selected) isoValue else null }
             model.filterSet = model.filterSet.copy(isoValues = selectedIsoValues)
         }
-        builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
+        builder.setNeutralButton(R.string.Reset) { _, _ ->
             model.filterSet = model.filterSet.copy(isoValues = emptyList())
         }
         builder.create().show()
@@ -237,24 +229,20 @@ class FilmStocksFragment : Fragment(), MenuProvider {
 
     private fun showFilmTypeFilterDialog() {
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        // Get all filter items.
-        val items = resources.getStringArray(R.array.FilmTypes)
-        // Create a boolean array of same size with selected items marked true.
-        val checkedItems = items.indices
-            .map { model.filterSet.types.contains(it) }
-            .toBooleanArray()
-        builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+        val filmTypes = resources.getStringArray(R.array.FilmTypes)
+        val checkedItems = filmTypes.indices.map(model.filterSet.types::contains).toBooleanArray()
+
+        builder.setMultiChoiceItems(filmTypes, checkedItems) { _, which, isChecked ->
             checkedItems[which] = isChecked
         }
-        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-        builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
+        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
+        builder.setPositiveButton(R.string.FilterNoColon) { _, _ ->
             // Get the indices of items that were marked true.
-            val selectedTypes = checkedItems
-                    .mapIndexed { index, selected -> index to selected }
-                    .filter { it.second }.map { it.first }
+            val selectedTypes = checkedItems.asIterable()
+                .mapIndexedNotNull { index, selected -> if (selected) index else null }
             model.filterSet = model.filterSet.copy(types = selectedTypes)
         }
-        builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
+        builder.setNeutralButton(R.string.Reset) { _, _ ->
             model.filterSet = model.filterSet.copy(types = emptyList())
         }
         builder.create().show()
@@ -262,21 +250,17 @@ class FilmStocksFragment : Fragment(), MenuProvider {
 
     private fun showFilmProcessFilterDialog() {
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        // Get all filter items.
-        val items = resources.getStringArray(R.array.FilmProcesses)
-        // Create a boolean array of same size with selected items marked true.
-        val checkedItems = items.indices
-            .map { model.filterSet.processes.contains(it) }
+        val filmProcesses = resources.getStringArray(R.array.FilmProcesses)
+        val checkedItems = filmProcesses.indices.map(model.filterSet.processes::contains)
             .toBooleanArray()
-        builder.setMultiChoiceItems(items, checkedItems) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+        builder.setMultiChoiceItems(filmProcesses, checkedItems) { _, which, isChecked ->
             checkedItems[which] = isChecked
         }
-        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-        builder.setPositiveButton(R.string.FilterNoColon) { _: DialogInterface?, _: Int ->
+        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
+        builder.setPositiveButton(R.string.FilterNoColon) { _, _ ->
             // Get the indices of items that were marked true.
-            val selectedProcesses = checkedItems
-                    .mapIndexed { index, selected -> index to selected }
-                    .filter { it.second }.map { it.first }
+            val selectedProcesses = checkedItems.asIterable()
+                .mapIndexedNotNull { index, selected -> if (selected) index else null }
             model.filterSet = model.filterSet.copy(processes = selectedProcesses)
         }
         builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->
@@ -290,12 +274,12 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         val checkedItem: Int
         val filterModeAddedBy = model.filterSet.filterMode
         checkedItem = filterModeAddedBy.ordinal
-        builder.setSingleChoiceItems(R.array.FilmStocksFilterMode, checkedItem) { dialog: DialogInterface, which: Int ->
+        builder.setSingleChoiceItems(R.array.FilmStocksFilterMode, checkedItem) { dialog, which ->
             val selectedFilterMode = FilmStockFilterMode.from(which)
             model.filterSet = model.filterSet.copy(filterMode = selectedFilterMode)
             dialog.dismiss()
         }
-        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
         builder.create().show()
     }
 }

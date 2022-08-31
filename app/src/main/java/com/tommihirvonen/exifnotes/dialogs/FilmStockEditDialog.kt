@@ -43,7 +43,7 @@ class FilmStockEditDialog : DialogFragment() {
     private val editModel by lazy {
         val filmStock = requireArguments().getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.copy()
             ?: FilmStock()
-        val factory = FilmStockEditViewModelFactory(requireActivity().application, filmStock.copy())
+        val factory = FilmStockEditViewModelFactory(requireActivity().application, filmStock)
         ViewModelProvider(this, factory)[FilmStockEditViewModel::class.java]
     }
 

@@ -27,7 +27,10 @@ import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.datastructures.FilmStockSortMode
 import com.tommihirvonen.exifnotes.datastructures.sorted
+import com.tommihirvonen.exifnotes.utilities.applyPredicates
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.isEmptyOrContains
+import com.tommihirvonen.exifnotes.utilities.mapDistinct
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -132,14 +135,6 @@ class FilmStocksViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 }
-
-fun <T> List<T>.isEmptyOrContains(value: T): Boolean = contains(value) || isEmpty()
-
-fun <T> List<T>.applyPredicates(vararg predicates: ((T) -> (Boolean))): List<T> =
-    filter { item -> predicates.all { p -> p(item) } }
-
-fun <T, U : Comparable<U>> List<T>.mapDistinct(transform: (T) -> U): List<U> =
-    map(transform).distinct().sorted()
 
 data class FilmStockFilterSet(
     val filterMode: FilmStockFilterMode = FilmStockFilterMode.ALL,

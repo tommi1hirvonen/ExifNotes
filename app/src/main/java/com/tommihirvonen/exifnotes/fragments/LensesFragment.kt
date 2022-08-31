@@ -18,7 +18,6 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -175,8 +174,8 @@ class LensesFragment : Fragment() {
         builder.setTitle(resources.getString(R.string.ConfirmLensDelete)
                 + " \'" + lens.name + "\'?"
         )
-        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
-        builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
+        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
+        builder.setPositiveButton(R.string.OK) { _, _ ->
             model.deleteLens(lens)
         }
         builder.create().show()
@@ -189,36 +188,31 @@ class LensesFragment : Fragment() {
      */
     private fun showSelectMountableCamerasDialog(lens: Lens) {
         val mountableCameras = cameras.filter { lens.cameraIds.contains(it.id) }
-        val allCameras = cameras.filter { it.isNotFixedLens }
+        val allCameras = cameras.filter(Camera::isNotFixedLens)
 
         // Create a list where the mountable selections are saved.
-        val cameraSelections = allCameras.map {
-            MountableState(it, mountableCameras.contains(it))
-        }.toMutableList()
+        val cameraSelections = allCameras.map { camera ->
+            MountableState(camera, mountableCameras.contains(camera))
+        }
 
         // Make a list of strings for all the camera names to be shown in the multi choice list.
-        val listItems = allCameras.map { it.name }.toTypedArray<CharSequence>()
+        val listItems = allCameras.map(Camera::name).toTypedArray()
         // Create a bool array for preselected items in the multi choice list.
-        val booleans = cameraSelections.map { it.beforeState }.toBooleanArray()
+        val booleans = cameraSelections.map(MountableState::beforeState).toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectMountableCameras)
-                .setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+                .setMultiChoiceItems(listItems, booleans) { _, which, isChecked ->
                     cameraSelections[which].afterState = isChecked
                 }
-                .setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-
-                    // Go through new mountable combinations.
-                    cameraSelections.filter { it.afterState != it.beforeState && it.afterState }.forEach {
-                        model.addCameraLensLink(it.gear as Camera, lens)
-                    }
-
-                    // Go through removed mountable combinations.
-                    cameraSelections.filter { it.afterState != it.beforeState && !it.afterState }.forEach {
-                        model.deleteCameraLensLink(it.gear as Camera, lens)
-                    }
+                .setPositiveButton(R.string.OK) { _, _ ->
+                    val (added, removed) = cameraSelections
+                        .filter { it.afterState != it.beforeState }
+                        .partition(MountableState::afterState)
+                    added.forEach { model.addCameraLensLink(it.gear as Camera, lens) }
+                    removed.forEach { model.deleteCameraLensLink(it.gear as Camera, lens) }
                 }
-                .setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+                .setNegativeButton(R.string.Cancel) { _, _ -> }
         val alert = builder.create()
         alert.show()
     }
@@ -233,33 +227,32 @@ class LensesFragment : Fragment() {
         val allFilters = filters
 
         // Create a list where the mountable selections are saved.
-        val filterSelections = allFilters.map {
-            MountableState(it, mountableFilters.contains(it))
-        }.toMutableList()
+        val filterSelections = allFilters.map { filter ->
+            MountableState(filter, mountableFilters.contains(filter))
+        }
 
         // Make a list of strings for all the lens names to be shown in the multi choice list.
-        val listItems = allFilters.map { it.name }.toTypedArray<CharSequence>()
+        val listItems = allFilters.map(Filter::name).toTypedArray()
         // Create a bool array for preselected items in the multi choice list.
-        val booleans = filterSelections.map { it.beforeState }.toBooleanArray()
+        val booleans = filterSelections.map(MountableState::beforeState).toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectMountableFilters)
-                .setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+                .setMultiChoiceItems(listItems, booleans) { _, which, isChecked ->
                     filterSelections[which].afterState = isChecked
                 }
-                .setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-
-                    // Go through new mountable combinations.
-                    filterSelections.filter { it.afterState != it.beforeState && it.afterState }.forEach {
+                .setPositiveButton(R.string.OK) { _, _ ->
+                    val (added, removed) = filterSelections
+                        .filter { it.afterState != it.beforeState }
+                        .partition(MountableState::afterState)
+                    added.forEach {
                         model.addLensFilterLink(it.gear as Filter, lens, isFixedLens = false)
                     }
-
-                    // Go through removed mountable combinations.
-                    filterSelections.filter { it.afterState != it.beforeState && !it.afterState }.forEach {
+                    removed.forEach {
                         model.deleteLensFilterLink(it.gear as Filter, lens, isFixedLens = false)
                     }
                 }
-                .setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+                .setNegativeButton(R.string.Cancel) { _, _ -> }
         val alert = builder.create()
         alert.show()
     }

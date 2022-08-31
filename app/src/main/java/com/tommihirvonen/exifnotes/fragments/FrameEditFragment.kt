@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
@@ -132,7 +131,7 @@ class FrameEditFragment : Fragment() {
         DateTimeLayoutManager(
             requireActivity() as AppCompatActivity,
             binding.dateLayout,
-            { model.frame.date },
+            model.frame::date,
             model.observable::setDate)
 
         binding.apertureEditButton.setOnClickListener {
@@ -414,24 +413,21 @@ class FrameEditFragment : Fragment() {
     private val filtersButtonOnClickListener = View.OnClickListener {
         val possibleFilters = model.filters
         // Create a list with filter names to be shown on the multi choice dialog.
-        val listItems = possibleFilters.map { it.name }.toTypedArray()
-        // List where the mountable selections are stored.
-        val filterSelections = possibleFilters.map {
-            it to model.frame.filters.contains(it)
-        }.toMutableList()
+        val listItems = possibleFilters.map(Filter::name).toTypedArray()
         // Bool array for preselected items in the multi choice list.
-        val booleans = filterSelections.map { it.second }.toBooleanArray()
+        val booleans = possibleFilters.map(model.frame.filters::contains).toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.UsedFilters)
-        builder.setMultiChoiceItems(listItems, booleans) { _: DialogInterface?, which: Int, isChecked: Boolean ->
-            filterSelections[which] = filterSelections[which].copy(second = isChecked)
+        builder.setMultiChoiceItems(listItems, booleans) { _, which, isChecked ->
+            booleans[which] = isChecked
         }
-        builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-            val filters = filterSelections.filter { it.second }.map { it.first }
-            model.observable.setFilters(filters)
+        builder.setPositiveButton(R.string.OK) { _, _ ->
+            val selectedFilters = booleans.zip(possibleFilters)
+                .mapNotNull { (selected, filter) -> if (selected) filter else null }
+            model.observable.setFilters(selectedFilters)
         }
-        builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
+        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
         val alert = builder.create()
         alert.show()
     }
@@ -503,10 +499,10 @@ class FrameEditFragment : Fragment() {
         }
         builder.setView(dialogView)
         builder.setTitle(resources.getString(R.string.ChooseFocalLength))
-        builder.setPositiveButton(resources.getString(R.string.OK)) { _: DialogInterface?, _: Int ->
+        builder.setPositiveButton(resources.getString(R.string.OK)) { _, _ ->
             model.observable.setFocalLength(focalLengthText.text.toString().toInt())
         }
-        builder.setNegativeButton(resources.getString(R.string.Cancel)) { _: DialogInterface?, _: Int -> }
+        builder.setNegativeButton(resources.getString(R.string.Cancel)) { _, _ -> }
         val dialog = builder.create()
         dialog.show()
     }

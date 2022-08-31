@@ -27,22 +27,19 @@ import kotlinx.parcelize.Parcelize
 class Location(val decimalLocation: String) : Parcelable {
 
     companion object {
-        private fun Location.customString(): String = this.let {
-            return (Location.convert(it.latitude, Location.FORMAT_DEGREES) + " " +
-                    Location.convert(it.longitude, Location.FORMAT_DEGREES)).replace(",", ".")
-        }
-        private fun LatLng.customString(): String = this.let {
-            return "${it.latitude} ${it.longitude}"
-        }
+        private fun Location.customString(): String =
+            (Location.convert(latitude, Location.FORMAT_DEGREES) + " "
+                    + Location.convert(longitude, Location.FORMAT_DEGREES))
+                .replace(",", ".")
+
+        private fun LatLng.customString(): String = "$latitude $longitude"
     }
 
     constructor(latLng: LatLng) : this(latLng.customString())
 
     constructor(location: Location) : this(location.customString())
 
-    override fun toString(): String {
-        return decimalLocation
-    }
+    override fun toString(): String = decimalLocation
 
     val latLng: LatLng? get() = decimalLocation.let {
         try {

@@ -46,7 +46,7 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
     protected abstract val checkboxSelector: (U) -> View
     protected open val backgroundSelector: (U) -> View? = { null }
 
-    val selectedItems get() = mSelectedItems.map { it.key }
+    val selectedItems get() = mSelectedItems.keys
 
     /**
      * Used to hold the positions of selected items in the RecyclerView.
