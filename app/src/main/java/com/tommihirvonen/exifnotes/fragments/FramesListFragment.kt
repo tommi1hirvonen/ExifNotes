@@ -191,7 +191,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             // If the frame count is greater than 100, then don't add a new frame.
             val nextFrameCount = frames.maxOfOrNull(Frame::count)?.plus(1) ?: 1
             if (nextFrameCount > 100) {
-                binding.container.snackbar(R.string.TooManyFrames, binding.fab)
+                binding.container.snackbar(R.string.TooManyFrames, binding.bottomAppBar)
                 return
             }
             val newFrame = Frame(roll).apply {
@@ -337,10 +337,10 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 val directoryDocumentFile = DocumentFile.fromTreeUri(requireContext(), directoryUri)
                     ?: return@registerForActivityResult
                 RollExportHelper(requireActivity(), roll, directoryDocumentFile).export()
-                binding.root.snackbar(R.string.ExportedFilesSuccessfully, binding.fab)
+                binding.root.snackbar(R.string.ExportedFilesSuccessfully, binding.bottomAppBar)
             } catch (e: IOException) {
                 e.printStackTrace()
-                binding.root.snackbar(R.string.ErrorExporting, binding.fab)
+                binding.root.snackbar(R.string.ErrorExporting, binding.bottomAppBar)
             }
         }
     }
