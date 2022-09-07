@@ -25,6 +25,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
 import android.widget.Toast
+import androidx.core.database.getLongOrNull
 import androidx.fragment.app.Fragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
@@ -36,16 +37,45 @@ val Context.database: Database get() = Database.getInstance(applicationContext)
 val Fragment.database: Database get() = Database.getInstance(requireContext().applicationContext)
 
 fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
-        generateSequence { if (moveToNext()) this else null }
-            .map { transform(it) }
-            .toList()
-            .apply { close() }
+        generateSequence { if (moveToNext()) this else null }.map(transform).toList()
 
-fun <T> Cursor.withFirstOrNull(transform: (Cursor) -> T): T? =
-    moveToFirst().let { if (it) transform(this) else null }.apply { close() }
+fun <T> SQLiteOpenHelper.select(table: String,
+                                columns: List<String>? = null,
+                                selection: String? = null,
+                                selectionArgs: List<String>? = null,
+                                distinct: Boolean = false,
+                                groupBy: String? = null,
+                                having: String? = null,
+                                orderBy: String? = null,
+                                limit: String? = null,
+                                transform: (Cursor) -> T
+): List<T> = readableDatabase
+    .query(distinct, table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
+        groupBy, having, orderBy, limit).use { cursor ->
+            cursor.map(transform)
+        }
 
-fun <T> Cursor.withFirstOrDefault(default: T, transform: (Cursor) -> T): T =
-    moveToFirst().let { if (it) transform(this) else default }.apply { close() }
+fun <T> SQLiteOpenHelper.selectFirstOrNull(table: String,
+                                           columns: List<String>? = null,
+                                           selection: String? = null,
+                                           selectionArgs: List<String>? = null,
+                                           orderBy: String? = null,
+                                           transform: (Cursor) -> T
+): T? = readableDatabase
+    .query(table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
+        null, null, orderBy, null).use { cursor ->
+        if (cursor.moveToFirst()) {
+            transform(cursor)
+        } else {
+            null
+        }
+    }
+
+fun Cursor.getLong(columnName: String): Long = getLong(getColumnIndexOrThrow(columnName))
+fun Cursor.getLongOrNull(columnName: String): Long? = getLongOrNull(getColumnIndexOrThrow(columnName))
+fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndexOrThrow(columnName))
+fun Cursor.getString(columnName: String): String = getString(getColumnIndexOrThrow(columnName))
+fun Cursor.getStringOrNull(columnName: String): String? = getString(getColumnIndexOrThrow(columnName))
 
 /**
  * FilmDbHelper is the SQL database class that holds all the information
@@ -55,126 +85,6 @@ fun <T> Cursor.withFirstOrDefault(default: T, transform: (Cursor) -> T): T =
 class Database private constructor(private val context: Context)
     : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
-    override fun onOpen(db: SQLiteDatabase) {
-        super.onOpen(db)
-        // The only time foreign key constraints are enforced, is when something is written
-        // to the database. Only enable foreign keys, if the database may be written to.
-        if (!db.isReadOnly) {
-            db.execSQL("PRAGMA foreign_keys=ON;")
-        }
-    }
-
-    override fun onCreate(database: SQLiteDatabase) {
-        // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
-        database.execSQL("PRAGMA foreign_keys=ON;")
-        database.execSQL(CREATE_FILM_STOCKS_TABLE)
-        database.execSQL(CREATE_LENS_TABLE)
-        database.execSQL(CREATE_CAMERA_TABLE)
-        database.execSQL(CREATE_FILTER_TABLE)
-        database.execSQL(CREATE_ROLL_TABLE)
-        database.execSQL(CREATE_FRAME_TABLE)
-        database.execSQL(CREATE_LINK_CAMERA_LENS_TABLE)
-        database.execSQL(CREATE_LINK_LENS_FILTER_TABLE)
-        database.execSQL(CREATE_LINK_FRAME_FILTER_TABLE)
-        populateFilmStocks(database)
-    }
-
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Run all the required upgrade scripts consecutively.
-        // New if blocks should be added whenever the database version is raised and new
-        // columns and/or tables are added.
-        if (oldVersion < 14) {
-            //TABLE_FRAMES
-            db.execSQL(ALTER_TABLE_FRAMES_1)
-            db.execSQL(ALTER_TABLE_FRAMES_2)
-            db.execSQL(ALTER_TABLE_FRAMES_3)
-            db.execSQL(ALTER_TABLE_FRAMES_4)
-            db.execSQL(ALTER_TABLE_FRAMES_5)
-            db.execSQL(ALTER_TABLE_FRAMES_6)
-            db.execSQL(ALTER_TABLE_FRAMES_7)
-            db.execSQL(ALTER_TABLE_FRAMES_8)
-            db.execSQL(ALTER_TABLE_FRAMES_9)
-            //TABLE_LENSES
-            db.execSQL(ALTER_TABLE_LENSES_1)
-            db.execSQL(ALTER_TABLE_LENSES_2)
-            db.execSQL(ALTER_TABLE_LENSES_3)
-            db.execSQL(ALTER_TABLE_LENSES_4)
-            db.execSQL(ALTER_TABLE_LENSES_5)
-            db.execSQL(ALTER_TABLE_LENSES_6)
-            //TABLE_CAMERAS
-            db.execSQL(ALTER_TABLE_CAMERAS_1)
-            db.execSQL(ALTER_TABLE_CAMERAS_2)
-            db.execSQL(ALTER_TABLE_CAMERAS_3)
-            db.execSQL(ALTER_TABLE_CAMERAS_4)
-            //TABLE_ROLLS
-            db.execSQL(ALTER_TABLE_ROLLS_1)
-            db.execSQL(ALTER_TABLE_ROLLS_2)
-            db.execSQL(ALTER_TABLE_ROLLS_3)
-            //In an earlier version special chars were not allowed.
-            //Instead quote marks were changed to 'q' when stored in the SQLite database.
-            db.execSQL(REPLACE_QUOTE_CHARS)
-            //TABLE_FILTERS
-            db.execSQL(ON_UPGRADE_CREATE_FILTER_TABLE)
-            //TABLE MOUNTABLES
-            db.execSQL(ON_UPGRADE_CREATE_LINK_LENS_FILTER_TABLE)
-        }
-        if (oldVersion < 15) {
-            db.execSQL(ALTER_TABLE_FRAMES_10)
-        }
-        if (oldVersion < 16) {
-            db.execSQL(ALTER_TABLE_ROLLS_4)
-        }
-        if (oldVersion < 17) {
-            db.execSQL(ALTER_TABLE_FRAMES_11)
-        }
-        if (oldVersion < 18) {
-            db.execSQL(ALTER_TABLE_CAMERAS_5)
-        }
-        if (oldVersion < 19) {
-            // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
-            db.execSQL("PRAGMA foreign_keys=ON;")
-            // Alter statements
-            db.beginTransaction()
-            try {
-                // execSQL() does not support multiple SQL commands separated with a semi-colon.
-                // Separate the upgrade commands into single SQL commands.
-                db.execSQL(ROLLS_TABLE_REVISION_1)
-                db.execSQL(ROLLS_TABLE_REVISION_2)
-                db.execSQL(ROLLS_TABLE_REVISION_3)
-                db.execSQL(ROLLS_TABLE_REVISION_4)
-                db.execSQL(FRAMES_TABLE_REVISION_1)
-                db.execSQL(FRAMES_TABLE_REVISION_2)
-                db.execSQL(FRAMES_TABLE_REVISION_3)
-                db.execSQL(ON_UPGRADE_CREATE_LINK_FRAME_FILTER_TABLE)
-                db.execSQL(FRAMES_TABLE_REVISION_4)
-                db.execSQL(FRAMES_TABLE_REVISION_5)
-                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_1)
-                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_2)
-                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_3)
-                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_4)
-                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_1)
-                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_2)
-                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_3)
-                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_4)
-                db.setTransactionSuccessful()
-            } finally {
-                db.endTransaction()
-            }
-        }
-        if (oldVersion < 20) {
-            db.execSQL(CREATE_FILM_STOCKS_TABLE)
-            db.execSQL(ALTER_TABLE_FRAMES_12)
-            db.execSQL(ALTER_TABLE_ROLLS_5)
-            populateFilmStocks(db)
-        }
-        if (oldVersion < 21) {
-            db.execSQL(ALTER_TABLE_ROLLS_6)
-            db.execSQL(ALTER_TABLE_ROLLS_7)
-        }
-        if (oldVersion < 22) {
-            db.execSQL(ALTER_TABLE_CAMERAS_6)
-        }
-    }
 
     // ******************** CRUD operations for the frames table ********************
     /**
@@ -183,7 +93,9 @@ class Database private constructor(private val context: Context)
      */
     fun addFrame(frame: Frame): Boolean {
         val values = buildFrameContentValues(frame)
-        val rowId = writableDatabase.insert(TABLE_FRAMES, null, values)
+        val rowId = writableDatabase.use { db ->
+            db.insert(TABLE_FRAMES, null, values)
+        }
         frame.id = rowId
         // Add the filter links, if the frame was inserted successfully.
         return if (rowId != -1L) {
@@ -199,10 +111,33 @@ class Database private constructor(private val context: Context)
      * @param roll Roll object whose frames should be fetched
      * @return an array of Frames
      */
-    fun getFrames(roll: Roll): List<Frame> {
-        val cursor = readableDatabase.query(TABLE_FRAMES, null,
-                "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()), null, null, KEY_COUNT)
-        return cursor.map { getFrameFromCursor(it, roll) }
+    fun getFrames(roll: Roll): List<Frame> = select(TABLE_FRAMES,
+        selection = "$KEY_ROLL_ID=?",
+        selectionArgs = listOf(roll.id.toString()),
+        orderBy = KEY_COUNT) { row ->
+        Frame(
+            roll = roll,
+            id = row.getLong(KEY_FRAME_ID),
+            count = row.getInt(KEY_COUNT),
+            shutter = row.getStringOrNull(KEY_SHUTTER),
+            aperture = row.getStringOrNull(KEY_APERTURE),
+            note = row.getStringOrNull(KEY_FRAME_NOTE),
+            focalLength = row.getInt(KEY_FOCAL_LENGTH),
+            exposureComp = row.getStringOrNull(KEY_EXPOSURE_COMP),
+            noOfExposures = row.getInt(KEY_NO_OF_EXPOSURES),
+            flashComp = row.getStringOrNull(KEY_FLASH_COMP),
+            meteringMode = row.getInt(KEY_METERING_MODE),
+            formattedAddress = row.getStringOrNull(KEY_FORMATTED_ADDRESS),
+            pictureFilename = row.getStringOrNull(KEY_PICTURE_FILENAME),
+            lightSource_ = row.getInt(KEY_LIGHT_SOURCE),
+            flashUsed = row.getInt(KEY_FLASH_USED) > 0,
+            flashPower = row.getStringOrNull(KEY_FLASH_POWER),
+            location = row.getStringOrNull(KEY_LOCATION)?.let(::Location),
+            date = row.getStringOrNull(KEY_DATE)?.let(::DateTime),
+            lens = row.getLongOrNull(KEY_LENS_ID)?.let(::getLens)
+        ).apply {
+            filters = getLinkedFilters(this)
+        }
     }
 
     /**
@@ -221,17 +156,21 @@ class Database private constructor(private val context: Context)
      * Deletes a frame from the database.
      * @param frame the frame to be deleted
      */
-    fun deleteFrame(frame: Frame): Int =
-            writableDatabase.delete(TABLE_FRAMES, "$KEY_FRAME_ID = ?", arrayOf(frame.id.toString()))
+    fun deleteFrame(frame: Frame): Int = writableDatabase.delete(
+        TABLE_FRAMES,
+        "$KEY_FRAME_ID = ?",
+        arrayOf(frame.id.toString()))
 
     /**
      * Gets all complementary picture filenames from the frames table.
      * @return List of all complementary picture filenames
      */
     val complementaryPictureFilenames: List<String> get() {
-        val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf(KEY_PICTURE_FILENAME),
-                "$KEY_PICTURE_FILENAME IS NOT NULL", null, null, null, null)
-        return cursor.map { it.getString(it.getColumnIndexOrThrow(KEY_PICTURE_FILENAME)) }
+        return select(TABLE_FRAMES,
+            columns = listOf(KEY_PICTURE_FILENAME),
+            selection = "$KEY_PICTURE_FILENAME IS NOT NULL") { row ->
+            row.getString(KEY_PICTURE_FILENAME)
+        }
     }
 
     // ******************** CRUD operations for the lenses table ********************
@@ -251,45 +190,57 @@ class Database private constructor(private val context: Context)
      * @return a Lens corresponding to the id
      */
     private fun getLens(lensId: Long): Lens? {
-        val filtersCursor = readableDatabase.query(TABLE_LINK_LENS_FILTER, arrayOf(KEY_FILTER_ID),
-            "$KEY_LENS_ID=?", arrayOf(lensId.toString()), null, null, null)
-        val filters = filtersCursor.map { it.getLong(it.getColumnIndexOrThrow(KEY_FILTER_ID)) }.toHashSet()
-        val camerasCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, arrayOf(KEY_CAMERA_ID),
-            "$KEY_LENS_ID=?", arrayOf(lensId.toString()), null, null, null)
-        val cameras = camerasCursor.map { it.getLong(it.getColumnIndexOrThrow(KEY_CAMERA_ID)) }.toHashSet()
-        val lensCursor = readableDatabase.query(TABLE_LENSES, null,
-                "$KEY_LENS_ID=?", arrayOf(lensId.toString()), null, null, null)
-        return lensCursor.withFirstOrNull {
-            getLensFromCursor(it).apply {
+        val filters = select(TABLE_LINK_LENS_FILTER,
+            columns = listOf(KEY_FILTER_ID),
+            selection = "$KEY_LENS_ID=?",
+            selectionArgs = listOf(lensId.toString())) { row ->
+            row.getLong(KEY_FILTER_ID)
+        }.toHashSet()
+        val cameras = select(TABLE_LINK_CAMERA_LENS,
+            columns = listOf(KEY_CAMERA_ID),
+            selection = "$KEY_LENS_ID=?",
+            selectionArgs = listOf(lensId.toString())) { row ->
+            row.getLong(KEY_CAMERA_ID)
+        }.toHashSet()
+        return selectFirstOrNull(TABLE_LENSES,
+            selection = "$KEY_LENS_ID=?",
+            selectionArgs = listOf(lensId.toString())) { row ->
+            lensMapper(row).apply {
                 filterIds = filters
                 cameraIds = cameras
             }
         }
     }
 
+    private val lensMapper = { row: Cursor ->
+        Lens(
+            id = row.getLong(KEY_LENS_ID),
+            make = row.getString(KEY_LENS_MAKE),
+            model = row.getString(KEY_LENS_MODEL),
+            serialNumber = row.getStringOrNull(KEY_LENS_SERIAL_NO),
+            minAperture = row.getStringOrNull(KEY_LENS_MIN_APERTURE),
+            maxAperture = row.getStringOrNull(KEY_LENS_MAX_APERTURE),
+            minFocalLength = row.getInt(KEY_LENS_MIN_FOCAL_LENGTH),
+            maxFocalLength = row.getInt(KEY_LENS_MAX_FOCAL_LENGTH),
+            apertureIncrements = row.getInt(KEY_LENS_APERTURE_INCREMENTS).let(Increment::from)
+        )
+    }
+
     /**
      * Get lenses from the database.
      */
     val lenses: List<Lens> get() {
-        val filtersCursor = readableDatabase.query(TABLE_LINK_LENS_FILTER, null, null, null, null, null, null)
-        val filters = filtersCursor.map { c ->
-            val lensId = c.getLong(c.getColumnIndexOrThrow(KEY_LENS_ID))
-            val filterId = c.getLong(c.getColumnIndexOrThrow(KEY_FILTER_ID))
-            lensId to filterId
-        }.groupBy({ it.first }, { it.second })
-
-        val camerasCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, null, null, null, null, null, null)
-        val cameras = camerasCursor.map { c ->
-            val lensId = c.getLong(c.getColumnIndexOrThrow(KEY_LENS_ID))
-            val cameraId = c.getLong(c.getColumnIndexOrThrow(KEY_CAMERA_ID))
-            lensId to cameraId
-        }.groupBy({ it.first }, { it.second })
+        val filters = select(TABLE_LINK_LENS_FILTER) { row ->
+            row.getLong(KEY_LENS_ID) to row.getLong(KEY_FILTER_ID)
+        }.groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
+        val cameras = select(TABLE_LINK_CAMERA_LENS) { row ->
+            row.getLong(KEY_LENS_ID) to row.getLong(KEY_CAMERA_ID)
+        }.groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
 
         val selection = "$KEY_LENS_ID not in (select $KEY_LENS_ID from $TABLE_CAMERAS where $KEY_LENS_ID is not null)"
-        val cursor = readableDatabase.query(TABLE_LENSES, null, selection, null,
-                null, null, "$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase")
-        return cursor.map {
-            getLensFromCursor(it).apply {
+        val orderBy = "$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase"
+        return select(TABLE_LENSES, selection = selection, orderBy = orderBy) { row ->
+            lensMapper(row).apply {
                 filterIds = filters[id]?.toHashSet() ?: HashSet()
                 cameraIds = cameras[id]?.toHashSet() ?: HashSet()
             }
@@ -308,11 +259,10 @@ class Database private constructor(private val context: Context)
      * @param lens Lens to be checked
      * @return true if the lens is in use, false if not
      */
-    fun isLensInUse(lens: Lens): Boolean {
-        val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf(KEY_LENS_ID),
-                "$KEY_LENS_ID=?", arrayOf(lens.id.toString()), null, null, null)
-        return cursor.moveToFirst().also { cursor.close() }
-    }
+    fun isLensInUse(lens: Lens) = selectFirstOrNull(TABLE_FRAMES,
+        selection = "$KEY_LENS_ID=?",
+        selectionArgs = listOf(lens.id.toString())) { true } ?: false
+
 
     /**
      * Updates the information of a lens
@@ -340,33 +290,49 @@ class Database private constructor(private val context: Context)
         return cameraId
     }
 
+    private val cameraMapper = { cursor: Cursor ->
+        Camera(
+            id = cursor.getLong(KEY_CAMERA_ID),
+            make = cursor.getStringOrNull(KEY_CAMERA_MAKE),
+            model = cursor.getStringOrNull(KEY_CAMERA_MODEL),
+            serialNumber = cursor.getStringOrNull(KEY_CAMERA_SERIAL_NO),
+            minShutter = cursor.getStringOrNull(KEY_CAMERA_MIN_SHUTTER),
+            maxShutter = cursor.getStringOrNull(KEY_CAMERA_MAX_SHUTTER),
+            shutterIncrements = Increment.from(cursor.getInt(KEY_CAMERA_SHUTTER_INCREMENTS)),
+            exposureCompIncrements = PartialIncrement.from(cursor.getInt(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS)),
+            lens = cursor.getLongOrNull(KEY_LENS_ID)?.let(::getLens)
+        )
+    }
+
     /**
      * Gets the Camera corresponding to the camera id
      * @param cameraId the id of the Camera
      * @return the Camera corresponding to the given id
      */
     private fun getCamera(cameraId: Long): Camera? {
-        val lensesCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, arrayOf(KEY_LENS_ID),
-            "$KEY_CAMERA_ID=?", arrayOf(cameraId.toString()), null, null, null)
-        val lenses = lensesCursor
-            .map { it.getLong(it.getColumnIndexOrThrow(KEY_LENS_ID)) }
-            .toHashSet()
-        val cursor = readableDatabase.query(TABLE_CAMERAS, null,
-                "$KEY_CAMERA_ID=?", arrayOf(cameraId.toString()), null, null, null)
-        return cursor.withFirstOrNull { getCameraFromCursor(it).apply { lensIds = lenses } }
+        val lenses = select(TABLE_LINK_CAMERA_LENS,
+            columns = listOf(KEY_LENS_ID),
+            selection = "$KEY_CAMERA_ID=?",
+            selectionArgs = listOf(cameraId.toString())) { row ->
+            row.getLong(KEY_LENS_ID)
+        }.toHashSet()
+        return selectFirstOrNull(TABLE_CAMERAS,
+            selection = "$KEY_CAMERA_ID=?",
+            selectionArgs = listOf(cameraId.toString())) { row ->
+                cameraMapper(row).apply { lensIds = lenses }
+            }
     }
 
     val cameras: List<Camera> get() {
-        val lensesCursor = readableDatabase.query(TABLE_LINK_CAMERA_LENS, null, null, null, null, null, null)
-        val lenses = lensesCursor.map { c ->
-            val cameraId = c.getLong(c.getColumnIndexOrThrow(KEY_CAMERA_ID))
-            val lensId = c.getLong(c.getColumnIndexOrThrow(KEY_LENS_ID))
-            cameraId to lensId
-        }.groupBy({ it.first }, { it.second })
-        val cursor = readableDatabase.query(TABLE_CAMERAS, null, null, null,
-            null, null, "$KEY_CAMERA_MAKE collate nocase,$KEY_CAMERA_MODEL collate nocase")
-        return cursor
-            .map { getCameraFromCursor(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
+        val lenses = select(TABLE_LINK_CAMERA_LENS) { row ->
+            row.getLong(KEY_CAMERA_ID) to row.getLong(KEY_LENS_ID)
+        }.groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
+        return select(TABLE_CAMERAS,
+            orderBy = "$KEY_CAMERA_MAKE collate nocase,$KEY_CAMERA_MODEL collate nocase") { row ->
+            cameraMapper(row).apply {
+                lensIds = lenses[id]?.toHashSet() ?: HashSet()
+            }
+        }
     }
 
     /**
@@ -384,11 +350,9 @@ class Database private constructor(private val context: Context)
      * @param camera the camera to be checked
      * @return true if the camera is in use, false if not
      */
-    fun isCameraBeingUsed(camera: Camera): Boolean {
-        val cursor = readableDatabase.query(TABLE_ROLLS, arrayOf(KEY_CAMERA_ID),
-                "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()), null, null, null)
-        return cursor.moveToFirst().also { cursor.close() }
-    }
+    fun isCameraBeingUsed(camera: Camera) = selectFirstOrNull(TABLE_ROLLS,
+        selection = "$KEY_CAMERA_ID=?",
+        selectionArgs = listOf(camera.id.toString())) { true } ?: false
 
     /**
      * Updates the information of the specified camera.
@@ -396,10 +360,11 @@ class Database private constructor(private val context: Context)
      */
     fun updateCamera(camera: Camera): Int {
         // Check if the camera previously had a fixed lens.
-        val previousLensIdCursor = readableDatabase.query(TABLE_CAMERAS, arrayOf(KEY_LENS_ID),
-        "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()), null, null, null)
-        val previousLensId = previousLensIdCursor.withFirstOrNull {
-            it.getLong(it.getColumnIndexOrThrow(KEY_LENS_ID))
+        val previousLensId = selectFirstOrNull(TABLE_CAMERAS,
+            columns = listOf(KEY_LENS_ID),
+            selection = "$KEY_CAMERA_ID=?",
+            selectionArgs = listOf(camera.id.toString())) { row ->
+            row.getLong(KEY_LENS_ID)
         } ?: 0
 
         val database = writableDatabase
@@ -467,13 +432,13 @@ class Database private constructor(private val context: Context)
      * @return a List of all linked lenses
      */
     fun getLinkedLenses(camera: Camera): List<Lens> {
-        //Here it is safe to use a raw query, because we only use id values, which are database generated.
-        //So there is no danger of SQL injection
-        val query = ("SELECT * FROM " + TABLE_LENSES + " WHERE " + KEY_LENS_ID + " IN "
-                + "(" + "SELECT " + KEY_LENS_ID + " FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
-                + KEY_CAMERA_ID + "=" + camera.id + ") ORDER BY " + KEY_LENS_MAKE)
-        val cursor = readableDatabase.rawQuery(query, null)
-        return cursor.map { getLensFromCursor(it) }
+        val lensIds = select(TABLE_LINK_CAMERA_LENS,
+            columns = listOf(KEY_LENS_ID),
+            selection = "$KEY_CAMERA_ID = ?",
+            selectionArgs = listOf(camera.id.toString())) { row ->
+            row.getLong(KEY_LENS_ID)
+        }
+        return lensIds.mapNotNull(::getLens)
     }
 
     // ******************** CRUD operations for the rolls table ********************
@@ -492,15 +457,30 @@ class Database private constructor(private val context: Context)
      * @return a List of all the rolls in the database
      */
     fun getRolls(filterMode: RollFilterMode?): List<Roll> {
-        val selectionArg: String? = when (filterMode) {
+        val selection: String? = when (filterMode) {
             RollFilterMode.ACTIVE -> "$KEY_ROLL_ARCHIVED=0"
             RollFilterMode.ARCHIVED -> "$KEY_ROLL_ARCHIVED>0"
             RollFilterMode.ALL -> null
             else -> "$KEY_ROLL_ARCHIVED=0"
         }
-        val cursor = readableDatabase.query(TABLE_ROLLS, null, selectionArg, null,
-                null, null, "$KEY_ROLL_DATE DESC")
-        return cursor.map { getRollFromCursor(it) }
+        return select(TABLE_ROLLS,
+            selection = selection,
+            orderBy = "$KEY_ROLL_DATE DESC") { row ->
+            Roll(
+                id = row.getLong(KEY_ROLL_ID),
+                name = row.getStringOrNull(KEY_ROLLNAME),
+                date = row.getStringOrNull(KEY_ROLL_DATE)?.let(::DateTime),
+                unloaded = row.getStringOrNull(KEY_ROLL_UNLOADED)?.let(::DateTime),
+                developed = row.getStringOrNull(KEY_ROLL_DEVELOPED)?.let(::DateTime),
+                note = row.getStringOrNull(KEY_ROLL_NOTE),
+                camera = row.getLongOrNull(KEY_CAMERA_ID)?.let(::getCamera),
+                iso = row.getInt(KEY_ROLL_ISO),
+                pushPull = row.getStringOrNull(KEY_ROLL_PUSH),
+                format_ = row.getInt(KEY_ROLL_FORMAT),
+                archived = row.getInt(KEY_ROLL_ARCHIVED) > 0,
+                filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(::getFilmStock)
+            )
+        }
     }
 
     /**
@@ -524,11 +504,11 @@ class Database private constructor(private val context: Context)
      * @param roll the roll whose frame count we want
      * @return an integer of the the number of frames on that roll
      */
-    fun getNumberOfFrames(roll: Roll): Int {
-        val cursor = readableDatabase.query(TABLE_FRAMES, arrayOf("COUNT($KEY_FRAME_ID)"),
-                "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()), null, null, null)
-        return cursor.withFirstOrDefault(0) { it.getInt(0) }
-    }
+    fun getNumberOfFrames(roll: Roll): Int = selectFirstOrNull(TABLE_FRAMES,
+        columns = listOf("COUNT(*)"),
+        selection = "$KEY_ROLL_ID=?",
+        selectionArgs = listOf(roll.id.toString())) { row -> row.getInt(0) } ?: 0
+
 
     // ******************** CRUD operations for the filters table ********************
     /**
@@ -541,21 +521,28 @@ class Database private constructor(private val context: Context)
         return id
     }
 
+    private val filterMapper = { cursor: Cursor ->
+        Filter(
+            id = cursor.getLong(KEY_FILTER_ID),
+            make = cursor.getStringOrNull(KEY_FILTER_MAKE),
+            model = cursor.getStringOrNull(KEY_FILTER_MODEL)
+        )
+    }
+
     /**
      * Gets all the filters from the database
      * @return a List of all the filters in the database
      */
     val filters: List<Filter> get() {
-        val lensesCursor = readableDatabase.query(TABLE_LINK_LENS_FILTER, null, null, null, null, null, null)
-        val lenses = lensesCursor.map { c ->
-            val filterId = c.getLong(c.getColumnIndexOrThrow(KEY_FILTER_ID))
-            val lensId = c.getLong(c.getColumnIndexOrThrow(KEY_LENS_ID))
-            filterId to lensId
-        }.groupBy({ it.first }, { it.second })
-        val filterCursor = readableDatabase.query(TABLE_FILTERS, null, null, null,
-                null, null, "$KEY_FILTER_MAKE collate nocase,$KEY_FILTER_MODEL collate nocase")
-        return filterCursor
-            .map { getFilterFromCursor(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
+        val lenses = select(TABLE_LINK_LENS_FILTER) { row ->
+            row.getLong(KEY_FILTER_ID) to row.getLong(KEY_LENS_ID)
+        }.groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
+        return select(TABLE_FILTERS,
+            orderBy = "$KEY_FILTER_MAKE collate nocase,$KEY_FILTER_MODEL collate nocase") { row ->
+            filterMapper(row).apply {
+                lensIds = lenses[id]?.toHashSet() ?: HashSet()
+            }
+        }
     }
 
     /**
@@ -570,11 +557,10 @@ class Database private constructor(private val context: Context)
      * @param filter the filter to be checked
      * @return true if the filter is in use, false if not
      */
-    fun isFilterBeingUsed(filter: Filter): Boolean {
-        val cursor = readableDatabase.query(TABLE_LINK_FRAME_FILTER, arrayOf(KEY_FILTER_ID),
-                "$KEY_FILTER_ID=?", arrayOf(filter.id.toString()), null, null, null)
-        return cursor.moveToFirst().also { cursor.close() }
-    }
+    fun isFilterBeingUsed(filter: Filter) = selectFirstOrNull(TABLE_LINK_FRAME_FILTER,
+        columns = listOf(KEY_FILTER_ID),
+        selection = "$KEY_FILTER_ID=?",
+        selectionArgs = listOf(filter.id.toString())) { true } ?: false
 
     /**
      * Updates the information of the specified filter.
@@ -607,23 +593,19 @@ class Database private constructor(private val context: Context)
      * @param lens the lens that can be mounted with the filter
      */
     fun deleteLensFilterLink(filter: Filter, lens: Lens): Int =
-            writableDatabase.delete(TABLE_LINK_LENS_FILTER,
-                    "$KEY_FILTER_ID = ? AND $KEY_LENS_ID = ?", arrayOf(filter.id.toString(), lens.id.toString()))
+        writableDatabase.delete(TABLE_LINK_LENS_FILTER,
+            "$KEY_FILTER_ID = ? AND $KEY_LENS_ID = ?",
+            arrayOf(filter.id.toString(), lens.id.toString()))
 
     /**
      * Gets all the filters that can be mounted to the specified lens
      * @param lens the lens whose filters we want to get
      * @return a List of all linked filters
      */
-    fun getLinkedFilters(lens: Lens): List<Filter> {
-        //Here it is safe to use a raw query, because we only use id values, which are database generated.
-        //So there is no danger of SQL injection
-        val query = ("SELECT * FROM " + TABLE_FILTERS + " WHERE " + KEY_FILTER_ID + " IN "
-                + "(" + "SELECT " + KEY_FILTER_ID + " FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
-                + KEY_LENS_ID + "=" + lens.id + ") ORDER BY " + KEY_FILTER_MAKE)
-        val cursor = readableDatabase.rawQuery(query, null)
-        return cursor.map { getFilterFromCursor(it) }
-    }
+    fun getLinkedFilters(lens: Lens) = select(TABLE_FILTERS,
+            selection = "$KEY_FILTER_ID IN (SELECT $KEY_FILTER_ID FROM $TABLE_LINK_LENS_FILTER WHERE $KEY_LENS_ID = ?)",
+            selectionArgs = listOf(lens.id.toString()),
+            transform = filterMapper)
 
     // ******************** CRUD operations for the frame-filter link table ********************
     /**
@@ -658,15 +640,10 @@ class Database private constructor(private val context: Context)
      * @param frame the Frame object whose linked filters we want to get
      * @return List object containing all Filter objects linked to the specified Frame object
      */
-    private fun getLinkedFilters(frame: Frame): List<Filter> {
-        //Here it is safe to use a raw query, because we only use id values, which are database generated.
-        //So there is no danger of SQL injection
-        val query = ("select * from " + TABLE_FILTERS + " where " + KEY_FILTER_ID + " in "
-                + "(select " + KEY_FILTER_ID + " from " + TABLE_LINK_FRAME_FILTER + " where "
-                + KEY_FRAME_ID + " = " + frame.id + ") order by " + KEY_FILTER_MAKE)
-        val cursor = readableDatabase.rawQuery(query, null)
-        return cursor.map { getFilterFromCursor(it) }
-    }
+    private fun getLinkedFilters(frame: Frame) = select(TABLE_FILTERS,
+        selection = "$KEY_FILTER_ID IN (SELECT $KEY_FILTER_ID FROM $TABLE_LINK_FRAME_FILTER WHERE $KEY_FRAME_ID = ?)",
+        selectionArgs = listOf(frame.id.toString()),
+        transform = filterMapper)
 
     // ******************** CRUD operations for the film stock table ********************
 
@@ -676,24 +653,31 @@ class Database private constructor(private val context: Context)
         return id
     }
 
-    private fun getFilmStock(filmStockId: Long): FilmStock? {
-        val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null,
-                "$KEY_FILM_STOCK_ID=?", arrayOf(filmStockId.toString()), null, null, null)
-        return cursor.withFirstOrNull { getFilmStockFromCursor(it) }
+    private val filmStockMapper = { row: Cursor ->
+        FilmStock(
+            id = row.getLong(KEY_FILM_STOCK_ID),
+            make = row.getStringOrNull(KEY_FILM_MANUFACTURER_NAME),
+            model = row.getStringOrNull(KEY_FILM_STOCK_NAME),
+            iso = row.getInt(KEY_FILM_ISO),
+            type_ = row.getInt(KEY_FILM_TYPE),
+            process_ = row.getInt(KEY_FILM_PROCESS),
+            isPreadded = row.getInt(KEY_FILM_IS_PREADDED) > 0
+        )
     }
 
-    val filmStocks: List<FilmStock> get() {
-        val cursor = readableDatabase.query(TABLE_FILM_STOCKS, null, null,
-                null, null, null,
-                "$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase")
-        return cursor.map { getFilmStockFromCursor(it) }
-    }
+    private fun getFilmStock(filmStockId: Long) = selectFirstOrNull(TABLE_FILM_STOCKS,
+        selection = "$KEY_FILM_STOCK_ID=?",
+        selectionArgs = listOf(filmStockId.toString()),
+        transform = filmStockMapper)
 
-    fun isFilmStockBeingUsed(filmStock: FilmStock): Boolean {
-        val cursor = readableDatabase.query(TABLE_ROLLS, arrayOf(KEY_FILM_STOCK_ID),
-                "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()), null, null, null)
-        return cursor.moveToFirst().also { cursor.close() }
-    }
+    val filmStocks: List<FilmStock> get() = select(TABLE_FILM_STOCKS,
+        orderBy = "$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase",
+        transform = filmStockMapper)
+
+    fun isFilmStockBeingUsed(filmStock: FilmStock) = selectFirstOrNull(TABLE_ROLLS,
+        selection = "$KEY_FILM_STOCK_ID=?",
+        selectionArgs = listOf(filmStock.id.toString())) { true } ?: false
+
 
     fun deleteFilmStock(filmStock: FilmStock) =
             writableDatabase.delete(TABLE_FILM_STOCKS, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
@@ -703,136 +687,6 @@ class Database private constructor(private val context: Context)
         return writableDatabase.update(TABLE_FILM_STOCKS, contentValues, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
     }
 
-    //*********************** METHODS TO GET OBJECTS FROM CURSOR **********************************
-
-    /**
-     * Creates a new Frame object and maps the cursor's columns to the object's properties
-     *
-     * @param cursor Cursor object which should be used to get the property values
-     * @param roll Roll object passed to the Frame's constructor
-     * @return Frame object with properties set from the cursor
-     */
-    private fun getFrameFromCursor(cursor: Cursor, roll: Roll) = Frame(roll).apply {
-        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FRAME_ID))
-        count = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_COUNT))
-        val date = cursor.getString(cursor.getColumnIndexOrThrow(KEY_DATE))
-        if (date != null) this.date = DateTime(date)
-        val lensId = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_LENS_ID))
-        if (lensId > 0) lens = getLens(lensId)
-        shutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_SHUTTER))
-        aperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_APERTURE))
-        note = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FRAME_NOTE))
-        val location = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LOCATION))
-        if (location != null) this.location = Location(location)
-        focalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FOCAL_LENGTH))
-        exposureComp = cursor.getString(cursor.getColumnIndexOrThrow(KEY_EXPOSURE_COMP))
-        noOfExposures = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_NO_OF_EXPOSURES))
-        val flashUsed = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FLASH_USED))
-        this.flashUsed = flashUsed > 0
-        flashPower = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FLASH_POWER))
-        flashComp = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FLASH_COMP))
-        meteringMode = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_METERING_MODE))
-        formattedAddress = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FORMATTED_ADDRESS))
-        pictureFilename = cursor.getString(cursor.getColumnIndexOrThrow(KEY_PICTURE_FILENAME))
-        lightSource = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LIGHT_SOURCE))
-        filters = getLinkedFilters(this)
-    }
-
-    /**
-     * Creates a new Roll object and maps the cursor's columns to the object's properties
-     *
-     * @param cursor Cursor object which should be used to get the property values
-     * @return Roll object with properties set from the cursor
-     */
-    private fun getRollFromCursor(cursor: Cursor) = Roll().apply {
-        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_ROLL_ID))
-        name = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLLNAME))
-        val date = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_DATE))
-        if (date != null) this.date = DateTime(date)
-        note = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_NOTE))
-        val cameraId = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_CAMERA_ID))
-        if (cameraId > 0) camera = getCamera(cameraId)
-        iso = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_ISO))
-        pushPull = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_PUSH))
-        format = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_FORMAT))
-        val archived = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ROLL_ARCHIVED))
-        this.archived = archived > 0
-        val filmStockId = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_ID)).toLong()
-        if (filmStockId > 0) filmStock = getFilmStock(filmStockId)
-        val unloaded = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_UNLOADED))
-        if (unloaded != null) this.unloaded = DateTime(unloaded)
-        val developed = cursor.getString(cursor.getColumnIndexOrThrow(KEY_ROLL_DEVELOPED))
-        if (developed != null) this.developed = DateTime(developed)
-    }
-
-    /**
-     * Creates a new Lens object and maps the cursor's columns to the object's properties
-     *
-     * @param cursor Cursor object which should be used to get the property values
-     * @return Lens object with properties set from the cursor
-     */
-    private fun getLensFromCursor(cursor: Cursor) = Lens().apply {
-        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_LENS_ID))
-        make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MAKE))
-        model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MODEL))
-        serialNumber = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_SERIAL_NO))
-        minAperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MIN_APERTURE))
-        maxAperture = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LENS_MAX_APERTURE))
-        minFocalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_MIN_FOCAL_LENGTH))
-        maxFocalLength = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_MAX_FOCAL_LENGTH))
-        val incrementIndex = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_LENS_APERTURE_INCREMENTS))
-        apertureIncrements = Increment.from(incrementIndex)
-    }
-
-    /**
-     * Creates a new Camera object and maps the cursor's columns to the object's properties
-     *
-     * @param cursor Cursor object which should be used to get the property values
-     * @return Camera object with properties set from the cursor
-     */
-    private fun getCameraFromCursor(cursor: Cursor) = Camera().apply {
-        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_CAMERA_ID))
-        make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MAKE))
-        model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MODEL))
-        serialNumber = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_SERIAL_NO))
-        minShutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MIN_SHUTTER))
-        maxShutter = cursor.getString(cursor.getColumnIndexOrThrow(KEY_CAMERA_MAX_SHUTTER))
-        val shutterIncrementIndex = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_CAMERA_SHUTTER_INCREMENTS))
-        shutterIncrements = Increment.from(shutterIncrementIndex)
-        val compIncrementIndex = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS))
-        exposureCompIncrements = PartialIncrement.from(compIncrementIndex)
-        val lensId = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_LENS_ID))
-        if (lensId > 0) lens = getLens(lensId)
-    }
-
-    /**
-     * Creates a new Filter object and maps the cursor's columns to the object's properties
-     *
-     * @param cursor Cursor object which should be used to get the property values
-     * @return Filter object with properties set from the cursor
-     */
-    private fun getFilterFromCursor(cursor: Cursor) = Filter().apply {
-        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FILTER_ID))
-        make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILTER_MAKE))
-        model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILTER_MODEL))
-    }
-
-    /**
-     * Creates a new FilmStock object and maps the cursor's columns to the object's properties
-     *
-     * @param cursor Cursor object which should be used to get the property values
-     * @return FilmStock object with properties set from the cursor
-     */
-    private fun getFilmStockFromCursor(cursor: Cursor) = FilmStock().apply {
-        id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_ID))
-        make = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILM_MANUFACTURER_NAME))
-        model = cursor.getString(cursor.getColumnIndexOrThrow(KEY_FILM_STOCK_NAME))
-        iso = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_ISO))
-        type = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_TYPE))
-        process = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_PROCESS))
-        val preadded = cursor.getInt(cursor.getColumnIndexOrThrow(KEY_FILM_IS_PREADDED))
-        isPreadded = preadded > 0
-    }
 
     //*********************** METHODS TO BUILD CONTENT VALUES **********************************
     /**
@@ -954,6 +808,127 @@ class Database private constructor(private val context: Context)
         put(KEY_FILM_TYPE, filmStock.type)
         put(KEY_FILM_PROCESS, filmStock.process)
         put(KEY_FILM_IS_PREADDED, filmStock.isPreadded)
+    }
+
+    override fun onOpen(db: SQLiteDatabase) {
+        super.onOpen(db)
+        // The only time foreign key constraints are enforced, is when something is written
+        // to the database. Only enable foreign keys, if the database may be written to.
+        if (!db.isReadOnly) {
+            db.execSQL("PRAGMA foreign_keys=ON;")
+        }
+    }
+
+    override fun onCreate(database: SQLiteDatabase) {
+        // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
+        database.execSQL("PRAGMA foreign_keys=ON;")
+        database.execSQL(CREATE_FILM_STOCKS_TABLE)
+        database.execSQL(CREATE_LENS_TABLE)
+        database.execSQL(CREATE_CAMERA_TABLE)
+        database.execSQL(CREATE_FILTER_TABLE)
+        database.execSQL(CREATE_ROLL_TABLE)
+        database.execSQL(CREATE_FRAME_TABLE)
+        database.execSQL(CREATE_LINK_CAMERA_LENS_TABLE)
+        database.execSQL(CREATE_LINK_LENS_FILTER_TABLE)
+        database.execSQL(CREATE_LINK_FRAME_FILTER_TABLE)
+        populateFilmStocks(database)
+    }
+
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        // Run all the required upgrade scripts consecutively.
+        // New if blocks should be added whenever the database version is raised and new
+        // columns and/or tables are added.
+        if (oldVersion < 14) {
+            //TABLE_FRAMES
+            db.execSQL(ALTER_TABLE_FRAMES_1)
+            db.execSQL(ALTER_TABLE_FRAMES_2)
+            db.execSQL(ALTER_TABLE_FRAMES_3)
+            db.execSQL(ALTER_TABLE_FRAMES_4)
+            db.execSQL(ALTER_TABLE_FRAMES_5)
+            db.execSQL(ALTER_TABLE_FRAMES_6)
+            db.execSQL(ALTER_TABLE_FRAMES_7)
+            db.execSQL(ALTER_TABLE_FRAMES_8)
+            db.execSQL(ALTER_TABLE_FRAMES_9)
+            //TABLE_LENSES
+            db.execSQL(ALTER_TABLE_LENSES_1)
+            db.execSQL(ALTER_TABLE_LENSES_2)
+            db.execSQL(ALTER_TABLE_LENSES_3)
+            db.execSQL(ALTER_TABLE_LENSES_4)
+            db.execSQL(ALTER_TABLE_LENSES_5)
+            db.execSQL(ALTER_TABLE_LENSES_6)
+            //TABLE_CAMERAS
+            db.execSQL(ALTER_TABLE_CAMERAS_1)
+            db.execSQL(ALTER_TABLE_CAMERAS_2)
+            db.execSQL(ALTER_TABLE_CAMERAS_3)
+            db.execSQL(ALTER_TABLE_CAMERAS_4)
+            //TABLE_ROLLS
+            db.execSQL(ALTER_TABLE_ROLLS_1)
+            db.execSQL(ALTER_TABLE_ROLLS_2)
+            db.execSQL(ALTER_TABLE_ROLLS_3)
+            //In an earlier version special chars were not allowed.
+            //Instead quote marks were changed to 'q' when stored in the SQLite database.
+            db.execSQL(REPLACE_QUOTE_CHARS)
+            //TABLE_FILTERS
+            db.execSQL(ON_UPGRADE_CREATE_FILTER_TABLE)
+            //TABLE MOUNTABLES
+            db.execSQL(ON_UPGRADE_CREATE_LINK_LENS_FILTER_TABLE)
+        }
+        if (oldVersion < 15) {
+            db.execSQL(ALTER_TABLE_FRAMES_10)
+        }
+        if (oldVersion < 16) {
+            db.execSQL(ALTER_TABLE_ROLLS_4)
+        }
+        if (oldVersion < 17) {
+            db.execSQL(ALTER_TABLE_FRAMES_11)
+        }
+        if (oldVersion < 18) {
+            db.execSQL(ALTER_TABLE_CAMERAS_5)
+        }
+        if (oldVersion < 19) {
+            // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
+            db.execSQL("PRAGMA foreign_keys=ON;")
+            // Alter statements
+            db.beginTransaction()
+            try {
+                // execSQL() does not support multiple SQL commands separated with a semi-colon.
+                // Separate the upgrade commands into single SQL commands.
+                db.execSQL(ROLLS_TABLE_REVISION_1)
+                db.execSQL(ROLLS_TABLE_REVISION_2)
+                db.execSQL(ROLLS_TABLE_REVISION_3)
+                db.execSQL(ROLLS_TABLE_REVISION_4)
+                db.execSQL(FRAMES_TABLE_REVISION_1)
+                db.execSQL(FRAMES_TABLE_REVISION_2)
+                db.execSQL(FRAMES_TABLE_REVISION_3)
+                db.execSQL(ON_UPGRADE_CREATE_LINK_FRAME_FILTER_TABLE)
+                db.execSQL(FRAMES_TABLE_REVISION_4)
+                db.execSQL(FRAMES_TABLE_REVISION_5)
+                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_1)
+                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_2)
+                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_3)
+                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_4)
+                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_1)
+                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_2)
+                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_3)
+                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_4)
+                db.setTransactionSuccessful()
+            } finally {
+                db.endTransaction()
+            }
+        }
+        if (oldVersion < 20) {
+            db.execSQL(CREATE_FILM_STOCKS_TABLE)
+            db.execSQL(ALTER_TABLE_FRAMES_12)
+            db.execSQL(ALTER_TABLE_ROLLS_5)
+            populateFilmStocks(db)
+        }
+        if (oldVersion < 21) {
+            db.execSQL(ALTER_TABLE_ROLLS_6)
+            db.execSQL(ALTER_TABLE_ROLLS_7)
+        }
+        if (oldVersion < 22) {
+            db.execSQL(ALTER_TABLE_CAMERAS_6)
+        }
     }
 
     /**
