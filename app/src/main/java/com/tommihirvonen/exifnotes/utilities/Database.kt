@@ -147,8 +147,10 @@ class Database private constructor(private val context: Context)
     fun updateFrame(frame: Frame): Int {
         val contentValues = buildFrameContentValues(frame)
         val rows = writableDatabase.update(TABLE_FRAMES, contentValues, "$KEY_FRAME_ID=?", arrayOf(frame.id.toString()))
-        deleteFrameFilterLinks(frame)
-        frame.filters.forEach { filter -> addFrameFilterLink(frame, filter) }
+        if (rows > 0) {
+            deleteFrameFilterLinks(frame)
+            frame.filters.forEach { filter -> addFrameFilterLink(frame, filter) }
+        }
         return rows
     }
 
