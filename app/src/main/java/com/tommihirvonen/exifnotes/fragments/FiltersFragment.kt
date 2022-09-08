@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
@@ -35,6 +36,7 @@ import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.dialogs.FilterEditDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.setIconsVisible
 import com.tommihirvonen.exifnotes.utilities.snackbar
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
@@ -102,25 +104,20 @@ class FiltersFragment : Fragment() {
         return binding.root
     }
 
-    private val onFilterClickListener = { filter: Filter ->
-        val builder = MaterialAlertDialogBuilder(requireActivity())
-        builder.setTitle(filter.name)
-        val items = arrayOf(
-            requireActivity().getString(R.string.SelectMountableLenses),
-            requireActivity().getString(R.string.SelectMountableCameras),
-            requireActivity().getString(R.string.Edit),
-            requireActivity().getString(R.string.Delete)
-        )
-        builder.setItems(items) { _, which ->
-            when (which) {
-                0 -> { showSelectMountableLensesDialog(filter, fixedLensCameras = false) }
-                1 -> { showSelectMountableLensesDialog(filter, fixedLensCameras = true) }
-                2 -> { openFilterEditDialog(filter) }
-                3 -> { confirmDeleteFilter(filter) }
+    private val onFilterClickListener = { filter: Filter, view: View ->
+        val popup = PopupMenu(requireContext(), view)
+        popup.menuInflater.inflate(R.menu.menu_filter_item, popup.menu)
+        popup.setIconsVisible(requireContext())
+        popup.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_item_lenses -> showSelectMountableLensesDialog(filter, fixedLensCameras = false)
+                R.id.menu_item_cameras -> showSelectMountableLensesDialog(filter, fixedLensCameras = true)
+                R.id.menu_item_edit -> openFilterEditDialog(filter)
+                R.id.menu_item_delete -> confirmDeleteFilter(filter)
             }
+            true
         }
-        builder.setNegativeButton(R.string.Cancel) { dialog, _ -> dialog.dismiss() }
-        builder.create().show()
+        popup.show()
     }
 
     /**

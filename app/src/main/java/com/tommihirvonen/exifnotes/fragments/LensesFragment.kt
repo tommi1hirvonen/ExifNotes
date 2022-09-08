@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
@@ -36,10 +37,7 @@ import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.MountableState
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.database
-import com.tommihirvonen.exifnotes.utilities.setCommonInterpolator
-import com.tommihirvonen.exifnotes.utilities.snackbar
+import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
 
@@ -105,24 +103,19 @@ class LensesFragment : Fragment() {
     }
 
     private val onLensClickListener = { lens: Lens, view: View ->
-        val builder = MaterialAlertDialogBuilder(requireActivity())
-        builder.setTitle(lens.name)
-        val items = arrayOf(
-            requireActivity().getString(R.string.SelectMountableCameras),
-            requireActivity().getString(R.string.SelectMountableFilters),
-            requireActivity().getString(R.string.Edit),
-            requireActivity().getString(R.string.Delete)
-        )
-        builder.setItems(items) { _, which ->
-            when (which) {
-                0 -> { showSelectMountableCamerasDialog(lens) }
-                1 -> { showSelectMountableFiltersDialog(lens) }
-                2 -> { showEditLensFragment(view, lens) }
-                3 -> { confirmDeleteLens(lens) }
+        val popup = PopupMenu(requireContext(), view)
+        popup.menuInflater.inflate(R.menu.menu_lens_item, popup.menu)
+        popup.setIconsVisible(requireContext())
+        popup.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_item_cameras -> showSelectMountableCamerasDialog(lens)
+                R.id.menu_item_filters -> showSelectMountableFiltersDialog(lens)
+                R.id.menu_item_edit -> showEditLensFragment(view, lens)
+                R.id.menu_item_delete -> confirmDeleteLens(lens)
             }
+            true
         }
-        builder.setNegativeButton(R.string.Cancel) { dialog, _ -> dialog.dismiss() }
-        builder.create().show()
+        popup.show()
     }
 
     private fun showEditLensFragment(sharedElement: View, lens: Lens?) {

@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.databinding.ItemGearBinding
@@ -27,7 +28,7 @@ import com.tommihirvonen.exifnotes.datastructures.*
 
 class FilmStockAdapter(
     private val context: Context,
-    private val onFilmStockClickListener: (FilmStock) -> Any)
+    private val onFilmStockClickListener: (FilmStock, View) -> Any)
     : RecyclerView.Adapter<FilmStockAdapter.ViewHolder>() {
 
     var filmStocks: List<FilmStock> = emptyList()
@@ -48,7 +49,7 @@ class FilmStockAdapter(
         init {
             binding.itemGearLayout.setOnClickListener {
                 val filmStock = filmStocks[bindingAdapterPosition]
-                onFilmStockClickListener(filmStock)
+                onFilmStockClickListener(filmStock, binding.root)
             }
         }
     }

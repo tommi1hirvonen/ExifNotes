@@ -21,6 +21,7 @@ package com.tommihirvonen.exifnotes.fragments
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -37,6 +38,7 @@ import com.tommihirvonen.exifnotes.datastructures.FilmStockSortMode
 import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.setIconsVisible
 import com.tommihirvonen.exifnotes.viewmodels.FilmStockFilterSet
 import com.tommihirvonen.exifnotes.viewmodels.FilmStocksViewModel
 
@@ -130,21 +132,18 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         return false
     }
 
-    private val onFilmStockClickListener = { filmStock: FilmStock ->
-        val builder = MaterialAlertDialogBuilder(requireActivity())
-        builder.setTitle(filmStock.name)
-        val items = arrayOf(
-            requireActivity().getString(R.string.Edit),
-            requireActivity().getString(R.string.Delete)
-        )
-        builder.setItems(items) { _, which ->
-            when (which) {
-                0 -> { openFilmStockEditDialog(filmStock) }
-                1 -> { confirmDeleteFilmStock(filmStock) }
+    private val onFilmStockClickListener = { filmStock: FilmStock, view: View ->
+        val popup = PopupMenu(requireContext(), view)
+        popup.menuInflater.inflate(R.menu.menu_film_stock_item, popup.menu)
+        popup.setIconsVisible(requireContext())
+        popup.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_item_edit -> openFilmStockEditDialog(filmStock)
+                R.id.menu_item_delete -> confirmDeleteFilmStock(filmStock)
             }
+            true
         }
-        builder.setNegativeButton(R.string.Cancel) { dialog, _ -> dialog.dismiss() }
-        builder.create().show()
+        popup.show()
     }
 
     private fun openFilmStockEditDialog(filmStock: FilmStock?) {

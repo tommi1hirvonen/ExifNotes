@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
@@ -31,7 +32,7 @@ import com.tommihirvonen.exifnotes.utilities.toStringList
 
 class FilterAdapter(
     private val context: Context,
-    private val onFilterClickListener: (Filter) -> Any) : RecyclerView.Adapter<FilterAdapter.ViewHolder>() {
+    private val onFilterClickListener: (Filter, View) -> Any) : RecyclerView.Adapter<FilterAdapter.ViewHolder>() {
 
     var filters: List<Filter> = emptyList()
     var lenses: List<Lens> = emptyList()
@@ -53,7 +54,7 @@ class FilterAdapter(
         init {
             binding.itemGearLayout.setOnClickListener {
                 val filter = filters[bindingAdapterPosition]
-                onFilterClickListener(filter)
+                onFilterClickListener(filter, binding.root)
             }
         }
     }
