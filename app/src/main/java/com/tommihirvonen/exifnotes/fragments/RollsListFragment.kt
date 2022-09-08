@@ -97,8 +97,17 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         val layoutManager = LinearLayoutManager(activity)
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
+
         rollAdapter = RollAdapter(requireActivity(), this, binding.rollsRecyclerView)
         binding.rollsRecyclerView.adapter = rollAdapter
+        rollAdapter.onItemSelectedChanged = { item, selected ->
+            if (selected) model.selectedRolls.add(item)
+            else model.selectedRolls.remove(item)
+        }
+        rollAdapter.onAllSelectionsChanged = { selected ->
+            if (selected) model.selectedRolls.addAll(rolls.filterNot(model.selectedRolls::contains))
+            else model.selectedRolls.clear()
+        }
 
         // Transition named used when editing frame via ActionMode menu.
         binding.topAppBar.transitionName = "rolls_top_app_bar_transition"
@@ -153,6 +162,10 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 is State.Success -> {
                     rolls = state.data
                     rollAdapter.items = rolls
+                    if (model.selectedRolls.isNotEmpty()) {
+                        rollAdapter.setSelections(model.selectedRolls)
+                        ensureActionMode()
+                    }
                     binding.progressBar.visibility = View.GONE
                     binding.noAddedRolls.visibility = if (rolls.isEmpty()) View.VISIBLE else View.GONE
                 }
@@ -274,7 +287,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     }
 
     override fun onItemClick(roll: Roll, layout: View) {
-        if (rollAdapter.selectedItems.isNotEmpty() || actionMode != null) {
+        if (model.selectedRolls.isNotEmpty() || actionMode != null) {
             enableActionMode(roll)
         } else {
 
@@ -321,18 +334,21 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     }
 
     private fun enableActionMode(roll: Roll) {
+        rollAdapter.toggleSelection(roll)
+        // If the user deselected the last of the selected items, exit action mode.
+        if (model.selectedRolls.isEmpty()) {
+            actionMode?.finish()
+        } else {
+            ensureActionMode()
+        }
+    }
+
+    private fun ensureActionMode() {
         if (actionMode == null) {
             actionMode = (requireActivity() as AppCompatActivity).startSupportActionMode(actionModeCallback)
         }
-        rollAdapter.toggleSelection(roll)
-        // If the user deselected the last of the selected items, exit action mode.
-        val selectedRolls = rollAdapter.selectedItems
-        if (selectedRolls.isEmpty()) {
-            actionMode?.finish()
-        } else {
-            // Set the action mode toolbar title to display the number of selected items.
-            actionMode?.title = "${selectedRolls.size}/${rollAdapter.itemCount}"
-        }
+        // Set the action mode toolbar title to display the number of selected items.
+        actionMode?.title = "${model.selectedRolls.size}/${rolls.size}"
     }
 
     private fun showEditRollFragment(roll: Roll?, sharedElement: View) {
@@ -389,7 +405,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
      * reset as well.
      */
     private fun batchUpdateRollsFilmStock(filmStock: FilmStock?, updateIso: Boolean) {
-        rollAdapter.selectedItems.forEach { roll ->
+        model.selectedRolls.forEach { roll ->
             roll.filmStock = filmStock
             if (updateIso) {
                 roll.iso = filmStock?.iso ?: 0
@@ -421,7 +437,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
         override fun onActionItemClicked(actionMode: ActionMode, menuItem: MenuItem): Boolean {
             // Get the positions in the rollList of selected items
-            val selectedRolls = rollAdapter.selectedItems
+            val selectedRolls = model.selectedRolls
             return when (menuItem.itemId) {
                 R.id.menu_item_delete -> {
                     // Set the confirm dialog title depending on whether one or more rolls were selected
@@ -442,7 +458,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     rollAdapter.toggleSelectionAll()
                     // Do not use local variable to get selected count because its size
                     // may no longer be valid after all items were selected.
-                    actionMode.title = "${rollAdapter.selectedItems.size}/${rollAdapter.itemCount}"
+                    actionMode.title = "${model.selectedRolls.size}/${rolls.size}"
                     true
                 }
                 R.id.menu_item_edit -> {

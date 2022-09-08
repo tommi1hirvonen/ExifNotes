@@ -42,6 +42,8 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
     val rollFilterMode: LiveData<RollFilterMode> get() = mRollFilterMode
     val rollSortMode: LiveData<RollSortMode> get() = mRollSortMode
 
+    val selectedRolls = HashSet<Roll>()
+
     private val mRollFilterMode: MutableLiveData<RollFilterMode> by lazy {
         MutableLiveData<RollFilterMode>().apply {
             value = RollFilterMode.fromValue(

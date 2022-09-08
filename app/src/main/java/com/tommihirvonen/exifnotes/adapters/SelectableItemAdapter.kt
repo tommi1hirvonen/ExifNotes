@@ -34,7 +34,6 @@ import com.tommihirvonen.exifnotes.R
  * depicting the items selection
  * @property backgroundSelector Property getter to map the ViewHolder to a background View
  * depicting the items selection
- * @property selectedItems Convenience method to get a list of selected items
  */
 abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
     private val context: Context,
@@ -42,16 +41,16 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
 ) : RecyclerView.Adapter<U>() {
 
     var items = emptyList<T>()
+    var onItemSelectedChanged: ((T, Boolean) -> Unit)? = null
+    var onAllSelectionsChanged: ((Boolean) -> Unit)? = null
 
     protected abstract val checkboxSelector: (U) -> View
     protected open val backgroundSelector: (U) -> View? = { null }
 
-    val selectedItems get() = mSelectedItems.keys
-
     /**
      * Used to hold the positions of selected items in the RecyclerView.
      */
-    private val mSelectedItems = mutableMapOf<T, Boolean>()
+    private val mSelectedItems = HashSet<T>()
 
     /**
      * Used to pass the selected item's position to onBindViewHolder(),
@@ -72,14 +71,17 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
     /**
      * Helper array to keep track of animation statuses.
      */
-    private val mAnimationItems = mutableMapOf<T, Boolean>()
+    private val mAnimationItems = HashSet<T>()
 
     override fun onBindViewHolder(holder: U, position: Int) {
         val item = items[position]
-        holder.itemView.isActivated = mSelectedItems[item] ?: false
+        val selected = mSelectedItems.contains(item)
+        val animated = mAnimationItems.contains(item)
+
+        holder.itemView.isActivated = selected
         val checkbox = checkboxSelector(holder)
         val background = backgroundSelector(holder)
-        if (mSelectedItems[item] == true) {
+        if (selected) {
             // First set the check box to be visible. This is the state it will be left in after
             // the animation has finished.
             checkbox.visibility = View.VISIBLE
@@ -88,7 +90,7 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
             background?.visibility = View.VISIBLE
 
             // If the item is selected or all items are being selected and the item was not previously selected
-            if (mCurrentSelectedItem == item || mAnimateAll && mAnimationItems[item] != true) {
+            if (mCurrentSelectedItem == item || mAnimateAll && !animated) {
                 val checkboxAnimation = AnimationUtils.loadAnimation(context, R.anim.scale_up)
                 checkbox.startAnimation(checkboxAnimation)
                 val backgroundAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_in)
@@ -104,7 +106,7 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
             background?.visibility = View.GONE
 
             // If the item is deselected or all selections are undone and the item was previously selected
-            if (mCurrentSelectedItem == item || mReverseAllAnimations && mAnimationItems[item] == true) {
+            if (mCurrentSelectedItem == item || mReverseAllAnimations && animated) {
                 val checkboxAnimation = AnimationUtils.loadAnimation(context, R.anim.scale_down)
                 checkbox.startAnimation(checkboxAnimation)
                 val backgroundAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_out)
@@ -114,17 +116,25 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
         }
     }
 
+    fun setSelections(selectedItems: HashSet<T>) {
+        mSelectedItems.clear()
+        mSelectedItems.addAll(selectedItems)
+        notifyDataSetChanged()
+    }
+
     /**
      * Use to toggle the selection state of a single item in the list.
      */
     fun toggleSelection(item: T) {
         mCurrentSelectedItem = item
-        if (mSelectedItems[item] == true) {
+        if (mSelectedItems.contains(item)) {
             mSelectedItems.remove(item)
             mAnimationItems.remove(item)
+            onItemSelectedChanged?.invoke(item, false)
         } else {
-            mSelectedItems[item] = true
-            mAnimationItems[item] = true
+            mSelectedItems.add(item)
+            mAnimationItems.add(item)
+            onItemSelectedChanged?.invoke(item, true)
         }
         notifyDataSetChanged()
     }
@@ -137,14 +147,15 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
     fun toggleSelectionAll() {
         resetCurrentSelectedItem()
         mSelectedItems.clear()
+        onAllSelectionsChanged?.invoke(true)
         mAnimateAll = true
-        items.forEach { mSelectedItems[it] = true }
+        items.filterNot(mSelectedItems::contains).forEach(mSelectedItems::add)
         notifyDataSetChanged()
         recyclerView.post {
             // Update animation items to be in line with selected items
             // after RecyclerView animations have completed.
             mAnimateAll = false
-            items.forEach { mAnimationItems[it] = true }
+            items.filterNot(mAnimationItems::contains).forEach(mAnimationItems::add)
         }
     }
 
@@ -156,6 +167,7 @@ abstract class SelectableItemAdapter<T, U : RecyclerView.ViewHolder>(
     fun clearSelections() {
         mReverseAllAnimations = true
         mSelectedItems.clear()
+        onAllSelectionsChanged?.invoke(false)
         notifyDataSetChanged()
         recyclerView.post {
             // Clear animation items after RecyclerView animations have completed.

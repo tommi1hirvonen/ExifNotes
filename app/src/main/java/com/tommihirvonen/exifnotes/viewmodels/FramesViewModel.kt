@@ -40,6 +40,8 @@ class FramesViewModel(application: Application, roll: Roll) : AndroidViewModel(a
     val frames get() = mFrames as LiveData<List<Frame>>
     val frameSortMode get() = mFrameSortMode as LiveData<FrameSortMode>
 
+    val selectedFrames = HashSet<Frame>()
+
     private val mRoll = MutableLiveData<Roll>().apply { value = roll }
 
     private val mFrames by lazy {
