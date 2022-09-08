@@ -18,10 +18,12 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
@@ -34,10 +36,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.CameraAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentCamerasBinding
 import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.database
-import com.tommihirvonen.exifnotes.utilities.setCommonInterpolator
-import com.tommihirvonen.exifnotes.utilities.snackbar
+import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
 
@@ -115,28 +114,26 @@ class CamerasFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("RestrictedApi")
     private val onCameraClickListener = { camera: Camera, view: View ->
-        val builder = MaterialAlertDialogBuilder(requireActivity())
-        builder.setTitle(camera.name)
-        val items = arrayOf(
-            if (camera.isNotFixedLens) {
-                requireActivity().getString(R.string.SelectMountableLenses)
-            } else {
-                requireActivity().getString(R.string.SelectMountableFilters)
-            },
-            requireActivity().getString(R.string.Edit),
-            requireActivity().getString(R.string.Delete)
-        )
-        builder.setItems(items) { _, which ->
-            when {
-                which == 0 && camera.isNotFixedLens -> { showSelectMountableLensesDialog(camera) }
-                which == 0 && camera.isFixedLens -> { showSelectMountableFiltersDialog(camera) }
-                which == 1 -> { showEditCameraFragment(view, camera) }
-                which == 2 -> { confirmDeleteCamera(camera) }
-            }
+        val menuRes = if (camera.isFixedLens) {
+            R.menu.menu_camera_item_fixed_lens
+        } else {
+            R.menu.menu_camera_item_interchangeable_lens
         }
-        builder.setNegativeButton(R.string.Cancel) { dialog, _ -> dialog.dismiss() }
-        builder.create().show()
+        val popup = PopupMenu(requireContext(), view)
+        popup.menuInflater.inflate(menuRes, popup.menu)
+        popup.setIconsVisible(requireContext())
+        popup.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_item_filters -> showSelectMountableFiltersDialog(camera)
+                R.id.menu_item_lenses -> showSelectMountableLensesDialog(camera)
+                R.id.menu_item_edit -> showEditCameraFragment(view, camera)
+                R.id.menu_item_delete -> confirmDeleteCamera(camera)
+            }
+            true
+        }
+        popup.show()
     }
 
     private fun confirmDeleteCamera(camera: Camera) {
