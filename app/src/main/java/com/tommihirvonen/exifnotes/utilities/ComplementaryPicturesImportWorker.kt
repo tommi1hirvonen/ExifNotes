@@ -145,7 +145,7 @@ class ComplementaryPicturesImportWorker(context: Context, parameters: WorkerPara
             .setContentText(message)
             .setProgress(total, progress, false)
             .setOngoing(true)
-            .setSmallIcon(R.drawable.ic_outline_info_24)
+            .setSmallIcon(R.drawable.ic_notification_icon)
             .addAction(android.R.drawable.ic_delete, cancel, intent)
             .build()
         return ForegroundInfo(progressNotificationId, notification)
@@ -168,7 +168,7 @@ class ComplementaryPicturesImportWorker(context: Context, parameters: WorkerPara
             .setTicker(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setSmallIcon(R.drawable.ic_outline_info_24)
+            .setSmallIcon(R.drawable.ic_notification_icon)
             .build()
     }
 
