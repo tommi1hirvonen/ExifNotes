@@ -286,6 +286,13 @@
     <string name="NotificationComplementaryPicturesExportSuccessMessage">Pictures exported successfully</string>
     <string name="NotificationComplementaryPicturesExportSuccessTitle">Complementary pictures exported</string>
     <string name="NotificationComplementaryPicturesExportTitle">Exporting complementary pictures</string>
+    <string name="NotificationComplementaryPicturesImportName">Complementary Pictures Import</string>
+    <string name="NotificationComplementaryPicturesImportDescription">Progress notification for complementary pictures import</string>
+    <string name="NotificationComplementaryPicturesImportFailMessage">Complementary pictures import failed</string>
+    <string name="NotificationComplementaryPicturesImportFailTitle">Import failed</string>
+    <string name="NotificationComplementaryPicturesImportSuccessMessage">Pictures imported successfully</string>
+    <string name="NotificationComplementaryPicturesImportSuccessTitle">Complementary pictures imported</string>
+    <string name="NotificationComplementaryPicturesImportTitle">Importing complementary pictures</string>
     <string name="NoValue">&lt;empty&gt;</string>
     <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
     <string name="Normal">Normal</string>
@@ -345,6 +352,7 @@
     <string name="SortBy">Sort by</string>
     <string name="SortFilmStocksBy">Sort film stocks by</string>
     <string name="StartedExportingComplementaryPictures">Started exporting complementary pictures. Check notifications for progress.</string>
+    <string name="StartedImportingComplementaryPictures">Started importing complementary pictures. Check notifications for progress.</string>
     <string name="Sunny">Sunny</string>
     <string name="SystemDefault">System default</string>
     <string name="TakeNewComplementaryPicture">Take new complementary picture</string>

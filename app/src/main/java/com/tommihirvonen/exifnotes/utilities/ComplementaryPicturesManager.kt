@@ -332,21 +332,4 @@ object ComplementaryPicturesManager {
             }
         }
     }
-
-    /**
-     * Imports complementary pictures from a zip file and unzips the to the app's
-     * private external storage location.
-     *
-     * @param activity caller's activity
-     * @param zipFile the zip file to be imported
-     */
-    suspend fun importComplementaryPictures(activity: Activity, zipFile: File): Pair<Boolean, Int> {
-        val picturesDirectory = getComplementaryPicturesDirectory(activity)
-        if (picturesDirectory == null) {
-            Toast.makeText(activity, activity.resources.getString(R.string.ErrorSharedStorageNotAvailable), Toast.LENGTH_SHORT).show()
-            return false to 0
-        }
-        val message = activity.getString(R.string.ImportingComplementaryPicturesPleaseWait)
-        return ZipFileReader(activity).setMessage(message).read(zipFile, picturesDirectory)
-    }
 }

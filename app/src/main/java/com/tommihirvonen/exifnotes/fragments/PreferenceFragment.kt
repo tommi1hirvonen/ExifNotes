@@ -29,7 +29,6 @@ import android.webkit.WebView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.lifecycle.lifecycleScope
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -40,7 +39,6 @@ import com.tommihirvonen.exifnotes.activities.PreferenceActivity
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.preferences.*
 import com.tommihirvonen.exifnotes.utilities.*
-import kotlinx.coroutines.launch
 import java.io.*
 
 /**
@@ -201,35 +199,14 @@ class PreferenceFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {}
 
     private fun importComplementaryPictures(picturesUri: Uri) {
-        val filePath: String = try {
-            val inputStream = requireContext().contentResolver.openInputStream(picturesUri)
-            val outputDir = requireContext().externalCacheDir
-            val outputFile = File.createTempFile("pictures", ".zip", outputDir)
-            val outputStream: OutputStream = FileOutputStream(outputFile)
-            inputStream!!.copyTo(outputStream)
-            inputStream.close()
-            outputStream.close()
-            outputFile.absolutePath
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            val (success, completedEntries) = ComplementaryPicturesManager
-                    .importComplementaryPictures(requireActivity(), File(filePath))
-
-            if (success) {
-                if (completedEntries == 0) {
-                    view?.snackbar(R.string.NoPicturesImported)
-                } else {
-                    val message = resources.getQuantityString(R.plurals.ComplementaryPicturesImported, completedEntries, completedEntries)
-                    view?.snackbar(message)
-                }
-            } else {
-                view?.snackbar(R.string.ErrorImportingComplementaryPictures)
-            }
-        }
+        val data = Data.Builder()
+            .putString(ExtraKeys.TARGET_URI, picturesUri.toString())
+            .build()
+        val request = OneTimeWorkRequestBuilder<ComplementaryPicturesImportWorker>()
+            .setInputData(data)
+            .build()
+        WorkManager.getInstance(requireContext()).enqueue(request)
+        view?.snackbar(R.string.StartedImportingComplementaryPictures)
     }
 
     private fun importDatabase(databaseUri: Uri) {

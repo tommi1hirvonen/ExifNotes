@@ -83,9 +83,7 @@
         <activity
             android:name=".activities.PreferenceActivity"
             android:label="PreferenceActivity"
-            android:parentActivityName=".activities.MainActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity"/>
