@@ -91,6 +91,9 @@ class ComplementaryPicturesImportWorker(context: Context, parameters: WorkerPara
                 targetDirectory.makeDirsIfNotExists()
                 ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
                     generateSequence { zipInputStream.nextEntry }.forEachIndexed { index, zipEntry ->
+                        if (isStopped) {
+                            return@withContext Result.success()
+                        }
                         val targetFile = File(targetDirectory, zipEntry.name)
                         if (!targetFile.canonicalPath.startsWith(targetDirectory.canonicalPath)) {
                             throw SecurityException("Possible path traversal characters detected in zip entry path")
