@@ -128,7 +128,7 @@ class FiltersFragment : Fragment() {
      * or fixed lens cameras
      */
     private fun showSelectMountableLensesDialog(filter: Filter, fixedLensCameras: Boolean) {
-        val mountableLenses = if (fixedLensCameras) {
+        val compatibleLenses = if (fixedLensCameras) {
             cameras.mapNotNull(Camera::lens)
         } else {
             lenses
@@ -144,16 +144,11 @@ class FiltersFragment : Fragment() {
             lenses
         }
 
-        // Create a list where the mountable selections are saved.
-        val lensSelections = allLenses.map { lens ->
-            MountableState(lens, mountableLenses.contains(lens))
-        }
-
         // Make a list of strings for all the lens names to be shown in the multi choice list.
         // If the lens is actually a fixed-lens camera, show the camera name instead.
         val listItems = allLenses.map(Lens::name).toTypedArray()
         // Create a bool array for preselected items in the multi choice list.
-        val booleans = lensSelections.map(MountableState::beforeState).toBooleanArray()
+        val selections = allLenses.map(compatibleLenses::contains).toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
         val titleId = if (fixedLensCameras) {
@@ -162,18 +157,22 @@ class FiltersFragment : Fragment() {
             R.string.SelectMountableLenses
         }
         builder.setTitle(titleId)
-                .setMultiChoiceItems(listItems, booleans) { _, which, isChecked ->
-                    lensSelections[which].afterState = isChecked
+                .setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
+                    selections[which] = isChecked
                 }
                 .setPositiveButton(R.string.OK) { _, _ ->
-                    val (added, removed) = lensSelections
-                        .filter { it.afterState != it.beforeState }
-                        .partition(MountableState::afterState)
+                    val (added, removed) = selections
+                        .zip(allLenses) { selected, lens ->
+                            val beforeState = compatibleLenses.contains(lens)
+                            Triple(lens, beforeState, selected)
+                        }
+                        .filter { it.second != it.third }
+                        .partition(Triple<Lens, Boolean, Boolean>::third)
                     added.forEach {
-                        model.addLensFilterLink(filter, it.gear as Lens, isFixedLens = fixedLensCameras)
+                        model.addLensFilterLink(filter, it.first, isFixedLens = fixedLensCameras)
                     }
                     removed.forEach {
-                        model.deleteLensFilterLink(filter, it.gear as Lens, isFixedLens = fixedLensCameras)
+                        model.deleteLensFilterLink(filter, it.first, isFixedLens = fixedLensCameras)
                     }
                 }
                 .setNegativeButton(R.string.Cancel) { _, _ -> }

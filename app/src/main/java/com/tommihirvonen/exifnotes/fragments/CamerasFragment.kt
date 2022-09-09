@@ -199,29 +199,28 @@ class CamerasFragment : Fragment() {
      * @param camera Camera object for which mountable lenses should be selected
      */
     private fun showSelectMountableLensesDialog(camera: Camera) {
-        // Create a list where the mountable selections are saved.
-        val lensSelections = lenses.map { lens ->
-            val lensIsCompatible = camera.lensIds.contains(lens.id)
-            MountableState(lens, lensIsCompatible)
-        }
-
+        val compatibleLenses = lenses.filter { camera.lensIds.contains(it.id) }
         // Make a list of strings for all the lens names to be shown in the multi choice list.
         val listItems = lenses.map(Lens::name).toTypedArray()
         // Create a bool array for preselected items in the multi choice list.
-        val booleans = lensSelections.map(MountableState::beforeState).toBooleanArray()
+        val selections = lenses.map(compatibleLenses::contains).toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectMountableLenses)
-                .setMultiChoiceItems(listItems, booleans) { _, which, isChecked ->
-                    lensSelections[which].afterState = isChecked
+                .setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
+                    selections[which] = isChecked
                 }
                 .setPositiveButton(R.string.OK) { _, _ ->
                     // Go through changed combinations and add or remove them.
-                    val (added, removed) = lensSelections
-                        .filter { it.afterState != it.beforeState }
-                        .partition(MountableState::afterState)
-                    added.forEach { model.addCameraLensLink(camera, it.gear as Lens) }
-                    removed.forEach { model.deleteCameraLensLink(camera, it.gear as Lens) }
+                    val (added, removed) = selections
+                        .zip(lenses) { selected, lens ->
+                            val beforeState = compatibleLenses.contains(lens)
+                            Triple(lens, beforeState, selected)
+                        }
+                        .filter { it.second != it.third }
+                        .partition(Triple<Lens, Boolean, Boolean>::third)
+                    added.forEach { model.addCameraLensLink(camera, it.first) }
+                    removed.forEach { model.deleteCameraLensLink(camera, it.first) }
                 }
                 .setNegativeButton(R.string.Cancel) { _, _ -> }
         val alert = builder.create()
@@ -236,29 +235,28 @@ class CamerasFragment : Fragment() {
     private fun showSelectMountableFiltersDialog(camera: Camera) {
         val lens = camera.lens ?: return // Dialog should only be shown to fixed lens cameras.
 
-        // Create a list where the mountable selections are saved.
-        val filterSelections = filters.map { filter ->
-            val filterIsCompatible = lens.filterIds.contains(filter.id)
-            MountableState(filter, filterIsCompatible)
-        }
-
+        val compatibleFilters = filters.filter { lens.filterIds.contains(it.id) }
         // Make a list of strings for all the lens names to be shown in the multi choice list.
         val listItems = filters.map(Filter::name).toTypedArray()
         // Create a bool array for preselected items in the multi choice list.
-        val booleans = filterSelections.map(MountableState::beforeState).toBooleanArray()
+        val selections = filters.map(compatibleFilters::contains).toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectMountableFilters)
-            .setMultiChoiceItems(listItems, booleans) { _, which, isChecked ->
-                filterSelections[which].afterState = isChecked
+            .setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
+                selections[which] = isChecked
             }
             .setPositiveButton(R.string.OK) { _, _ ->
                 // Go through changed combinations and add or remove them.
-                val (added, removed) = filterSelections
-                    .filter { it.afterState != it.beforeState }
-                    .partition(MountableState::afterState)
-                added.forEach { model.addLensFilterLink(it.gear as Filter, lens, isFixedLens = true) }
-                removed.forEach { model.deleteLensFilterLink(it.gear as Filter, lens, isFixedLens = true) }
+                val (added, removed) = selections
+                    .zip(filters) { selected, filter ->
+                        val beforeState = compatibleFilters.contains(filter)
+                        Triple(filter, beforeState, selected)
+                    }
+                    .filter { it.second != it.third }
+                    .partition(Triple<Filter, Boolean, Boolean>::third)
+                added.forEach { model.addLensFilterLink(it.first, lens, isFixedLens = true) }
+                removed.forEach { model.deleteLensFilterLink(it.first, lens, isFixedLens = true) }
             }
             .setNegativeButton(R.string.Cancel) { _, _ -> }
         val alert = builder.create()
