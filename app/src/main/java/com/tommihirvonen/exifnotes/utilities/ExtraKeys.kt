@@ -39,4 +39,5 @@ object ExtraKeys {
     const val BACKSTACK_NAME = "BACKSTACK_NAME"
     const val FRAGMENT_CONTAINER_ID = "FRAGMENT_CONTAINER_ID"
     const val TARGET_URI = "TARGET_URI"
+    const val TAP_POSITION = "TAP_POSITION"
 }

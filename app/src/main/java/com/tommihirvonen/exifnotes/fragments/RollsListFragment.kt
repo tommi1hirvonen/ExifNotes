@@ -33,6 +33,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -78,6 +79,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     private val transitionDurationShowFrames = 400L
     private val transitionDurationEditRoll = 250L
     private var reenterFadeDuration = 0L
+
+    private var tappedRollPosition = RecyclerView.NO_POSITION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,6 +161,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     binding.progressBar.visibility = View.VISIBLE
                     rolls = emptyList()
                     rollAdapter.items = rolls
+                    startPostponedEnterTransition()
                 }
                 is State.Success -> {
                     rolls = state.data
@@ -167,7 +171,43 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         ensureActionMode()
                     }
                     binding.progressBar.visibility = View.GONE
-                    binding.noAddedRolls.visibility = if (rolls.isEmpty()) View.VISIBLE else View.GONE
+                    binding.noAddedRolls.visibility =
+                        if (rolls.isEmpty()) View.VISIBLE else View.GONE
+
+                    // If returning from FramesFragment,
+                    // reset the exitTransition in case it was lost because of configuration change.
+                    val savedPosition = savedInstanceState?.getInt(ExtraKeys.TAP_POSITION,
+                        RecyclerView.NO_POSITION
+                    ) ?: RecyclerView.NO_POSITION
+                    if (savedPosition != RecyclerView.NO_POSITION) {
+                        if (exitTransition == null) {
+                            exitTransition = SeparateVertical().apply {
+                                duration = transitionDurationShowFrames
+                                interpolator = transitionInterpolator
+                            }
+                        }
+                    }
+                    (view?.parent as? ViewGroup)?.doOnPreDraw {
+                        if (savedPosition != RecyclerView.NO_POSITION) {
+                            val lm = binding.rollsRecyclerView.layoutManager as LinearLayoutManager
+                            val itemView = lm.findViewByPosition(savedPosition)
+                            itemView?.let { v ->
+                                (exitTransition as Transition).epicenterCallback =
+                                    object : Transition.EpicenterCallback() {
+                                        override fun onGetEpicenter(transition: Transition) =
+                                            Rect().also {
+                                                v.getGlobalVisibleRect(it)
+                                            }
+                                    }
+                            }
+                        }
+                        ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
+                            duration = reenterFadeDuration
+                            start()
+                        }
+                        startPostponedEnterTransition()
+                        tappedRollPosition = RecyclerView.NO_POSITION
+                    }
                 }
             }
             rollAdapter.notifyDataSetChanged()
@@ -178,15 +218,11 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         postponeEnterTransition()
-        // Start the transition once all views have been
-        // measured and laid out
-        (view.parent as? ViewGroup)?.doOnPreDraw {
-            ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
-                duration = reenterFadeDuration
-                start()
-            }
-            startPostponedEnterTransition()
-        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(ExtraKeys.TAP_POSITION, tappedRollPosition)
+        super.onSaveInstanceState(outState)
     }
 
     private val onTopMenuItemClickListener = { item: MenuItem ->
@@ -286,7 +322,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         }
     }
 
-    override fun onItemClick(roll: Roll, layout: View) {
+    override fun onItemClick(roll: Roll, layout: View, position: Int) {
+        tappedRollPosition = position
         if (model.selectedRolls.isNotEmpty() || actionMode != null) {
             enableActionMode(roll)
         } else {

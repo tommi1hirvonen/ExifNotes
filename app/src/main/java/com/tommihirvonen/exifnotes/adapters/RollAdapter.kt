@@ -53,7 +53,7 @@ class RollAdapter(
      * Used to send onItemClicked messages back to implementing Activities and/or Fragments.
      */
     interface RollAdapterListener {
-        fun onItemClick(roll: Roll, layout: View)
+        fun onItemClick(roll: Roll, layout: View, position: Int)
         fun onItemLongClick(roll: Roll)
     }
 
@@ -73,7 +73,7 @@ class RollAdapter(
     inner class ViewHolder(val binding: ItemRollConstraintBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.itemRollLayout.setOnClickListener {
-                listener.onItemClick(this@RollAdapter.items[bindingAdapterPosition], binding.itemRollTopLayout)
+                listener.onItemClick(this@RollAdapter.items[bindingAdapterPosition], binding.itemRollTopLayout, bindingAdapterPosition)
             }
             binding.itemRollLayout.setOnLongClickListener {
                 listener.onItemLongClick(this@RollAdapter.items[bindingAdapterPosition])
