@@ -21,12 +21,15 @@
         android:fromAlpha="0"
         android:toAlpha="1.0"
         android:interpolator="@android:anim/accelerate_interpolator"
-        android:duration="250"
+        android:duration="150"
         />
-    <translate
-        android:fromXDelta="75%p"
-        android:toXDelta="0%p"
+    <scale
+        android:duration="150"
+        android:fromXScale="0.95"
+        android:fromYScale="0.95"
         android:interpolator="@android:anim/linear_interpolator"
-        android:duration="250"
-        />
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:toXScale="1.0"
+        android:toYScale="1.0" />
 </set>

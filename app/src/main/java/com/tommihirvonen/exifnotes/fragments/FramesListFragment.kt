@@ -313,7 +313,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 val fragment = FramesMapFragment()
                 requireParentFragment().childFragmentManager
                     .beginTransaction()
-                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
+                    .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment, R.anim.enter_fragment, R.anim.exit_fragment)
                     .setReorderingAllowed(true)
                     .addToBackStack(FramesFragment.BACKSTACK_NAME)
                     .add(R.id.frames_fragment_container, fragment, FramesMapFragment.TAG)

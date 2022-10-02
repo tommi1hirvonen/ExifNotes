@@ -273,8 +273,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     delay(200)
                     requireParentFragment().childFragmentManager
                         .beginTransaction()
-                        .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right,
-                            R.anim.enter_from_right, R.anim.exit_to_right)
+                        .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment,
+                            R.anim.enter_fragment, R.anim.exit_fragment)
                         .setReorderingAllowed(true)
                         .addToBackStack(RollsFragment.BACKSTACK_NAME)
                         .add(R.id.rolls_fragment_container, fragment, RollsMapFragment.TAG)

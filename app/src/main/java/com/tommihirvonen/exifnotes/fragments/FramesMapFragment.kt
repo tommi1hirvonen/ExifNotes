@@ -257,8 +257,8 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
                 fragment.arguments = arguments
                 requireParentFragment().childFragmentManager
                     .beginTransaction()
-                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right,
-                        R.anim.enter_from_right, R.anim.exit_to_right)
+                    .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment,
+                        R.anim.enter_fragment, R.anim.exit_fragment)
                     .setReorderingAllowed(true)
                     .add(R.id.frames_fragment_container, fragment, FrameEditFragment.TAG)
                     .addToBackStack(FramesFragment.BACKSTACK_NAME)
