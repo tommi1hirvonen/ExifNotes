@@ -54,7 +54,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 33
         versionCode 37
-        versionName "1.17.2"
+        versionName "1.18.0"
         // Enabling this allows us to use resources when PNGs are generated during build-time
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
