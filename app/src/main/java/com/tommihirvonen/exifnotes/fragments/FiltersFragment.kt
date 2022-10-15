@@ -34,10 +34,7 @@ import com.tommihirvonen.exifnotes.adapters.FilterAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentFiltersBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.dialogs.FilterEditDialog
-import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.database
-import com.tommihirvonen.exifnotes.utilities.setIconsVisible
-import com.tommihirvonen.exifnotes.utilities.snackbar
+import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
 
@@ -63,7 +60,7 @@ class FiltersFragment : Fragment() {
         // and attach listener if so.
         val editDialog = gearFragment.childFragmentManager.findFragmentByTag(FilterEditDialog.TAG)
         editDialog?.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Filter>(ExtraKeys.FILTER)?.let(model::submitFilter)
+            bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::submitFilter)
         }
     }
 
@@ -197,7 +194,7 @@ class FiltersFragment : Fragment() {
             .addToBackStack(GearFragment.BACKSTACK_NAME)
         dialog.show(transaction, FilterEditDialog.TAG)
         dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Filter>(ExtraKeys.FILTER)?.let(model::submitFilter)
+            bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::submitFilter)
         }
     }
 

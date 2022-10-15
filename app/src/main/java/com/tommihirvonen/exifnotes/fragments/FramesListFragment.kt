@@ -262,11 +262,11 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     private val onFrameEditListener: (String, Bundle) -> Unit = { _, bundle ->
         actionMode?.finish()
-        bundle.getParcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
+        bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
     }
 
     private val onRollEditListener: (String, Bundle) -> Unit = { _, bundle ->
-        bundle.getParcelable<Roll>(ExtraKeys.ROLL)?.let{
+        bundle.parcelable<Roll>(ExtraKeys.ROLL)?.let{
             rollModel.submitRoll(it)
             model.setRoll(it)
         }
@@ -713,7 +713,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             if (result.resultCode == Activity.RESULT_OK) {
                 val location: Location? =
                     if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                        result.data?.getParcelableExtra(ExtraKeys.LOCATION)
+                        result.data?.parcelable(ExtraKeys.LOCATION)
                     } else null
                 val formattedAddress: String? =
                     if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {

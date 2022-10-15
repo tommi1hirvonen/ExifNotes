@@ -20,10 +20,14 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.InsetDrawable
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.TypedValue
 import android.view.View
 import android.view.animation.Interpolator
@@ -35,12 +39,28 @@ import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.datastructures.Gear
 import java.io.*
 
+inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
+    SDK_INT >= 33 -> getParcelableExtra(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
+}
+
+inline fun <reified T : Parcelable> Bundle.parcelable(key: String): T? = when {
+    SDK_INT >= 33 -> getParcelable(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelable(key) as? T
+}
+
 fun <T> T.validate(vararg validations: (T) -> (Boolean)): Boolean =
     validations.map { it(this) }.all { it }
 
 val Context.packageInfo: PackageInfo? get() {
     try {
-        return packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
+        return if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.getPackageInfo(packageName,
+                PackageManager.PackageInfoFlags.of(0))
+        } else {
+            @Suppress("DEPRECATION")
+            packageManager.getPackageInfo(packageName, 0)
+        }
     } catch (e: PackageManager.NameNotFoundException) {
         e.printStackTrace()
     }
@@ -103,7 +123,7 @@ fun PopupMenu.setIconsVisible(context: Context) {
                     TypedValue.COMPLEX_UNIT_DIP, iconMargin, context.resources.displayMetrics)
                     .toInt()
             if (item.icon != null) {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+                if (SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
                     item.icon = InsetDrawable(item.icon, iconMarginPx, 0, iconMarginPx,0)
                 } else {
                     item.icon =

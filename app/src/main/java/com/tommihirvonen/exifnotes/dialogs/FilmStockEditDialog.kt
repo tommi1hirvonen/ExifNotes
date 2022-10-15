@@ -30,6 +30,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilmBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.parcelable
 import com.tommihirvonen.exifnotes.viewmodels.FilmStockEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.FilmStockEditViewModelFactory
 
@@ -41,7 +42,7 @@ class FilmStockEditDialog : DialogFragment() {
     }
 
     private val editModel by lazy {
-        val filmStock = requireArguments().getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.copy()
+        val filmStock = requireArguments().parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.copy()
             ?: FilmStock()
         val factory = FilmStockEditViewModelFactory(requireActivity().application, filmStock)
         ViewModelProvider(this, factory)[FilmStockEditViewModel::class.java]

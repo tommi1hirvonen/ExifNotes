@@ -61,7 +61,7 @@ class LensesFragment : Fragment() {
         // and attach listener if so.
         val fragment = gearFragment.childFragmentManager.findFragmentByTag(LensEditFragment.TAG)
         fragment?.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(model::submitLens)
+            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::submitLens)
         }
     }
 
@@ -149,7 +149,7 @@ class LensesFragment : Fragment() {
             .commit()
 
         fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(model::submitLens)
+            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::submitLens)
         }
     }
 

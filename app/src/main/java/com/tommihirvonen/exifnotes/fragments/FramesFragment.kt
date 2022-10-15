@@ -28,6 +28,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentFramesBinding
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.parcelable
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModelFactory
 
@@ -42,7 +43,7 @@ class FramesFragment : Fragment() {
      * ViewModel shared by child fragments FramesListFragment and FramesMapFragment.
      */
     private val model by lazy {
-        val roll = requireArguments().getParcelable<Roll>(ExtraKeys.ROLL)!!
+        val roll = requireArguments().parcelable<Roll>(ExtraKeys.ROLL)!!
         val factory = FramesViewModelFactory(requireActivity().application, roll)
         ViewModelProvider(this, factory)[FramesViewModel::class.java]
     }

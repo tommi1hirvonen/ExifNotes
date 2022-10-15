@@ -60,7 +60,7 @@ class RollEditFragment : Fragment() {
     }
 
     private val rollsModel by activityViewModels<RollsViewModel>()
-    private val roll by lazy { requireArguments().getParcelable(ExtraKeys.ROLL) ?: Roll() }
+    private val roll by lazy { requireArguments().parcelable(ExtraKeys.ROLL) ?: Roll() }
     private val model by lazy {
         val factory = RollEditViewModelFactory(requireActivity().application, roll.copy())
         ViewModelProvider(this, factory)[RollEditViewModel::class.java]
@@ -184,7 +184,7 @@ class RollEditFragment : Fragment() {
                     putParcelable(ExtraKeys.ROLL, model.roll)
                 }
                 setFragmentResult(REQUEST_KEY, bundle)
-                requireActivity().onBackPressed()
+                requireParentFragment().childFragmentManager.popBackStack()
             }
         }
 
@@ -201,15 +201,15 @@ class RollEditFragment : Fragment() {
     }
 
     private val onFilmStockSelected: (String, Bundle) -> Unit = { _, bundle ->
-        bundle.getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model.observable::setFilmStock)
+        bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model.observable::setFilmStock)
     }
 
     private val onFilmStockAdded: (String, Bundle) -> Unit = { _, bundle ->
-        bundle.getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::addFilmStock)
+        bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::addFilmStock)
     }
 
     private val onCameraAdded: (String, Bundle) -> Unit = { _, bundle ->
-        bundle.getParcelable<Camera>(ExtraKeys.CAMERA)?.let { camera ->
+        bundle.parcelable<Camera>(ExtraKeys.CAMERA)?.let { camera ->
             rollsModel.addCamera(camera)
             model.observable.setCamera(camera)
         }

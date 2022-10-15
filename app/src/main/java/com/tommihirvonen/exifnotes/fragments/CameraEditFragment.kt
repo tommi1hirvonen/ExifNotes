@@ -51,7 +51,7 @@ class CameraEditFragment : Fragment() {
     }
 
     private val editModel by lazy {
-        val camera = requireArguments().getParcelable<Camera>(ExtraKeys.CAMERA)?.copy() ?: Camera()
+        val camera = requireArguments().parcelable<Camera>(ExtraKeys.CAMERA)?.copy() ?: Camera()
         val factory = CameraEditViewModelFactory(requireActivity().application, camera)
         ViewModelProvider(this, factory)[CameraEditViewModel::class.java]
     }
@@ -66,7 +66,7 @@ class CameraEditFragment : Fragment() {
         val fragment = requireParentFragment().childFragmentManager
             .findFragmentByTag(LensEditFragment.TAG)
         fragment?.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(editModel.observable::setLens)
+            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(editModel.observable::setLens)
         }
     }
 
@@ -142,7 +142,7 @@ class CameraEditFragment : Fragment() {
             .commit()
 
         fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(editModel.observable::setLens)
+            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(editModel.observable::setLens)
         }
     }
 

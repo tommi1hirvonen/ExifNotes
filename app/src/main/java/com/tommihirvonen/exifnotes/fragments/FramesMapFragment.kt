@@ -77,7 +77,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
         val fragment = requireParentFragment().childFragmentManager
             .findFragmentByTag(FrameEditFragment.TAG)
         fragment?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
+            bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
         }
     }
 
@@ -264,7 +264,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
                     .addToBackStack(FramesFragment.BACKSTACK_NAME)
                     .commit()
                 fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-                    bundle.getParcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
+                    bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
                 }
             }
         }

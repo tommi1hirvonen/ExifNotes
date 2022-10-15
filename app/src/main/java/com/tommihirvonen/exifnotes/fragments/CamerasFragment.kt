@@ -61,7 +61,7 @@ class CamerasFragment : Fragment() {
         // and attach listener if so.
         val fragment = gearFragment.childFragmentManager.findFragmentByTag(CameraEditFragment.TAG)
         fragment?.setFragmentResultListener(CameraEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Camera>(ExtraKeys.CAMERA)?.let(model::submitCamera)
+            bundle.parcelable<Camera>(ExtraKeys.CAMERA)?.let(model::submitCamera)
         }
     }
 
@@ -189,7 +189,7 @@ class CamerasFragment : Fragment() {
             .addToBackStack(GearFragment.BACKSTACK_NAME)
             .commit()
         fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Camera>(ExtraKeys.CAMERA)?.let(model::submitCamera)
+            bundle.parcelable<Camera>(ExtraKeys.CAMERA)?.let(model::submitCamera)
         }
     }
 

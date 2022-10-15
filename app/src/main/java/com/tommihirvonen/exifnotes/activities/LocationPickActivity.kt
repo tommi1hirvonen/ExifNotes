@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -115,7 +116,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         binding.fab.setOnClickListener(onLocationSet)
         binding.fabCurrentLocation.setOnClickListener(onRequestCurrentLocation)
 
-        binding.topAppBar.setNavigationOnClickListener { onBackPressed() }
+        binding.topAppBar.setNavigationOnClickListener { finish() }
         binding.topAppBar.addMenuProvider(this)
         val menu = binding.topAppBar.menu
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
@@ -137,12 +138,12 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         // Get the location from there.
         val location: Location?
         if (savedInstanceState != null) {
-            location = savedInstanceState.getParcelable(ExtraKeys.LOCATION)
+            location = savedInstanceState.parcelable(ExtraKeys.LOCATION)
             formattedAddress = savedInstanceState.getString(ExtraKeys.FORMATTED_ADDRESS)
         } else {
             // Else get the location from Intent.
             val intent = intent
-            location = intent.getParcelableExtra(ExtraKeys.LOCATION)
+            location = intent.parcelable(ExtraKeys.LOCATION)
             formattedAddress = intent.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
         }
         if (location != null) {
@@ -181,6 +182,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             Snackbar.LENGTH_SHORT)
     }
 
+    @SuppressLint("MissingPermission")
     private val onRequestCurrentLocation = { _: View ->
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
             || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

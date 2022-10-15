@@ -82,7 +82,7 @@ class FrameEditFragment : Fragment() {
     }
 
     private val frame by lazy {
-        requireArguments().getParcelable<Frame>(ExtraKeys.FRAME)
+        requireArguments().parcelable<Frame>(ExtraKeys.FRAME)
             ?: throw IllegalArgumentException("Frame is a required argument for fragment FrameEditFragment")
     }
 
@@ -107,13 +107,13 @@ class FrameEditFragment : Fragment() {
         val addFilterDialog = requireParentFragment().childFragmentManager
             .findFragmentByTag(FilterEditDialog.TAG)
         addFilterDialog?.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
+            bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
         }
 
         val addLensFragment = requireParentFragment().childFragmentManager
             .findFragmentByTag(LensEditFragment.TAG)
         addLensFragment?.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
+            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
         }
     }
 
@@ -178,7 +178,7 @@ class FrameEditFragment : Fragment() {
                 .addToBackStack(backStackName)
             dialog.show(transaction, FilterEditDialog.TAG)
             dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-                bundle.getParcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
+                bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
             }
         }
 
@@ -211,7 +211,7 @@ class FrameEditFragment : Fragment() {
     private val locationResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val location = if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                result.data?.getParcelableExtra<Location>(ExtraKeys.LOCATION)
+                result.data?.parcelable<Location>(ExtraKeys.LOCATION)
             } else {
                 null
             }
@@ -400,7 +400,7 @@ class FrameEditFragment : Fragment() {
             .commit()
 
         fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
+            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
         }
     }
 

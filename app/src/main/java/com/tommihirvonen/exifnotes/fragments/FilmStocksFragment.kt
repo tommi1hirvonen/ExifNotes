@@ -38,6 +38,7 @@ import com.tommihirvonen.exifnotes.datastructures.FilmStockSortMode
 import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.parcelable
 import com.tommihirvonen.exifnotes.utilities.setIconsVisible
 import com.tommihirvonen.exifnotes.viewmodels.FilmStockFilterSet
 import com.tommihirvonen.exifnotes.viewmodels.FilmStocksViewModel
@@ -55,7 +56,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         // and attach listener if so.
         val dialog = gearFragment.childFragmentManager.findFragmentByTag(FilmStockEditDialog.TAG)
         dialog?.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::submitFilmStock)
+            bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::submitFilmStock)
         }
     }
 
@@ -164,7 +165,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
             .addToBackStack(GearFragment.BACKSTACK_NAME)
         dialog.show(transaction, FilmStockEditDialog.TAG)
         dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::submitFilmStock)
+            bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::submitFilmStock)
         }
     }
 

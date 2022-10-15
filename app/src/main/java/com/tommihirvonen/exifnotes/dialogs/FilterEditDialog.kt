@@ -31,6 +31,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilterBinding
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.parcelable
 import com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModelFactory
 
@@ -45,7 +46,7 @@ class FilterEditDialog : DialogFragment() {
     }
 
     private val editModel by lazy {
-        val filter = requireArguments().getParcelable<Filter>(ExtraKeys.FILTER)?.copy() ?: Filter()
+        val filter = requireArguments().parcelable<Filter>(ExtraKeys.FILTER)?.copy() ?: Filter()
         val factory = FilterEditViewModelFactory(requireActivity().application, filter)
         ViewModelProvider(this, factory)[FilterEditViewModel::class.java]
     }

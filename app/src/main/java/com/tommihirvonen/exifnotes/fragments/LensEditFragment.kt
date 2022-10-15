@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.tommihirvonen.exifnotes.databinding.FragmentLensEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.parcelable
 import com.tommihirvonen.exifnotes.viewmodels.LensEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.LensEditViewModelFactory
 
@@ -45,7 +46,7 @@ class LensEditFragment : Fragment() {
 
     private val model by lazy {
         val fixedLens = requireArguments().getBoolean(ExtraKeys.FIXED_LENS)
-        val lens = requireArguments().getParcelable<Lens>(ExtraKeys.LENS)?.copy() ?: Lens()
+        val lens = requireArguments().parcelable<Lens>(ExtraKeys.LENS)?.copy() ?: Lens()
         val factory = LensEditViewModelFactory(requireActivity().application, fixedLens, lens.copy())
         ViewModelProvider(this, factory)[LensEditViewModel::class.java]
     }
