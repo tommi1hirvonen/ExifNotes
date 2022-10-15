@@ -54,11 +54,9 @@ abstract class LocationUpdatesFragment : Fragment() {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
             // Create LocationRequest to update the last known location.
-            locationRequest = LocationRequest.create().apply {
-                interval = 10 * 1000.toLong() // 10 seconds
-                fastestInterval = 1000 // 1 second
-                priority = Priority.PRIORITY_HIGH_ACCURACY
-            }
+            locationRequest = LocationRequest
+                .Builder(Priority.PRIORITY_HIGH_ACCURACY, 10*1000.toLong())
+                .build()
         }
 
         // This can be done anyway. It only has effect if locationPermissionsGranted is true.

@@ -19,9 +19,6 @@
 <resources>
     <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
-        <item name="iconTintColorPrimary">@color/light_grey</item>
-        <item name="iconTintColorSecondary">@color/mid_dark_grey</item>
-        <item name="iconTintColorTertiary">@color/background_frame_dark_grey</item>
         <item name="preferenceTheme">@style/PreferenceTheme</item>
         <item name="alertDialogTheme">@style/AppTheme.OldAlertDialog</item>
         <item name="android:windowContentTransitions">true</item>

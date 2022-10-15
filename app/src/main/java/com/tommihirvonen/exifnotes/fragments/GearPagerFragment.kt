@@ -66,7 +66,7 @@ class GearPagerFragment : Fragment() {
         binding = FragmentGearPagerBinding.inflate(inflater)
 
         topAppBar = binding.topAppBar
-        topAppBar.setNavigationOnClickListener { requireActivity().onBackPressed() }
+        topAppBar.setNavigationOnClickListener { requireActivity().finish() }
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = binding.viewPager

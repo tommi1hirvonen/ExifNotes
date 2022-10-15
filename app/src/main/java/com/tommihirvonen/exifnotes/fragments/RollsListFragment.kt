@@ -89,7 +89,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         val fragment = requireParentFragment().childFragmentManager
             .findFragmentByTag(RollEditFragment.TAG)
         fragment?.setFragmentResultListener(RollEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Roll>(ExtraKeys.ROLL)?.let(model::submitRoll)
+            bundle.parcelable<Roll>(ExtraKeys.ROLL)?.let(model::submitRoll)
         }
     }
 
@@ -428,7 +428,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
             .commit()
 
         fragment.setFragmentResultListener(RollEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Roll>(ExtraKeys.ROLL)?.let(model::submitRoll)
+            bundle.parcelable<Roll>(ExtraKeys.ROLL)?.let(model::submitRoll)
         }
     }
 
@@ -521,7 +521,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                                     filmStockDialog.show(transaction, SelectFilmStockDialog.TAG)
                                     filmStockDialog.setFragmentResultListener(
                                         SelectFilmStockDialog.REQUEST_KEY) { _, bundle ->
-                                        val filmStock: FilmStock = bundle.getParcelable(ExtraKeys.FILM_STOCK)
+                                        val filmStock: FilmStock = bundle.parcelable(ExtraKeys.FILM_STOCK)
                                             ?: return@setFragmentResultListener
                                         MaterialAlertDialogBuilder(requireActivity()).apply {
                                             setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)

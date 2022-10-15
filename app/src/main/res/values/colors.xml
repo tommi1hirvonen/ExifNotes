@@ -19,21 +19,9 @@
 
 <resources>
 
-    <color name="primary_color">#00838F</color>
-    <color name="secondary_color">#006064</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
-    <color name="dark_grey">#424242</color>
-    <color name="mid_dark_grey">#606060</color>
     <color name="grey">#757575</color>
-    <color name="mid_light_grey">#909090</color>
     <color name="light_grey">#AEAEAE</color>
-    <color name="extra_light_grey">#DADADA</color>
-    <color name="background_dark_grey">#303030</color>
-    <color name="background_frame_dark_grey">#464646</color>
-    <color name="background_frame_light_grey">#D8D8D8</color>
-    <color name="near_white">#fafafa</color>
-    <color name="background_selected">#20808080</color>
-    <color name="transparent">#00000000</color>
 
 </resources>

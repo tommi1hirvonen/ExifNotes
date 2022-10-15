@@ -18,10 +18,6 @@
   -->
 
 <resources>
-    <attr name="iconTintColorPrimary" format="color" />
-    <attr name="iconTintColorSecondary" format="color" />
-    <attr name="iconTintColorTertiary" format="color" />
-
     <declare-styleable name="DateTimeLayout">
         <attr name="label" format="string"/>
         <attr name="dateText" format="string"/>

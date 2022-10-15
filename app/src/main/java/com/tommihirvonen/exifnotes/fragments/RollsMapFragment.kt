@@ -99,7 +99,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         val fragment = requireParentFragment().childFragmentManager
             .findFragmentByTag(FrameEditFragment.TAG)
         fragment?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.getParcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
+            bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
         }
     }
 
@@ -351,7 +351,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                     .addToBackStack(RollsFragment.BACKSTACK_NAME)
                     .commit()
                 fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-                    bundle.getParcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
+                    bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
                 }
             }
         }
