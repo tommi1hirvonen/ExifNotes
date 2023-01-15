@@ -102,6 +102,10 @@ class RollEditViewModel(application: Application, val roll: Roll)
             notifyPropertyChanged(BR.addFilmStockVisibility)
             if (filmStock != null && filmStock.iso != 0) {
                 setIso(filmStock.iso.toString())
+                if (roll.name.isNullOrEmpty()) {
+                    roll.name = filmStock.name
+                    notifyPropertyChanged(BR.name)
+                }
             }
         }
 
