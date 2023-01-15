@@ -33,7 +33,7 @@
         android:id="@+id/menu_item_copy"
         android:icon="@drawable/ic_outline_content_copy_24"
         app:iconTint="?attr/colorControlNormal"
-        android:title="@string/Edit"
+        android:title="@string/Copy"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
 

@@ -649,7 +649,9 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 }
                 R.id.menu_item_copy -> {
                     selectedFrames.forEach {
-                        val frame = it.copy()
+                        // Copy the frame and reset its id. This way the ViewModel
+                        // thinks it's a new frame instead of an existing one.
+                        val frame = it.copy().apply { id = -1 }
                         model.submitFrame(frame)
                     }
                     true

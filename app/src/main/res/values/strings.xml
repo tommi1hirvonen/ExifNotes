@@ -95,6 +95,7 @@
     <string name="ConfirmRollDelete">Delete roll</string>
     <string name="ConfirmRollsDelete">Delete %1$d rolls?</string>
     <string name="Continue">Continue</string>
+    <string name="Copy">Copy</string>
     <string name="CopyrightInformationSummary">Copyright information to be stored under the copyright tag in the file\'s exif</string>
     <string name="CopyrightInformationTitle">Copyright information</string>
     <string name="CouldNotReadDatabase">Could not read the new database file. The old one will be used.</string>
