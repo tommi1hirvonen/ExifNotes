@@ -500,11 +500,14 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 }
                 R.id.menu_item_edit -> {
                     if (selectedRolls.size == 1) {
+                        // Capture the selected roll. Calling actionMode.finish()
+                        // clears the selected rolls list.
+                        val selectedRoll = selectedRolls.first()
                         actionMode.finish()
                         // Get the first of the selected rolls (only one should be selected anyway)
                         // Finish action mode if the user clicked ok when editing the roll ->
                         // this is done in onActivityResult().
-                        showEditRollFragment(selectedRolls.first(), binding.topAppBar)
+                        showEditRollFragment(selectedRoll, binding.topAppBar)
                     } else {
                         // Show batch edit features
                         val builder = MaterialAlertDialogBuilder(requireActivity())
