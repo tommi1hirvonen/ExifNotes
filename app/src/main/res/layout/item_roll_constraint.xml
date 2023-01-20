@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_roll_name"
                 android:text="@string/Text"
-                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 android:maxLines="2"
                 android:ellipsize="end"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -92,7 +92,7 @@
                     android:paddingRight="@dimen/ItemRollLeftRightPadding"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:layout_gravity="center_vertical"
                     />
 
@@ -127,17 +127,20 @@
                     />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/tv_roll_date"
                     android:text="@string/Text"
                     android:paddingLeft="5dp"
                     android:paddingRight="@dimen/ItemRollLeftRightPadding"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:layout_gravity="center_vertical"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     app:layout_constraintLeft_toRightOf="@+id/date_image_view"
                     app:layout_constraintTop_toTopOf="@+id/date_layout"
                     app:layout_constraintBottom_toBottomOf="@+id/date_layout"
+                    app:layout_constraintRight_toLeftOf="@id/status_text_view"
                     />
 
                 <TextView
@@ -181,7 +184,7 @@
                     android:text="@string/Text"
                     android:paddingLeft="5dp"
                     android:paddingRight="10dp"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:layout_gravity="center_vertical"
                     />
 
@@ -213,7 +216,7 @@
                     android:paddingLeft="5dp"
                     android:paddingRight="@dimen/ItemRollLeftRightPadding"
                     android:gravity="center_vertical"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:scrollHorizontally="true"
                     android:ellipsize="end"
                     android:maxLines="1"

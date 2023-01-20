@@ -29,14 +29,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="5dp"
+        android:layout_marginVertical="2dp"
         android:clickable="true"
         android:focusable="true"
         app:strokeWidth="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="72dp">
+            android:layout_height="64dp">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -66,7 +66,7 @@
                 android:gravity="center"
                 android:text="@string/Text"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                app:layout_constraintBottom_toTopOf="@+id/guideline2"
+                app:layout_constraintBottom_toBottomOf="@+id/background_frame"
                 app:layout_constraintEnd_toEndOf="@+id/background_frame"
                 app:layout_constraintStart_toStartOf="@+id/guideline0"
                 app:layout_constraintTop_toTopOf="@+id/background_frame"
@@ -76,10 +76,12 @@
             <TextView
                 android:id="@+id/tvFrameText"
                 android:layout_width="0dp"
-                android:layout_height="24dp"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:text="@string/Text"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:ellipsize="end"
+                android:maxLines="1"
                 app:layout_constraintEnd_toStartOf="@+id/guideline3"
                 app:layout_constraintStart_toStartOf="@+id/guideline1"
                 app:layout_constraintTop_toTopOf="parent"
@@ -89,7 +91,7 @@
             <TextView
                 android:id="@+id/tvFrameText2"
                 android:layout_width="0dp"
-                android:layout_height="24dp"
+                android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:maxLines="1"
@@ -105,7 +107,7 @@
             <TextView
                 android:id="@+id/tv_frame_note"
                 android:layout_width="0dp"
-                android:layout_height="24dp"
+                android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:maxLines="1"
@@ -131,8 +133,8 @@
                 app:tint="?attr/colorControlNormal" />
 
             <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:id="@+id/broken_picture_image_view"
                 android:src="@drawable/ic_baseline_broken_image_24"
                 android:layout_marginRight="5dp"
@@ -143,8 +145,8 @@
 
             <ImageView
                 android:id="@+id/drawable_clock"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:src="@drawable/ic_baseline_shutter_speed_24"
                 app:layout_constraintStart_toStartOf="@+id/guideline3"
                 app:layout_constraintBottom_toBottomOf="@id/tvShutter"
@@ -155,7 +157,7 @@
             <TextView
                 android:id="@+id/tvShutter"
                 android:layout_width="0dp"
-                android:layout_height="24dp"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:paddingLeft="3dp"
                 android:text="@string/Text"
@@ -167,8 +169,8 @@
 
             <ImageView
                 android:id="@+id/drawable_aperture"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:src="@drawable/ic_baseline_camera_24"
                 app:layout_constraintStart_toStartOf="@+id/guideline3"
                 app:layout_constraintTop_toTopOf="@id/tvAperture"
@@ -179,7 +181,7 @@
             <TextView
                 android:id="@+id/tvAperture"
                 android:layout_width="0dp"
-                android:layout_height="24dp"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:paddingLeft="3dp"
                 android:text="@string/Text"

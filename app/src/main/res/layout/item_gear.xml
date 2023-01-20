@@ -37,7 +37,7 @@
             android:id="@+id/item_gear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="10dp"
+            android:paddingVertical="5dp"
             android:paddingHorizontal="10dp"
             android:background="?android:attr/selectableItemBackground">
 
@@ -47,7 +47,7 @@
                 android:id="@+id/title"
                 android:text="@string/Text"
                 android:gravity="bottom"
-                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 android:scrollHorizontally="true"
                 android:ellipsize="end"
                 android:maxLines="1"
