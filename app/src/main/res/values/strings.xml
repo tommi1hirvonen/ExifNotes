@@ -390,11 +390,15 @@
         \nhttps://github.com/tommi1hirvonen/ExifNotes
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Decreased UI text, padding and margin sizes
+        \n\n-Bug fixes
+        \n-Library updates
         \n
     </string>
     <string name="VersionHistory">Version history</string>
-    <string name="VersionHistoryStatement">v1.18.2 2023-01-20:
+    <string name="VersionHistoryStatement">v1.18.3 2023-01-22:
+        \n-Bug fixes
+        \n-Library updates
+        \n\nv1.18.2 2023-01-20:
         \n-Decreased UI text, padding and margin sizes
         \n\nv1.18.1 2023-01-15:
         \n-Bug fixes
