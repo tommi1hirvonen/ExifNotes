@@ -57,7 +57,6 @@ android {
         versionName "1.18.2"
         // Enabling this allows us to use resources when PNGs are generated during build-time
         vectorDrawables.useSupportLibrary = true
-        testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     buildTypes {
@@ -119,8 +118,6 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.5.3'
     implementation 'androidx.databinding:databinding-runtime:7.3.1'
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
-    androidTestImplementation 'androidx.test:core-ktx:1.4.0'
 }
 repositories {
     mavenCentral()
