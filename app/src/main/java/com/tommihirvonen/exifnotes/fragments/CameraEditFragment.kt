@@ -56,6 +56,10 @@ class CameraEditFragment : Fragment() {
         ViewModelProvider(this, factory)[CameraEditViewModel::class.java]
     }
 
+    private val fragmentContainerId by lazy {
+        requireArguments().getInt(ExtraKeys.FRAGMENT_CONTAINER_ID)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(this) {
@@ -137,7 +141,7 @@ class CameraEditFragment : Fragment() {
             .beginTransaction()
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.gear_fragment_container, fragment, LensEditFragment.TAG)
+            .replace(fragmentContainerId, fragment, LensEditFragment.TAG)
             .addToBackStack(backStack)
             .commit()
 

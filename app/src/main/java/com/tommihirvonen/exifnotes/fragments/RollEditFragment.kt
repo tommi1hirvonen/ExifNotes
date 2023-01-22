@@ -142,6 +142,7 @@ class RollEditFragment : Fragment() {
             arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
             arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
             arguments.putString(ExtraKeys.BACKSTACK_NAME, backStackName)
+            arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, fragmentContainerId)
             fragment.arguments = arguments
 
             requireParentFragment().childFragmentManager
