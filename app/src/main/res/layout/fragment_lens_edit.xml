@@ -306,7 +306,7 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/min_focal_length_layout"
                         android:layout_marginRight="5dp"
-                        errorText="@{viewmodel.focalLengthRangeError}"
+                        errorText="@{viewmodel.minFocalLengthError}"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
                         app:layout_constraintRight_toRightOf="@id/guideline_focal_length"
                         app:layout_constraintTop_toBottomOf="@id/focal_length_min_label"
@@ -318,7 +318,7 @@
                             android:inputType="number"
                             inputFilter="@{viewmodel.focalLengthInputFilter}"
                             android:text="@={viewmodel.minFocalLength}"
-                            android:afterTextChanged="@{(editable) -> viewmodel.setFocalLengthRangeError(``)}"
+                            android:afterTextChanged="@{(editable) -> viewmodel.setMinFocalLengthError(``)}"
                             android:digits="1234567890"
                             />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -339,6 +339,7 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/max_focal_length_layout"
                         android:layout_marginLeft="5dp"
+                        errorText="@{viewmodel.maxFocalLengthError}"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/focal_length_max_label"
@@ -350,7 +351,7 @@
                             android:inputType="number"
                             inputFilter="@{viewmodel.focalLengthInputFilter}"
                             android:text="@={viewmodel.maxFocalLength}"
-                            android:afterTextChanged="@{(editable) -> viewmodel.setFocalLengthRangeError(``)}"
+                            android:afterTextChanged="@{(editable) -> viewmodel.setMaxFocalLengthError(``)}"
                             android:digits="1234567890"
                             />
                     </com.google.android.material.textfield.TextInputLayout>

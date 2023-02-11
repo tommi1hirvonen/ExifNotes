@@ -59,12 +59,23 @@ class LensEditViewModel(application: Application, val fixedLens: Boolean, val le
                 false
             }
         }
+
         val focalLengthValidation = { l: Lens ->
-            if (l.minFocalLength <= l.maxFocalLength) {
-                true
-            } else {
-                observable.focalLengthRangeError = context.getString(R.string.MinFocalLengthGreaterThanMax)
+            if (l.minFocalLength > l.maxFocalLength && l.minFocalLength >= 0 && l.maxFocalLength >= 0) {
+                observable.minFocalLengthError = context.getString(R.string.MinFocalLengthGreaterThanMax)
                 false
+            } else if (l.minFocalLength < 0 && l.maxFocalLength < 0) {
+                observable.minFocalLengthError = context.getString(R.string.FocalLengthValuesZeroOrGreater)
+                observable.maxFocalLengthError = context.getString(R.string.FocalLengthValuesZeroOrGreater)
+                false
+            } else if (l.minFocalLength < 0) {
+                observable.minFocalLengthError = context.getString(R.string.FocalLengthValuesZeroOrGreater)
+                false
+            } else if (l.maxFocalLength < 0) {
+                observable.maxFocalLengthError = context.getString(R.string.FocalLengthValuesZeroOrGreater)
+                false
+            } else {
+                true
             }
         }
         return lens.validate(makeValidation, modelValidation, focalLengthValidation,
@@ -163,28 +174,37 @@ class LensEditViewModel(application: Application, val fixedLens: Boolean, val le
             }
 
         @Bindable
-        fun getMinFocalLength() = lens.minFocalLength.toString()
+        fun getMinFocalLength() =
+            if (lens.minFocalLength >= 0) lens.minFocalLength.toString() else ""
         fun setMinFocalLength(value: String) {
             if (lens.minFocalLength != value.toIntOrNull()) {
-                lens.minFocalLength = value.toIntOrNull() ?: 0
+                lens.minFocalLength = value.toIntOrNull() ?: -1
                 notifyPropertyChanged(BR.minFocalLength)
             }
         }
 
         @Bindable
-        fun getMaxFocalLength() = lens.maxFocalLength.toString()
+        fun getMaxFocalLength() =
+            if (lens.maxFocalLength >= 0) lens.maxFocalLength.toString() else ""
         fun setMaxFocalLength(value: String) {
             if (lens.maxFocalLength != value.toIntOrNull()) {
-                lens.maxFocalLength = value.toIntOrNull() ?: 0
+                lens.maxFocalLength = value.toIntOrNull() ?: -1
                 notifyPropertyChanged(BR.maxFocalLength)
             }
         }
 
         @Bindable
-        var focalLengthRangeError: String? = null
+        var minFocalLengthError: String? = null
             set(value) {
                 field = value?.ifEmpty { null }
-                notifyPropertyChanged(BR.focalLengthRangeError)
+                notifyPropertyChanged(BR.minFocalLengthError)
+            }
+
+        @Bindable
+        var maxFocalLengthError: String? = null
+            set(value) {
+                field = value?.ifEmpty { null }
+                notifyPropertyChanged(BR.maxFocalLengthError)
             }
 
         @get:Bindable

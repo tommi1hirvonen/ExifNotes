@@ -187,6 +187,7 @@
     <string name="Fluorescent">Fluorescent</string>
     <string name="FocalLengthRange">Focal length range (mm)</string>
     <string name="FocalLengthSingleLine">Focal length (mm)</string>
+    <string name="FocalLengthValuesZeroOrGreater">Focal length values must be zero or greater</string>
     <string name="Format">Format</string>
     <string name="FrameCount">Frame count</string>
     <string name="FrameCountNoColon">Frame count</string>
