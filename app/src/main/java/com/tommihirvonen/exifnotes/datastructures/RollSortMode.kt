@@ -31,9 +31,24 @@ enum class RollSortMode constructor(value: Int) {
     }
 
     val comparator: Comparator<Roll> get() = when (this) {
-        DATE -> compareByDescending { it.date }
-        NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name ?: "" }
-        CAMERA -> compareBy { it.camera }
+        DATE -> compareByDescending { roll ->
+            roll.date
+        }
+        NAME -> {
+            compareByDescending<Roll> { roll ->
+                val numberPrefixRegex = "(\\d+)[\\w\\s]*".toRegex()
+                val result = numberPrefixRegex.matchEntire(roll.name ?: "")
+                val numberPrefix = result?.groups?.get(1)?.value?.toIntOrNull()
+                // Use descending order and reverse values
+                // to make nulls (roll names with no number prefix) appear last in the list.
+                numberPrefix?.let { -it }
+            }.thenBy { roll ->
+                roll.name
+            }
+        }
+        CAMERA -> compareBy { roll ->
+            roll.camera
+        }
     }
 
     companion object {
