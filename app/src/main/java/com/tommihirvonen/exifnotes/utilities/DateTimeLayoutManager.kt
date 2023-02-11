@@ -19,11 +19,13 @@
 package com.tommihirvonen.exifnotes.utilities
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.DateTime.Companion.fromCurrentTime
+import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.views.DateTimeLayout
 import java.util.*
 
@@ -34,10 +36,13 @@ import java.util.*
  * The DateTime member is managed inside the class.
  */
 class DateTimeLayoutManager(
-        activity: AppCompatActivity,
+        private val activity: AppCompatActivity,
         dateTimeLayout: DateTimeLayout,
         initialDateTimeDelegate: () -> (DateTime?),
         onDateTimeSelected: (DateTime) -> (Unit)) {
+
+    private val preferences get() = PreferenceManager.getDefaultSharedPreferences(activity)
+
     init {
         dateTimeLayout.dateLayout.setOnClickListener {
             val dt = initialDateTimeDelegate() ?: fromCurrentTime()
@@ -56,18 +61,40 @@ class DateTimeLayoutManager(
         }
 
         dateTimeLayout.timeLayout.setOnClickListener {
+            val inputMode = preferences.getInt(PreferenceConstants.KEY_TIME_PICKER_INPUT_MODE,
+                MaterialTimePicker.INPUT_MODE_CLOCK).let {
+                if (it == MaterialTimePicker.INPUT_MODE_CLOCK || it == MaterialTimePicker.INPUT_MODE_KEYBOARD) {
+                    it
+                } else {
+                    MaterialTimePicker.INPUT_MODE_CLOCK
+                }
+            }
             val dt = initialDateTimeDelegate() ?: fromCurrentTime()
             val picker = MaterialTimePicker.Builder()
+                .setInputMode(inputMode)
                 .setHour(dt.hour)
                 .setMinute(dt.minute)
                 .setTimeFormat(TimeFormat.CLOCK_24H)
                 .build()
+            picker.addOnNegativeButtonClickListener {
+                updateTimePickerInputModePreference(picker, inputMode)
+            }
             picker.addOnPositiveButtonClickListener {
+                updateTimePickerInputModePreference(picker, inputMode)
                 val dateTime = DateTime(dt.year, dt.month, dt.day,
                     picker.hour, picker.minute)
                 onDateTimeSelected(dateTime)
             }
             picker.show(activity.supportFragmentManager, null)
         }
+    }
+
+    private fun updateTimePickerInputModePreference(picker: MaterialTimePicker, initialInputMode: Int) {
+        if (picker.inputMode == initialInputMode) {
+            return
+        }
+        val editor = preferences.edit()
+        editor.putInt(PreferenceConstants.KEY_TIME_PICKER_INPUT_MODE, picker.inputMode)
+        editor.apply()
     }
 }

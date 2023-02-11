@@ -37,4 +37,5 @@ object PreferenceConstants {
     const val KEY_IMPORT_COMPLEMENTARY_PICTURES = "ImportComplementaryPictures"
     const val KEY_EXPORT_DATABASE = "ExportDatabase"
     const val KEY_IMPORT_DATABASE = "ImportDatabase"
+    const val KEY_TIME_PICKER_INPUT_MODE = "TimePickerInputMode"
 }
