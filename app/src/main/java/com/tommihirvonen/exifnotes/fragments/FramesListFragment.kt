@@ -454,7 +454,17 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                         builder.setItems(R.array.FramesBatchEditOptions) { _, i ->
                             when (i) {
                                 // Edit frame counts
-                                0 -> FrameCountBatchEditDialogBuilder(requireActivity()).create().show()
+                                0 -> {
+                                    FrameCountBatchEditDialogBuilder(
+                                        requireActivity(),
+                                        R.string.EditFrameCountsBy,
+                                        0) { countChange ->
+                                        selectedFrames.forEach { frame ->
+                                            frame.count += countChange
+                                            model.submitFrame(frame)
+                                        }
+                                    }.create().show()
+                                }
                                 // Edit date and time
                                 1 -> {
                                     val dt = DateTime.fromCurrentTime()
@@ -650,12 +660,19 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     true
                 }
                 R.id.menu_item_copy -> {
-                    selectedFrames.forEach {
-                        // Copy the frame and reset its id. This way the ViewModel
-                        // thinks it's a new frame instead of an existing one.
-                        val frame = it.copy().apply { id = -1 }
-                        model.submitFrame(frame)
-                    }
+                    FrameCountBatchEditDialogBuilder(requireActivity(),
+                        R.string.EditCopiedFramesCountsBy,
+                        selectedFrames.size) { countChange ->
+                        selectedFrames.forEach {
+                            // Copy the frame and reset its id. This way the ViewModel
+                            // thinks it's a new frame instead of an existing one.
+                            val frame = it.copy().apply {
+                                id = -1
+                                count += countChange
+                            }
+                            model.submitFrame(frame)
+                        }
+                    }.create().show()
                     true
                 }
                 R.id.menu_item_select_all -> {
@@ -680,14 +697,22 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
          * Private class which creates a dialog builder for a custom dialog.
          * Used to batch edit frame counts.
          */
-        private inner class FrameCountBatchEditDialogBuilder(context: Context)
-            : MaterialAlertDialogBuilder(context) {
+        private inner class FrameCountBatchEditDialogBuilder(
+            context: Context,
+            titleStringResourceId: Int,
+            initialCountChange: Int,
+            onCountChange: (Int) -> (Any)) : MaterialAlertDialogBuilder(context) {
             init {
-                setTitle(R.string.EditFrameCountsBy)
+                setTitle(titleStringResourceId)
                 @SuppressLint("InflateParams")
                 val binding = DialogSingleDropdownBinding.inflate(requireActivity().layoutInflater)
                 val menu = binding.dropdownMenu.editText as MaterialAutoCompleteTextView
-                menu.setText("0", false)
+                val initialValue =  when (initialCountChange) {
+                    in 1..100 -> "+$initialCountChange"
+                    in -100..-1 -> initialCountChange.toString()
+                    else -> "0"
+                }
+                menu.setText(initialValue, false)
                 val displayedValues = (-100..100).map { if (it > 0) "+$it" else it.toString() }
                     .toTypedArray()
                 menu.setSimpleItems(displayedValues)
@@ -700,11 +725,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 setNegativeButton(R.string.Cancel) { _, _ -> }
                 setPositiveButton(R.string.OK) { _, _ ->
                     // Replace the plus sign because on pre L devices this seems to cause a crash
-                    val change = menu.text.toString().replace("+", "").toInt()
-                    model.selectedFrames.forEach { frame ->
-                        frame.count += change
-                        model.submitFrame(frame)
-                    }
+                    val countChange = menu.text.toString().replace("+", "").toInt()
+                    onCountChange(countChange)
                 }
             }
         }
