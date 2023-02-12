@@ -443,9 +443,11 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
                     // If only one frame is selected, show frame edit dialog.
                     if (selectedFrames.size == 1) {
-                        mode.finish()
                         // Get the first of the selected rolls (only one should be selected anyway)
-                        showEditFrameFragment(selectedFrames.first(), binding.topAppBar)
+                        // Capture it before calling mode.finish() and resetting the selected frames list.
+                        val frame = selectedFrames.first()
+                        mode.finish()
+                        showEditFrameFragment(frame, binding.topAppBar)
                     } else {
                         val builder = MaterialAlertDialogBuilder(requireActivity())
                         builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), selectedFrames.size))
