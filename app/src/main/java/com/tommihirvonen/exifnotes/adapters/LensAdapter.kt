@@ -71,10 +71,17 @@ class LensAdapter(
         val stringBuilder = StringBuilder()
         val mountableCameras = cameras.filter { lens.cameraIds.contains(it.id) }
         val mountableFilters = filters.filter { lens.filterIds.contains(it.id) }
-        stringBuilder.append(context.getString(R.string.CamerasNoCap)).append(":")
-            .append(mountableCameras.toStringList()).append("\n\n")
-            .append(context.getString(R.string.FiltersNoCap)).append(":")
-            .append(mountableFilters.toStringList())
+        if (mountableCameras.isNotEmpty()) {
+            stringBuilder.append(context.getString(R.string.CamerasNoCap)).append(":")
+                .append(mountableCameras.toStringList())
+        }
+        if (mountableFilters.isNotEmpty()) {
+            if (mountableCameras.isNotEmpty()) {
+                stringBuilder.append("\n\n")
+            }
+            stringBuilder.append(context.getString(R.string.FiltersNoCap)).append(":")
+                .append(mountableFilters.toStringList())
+        }
         holder.binding.description.text = stringBuilder.toString()
     }
 

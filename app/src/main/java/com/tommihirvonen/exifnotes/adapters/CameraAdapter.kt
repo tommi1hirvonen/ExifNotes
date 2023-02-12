@@ -73,15 +73,19 @@ class CameraAdapter(
         if (camera.isFixedLens) {
             camera.lens?.let { lens ->
                 val filters = this.filters.filter { lens.filterIds.contains(it.id) }
-                stringBuilder
-                    .append(context.getString(R.string.FixedLens)).append("\n\n")
-                    .append(context.getString(R.string.FiltersNoCap)).append(":")
-                    .append(filters.toStringList())
+                stringBuilder.append(context.getString(R.string.FixedLens))
+                if (filters.isNotEmpty()) {
+                    stringBuilder.append("\n\n")
+                        .append(context.getString(R.string.FiltersNoCap)).append(":")
+                        .append(filters.toStringList())
+                }
             }
         } else {
             val lenses = this.lenses.filter { camera.lensIds.contains(it.id) }
-            stringBuilder.append(context.getString(R.string.LensesNoCap)).append(":")
-                .append(lenses.toStringList())
+            if (lenses.isNotEmpty()) {
+                stringBuilder.append(context.getString(R.string.LensesNoCap)).append(":")
+                    .append(lenses.toStringList())
+            }
         }
         holder.binding.description.text = stringBuilder.toString()
     }
