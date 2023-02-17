@@ -18,13 +18,16 @@
 
 package com.tommihirvonen.exifnotes.utilities
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
@@ -39,7 +42,7 @@ import java.io.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-class ComplementaryPicturesExportWorker(context: Context, parameters: WorkerParameters)
+class ComplementaryPicturesExportWorker(private val context: Context, parameters: WorkerParameters)
     : CoroutineWorker(context, parameters) {
 
     private val notificationManager =
@@ -100,10 +103,12 @@ class ComplementaryPicturesExportWorker(context: Context, parameters: WorkerPara
             return@withContext Result.success()
         }
 
-
-
         with(NotificationManagerCompat.from(applicationContext)) {
             val notification = createResultNotification(result is Result.Success)
+            if (ActivityCompat.checkSelfPermission(context,
+                    Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                return@with
+            }
             notify(resultNotificationId, notification)
         }
 

@@ -24,6 +24,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
@@ -80,17 +81,29 @@ class MainActivity : AppCompatActivity() {
 
             // Check that the application has write permission to the phone's external storage
             // and access to location services.
-            val permissionWriteExternalStorage = ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-            val permissionAccessCoarseLocation = ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            val permissionAccessFineLocation = ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            if (!permissionWriteExternalStorage || !permissionAccessCoarseLocation || !permissionAccessFineLocation) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(
                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION),
-                    MY_MULTIPLE_PERMISSIONS_REQUEST)
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            } else {
+                arrayOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            }
+            val permissionGrants = permissions.map {
+                ActivityCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+            }
+            if (permissionGrants.contains(false)) {
+                ActivityCompat.requestPermissions(this, permissions, MY_MULTIPLE_PERMISSIONS_REQUEST)
             }
 
             // Get from DefaultSharedPreferences whether the user has enabled
@@ -154,8 +167,9 @@ class MainActivity : AppCompatActivity() {
                                             grantResults: IntArray) {
         if (requestCode == MY_MULTIPLE_PERMISSIONS_REQUEST) {
             // If request is cancelled, the result arrays are empty. Thus we check the length of grantResults first.
-            //Check write permissions
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+            // Check write permissions
+            val writePermissionIndex = permissions.indexOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            if (grantResults.getOrNull(writePermissionIndex) == PackageManager.PERMISSION_DENIED) {
                 //In case write permission was denied, inform the user.
                 binding.root.snackbar(R.string.NoWritePermission)
             }
