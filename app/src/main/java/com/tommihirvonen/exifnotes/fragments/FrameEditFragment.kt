@@ -45,6 +45,7 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
@@ -56,9 +57,11 @@ import com.tommihirvonen.exifnotes.dialogs.FilterEditDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FrameEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.FrameEditViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.lang.Runnable
 import kotlin.math.roundToInt
 
 /**
@@ -90,13 +93,6 @@ class FrameEditFragment : Fragment() {
         val factory = FrameEditViewModelFactory(requireActivity().application, frame.copy())
         ViewModelProvider(this, factory)[FrameEditViewModel::class.java]
     }
-
-    /**
-     * Used to temporarily store the possible new picture name. newPictureFilename is only set,
-     * if the user presses ok in the camera activity. If the user cancels the camera activity,
-     * then this member's value is ignored and newPictureFilename's value isn't changed.
-     */
-    private var tempPictureFilename: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -204,6 +200,15 @@ class FrameEditFragment : Fragment() {
         // Start the transition once all views have been measured and laid out.
         (view.parent as ViewGroup).doOnPreDraw {
             startPostponedEnterTransition()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // On some devices the fragment is recreated when returning from the camera activity
+        // (when taking a new complementary picture) and on some devices it is simply resumed.
+        // Handle both cases here.
+        binding.root.doOnPreDraw {
             setComplementaryPicture()
         }
     }
@@ -225,54 +230,61 @@ class FrameEditFragment : Fragment() {
     }
 
     private val captureImageResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
+        // This callback is called before the Fragment is resumed.
+        // Handle the complementary picture here but update the UI element in onResume().
         if (result) {
             // In case the picture decoding takes a long time, show the user, that the picture is being loaded.
             binding.pictureText.setText(R.string.LoadingPicture)
             binding.pictureText.visibility = View.VISIBLE
             // Decode and compress the picture on a background thread.
-            Thread(Runnable {
-                // The user has taken a new complementary picture. Update the possible new filename,
-                // notify gallery app and set the complementary picture bitmap.
-                val filename = tempPictureFilename ?: return@Runnable
-                model.frame.pictureFilename = tempPictureFilename
-                // Compress the picture file
+            lifecycleScope.launch(Dispatchers.IO) {
+                // The user has taken a new complementary picture. Update the new filename.
+                val filename = model.pictureFilename ?: return@launch
+                model.frame.pictureFilename = filename
+                // Compress the picture file.
                 try {
                     ComplementaryPicturesManager.compressPictureFile(requireActivity(), filename)
                 } catch (e: IOException) {
-                    binding.root.snackbar(R.string.ErrorCompressingComplementaryPicture)
+                    withContext(Dispatchers.Main) {
+                        binding.root.snackbar(R.string.ErrorCompressingComplementaryPicture)
+                    }
                 }
-                // Set the complementary picture ImageView on the UI thread.
-                requireActivity().runOnUiThread { setComplementaryPicture() }
-            }).start()
+            }
         }
     }
 
     private val selectImageResultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { resultUri ->
+        if (resultUri == null) { // Selecting an image from gallery was canceled.
+            return@registerForActivityResult
+        }
         // In case the picture decoding takes a long time, show the user, that the picture is being loaded.
         binding.pictureText.setText(R.string.LoadingPicture)
         binding.pictureText.visibility = View.VISIBLE
         // Decode and compress the selected file on a background thread.
-        Thread(Runnable {
+        lifecycleScope.launch(Dispatchers.IO) {
             // Create the placeholder file in the complementary pictures directory.
             val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
             try {
                 // Get the compressed bitmap from the Uri.
                 val pictureBitmap = ComplementaryPicturesManager
-                    .getCompressedBitmap(requireActivity(), resultUri) ?: return@Runnable
+                    .getCompressedBitmap(requireActivity(), resultUri) ?: return@launch
                 try {
                     // Save the compressed bitmap to the placeholder file.
                     ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile)
                     // Update the member reference and set the complementary picture.
                     model.frame.pictureFilename = pictureFile.name
-                    // Set the complementary picture ImageView on the UI thread.
-                    requireActivity().runOnUiThread { setComplementaryPicture() }
+                    withContext(Dispatchers.Main) { setComplementaryPicture() }
                 } catch (e: IOException) {
-                    binding.root.snackbar(R.string.ErrorSavingSelectedPicture)
+                    withContext(Dispatchers.Main) {
+                        binding.root.snackbar(R.string.ErrorSavingSelectedPicture)
+                    }
                 }
             } catch (e: FileNotFoundException) {
-                binding.root.snackbar(R.string.ErrorLocatingSelectedPicture)
+                withContext(Dispatchers.Main) {
+                    binding.root.snackbar(R.string.ErrorLocatingSelectedPicture)
+                }
             }
-        }).start()
+        }
     }
 
     /**
@@ -312,15 +324,13 @@ class FrameEditFragment : Fragment() {
 
         // If the picture file exists, set the picture ImageView.
         if (pictureFile.exists()) {
-
             // Set the visibilities first, so that the views in general are displayed
             // when the user scrolls down.
             binding.pictureText.visibility = View.GONE
             binding.ivPicture.visibility = View.VISIBLE
 
             // Load the bitmap on a background thread
-            Thread {
-
+            lifecycleScope.launch(Dispatchers.IO) {
                 // Get the target ImageView height.
                 // Because the complementary picture ImageView uses subclass SquareImageView,
                 // the ImageView width should also be its height. Because the ImageView's
@@ -333,7 +343,7 @@ class FrameEditFragment : Fragment() {
                 try {
                     val exifInterface = ExifInterface(pictureFile.absolutePath)
                     val orientation = exifInterface
-                            .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+                        .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
                     when (orientation) {
                         ExifInterface.ORIENTATION_ROTATE_90 -> rotationTemp = 90
                         ExifInterface.ORIENTATION_ROTATE_180 -> rotationTemp = 180
@@ -362,13 +372,13 @@ class FrameEditFragment : Fragment() {
                 val bitmap = BitmapFactory.decodeFile(pictureFile.absolutePath, options)
 
                 // Do UI changes on the UI thread.
-                requireActivity().runOnUiThread {
+                withContext(Dispatchers.Main) {
                     binding.ivPicture.rotation = rotation.toFloat()
                     binding.ivPicture.setImageBitmap(bitmap)
                     val animation = AnimationUtils.loadAnimation(activity, R.anim.fade_in_fast)
                     binding.ivPicture.startAnimation(animation)
                 }
-            }.start()
+            }
         } else {
             binding.pictureText.setText(R.string.PictureSetButNotFound)
         }
@@ -578,7 +588,8 @@ class FrameEditFragment : Fragment() {
 
             // Create the file where the photo should go
             val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
-            tempPictureFilename = pictureFile.name
+            // Store the filename to the view model, so that it is retained even if the fragments gets recreated.
+            model.pictureFilename = pictureFile.name
             //Android Nougat requires that the file is given via FileProvider
             val photoURI: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 FileProvider.getUriForFile(requireContext(), requireContext().applicationContext

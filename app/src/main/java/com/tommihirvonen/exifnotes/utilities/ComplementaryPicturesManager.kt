@@ -18,7 +18,6 @@
 
 package com.tommihirvonen.exifnotes.utilities
 
-import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -28,7 +27,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.exifinterface.media.ExifInterface
 import com.tommihirvonen.exifnotes.R
 import java.io.*
@@ -175,13 +173,13 @@ object ComplementaryPicturesManager {
      * @throws FileNotFoundException if no file was found using the given Uri
      */
     @Throws(FileNotFoundException::class)
-    fun getCompressedBitmap(context: Context, uri: Uri?): Bitmap? {
+    fun getCompressedBitmap(context: Context, uri: Uri): Bitmap? {
         // Get the dimensions of the picture
         val options = BitmapFactory.Options()
         // Setting the inJustDecodeBounds property to true while decoding avoids memory allocation,
         // returning null for the bitmap object but setting outWidth, outHeight and outMimeType.
         options.inJustDecodeBounds = true
-        BitmapFactory.decodeStream(context.contentResolver.openInputStream(uri!!), null, options)
+        BitmapFactory.decodeStream(context.contentResolver.openInputStream(uri), null, options)
         options.inSampleSize = calculateInSampleSize(options)
         // Set inJustDecodeBounds back to false, so that decoding returns a bitmap object.
         options.inJustDecodeBounds = false

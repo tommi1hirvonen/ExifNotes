@@ -63,6 +63,8 @@ class FrameEditViewModel(application: Application, val frame: Frame)
         }
     }
 
+    var pictureFilename: String? = null
+
     private var lenses: List<Lens> =
         frame.roll.camera?.let(database::getLinkedLenses) ?: database.lenses
         set(value) {
