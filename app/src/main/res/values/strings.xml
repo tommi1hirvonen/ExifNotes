@@ -393,11 +393,12 @@
     </string>
     <string name="Updates">Updates in this version:
         \n\n-Bug fixes
-        \n-Minor UX enhancements
         \n
     </string>
     <string name="VersionHistory">Version history</string>
-    <string name="VersionHistoryStatement">v1.18.4 2023-02-12:
+    <string name="VersionHistoryStatement">v1.18.5 2023-02-19:
+        \n-Bug fixes
+        \n\nv1.18.4 2023-02-12:
         \n-Bug fixes
         \n-Minor UX enhancements
         \n\nv1.18.3 2023-01-22:
