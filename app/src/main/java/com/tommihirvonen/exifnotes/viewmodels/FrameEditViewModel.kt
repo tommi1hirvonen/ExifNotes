@@ -95,7 +95,7 @@ class FrameEditViewModel(application: Application, val frame: Frame)
     inner class Observable : BaseObservable() {
 
         @get:Bindable
-        val frameCountItems = (1..100).map(Int::toString).toTypedArray()
+        val frameCountItems = (-3..100).map(Int::toString).toTypedArray()
 
         @get:Bindable
         val noOfExposuresItems = (1..10).map(Int::toString).toTypedArray()
