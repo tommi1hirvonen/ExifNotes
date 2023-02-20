@@ -302,6 +302,7 @@ class Database private constructor(private val context: Context)
             maxShutter = cursor.getStringOrNull(KEY_CAMERA_MAX_SHUTTER),
             shutterIncrements = Increment.from(cursor.getInt(KEY_CAMERA_SHUTTER_INCREMENTS)),
             exposureCompIncrements = PartialIncrement.from(cursor.getInt(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS)),
+            format_ = cursor.getInt(KEY_CAMERA_FORMAT),
             lens = cursor.getLongOrNull(KEY_LENS_ID)?.let(::getLens)
         )
     }
@@ -753,6 +754,7 @@ class Database private constructor(private val context: Context)
         put(KEY_CAMERA_MAX_SHUTTER, camera.maxShutter)
         put(KEY_CAMERA_SHUTTER_INCREMENTS, camera.shutterIncrements.ordinal)
         put(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, camera.exposureCompIncrements.ordinal)
+        put(KEY_CAMERA_FORMAT, camera.format)
         val lens = camera.lens
         if (lens != null) put(KEY_LENS_ID, lens.id)
         else putNull(KEY_LENS_ID)
@@ -931,6 +933,9 @@ class Database private constructor(private val context: Context)
         if (oldVersion < 22) {
             db.execSQL(ALTER_TABLE_CAMERAS_6)
         }
+        if (oldVersion < 23) {
+            db.execSQL(ALTER_TABLE_CAMERAS_7)
+        }
     }
 
     /**
@@ -1025,6 +1030,7 @@ class Database private constructor(private val context: Context)
                 checkColumnProperties(TABLE_CAMERAS, KEY_LENS_ID, integer, 0,
                     primaryKeyInput = false, autoIncrementInput = false, foreignKeyInput = true,
                     referenceTableNameInput = TABLE_LENSES, onDeleteActionInput = setNull) &&
+                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_FORMAT, integer, 0) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_ID, integer, 0,
                         primaryKeyInput = true, autoIncrementInput = true) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_MAKE, text, 1) &&
@@ -1329,6 +1335,7 @@ class Database private constructor(private val context: Context)
         private const val KEY_CAMERA_ID = "camera_id"
         private const val KEY_CAMERA_MAKE = "camera_make"
         private const val KEY_CAMERA_MODEL = "camera_model"
+        private const val KEY_CAMERA_FORMAT = "camera_format"
 
         //Added in database version 14
         private const val KEY_CAMERA_MAX_SHUTTER = "camera_max_shutter"
@@ -1383,7 +1390,7 @@ class Database private constructor(private val context: Context)
         //Updated version from 16 to 17 - 2018-03-26 - v1.11.0
         //Updated version from 17 to 18 - 2018-07-08 - v1.12.0
         //Updated version from 18 to 19 - 2018-07-17 - awaiting
-        private const val DATABASE_VERSION = 22
+        private const val DATABASE_VERSION = 23
 
         //=============================================================================================
         //onCreate strings
@@ -1416,7 +1423,8 @@ class Database private constructor(private val context: Context)
                 + KEY_CAMERA_SERIAL_NO + " text, "
                 + KEY_CAMERA_SHUTTER_INCREMENTS + " integer not null, "
                 + KEY_CAMERA_EXPOSURE_COMP_INCREMENTS + " integer not null default 0, "
-                + KEY_LENS_ID + " integer references " + TABLE_LENSES + " on delete set null"
+                + KEY_LENS_ID + " integer references " + TABLE_LENSES + " on delete set null, "
+                + KEY_CAMERA_FORMAT + " integer"
                 + ");")
         private const val CREATE_FILTER_TABLE = ("create table " + TABLE_FILTERS
                 + "(" + KEY_FILTER_ID + " integer primary key autoincrement, "
@@ -1555,6 +1563,8 @@ class Database private constructor(private val context: Context)
         private const val REPLACE_QUOTE_CHARS = ("UPDATE " + TABLE_FRAMES
                 + " SET " + KEY_SHUTTER + " = REPLACE(" + KEY_SHUTTER + ", \'q\', \'\"\')"
                 + " WHERE " + KEY_SHUTTER + " LIKE \'%q\';")
+        private const val ALTER_TABLE_CAMERAS_7 =
+            "ALTER TABLE $TABLE_CAMERAS ADD COLUMN $KEY_CAMERA_FORMAT integer;"
 
         // (1) Rename the table, (2) create a new table with new structure,
         // (3) insert data from the renamed table to the new table and (4) drop the renamed table.

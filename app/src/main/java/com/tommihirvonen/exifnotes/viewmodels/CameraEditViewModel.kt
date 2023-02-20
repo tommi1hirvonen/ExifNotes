@@ -242,6 +242,14 @@ class CameraEditViewModel(application: Application, val camera: Camera)
             notifyPropertyChanged(BR.fixedLensSummary)
             notifyPropertyChanged(BR.clearLensVisibility)
         }
+
+        @get:Bindable
+        val format: String get() =
+            context.resources.getStringArray(R.array.FilmFormats)[camera.format]
+
+        val onFormatItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            camera.format = position
+        }
     }
 }
 

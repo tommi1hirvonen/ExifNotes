@@ -135,7 +135,9 @@ class RollEditViewModel(application: Application, val roll: Roll)
         fun setCamera(value: Camera?) {
             if (roll.camera != value) {
                 roll.camera = value
+                roll.format = value?.format ?: roll.format
                 notifyPropertyChanged(BR.camera)
+                notifyPropertyChanged(BR.format)
             }
         }
 
@@ -186,7 +188,9 @@ class RollEditViewModel(application: Application, val roll: Roll)
             } else {
                 null
             }
+            roll.format = roll.camera?.format ?: roll.format
             notifyPropertyChanged(BR.camera)
+            notifyPropertyChanged(BR.format)
         }
 
         val isoOnClickListener = View.OnClickListener { view: View ->

@@ -345,6 +345,44 @@
 
                 </RelativeLayout>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/DefaultFormat"
+                    android:id="@+id/format_label"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginHorizontal="15dp"
+                    style="@style/TextAppearance.Material3.BodySmall"/>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:id="@+id/guideline2"
+                        app:layout_constraintGuide_percent="0.5"
+                        android:orientation="vertical"/>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/format_menu"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintRight_toRightOf="@id/guideline2"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent">
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            textNoFilter="@{viewmodel.format}"
+                            app:simpleItems="@array/FilmFormats"
+                            onItemClick="@{viewmodel.onFormatItemClickListener}"
+                            />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>

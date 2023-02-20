@@ -32,12 +32,17 @@ data class Camera(
         var maxShutter: String? = null,
         var shutterIncrements: Increment = Increment.THIRD,
         var exposureCompIncrements: PartialIncrement = PartialIncrement.THIRD,
+        private var format_: Int = 0,
         var lens: Lens? = null,
         var lensIds: HashSet<Long> = HashSet())
     : Gear(id, make, model), Comparable<Gear> {
 
     val isFixedLens get() = lens != null
     val isNotFixedLens get() = lens == null
+
+    var format: Int
+        get() = if (format_ in 0..3) format_ else 0
+        set(value) { if (value in 0..3) format_ = value }
 
     fun shutterSpeedValues(context: Context): Array<String> =
             when (shutterIncrements) {
