@@ -109,6 +109,7 @@
     <string name="DateNoColon">Date</string>
     <string name="Daylight">Daylight</string>
     <string name="Decline">Decline</string>
+    <string name="DefaultFormat">Default format</string>
     <string name="Delete">Delete</string>
     <string name="DeleteFilmStock">Delete film stock</string>
     <string name="DescriptionOrNote">Description/note</string>
