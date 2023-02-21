@@ -441,7 +441,9 @@ class Database private constructor(private val context: Context)
             selectionArgs = listOf(camera.id.toString())) { row ->
             row.getLong(KEY_LENS_ID)
         }
-        return lensIds.mapNotNull(::getLens)
+        return lensIds
+            .mapNotNull(::getLens)
+            .sortedWith(compareBy(Lens::make).thenBy(Lens::model))
     }
 
     // ******************** CRUD operations for the rolls table ********************
