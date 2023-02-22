@@ -113,8 +113,8 @@ class FrameEditViewModel(application: Application, val frame: Frame)
             ?: Camera.defaultShutterSpeedValues(context)
 
         @get:Bindable
-        val apertureItems get() = lens?.apertureValues(context)?.reversedArray()
-            ?: Lens.defaultApertureValues(context).reversedArray()
+        val apertureItems get() = lens?.apertureValues(context)
+            ?: Lens.defaultApertureValues(context)
 
         @get:Bindable
         var locationProgressBarVisibility = View.INVISIBLE

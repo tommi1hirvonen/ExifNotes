@@ -118,6 +118,7 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.5.5'
     implementation 'androidx.databinding:databinding-runtime:7.4.0'
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
 }
 repositories {
     mavenCentral()

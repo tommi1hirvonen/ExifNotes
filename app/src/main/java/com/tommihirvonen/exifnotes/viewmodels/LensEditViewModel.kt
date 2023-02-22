@@ -268,6 +268,15 @@ class LensEditViewModel(application: Application, val fixedLens: Boolean, val le
             Increment.FULL -> context.resources.getStringArray(R.array.ApertureValuesFull)
         }
 
+        @get:Bindable
+        val customApertureValuesText get() =
+            lens.customApertureValues.sorted().distinct().joinToString()
+
+        fun setCustomApertureValues(values: List<Float>) {
+            lens.customApertureValues = values.filter { it >= 0f }.sorted().distinct()
+            notifyPropertyChanged(BR.customApertureValuesText)
+        }
+
         val focalLengthInputFilter = object : InputFilter {
             override fun filter(
                 source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int,

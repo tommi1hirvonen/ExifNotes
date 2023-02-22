@@ -100,6 +100,8 @@
     <string name="CopyrightInformationTitle">Copyright information</string>
     <string name="CouldNotReadDatabase">Could not read the new database file. The old one will be used.</string>
     <string name="CsvDescription">Text file with the roll\'s data in csv format</string>
+    <string name="CustomApertureValues">Custom aperture values</string>
+    <string name="CustomApertureValuesHelp">Add custom aperture values to supplement the predefined list of available aperture values. Custom aperture values will be available for selection when adding new frames with this lens. Only positive values can be added.</string>
     <string name="Cyan">Cyan</string>
     <string name="Dark">Dark</string>
     <string name="Database">Database</string>

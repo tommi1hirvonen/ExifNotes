@@ -34,7 +34,8 @@ data class Lens(
         var maxFocalLength: Int = 0,
         var apertureIncrements: Increment = Increment.THIRD,
         var filterIds: HashSet<Long> = HashSet(),
-        var cameraIds: HashSet<Long> = HashSet())
+        var cameraIds: HashSet<Long> = HashSet(),
+        var customApertureValues: List<Float> = emptyList())
     : Gear(id, make, model), Comparable<Gear> {
 
     fun apertureValues(context: Context): Array<String> =
@@ -42,20 +43,24 @@ data class Lens(
             Increment.THIRD -> context.resources.getStringArray(R.array.ApertureValuesThird)
             Increment.HALF -> context.resources.getStringArray(R.array.ApertureValuesHalf)
             Increment.FULL -> context.resources.getStringArray(R.array.ApertureValuesFull)
-        }.reversed().let {
-            val minIndex = it.indexOfFirst { it_ -> it_ == minAperture }
-            val maxIndex = it.indexOfFirst { it_ -> it_ == maxAperture }
-            if (minIndex != -1 && maxIndex != -1) {
-                it.filterIndexed { index, _ -> index in minIndex..maxIndex }
-                        .plus(context.resources.getString(R.string.NoValue))
-            } else {
-                it
+        }
+            .reversed()
+            .let {
+                val minIndex = it.indexOfFirst { it_ -> it_ == minAperture }
+                val maxIndex = it.indexOfFirst { it_ -> it_ == maxAperture }
+                if (minIndex != -1 && maxIndex != -1) {
+                    it.filterIndexed { index, _ -> index in minIndex..maxIndex }
+                            .plus(context.resources.getString(R.string.NoValue))
+                } else {
+                    it
+                }
             }
-        }.toTypedArray()
+            .plus(customApertureValues.map(Float::toString))
+            .sortedBy(String::toFloatOrNull)
+            .toTypedArray()
 
     companion object {
         fun defaultApertureValues(context: Context): Array<String> =
                 context.resources.getStringArray(R.array.ApertureValuesThird)
-                        .reversedArray()
     }
 }

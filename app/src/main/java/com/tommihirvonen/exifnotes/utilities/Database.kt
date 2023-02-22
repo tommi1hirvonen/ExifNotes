@@ -29,6 +29,9 @@ import androidx.core.database.getLongOrNull
 import androidx.fragment.app.Fragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
 
@@ -224,7 +227,10 @@ class Database private constructor(private val context: Context)
             maxAperture = row.getStringOrNull(KEY_LENS_MAX_APERTURE),
             minFocalLength = row.getInt(KEY_LENS_MIN_FOCAL_LENGTH),
             maxFocalLength = row.getInt(KEY_LENS_MAX_FOCAL_LENGTH),
-            apertureIncrements = row.getInt(KEY_LENS_APERTURE_INCREMENTS).let(Increment::from)
+            apertureIncrements = row.getInt(KEY_LENS_APERTURE_INCREMENTS).let(Increment::from),
+            customApertureValues = row.getStringOrNull(KEY_LENS_CUSTOM_APERTURE_VALUES)
+                ?.let(Json::decodeFromString)
+                ?: emptyList()
         )
     }
 
@@ -740,6 +746,7 @@ class Database private constructor(private val context: Context)
         put(KEY_LENS_MIN_FOCAL_LENGTH, lens.minFocalLength)
         put(KEY_LENS_MAX_FOCAL_LENGTH, lens.maxFocalLength)
         put(KEY_LENS_APERTURE_INCREMENTS, lens.apertureIncrements.ordinal)
+        put(KEY_LENS_CUSTOM_APERTURE_VALUES, Json.encodeToString(lens.customApertureValues))
     }
 
     /**
@@ -938,6 +945,9 @@ class Database private constructor(private val context: Context)
         if (oldVersion < 23) {
             db.execSQL(ALTER_TABLE_CAMERAS_7)
         }
+        if (oldVersion < 24) {
+            db.execSQL(ALTER_TABLE_LENSES_7)
+        }
     }
 
     /**
@@ -1043,6 +1053,7 @@ class Database private constructor(private val context: Context)
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_FOCAL_LENGTH, integer, 0) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_SERIAL_NO, text, 0) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_APERTURE_INCREMENTS, integer, 1) &&
+                checkColumnProperties(TABLE_LENSES, KEY_LENS_CUSTOM_APERTURE_VALUES, text, 0) &&
                 checkColumnProperties(TABLE_FILTERS, KEY_FILTER_ID, integer, 0,
                         primaryKeyInput = true, autoIncrementInput = true) &&
                 checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MAKE, text, 1) &&
@@ -1332,6 +1343,7 @@ class Database private constructor(private val context: Context)
         private const val KEY_LENS_MIN_FOCAL_LENGTH = "lens_min_focal_length"
         private const val KEY_LENS_SERIAL_NO = "lens_serial_no"
         private const val KEY_LENS_APERTURE_INCREMENTS = "aperture_increments"
+        private const val KEY_LENS_CUSTOM_APERTURE_VALUES = "custom_aperture_values"
 
         //Camera
         private const val KEY_CAMERA_ID = "camera_id"
@@ -1392,7 +1404,7 @@ class Database private constructor(private val context: Context)
         //Updated version from 16 to 17 - 2018-03-26 - v1.11.0
         //Updated version from 17 to 18 - 2018-07-08 - v1.12.0
         //Updated version from 18 to 19 - 2018-07-17 - awaiting
-        private const val DATABASE_VERSION = 23
+        private const val DATABASE_VERSION = 24
 
         //=============================================================================================
         //onCreate strings
@@ -1414,7 +1426,8 @@ class Database private constructor(private val context: Context)
                 + KEY_LENS_MAX_FOCAL_LENGTH + " integer, "
                 + KEY_LENS_MIN_FOCAL_LENGTH + " integer, "
                 + KEY_LENS_SERIAL_NO + " text, "
-                + KEY_LENS_APERTURE_INCREMENTS + " integer not null"
+                + KEY_LENS_APERTURE_INCREMENTS + " integer not null, "
+                + KEY_LENS_CUSTOM_APERTURE_VALUES + " text"
                 + ");")
         private const val CREATE_CAMERA_TABLE = ("create table " + TABLE_CAMERAS
                 + "(" + KEY_CAMERA_ID + " integer primary key autoincrement, "
@@ -1567,6 +1580,8 @@ class Database private constructor(private val context: Context)
                 + " WHERE " + KEY_SHUTTER + " LIKE \'%q\';")
         private const val ALTER_TABLE_CAMERAS_7 =
             "ALTER TABLE $TABLE_CAMERAS ADD COLUMN $KEY_CAMERA_FORMAT integer;"
+        private const val ALTER_TABLE_LENSES_7 =
+            "ALTER TABLE $TABLE_LENSES ADD COLUMN $KEY_LENS_CUSTOM_APERTURE_VALUES text;"
 
         // (1) Rename the table, (2) create a new table with new structure,
         // (3) insert data from the renamed table to the new table and (4) drop the renamed table.

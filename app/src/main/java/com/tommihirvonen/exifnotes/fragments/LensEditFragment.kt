@@ -18,15 +18,24 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
+import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.databinding.DialogCustomApertureValuesBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentLensEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
@@ -74,6 +83,40 @@ class LensEditFragment : Fragment() {
                 navigateBack()
             }
         }
+        binding.customApertureValuesHelp.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext()).apply {
+                setMessage(R.string.CustomApertureValuesHelp)
+                setPositiveButton(R.string.Close) { _: DialogInterface, _: Int -> }
+            }.create().show()
+        }
+        binding.addCustomApertureValue.setOnClickListener {
+            val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
+            val editText = view.findViewById<EditText>(R.id.edit_text)
+            MaterialAlertDialogBuilder(requireContext())
+                .setView(view)
+                .setTitle(R.string.EnterCustomerApertureValue)
+                .setPositiveButton(R.string.OK) { _, _ ->
+                    val value = editText.text.toString().toFloatOrNull() ?: return@setPositiveButton
+                    val values = model.lens.customApertureValues.plus(value)
+                    model.observable.setCustomApertureValues(values)
+                }
+                .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
+                .create()
+                .show()
+            editText.requestFocus()
+        }
+        binding.customApertureValuesButton.setOnClickListener {
+            val mutableValues = model.lens.customApertureValues.toMutableList()
+            val dialogBinding = DialogCustomApertureValuesBinding.inflate(layoutInflater)
+            val adapter = CustomApertureValueAdapter(requireContext(), mutableValues)
+            dialogBinding.listViewCustomApertureValues.adapter = adapter
+            MaterialAlertDialogBuilder(requireContext())
+                .setView(dialogBinding.root)
+                .setPositiveButton(R.string.OK) { _, _ -> model.observable.setCustomApertureValues(mutableValues) }
+                .setNegativeButton(R.string.Cancel) { _, _ -> }
+                .create()
+                .show()
+        }
         return binding.root
     }
 
@@ -88,4 +131,37 @@ class LensEditFragment : Fragment() {
 
     private fun navigateBack() =
         requireParentFragment().childFragmentManager.popBackStack()
+
+    private class CustomApertureValueAdapter(context: Context,
+        private val values: MutableList<Float>)
+        : ArrayAdapter<Float>(context, android.R.layout.simple_list_item_1, values) {
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val holder: ViewHolder
+            val view = if (convertView != null) {
+                holder = convertView.tag as ViewHolder
+                convertView
+            } else {
+                val tempView = LayoutInflater.from(context).inflate(R.layout.item_custom_aperture_value, parent, false)
+                holder = ViewHolder().apply {
+                    textView = tempView.findViewById(R.id.text_view)
+                    deleteButton = tempView.findViewById(R.id.delete)
+                }
+                tempView.tag = holder
+                tempView
+            }
+            val value = values[position]
+            holder.textView.text = value.toString()
+            holder.deleteButton.setOnClickListener {
+                values.remove(value)
+                notifyDataSetChanged()
+            }
+            return view
+        }
+
+        private class ViewHolder {
+            lateinit var textView: TextView
+            lateinit var deleteButton: Button
+        }
+    }
 }
