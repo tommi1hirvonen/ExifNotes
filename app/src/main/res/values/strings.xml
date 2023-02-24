@@ -35,6 +35,7 @@
     <string name="All">All</string>
     <string name="AllFrames">All frames</string>
     <string name="AllRolls">All rolls</string>
+    <string name="AllowedFormatsCustomShutterValue">Allowed value formats:\n12 (integer)\n12.123 (decimal)\n1/123 (fraction)</string>
     <string name="Aperture">Aperture value</string>
     <string name="ApertureIncrements">Aperture increments</string>
     <string name="ApertureRange">Aperture range</string>
@@ -138,6 +139,7 @@
     <string name="EditRoll">Edit roll info</string>
     <string name="EditShutterSpeed">Edit shutter speed</string>
     <string name="EnterCustomerApertureValue">Enter custom aperture value</string>
+    <string name="EnterCustomShutterSpeedValue">Enter custom shutter speed value</string>
     <string name="ErrorAddingFilmStocks">Error adding film stocks to database</string>
     <string name="ErrorAddingPictureToGallery">Error adding picture to gallery</string>
     <string name="ErrorCompressingComplementaryPicture">Error compressing complementary picture</string>
@@ -229,6 +231,7 @@
         In this case the old database will be used.
     </string>
     <string name="ImportingComplementaryPicturesPleaseWait">Importing complementary pictures, please wait.\n\nDepending on the size of the .zip file, this can take several minutes.</string>
+    <string name="IncorrectValueFormat">Incorrect value format</string>
     <string name="Information">Information</string>
     <string name="IntegrityCheckFailed">Database integrity check failed. The old database will be used.</string>
     <string name="IsBeingUsed">is being used!</string>

@@ -20,12 +20,15 @@ package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.InputFilter
+import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
@@ -50,6 +53,7 @@ import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
+import com.tommihirvonen.exifnotes.databinding.DialogSingleEditTextBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFrameEditBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
@@ -149,6 +153,54 @@ class FrameEditFragment : Fragment() {
                     .create()
                     .show()
             editText.requestFocus()
+        }
+
+        binding.shutterEditButton.setOnClickListener {
+            val customShutterBinding = DialogSingleEditTextBinding.inflate(layoutInflater)
+            customShutterBinding.textView.text = resources.getString(R.string.AllowedFormatsCustomShutterValue)
+            val regexInteger = "[1-9]+[0-9]*\\.?".toRegex()
+            val regexDecimal = "[1-9]+[0-9]*(?:\\.[0-9]+)?".toRegex()
+            val regexFractionPartial = "1/".toRegex()
+            val regexFraction = "1/[1-9]+[0-9]*".toRegex()
+            customShutterBinding.editText.filters = arrayOf(object : InputFilter {
+                override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned?,
+                                    dstart: Int, dend: Int): CharSequence? {
+                    val sourceString = source.toString()
+                    val destString = dest.toString()
+                    val text = destString.substring(0, dstart) +
+                            sourceString.substring(start, end) +
+                            destString.substring(dend)
+                    val regexes = arrayOf(regexInteger, regexDecimal, regexFractionPartial, regexFraction)
+                    val anyMatches = regexes.any {
+                        val result = it.matches(text)
+                        result
+                    }
+                    return if (anyMatches) null else ""
+                }
+            })
+            val dialog = MaterialAlertDialogBuilder(requireContext())
+                .setView(customShutterBinding.root)
+                .setTitle(R.string.EnterCustomShutterSpeedValue)
+                .setPositiveButton(R.string.OK) { _, _ -> }
+                .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
+                .create()
+            dialog.setOnShowListener {
+                dialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener shutterPositiveOnClick@ {
+                    val value = customShutterBinding.editText.text.toString()
+                    if (regexInteger.matches(value)) {
+                        model.observable.setShutterSpeed("${value.replace(".", "")}\"")
+                    } else if (regexDecimal.matches(value)) {
+                        model.observable.setShutterSpeed("$value\"")
+                    } else if (regexFraction.matches(value)) {
+                        model.observable.setShutterSpeed(value)
+                    } else {
+                        Toast.makeText(requireContext(), R.string.IncorrectValueFormat, Toast.LENGTH_SHORT).show()
+                        return@shutterPositiveOnClick
+                    }
+                    dialog.dismiss()
+                }
+            }
+            dialog.show()
         }
 
         binding.focalLengthButton.setOnClickListener(focalLengthButtonOnClickListener)

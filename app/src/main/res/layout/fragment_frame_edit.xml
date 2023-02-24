@@ -134,7 +134,7 @@
                         android:layout_height="0dp"
                         android:orientation="vertical"
                         android:id="@+id/guideline_aperture_shutter"
-                        app:layout_constraintGuide_percent="0.55"/>
+                        app:layout_constraintGuide_percent="0.5"/>
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -159,6 +159,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
+                            android:textSize="14sp"
                             app:simpleItems="@{viewmodel.apertureItems}"
                             textNoFilter="@{viewmodel.aperture}"
                             onItemClick="@{viewmodel.apertureOnItemClickListener}"
@@ -194,19 +195,33 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
                         endIconOnClick="@{null}"
                         app:layout_constraintTop_toBottomOf="@id/shutter_speed_label"
-                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintRight_toLeftOf="@id/shutter_edit_button"
                         app:layout_constraintLeft_toRightOf="@id/guideline_aperture_shutter">
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
+                            android:textSize="14sp"
                             app:simpleItems="@{viewmodel.shutterSpeedItems}"
                             textNoFilter="@{viewmodel.shutterSpeed}"
                             onItemClick="@{viewmodel.shutterOnItemClickListener}"
                             android:onClick="@{viewmodel.shutterOnClickListener}"/>
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/IconButton.Tonal"
+                        android:id="@+id/shutter_edit_button"
+                        android:layout_marginTop="5dp"
+                        app:icon="@drawable/ic_outline_edit_24"
+                        app:layout_constraintTop_toTopOf="@id/aperture_menu"
+                        app:layout_constraintBottom_toBottomOf="@id/aperture_menu"
+                        app:layout_constraintRight_toRightOf="parent" />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout

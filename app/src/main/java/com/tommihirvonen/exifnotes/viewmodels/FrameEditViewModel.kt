@@ -151,7 +151,7 @@ class FrameEditViewModel(application: Application, val frame: Frame)
 
         @Bindable
         fun getShutterSpeed() = frame.shutter
-        private fun setShutterSpeed(value: String?) {
+        fun setShutterSpeed(value: String?) {
             if (frame.shutter != value) {
                 frame.shutter = value
                 notifyPropertyChanged(BR.shutterSpeed)
