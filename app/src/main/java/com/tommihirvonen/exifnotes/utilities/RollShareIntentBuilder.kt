@@ -24,23 +24,26 @@ import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import java.io.File
 
 /**
  * Creates an Intent to share exiftool commands and a csv
  * for the frames of the roll in question.
  */
-class RollShareIntentBuilder(private val context: Context, private val roll: Roll) {
+class RollShareIntentBuilder(
+    private val context: Context,
+    private val roll: Roll,
+    private val exportCsv: Boolean,
+    private val exportExifToolCommands: Boolean) {
+
     fun create(): Intent? {
+        if (!exportCsv && !exportExifToolCommands) {
+            return null
+        }
+
         //Replace illegal characters from the roll name to make it a valid file name.
         val rollName = roll.name?.illegalCharsRemoved()
-
-        //Get the user setting about which files to export. By default, share only ExifTool.
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
-        val filesToExport = prefs.getString(PreferenceConstants.KEY_FILES_TO_EXPORT, PreferenceConstants.VALUE_BOTH)
 
         //Create the Intent to be shared, no initialization yet
         val shareIntent: Intent
@@ -75,7 +78,7 @@ class RollShareIntentBuilder(private val context: Context, private val roll: Rol
         }
 
         //If the user has chosen to export both files
-        if (filesToExport == PreferenceConstants.VALUE_BOTH) {
+        if (exportCsv && exportExifToolCommands) {
             //Create the intent to be shared
             shareIntent = Intent(Intent.ACTION_SEND_MULTIPLE)
             shareIntent.type = "text/plain"
@@ -106,7 +109,7 @@ class RollShareIntentBuilder(private val context: Context, private val roll: Rol
             shareIntent = Intent(Intent.ACTION_SEND)
             shareIntent.type = "text/plain"
             //The user has chosen to export only the csv
-            if (filesToExport == PreferenceConstants.VALUE_CSV) {
+            if (exportCsv) {
                 //Android Nougat requires that the file is given via FileProvider
                 val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     FileProvider.getUriForFile(context, context.applicationContext
@@ -115,7 +118,7 @@ class RollShareIntentBuilder(private val context: Context, private val roll: Rol
                     Uri.fromFile(fileCsv)
                 }
                 shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-            } else if (filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
+            } else { // Only ExifTool commands were selected
                 //Android Nougat requires that the file is given via FileProvider
                 val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     FileProvider.getUriForFile(context, context.applicationContext

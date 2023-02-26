@@ -174,8 +174,8 @@
     <string name="FStop">F-stop</string>
     <string name="FileEndingSummary">File ending of the files you wish to tag (e.g. .jpg or .tiff etc.)</string>
     <string name="FileEndingTitle">File ending</string>
-    <string name="FilesToExportSummary">Choose which files are exported when exporting/sharing a roll\'s data.</string>
-    <string name="FilesToExportTitle">Files to export</string>
+    <string name="FilesToExport">Files to export</string>
+    <string name="FilesToShare">Files to share</string>
     <string name="FilmStock">Film stock</string>
     <string name="FilmStockIsInUseConfirmation">Film stock is in use. Delete anyway?</string>
     <string name="FilmStocks">FILM STOCKS</string>

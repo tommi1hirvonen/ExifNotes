@@ -20,25 +20,19 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import androidx.documentfile.provider.DocumentFile
-import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import java.io.OutputStreamWriter
 
 class RollExportHelper(
     private val context: Context,
     private val roll: Roll,
-    private val targetDirectory: DocumentFile) {
+    private val targetDirectory: DocumentFile,
+    private val exportCsv: Boolean,
+    private val exportExifToolCommands: Boolean) {
 
     fun export() {
         val rollName = roll.name?.illegalCharsRemoved()
-        //Get the user setting about which files to export. By default, share both files.
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
-        val filesToExport = prefs.getString(
-            PreferenceConstants.KEY_FILES_TO_EXPORT,
-            PreferenceConstants.VALUE_BOTH)
-        if (filesToExport == PreferenceConstants.VALUE_BOTH
-            || filesToExport == PreferenceConstants.VALUE_CSV) {
+        if (exportCsv) {
             val csvDocumentFile = targetDirectory.createFile("text/plain",
                 rollName + "_csv.txt") ?: return
             val csvOutputStream = context.contentResolver
@@ -50,8 +44,7 @@ class RollExportHelper(
             csvOutputStreamWriter.close()
             csvOutputStream.close()
         }
-        if (filesToExport == PreferenceConstants.VALUE_BOTH
-            || filesToExport == PreferenceConstants.VALUE_EXIFTOOL) {
+        if (exportExifToolCommands) {
             val cmdDocumentFile = targetDirectory.createFile("text/plain",
                 rollName + "_ExifToolCmds.txt") ?: return
             val cmdOutputStream = context.contentResolver

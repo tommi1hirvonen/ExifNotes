@@ -36,6 +36,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -53,6 +54,8 @@ import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.*
 
@@ -88,6 +91,9 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     private val transitionInterpolator = FastOutSlowInInterpolator()
     private val transitionDuration = 250L
+
+    private var includeCsvInExport = false
+    private var includeExifToolCommandsInExport = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -320,42 +326,70 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     .commit()
             }
             R.id.menu_item_share_intent ->
-                // Getting member shareRollIntent may take a while to run since it
-                // generates the files that will be shared.
-                // -> Run the code on a new thread, which lets the UI thread to finish menu animations.
-                Thread {
-                    val shareIntent = RollShareIntentBuilder(requireActivity(), roll).create()
-                    shareIntent?.let { startActivity(Intent.createChooser(it, resources.getString(R.string.Share))) }
-                }.start()
+                ExportFileSelectDialogBuilder(R.string.FilesToShare) { csv, commands ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val shareIntent =
+                            RollShareIntentBuilder(requireActivity(), roll, csv, commands).create()
+                        shareIntent?.let { startActivity(Intent.createChooser(it, resources.getString(R.string.Share))) }
+                    }
+                }.create().show()
             R.id.menu_item_export -> {
-                val intent = Intent().apply { action = Intent.ACTION_OPEN_DOCUMENT_TREE }
-                exportResultLauncher.launch(intent)
+                ExportFileSelectDialogBuilder(R.string.FilesToExport) { csv, commands ->
+                    val intent = Intent().apply { action = Intent.ACTION_OPEN_DOCUMENT_TREE }
+                    includeCsvInExport = csv
+                    includeExifToolCommandsInExport = commands
+                    exportResultLauncher.launch(intent)
+                }.create().show()
             }
         }
         true
     }
 
-    private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        // Finish this activity since the selected roll may not be valid anymore.
-        if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED == PreferenceActivity.RESULT_DATABASE_IMPORTED) {
-            requireActivity().recreate()
-        }
-    }
-
-    private val exportResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            try {
-                val directoryUri = result.data?.data ?: return@registerForActivityResult
-                val directoryDocumentFile = DocumentFile.fromTreeUri(requireContext(), directoryUri)
-                    ?: return@registerForActivityResult
-                RollExportHelper(requireActivity(), roll, directoryDocumentFile).export()
-                binding.root.snackbar(R.string.ExportedFilesSuccessfully, binding.bottomAppBar)
-            } catch (e: IOException) {
-                e.printStackTrace()
-                binding.root.snackbar(R.string.ErrorExporting, binding.bottomAppBar)
+    private inner class ExportFileSelectDialogBuilder(
+        titleStringResourceId: Int,
+        onFileOptionsSelected: (Boolean, Boolean) -> Any?)
+        : MaterialAlertDialogBuilder(requireContext()) {
+        init {
+            setTitle(titleStringResourceId)
+            val items = arrayOf("csv", "ExifTool")
+            val booleans = items.map { false }.toBooleanArray()
+            setMultiChoiceItems(items, booleans) { _, which, isChecked ->
+                booleans[which] = isChecked
+            }
+            setNegativeButton(R.string.Cancel) { _, _ -> }
+            setPositiveButton(R.string.OK) { _, _ ->
+                if (booleans.any { it }) {
+                    val (csv, commands) = booleans
+                    onFileOptionsSelected(csv, commands)
+                }
             }
         }
     }
+
+    private val preferenceResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            // Finish this activity since the selected roll may not be valid anymore.
+            if (result.resultCode and PreferenceActivity.RESULT_DATABASE_IMPORTED == PreferenceActivity.RESULT_DATABASE_IMPORTED) {
+                requireActivity().recreate()
+            }
+        }
+
+    private val exportResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                try {
+                    val directoryUri = result.data?.data ?: return@registerForActivityResult
+                    val directoryDocumentFile = DocumentFile.fromTreeUri(requireContext(), directoryUri)
+                        ?: return@registerForActivityResult
+                    RollExportHelper(requireActivity(), roll, directoryDocumentFile,
+                        includeCsvInExport, includeExifToolCommandsInExport).export()
+                    binding.root.snackbar(R.string.ExportedFilesSuccessfully, binding.bottomAppBar)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    binding.root.snackbar(R.string.ErrorExporting, binding.bottomAppBar)
+                }
+            }
+        }
 
     private fun showRollEditFragment() {
         val sharedElement = binding.topAppBar

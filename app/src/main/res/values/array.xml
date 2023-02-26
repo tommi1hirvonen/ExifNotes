@@ -30,18 +30,6 @@
         <item>@string/HalfStop</item>
     </string-array>
 
-    <string-array name="FilesToExportOptions">
-        <item>@string/CsvDescription</item>
-        <item>@string/ExifToolCommandsDescription</item>
-        <item>@string/Both</item>
-    </string-array>
-
-    <string-array name="FilesToExportData">
-        <item>CSV</item>
-        <item>EXIFTOOL</item>
-        <item>BOTH</item>
-    </string-array>
-
     <string-array name="AppThemeOptions">
         <item>@string/SystemDefault</item>
         <item>@string/Light</item>

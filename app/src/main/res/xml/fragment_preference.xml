@@ -78,16 +78,6 @@
             android:icon="@drawable/ic_outline_dark_mode_24"
             />
 
-        <ListPreference
-            android:key="FilesToExport"
-            android:title="@string/FilesToExportTitle"
-            android:summary="@string/FilesToExportSummary"
-            android:entries="@array/FilesToExportOptions"
-            android:entryValues="@array/FilesToExportData"
-            android:defaultValue="BOTH"
-            android:icon="@drawable/ic_outline_upload_file_24"
-            />
-
     </PreferenceCategory>
 
     <PreferenceCategory
