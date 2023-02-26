@@ -22,6 +22,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.jaredsburrows.license'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     signingConfigs {
@@ -57,6 +58,7 @@ android {
         versionName "1.18.5"
         // Enabling this allows us to use resources when PNGs are generated during build-time
         vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -119,6 +121,13 @@ dependencies {
     implementation 'androidx.databinding:databinding-runtime:7.4.0'
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
+
+    // For local unit tests
+    testImplementation "junit:junit:4.13.2"
+
+    // For instrumented testing
+    androidTestImplementation "androidx.test.ext:junit:1.1.5"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
 }
 repositories {
     mavenCentral()
