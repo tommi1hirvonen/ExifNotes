@@ -494,6 +494,17 @@ class Database private constructor(private val context: Context)
         }
     }
 
+    val rollCounts: Pair<Int, Int> get() {
+        val (active, archived) = arrayOf("$KEY_ROLL_ARCHIVED <= 0", "$KEY_ROLL_ARCHIVED > 0").map {
+            selectFirstOrNull(TABLE_ROLLS,
+                columns = listOf("COUNT(*)"),
+                selection = it) { row ->
+                row.getInt(0)
+            } ?: 0
+        }
+        return Pair(active, archived)
+    }
+
     /**
      * Deletes a roll from the database.
      * @param roll the roll to be deleted from the database

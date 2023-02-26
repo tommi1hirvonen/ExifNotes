@@ -30,12 +30,14 @@
                 android:checkable="true"
                 android:icon="@drawable/ic_outline_camera_alt_24"
                 android:title="@string/Active"
+                app:actionViewClass="android.widget.TextView"
                 />
             <item
                 android:id="@+id/archived_rolls_filter"
                 android:checkable="true"
                 android:icon="@drawable/ic_outline_inventory_2_24"
                 android:title="@string/Archived"
+                app:actionViewClass="android.widget.TextView"
                 />
             <!--
             <item
@@ -50,6 +52,7 @@
                 android:id="@+id/all_rolls_filter"
                 android:checkable="true"
                 android:title="@string/All"
+                app:actionViewClass="android.widget.TextView"
                 />
         </menu>
     </item>

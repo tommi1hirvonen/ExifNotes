@@ -41,6 +41,7 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
     val rolls: LiveData<State<List<Roll>>> get() = mRolls
     val rollFilterMode: LiveData<RollFilterMode> get() = mRollFilterMode
     val rollSortMode: LiveData<RollSortMode> get() = mRollSortMode
+    val rollCounts: LiveData<Pair<Int, Int>> get() = mRollCounts
 
     val selectedRolls = HashSet<Roll>()
 
@@ -66,11 +67,23 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val mRollCounts: MutableLiveData<Pair<Int, Int>> by lazy {
+        MutableLiveData<Pair<Int, Int>>().also {
+            viewModelScope.launch { loadRollCounts() }
+        }
+    }
+
     private var rollList = emptyList<Roll>()
 
     private val mCameras: MutableLiveData<List<Camera>> by lazy {
         MutableLiveData<List<Camera>>().also {
             viewModelScope.launch { loadCameras() }
+        }
+    }
+
+    fun requestRollCountsUpdate() {
+        viewModelScope.launch(Dispatchers.IO) {
+            loadRollCounts()
         }
     }
 
@@ -141,6 +154,12 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
             val sortMode = rollSortMode.value ?: RollSortMode.DATE
             rollList = database.getRolls(filterMode).sorted(sortMode)
             mRolls.postValue(State.Success(rollList))
+        }
+    }
+
+    private suspend fun loadRollCounts() {
+        withContext(Dispatchers.IO) {
+            mRollCounts.postValue(database.rollCounts)
         }
     }
 }

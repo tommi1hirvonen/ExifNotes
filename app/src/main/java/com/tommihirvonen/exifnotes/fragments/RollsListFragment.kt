@@ -21,8 +21,11 @@ package com.tommihirvonen.exifnotes.fragments
 import android.animation.ObjectAnimator
 import android.content.Intent
 import android.graphics.Rect
+import android.graphics.Typeface
+import android.os.Build
 import android.os.Bundle
 import android.view.*
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -121,6 +124,24 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
         binding.navigationView.setNavigationItemSelectedListener(onDrawerMenuItemClickListener)
         val navigationMenu = binding.navigationView.menu
+        val activeRollsCountBadge = navigationMenu
+            .findItem(R.id.active_rolls_filter).actionView as TextView
+        val archivedRollsCountBadge = navigationMenu
+            .findItem(R.id.archived_rolls_filter).actionView as TextView
+        val allRollsCountBadge = navigationMenu
+            .findItem(R.id.all_rolls_filter).actionView as TextView
+        val initializeActionView = { textView: TextView ->
+            textView.gravity = Gravity.CENTER_VERTICAL
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                @Suppress("DEPRECATION")
+                textView.setTextAppearance(requireContext(), R.style.TextAppearance_Material3_LabelMedium)
+            } else {
+                textView.setTextAppearance(R.style.TextAppearance_Material3_LabelLarge)
+            }
+        }
+        arrayOf(activeRollsCountBadge, archivedRollsCountBadge, allRollsCountBadge)
+            .forEach(initializeActionView)
+
         val topMenu = binding.topAppBar.menu
 
         model.rollFilterMode.observe(viewLifecycleOwner) { mode ->
@@ -130,16 +151,25 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     binding.topAppBar.subtitle = resources.getString(R.string.ActiveRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveRolls)
                     navigationMenu.findItem(R.id.active_rolls_filter).isChecked = true
+                    activeRollsCountBadge.setTypeface(null, Typeface.BOLD)
+                    archivedRollsCountBadge.setTypeface(null, Typeface.NORMAL)
+                    allRollsCountBadge.setTypeface(null, Typeface.NORMAL)
                 }
                 RollFilterMode.ARCHIVED -> {
                     binding.topAppBar.subtitle = resources.getString(R.string.ArchivedRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoArchivedRolls)
                     navigationMenu.findItem(R.id.archived_rolls_filter).isChecked = true
+                    activeRollsCountBadge.setTypeface(null, Typeface.NORMAL)
+                    archivedRollsCountBadge.setTypeface(null, Typeface.BOLD)
+                    allRollsCountBadge.setTypeface(null, Typeface.NORMAL)
                 }
                 RollFilterMode.ALL -> {
                     binding.topAppBar.subtitle = resources.getString(R.string.AllRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveOrArchivedRolls)
                     navigationMenu.findItem(R.id.all_rolls_filter).isChecked = true
+                    activeRollsCountBadge.setTypeface(null, Typeface.NORMAL)
+                    archivedRollsCountBadge.setTypeface(null, Typeface.NORMAL)
+                    allRollsCountBadge.setTypeface(null, Typeface.BOLD)
                 }
                 null -> {}
             }
@@ -152,6 +182,14 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 RollSortMode.CAMERA -> { topMenu.findItem(R.id.camera_sort_mode).isChecked = true }
                 null -> {}
             }
+        }
+
+        model.rollCounts.observe(viewLifecycleOwner) { counts ->
+            val (active, archived) = counts
+            val all = active + archived
+            activeRollsCountBadge.text = active.toString()
+            archivedRollsCountBadge.text = archived.toString()
+            allRollsCountBadge.text = all.toString()
         }
 
         model.rolls.observe(viewLifecycleOwner) { state ->
@@ -564,6 +602,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         model.submitRoll(roll)
                     }
                     actionMode.finish()
+                    model.requestRollCountsUpdate()
                     binding.container
                         .snackbar(R.string.RollsArchived, binding.fab, Snackbar.LENGTH_SHORT)
                     true
@@ -574,6 +613,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         model.submitRoll(roll)
                     }
                     actionMode.finish()
+                    model.requestRollCountsUpdate()
                     binding.container
                         .snackbar(R.string.RollsActivated, binding.fab, Snackbar.LENGTH_SHORT)
                     true
