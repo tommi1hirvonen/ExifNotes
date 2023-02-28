@@ -20,12 +20,34 @@ package com.tommihirvonen.exifnotes.datastructures
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import java.util.Calendar
 
 @Parcelize
+@Serializable(with = DateTime.Serializer::class)
 class DateTime(
-        var year: Int = 0, var month: Int = 0, var day: Int = 0,
-        var hour: Int = 0, var minute: Int = 0) : Comparable<DateTime>, Parcelable {
+    var year: Int = 0,
+    var month: Int = 0,
+    var day: Int = 0,
+    var hour: Int = 0,
+    var minute: Int = 0) : Comparable<DateTime>, Parcelable {
+
+    object Serializer : KSerializer<DateTime> {
+        override val descriptor =
+            PrimitiveSerialDescriptor("DateTime", PrimitiveKind.STRING)
+        override fun deserialize(decoder: Decoder): DateTime {
+            val string = decoder.decodeString()
+            return DateTime(string)
+        }
+        override fun serialize(encoder: Encoder, value: DateTime) {
+            encoder.encodeString(value.toString())
+        }
+    }
 
     constructor(dateTimeString: String) : this() {
         try {
