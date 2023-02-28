@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
+import com.tommihirvonen.exifnotes.datastructures.FilmType
 import com.tommihirvonen.exifnotes.utilities.validate
 
 class FilmStockEditViewModel(application: Application, val filmStock: FilmStock)
@@ -90,12 +91,12 @@ class FilmStockEditViewModel(application: Application, val filmStock: FilmStock)
             }
         }
 
-        val filmType = filmStock.getTypeName(context)
+        val filmType = filmStock.type.description(context)
         val filmProcess = filmStock.getProcessName(context)
 
         val filmTypeOnClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
-                filmStock.type = position
+                filmStock.type = FilmType.from(position)
             }
 
         val filmProcessOnClickListener =

@@ -35,6 +35,7 @@ import com.tommihirvonen.exifnotes.databinding.FragmentFilmsBinding
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.datastructures.FilmStockSortMode
+import com.tommihirvonen.exifnotes.datastructures.FilmType
 import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
@@ -229,17 +230,20 @@ class FilmStocksFragment : Fragment(), MenuProvider {
 
     private fun showFilmTypeFilterDialog() {
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        val filmTypes = resources.getStringArray(R.array.FilmTypes)
-        val checkedItems = filmTypes.indices.map(model.filterSet.types::contains).toBooleanArray()
+        val filmTypes = FilmType.values()
+        val filmTypeDescriptions = filmTypes.map { it.description(requireContext()) }.toTypedArray()
+        val checkedItems = filmTypes.map(model.filterSet.types::contains).toBooleanArray()
 
-        builder.setMultiChoiceItems(filmTypes, checkedItems) { _, which, isChecked ->
+        builder.setMultiChoiceItems(filmTypeDescriptions, checkedItems) { _, which, isChecked ->
             checkedItems[which] = isChecked
         }
         builder.setNegativeButton(R.string.Cancel) { _, _ -> }
         builder.setPositiveButton(R.string.FilterNoColon) { _, _ ->
             // Get the indices of items that were marked true.
-            val selectedTypes = checkedItems.asIterable()
-                .mapIndexedNotNull { index, selected -> if (selected) index else null }
+            val selectedTypes = checkedItems
+                .zip(filmTypes)
+                .filter(Pair<Boolean, FilmType>::first)
+                .map(Pair<Boolean, FilmType>::second)
             model.filterSet = model.filterSet.copy(types = selectedTypes)
         }
         builder.setNeutralButton(R.string.Reset) { _, _ ->

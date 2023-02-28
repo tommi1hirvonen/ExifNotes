@@ -26,6 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.datastructures.FilmStockSortMode
+import com.tommihirvonen.exifnotes.datastructures.FilmType
 import com.tommihirvonen.exifnotes.datastructures.sorted
 import com.tommihirvonen.exifnotes.utilities.applyPredicates
 import com.tommihirvonen.exifnotes.utilities.database
@@ -140,6 +141,6 @@ data class FilmStockFilterSet(
     val filterMode: FilmStockFilterMode = FilmStockFilterMode.ALL,
     val manufacturers: List<String> = emptyList(),
     val isoValues: List<Int> = emptyList(),
-    val types: List<Int> = emptyList(),
+    val types: List<FilmType> = emptyList(),
     val processes: List<Int> = emptyList()
 )

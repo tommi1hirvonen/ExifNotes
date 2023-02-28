@@ -16,28 +16,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes
+package com.tommihirvonen.exifnotes.datastructures
 
-import com.tommihirvonen.exifnotes.datastructures.FilmStock
-import com.tommihirvonen.exifnotes.datastructures.FilmType
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import org.junit.Test
+import android.content.Context
+import com.tommihirvonen.exifnotes.R
 
-class FilmStockTest {
-    @Test
-    fun filmStock_serialize() {
-        val filmStock = FilmStock(
-            id = 123,
-            make = "ILFORD",
-            model = "HP5+",
-            iso = 400,
-            type = FilmType.BW_NEGATIVE,
-            process_ = 0,
-            isPreadded = true
-        )
-        val format = Json { prettyPrint = true }
-        val json = format.encodeToString(filmStock)
-        println(json)
+enum class FilmType {
+    UNKNOWN,
+    BW_NEGATIVE,
+    BW_REVERSAL,
+    BW_INSTANT,
+    COLOR_NEGATIVE,
+    COLOR_REVERSAL,
+    COLOR_INSTANT,
+    MOTION_PIC_BW_NEGATIVE,
+    MOTION_PIC_COLOR_NEGATIVE;
+
+    fun description(context: Context) =
+        context.resources.getStringArray(R.array.FilmTypes).getOrNull(ordinal)
+
+    companion object {
+        fun from(value: Int) = values().firstOrNull { it.ordinal == value } ?: BW_NEGATIVE
     }
 }
