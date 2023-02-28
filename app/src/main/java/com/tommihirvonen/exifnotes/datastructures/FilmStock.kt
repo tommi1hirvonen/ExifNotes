@@ -21,8 +21,10 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.content.Context
 import com.tommihirvonen.exifnotes.R
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 @Parcelize
+@Serializable
 data class FilmStock(
         override var id: Long = 0,
         override var make: String? = null,
@@ -30,7 +32,7 @@ data class FilmStock(
         var iso: Int = 0,
         private var type_: Int = 0,
         private var process_: Int = 0,
-        var isPreadded: Boolean = false) : Gear(id, make, model), Comparable<Gear> {
+        var isPreadded: Boolean = false) : Gear(), Comparable<Gear> {
 
     init {
         if (type_ !in 0..8) type_ = 0

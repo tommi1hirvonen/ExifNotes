@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2023  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,15 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes
 
-import kotlinx.parcelize.Parcelize
-import kotlinx.serialization.Serializable
+import com.tommihirvonen.exifnotes.datastructures.FilmStock
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.junit.Test
 
-@Parcelize
-@Serializable
-data class Filter(
-        override var id: Long = 0,
-        override var make: String? = null,
-        override var model: String? = null,
-        var lensIds: HashSet<Long> = HashSet()) : Gear(), Comparable<Gear>
+class FilmStockTest {
+    @Test
+    fun filmStock_serialize() {
+        val filmStock = FilmStock(
+            id = 123,
+            make = "ILFORD",
+            model = "HP5+",
+            iso = 400,
+            type_ = 0,
+            process_ = 0,
+            isPreadded = true
+        )
+        val format = Json { prettyPrint = true }
+        val json = format.encodeToString(filmStock)
+        println(json)
+    }
+}

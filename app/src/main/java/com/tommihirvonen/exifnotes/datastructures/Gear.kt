@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.datastructures
 
 import android.os.Parcelable
+import kotlinx.serialization.Serializable
 
 /**
  * Abstract super class for different types of gear.
@@ -28,7 +29,12 @@ import android.os.Parcelable
  * @property make make of manufacturer of the piece of gear
  * @property model model name of the piece of gear
  */
-abstract class Gear(open var id: Long, open var make: String?, open var model: String?) : Parcelable, Comparable<Gear> {
+
+@Serializable
+sealed class Gear : Parcelable, Comparable<Gear> {
+    abstract var id: Long
+    abstract var make: String?
+    abstract var model: String?
 
     /**
      * @return make and model of the Gear concatenated

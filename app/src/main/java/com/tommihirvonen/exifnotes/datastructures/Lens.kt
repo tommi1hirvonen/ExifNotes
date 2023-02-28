@@ -21,8 +21,10 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.content.Context
 import com.tommihirvonen.exifnotes.R
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 @Parcelize
+@Serializable
 data class Lens(
         override var id: Long = 0,
         override var make: String? = null,
@@ -36,7 +38,7 @@ data class Lens(
         var filterIds: HashSet<Long> = HashSet(),
         var cameraIds: HashSet<Long> = HashSet(),
         var customApertureValues: List<Float> = emptyList())
-    : Gear(id, make, model), Comparable<Gear> {
+    : Gear(), Comparable<Gear> {
 
     fun apertureValues(context: Context): Array<String> =
         when (apertureIncrements) {

@@ -21,8 +21,10 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.content.Context
 import com.tommihirvonen.exifnotes.R
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 @Parcelize
+@Serializable
 data class Camera(
         override var id: Long = 0,
         override var make: String? = null,
@@ -35,7 +37,7 @@ data class Camera(
         private var format_: Int = 0,
         var lens: Lens? = null,
         var lensIds: HashSet<Long> = HashSet())
-    : Gear(id, make, model), Comparable<Gear> {
+    : Gear(), Comparable<Gear> {
 
     val isFixedLens get() = lens != null
     val isNotFixedLens get() = lens == null
