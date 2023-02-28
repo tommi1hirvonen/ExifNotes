@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes
 
+import com.tommihirvonen.exifnotes.datastructures.FilmProcess
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.FilmType
 import kotlinx.serialization.encodeToString
@@ -33,7 +34,7 @@ class FilmStockTest {
             model = "HP5+",
             iso = 400,
             type = FilmType.BW_NEGATIVE,
-            process_ = 0,
+            process = FilmProcess.BW_NEGATIVE,
             isPreadded = true
         )
         val format = Json { prettyPrint = true }

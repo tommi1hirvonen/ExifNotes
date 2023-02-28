@@ -65,7 +65,7 @@ class FilmStockAdapter(
         val stringBuilder = StringBuilder()
         stringBuilder.append("ISO:").append("\t\t\t\t\t\t\t").append(filmStock.iso).append("\n")
             .append("Type:").append("\t\t\t\t\t\t").append(filmStock.type.description(context)).append("\n")
-            .append("Process:").append("\t\t\t").append(filmStock.getProcessName(context))
+            .append("Process:").append("\t\t\t").append(filmStock.process.description(context))
         holder.binding.description.text = stringBuilder.toString()
     }
 

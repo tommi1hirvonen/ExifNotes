@@ -21,19 +21,17 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.content.Context
 import com.tommihirvonen.exifnotes.R
 
-enum class FilmType {
+enum class FilmProcess {
     UNKNOWN,
     BW_NEGATIVE,
     BW_REVERSAL,
-    BW_INSTANT,
-    COLOR_NEGATIVE,
-    COLOR_REVERSAL,
-    COLOR_INSTANT,
-    MOTION_PIC_BW_NEGATIVE,
-    MOTION_PIC_COLOR_NEGATIVE;
+    C41,
+    E6,
+    ECN2,
+    INTEGRAL;
 
     fun description(context: Context) =
-        context.resources.getStringArray(R.array.FilmTypes).getOrNull(ordinal)
+        context.resources.getStringArray(R.array.FilmProcesses).getOrNull(ordinal)
 
     companion object {
         fun from(value: Int) = values().firstOrNull { it.ordinal == value } ?: UNKNOWN

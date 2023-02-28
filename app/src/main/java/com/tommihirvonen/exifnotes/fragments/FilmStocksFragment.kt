@@ -32,6 +32,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilmStockAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentFilmsBinding
+import com.tommihirvonen.exifnotes.datastructures.FilmProcess
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.datastructures.FilmStockSortMode
@@ -254,17 +255,19 @@ class FilmStocksFragment : Fragment(), MenuProvider {
 
     private fun showFilmProcessFilterDialog() {
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        val filmProcesses = resources.getStringArray(R.array.FilmProcesses)
-        val checkedItems = filmProcesses.indices.map(model.filterSet.processes::contains)
-            .toBooleanArray()
-        builder.setMultiChoiceItems(filmProcesses, checkedItems) { _, which, isChecked ->
+        val filmProcesses = FilmProcess.values()
+        val filmProcessDescriptions = filmProcesses.map { it.description(requireContext()) }.toTypedArray()
+        val checkedItems = filmProcesses.map(model.filterSet.processes::contains).toBooleanArray()
+        builder.setMultiChoiceItems(filmProcessDescriptions, checkedItems) { _, which, isChecked ->
             checkedItems[which] = isChecked
         }
         builder.setNegativeButton(R.string.Cancel) { _, _ -> }
         builder.setPositiveButton(R.string.FilterNoColon) { _, _ ->
             // Get the indices of items that were marked true.
-            val selectedProcesses = checkedItems.asIterable()
-                .mapIndexedNotNull { index, selected -> if (selected) index else null }
+            val selectedProcesses = checkedItems
+                .zip(filmProcesses)
+                .filter(Pair<Boolean, FilmProcess>::first)
+                .map(Pair<Boolean, FilmProcess>::second)
             model.filterSet = model.filterSet.copy(processes = selectedProcesses)
         }
         builder.setNeutralButton(R.string.Reset) { _: DialogInterface?, _: Int ->

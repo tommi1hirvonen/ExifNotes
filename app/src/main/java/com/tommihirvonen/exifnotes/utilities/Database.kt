@@ -682,7 +682,7 @@ class Database private constructor(private val context: Context)
             model = row.getStringOrNull(KEY_FILM_STOCK_NAME),
             iso = row.getInt(KEY_FILM_ISO),
             type = FilmType.from(row.getInt(KEY_FILM_TYPE)),
-            process_ = row.getInt(KEY_FILM_PROCESS),
+            process = FilmProcess.from(row.getInt(KEY_FILM_PROCESS)),
             isPreadded = row.getInt(KEY_FILM_IS_PREADDED) > 0
         )
     }
@@ -830,7 +830,7 @@ class Database private constructor(private val context: Context)
         put(KEY_FILM_STOCK_NAME, filmStock.model)
         put(KEY_FILM_ISO, filmStock.iso)
         put(KEY_FILM_TYPE, filmStock.type.ordinal)
-        put(KEY_FILM_PROCESS, filmStock.process)
+        put(KEY_FILM_PROCESS, filmStock.process.ordinal)
         put(KEY_FILM_IS_PREADDED, filmStock.isPreadded)
     }
 
@@ -1235,7 +1235,7 @@ class Database private constructor(private val context: Context)
                 filmStock.model = components[1]
                 filmStock.iso = components[2].toInt()
                 filmStock.type = FilmType.from(components[3].toInt())
-                filmStock.process = components[4].toInt()
+                filmStock.process = FilmProcess.from(components[4].toInt())
                 filmStock.isPreadded = true
                 val values = buildFilmStockContentValues(filmStock)
 
