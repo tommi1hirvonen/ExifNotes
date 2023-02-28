@@ -660,11 +660,15 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 }
                                 // Edit light source
                                 9 -> {
+                                    val lightSources = LightSource.values()
+                                    val descriptions = lightSources
+                                        .map { it.description(requireContext()) }
+                                        .toTypedArray()
                                     MaterialAlertDialogBuilder(requireContext())
                                             .setNegativeButton(R.string.Cancel) { _, _ -> }
-                                            .setItems(R.array.LightSource) { dialog, which ->
+                                            .setItems(descriptions) { dialog, which ->
                                                 selectedFrames.forEach {
-                                                    it.lightSource = which
+                                                    it.lightSource = lightSources[which]
                                                     model.submitFrame(it)
                                                 }
                                                 dialog.dismiss()

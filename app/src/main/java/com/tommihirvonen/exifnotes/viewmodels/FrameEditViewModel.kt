@@ -247,8 +247,7 @@ class FrameEditViewModel(application: Application, val frame: Frame)
         }
 
         @get:Bindable
-        val lightSource: String get() =
-            context.resources.getStringArray(R.array.LightSource)[frame.lightSource]
+        val lightSource: String get() = frame.lightSource.description(context) ?: "Unknown"
 
         val lensLayoutVisibility get() = if (frame.roll.camera?.isFixedLens == true) {
             View.GONE
@@ -273,7 +272,7 @@ class FrameEditViewModel(application: Application, val frame: Frame)
         }
 
         val lightSourceOnItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            frame.lightSource = position
+            frame.lightSource = LightSource.from(position)
         }
 
         val exposureCompOnClickListener = View.OnClickListener { view ->

@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import androidx.preference.PreferenceManager
+import com.tommihirvonen.exifnotes.datastructures.LightSource
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import java.text.Normalizer
 
@@ -164,15 +165,14 @@ class ExifToolCommandsBuilder(val context: Context, val roll: Roll) {
                 .append("Fired").append(quote).append(space)
             // Light source
             val lightSource: String = when (frame.lightSource) {
-                1 -> "Daylight"
-                2 -> "Fine Weather"
-                3 -> "Cloudy"
-                4 -> "Shade"
-                5 -> "Fluorescent"
-                6 -> "Tungsten"
-                7 -> "Flash"
-                0 -> "Unknown" // Unknown
-                else -> "Unknown"
+                LightSource.DAYLIGHT -> "Daylight"
+                LightSource.SUNNY -> "Fine Weather"
+                LightSource.CLOUDY -> "Cloudy"
+                LightSource.SHADE -> "Shade"
+                LightSource.FLUORESCENT -> "Fluorescent"
+                LightSource.TUNGSTEN -> "Tungsten"
+                LightSource.FLASH -> "Flash"
+                LightSource.UNKNOWN -> "Unknown" // Unknown
             }
             stringBuilder.append(lightSourceTag).append(quote)
                 .append(lightSource).append(quote).append(space)

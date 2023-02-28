@@ -132,7 +132,7 @@ class Database private constructor(private val context: Context)
             meteringMode = row.getInt(KEY_METERING_MODE),
             formattedAddress = row.getStringOrNull(KEY_FORMATTED_ADDRESS),
             pictureFilename = row.getStringOrNull(KEY_PICTURE_FILENAME),
-            lightSource_ = row.getInt(KEY_LIGHT_SOURCE),
+            lightSource = LightSource.from(row.getInt(KEY_LIGHT_SOURCE)),
             flashUsed = row.getInt(KEY_FLASH_USED) > 0,
             flashPower = row.getStringOrNull(KEY_FLASH_POWER),
             location = row.getStringOrNull(KEY_LOCATION)?.let(::Location),
@@ -739,7 +739,7 @@ class Database private constructor(private val context: Context)
         put(KEY_METERING_MODE, frame.meteringMode)
         put(KEY_FORMATTED_ADDRESS, frame.formattedAddress)
         put(KEY_PICTURE_FILENAME, frame.pictureFilename)
-        put(KEY_LIGHT_SOURCE, frame.lightSource)
+        put(KEY_LIGHT_SOURCE, frame.lightSource.ordinal)
     }
 
     /**

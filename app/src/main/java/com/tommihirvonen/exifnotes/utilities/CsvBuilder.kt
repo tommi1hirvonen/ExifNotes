@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import androidx.preference.PreferenceManager
-import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import org.apache.commons.text.StringEscapeUtils
 
@@ -92,9 +91,8 @@ class CsvBuilder(val context: Context, val roll: Roll) {
                 .escape(frame.formattedAddress ?: "").append(separator)
                 .append(frame.flashUsed.toString()).append(separator)
 
-            val lightSources = context.resources.getStringArray(R.array.LightSource)
             try {
-                stringBuilder.escape(lightSources[frame.lightSource])
+                stringBuilder.escape(frame.lightSource.description(context))
             } catch (e: ArrayIndexOutOfBoundsException) {
                 stringBuilder.append("Error")
             }
