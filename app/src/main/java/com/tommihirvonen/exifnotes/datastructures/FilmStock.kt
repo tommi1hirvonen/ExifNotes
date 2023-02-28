@@ -21,8 +21,13 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.content.Context
 import com.tommihirvonen.exifnotes.R
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
+@OptIn(ExperimentalSerializationApi::class)
 @Parcelize
 @Serializable
 data class FilmStock(
@@ -30,8 +35,13 @@ data class FilmStock(
         override var make: String? = null,
         override var model: String? = null,
         var iso: Int = 0,
+        @SerialName("type")
+        @EncodeDefault
         private var type_: Int = 0,
+        @SerialName("process")
+        @EncodeDefault
         private var process_: Int = 0,
+        @Transient
         var isPreadded: Boolean = false) : Gear(), Comparable<Gear> {
 
     init {

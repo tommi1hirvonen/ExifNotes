@@ -21,8 +21,11 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.content.Context
 import com.tommihirvonen.exifnotes.R
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
+@OptIn(ExperimentalSerializationApi::class)
 @Parcelize
 @Serializable
 data class Lens(
@@ -34,7 +37,7 @@ data class Lens(
         var maxAperture: String? = null,
         var minFocalLength: Int = 0,
         var maxFocalLength: Int = 0,
-        var apertureIncrements: Increment = Increment.THIRD,
+        @EncodeDefault var apertureIncrements: Increment = Increment.THIRD,
         var filterIds: HashSet<Long> = HashSet(),
         var cameraIds: HashSet<Long> = HashSet(),
         var customApertureValues: List<Float> = emptyList())

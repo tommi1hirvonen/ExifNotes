@@ -21,8 +21,12 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.content.Context
 import com.tommihirvonen.exifnotes.R
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@OptIn(ExperimentalSerializationApi::class)
 @Parcelize
 @Serializable
 data class Camera(
@@ -32,8 +36,12 @@ data class Camera(
         var serialNumber: String? = null,
         var minShutter: String? = null,
         var maxShutter: String? = null,
+        @EncodeDefault
         var shutterIncrements: Increment = Increment.THIRD,
+        @EncodeDefault
         var exposureCompIncrements: PartialIncrement = PartialIncrement.THIRD,
+        @SerialName("format")
+        @EncodeDefault
         private var format_: Int = 0,
         var lens: Lens? = null,
         var lensIds: HashSet<Long> = HashSet())
