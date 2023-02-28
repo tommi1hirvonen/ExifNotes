@@ -31,18 +31,18 @@ import kotlinx.serialization.Transient
 @Parcelize
 @Serializable
 data class FilmStock(
-        override var id: Long = 0,
-        override var make: String? = null,
-        override var model: String? = null,
-        var iso: Int = 0,
-        @SerialName("type")
-        @EncodeDefault
-        private var type_: Int = 0,
-        @SerialName("process")
-        @EncodeDefault
-        private var process_: Int = 0,
-        @Transient
-        var isPreadded: Boolean = false) : Gear(), Comparable<Gear> {
+    override var id: Long = 0,
+    override var make: String? = null,
+    override var model: String? = null,
+    var iso: Int = 0,
+    @SerialName("type")
+    @EncodeDefault
+    private var type_: Int = 0,
+    @SerialName("process")
+    @EncodeDefault
+    private var process_: Int = 0,
+    @Transient
+    var isPreadded: Boolean = false) : Gear(), Comparable<Gear> {
 
     init {
         if (type_ !in 0..8) type_ = 0

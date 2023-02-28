@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes
 
 import com.tommihirvonen.exifnotes.datastructures.Camera
+import com.tommihirvonen.exifnotes.datastructures.Format
 import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.PartialIncrement
@@ -38,7 +39,7 @@ class CameraTest {
             maxShutter = "30",
             shutterIncrements = Increment.HALF,
             exposureCompIncrements = PartialIncrement.THIRD,
-            format_ = 0
+            format = Format.MM35
         )
         val format = Json { prettyPrint = true }
         val json = format.encodeToString(camera)
@@ -56,7 +57,7 @@ class CameraTest {
             maxShutter = "30",
             shutterIncrements = Increment.HALF,
             exposureCompIncrements = PartialIncrement.THIRD,
-            format_ = 0,
+            format = Format.MM35,
             lens = Lens(
                 id = 124,
                 minAperture = "2.8",

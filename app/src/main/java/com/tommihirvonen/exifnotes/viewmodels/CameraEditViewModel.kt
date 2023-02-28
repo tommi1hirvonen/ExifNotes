@@ -30,6 +30,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Camera
+import com.tommihirvonen.exifnotes.datastructures.Format
 import com.tommihirvonen.exifnotes.datastructures.Increment
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.datastructures.PartialIncrement
@@ -245,10 +246,10 @@ class CameraEditViewModel(application: Application, val camera: Camera)
 
         @get:Bindable
         val format: String get() =
-            context.resources.getStringArray(R.array.FilmFormats)[camera.format]
+            camera.format.description(context) ?: "Unrecognized"
 
         val onFormatItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            camera.format = position
+            camera.format = Format.from(position)
         }
     }
 }

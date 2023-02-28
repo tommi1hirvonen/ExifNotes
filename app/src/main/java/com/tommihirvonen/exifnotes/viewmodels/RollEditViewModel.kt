@@ -32,6 +32,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
+import com.tommihirvonen.exifnotes.datastructures.Format
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.utilities.validate
@@ -171,7 +172,7 @@ class RollEditViewModel(application: Application, val roll: Roll)
 
         @get:Bindable
         val format: String get() =
-            context.resources.getStringArray(R.array.FilmFormats)[roll.format]
+            roll.format.description(context) ?: "Unrecognized"
 
         @get:Bindable
         val clearFilmStockVisibility: Int get() =
@@ -208,7 +209,7 @@ class RollEditViewModel(application: Application, val roll: Roll)
         }
 
         val onFormatItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            roll.format = position
+            roll.format = Format.from(position)
         }
     }
 }

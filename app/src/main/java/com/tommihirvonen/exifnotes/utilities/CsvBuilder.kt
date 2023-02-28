@@ -43,7 +43,7 @@ class CsvBuilder(val context: Context, val roll: Roll) {
         stringBuilder.append("Developed on: ").append(roll.developed?.dateTimeAsText ?: "").append("\n")
         stringBuilder.append("Film stock: ").append(filmStock?.name ?: "").append("\n")
         stringBuilder.append("ISO: ").append(roll.iso.toString()).append("\n")
-        stringBuilder.append("Format: ").append(context.resources.getStringArray(R.array.FilmFormats)[roll.format]).append("\n")
+        stringBuilder.append("Format: ").append(roll.format.description(context)).append("\n")
         stringBuilder.append("Push/pull: ").append(roll.pushPull ?: "").append("\n")
         stringBuilder.append("Camera: ").append(camera?.name ?: "").append("\n")
         stringBuilder.append("Serial number: ").append(camera?.serialNumber ?: "").append("\n")

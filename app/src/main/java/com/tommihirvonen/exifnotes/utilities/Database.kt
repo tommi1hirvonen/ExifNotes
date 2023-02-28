@@ -308,7 +308,7 @@ class Database private constructor(private val context: Context)
             maxShutter = cursor.getStringOrNull(KEY_CAMERA_MAX_SHUTTER),
             shutterIncrements = Increment.from(cursor.getInt(KEY_CAMERA_SHUTTER_INCREMENTS)),
             exposureCompIncrements = PartialIncrement.from(cursor.getInt(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS)),
-            format_ = cursor.getInt(KEY_CAMERA_FORMAT),
+            format = Format.from(cursor.getInt(KEY_CAMERA_FORMAT)),
             lens = cursor.getLongOrNull(KEY_LENS_ID)?.let(::getLens)
         )
     }
@@ -487,7 +487,7 @@ class Database private constructor(private val context: Context)
                 camera = row.getLongOrNull(KEY_CAMERA_ID)?.let(::getCamera),
                 iso = row.getInt(KEY_ROLL_ISO),
                 pushPull = row.getStringOrNull(KEY_ROLL_PUSH),
-                format_ = row.getInt(KEY_ROLL_FORMAT),
+                format = Format.from(row.getInt(KEY_ROLL_FORMAT)),
                 archived = row.getInt(KEY_ROLL_ARCHIVED) > 0,
                 filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(::getFilmStock)
             )
@@ -774,7 +774,7 @@ class Database private constructor(private val context: Context)
         put(KEY_CAMERA_MAX_SHUTTER, camera.maxShutter)
         put(KEY_CAMERA_SHUTTER_INCREMENTS, camera.shutterIncrements.ordinal)
         put(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, camera.exposureCompIncrements.ordinal)
-        put(KEY_CAMERA_FORMAT, camera.format)
+        put(KEY_CAMERA_FORMAT, camera.format.ordinal)
         val lens = camera.lens
         if (lens != null) put(KEY_LENS_ID, lens.id)
         else putNull(KEY_LENS_ID)
@@ -797,7 +797,7 @@ class Database private constructor(private val context: Context)
 
         put(KEY_ROLL_ISO, roll.iso)
         put(KEY_ROLL_PUSH, roll.pushPull)
-        put(KEY_ROLL_FORMAT, roll.format)
+        put(KEY_ROLL_FORMAT, roll.format.ordinal)
         put(KEY_ROLL_ARCHIVED, roll.archived)
 
         val filmStock = roll.filmStock

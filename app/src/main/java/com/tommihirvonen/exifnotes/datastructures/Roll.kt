@@ -23,26 +23,17 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Roll(var id: Long = 0,
-           var name: String? = null,
-           var date: DateTime? = null,
-           var unloaded: DateTime? = null,
-           var developed: DateTime? = null,
-           var note: String? = null,
-           var camera: Camera? = null,
-           var iso: Int = 0,
-           var pushPull: String? = null,
-           private var format_: Int = 0,
-           var archived: Boolean = false,
-           var filmStock: FilmStock? = null
-           ) : Parcelable {
-
-    init {
-        if (format_ !in 0..3) format_ = 0
-    }
-
-    var format: Int
-        get() = if (format_ in 0..3) format_ else 0
-        set(value) { if (value in 0..3) format_ = value }
+                var name: String? = null,
+                var date: DateTime? = null,
+                var unloaded: DateTime? = null,
+                var developed: DateTime? = null,
+                var note: String? = null,
+                var camera: Camera? = null,
+                var iso: Int = 0,
+                var pushPull: String? = null,
+                var format: Format = Format.MM35,
+                var archived: Boolean = false,
+                var filmStock: FilmStock? = null) : Parcelable {
 
     override fun equals(other: Any?) = other is Roll && other.id == id
 
