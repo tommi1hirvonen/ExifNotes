@@ -28,7 +28,7 @@ import org.json.JSONObject
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-class Geocoder(val context: Context) {
+class Geocoder(context: Context) {
 
     private val apiKey = context.resources.getString(R.string.google_maps_key)
 
@@ -52,9 +52,6 @@ class Geocoder(val context: Context) {
             .appendQueryParameter("key", apiKey)
             .build().toString()
 
-        // Here it is safe to suppress the blocking method warning,
-        // since we are doing the blocking in the IO thread.
-        @Suppress("BlockingMethodInNonBlockingContext")
         return withContext(Dispatchers.IO) {
             val connection = try {
                 URL(queryUrl).openConnection() as HttpsURLConnection
