@@ -18,18 +18,59 @@
 
 package com.tommihirvonen.exifnotes.datastructures
 
-import android.location.Location
+import android.location.Location as AndroidLocation
 import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.element
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
+import kotlinx.serialization.encoding.encodeStructure
 
 @Parcelize
+@Serializable(with = Location.Serializer::class)
 class Location(val decimalLocation: String) : Parcelable {
 
+    object Serializer : KSerializer<Location> {
+        override val descriptor: SerialDescriptor =
+            buildClassSerialDescriptor("location") {
+                element<Double>("latitude")
+                element<Double>("longitude")
+            }
+        override fun deserialize(decoder: Decoder): Location =
+            decoder.decodeStructure(descriptor) {
+                var latitude = 0.0
+                var longitude = 0.0
+                while (true) {
+                    when (val index = decodeElementIndex(descriptor)) {
+                        0 -> latitude = decodeDoubleElement(descriptor, 0)
+                        1 -> longitude = decodeDoubleElement(descriptor, 1)
+                        CompositeDecoder.DECODE_DONE -> break
+                        else -> error("Unexpected index: $index")
+                    }
+                }
+                val latLng = LatLng(latitude, longitude)
+                Location(latLng)
+            }
+        override fun serialize(encoder: Encoder, value: Location) {
+            val latLng = value.latLng
+            encoder.encodeStructure(descriptor) {
+                encodeDoubleElement(descriptor, 0, latLng?.latitude ?: 0.0)
+                encodeDoubleElement(descriptor, 1, latLng?.longitude ?: 0.0)
+            }
+        }
+    }
+
     companion object {
-        private fun Location.customString(): String =
-            (Location.convert(latitude, Location.FORMAT_DEGREES) + " "
-                    + Location.convert(longitude, Location.FORMAT_DEGREES))
+        private fun AndroidLocation.customString(): String =
+            (AndroidLocation.convert(latitude, AndroidLocation.FORMAT_DEGREES) + " "
+                    + AndroidLocation.convert(longitude, AndroidLocation.FORMAT_DEGREES))
                 .replace(",", ".")
 
         private fun LatLng.customString(): String = "$latitude $longitude"
@@ -37,7 +78,7 @@ class Location(val decimalLocation: String) : Parcelable {
 
     constructor(latLng: LatLng) : this(latLng.customString())
 
-    constructor(location: Location) : this(location.customString())
+    constructor(location: AndroidLocation) : this(location.customString())
 
     override fun toString(): String = decimalLocation
 
@@ -112,8 +153,8 @@ class Location(val decimalLocation: String) : Parcelable {
                 lngString = lngString.removePrefix("-")
                 "W"
             } else "E"
-            val latStringDegrees = Location.convert(latString.toDouble(), Location.FORMAT_SECONDS)
-            val lngStringDegrees = Location.convert(lngString.toDouble(), Location.FORMAT_SECONDS)
+            val latStringDegrees = AndroidLocation.convert(latString.toDouble(), AndroidLocation.FORMAT_SECONDS)
+            val lngStringDegrees = AndroidLocation.convert(lngString.toDouble(), AndroidLocation.FORMAT_SECONDS)
             val latList = latStringDegrees.split(":")
             val lngList = lngStringDegrees.split(":")
             return Components(
