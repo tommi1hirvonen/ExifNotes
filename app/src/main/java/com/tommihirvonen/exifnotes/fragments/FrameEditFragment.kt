@@ -50,6 +50,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.transition.*
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.LocationPickActivity
@@ -268,7 +269,7 @@ class FrameEditFragment : Fragment() {
     private val locationResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val location = if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                result.data?.parcelable<Location>(ExtraKeys.LOCATION)
+                result.data?.parcelable<LatLng>(ExtraKeys.LOCATION)
             } else {
                 null
             }

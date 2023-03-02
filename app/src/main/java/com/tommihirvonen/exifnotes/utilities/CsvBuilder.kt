@@ -87,7 +87,7 @@ class CsvBuilder(val context: Context, val roll: Roll) {
             stringBuilder.escape(frame.note ?: "").append(separator)
                 .append(frame.noOfExposures.toString()).append(separator)
                 .escape(frame.filters.joinToString(separator = "|") { it.name }).append(separator)
-                .escape(frame.location?.readableLocation ?: "").append(separator)
+                .escape(frame.location?.readableCoordinates ?: "").append(separator)
                 .escape(frame.formattedAddress ?: "").append(separator)
                 .append(frame.flashUsed.toString()).append(separator)
 

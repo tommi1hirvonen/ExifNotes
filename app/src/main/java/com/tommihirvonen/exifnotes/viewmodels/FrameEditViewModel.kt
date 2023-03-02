@@ -24,12 +24,15 @@ import android.widget.AdapterView
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.lifecycle.*
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.utilities.Geocoder
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.decimalString
+import com.tommihirvonen.exifnotes.utilities.readableCoordinates
 import kotlinx.coroutines.launch
 
 class FrameEditViewModel(application: Application, val frame: Frame)
@@ -56,7 +59,7 @@ class FrameEditViewModel(application: Application, val frame: Frame)
             locationProgressBarVisibility = View.VISIBLE
             // Start a coroutine to asynchronously fetch the formatted address.
             viewModelScope.launch {
-                val (_, addressResult) = Geocoder(context).getData(location.decimalLocation)
+                val (_, addressResult) = Geocoder(context).getData(location.decimalString)
                 setLocation(location, addressResult.ifEmpty { null })
                 locationProgressBarVisibility = View.INVISIBLE
             }
@@ -200,9 +203,9 @@ class FrameEditViewModel(application: Application, val frame: Frame)
 
         @Bindable
         fun getLocation() = frame.formattedAddress?.ifEmpty { null }
-            ?: frame.location?.readableLocation
+            ?: frame.location?.readableCoordinates
                 ?.replace("N ", "N\n")?.replace("S ", "S\n")
-        fun setLocation(location: Location?, formattedAddress: String?) {
+        fun setLocation(location: LatLng?, formattedAddress: String?) {
             frame.location = location
             frame.formattedAddress = formattedAddress
             notifyPropertyChanged(BR.location)

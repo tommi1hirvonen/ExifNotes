@@ -24,6 +24,7 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.InsetDrawable
+import android.location.Location
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
@@ -35,9 +36,12 @@ import androidx.annotation.StringRes
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.transition.TransitionSet
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
+import com.tommihirvonen.exifnotes.datastructures.Coordinates
 import com.tommihirvonen.exifnotes.datastructures.Gear
 import java.io.*
+import kotlin.math.absoluteValue
 
 inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
     SDK_INT >= 33 -> getParcelableExtra(key, T::class.java)
@@ -65,6 +69,71 @@ val Context.packageInfo: PackageInfo? get() {
         e.printStackTrace()
     }
     return null
+}
+
+fun latLngOrNull(value: String): LatLng? =
+    try {
+        val (latString, lngString) = value.split(" ")
+        val lat = latString.replace(",", ".").toDouble()
+        val lng = lngString.replace(",", ".").toDouble()
+        LatLng(lat, lng)
+    } catch (e: Exception) {
+        null
+    }
+
+val LatLng.decimalString: String get() = "$latitude $longitude"
+
+val LatLng.coordinates: Coordinates
+    get() {
+    val latRef = if (latitude < 0) "S" else "N"
+    val lngRef = if (longitude < 0) "W" else "E"
+    val latComponents = Location.convert(latitude.absoluteValue, Location.FORMAT_SECONDS)
+    val lngComponents = Location.convert(longitude.absoluteValue, Location.FORMAT_SECONDS)
+    val (latDegrees, latMinutes, latSeconds) = latComponents.split(":")
+    val (lngDegrees, lngMinutes, lngSeconds) = lngComponents.split(":")
+    return Coordinates(
+        latRef, latDegrees, latMinutes, latSeconds,
+        lngRef, lngDegrees, lngMinutes, lngSeconds
+    )
+}
+
+val LatLng.readableCoordinates: String get() {
+    val stringBuilder = StringBuilder()
+    val space = " "
+    val components = coordinates
+    stringBuilder.append(components.latitudeDegrees).append("°").append(space)
+        .append(components.latitudeMinutes).append("'").append(space)
+        .append(components.latitudeSeconds.replace(',', '.'))
+        .append("\"").append(space)
+    stringBuilder.append(components.latitudeRef).append(space)
+
+    stringBuilder.append(components.longitudeDegrees).append("°").append(space)
+        .append(components.longitudeMinutes).append("'").append(space)
+        .append(components.longitudeSeconds.replace(',', '.'))
+        .append("\"").append(space)
+    stringBuilder.append(components.longitudeRef)
+    return stringBuilder.toString()
+}
+
+val LatLng.exifToolLocation: String get() {
+    val stringBuilder = StringBuilder()
+    val quote = "\""
+    val space = " "
+    val gpsLatTag = "-GPSLatitude="
+    val gpsLatRefTag = "-GPSLatitudeRef="
+    val gpsLngTag = "-GPSLongitude="
+    val gpsLngRefTag = "-GPSLongitudeRef="
+    val components = coordinates
+    stringBuilder.append(gpsLatTag).append(quote).append(components.latitudeDegrees)
+        .append(space).append(components.latitudeMinutes).append(space)
+        .append(components.latitudeSeconds).append(quote).append(space)
+    stringBuilder.append(gpsLatRefTag).append(quote).append(components.latitudeRef).append(quote).append(space)
+
+    stringBuilder.append(gpsLngTag).append(quote).append(components.longitudeDegrees)
+        .append(space).append(components.longitudeMinutes).append(space)
+        .append(components.longitudeSeconds).append(quote).append(space)
+    stringBuilder.append(gpsLngRefTag).append(quote).append(components.longitudeRef).append(quote).append(space)
+    return stringBuilder.toString()
 }
 
 /**

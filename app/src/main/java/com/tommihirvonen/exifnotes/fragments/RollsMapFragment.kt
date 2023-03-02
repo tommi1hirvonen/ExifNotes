@@ -250,8 +250,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
             rolls.filter(RollData::selected).forEach { data ->
                 val bitmap = data.marker ?: return@forEach
                 data.frames.forEach frames@ { frame ->
-                    val location = frame.location ?: return@frames
-                    val position = location.latLng ?: return@frames
+                    val position = frame.location ?: return@frames
                     val rollName = data.roll.name
                     val frameCount = "#" + frame.count
                     val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bitmap)

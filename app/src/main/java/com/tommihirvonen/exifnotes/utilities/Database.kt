@@ -135,7 +135,7 @@ class Database private constructor(private val context: Context)
             lightSource = LightSource.from(row.getInt(KEY_LIGHT_SOURCE)),
             flashUsed = row.getInt(KEY_FLASH_USED) > 0,
             flashPower = row.getStringOrNull(KEY_FLASH_POWER),
-            location = row.getStringOrNull(KEY_LOCATION)?.let(::Location),
+            location = row.getStringOrNull(KEY_LOCATION)?.let(::latLngOrNull),
             date = row.getStringOrNull(KEY_DATE)?.let(::DateTime),
             lens = row.getLongOrNull(KEY_LENS_ID)?.let(::getLens)
         ).apply {
@@ -729,7 +729,7 @@ class Database private constructor(private val context: Context)
         put(KEY_SHUTTER, frame.shutter)
         put(KEY_APERTURE, frame.aperture)
         put(KEY_FRAME_NOTE, frame.note)
-        put(KEY_LOCATION, if (frame.location != null) frame.location.toString() else null)
+        put(KEY_LOCATION, frame.location?.decimalString)
         put(KEY_FOCAL_LENGTH, frame.focalLength)
         put(KEY_EXPOSURE_COMP, frame.exposureComp)
         put(KEY_NO_OF_EXPOSURES, frame.noOfExposures)

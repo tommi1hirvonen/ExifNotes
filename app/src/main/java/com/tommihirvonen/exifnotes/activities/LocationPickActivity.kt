@@ -47,7 +47,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityLocationPickBinding
-import com.tommihirvonen.exifnotes.datastructures.Location
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
 import kotlinx.coroutines.*
@@ -136,7 +135,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
 
         // If the activity is continued, then savedInstanceState is not null.
         // Get the location from there.
-        val location: Location?
+        val location: LatLng?
         if (savedInstanceState != null) {
             location = savedInstanceState.parcelable(ExtraKeys.LOCATION)
             formattedAddress = savedInstanceState.getString(ExtraKeys.FORMATTED_ADDRESS)
@@ -147,7 +146,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             formattedAddress = intent.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
         }
         if (location != null) {
-            latLngLocation = location.latLng
+            latLngLocation = location
             // If the formatted address is set, display it
             if (formattedAddress != null && formattedAddress?.isNotEmpty() == true) {
                 binding.formattedAddress.text = formattedAddress
@@ -156,7 +155,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                 // Start a coroutine to asynchronously fetch the formatted address.
                 lifecycleScope.launch {
                     val (_, addressResult) = Geocoder(this@LocationPickActivity)
-                        .getData(location.decimalLocation)
+                        .getData(location.decimalString)
                     binding.progressBar.visibility = View.INVISIBLE
                     formattedAddress = if (addressResult.isNotEmpty()) {
                         binding.formattedAddress.text = addressResult
@@ -174,7 +173,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
     private val onLocationSet = { _: View ->
         latLngLocation?.let {
             val intent = Intent()
-            intent.putExtra(ExtraKeys.LOCATION, Location(it))
+            intent.putExtra(ExtraKeys.LOCATION, LatLng(it.latitude, it.longitude))
             intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, formattedAddress)
             setResult(Activity.RESULT_OK, intent)
             finish()
@@ -311,22 +310,18 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         binding.progressBar.visibility = View.VISIBLE
 
         lifecycleScope.launch {
-            val (latLngResult, addressResult) = Geocoder(this@LocationPickActivity).getData(query)
-            if (latLngResult.isNotEmpty()) {
-                val location = Location(latLngResult)
-                val position = location.latLng
-                if (position != null) {
-                    // marker is null, if the search was made before the marker has been added
-                    // -> add marker to selected location
-                    if (marker == null) {
-                        marker = googleMap?.addMarker(MarkerOptions().position(position))
-                    } else {
-                        // otherwise just set the location
-                        marker?.position = position
-                    }
-                    latLngLocation = position
-                    googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
+            val (position, addressResult) = Geocoder(this@LocationPickActivity).getData(query)
+            if (position != null) {
+                // marker is null, if the search was made before the marker has been added
+                // -> add marker to selected location
+                if (marker == null) {
+                    marker = googleMap?.addMarker(MarkerOptions().position(position))
+                } else {
+                    // otherwise just set the location
+                    marker?.position = position
                 }
+                latLngLocation = position
+                googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
                 binding.formattedAddress.text = addressResult
                 formattedAddress = addressResult
             } else {
@@ -348,7 +343,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         super.onSaveInstanceState(outState)
         // Store the currently set location to outState.
         latLngLocation?.let {
-            outState.putParcelable(ExtraKeys.LOCATION, Location(it))
+            outState.putParcelable(ExtraKeys.LOCATION, LatLng(it.latitude, it.longitude))
             outState.putString(ExtraKeys.FORMATTED_ADDRESS, formattedAddress)
         }
     }

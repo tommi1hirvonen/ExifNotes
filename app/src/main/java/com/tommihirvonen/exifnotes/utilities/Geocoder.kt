@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import android.net.Uri
+import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -37,7 +38,7 @@ class Geocoder(context: Context) {
      * @return Pair object where first is latitude and longitude in decimal format and second is
      * the formatted address
      */
-    suspend fun getData(coordinatesOrQuery: String): Pair<String, String> {
+    suspend fun getData(coordinatesOrQuery: String): Pair<LatLng?, String> {
         val queryUrl = Uri.Builder() // Requests must be made over SSL.
             .scheme("https")
             .authority("maps.google.com")
@@ -56,7 +57,7 @@ class Geocoder(context: Context) {
             val connection = try {
                 URL(queryUrl).openConnection() as HttpsURLConnection
             } catch (e: Exception) {
-                return@withContext Pair("", "")
+                return@withContext null to ""
             }
 
             try {
@@ -70,7 +71,7 @@ class Geocoder(context: Context) {
                 val data = if (connection.responseCode == HttpsURLConnection.HTTP_OK) {
                     connection.inputStream.bufferedReader().readText()
                 } else {
-                    return@withContext Pair("", "")
+                    return@withContext null to ""
                 }
 
                 val jsonObject = JSONObject(data)
@@ -83,9 +84,9 @@ class Geocoder(context: Context) {
                 val formattedAddress = (jsonObject["results"] as JSONArray).getJSONObject(0)
                     .getString("formatted_address")
 
-                return@withContext Pair("$lat $lng", formattedAddress)
+                return@withContext latLngOrNull("$lat $lng") to formattedAddress
             } catch (e: Exception) {
-                return@withContext Pair("", "")
+                return@withContext null to ""
             } finally {
                 connection.disconnect()
             }

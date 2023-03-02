@@ -20,7 +20,10 @@ package com.tommihirvonen.exifnotes.datastructures
 
 import android.content.Context
 import android.os.Parcelable
+import com.google.android.gms.maps.model.LatLng
+import com.tommihirvonen.exifnotes.utilities.LatLngSerializer
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 import java.util.ArrayList
 
@@ -33,7 +36,8 @@ data class Frame(
     var shutter: String? = null,
     var aperture: String? = null,
     var note: String? = null,
-    var location: Location? = null,
+    @Serializable(with = LatLngSerializer::class)
+    var location: LatLng? = null,
     var formattedAddress: String? = null,
     var focalLength: Int = 0,
     var exposureComp: String? = null,

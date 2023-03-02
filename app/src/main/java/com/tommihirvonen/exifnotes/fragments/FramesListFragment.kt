@@ -39,6 +39,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -219,7 +220,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 //Get the location only if the app has location permission (locationPermissionsGranted) and
                 //the user has enabled GPS updates in the app's settings.
                 if (locationPermissionsGranted && requestingLocationUpdates) {
-                    lastLocation?.let { location = Location(it) }
+                    lastLocation?.let { location = LatLng(it.latitude, it.longitude) }
                 }
                 //Get the information for the last added frame.
                 //The last added frame has the highest id number (database autoincrement).
@@ -775,7 +776,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             // Consume the case when the user has edited
             // the location of several frames in action mode.
             if (result.resultCode == Activity.RESULT_OK) {
-                val location: Location? =
+                val location: LatLng? =
                     if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
                         result.data?.parcelable(ExtraKeys.LOCATION)
                     } else null

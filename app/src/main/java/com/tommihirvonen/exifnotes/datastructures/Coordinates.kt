@@ -16,23 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes
+package com.tommihirvonen.exifnotes.datastructures
 
-import com.google.android.gms.maps.model.LatLng
-import com.tommihirvonen.exifnotes.datastructures.Location
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import org.junit.Test
-
-class LocationTest {
-    @Test
-    fun location_serialize() {
-        val latLng = LatLng(35.123, 45.123)
-        val location = Location(latLng)
-        val format = Json { prettyPrint = true }
-        val json = format.encodeToString(location)
-        println(json)
-        val location2 = Json.decodeFromString(Location.serializer(), json)
-        println(location2)
-    }
-}
+data class Coordinates(
+    val latitudeRef: String,
+    val latitudeDegrees: String,
+    val latitudeMinutes: String,
+    val latitudeSeconds: String,
+    val longitudeRef: String,
+    val longitudeDegrees: String,
+    val longitudeMinutes: String,
+    val longitudeSeconds: String
+)
