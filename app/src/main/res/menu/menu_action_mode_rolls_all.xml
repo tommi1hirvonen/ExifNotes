@@ -46,19 +46,28 @@
         tools:ignore="AlwaysShowAction" />
 
     <item
-        android:id="@+id/menu_item_archive"
-        android:icon="@drawable/ic_outline_archive_24"
+        android:id="@+id/more"
+        android:icon="@drawable/outline_more_vert_24"
         app:iconTint="?attr/colorControlNormal"
-        android:title="@string/Archive"
-        app:showAsAction="never"
-        />
+        android:title="@string/More"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/menu_item_archive"
+                android:icon="@drawable/ic_outline_archive_24"
+                app:iconTint="?attr/colorControlNormal"
+                android:title="@string/Archive"
+                />
 
-    <item
-        android:id="@+id/menu_item_unarchive"
-        android:icon="@drawable/ic_outline_unarchive_24"
-        app:iconTint="?attr/colorControlNormal"
-        android:title="@string/Unarchive"
-        app:showAsAction="never"
-        />
+            <item
+                android:id="@+id/menu_item_unarchive"
+                android:icon="@drawable/ic_outline_unarchive_24"
+                app:iconTint="?attr/colorControlNormal"
+                android:title="@string/Unarchive"
+                />
+        </menu>
+    </item>
+
+
 
 </menu>

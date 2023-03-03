@@ -257,6 +257,7 @@
     <string name="MinFocalLengthGreaterThanMax">Min focal length cannot be greater than max</string>
     <string name="MinShutterSpeedGreaterThanMax">Min shutter speed cannot be greater than max</string>
     <string name="Model">Model</string>
+    <string name="More">More</string>
     <string name="MountsTo">Mounts to:</string>
     <string name="Name">Name</string>
     <string name="NameNoColon">Name</string>
