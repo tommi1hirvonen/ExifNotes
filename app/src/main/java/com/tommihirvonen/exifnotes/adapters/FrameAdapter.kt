@@ -27,6 +27,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemFrameConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
+import com.tommihirvonen.exifnotes.utilities.sortableDateTime
 
 /**
  * FrameAdapter acts as an adapter to link an ArrayList of Frames and a RecyclerView together.
@@ -91,7 +92,7 @@ class FrameAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val frame = items[position]
         holder.binding.root.transitionName = "transition_frame_${frame.id}"
-        holder.binding.tvFrameText.text = frame.date?.dateTimeAsText
+        holder.binding.tvFrameText.text = frame.date?.sortableDateTime
         holder.binding.tvCount.text = "${frame.count}"
         holder.binding.tvFrameText2.text = frame.lens?.name
             ?: if (frame.roll.camera?.isNotFixedLens == true) context.resources.getString(R.string.NoLens)

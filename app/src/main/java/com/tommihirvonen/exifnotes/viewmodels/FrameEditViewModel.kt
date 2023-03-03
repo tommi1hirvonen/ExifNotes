@@ -34,6 +34,7 @@ import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.utilities.decimalString
 import com.tommihirvonen.exifnotes.utilities.readableCoordinates
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 class FrameEditViewModel(application: Application, val frame: Frame)
     : AndroidViewModel(application) {
@@ -43,7 +44,7 @@ class FrameEditViewModel(application: Application, val frame: Frame)
             frame.lens = null
         }
         if (frame.date == null) {
-            frame.date = DateTime.fromCurrentTime()
+            frame.date = LocalDateTime.now()
         }
     }
 
@@ -138,7 +139,7 @@ class FrameEditViewModel(application: Application, val frame: Frame)
 
         @Bindable
         fun getDate() = frame.date
-        fun setDate(value: DateTime) {
+        fun setDate(value: LocalDateTime) {
             frame.date = value
             notifyPropertyChanged(BR.date)
         }

@@ -18,19 +18,19 @@
 
 package com.tommihirvonen.exifnotes
 
-import com.tommihirvonen.exifnotes.datastructures.DateTime
-import kotlinx.serialization.encodeToString
+import com.tommihirvonen.exifnotes.utilities.LocalDateTimeSerializer
 import kotlinx.serialization.json.Json
 import org.junit.Test
+import java.time.LocalDateTime
 
-class DateTimeTest {
+class LocalDateTimeTest {
     @Test
-    fun dateTime_serialize() {
-        val dateTime = DateTime(2023, 2, 28, 18, 53)
+    fun date_serialize() {
+        val date = LocalDateTime.of(2023, 3, 2, 18, 50)
         val format = Json { prettyPrint = true }
-        val json = format.encodeToString(dateTime)
+        val json = format.encodeToString(LocalDateTimeSerializer, date)
         println(json)
-        val dateTime2 = Json.decodeFromString(DateTime.serializer(), json)
-        println(dateTime2)
+        val date2 = Json.decodeFromString(LocalDateTimeSerializer, json)
+        println(date2)
     }
 }

@@ -37,9 +37,9 @@ class CsvBuilder(val context: Context, val roll: Roll) {
 
         //Roll and camera information
         stringBuilder.append("Roll name: ").append(roll.name).append("\n")
-        stringBuilder.append("Loaded on: ").append(roll.date?.dateTimeAsText ?: "").append("\n")
-        stringBuilder.append("Unloaded on: ").append(roll.unloaded?.dateTimeAsText ?: "").append("\n")
-        stringBuilder.append("Developed on: ").append(roll.developed?.dateTimeAsText ?: "").append("\n")
+        stringBuilder.append("Loaded on: ").append(roll.date?.sortableDateTime ?: "").append("\n")
+        stringBuilder.append("Unloaded on: ").append(roll.unloaded?.sortableDateTime ?: "").append("\n")
+        stringBuilder.append("Developed on: ").append(roll.developed?.sortableDateTime ?: "").append("\n")
         stringBuilder.append("Film stock: ").append(filmStock?.name ?: "").append("\n")
         stringBuilder.append("ISO: ").append(roll.iso.toString()).append("\n")
         stringBuilder.append("Format: ").append(roll.format.description(context)).append("\n")
@@ -70,7 +70,7 @@ class CsvBuilder(val context: Context, val roll: Roll) {
             .append("\n")
         for (frame in frameList) {
             stringBuilder.append(frame.count.toString()).append(separator)
-                .append(frame.date?.dateTimeAsText ?: "").append(separator)
+                .append(frame.date?.sortableDateTime ?: "").append(separator)
                 .escape(frame.lens?.name ?: "").append(separator)
                 .escape(frame.lens?.serialNumber ?: "").append(separator)
                 .append(frame.shutter ?: "").append(separator)

@@ -28,8 +28,10 @@ import androidx.databinding.InverseBindingListener
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.tommihirvonen.exifnotes.datastructures.DateTime
+import com.tommihirvonen.exifnotes.utilities.sortableDate
+import com.tommihirvonen.exifnotes.utilities.sortableTime
 import com.tommihirvonen.exifnotes.views.DateTimeLayout
+import java.time.LocalDateTime
 
 object DataBindingAdapters {
     @BindingAdapter("errorText")
@@ -90,8 +92,8 @@ object DataBindingAdapters {
 
     @BindingAdapter("dateTime")
     @JvmStatic
-    fun setDateTime(view: DateTimeLayout, dateTime: DateTime?) {
-        view.dateLayout.text = dateTime?.dateAsText
-        view.timeLayout.text = dateTime?.timeAsText
+    fun setDateTime(view: DateTimeLayout, dateTime: LocalDateTime?) {
+        view.dateLayout.text = dateTime?.sortableDate
+        view.timeLayout.text = dateTime?.sortableTime
     }
 }

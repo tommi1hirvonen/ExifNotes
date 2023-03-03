@@ -36,10 +36,10 @@ import androidx.work.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
-import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.preferences.*
 import com.tommihirvonen.exifnotes.utilities.*
 import java.io.*
+import java.time.LocalDateTime
 
 /**
  * PreferenceFragment is shown in PreferenceActivity.
@@ -131,7 +131,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
         // OnClickListener to start complementary pictures export.
         val exportComplementaryPictures = findPreference<Preference>(PreferenceConstants.KEY_EXPORT_COMPLEMENTARY_PICTURES)!!
         exportComplementaryPictures.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            val date = DateTime.fromCurrentTime().dateAsText
+            val date = LocalDateTime.now().sortableDate
             val title = "Exif_Notes_Complementary_Pictures_$date.zip"
             exportPicturesResultLauncher.launch(title)
             true
@@ -160,7 +160,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
             builder.setTitle(R.string.ExportDatabaseTitle)
             builder.setMessage(R.string.ExportDatabaseVerification)
             builder.setPositiveButton(R.string.OK) { _: DialogInterface?, _: Int ->
-                val date = DateTime.fromCurrentTime().dateAsText
+                val date = LocalDateTime.now().sortableDate
                 val filename = "Exif_Notes_Database_$date.db"
                 exportDatabaseResultLauncher.launch(filename)
             }

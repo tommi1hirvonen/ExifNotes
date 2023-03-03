@@ -228,7 +228,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
                 val noteTextView = view.findViewById<TextView>(R.id.note)
                 val frameCountText = "#" + frame.count
                 frameCountTextView.text = frameCountText
-                dateTimeTextView.text = frame.date?.dateTimeAsText ?: ""
+                dateTimeTextView.text = frame.date?.sortableDateTime ?: ""
                 lensTextView.text = frame.lens?.name
                     ?: if (frame.roll.camera?.isNotFixedLens == true) getString(R.string.NoLens)
                     else ""

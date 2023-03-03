@@ -30,12 +30,12 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.Camera
-import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Format
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.utilities.validate
+import java.time.LocalDateTime
 
 class RollEditViewModel(application: Application, val roll: Roll)
     :AndroidViewModel(application) {
@@ -112,21 +112,21 @@ class RollEditViewModel(application: Application, val roll: Roll)
 
         @Bindable
         fun getLoadedOn() = roll.date
-        fun setLoadedOn(date: DateTime) {
+        fun setLoadedOn(date: LocalDateTime) {
             roll.date = date
             notifyPropertyChanged(BR.loadedOn)
         }
 
         @Bindable
         fun getUnloadedOn() = roll.unloaded
-        fun setUnloadedOn(date: DateTime?) {
+        fun setUnloadedOn(date: LocalDateTime?) {
             roll.unloaded = date
             notifyPropertyChanged(BR.unloadedOn)
         }
 
         @Bindable
         fun getDevelopedOn() = roll.developed
-        fun setDevelopedOn(date: DateTime?) {
+        fun setDevelopedOn(date: LocalDateTime?) {
             roll.developed = date
             notifyPropertyChanged(BR.developedOn)
         }

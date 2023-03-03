@@ -16,17 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+@file:UseSerializers(LocalDateTimeSerializer::class)
+
 package com.tommihirvonen.exifnotes.datastructures
 
 import android.os.Parcelable
+import com.tommihirvonen.exifnotes.utilities.LocalDateTimeSerializer
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.UseSerializers
+import java.time.LocalDateTime
 
 @Parcelize
 data class Roll(var id: Long = 0,
                 var name: String? = null,
-                var date: DateTime? = null,
-                var unloaded: DateTime? = null,
-                var developed: DateTime? = null,
+                var date: LocalDateTime? = null,
+                var unloaded: LocalDateTime? = null,
+                var developed: LocalDateTime? = null,
                 var note: String? = null,
                 var camera: Camera? = null,
                 var iso: Int = 0,

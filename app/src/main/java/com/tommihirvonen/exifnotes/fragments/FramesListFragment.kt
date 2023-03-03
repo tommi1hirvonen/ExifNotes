@@ -58,6 +58,7 @@ import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.time.LocalDateTime
 import java.util.*
 
 /**
@@ -214,7 +215,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 return
             }
             val newFrame = Frame(roll).apply {
-                date = DateTime.fromCurrentTime()
+                date = LocalDateTime.now()
                 count = nextFrameCount
                 noOfExposures = 1
                 //Get the location only if the app has location permission (locationPermissionsGranted) and
@@ -502,24 +503,23 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 }
                                 // Edit date and time
                                 1 -> {
-                                    val dt = DateTime.fromCurrentTime()
-                                    val cal = Calendar.getInstance()
-                                    cal.set(dt.year, dt.month - 1, dt.day)
+                                    val now = LocalDateTime.now()
                                     val datePicker = MaterialDatePicker.Builder.datePicker()
-                                        .setSelection(cal.timeInMillis)
+                                        .setSelection(now.epochMilliseconds)
                                         .build()
                                     datePicker.addOnPositiveButtonClickListener {
-                                        cal.timeInMillis = datePicker.selection ?: cal.timeInMillis
-                                        val dateTime = DateTime(cal[Calendar.YEAR], cal[Calendar.MONTH] + 1, cal[Calendar.DATE],
-                                            dt.hour, dt.minute)
+                                        val date = datePicker.selection?.let(::localDateTimeOrNull)
+                                            ?: LocalDateTime.now()
                                         val timePicker = MaterialTimePicker.Builder()
-                                            .setHour(dt.hour)
-                                            .setMinute(dt.minute)
+                                            .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                                            .setHour(now.hour)
+                                            .setMinute(now.minute)
                                             .setTimeFormat(TimeFormat.CLOCK_24H)
                                             .build()
                                         timePicker.addOnPositiveButtonClickListener {
-                                            dateTime.hour = timePicker.hour
-                                            dateTime.minute = timePicker.minute
+                                            val dateTime = LocalDateTime.of(
+                                                date.year, date.monthValue, date.dayOfMonth,
+                                                timePicker.hour, timePicker.minute)
                                             selectedFrames.forEach {
                                                 it.date = dateTime
                                                 model.submitFrame(it)

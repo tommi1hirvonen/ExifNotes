@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemRollConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Roll
+import com.tommihirvonen.exifnotes.utilities.sortableDateTime
 import com.tommihirvonen.exifnotes.utilities.database
 
 /**
@@ -92,9 +93,9 @@ class RollAdapter(
         val numberOfFrames = context.database.getNumberOfFrames(roll)
         holder.binding.itemRollTopLayout.transitionName = "transition_roll_${roll.id}"
         holder.binding.tvRollDate.text =
-                roll.developed?.dateTimeAsText?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Developed) }
-                        ?: roll.unloaded?.dateTimeAsText?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Unloaded) }
-                                ?: roll.date?.dateTimeAsText?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Loaded) }
+                roll.developed?.sortableDateTime?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Developed) }
+                        ?: roll.unloaded?.sortableDateTime?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Unloaded) }
+                                ?: roll.date?.sortableDateTime?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Loaded) }
 
         holder.binding.tvRollName.text = roll.name
 

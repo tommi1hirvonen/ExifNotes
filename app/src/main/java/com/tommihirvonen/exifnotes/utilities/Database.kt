@@ -136,7 +136,7 @@ class Database private constructor(private val context: Context)
             flashUsed = row.getInt(KEY_FLASH_USED) > 0,
             flashPower = row.getStringOrNull(KEY_FLASH_POWER),
             location = row.getStringOrNull(KEY_LOCATION)?.let(::latLngOrNull),
-            date = row.getStringOrNull(KEY_DATE)?.let(::DateTime),
+            date = row.getStringOrNull(KEY_DATE)?.let(::localDateTimeOrNull),
             lens = row.getLongOrNull(KEY_LENS_ID)?.let(::getLens)
         ).apply {
             filters = getLinkedFilters(this)
@@ -480,9 +480,9 @@ class Database private constructor(private val context: Context)
             Roll(
                 id = row.getLong(KEY_ROLL_ID),
                 name = row.getStringOrNull(KEY_ROLLNAME),
-                date = row.getStringOrNull(KEY_ROLL_DATE)?.let(::DateTime),
-                unloaded = row.getStringOrNull(KEY_ROLL_UNLOADED)?.let(::DateTime),
-                developed = row.getStringOrNull(KEY_ROLL_DEVELOPED)?.let(::DateTime),
+                date = row.getStringOrNull(KEY_ROLL_DATE)?.let(::localDateTimeOrNull),
+                unloaded = row.getStringOrNull(KEY_ROLL_UNLOADED)?.let(::localDateTimeOrNull),
+                developed = row.getStringOrNull(KEY_ROLL_DEVELOPED)?.let(::localDateTimeOrNull),
                 note = row.getStringOrNull(KEY_ROLL_NOTE),
                 camera = row.getLongOrNull(KEY_CAMERA_ID)?.let(::getCamera),
                 iso = row.getInt(KEY_ROLL_ISO),
@@ -720,7 +720,7 @@ class Database private constructor(private val context: Context)
     private fun buildFrameContentValues(frame: Frame) = ContentValues().apply {
         put(KEY_ROLL_ID, frame.roll.id)
         put(KEY_COUNT, frame.count)
-        put(KEY_DATE, if (frame.date != null) frame.date.toString() else null)
+        put(KEY_DATE, frame.date?.sortableDateTime)
 
         val lens = frame.lens
         if (lens != null) put(KEY_LENS_ID, lens.id)
@@ -788,7 +788,7 @@ class Database private constructor(private val context: Context)
      */
     private fun buildRollContentValues(roll: Roll) = ContentValues().apply {
         put(KEY_ROLLNAME, roll.name)
-        put(KEY_ROLL_DATE, if (roll.date != null) roll.date.toString() else null)
+        put(KEY_ROLL_DATE, roll.date?.sortableDateTime)
         put(KEY_ROLL_NOTE, roll.note)
 
         val camera = roll.camera
@@ -804,8 +804,8 @@ class Database private constructor(private val context: Context)
         if (filmStock != null) put(KEY_FILM_STOCK_ID, filmStock.id)
         else putNull(KEY_FILM_STOCK_ID)
 
-        put(KEY_ROLL_UNLOADED, if (roll.unloaded != null) roll.unloaded.toString() else null)
-        put(KEY_ROLL_DEVELOPED, if (roll.developed != null) roll.developed.toString() else null)
+        put(KEY_ROLL_UNLOADED, roll.unloaded?.sortableDateTime)
+        put(KEY_ROLL_DEVELOPED, roll.developed?.sortableDateTime)
     }
 
     /**

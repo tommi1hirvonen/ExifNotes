@@ -22,9 +22,10 @@ import android.content.Context
 import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.utilities.LatLngSerializer
+import com.tommihirvonen.exifnotes.utilities.LocalDateTimeSerializer
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
-
+import java.time.LocalDateTime
 import java.util.ArrayList
 
 @Parcelize
@@ -32,7 +33,8 @@ data class Frame(
     var id: Long = 0,
     var roll: Roll,
     var count: Int = 0,
-    var date: DateTime? = null,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    var date: LocalDateTime? = null,
     var shutter: String? = null,
     var aperture: String? = null,
     var note: String? = null,

@@ -41,6 +41,13 @@ import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.datastructures.Coordinates
 import com.tommihirvonen.exifnotes.datastructures.Gear
 import java.io.*
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import kotlin.math.absoluteValue
 
 inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
@@ -69,6 +76,50 @@ val Context.packageInfo: PackageInfo? get() {
         e.printStackTrace()
     }
     return null
+}
+
+// New style formatting
+private val dateTimeFormatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+// Legacy style formatting for compatibility with older app versions
+private val dateTimeFormatter2 = DateTimeFormatter.ofPattern("yyyy-M-d H:mm")
+
+fun localDateTimeOrNull(value: String): LocalDateTime? =
+    try {
+        LocalDateTime.parse(value, dateTimeFormatter1)
+    } catch (e: DateTimeParseException) {
+        try {
+            LocalDateTime.parse(value, dateTimeFormatter2)
+        } catch (e: DateTimeParseException) {
+            null
+        }
+    }
+
+/**
+ * @param value Epoch milliseconds
+ */
+fun localDateTimeOrNull(value: Long): LocalDateTime? =
+    try {
+        val zone = ZoneId.of(ZoneOffset.UTC.id)
+        val instant = Instant.ofEpochMilli(value)
+        val zdt = instant.atZone(zone)
+        zdt.toLocalDateTime()
+    } catch (e: Exception) {
+        null
+    }
+
+val LocalDateTime.sortableDateTime: String get() = format(dateTimeFormatter1)
+
+val LocalDateTime.sortableDate: String get() =
+    format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+val LocalDateTime.sortableTime: String get() =
+    format(DateTimeFormatter.ofPattern("HH:mm"))
+
+val LocalDateTime.epochMilliseconds: Long get() {
+    val zone = ZoneId.of(ZoneOffset.UTC.id)
+    val zdt = ZonedDateTime.of(this, zone)
+    val instant = zdt.toInstant()
+    return instant.toEpochMilli()
 }
 
 fun latLngOrNull(value: String): LatLng? =

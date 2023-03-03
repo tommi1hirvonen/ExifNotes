@@ -32,7 +32,6 @@ import androidx.transition.*
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentRollEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
-import com.tommihirvonen.exifnotes.datastructures.DateTime
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
@@ -41,6 +40,7 @@ import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModelFactory
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
+import java.time.LocalDateTime
 
 /**
  * Dialog to edit Roll's information
@@ -158,7 +158,7 @@ class RollEditFragment : Fragment() {
 
         // DATE
         if (roll.date == null) {
-            model.observable.setLoadedOn(DateTime.fromCurrentTime())
+            model.observable.setLoadedOn(LocalDateTime.now())
         }
 
         DateTimeLayoutManager(
