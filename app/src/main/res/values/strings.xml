@@ -398,11 +398,27 @@
         \nhttps://github.com/tommi1hirvonen/ExifNotes
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Bug fixes
+        \n\n-Rolls can be exported/shared in JSON format
+        \n-Custom aperture values can be added to lenses
+        \n-Frames can have custom shutter speed values
+        \n-Cameras have a default film format
+        \n-Negative frame counts are available when editing frames (starting from -3)
+        \n-Exported files are selected during export and not in settings
+        \n-Other small improvements
+        \n-Code refactoring
         \n
     </string>
     <string name="VersionHistory">Version history</string>
-    <string name="VersionHistoryStatement">v1.18.5 2023-02-19:
+    <string name="VersionHistoryStatement">v1.19.0 2023-03-03:
+        \n-Rolls can be exported/shared in JSON format
+        \n-Custom aperture values can be added to lenses
+        \n-Frames can have custom shutter speed values
+        \n-Cameras have a default film format
+        \n-Negative frame counts are available when editing frames (starting from -3)
+        \n-Exported files are selected during export and not in settings
+        \n-Other small improvements
+        \n-Code refactoring
+        \n\nv1.18.5 2023-02-19:
         \n-Bug fixes
         \n\nv1.18.4 2023-02-12:
         \n-Bug fixes
