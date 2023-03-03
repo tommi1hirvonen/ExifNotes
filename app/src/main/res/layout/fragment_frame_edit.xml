@@ -579,6 +579,8 @@
                         style="@style/Widget.Material3.Button.TonalButton"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
+                        app:icon="@drawable/outline_more_horiz_24"
+                        app:iconGravity="textStart"
                         android:text="@string/Options"/>
                     <com.tommihirvonen.exifnotes.views.SquareImageView
                         android:layout_width="match_parent"
