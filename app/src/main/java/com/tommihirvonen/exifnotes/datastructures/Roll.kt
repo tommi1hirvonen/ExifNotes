@@ -45,7 +45,8 @@ data class Roll(var id: Long = 0,
                 var format: Format = Format.MM35,
                 @EncodeDefault
                 var archived: Boolean = false,
-                var filmStock: FilmStock? = null) : Parcelable {
+                var filmStock: FilmStock? = null,
+                var frames: List<Frame>? = null) : Parcelable {
 
     override fun equals(other: Any?) = other is Roll && other.id == id
 

@@ -27,6 +27,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import java.time.LocalDateTime
 import java.util.ArrayList
 
@@ -35,7 +36,8 @@ import java.util.ArrayList
 @Serializable
 data class Frame(
     var id: Long = 0,
-    var roll: Roll,
+    @Transient
+    val roll: Roll = Roll(),
     @EncodeDefault
     var count: Int = 0,
     @Serializable(with = LocalDateTimeSerializer::class)
