@@ -53,8 +53,8 @@ class CameraTest {
             make = "Contax",
             model = "T2",
             serialNumber = "ABC123",
-            minShutter = "1/1000",
-            maxShutter = "30",
+            minShutter = "1/500",
+            maxShutter = "8",
             shutterIncrements = Increment.HALF,
             exposureCompIncrements = PartialIncrement.THIRD,
             format = Format.MM35,
@@ -62,8 +62,8 @@ class CameraTest {
                 id = 124,
                 minAperture = "2.8",
                 maxAperture = "22",
-                minFocalLength = 35,
-                maxFocalLength = 35,
+                minFocalLength = 38,
+                maxFocalLength = 38,
                 apertureIncrements = Increment.HALF
             ),
         )

@@ -23,10 +23,15 @@ package com.tommihirvonen.exifnotes.datastructures
 import android.os.Parcelable
 import com.tommihirvonen.exifnotes.utilities.LocalDateTimeSerializer
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import java.time.LocalDateTime
 
+@OptIn(ExperimentalSerializationApi::class)
 @Parcelize
+@Serializable
 data class Roll(var id: Long = 0,
                 var name: String? = null,
                 var date: LocalDateTime? = null,
@@ -36,7 +41,9 @@ data class Roll(var id: Long = 0,
                 var camera: Camera? = null,
                 var iso: Int = 0,
                 var pushPull: String? = null,
+                @EncodeDefault
                 var format: Format = Format.MM35,
+                @EncodeDefault
                 var archived: Boolean = false,
                 var filmStock: FilmStock? = null) : Parcelable {
 

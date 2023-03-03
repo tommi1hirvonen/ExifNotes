@@ -24,14 +24,19 @@ import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.utilities.LatLngSerializer
 import com.tommihirvonen.exifnotes.utilities.LocalDateTimeSerializer
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 import java.util.ArrayList
 
+@OptIn(ExperimentalSerializationApi::class)
 @Parcelize
+@Serializable
 data class Frame(
     var id: Long = 0,
     var roll: Roll,
+    @EncodeDefault
     var count: Int = 0,
     @Serializable(with = LocalDateTimeSerializer::class)
     var date: LocalDateTime? = null,
@@ -43,12 +48,15 @@ data class Frame(
     var formattedAddress: String? = null,
     var focalLength: Int = 0,
     var exposureComp: String? = null,
+    @EncodeDefault
     var noOfExposures: Int = 1,
+    @EncodeDefault
     var flashUsed: Boolean = false,
     var flashPower: String? = null, // not used
     var flashComp: String? = null, // not used
     var meteringMode: Int = 0, // not used
     var pictureFilename: String? = null,
+    @EncodeDefault
     var lightSource: LightSource = LightSource.UNKNOWN,
     var lens: Lens? = null,
     var filters: List<Filter> = ArrayList()
