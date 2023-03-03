@@ -24,6 +24,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @OptIn(ExperimentalSerializationApi::class)
 @Parcelize
@@ -42,6 +43,7 @@ data class Camera(
     @EncodeDefault
     var format: Format = Format.MM35,
     var lens: Lens? = null,
+    @Transient
     var lensIds: HashSet<Long> = HashSet()) : Gear(), Comparable<Gear> {
 
     val isFixedLens get() = lens != null

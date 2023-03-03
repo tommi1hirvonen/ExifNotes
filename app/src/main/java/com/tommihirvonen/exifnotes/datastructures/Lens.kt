@@ -24,6 +24,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @OptIn(ExperimentalSerializationApi::class)
 @Parcelize
@@ -37,9 +38,13 @@ data class Lens(
         var maxAperture: String? = null,
         var minFocalLength: Int = 0,
         var maxFocalLength: Int = 0,
-        @EncodeDefault var apertureIncrements: Increment = Increment.THIRD,
+        @EncodeDefault
+        var apertureIncrements: Increment = Increment.THIRD,
+        @Transient
         var filterIds: HashSet<Long> = HashSet(),
+        @Transient
         var cameraIds: HashSet<Long> = HashSet(),
+        @Transient
         var customApertureValues: List<Float> = emptyList())
     : Gear(), Comparable<Gear> {
 

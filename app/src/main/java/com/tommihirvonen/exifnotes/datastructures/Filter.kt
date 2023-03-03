@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.datastructures
 
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Parcelize
 @Serializable
@@ -27,4 +28,5 @@ data class Filter(
         override var id: Long = 0,
         override var make: String? = null,
         override var model: String? = null,
+        @Transient
         var lensIds: HashSet<Long> = HashSet()) : Gear(), Comparable<Gear>
