@@ -20,13 +20,12 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import androidx.preference.PreferenceManager
+import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import org.apache.commons.text.StringEscapeUtils
 
-class CsvBuilder(val context: Context, val roll: Roll) {
+class CsvBuilder(private val context: Context, private val roll: Roll, private val frameList: List<Frame>) {
     fun create(): String {
-        val database = context.database
-        val frameList = database.getFrames(roll)
         val camera = roll.camera
         val filmStock = roll.filmStock
         val separator = ","

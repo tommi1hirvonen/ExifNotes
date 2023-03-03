@@ -94,8 +94,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
     private val transitionInterpolator = FastOutSlowInInterpolator()
     private val transitionDuration = 250L
 
-    private var includeCsvInExport = false
-    private var includeExifToolCommandsInExport = false
+    private var selectedRollExportOptions = emptyList<RollExportOption>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -328,18 +327,17 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     .commit()
             }
             R.id.menu_item_share_intent ->
-                ExportFileSelectDialogBuilder(R.string.FilesToShare) { csv, commands ->
+                ExportFileSelectDialogBuilder(R.string.FilesToShare) { selectedOptions ->
                     lifecycleScope.launch(Dispatchers.IO) {
                         val shareIntent =
-                            RollShareIntentBuilder(requireActivity(), roll, csv, commands).create()
+                            RollShareIntentBuilder(requireActivity(), roll, selectedOptions).create()
                         shareIntent?.let { startActivity(Intent.createChooser(it, resources.getString(R.string.Share))) }
                     }
                 }.create().show()
             R.id.menu_item_export -> {
-                ExportFileSelectDialogBuilder(R.string.FilesToExport) { csv, commands ->
+                ExportFileSelectDialogBuilder(R.string.FilesToExport) { selectedOptions ->
                     val intent = Intent().apply { action = Intent.ACTION_OPEN_DOCUMENT_TREE }
-                    includeCsvInExport = csv
-                    includeExifToolCommandsInExport = commands
+                    selectedRollExportOptions = selectedOptions
                     exportResultLauncher.launch(intent)
                 }.create().show()
             }
@@ -349,21 +347,23 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     private inner class ExportFileSelectDialogBuilder(
         titleStringResourceId: Int,
-        onFileOptionsSelected: (Boolean, Boolean) -> Any?)
+        onFileOptionsSelected: (List<RollExportOption>) -> Any?)
         : MaterialAlertDialogBuilder(requireContext()) {
         init {
             setTitle(titleStringResourceId)
-            val items = arrayOf("csv", "ExifTool")
+            val options = RollExportOption.values()
+            val items = options.map { it.toString() }.toTypedArray()
             val booleans = items.map { false }.toBooleanArray()
             setMultiChoiceItems(items, booleans) { _, which, isChecked ->
                 booleans[which] = isChecked
             }
             setNegativeButton(R.string.Cancel) { _, _ -> }
             setPositiveButton(R.string.OK) { _, _ ->
-                if (booleans.any { it }) {
-                    val (csv, commands) = booleans
-                    onFileOptionsSelected(csv, commands)
-                }
+                val selected = booleans
+                    .zip(options)
+                    .filter(Pair<Boolean, RollExportOption>::first)
+                    .map(Pair<Boolean, RollExportOption>::second)
+                onFileOptionsSelected(selected)
             }
         }
     }
@@ -383,8 +383,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     val directoryUri = result.data?.data ?: return@registerForActivityResult
                     val directoryDocumentFile = DocumentFile.fromTreeUri(requireContext(), directoryUri)
                         ?: return@registerForActivityResult
-                    RollExportHelper(requireActivity(), roll, directoryDocumentFile,
-                        includeCsvInExport, includeExifToolCommandsInExport).export()
+                    RollExportHelper(requireActivity(), roll, directoryDocumentFile, selectedRollExportOptions).export()
                     binding.root.snackbar(R.string.ExportedFilesSuccessfully, binding.bottomAppBar)
                 } catch (e: IOException) {
                     e.printStackTrace()

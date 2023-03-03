@@ -21,40 +21,36 @@ package com.tommihirvonen.exifnotes.utilities
 import android.content.Context
 import androidx.documentfile.provider.DocumentFile
 import com.tommihirvonen.exifnotes.datastructures.Roll
+import com.tommihirvonen.exifnotes.datastructures.RollExportOption
 import java.io.OutputStreamWriter
 
 class RollExportHelper(
     private val context: Context,
-    private val roll: Roll,
+    roll: Roll,
     private val targetDirectory: DocumentFile,
-    private val exportCsv: Boolean,
-    private val exportExifToolCommands: Boolean) {
+    private val options: List<RollExportOption>) : RollExport(context, roll) {
+
+    private val fileMapping = { option: RollExportOption ->
+        when (option) {
+            RollExportOption.CSV ->
+                targetDirectory.createFile("text/plain", fileNameMapping(option))
+            RollExportOption.EXIFTOOL ->
+                targetDirectory.createFile("text/plain", fileNameMapping(option))
+            RollExportOption.JSON ->
+                targetDirectory.createFile("application/json", fileNameMapping(option))
+        }
+    }
 
     fun export() {
-        val rollName = roll.name?.illegalCharsRemoved()
-        if (exportCsv) {
-            val csvDocumentFile = targetDirectory.createFile("text/plain",
-                rollName + "_csv.txt") ?: return
-            val csvOutputStream = context.contentResolver
-                .openOutputStream(csvDocumentFile.uri) ?: return
-            val csvString = CsvBuilder(context, roll).create()
-            val csvOutputStreamWriter = OutputStreamWriter(csvOutputStream)
-            csvOutputStreamWriter.write(csvString)
-            csvOutputStreamWriter.flush()
-            csvOutputStreamWriter.close()
-            csvOutputStream.close()
-        }
-        if (exportExifToolCommands) {
-            val cmdDocumentFile = targetDirectory.createFile("text/plain",
-                rollName + "_ExifToolCmds.txt") ?: return
-            val cmdOutputStream = context.contentResolver
-                .openOutputStream(cmdDocumentFile.uri) ?: return
-            val cmdString = ExifToolCommandsBuilder(context, roll).create()
-            val cmdOutputStreamWriter = OutputStreamWriter(cmdOutputStream)
-            cmdOutputStreamWriter.write(cmdString)
-            cmdOutputStreamWriter.flush()
-            cmdOutputStreamWriter.close()
-            cmdOutputStream.close()
+        options.forEach { option ->
+            val file = fileMapping(option) ?: return@forEach
+            val stream = context.contentResolver.openOutputStream(file.uri) ?: return@forEach
+            val content = contentMapping(option)
+            val writer = OutputStreamWriter(stream)
+            writer.write(content)
+            writer.flush()
+            writer.close()
+            stream.close()
         }
     }
 }

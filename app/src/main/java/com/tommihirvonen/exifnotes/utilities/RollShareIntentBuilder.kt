@@ -25,6 +25,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.tommihirvonen.exifnotes.datastructures.Roll
+import com.tommihirvonen.exifnotes.datastructures.RollExportOption
 import java.io.File
 
 /**
@@ -33,101 +34,69 @@ import java.io.File
  */
 class RollShareIntentBuilder(
     private val context: Context,
-    private val roll: Roll,
-    private val exportCsv: Boolean,
-    private val exportExifToolCommands: Boolean) {
+    roll: Roll,
+    private val options: List<RollExportOption>) : RollExport(context, roll) {
 
     fun create(): Intent? {
-        if (!exportCsv && !exportExifToolCommands) {
+
+        if (options.isEmpty()) {
             return null
         }
-
-        //Replace illegal characters from the roll name to make it a valid file name.
-        val rollName = roll.name?.illegalCharsRemoved()
 
         //Create the Intent to be shared, no initialization yet
         val shareIntent: Intent
 
-        //Create the files
-
         //Get the external storage path (not the same as SD card)
         val externalStorageDir = context.getExternalFilesDir(null)
 
-        //Create the file names for the two files to be put in that intent
-        val fileNameCsv = rollName + "_csv" + ".txt"
-        val fileNameExifToolCmds = rollName + "_ExifToolCmds" + ".txt"
-
-        //Create the strings to be written on those two files
-        val csvString = CsvBuilder(context, roll).create()
-        val exifToolCmds = ExifToolCommandsBuilder(context, roll).create()
-
-        //Create the files in external storage
-        val fileCsv = File(externalStorageDir, fileNameCsv)
-        val fileExifToolCmds = File(externalStorageDir, fileNameExifToolCmds)
-
+        val files: List<File>
         try {
-            //Write the csv file
-            fileCsv.writeText(csvString)
-
-            //Write the ExifTool commands file
-            fileExifToolCmds.writeText(exifToolCmds)
+            files = options.map { option ->
+                val filename = fileNameMapping(option)
+                val content = contentMapping(option)
+                val file = File(externalStorageDir, filename)
+                file.writeText(content)
+                file
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(context, "Error creating text files", Toast.LENGTH_SHORT).show()
             return null
         }
 
-        //If the user has chosen to export both files
-        if (exportCsv && exportExifToolCommands) {
-            //Create the intent to be shared
+        if (files.count() == 1) {
+            // Only one file is being shared
+
+            shareIntent = Intent(Intent.ACTION_SEND)
+            shareIntent.type = "text/plain"
+            val file = files.first()
+
+            //Android Nougat requires that the file is given via FileProvider
+            val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                FileProvider.getUriForFile(context, context.applicationContext
+                    .packageName + ".provider", file)
+            } else {
+                Uri.fromFile(file)
+            }
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+        } else {
+            // Multiple files are being shared
+
             shareIntent = Intent(Intent.ACTION_SEND_MULTIPLE)
             shareIntent.type = "text/plain"
 
-            //Create an array with the file names
-            val filesToSend: MutableList<String> = ArrayList()
-            filesToSend.add(externalStorageDir.toString() + "/" + fileNameCsv)
-            filesToSend.add(externalStorageDir.toString() + "/" + fileNameExifToolCmds)
-
-            //Create an ArrayList of files.
-            //NOTE: putParcelableArrayListExtra requires an ArrayList as its argument
-            val files = ArrayList<Uri>()
-            for (path in filesToSend) {
-                val file = File(path)
-                //Android Nougat requires that the file is given via FileProvider
-                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val uris = files.map { file ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     FileProvider.getUriForFile(context, context.applicationContext
                         .packageName + ".provider", file)
                 } else {
                     Uri.fromFile(file)
                 }
-                files.add(uri)
             }
-
-            //Add the two files to the Intent as extras
-            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
-        } else {
-            shareIntent = Intent(Intent.ACTION_SEND)
-            shareIntent.type = "text/plain"
-            //The user has chosen to export only the csv
-            if (exportCsv) {
-                //Android Nougat requires that the file is given via FileProvider
-                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    FileProvider.getUriForFile(context, context.applicationContext
-                        .packageName + ".provider", fileCsv)
-                } else {
-                    Uri.fromFile(fileCsv)
-                }
-                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-            } else { // Only ExifTool commands were selected
-                //Android Nougat requires that the file is given via FileProvider
-                val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    FileProvider.getUriForFile(context, context.applicationContext
-                        .packageName + ".provider", fileExifToolCmds)
-                } else {
-                    Uri.fromFile(fileExifToolCmds)
-                }
-                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            val arrayList = arrayListOf<Uri>().apply {
+                addAll(uris)
             }
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, arrayList)
         }
         return shareIntent
     }

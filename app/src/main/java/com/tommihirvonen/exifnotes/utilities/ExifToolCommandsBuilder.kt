@@ -20,13 +20,13 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import androidx.preference.PreferenceManager
+import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.datastructures.LightSource
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import java.text.Normalizer
 
-class ExifToolCommandsBuilder(val context: Context, val roll: Roll) {
+class ExifToolCommandsBuilder(context: Context, private val roll: Roll, private val frameList: List<Frame>) {
 
-    private val database = context.database
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
     companion object {
@@ -71,7 +71,6 @@ class ExifToolCommandsBuilder(val context: Context, val roll: Roll) {
         val quote = "\""
         val space = " "
         val lineSep = "\r\n"
-        val frameList = database.getFrames(roll)
         val camera = roll.camera
         for (frame in frameList) {
             //ExifTool path
