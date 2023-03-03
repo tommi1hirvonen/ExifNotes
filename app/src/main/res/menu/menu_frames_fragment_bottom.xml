@@ -82,15 +82,25 @@
     </item>
 
     <item
-        android:id="@+id/menu_item_gear"
-        android:title="@string/Gear"
-        app:showAsAction="never"
-        />
+        android:id="@+id/more"
+        android:icon="@drawable/outline_more_vert_24"
+        android:title="@string/More"
+        app:iconTint="?attr/colorControlNormal"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/menu_item_gear"
+                android:title="@string/Gear"
+                android:icon="@drawable/ic_baseline_camera_24"
+                app:iconTint="?attr/colorControlNormal"
+                />
 
-    <item
-        android:id="@+id/menu_item_preferences"
-        android:title="@string/Settings"
-        app:showAsAction="never"
-        />
-
+            <item
+                android:id="@+id/menu_item_preferences"
+                android:title="@string/Settings"
+                android:icon="@drawable/ic_outline_settings_24"
+                app:iconTint="?attr/colorControlNormal"
+                />
+        </menu>
+    </item>
 </menu>
