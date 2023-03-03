@@ -187,7 +187,7 @@ class LensesFragment : Fragment() {
         val selections = allCameras.map(compatibleCameras::contains).toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        builder.setTitle(R.string.SelectMountableCameras)
+        builder.setTitle(R.string.SelectCompatibleCameras)
                 .setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
                     selections[which] = isChecked
                 }
@@ -220,7 +220,7 @@ class LensesFragment : Fragment() {
         val selections = filters.map(compatibleFilters::contains).toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        builder.setTitle(R.string.SelectMountableFilters)
+        builder.setTitle(R.string.SelectCompatibleFilters)
                 .setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
                     selections[which] = isChecked
                 }

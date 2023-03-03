@@ -188,7 +188,7 @@
     <string name="Filters">FILTERS</string>
     <string name="FiltersNoCap">Filters</string>
     <string name="FixedLens">Fixed lens</string>
-    <string name="FixedLensHelp">Setting a fixed lens will change the camera into a fixed-lens camera. The lens will be used by default for all (new) frames added with this camera. This reduces the number of steps when adding new frames and keeps the list of separate lenses to a minimum.\n\nSetting a fixed lens removes and disables other lens links for this camera. You can however define mountable filters for fixed lens cameras.</string>
+    <string name="FixedLensHelp">Setting a fixed lens will change the camera into a fixed-lens camera. The lens will be used by default for all (new) frames added with this camera. This reduces the number of steps when adding new frames and keeps the list of separate lenses to a minimum.\n\nSetting a fixed lens removes and disables other lens links for this camera. You can however define compatible filters for fixed lens cameras.</string>
     <string name="Flash">Flash</string>
     <string name="Fluorescent">Fluorescent</string>
     <string name="FocalLengthRange">Focal length range (mm)</string>
@@ -328,7 +328,7 @@
     <string name="PushPull">Push(+)/pull(-)</string>
     <string name="Red">Red</string>
     <string name="RemoveCameraMappingsMessage">This camera is set as a fixed lens camera, but it has other lens mappings. Do you want to remove these mappings?</string>
-    <string name="RemoveLensMappingsMessage">This lens has mountable camera mappings. Do you want to remove these mappings? No cameras or lenses will be deleted, only the links between them.</string>
+    <string name="RemoveLensMappingsMessage">This lens has compatible camera mappings. Do you want to remove these mappings? No cameras or lenses will be deleted, only the links between them.</string>
     <string name="Required">Required</string>
     <string name="Reset">Reset</string>
     <string name="ReverseFrameCounts">Reverse frame counts</string>
@@ -344,9 +344,9 @@
     <string name="SelectFilmStock">Select film stock</string>
     <string name="SelectLensToAddFilters">Select a lens to add filters.</string>
     <string name="SelectManufacturer">Select manufacturer</string>
-    <string name="SelectMountableCameras">Select mountable cameras</string>
-    <string name="SelectMountableFilters">Select mountable filters</string>
-    <string name="SelectMountableLenses">Select mountable lenses</string>
+    <string name="SelectCompatibleCameras">Select compatible cameras</string>
+    <string name="SelectCompatibleFilters">Select compatible filters</string>
+    <string name="SelectCompatibleLenses">Select compatible lenses</string>
     <string name="SelectPictureFromGallery">Select from gallery</string>
     <string name="SerialNumber">Serial number</string>
     <string name="SetFixedLens">Set fixed lens</string>

@@ -69,18 +69,18 @@ class LensAdapter(
         holder.binding.title.text = lens.name
         holder.binding.root.transitionName = "transition_lens_${lens.id}"
         val stringBuilder = StringBuilder()
-        val mountableCameras = cameras.filter { lens.cameraIds.contains(it.id) }
-        val mountableFilters = filters.filter { lens.filterIds.contains(it.id) }
-        if (mountableCameras.isNotEmpty()) {
+        val compatibleCameras = cameras.filter { lens.cameraIds.contains(it.id) }
+        val compatibleFilters = filters.filter { lens.filterIds.contains(it.id) }
+        if (compatibleCameras.isNotEmpty()) {
             stringBuilder.append(context.getString(R.string.CamerasNoCap)).append(":")
-                .append(mountableCameras.toStringList())
+                .append(compatibleCameras.toStringList())
         }
-        if (mountableFilters.isNotEmpty()) {
-            if (mountableCameras.isNotEmpty()) {
+        if (compatibleFilters.isNotEmpty()) {
+            if (compatibleCameras.isNotEmpty()) {
                 stringBuilder.append("\n\n")
             }
             stringBuilder.append(context.getString(R.string.FiltersNoCap)).append(":")
-                .append(mountableFilters.toStringList())
+                .append(compatibleFilters.toStringList())
         }
         holder.binding.description.text = stringBuilder.toString()
     }

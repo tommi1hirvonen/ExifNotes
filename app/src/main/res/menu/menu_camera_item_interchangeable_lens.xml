@@ -22,7 +22,7 @@
         android:id="@+id/menu_item_lenses"
         android:icon="@drawable/ic_outline_camera_24"
         app:iconTint="?attr/colorControlNormal"
-        android:title="@string/SelectMountableLenses" />
+        android:title="@string/SelectCompatibleLenses" />
     <item
         android:id="@+id/menu_item_edit"
         android:icon="@drawable/ic_outline_edit_24"

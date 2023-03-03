@@ -23,7 +23,7 @@
         android:id="@+id/menu_item_filters"
         android:icon="@drawable/ic_baseline_panorama_fish_eye_24"
         app:iconTint="?attr/colorControlNormal"
-        android:title="@string/SelectMountableFilters" />
+        android:title="@string/SelectCompatibleFilters" />
     <item
         android:id="@+id/menu_item_edit"
         android:icon="@drawable/ic_outline_edit_24"

@@ -149,9 +149,9 @@ class FiltersFragment : Fragment() {
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
         val titleId = if (fixedLensCameras) {
-            R.string.SelectMountableCameras
+            R.string.SelectCompatibleCameras
         } else {
-            R.string.SelectMountableLenses
+            R.string.SelectCompatibleLenses
         }
         builder.setTitle(titleId)
                 .setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
