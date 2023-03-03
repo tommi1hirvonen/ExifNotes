@@ -30,7 +30,6 @@ import android.os.Bundle
 import android.text.InputFilter
 import android.text.Spanned
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
@@ -578,33 +577,21 @@ class FrameEditFragment : Fragment() {
         override fun onClick(view: View) {
             val popupMenu = PopupMenu(requireContext(), view)
             // If a complementary picture was not set, set only the two first options
-            val items: Array<String> = if (model.frame.pictureFilename == null) {
-                arrayOf(
-                        getString(R.string.TakeNewComplementaryPicture),
-                        getString(R.string.SelectPictureFromGallery)
-                )
+            val menuRes = if (model.frame.pictureFilename == null) {
+                R.menu.menu_complementary_picture_not_set
             } else {
-                arrayOf(
-                        getString(R.string.TakeNewComplementaryPicture),
-                        getString(R.string.SelectPictureFromGallery),
-                        getString(R.string.AddPictureToGallery),
-                        getString(R.string.RotateRight90Degrees),
-                        getString(R.string.RotateLeft90Degrees),
-                        getString(R.string.Clear)
-                )
+                R.menu.menu_complementary_picture_set
             }
-            items.forEachIndexed { index, text ->
-                popupMenu.menu.add(Menu.NONE, index, Menu.NONE, text)
-            }
+            popupMenu.inflate(menuRes)
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
-                    0 -> {
+                    R.id.new_complementary_picture -> {
                         startPictureActivity()
                     }
-                    1 -> {
+                    R.id.select_from_gallery -> {
                         selectImageResultLauncher.launch("image/*")
                     }
-                    2 -> {
+                    R.id.add_to_gallery -> {
                         try {
                             ComplementaryPicturesManager
                                 .addPictureToGallery(requireActivity(), model.frame.pictureFilename)
@@ -613,9 +600,9 @@ class FrameEditFragment : Fragment() {
                             binding.root.snackbar(R.string.ErrorAddingPictureToGallery)
                         }
                     }
-                    3 -> rotateComplementaryPictureRight()
-                    4 -> rotateComplementaryPictureLeft()
-                    5 -> {
+                    R.id.rotate_right -> rotateComplementaryPictureRight()
+                    R.id.rotate_left -> rotateComplementaryPictureLeft()
+                    R.id.clear -> {
                         model.frame.pictureFilename = null
                         binding.ivPicture.visibility = View.GONE
                         binding.pictureText.visibility = View.VISIBLE
@@ -623,6 +610,17 @@ class FrameEditFragment : Fragment() {
                     }
                 }
                 return@setOnMenuItemClickListener true
+            }
+            // Use reflection to enable icons for the popup menu.
+            try {
+                val popup = PopupMenu::class.java.getDeclaredField("mPopup")
+                popup.isAccessible = true
+                val menu = popup.get(popupMenu)
+                menu.javaClass
+                    .getDeclaredMethod("setForceShowIcon", Boolean::class.java)
+                    .invoke(menu, true)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
             popupMenu.show()
         }
