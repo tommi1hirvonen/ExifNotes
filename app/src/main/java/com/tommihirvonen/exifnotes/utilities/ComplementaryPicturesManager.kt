@@ -115,7 +115,6 @@ object ComplementaryPicturesManager {
                 context.contentResolver.update(uri, contentValues, null, null)
             }
         } else {
-            @Suppress("DEPRECATION")
             val publicPictureDirectory = File(Environment
                     .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), context.getString(R.string.app_name))
             val copyFromFile = getPictureFile(context, filename)
@@ -141,9 +140,19 @@ object ComplementaryPicturesManager {
         // Compress the image
         val pictureFile = getPictureFile(context, fileName)
         if (pictureFile.exists()) {
+            // Get the original orientation
+            val exif = ExifInterface(pictureFile.absolutePath)
+            val orientation = exif
+                .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+            // Replace the file with the compressed bitmap.
             val bitmap = getCompressedBitmap(pictureFile)
             pictureFile.delete()
             saveBitmapToFile(bitmap, pictureFile)
+
+            // Save the orientation to the new file as it may have been lost during compression.
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION, orientation.toString())
+            exif.saveAttributes()
         }
     }
 

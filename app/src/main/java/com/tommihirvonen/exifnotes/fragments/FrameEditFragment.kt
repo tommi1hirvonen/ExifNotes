@@ -390,20 +390,20 @@ class FrameEditFragment : Fragment() {
                 // If there is a problem getting the Fragment view, use the resource dimension instead.
                 val targetH = view?.width ?: resources.getDimension(R.dimen.ComplementaryPictureImageViewHeight).toInt()
 
-                // Rotate the complementary picture ImageView if necessary
-                var rotationTemp = 0
-                try {
+                // Rotate the ImageView if necessary
+                val rotation = try {
                     val exifInterface = ExifInterface(pictureFile.absolutePath)
                     val orientation = exifInterface
                         .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
                     when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> rotationTemp = 90
-                        ExifInterface.ORIENTATION_ROTATE_180 -> rotationTemp = 180
-                        ExifInterface.ORIENTATION_ROTATE_270 -> rotationTemp = 270
+                        ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                        ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                        ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                        else -> 0
                     }
-                } catch (ignore: IOException) {
+                } catch (e: Exception) {
+                    0
                 }
-                val rotation = rotationTemp
 
                 // Get the dimensions of the bitmap
                 val options = BitmapFactory.Options()
