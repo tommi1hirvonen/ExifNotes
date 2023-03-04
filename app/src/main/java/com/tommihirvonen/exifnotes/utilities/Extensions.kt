@@ -51,7 +51,12 @@ import java.time.format.DateTimeParseException
 import kotlin.math.absoluteValue
 
 inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
-    SDK_INT >= 33 -> getParcelableExtra(key, T::class.java)
+    // TODO: The new API for getting parcelable extra from an Intent introduced in API 33
+    //  (getParcelableExtra(String name, Class<T> clazz)) is buggy (bug report link below).
+    //  The workaround is to continue using the old method for API 33 and below.
+    //  Change to using possible compat APIs if they are introduced as a part of AndroidX.
+    // https://issuetracker.google.com/issues/240585930
+    SDK_INT >= 34 -> getParcelableExtra(key, T::class.java)
     else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
 }
 
