@@ -165,7 +165,7 @@
         \n\nIf you wish to export complementary pictures as well, this needs to be done separately
         with the \'Export complementary pictures\' option in settings.
     </string>
-    <string name="ExportOrShare">Export/share files</string>
+    <string name="ExportOrShare">Share files</string>
     <string name="ExportToDevice">Export files to storage</string>
     <string name="ExportedFilesSuccessfully">Files exported successfully</string>
     <string name="ExposureComp">Exposure comp.</string>
