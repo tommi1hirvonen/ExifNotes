@@ -21,7 +21,7 @@
     <item
         android:id="@+id/new_complementary_picture"
         android:title="@string/TakeNewComplementaryPicture"
-        android:icon="@drawable/ic_baseline_camera_alt_24"
+        android:icon="@drawable/ic_outline_camera_alt_24"
         app:iconTint="?attr/colorControlNormal"
         />
     <item

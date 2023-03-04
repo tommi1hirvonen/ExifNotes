@@ -93,7 +93,7 @@
             <item
                 android:id="@+id/menu_item_gear"
                 android:title="@string/Gear"
-                android:icon="@drawable/ic_baseline_camera_24"
+                android:icon="@drawable/ic_outline_camera_24"
                 app:iconTint="?attr/colorControlNormal"
                 />
 
