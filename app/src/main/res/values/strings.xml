@@ -361,6 +361,7 @@
     <string name="Sort">Sort</string>
     <string name="SortBy">Sort by</string>
     <string name="SortFilmStocksBy">Sort film stocks by</string>
+    <string name="SortRollsBy">Sort rolls by</string>
     <string name="StartedExportingComplementaryPictures">Started exporting complementary pictures. Check notifications for progress.</string>
     <string name="StartedImportingComplementaryPictures">Started importing complementary pictures. Check notifications for progress.</string>
     <string name="Sunny">Sunny</string>

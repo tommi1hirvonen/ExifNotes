@@ -27,20 +27,30 @@
         app:iconTint="?attr/colorControlNormal"
         app:showAsAction="ifRoom">
         <menu>
+            <item
+                android:title="@string/SortRollsBy"
+                android:enabled="false"
+                />
             <group
                 android:checkableBehavior="single">
                 <item
                     android:id="@+id/date_sort_mode"
                     android:title="@string/DateNoColon"
-                    app:showAsAction="never" />
+                    android:icon="@drawable/outline_calendar_today_24"
+                    app:iconTint="?attr/colorControlNormal"
+                    />
                 <item
                     android:id="@+id/name_sort_mode"
                     android:title="@string/NameNoColon"
-                    app:showAsAction="never" />
+                    android:icon="@drawable/outline_drive_file_rename_outline_24"
+                    app:iconTint="?attr/colorControlNormal"
+                    />
                 <item
                     android:id="@+id/camera_sort_mode"
                     android:title="@string/CameraNoColon"
-                    app:showAsAction="never" />
+                    android:icon="@drawable/ic_outline_camera_alt_24"
+                    app:iconTint="?attr/colorControlNormal"
+                    />
             </group>
         </menu>
     </item>
