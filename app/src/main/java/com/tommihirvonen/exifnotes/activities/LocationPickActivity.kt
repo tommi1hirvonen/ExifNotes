@@ -28,6 +28,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.view.MenuProvider
@@ -117,15 +118,23 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
 
         binding.topAppBar.setNavigationOnClickListener { finish() }
         binding.topAppBar.addMenuProvider(this)
-        val menu = binding.topAppBar.menu
+
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
-        when (mapType) {
-            GoogleMap.MAP_TYPE_NORMAL -> menu.findItem(R.id.menu_item_normal).isChecked = true
-            GoogleMap.MAP_TYPE_HYBRID -> menu.findItem(R.id.menu_item_hybrid).isChecked = true
-            GoogleMap.MAP_TYPE_SATELLITE -> menu.findItem(R.id.menu_item_satellite).isChecked = true
-            GoogleMap.MAP_TYPE_TERRAIN -> menu.findItem(R.id.menu_item_terrain).isChecked = true
-            else -> menu.findItem(R.id.menu_item_normal).isChecked = true
+
+        binding.fabMap.setOnClickListener {
+            val popupMenu = PopupMenu(this, binding.fabMap)
+            popupMenu.inflate(R.menu.menu_map_fragment)
+            // Get map type from preferences
+            when (sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)) {
+                GoogleMap.MAP_TYPE_NORMAL -> popupMenu.menu.findItem(R.id.menu_item_normal).isChecked = true
+                GoogleMap.MAP_TYPE_HYBRID -> popupMenu.menu.findItem(R.id.menu_item_hybrid).isChecked = true
+                GoogleMap.MAP_TYPE_SATELLITE -> popupMenu.menu.findItem(R.id.menu_item_satellite).isChecked = true
+                GoogleMap.MAP_TYPE_TERRAIN -> popupMenu.menu.findItem(R.id.menu_item_terrain).isChecked = true
+                else -> popupMenu.menu.findItem(R.id.menu_item_normal).isChecked = true
+            }
+            popupMenu.setOnMenuItemClickListener(onMenuItemSelected)
+            popupMenu.show()
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -177,7 +186,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
             intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, formattedAddress)
             setResult(Activity.RESULT_OK, intent)
             finish()
-        } ?: binding.root.snackbar(R.string.NoLocation, binding.fabCurrentLocation,
+        } ?: binding.root.snackbar(R.string.NoLocation, binding.bottomBar,
             Snackbar.LENGTH_SHORT)
     }
 
@@ -204,30 +213,34 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
         searchView.setOnQueryTextListener(this)
     }
 
-    override fun onMenuItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return false
+    }
+
+    private val onMenuItemSelected = { item: MenuItem ->
         when (item.itemId) {
             R.id.menu_item_normal -> {
                 item.isChecked = true
                 setMapType(GoogleMap.MAP_TYPE_NORMAL)
-                return true
+                true
             }
             R.id.menu_item_hybrid -> {
                 item.isChecked = true
                 setMapType(GoogleMap.MAP_TYPE_HYBRID)
-                return true
+                true
             }
             R.id.menu_item_satellite -> {
                 item.isChecked = true
                 setMapType(GoogleMap.MAP_TYPE_SATELLITE)
-                return true
+                true
             }
             R.id.menu_item_terrain -> {
                 item.isChecked = true
                 setMapType(GoogleMap.MAP_TYPE_TERRAIN)
-                return true
+                true
             }
+            else -> false
         }
-        return false
     }
 
     /**
@@ -266,7 +279,7 @@ class LocationPickActivity : AppCompatActivity(), OnMapReadyCallback, OnMapClick
                 marker = googleMap.addMarker(MarkerOptions().position(latLngLocation))
                 if (!continueActivity) {
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngLocation, 15f))
-                    binding.root.snackbar(R.string.TapOnMap, binding.fabCurrentLocation,
+                    binding.root.snackbar(R.string.TapOnMap, binding.bottomBar,
                         Snackbar.LENGTH_SHORT)
                 }
             }

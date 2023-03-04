@@ -29,34 +29,4 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         tools:ignore="PrivateResource" />
 
-    <item
-        android:title="@string/MapType"
-        android:id="@+id/menu_item_map_type"
-        android:icon="@drawable/ic_outline_map_24"
-        app:iconTint="?attr/colorControlNormal"
-        app:showAsAction="always">
-        <menu
-            xmlns:android="http://schemas.android.com/apk/res/android">
-            <group
-                android:checkableBehavior="single" >
-                <item
-                    android:id="@+id/menu_item_normal"
-                    android:title="@string/Normal"
-                    app:showAsAction="never" />
-                <item
-                    android:id="@+id/menu_item_hybrid"
-                    android:title="@string/Hybrid"
-                    app:showAsAction="never" />
-                <item
-                    android:id="@+id/menu_item_satellite"
-                    android:title="@string/Satellite"
-                    app:showAsAction="never" />
-                <item
-                    android:id="@+id/menu_item_terrain"
-                    android:title="@string/Terrain"
-                    app:showAsAction="never" />
-            </group>
-        </menu>
-    </item>
-
 </menu>
