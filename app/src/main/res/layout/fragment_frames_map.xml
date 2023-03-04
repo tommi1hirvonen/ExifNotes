@@ -45,8 +45,7 @@
                 app:navigationIcon="@drawable/ic_ab_back_material"
                 app:navigationIconTint="?attr/colorControlNormal"
                 app:title="@{viewmodel.roll.name}"
-                tools:title="@string/Text"
-                app:menu="@menu/menu_map_fragment_single_roll"/>
+                tools:title="@string/Text"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -54,6 +53,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_map"
+                style="?attr/floatingActionButtonSmallSurfaceStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginHorizontal="10dp"
+                android:translationY="-70dp"
+                android:src="@drawable/ic_outline_map_24" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/map"

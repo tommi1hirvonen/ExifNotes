@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.activity.addCallback
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -90,18 +91,21 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
         }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
 
-        // Get map type from preferences
-        val sharedPreferences = PreferenceManager
-            .getDefaultSharedPreferences(requireActivity().baseContext)
-        val mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
-
-        val menu = binding.topAppBar.menu
-        when (mapType) {
-            GoogleMap.MAP_TYPE_NORMAL -> menu.findItem(R.id.menu_item_normal).isChecked = true
-            GoogleMap.MAP_TYPE_HYBRID -> menu.findItem(R.id.menu_item_hybrid).isChecked = true
-            GoogleMap.MAP_TYPE_SATELLITE -> menu.findItem(R.id.menu_item_satellite).isChecked = true
-            GoogleMap.MAP_TYPE_TERRAIN -> menu.findItem(R.id.menu_item_terrain).isChecked = true
-            else -> menu.findItem(R.id.menu_item_normal).isChecked = true
+        binding.fabMap.setOnClickListener {
+            val popupMenu = PopupMenu(requireContext(), binding.fabMap)
+            popupMenu.inflate(R.menu.menu_map_fragment)
+            // Get map type from preferences
+            val sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(requireActivity().baseContext)
+            when (sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)) {
+                GoogleMap.MAP_TYPE_NORMAL -> popupMenu.menu.findItem(R.id.menu_item_normal).isChecked = true
+                GoogleMap.MAP_TYPE_HYBRID -> popupMenu.menu.findItem(R.id.menu_item_hybrid).isChecked = true
+                GoogleMap.MAP_TYPE_SATELLITE -> popupMenu.menu.findItem(R.id.menu_item_satellite).isChecked = true
+                GoogleMap.MAP_TYPE_TERRAIN -> popupMenu.menu.findItem(R.id.menu_item_terrain).isChecked = true
+                else -> popupMenu.menu.findItem(R.id.menu_item_normal).isChecked = true
+            }
+            popupMenu.setOnMenuItemClickListener(onMenuItemSelected)
+            popupMenu.show()
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
