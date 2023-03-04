@@ -126,10 +126,9 @@
                 android:layout_height="18dp"
                 android:id="@+id/picture_image_view"
                 android:src="@drawable/ic_baseline_image_24"
-                android:layout_marginRight="5dp"
-                app:layout_constraintStart_toStartOf="@+id/guideline3"
+                app:layout_constraintStart_toStartOf="@id/drawable_clock"
+                app:layout_constraintEnd_toEndOf="@id/drawable_clock"
                 app:layout_constraintTop_toBottomOf="@id/tvAperture"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:tint="?attr/colorControlNormal" />
 
             <ImageView
@@ -137,16 +136,15 @@
                 android:layout_height="16dp"
                 android:id="@+id/broken_picture_image_view"
                 android:src="@drawable/ic_baseline_broken_image_24"
-                android:layout_marginRight="5dp"
-                app:layout_constraintStart_toStartOf="@+id/guideline3"
+                app:layout_constraintStart_toStartOf="@id/drawable_clock"
+                app:layout_constraintEnd_toEndOf="@id/drawable_clock"
                 app:layout_constraintTop_toBottomOf="@id/tvAperture"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:tint="?attr/colorControlNormal" />
 
             <ImageView
                 android:id="@+id/drawable_clock"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@drawable/ic_baseline_shutter_speed_24"
                 app:layout_constraintStart_toStartOf="@+id/guideline3"
                 app:layout_constraintBottom_toBottomOf="@id/tvShutter"
@@ -172,7 +170,8 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_baseline_camera_24"
-                app:layout_constraintStart_toStartOf="@+id/guideline3"
+                app:layout_constraintStart_toStartOf="@id/drawable_clock"
+                app:layout_constraintEnd_toEndOf="@id/drawable_clock"
                 app:layout_constraintTop_toTopOf="@id/tvAperture"
                 app:layout_constraintBottom_toBottomOf="@id/tvAperture"
                 tools:ignore="ContentDescription,RtlHardcoded"
@@ -189,7 +188,7 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/drawable_aperture"
+                app:layout_constraintStart_toEndOf="@+id/drawable_clock"
                 app:layout_constraintTop_toBottomOf="@+id/tvShutter"
                 tools:ignore="RtlHardcoded,RtlSymmetry" />
 
