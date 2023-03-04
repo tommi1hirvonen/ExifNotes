@@ -27,6 +27,7 @@ import android.view.*
 import android.widget.*
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
@@ -135,18 +136,33 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
             }
         })
 
-        // Get map type from preferences
-        val sharedPreferences = PreferenceManager
-            .getDefaultSharedPreferences(requireActivity().baseContext)
-        val mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
+        binding.fabMarkers.setOnClickListener {
+            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            } else if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        }
 
-        val menu = binding.topAppBar.menu
-        when (mapType) {
-            GoogleMap.MAP_TYPE_NORMAL -> menu.findItem(R.id.menu_item_normal).isChecked = true
-            GoogleMap.MAP_TYPE_HYBRID -> menu.findItem(R.id.menu_item_hybrid).isChecked = true
-            GoogleMap.MAP_TYPE_SATELLITE -> menu.findItem(R.id.menu_item_satellite).isChecked = true
-            GoogleMap.MAP_TYPE_TERRAIN -> menu.findItem(R.id.menu_item_terrain).isChecked = true
-            else -> menu.findItem(R.id.menu_item_normal).isChecked = true
+        binding.fabFilter.setOnClickListener {
+            showFilterDialog()
+        }
+
+        binding.fabMap.setOnClickListener {
+            val popupMenu = PopupMenu(requireContext(), binding.fabMap)
+            popupMenu.inflate(R.menu.menu_map_fragment)
+            // Get map type from preferences
+            val sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(requireActivity().baseContext)
+            when (sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)) {
+                GoogleMap.MAP_TYPE_NORMAL -> popupMenu.menu.findItem(R.id.menu_item_normal).isChecked = true
+                GoogleMap.MAP_TYPE_HYBRID -> popupMenu.menu.findItem(R.id.menu_item_hybrid).isChecked = true
+                GoogleMap.MAP_TYPE_SATELLITE -> popupMenu.menu.findItem(R.id.menu_item_satellite).isChecked = true
+                GoogleMap.MAP_TYPE_TERRAIN -> popupMenu.menu.findItem(R.id.menu_item_terrain).isChecked = true
+                else -> popupMenu.menu.findItem(R.id.menu_item_normal).isChecked = true
+            }
+            popupMenu.setOnMenuItemClickListener(onMenuItemSelected)
+            popupMenu.show()
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -183,39 +199,38 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                 setMapType(GoogleMap.MAP_TYPE_TERRAIN)
                 true
             }
-            R.id.menu_item_filter -> {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                val builder = MaterialAlertDialogBuilder(requireContext())
-                val listItems = rollSelections.map { it.roll.name }.toTypedArray()
-                val checkedItems = rollSelections.map { it.selected }.toBooleanArray()
-                builder.setMultiChoiceItems(listItems, checkedItems) { _, which, isChecked ->
-                    checkedItems[which] = isChecked
-                }
-                builder.setNegativeButton(R.string.Cancel) { _, _ -> }
-                builder.setPositiveButton(R.string.FilterNoColon) { _, _ ->
-                    val newSelections = rollSelections.mapIndexed { index, roll ->
-                        roll.roll to checkedItems[index]
-                    }.filter { it.second }.map { it.first }
-                    model.setSelections(newSelections)
-                }
-                builder.setNeutralButton(R.string.DeselectAll, null)
-                val dialog = builder.create()
-                dialog.show()
-                // Override the neutral button onClick listener after the dialog is shown.
-                // This way the dialog isn't dismissed when the button is pressed.
-                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                    // Deselect all items
-                    val listView = dialog.listView
-                    var i = 0
-                    while (i < listView.count) {
-                        listView.setItemChecked(i, false)
-                        i++
-                    }
-                    checkedItems.fill(false)
-                }
-                true
-            }
             else -> false
+        }
+    }
+
+    private fun showFilterDialog() {
+        val builder = MaterialAlertDialogBuilder(requireContext())
+        val listItems = rollSelections.map { it.roll.name }.toTypedArray()
+        val checkedItems = rollSelections.map { it.selected }.toBooleanArray()
+        builder.setMultiChoiceItems(listItems, checkedItems) { _, which, isChecked ->
+            checkedItems[which] = isChecked
+        }
+        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
+        builder.setPositiveButton(R.string.FilterNoColon) { _, _ ->
+            val newSelections = rollSelections.mapIndexed { index, roll ->
+                roll.roll to checkedItems[index]
+            }.filter { it.second }.map { it.first }
+            model.setSelections(newSelections)
+        }
+        builder.setNeutralButton(R.string.DeselectAll, null)
+        val dialog = builder.create()
+        dialog.show()
+        // Override the neutral button onClick listener after the dialog is shown.
+        // This way the dialog isn't dismissed when the button is pressed.
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+            // Deselect all items
+            val listView = dialog.listView
+            var i = 0
+            while (i < listView.count) {
+                listView.setItemChecked(i, false)
+                i++
+            }
+            checkedItems.fill(false)
         }
     }
 

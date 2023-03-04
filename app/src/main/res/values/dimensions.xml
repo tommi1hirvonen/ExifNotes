@@ -22,7 +22,7 @@
     <dimen name="ComplementaryPictureImageViewHeight">300dp</dimen>
     <dimen name="ItemRollLeftRightPadding">15dp</dimen>
     <dimen name="ItemGearLeftRightPadding">15dp</dimen>
-    <dimen name="MapActivityBottomSheetPeekHeight">50dp</dimen>
+    <dimen name="MapActivityBottomSheetPeekHeight">0dp</dimen>
     <dimen name="FrameDialogSidePadding">15dp</dimen>
     <dimen name="FrameDialogImageMargin">20dp</dimen>
     <dimen name="RollDialogSidePadding">15dp</dimen>

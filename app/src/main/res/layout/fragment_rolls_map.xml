@@ -36,10 +36,43 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_ab_back_material"
             app:navigationIconTint="?attr/colorControlNormal"
-            tools:title="@string/Text"
-            app:menu="@menu/menu_map_fragment_multi_roll"/>
+            tools:title="@string/Text"/>
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_map"
+        style="?attr/floatingActionButtonSmallSurfaceStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@id/fab_filter"
+        android:layout_gravity="top"
+        app:layout_anchorGravity="top|end"
+        android:layout_marginHorizontal="10dp"
+        android:src="@drawable/ic_outline_map_24" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_filter"
+        style="?attr/floatingActionButtonSmallPrimaryStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@id/fab_markers"
+        android:layout_gravity="top"
+        app:layout_anchorGravity="top|end"
+        android:layout_marginHorizontal="10dp"
+        android:src="@drawable/ic_outline_filter_list_24" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_markers"
+        style="?attr/floatingActionButtonSmallTertiaryStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@id/bottom_sheet"
+        android:layout_gravity="top"
+        app:layout_anchorGravity="top|end"
+        android:layout_marginHorizontal="10dp"
+        android:translationY="-70dp"
+        android:src="@drawable/outline_location_on_24" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -93,7 +126,7 @@
                 <ListView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="25dp"
+                    android:layout_marginTop="15dp"
                     android:id="@+id/rolls_list_view"
                     app:layout_constraintTop_toBottomOf="@id/swipe_up_handle"
                     />
