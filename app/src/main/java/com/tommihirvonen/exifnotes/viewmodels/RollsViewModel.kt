@@ -81,12 +81,6 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun requestRollCountsUpdate() {
-        viewModelScope.launch(Dispatchers.IO) {
-            loadRollCounts()
-        }
-    }
-
     fun setRollFilterMode(rollFilterMode: RollFilterMode) {
         val editor = sharedPreferences.edit()
         editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, rollFilterMode.value)
@@ -108,6 +102,7 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             loadCameras()
             loadRolls()
+            loadRollCounts()
         }
     }
 
@@ -127,12 +122,14 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             replaceRoll(roll)
         }
+        viewModelScope.launch { loadRollCounts() }
     }
 
     fun deleteRoll(roll: Roll) {
         database.deleteRoll(roll)
         rollList = rollList.minus(roll)
         mRolls.value = State.Success(rollList)
+        viewModelScope.launch { loadRollCounts() }
     }
 
     private fun replaceRoll(roll: Roll) {

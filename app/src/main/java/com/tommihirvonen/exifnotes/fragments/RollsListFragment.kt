@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Rect
 import android.graphics.Typeface
@@ -96,6 +97,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentRollsListBinding.inflate(inflater, container, false)
@@ -341,6 +343,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         true
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
         rollAdapter.notifyDataSetChanged()
@@ -602,7 +605,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         model.submitRoll(roll)
                     }
                     actionMode.finish()
-                    model.requestRollCountsUpdate()
                     binding.container
                         .snackbar(R.string.RollsArchived, binding.fab, Snackbar.LENGTH_SHORT)
                     true
@@ -613,7 +615,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         model.submitRoll(roll)
                     }
                     actionMode.finish()
-                    model.requestRollCountsUpdate()
                     binding.container
                         .snackbar(R.string.RollsActivated, binding.fab, Snackbar.LENGTH_SHORT)
                     true
