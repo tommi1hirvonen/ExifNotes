@@ -123,6 +123,8 @@ dependencies {
     implementation 'androidx.databinding:databinding-runtime:7.4.0'
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
+    implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigation_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigation_version"
 
     // For local unit tests
     testImplementation "junit:junit:4.13.2"
