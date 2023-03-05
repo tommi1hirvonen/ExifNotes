@@ -100,22 +100,16 @@ class RollEditFragment : Fragment() {
             model.cameras = cameras
         }
 
+        binding.addFilmStock.setOnClickListener {
+            binding.noteEditText.clearFocus()
+            binding.nameEditText.clearFocus()
+            val title = resources.getString(R.string.AddNewFilmStock)
+            val positiveButtonText = resources.getString(R.string.Add)
+            val action = RollEditFragmentDirections.rollFilmStockEditAction(null, title, positiveButtonText)
+            findNavController().navigate(action)
+        }
+
         // TODO Implement with JetPack Navigation
-//        binding.addFilmStock.setOnClickListener {
-//            binding.noteEditText.clearFocus()
-//            binding.nameEditText.clearFocus()
-//            val dialog = FilmStockEditDialog()
-//            val arguments = Bundle()
-//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
-//            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-//            dialog.arguments = arguments
-//            val transaction = requireParentFragment().childFragmentManager
-//                .beginTransaction()
-//                .addToBackStack(backStackName)
-//            dialog.show(transaction, FilmStockEditDialog.TAG)
-//            dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY, onFilmStockAdded)
-//        }
-//
 //        binding.filmStockLayout.setOnClickListener {
 //            val dialog = SelectFilmStockDialog()
 //            val transaction = requireParentFragment().childFragmentManager
@@ -179,13 +173,13 @@ class RollEditFragment : Fragment() {
             rollsModel.addCamera(camera)
             model.observable.setCamera(camera)
         }
+        val navBackStackEntry = findNavController().getBackStackEntry(R.id.roll_edit_dest)
+        navBackStackEntry.observeThenClearNavigationResult<FilmStock>(viewLifecycleOwner, ExtraKeys.FILM_STOCK) { filmStock ->
+            filmStock?.let(model::addFilmStock)
+        }
     }
 
     private val onFilmStockSelected: (String, Bundle) -> Unit = { _, bundle ->
         bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model.observable::setFilmStock)
-    }
-
-    private val onFilmStockAdded: (String, Bundle) -> Unit = { _, bundle ->
-        bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::addFilmStock)
     }
 }
