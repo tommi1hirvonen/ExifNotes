@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,8 +26,8 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -45,9 +46,6 @@ import com.tommihirvonen.exifnotes.viewmodels.State
  */
 class LensesFragment : Fragment() {
 
-    private val gearFragment by lazy {
-        requireParentFragment() as GearFragment
-    }
     private val model: GearViewModel by activityViewModels()
     private var cameras: List<Camera> = emptyList()
     private var lenses: List<Lens> = emptyList()
@@ -55,16 +53,7 @@ class LensesFragment : Fragment() {
 
     private lateinit var binding:FragmentLensesBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Check if an existing lens edit fragment is open after configuration change
-        // and attach listener if so.
-        val fragment = gearFragment.childFragmentManager.findFragmentByTag(LensEditFragment.TAG)
-        fragment?.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::submitLens)
-        }
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentLensesBinding.inflate(inflater, container, false)
@@ -117,41 +106,22 @@ class LensesFragment : Fragment() {
         popup.show()
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        observeThenClearNavigationResult(ExtraKeys.LENS, model::submitLens)
+    }
+
     private fun showEditLensFragment(sharedElement: View, lens: Lens?) {
-        // TODO
-//        val sharedElementTransition = TransitionSet()
-//            .addTransition(ChangeBounds())
-//            .addTransition(ChangeTransform())
-//            .addTransition(ChangeImageTransform())
-//            .addTransition(Fade())
-//            .setCommonInterpolator(FastOutSlowInInterpolator())
-//            .apply { duration = 250L }
-//        val fragment = LensEditFragment().apply {
-//            sharedElementEnterTransition = sharedElementTransition
-//        }
-//        val arguments = Bundle()
-//        arguments.putBoolean(ExtraKeys.FIXED_LENS, false)
-//        if (lens == null) {
-//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
-//        } else {
-//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditLens))
-//            arguments.putParcelable(ExtraKeys.LENS, lens)
-//        }
-//
-//        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-//        fragment.arguments = arguments
-//
-//        gearFragment.childFragmentManager
-//            .beginTransaction()
-//            .setReorderingAllowed(true)
-//            .addSharedElement(sharedElement, sharedElement.transitionName)
-//            .replace(R.id.gear_fragment_container, fragment, LensEditFragment.TAG)
-//            .addToBackStack(GearFragment.BACKSTACK_NAME)
-//            .commit()
-//
-//        fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-//            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::submitLens)
-//        }
+        val title = if (lens == null) {
+            resources.getString(R.string.AddNewLens)
+        } else {
+            resources.getString(R.string.EditLens)
+        }
+        val action = GearFragmentDirections
+            .lensEditAction(lens, false, title, sharedElement.transitionName)
+        val extras = FragmentNavigatorExtras(
+            sharedElement to sharedElement.transitionName
+        )
+        findNavController().navigate(action, extras)
     }
 
     private fun confirmDeleteLens(lens: Lens) {

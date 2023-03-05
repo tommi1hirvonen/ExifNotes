@@ -110,11 +110,12 @@ class FrameEditFragment : Fragment() {
             bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
         }
 
-        val addLensFragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(LensEditFragment.TAG)
-        addLensFragment?.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
-        }
+        // TODO
+//        val addLensFragment = requireParentFragment().childFragmentManager
+//            .findFragmentByTag(LensEditFragment.TAG)
+//        addLensFragment?.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
+//            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
+//        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -437,33 +438,34 @@ class FrameEditFragment : Fragment() {
     }
 
     private fun showNewLensFragment() {
-        val sharedElementTransition = TransitionSet()
-            .addTransition(ChangeBounds())
-            .addTransition(ChangeTransform())
-            .addTransition(ChangeImageTransform())
-            .addTransition(Fade())
-            .setCommonInterpolator(FastOutSlowInInterpolator())
-            .apply { duration = 250L }
-        val fragment = LensEditFragment().apply {
-            sharedElementEnterTransition = sharedElementTransition
-        }
-        val arguments = Bundle()
-        arguments.putBoolean(ExtraKeys.FIXED_LENS, false)
-        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
-        val sharedElement = binding.addLens
-        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-        fragment.arguments = arguments
-        requireParentFragment().childFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(fragmentContainerId, fragment, LensEditFragment.TAG)
-            .addToBackStack(backStackName)
-            .commit()
-
-        fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
-        }
+        // TODO
+//        val sharedElementTransition = TransitionSet()
+//            .addTransition(ChangeBounds())
+//            .addTransition(ChangeTransform())
+//            .addTransition(ChangeImageTransform())
+//            .addTransition(Fade())
+//            .setCommonInterpolator(FastOutSlowInInterpolator())
+//            .apply { duration = 250L }
+//        val fragment = LensEditFragment().apply {
+//            sharedElementEnterTransition = sharedElementTransition
+//        }
+//        val arguments = Bundle()
+//        arguments.putBoolean(ExtraKeys.FIXED_LENS, false)
+//        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
+//        val sharedElement = binding.addLens
+//        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+//        fragment.arguments = arguments
+//        requireParentFragment().childFragmentManager
+//            .beginTransaction()
+//            .setReorderingAllowed(true)
+//            .addSharedElement(sharedElement, sharedElement.transitionName)
+//            .replace(fragmentContainerId, fragment, LensEditFragment.TAG)
+//            .addToBackStack(backStackName)
+//            .commit()
+//
+//        fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
+//            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
+//        }
     }
 
     // LISTENER CLASSES USED TO OPEN NEW DIALOGS AFTER ONCLICK EVENTS

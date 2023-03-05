@@ -47,7 +47,7 @@ import com.tommihirvonen.exifnotes.viewmodels.CameraEditViewModelFactory
  */
 class CameraEditFragment : Fragment() {
 
-    private val arguments  by navArgs<CameraEditFragmentArgs>()
+    private val arguments by navArgs<CameraEditFragmentArgs>()
 
     private val editModel by lazy {
         val camera = arguments.camera?.copy() ?: Camera()
