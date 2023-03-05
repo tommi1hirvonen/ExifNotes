@@ -25,7 +25,7 @@ import android.view.*
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,7 +47,7 @@ import com.tommihirvonen.exifnotes.viewmodels.FilmStocksViewModel
 
 class FilmStocksFragment : Fragment(), MenuProvider {
 
-    private val model by activityViewModels<FilmStocksViewModel>()
+    private val model by viewModels<FilmStocksViewModel>()
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

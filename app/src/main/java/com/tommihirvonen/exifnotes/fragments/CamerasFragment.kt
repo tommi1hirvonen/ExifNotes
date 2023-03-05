@@ -25,9 +25,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -45,7 +45,10 @@ import com.tommihirvonen.exifnotes.viewmodels.State
  */
 class CamerasFragment : Fragment() {
 
-    private val model: GearViewModel by activityViewModels()
+    // Share the ViewModel together with FiltersFragment and LensesFragment
+    // through the same navigation subgraph.
+    private val model by navGraphViewModels<GearViewModel>(R.id.gear_navigation)
+
     private var cameras: List<Camera> = emptyList()
     private var lenses: List<Lens> = emptyList()
     private var filters: List<Filter> = emptyList()
