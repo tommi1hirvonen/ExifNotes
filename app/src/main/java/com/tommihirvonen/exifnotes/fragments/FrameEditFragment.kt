@@ -104,11 +104,12 @@ class FrameEditFragment : Fragment() {
             requireParentFragment().childFragmentManager.popBackStack()
         }
 
-        val addFilterDialog = requireParentFragment().childFragmentManager
-            .findFragmentByTag(FilterEditDialog.TAG)
-        addFilterDialog?.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
-        }
+        // TODO
+//        val addFilterDialog = requireParentFragment().childFragmentManager
+//            .findFragmentByTag(FilterEditDialog.TAG)
+//        addFilterDialog?.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
+//            bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
+//        }
 
         // TODO
 //        val addLensFragment = requireParentFragment().childFragmentManager
@@ -216,19 +217,20 @@ class FrameEditFragment : Fragment() {
         binding.filtersButton.setOnClickListener(filtersButtonOnClickListener)
 
         binding.addFilter.setOnClickListener {
-            binding.noteEditText.clearFocus()
-            val dialog = FilterEditDialog()
-            val arguments = Bundle()
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-            dialog.arguments = arguments
-            val transaction = requireParentFragment().childFragmentManager
-                .beginTransaction()
-                .addToBackStack(backStackName)
-            dialog.show(transaction, FilterEditDialog.TAG)
-            dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-                bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
-            }
+            // TODO
+//            binding.noteEditText.clearFocus()
+//            val dialog = FilterEditDialog()
+//            val arguments = Bundle()
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
+//            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+//            dialog.arguments = arguments
+//            val transaction = requireParentFragment().childFragmentManager
+//                .beginTransaction()
+//                .addToBackStack(backStackName)
+//            dialog.show(transaction, FilterEditDialog.TAG)
+//            dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
+//                bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
+//            }
         }
 
         binding.complementaryPicturesOptionsButton

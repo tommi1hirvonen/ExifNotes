@@ -31,6 +31,9 @@
         <action
             android:id="@+id/lens_edit_action"
             app:destination="@id/lens_edit_dest" />
+        <action
+            android:id="@+id/filter_edit_action"
+            app:destination="@id/filter_edit_dest" />
     </fragment>
     <fragment
         android:id="@+id/camera_edit_dest"
@@ -65,4 +68,19 @@
             android:name="transitionName"
             app:argType="string" />
     </fragment>
+    <dialog
+        android:id="@+id/filter_edit_dest"
+        android:name="com.tommihirvonen.exifnotes.dialogs.FilterEditDialog"
+        android:label="FilterEditDialog" >
+        <argument
+            android:name="filter"
+            app:argType="com.tommihirvonen.exifnotes.datastructures.Filter"
+            app:nullable="true" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="positiveButtonText"
+            app:argType="string" />
+    </dialog>
 </navigation>
