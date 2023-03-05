@@ -32,11 +32,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.*
@@ -60,11 +60,7 @@ import kotlinx.coroutines.launch
  */
 class RollsListFragment : Fragment(), RollAdapterListener {
 
-    companion object {
-        const val TAG = "ROLLS_LIST_FRAGMENT"
-    }
-
-    private val model by activityViewModels<RollsViewModel>()
+    private val model by navGraphViewModels<RollsViewModel>(R.id.main_navigation)
     private var rolls = emptyList<Roll>()
     private lateinit var rollAdapter: RollAdapter
     private lateinit var binding: FragmentRollsListBinding
@@ -85,17 +81,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     private var reenterFadeDuration = 0L
 
     private var tappedRollPosition = RecyclerView.NO_POSITION
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Check if the roll edit fragment was left open after configuration change.
-        // If so, reattach the fragment result listener.
-        val fragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(RollEditFragment.TAG)
-        fragment?.setFragmentResultListener(RollEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Roll>(ExtraKeys.ROLL)?.let(model::submitRoll)
-        }
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -423,44 +408,18 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
     private fun showEditRollFragment(roll: Roll?, sharedElement: View) {
         actionMode?.finish()
-
         exitTransition = null
         reenterFadeDuration = transitionDurationEditRoll
-
-        val sharedElementTransition = TransitionSet()
-            .addTransition(ChangeBounds())
-            .addTransition(ChangeTransform())
-            .addTransition(ChangeImageTransform())
-            .addTransition(Fade())
-            .setCommonInterpolator(transitionInterpolator)
-            .apply { duration = transitionDurationEditRoll }
-
-        val fragment = RollEditFragment().apply {
-            sharedElementEnterTransition = sharedElementTransition
-        }
-
-        val arguments = Bundle()
-        if (roll == null) {
-            arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.AddNewRoll))
+        val title = if (roll == null) {
+            requireActivity().resources.getString(R.string.AddNewRoll)
         } else {
-            arguments.putParcelable(ExtraKeys.ROLL, roll)
-            arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
+            requireActivity().resources.getString(R.string.EditRoll)
         }
-
-        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-        arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.rolls_fragment_container)
-        fragment.arguments = arguments
-
-        requireParentFragment().childFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.rolls_fragment_container, fragment, RollEditFragment.TAG)
-            .commit()
-
-        fragment.setFragmentResultListener(RollEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Roll>(ExtraKeys.ROLL)?.let(model::submitRoll)
-        }
+        val action = RollsListFragmentDirections.rollEditAction(roll, title, sharedElement.transitionName)
+        val extras = FragmentNavigatorExtras(
+            sharedElement to sharedElement.transitionName)
+        findNavController().navigate(action, extras)
+        getNavigationResult<Roll>()?.observeOnce(viewLifecycleOwner, model::submitRoll)
     }
 
     /**

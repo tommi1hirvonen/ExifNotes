@@ -102,10 +102,11 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             requireParentFragment().requireParentFragment().childFragmentManager.popBackStack()
         }
 
-        val rollEditFragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(RollEditFragment.TAG)
-        rollEditFragment
-            ?.setFragmentResultListener(RollEditFragment.REQUEST_KEY, onRollEditListener)
+        // TODO
+//        val rollEditFragment = requireParentFragment().childFragmentManager
+//            .findFragmentByTag(RollEditFragment.TAG)
+//        rollEditFragment
+//            ?.setFragmentResultListener(RollEditFragment.REQUEST_KEY, onRollEditListener)
 
         val frameEditFragment = requireParentFragment().childFragmentManager
             .findFragmentByTag(FrameEditFragment.TAG)
@@ -412,14 +413,16 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             sharedElementEnterTransition = sharedElementTransition
             arguments = args
         }
-        requireParentFragment().childFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.frames_fragment_container, fragment, RollEditFragment.TAG)
-            .addToBackStack(FramesFragment.BACKSTACK_NAME)
-            .commit()
-        fragment.setFragmentResultListener(RollEditFragment.REQUEST_KEY, onRollEditListener)
+        // TODO
+//        requireParentFragment().childFragmentManager
+//            .beginTransaction()
+//            .setReorderingAllowed(true)
+//            .addSharedElement(sharedElement, sharedElement.transitionName)
+//            .replace(R.id.frames_fragment_container, fragment, RollEditFragment.TAG)
+//            .addToBackStack(FramesFragment.BACKSTACK_NAME)
+//            .commit()
+
+        // fragment.setFragmentResultListener(RollEditFragment.REQUEST_KEY, onRollEditListener)
     }
 
     private fun enableActionMode(frame: Frame) {

@@ -22,13 +22,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.*
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
-import androidx.transition.*
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.navigation.navGraphViewModels
+import androidx.transition.ChangeBounds
+import androidx.transition.ChangeImageTransform
+import androidx.transition.ChangeTransform
+import androidx.transition.Fade
+import androidx.transition.TransitionSet
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentRollEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
@@ -47,20 +53,11 @@ import java.time.LocalDateTime
  */
 class RollEditFragment : Fragment() {
 
-    companion object {
-        const val TAG = "ROLL_EDIT_FRAGMENT"
-        const val REQUEST_KEY = TAG
+    private val rollsModel by navGraphViewModels<RollsViewModel>(R.id.main_navigation)
+    private val roll by lazy {
+        val args: RollEditFragmentArgs by navArgs()
+        args.roll?: Roll()
     }
-
-    private val backStackName by lazy {
-        requireArguments().getString(ExtraKeys.BACKSTACK_NAME)
-    }
-    private val fragmentContainerId by lazy {
-        requireArguments().getInt(ExtraKeys.FRAGMENT_CONTAINER_ID)
-    }
-
-    private val rollsModel by activityViewModels<RollsViewModel>()
-    private val roll by lazy { requireArguments().parcelable(ExtraKeys.ROLL) ?: Roll() }
     private val model by lazy {
         val factory = RollEditViewModelFactory(requireActivity().application, roll.copy())
         ViewModelProvider(this, factory)[RollEditViewModel::class.java]
@@ -68,9 +65,14 @@ class RollEditFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            requireParentFragment().childFragmentManager.popBackStack()
-        }
+
+        sharedElementEnterTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(FastOutSlowInInterpolator())
+            .apply { duration = 250L }
 
         val addFilmStockFragment = requireParentFragment().childFragmentManager
             .findFragmentByTag(FilmStockEditDialog.TAG)
@@ -90,11 +92,11 @@ class RollEditFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentRollEditBinding.inflate(inflater, container, false)
 
-        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
-        binding.root.transitionName = transitionName
-        binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
+        val args: RollEditFragmentArgs by navArgs()
+        binding.root.transitionName = args.transitionName
+        binding.topAppBar.title = args.title
         binding.topAppBar.setNavigationOnClickListener {
-            requireParentFragment().childFragmentManager.popBackStack()
+            findNavController().navigateUp()
         }
 
         binding.viewmodel = model.observable
@@ -103,58 +105,59 @@ class RollEditFragment : Fragment() {
             model.cameras = cameras
         }
 
-        binding.addFilmStock.setOnClickListener {
-            binding.noteEditText.clearFocus()
-            binding.nameEditText.clearFocus()
-            val dialog = FilmStockEditDialog()
-            val arguments = Bundle()
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-            dialog.arguments = arguments
-            val transaction = requireParentFragment().childFragmentManager
-                .beginTransaction()
-                .addToBackStack(backStackName)
-            dialog.show(transaction, FilmStockEditDialog.TAG)
-            dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY, onFilmStockAdded)
-        }
-
-        binding.filmStockLayout.setOnClickListener {
-            val dialog = SelectFilmStockDialog()
-            val transaction = requireParentFragment().childFragmentManager
-                .beginTransaction().addToBackStack(backStackName)
-            dialog.show(transaction, SelectFilmStockDialog.TAG)
-            dialog.setFragmentResultListener(SelectFilmStockDialog.REQUEST_KEY, onFilmStockSelected)
-        }
-
-        binding.addCamera.setOnClickListener {
-            val sharedElementTransition = TransitionSet()
-                .addTransition(ChangeBounds())
-                .addTransition(ChangeTransform())
-                .addTransition(ChangeImageTransform())
-                .addTransition(Fade())
-                .setCommonInterpolator(FastOutSlowInInterpolator())
-                .apply { duration = 250L }
-            val fragment = CameraEditFragment().apply {
-                sharedElementEnterTransition = sharedElementTransition
-            }
-            val sharedElement = binding.addCamera
-            val arguments = Bundle()
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
-            arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-            arguments.putString(ExtraKeys.BACKSTACK_NAME, backStackName)
-            arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, fragmentContainerId)
-            fragment.arguments = arguments
-
-            requireParentFragment().childFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .addSharedElement(sharedElement, sharedElement.transitionName)
-                .replace(fragmentContainerId, fragment, CameraEditFragment.TAG)
-                .addToBackStack(backStackName)
-                .commit()
-
-            fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY, onCameraAdded)
-        }
+        // TODO Implement with JetPack Navigation
+//        binding.addFilmStock.setOnClickListener {
+//            binding.noteEditText.clearFocus()
+//            binding.nameEditText.clearFocus()
+//            val dialog = FilmStockEditDialog()
+//            val arguments = Bundle()
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
+//            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+//            dialog.arguments = arguments
+//            val transaction = requireParentFragment().childFragmentManager
+//                .beginTransaction()
+//                .addToBackStack(backStackName)
+//            dialog.show(transaction, FilmStockEditDialog.TAG)
+//            dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY, onFilmStockAdded)
+//        }
+//
+//        binding.filmStockLayout.setOnClickListener {
+//            val dialog = SelectFilmStockDialog()
+//            val transaction = requireParentFragment().childFragmentManager
+//                .beginTransaction().addToBackStack(backStackName)
+//            dialog.show(transaction, SelectFilmStockDialog.TAG)
+//            dialog.setFragmentResultListener(SelectFilmStockDialog.REQUEST_KEY, onFilmStockSelected)
+//        }
+//
+//        binding.addCamera.setOnClickListener {
+//            val sharedElementTransition = TransitionSet()
+//                .addTransition(ChangeBounds())
+//                .addTransition(ChangeTransform())
+//                .addTransition(ChangeImageTransform())
+//                .addTransition(Fade())
+//                .setCommonInterpolator(FastOutSlowInInterpolator())
+//                .apply { duration = 250L }
+//            val fragment = CameraEditFragment().apply {
+//                sharedElementEnterTransition = sharedElementTransition
+//            }
+//            val sharedElement = binding.addCamera
+//            val arguments = Bundle()
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
+//            arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+//            arguments.putString(ExtraKeys.BACKSTACK_NAME, backStackName)
+//            arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, fragmentContainerId)
+//            fragment.arguments = arguments
+//
+//            requireParentFragment().childFragmentManager
+//                .beginTransaction()
+//                .setReorderingAllowed(true)
+//                .addSharedElement(sharedElement, sharedElement.transitionName)
+//                .replace(fragmentContainerId, fragment, CameraEditFragment.TAG)
+//                .addToBackStack(backStackName)
+//                .commit()
+//
+//            fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY, onCameraAdded)
+//        }
 
         // DATE
         if (roll.date == null) {
@@ -181,11 +184,8 @@ class RollEditFragment : Fragment() {
 
         binding.positiveButton.setOnClickListener {
             if (model.validate()) {
-                val bundle = Bundle().apply {
-                    putParcelable(ExtraKeys.ROLL, model.roll)
-                }
-                setFragmentResult(REQUEST_KEY, bundle)
-                requireParentFragment().childFragmentManager.popBackStack()
+                setNavigationResult(model.roll)
+                findNavController().navigateUp()
             }
         }
 
