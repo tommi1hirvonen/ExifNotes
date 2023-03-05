@@ -35,6 +35,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
@@ -111,12 +112,6 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         sharedElementEnterTransition = sharedElementTransition
         sharedElementReturnTransition = sharedElementTransition
 
-        // TODO
-//        val rollEditFragment = requireParentFragment().childFragmentManager
-//            .findFragmentByTag(RollEditFragment.TAG)
-//        rollEditFragment
-//            ?.setFragmentResultListener(RollEditFragment.REQUEST_KEY, onRollEditListener)
-
         val frameEditFragment = requireParentFragment().childFragmentManager
             .findFragmentByTag(FrameEditFragment.TAG)
         frameEditFragment
@@ -188,6 +183,10 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 duration = transitionDuration
                 start()
             }
+        }
+        observeAndClearNavigationResult(ExtraKeys.ROLL) { roll: Roll ->
+            rollModel.submitRoll(roll)
+            model.setRoll(roll)
         }
     }
 
@@ -283,13 +282,6 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
     private val onFrameEditListener: (String, Bundle) -> Unit = { _, bundle ->
         actionMode?.finish()
         bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
-    }
-
-    private val onRollEditListener: (String, Bundle) -> Unit = { _, bundle ->
-        bundle.parcelable<Roll>(ExtraKeys.ROLL)?.let{
-            rollModel.submitRoll(it)
-            model.setRoll(it)
-        }
     }
 
     private val onTopMenuItemClick = { item: MenuItem ->
@@ -407,36 +399,13 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
 
     private fun showRollEditFragment() {
-        // TODO
-//        val sharedElement = binding.topAppBar
-//        val sharedElementTransition = TransitionSet()
-//            .addTransition(ChangeBounds())
-//            .addTransition(ChangeTransform())
-//            .addTransition(ChangeImageTransform())
-//            .addTransition(Fade())
-//            .setCommonInterpolator(transitionInterpolator)
-//            .apply { duration = transitionDuration }
-//        val args = Bundle().apply {
-//            putParcelable(ExtraKeys.ROLL, roll)
-//            putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
-//            putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-//            putString(ExtraKeys.BACKSTACK_NAME, FramesFragment.BACKSTACK_NAME)
-//            putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.frames_fragment_container)
-//        }
-//        val fragment = RollEditFragment().apply {
-//            sharedElementEnterTransition = sharedElementTransition
-//            arguments = args
-//        }
-        // TODO
-//        requireParentFragment().childFragmentManager
-//            .beginTransaction()
-//            .setReorderingAllowed(true)
-//            .addSharedElement(sharedElement, sharedElement.transitionName)
-//            .replace(R.id.frames_fragment_container, fragment, RollEditFragment.TAG)
-//            .addToBackStack(FramesFragment.BACKSTACK_NAME)
-//            .commit()
-
-        // fragment.setFragmentResultListener(RollEditFragment.REQUEST_KEY, onRollEditListener)
+        val sharedElement = binding.topAppBar
+        val title = requireActivity().resources.getString(R.string.EditRoll)
+        val action = FramesListFragmentDirections.rollEditAction(roll, title, sharedElement.transitionName)
+        val extras = FragmentNavigatorExtras(
+            sharedElement to sharedElement.transitionName
+        )
+        findNavController().navigate(action, extras)
     }
 
     private fun enableActionMode(frame: Frame) {
