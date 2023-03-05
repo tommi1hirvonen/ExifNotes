@@ -27,6 +27,7 @@ import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.ChangeBounds
@@ -99,42 +100,19 @@ class CameraEditFragment : Fragment() {
         (view.parent as ViewGroup).doOnPreDraw {
             startPostponedEnterTransition()
         }
+        observeThenClearNavigationResult(ExtraKeys.LENS, editModel.observable::setLens)
     }
 
     private fun navigateBack() = findNavController().navigateUp()
 
     private fun showFixedLensFragment(sharedElement: View) {
-        // TODO
-//        val sharedElementTransition = TransitionSet()
-//            .addTransition(ChangeBounds())
-//            .addTransition(ChangeTransform())
-//            .addTransition(ChangeImageTransform())
-//            .addTransition(Fade())
-//            .setCommonInterpolator(FastOutSlowInInterpolator())
-//            .apply { duration = 250L }
-//        val fragment = LensEditFragment().apply {
-//            sharedElementEnterTransition = sharedElementTransition
-//        }
-//        val arguments = Bundle()
-//        arguments.putBoolean(ExtraKeys.FIXED_LENS, true)
-//        editModel.camera.lens?.let {
-//            arguments.putParcelable(ExtraKeys.LENS, it)
-//        }
-//        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.SetFixedLens))
-//        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-//        fragment.arguments = arguments
-//        val backStack = requireArguments().getString(ExtraKeys.BACKSTACK_NAME)
-//        requireParentFragment().childFragmentManager
-//            .beginTransaction()
-//            .setReorderingAllowed(true)
-//            .addSharedElement(sharedElement, sharedElement.transitionName)
-//            .replace(fragmentContainerId, fragment, LensEditFragment.TAG)
-//            .addToBackStack(backStack)
-//            .commit()
-//
-//        fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-//            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(editModel.observable::setLens)
-//        }
+        val title = resources.getString(R.string.SetFixedLens)
+        val action = CameraEditFragmentDirections
+            .fixedLensEditAction(editModel.camera.lens, true, title, sharedElement.transitionName)
+        val extras = FragmentNavigatorExtras(
+            sharedElement to sharedElement.transitionName
+        )
+        findNavController().navigate(action, extras)
     }
 
 }

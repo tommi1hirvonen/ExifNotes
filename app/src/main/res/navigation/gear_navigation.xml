@@ -52,6 +52,9 @@
         <argument
             android:name="transitionName"
             app:argType="string" />
+        <action
+            android:id="@+id/fixed_lens_edit_action"
+            app:destination="@id/lens_edit_dest" />
     </fragment>
     <fragment
         android:id="@+id/lens_edit_dest"
