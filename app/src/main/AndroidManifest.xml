@@ -73,15 +73,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.GearActivity"
-            android:label="GearActivity"
-            android:parentActivityName=".activities.MainActivity"
-            android:windowSoftInputMode="adjustPan">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
-        </activity>
-        <activity
             android:name=".activities.PreferenceActivity"
             android:label="PreferenceActivity"
             android:parentActivityName=".activities.MainActivity">

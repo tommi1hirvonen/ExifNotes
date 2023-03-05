@@ -287,12 +287,13 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         val navigationMenu = binding.navigationView.menu
         when (item.itemId) {
             R.id.menu_item_gear -> {
-                val gearActivityIntent = Intent(activity, GearActivity::class.java)
+                model.gearRefreshPending = true
+                val action = RollsListFragmentDirections.gearAction()
                 viewLifecycleOwner.lifecycleScope.launch {
                     // Small delay so that the drawer has enough time to close
-                    // before a new activity is started.
+                    // before the transaction happens
                     delay(200)
-                    gearResultLauncher.launch(gearActivityIntent)
+                    findNavController().navigate(action)
                 }
             }
             R.id.menu_item_preferences -> {
@@ -338,13 +339,11 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
+        if (model.gearRefreshPending) {
+            model.gearRefreshPending = false
+            model.loadAll()
+        }
         rollAdapter.notifyDataSetChanged()
-    }
-
-    private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        // Update fragment after the user navigates back from the GearActivity.
-        // Cameras might have been edited, so they need to be reloaded.
-        model.loadAll()
     }
 
     private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

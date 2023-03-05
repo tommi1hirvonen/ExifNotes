@@ -26,6 +26,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
@@ -65,7 +66,7 @@ class GearFragment : Fragment() {
         binding = FragmentGearBinding.inflate(inflater)
 
         topAppBar = binding.topAppBar
-        topAppBar.setNavigationOnClickListener { requireActivity().finish() }
+        topAppBar.setNavigationOnClickListener { findNavController().navigateUp() }
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = binding.viewPager
