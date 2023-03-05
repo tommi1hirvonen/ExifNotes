@@ -26,7 +26,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.*
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -56,9 +55,8 @@ class RollEditFragment : Fragment() {
     private val roll by lazy {
         arguments.roll?: Roll()
     }
-    private val model by lazy {
-        val factory = RollEditViewModelFactory(requireActivity().application, roll.copy())
-        ViewModelProvider(this, factory)[RollEditViewModel::class.java]
+    private val model by viewModels<RollEditViewModel> {
+        RollEditViewModelFactory(requireActivity().application, roll.copy())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

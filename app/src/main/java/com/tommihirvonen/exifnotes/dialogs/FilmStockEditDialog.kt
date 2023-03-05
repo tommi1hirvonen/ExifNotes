@@ -23,7 +23,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -39,10 +39,9 @@ class FilmStockEditDialog : DialogFragment() {
 
     private val arguments by navArgs<FilmStockEditDialogArgs>()
 
-    private val editModel by lazy {
+    private val editModel by viewModels<FilmStockEditViewModel> {
         val filmStock = arguments.filmStock?.copy() ?: FilmStock()
-        val factory = FilmStockEditViewModelFactory(requireActivity().application, filmStock)
-        ViewModelProvider(this, factory)[FilmStockEditViewModel::class.java]
+        FilmStockEditViewModelFactory(requireActivity().application, filmStock)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

@@ -30,8 +30,8 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.ChangeBounds
@@ -57,11 +57,10 @@ class LensEditFragment : Fragment() {
 
     private val arguments by navArgs<LensEditFragmentArgs>()
 
-    private val model by lazy {
+    private val model by viewModels<LensEditViewModel> {
         val fixedLens = arguments.fixedLens
         val lens = arguments.lens?.copy() ?: Lens()
-        val factory = LensEditViewModelFactory(requireActivity().application, fixedLens, lens.copy())
-        ViewModelProvider(this, factory)[LensEditViewModel::class.java]
+        LensEditViewModelFactory(requireActivity().application, fixedLens, lens.copy())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

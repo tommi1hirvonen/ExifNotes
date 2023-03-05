@@ -25,8 +25,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -50,10 +50,9 @@ class CameraEditFragment : Fragment() {
 
     private val arguments by navArgs<CameraEditFragmentArgs>()
 
-    private val editModel by lazy {
+    private val editModel by viewModels<CameraEditViewModel> {
         val camera = arguments.camera?.copy() ?: Camera()
-        val factory = CameraEditViewModelFactory(requireActivity().application, camera)
-        ViewModelProvider(this, factory)[CameraEditViewModel::class.java]
+        CameraEditViewModelFactory(requireActivity().application, camera)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

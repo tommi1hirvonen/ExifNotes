@@ -24,7 +24,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -43,10 +43,9 @@ class FilterEditDialog : DialogFragment() {
 
     private val arguments by navArgs<FilterEditDialogArgs>()
 
-    private val editModel by lazy {
+    private val editModel by viewModels<FilterEditViewModel> {
         val filter = arguments.filter?.copy() ?: Filter()
-        val factory = FilterEditViewModelFactory(requireActivity().application, filter)
-        ViewModelProvider(this, factory)[FilterEditViewModel::class.java]
+        FilterEditViewModelFactory(requireActivity().application, filter)
     }
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
