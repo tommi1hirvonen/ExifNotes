@@ -71,18 +71,6 @@ class RollEditFragment : Fragment() {
             .addTransition(Fade())
             .setCommonInterpolator(FastOutSlowInInterpolator())
             .apply { duration = 250L }
-
-        // TODO
-//        val addFilmStockFragment = requireParentFragment().childFragmentManager
-//            .findFragmentByTag(FilmStockEditDialog.TAG)
-//        addFilmStockFragment
-//            ?.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY, onFilmStockAdded)
-
-        // TODO
-//        val selectFilmStockDialog = requireParentFragment().childFragmentManager
-//            .findFragmentByTag(SelectFilmStockDialog.TAG)
-//        selectFilmStockDialog
-//            ?.setFragmentResultListener(SelectFilmStockDialog.REQUEST_KEY, onFilmStockSelected)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
