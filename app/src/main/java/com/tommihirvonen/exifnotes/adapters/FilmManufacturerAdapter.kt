@@ -34,7 +34,7 @@ import java.util.*
 
 class FilmManufacturerAdapter(
         private val context: Context,
-        private val listener: (FilmStock?) -> Unit?)
+        private val listener: (FilmStock?) -> Any?)
     : RecyclerView.Adapter<FilmManufacturerAdapter.ViewHolder>() {
 
     private val expandedManufacturers = SparseBooleanArray()

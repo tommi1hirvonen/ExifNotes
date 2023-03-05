@@ -83,10 +83,11 @@ class RollEditFragment : Fragment() {
             .findFragmentByTag(CameraEditFragment.TAG)
         addCameraFragment?.setFragmentResultListener(CameraEditFragment.REQUEST_KEY, onCameraAdded)
 
-        val selectFilmStockDialog = requireParentFragment().childFragmentManager
-            .findFragmentByTag(SelectFilmStockDialog.TAG)
-        selectFilmStockDialog
-            ?.setFragmentResultListener(SelectFilmStockDialog.REQUEST_KEY, onFilmStockSelected)
+        // TODO
+//        val selectFilmStockDialog = requireParentFragment().childFragmentManager
+//            .findFragmentByTag(SelectFilmStockDialog.TAG)
+//        selectFilmStockDialog
+//            ?.setFragmentResultListener(SelectFilmStockDialog.REQUEST_KEY, onFilmStockSelected)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -184,7 +185,7 @@ class RollEditFragment : Fragment() {
 
         binding.positiveButton.setOnClickListener {
             if (model.validate()) {
-                setNavigationResult(model.roll)
+                setNavigationResult(model.roll, ExtraKeys.ROLL)
                 findNavController().navigateUp()
             }
         }

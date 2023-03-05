@@ -36,9 +36,11 @@ import androidx.annotation.StringRes
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionSet
 import com.google.android.gms.maps.model.LatLng
@@ -268,18 +270,39 @@ fun PopupMenu.setIconsVisible(context: Context) {
     }
 }
 
-fun <T : Parcelable> Fragment.getNavigationResult(key: String = "result") =
-    findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<T>(key)
-
-fun <T : Parcelable> Fragment.setNavigationResult(result: T, key: String = "result") {
+fun <T : Parcelable?> Fragment.setNavigationResult(result: T, key: String) {
     findNavController().previousBackStackEntry?.savedStateHandle?.set(key, result)
 }
 
-fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
-    observe(lifecycleOwner, object : Observer<T> {
-        override fun onChanged(t: T?) {
-            observer.onChanged(t)
-            removeObserver(this)
+fun <T : Parcelable?> Fragment.observeAndClearNavigationResult(key: String, onResult: (T) -> Any?) {
+    val savedStateHandle = findNavController().currentBackStackEntry?.savedStateHandle
+    val data = savedStateHandle?.getLiveData<T>(key)
+    data?.observe(viewLifecycleOwner) { result ->
+        onResult(result)
+        savedStateHandle.remove<T>(key)
+    }
+}
+
+/**
+ * Helper method for observing Navigation results from dialog destinations.
+ * When observing results from a DialogFragment, the correct target needs to
+ * be retrieved using getBackStackEntry() and the observer needs to be attached to that entry.
+ * https://developer.android.com/guide/navigation/navigation-programmatic#additional_considerations
+ */
+fun <T : Any?> NavBackStackEntry.observeAndClearNavigationResult(lifecycleOwner: LifecycleOwner, key: String, onResult: (T?) -> Any?) {
+    val observer = LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_RESUME && savedStateHandle.contains(key)) {
+            val result = savedStateHandle.get<T>(key)
+            onResult(result)
+            savedStateHandle.remove<T>(key)
+        }
+    }
+    lifecycle.addObserver(observer)
+    // As addObserver() does not automatically remove the observer, we
+    // call removeObserver() manually when the lifecycle is destroyed
+    lifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_DESTROY) {
+            lifecycle.removeObserver(observer)
         }
     })
 }

@@ -243,6 +243,20 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         postponeEnterTransition()
+        observeAndClearNavigationResult(ExtraKeys.ROLL, model::submitRoll)
+        val navBackStackEntry = findNavController().getBackStackEntry(R.id.rolls_list_dest)
+        navBackStackEntry.observeAndClearNavigationResult<FilmStock>(viewLifecycleOwner, ExtraKeys.FILM_STOCK) { filmStock ->
+            MaterialAlertDialogBuilder(requireActivity()).apply {
+                setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
+                setNegativeButton(R.string.No) { _, _ ->
+                    batchUpdateRollsFilmStock(filmStock, false)
+                }
+                setPositiveButton(R.string.Yes) { _, _ ->
+                    batchUpdateRollsFilmStock(filmStock, true)
+                }
+                setNeutralButton(R.string.Cancel) { _, _ -> }
+            }.create().show()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -419,7 +433,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         val extras = FragmentNavigatorExtras(
             sharedElement to sharedElement.transitionName)
         findNavController().navigate(action, extras)
-        getNavigationResult<Roll>()?.observeOnce(viewLifecycleOwner, model::submitRoll)
     }
 
     /**
@@ -508,26 +521,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                             when (which) {
                                 0 -> {
                                     // Edit film stock
-                                    // TODO Implement Navigation
-//                                    val filmStockDialog = SelectFilmStockDialog()
-//                                    val transaction = requireParentFragment().childFragmentManager
-//                                        .beginTransaction().addToBackStack(RollsFragment.BACKSTACK_NAME)
-//                                    filmStockDialog.show(transaction, SelectFilmStockDialog.TAG)
-//                                    filmStockDialog.setFragmentResultListener(
-//                                        SelectFilmStockDialog.REQUEST_KEY) { _, bundle ->
-//                                        val filmStock: FilmStock = bundle.parcelable(ExtraKeys.FILM_STOCK)
-//                                            ?: return@setFragmentResultListener
-//                                        MaterialAlertDialogBuilder(requireActivity()).apply {
-//                                            setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
-//                                            setNegativeButton(R.string.No) { _, _ ->
-//                                                batchUpdateRollsFilmStock(filmStock, false)
-//                                            }
-//                                            setPositiveButton(R.string.Yes) { _, _ ->
-//                                                batchUpdateRollsFilmStock(filmStock, true)
-//                                            }
-//                                            setNeutralButton(R.string.Cancel) { _, _ -> }
-//                                        }.create().show()
-//                                    }
+                                    val action = RollsListFragmentDirections.selectFilmStockAction()
+                                    findNavController().navigate(action)
                                 }
                                 1 -> {
                                     // Clear film stock
