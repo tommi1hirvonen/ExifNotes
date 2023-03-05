@@ -30,13 +30,11 @@ import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
-import androidx.navigation.fragment.NavHostFragment
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
-import com.tommihirvonen.exifnotes.fragments.RollsFragment
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.utilities.purgeDirectory
@@ -120,8 +118,8 @@ class MainActivity : AppCompatActivity() {
             if (!isGPSEnabled && requestingLocationUpdates) showSettingsAlert()
         }
 
-        val host = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = host.navController
+        // val host = binding.navHostFragment.getFragment<NavHostFragment>()
+        // val navController = host.navController
     }
 
     override fun onStart() {

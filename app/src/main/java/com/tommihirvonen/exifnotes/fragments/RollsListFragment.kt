@@ -36,6 +36,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.*
@@ -47,7 +48,6 @@ import com.tommihirvonen.exifnotes.adapters.RollAdapter
 import com.tommihirvonen.exifnotes.adapters.RollAdapter.RollAdapterListener
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsListBinding
 import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
@@ -306,19 +306,12 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 }
             }
             R.id.menu_item_show_on_map -> {
-                val fragment = RollsMapFragment()
                 viewLifecycleOwner.lifecycleScope.launch {
                     // Small delay so that the drawer has enough time to close
                     // before a new fragment is started.
                     delay(200)
-                    requireParentFragment().childFragmentManager
-                        .beginTransaction()
-                        .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment,
-                            R.anim.enter_fragment, R.anim.exit_fragment)
-                        .setReorderingAllowed(true)
-                        .addToBackStack(RollsFragment.BACKSTACK_NAME)
-                        .add(R.id.rolls_fragment_container, fragment, RollsMapFragment.TAG)
-                        .commit()
+                    val action = RollsListFragmentDirections.rollsMapAction()
+                    findNavController().navigate(action)
                 }
             }
             R.id.active_rolls_filter -> {
@@ -401,7 +394,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 .beginTransaction()
                 .setReorderingAllowed(true)
                 .addSharedElement(layout, layout.transitionName)
-                .addToBackStack(RollsFragment.BACKSTACK_NAME)
                 .replace(R.id.rolls_fragment_container, framesFragment, FramesFragment.TAG)
                 .commit()
         }
@@ -456,7 +448,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         }
 
         arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-        arguments.putString(ExtraKeys.BACKSTACK_NAME, RollsFragment.BACKSTACK_NAME)
         arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.rolls_fragment_container)
         fragment.arguments = arguments
 
@@ -465,7 +456,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
             .setReorderingAllowed(true)
             .addSharedElement(sharedElement, sharedElement.transitionName)
             .replace(R.id.rolls_fragment_container, fragment, RollEditFragment.TAG)
-            .addToBackStack(RollsFragment.BACKSTACK_NAME)
             .commit()
 
         fragment.setFragmentResultListener(RollEditFragment.REQUEST_KEY) { _, bundle ->
@@ -559,25 +549,26 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                             when (which) {
                                 0 -> {
                                     // Edit film stock
-                                    val filmStockDialog = SelectFilmStockDialog()
-                                    val transaction = requireParentFragment().childFragmentManager
-                                        .beginTransaction().addToBackStack(RollsFragment.BACKSTACK_NAME)
-                                    filmStockDialog.show(transaction, SelectFilmStockDialog.TAG)
-                                    filmStockDialog.setFragmentResultListener(
-                                        SelectFilmStockDialog.REQUEST_KEY) { _, bundle ->
-                                        val filmStock: FilmStock = bundle.parcelable(ExtraKeys.FILM_STOCK)
-                                            ?: return@setFragmentResultListener
-                                        MaterialAlertDialogBuilder(requireActivity()).apply {
-                                            setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
-                                            setNegativeButton(R.string.No) { _, _ ->
-                                                batchUpdateRollsFilmStock(filmStock, false)
-                                            }
-                                            setPositiveButton(R.string.Yes) { _, _ ->
-                                                batchUpdateRollsFilmStock(filmStock, true)
-                                            }
-                                            setNeutralButton(R.string.Cancel) { _, _ -> }
-                                        }.create().show()
-                                    }
+                                    // TODO Implement Navigation
+//                                    val filmStockDialog = SelectFilmStockDialog()
+//                                    val transaction = requireParentFragment().childFragmentManager
+//                                        .beginTransaction().addToBackStack(RollsFragment.BACKSTACK_NAME)
+//                                    filmStockDialog.show(transaction, SelectFilmStockDialog.TAG)
+//                                    filmStockDialog.setFragmentResultListener(
+//                                        SelectFilmStockDialog.REQUEST_KEY) { _, bundle ->
+//                                        val filmStock: FilmStock = bundle.parcelable(ExtraKeys.FILM_STOCK)
+//                                            ?: return@setFragmentResultListener
+//                                        MaterialAlertDialogBuilder(requireActivity()).apply {
+//                                            setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
+//                                            setNegativeButton(R.string.No) { _, _ ->
+//                                                batchUpdateRollsFilmStock(filmStock, false)
+//                                            }
+//                                            setPositiveButton(R.string.Yes) { _, _ ->
+//                                                batchUpdateRollsFilmStock(filmStock, true)
+//                                            }
+//                                            setNeutralButton(R.string.Cancel) { _, _ -> }
+//                                        }.create().show()
+//                                    }
                                 }
                                 1 -> {
                                     // Clear film stock

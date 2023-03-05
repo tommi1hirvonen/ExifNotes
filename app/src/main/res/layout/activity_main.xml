@@ -24,7 +24,7 @@
     android:orientation="vertical"
     tools:ignore="MergeRootFrame">
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:layout_width="match_parent"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_height="match_parent"

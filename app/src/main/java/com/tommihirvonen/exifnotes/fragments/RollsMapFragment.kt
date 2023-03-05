@@ -25,12 +25,12 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.*
 import android.widget.*
-import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -57,10 +57,6 @@ import kotlin.math.roundToInt
  * Activity to display all the frames from a list of rolls on a map.
  */
 class RollsMapFragment : Fragment(), OnMapReadyCallback {
-
-    companion object {
-        const val TAG = "ROLLS_MAP_FRAGMENT"
-    }
 
     private val filterMode by lazy {
         val activity = requireActivity()
@@ -90,9 +86,6 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            requireParentFragment().childFragmentManager.popBackStack()
-        }
         fragmentRestored = savedInstanceState != null
 
         // Check if a frame edit fragment was left open after configuration change.
@@ -115,7 +108,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         }
         binding.topAppBar.title = title
         binding.topAppBar.setNavigationOnClickListener {
-            requireParentFragment().childFragmentManager.popBackStack()
+            findNavController().navigateUp()
         }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
 
@@ -354,7 +347,6 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                 arguments.putString(ExtraKeys.TITLE, title)
                 arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
                 arguments.putParcelable(ExtraKeys.FRAME, frame)
-                arguments.putString(ExtraKeys.BACKSTACK_NAME, RollsFragment.BACKSTACK_NAME)
                 arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.rolls_fragment_container)
                 fragment.arguments = arguments
                 requireParentFragment().childFragmentManager
@@ -362,7 +354,6 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                     .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment, R.anim.enter_fragment, R.anim.exit_fragment)
                     .setReorderingAllowed(true)
                     .add(R.id.rolls_fragment_container, fragment, FrameEditFragment.TAG)
-                    .addToBackStack(RollsFragment.BACKSTACK_NAME)
                     .commit()
                 fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
                     bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)

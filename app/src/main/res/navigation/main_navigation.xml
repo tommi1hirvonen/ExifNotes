@@ -18,11 +18,24 @@
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navigation"
-    app:startDestination="@id/rollsFragment">
+    app:startDestination="@id/rolls_list_dest">
 
     <fragment
-        android:id="@+id/rollsFragment"
-        android:name="com.tommihirvonen.exifnotes.fragments.RollsFragment"
-        android:label="RollsFragment" />
+        android:id="@+id/rolls_list_dest"
+        android:name="com.tommihirvonen.exifnotes.fragments.RollsListFragment"
+        android:label="RollsListFragment" >
+        <action
+            android:id="@+id/rolls_map_action"
+            app:destination="@id/rolls_map_dest"
+            app:enterAnim="@anim/enter_fragment"
+            app:exitAnim="@anim/exit_fragment"
+            app:popEnterAnim="@anim/enter_fragment"
+            app:popExitAnim="@anim/exit_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/rolls_map_dest"
+        android:name="com.tommihirvonen.exifnotes.fragments.RollsMapFragment"
+        android:label="RollsMapFragment" />
 </navigation>
