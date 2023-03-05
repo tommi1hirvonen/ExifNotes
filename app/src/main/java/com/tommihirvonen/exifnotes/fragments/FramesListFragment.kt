@@ -402,7 +402,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
     private fun showRollEditFragment() {
         val sharedElement = binding.topAppBar
         val title = requireActivity().resources.getString(R.string.EditRoll)
-        val action = FramesListFragmentDirections.rollEditAction(roll, title, sharedElement.transitionName)
+        val action = FramesListFragmentDirections
+            .framesRollEditAction(roll, title, sharedElement.transitionName)
         val extras = FragmentNavigatorExtras(
             sharedElement to sharedElement.transitionName
         )

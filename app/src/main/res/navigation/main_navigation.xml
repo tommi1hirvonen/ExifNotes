@@ -107,23 +107,8 @@
                 android:name="transitionName"
                 app:argType="string" />
             <action
-                android:id="@+id/roll_edit_action"
+                android:id="@+id/frames_roll_edit_action"
                 app:destination="@id/roll_edit_dest" />
-        </fragment>
-        <fragment
-            android:id="@+id/roll_edit_dest"
-            android:name="com.tommihirvonen.exifnotes.fragments.RollEditFragment"
-            android:label="RollEditFragment" >
-            <argument
-                android:name="roll"
-                app:argType="com.tommihirvonen.exifnotes.datastructures.Roll"
-                app:nullable="true" />
-            <argument
-                android:name="title"
-                app:argType="string" />
-            <argument
-                android:name="transitionName"
-                app:argType="string" />
         </fragment>
     </navigation>
     <fragment
