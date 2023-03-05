@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
+import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
@@ -25,8 +26,8 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
@@ -37,10 +38,9 @@ import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.datastructures.FilmStockSortMode
 import com.tommihirvonen.exifnotes.datastructures.FilmType
-import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
-import com.tommihirvonen.exifnotes.utilities.parcelable
+import com.tommihirvonen.exifnotes.utilities.observeThenClearNavigationResult
 import com.tommihirvonen.exifnotes.utilities.setIconsVisible
 import com.tommihirvonen.exifnotes.viewmodels.FilmStockFilterSet
 import com.tommihirvonen.exifnotes.viewmodels.FilmStocksViewModel
@@ -48,20 +48,8 @@ import com.tommihirvonen.exifnotes.viewmodels.FilmStocksViewModel
 class FilmStocksFragment : Fragment(), MenuProvider {
 
     private val model by activityViewModels<FilmStocksViewModel>()
-    private val gearFragment by lazy {
-        requireParentFragment() as GearFragment
-    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Check if an existing film stock edit dialog is open after configuration change
-        // and attach listener if so.
-        val dialog = gearFragment.childFragmentManager.findFragmentByTag(FilmStockEditDialog.TAG)
-        dialog?.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::submitFilmStock)
-        }
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         val binding = FragmentFilmsBinding.inflate(inflater, container, false)
@@ -80,6 +68,14 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val navBackStackEntry = findNavController().getBackStackEntry(R.id.gear_dest)
+        navBackStackEntry.observeThenClearNavigationResult<FilmStock>(
+            viewLifecycleOwner, ExtraKeys.FILM_STOCK) { filmStock ->
+            filmStock?.let(model::submitFilmStock)
+        }
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -150,26 +146,13 @@ class FilmStocksFragment : Fragment(), MenuProvider {
     }
 
     private fun openFilmStockEditDialog(filmStock: FilmStock?) {
-        // TODO
-//        val dialog = FilmStockEditDialog()
-//        val arguments = Bundle()
-//        if (filmStock != null) {
-//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilmStock))
-//            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-//            arguments.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
-//        } else {
-//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
-//            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-//        }
-//        dialog.arguments = arguments
-//
-//        val transaction = gearFragment.childFragmentManager
-//            .beginTransaction()
-//            .addToBackStack(GearFragment.BACKSTACK_NAME)
-//        dialog.show(transaction, FilmStockEditDialog.TAG)
-//        dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY) { _, bundle ->
-//            bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::submitFilmStock)
-//        }
+        val (title, positiveButtonText) = if (filmStock == null) {
+            resources.getString(R.string.AddNewFilmStock) to resources.getString(R.string.Add)
+        } else {
+            resources.getString(R.string.EditFilmStock) to resources.getString(R.string.OK)
+        }
+        val action = GearFragmentDirections.filmStockEditAction(filmStock, title,positiveButtonText)
+        findNavController().navigate(action)
     }
 
     private fun confirmDeleteFilmStock(filmStock: FilmStock) {

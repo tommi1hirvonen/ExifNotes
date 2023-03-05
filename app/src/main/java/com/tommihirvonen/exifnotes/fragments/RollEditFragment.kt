@@ -71,10 +71,11 @@ class RollEditFragment : Fragment() {
             .setCommonInterpolator(FastOutSlowInInterpolator())
             .apply { duration = 250L }
 
-        val addFilmStockFragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(FilmStockEditDialog.TAG)
-        addFilmStockFragment
-            ?.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY, onFilmStockAdded)
+        // TODO
+//        val addFilmStockFragment = requireParentFragment().childFragmentManager
+//            .findFragmentByTag(FilmStockEditDialog.TAG)
+//        addFilmStockFragment
+//            ?.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY, onFilmStockAdded)
 
         // TODO
 //        val addCameraFragment = requireParentFragment().childFragmentManager
