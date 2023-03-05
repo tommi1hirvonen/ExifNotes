@@ -39,7 +39,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionSet
@@ -274,7 +273,7 @@ fun <T : Parcelable?> Fragment.setNavigationResult(result: T, key: String) {
     findNavController().previousBackStackEntry?.savedStateHandle?.set(key, result)
 }
 
-fun <T : Parcelable?> Fragment.observeAndClearNavigationResult(key: String, onResult: (T) -> Any?) {
+fun <T : Parcelable?> Fragment.observeThenClearNavigationResult(key: String, onResult: (T) -> Any?) {
     val savedStateHandle = findNavController().currentBackStackEntry?.savedStateHandle
     val data = savedStateHandle?.getLiveData<T>(key)
     data?.observe(viewLifecycleOwner) { result ->
@@ -289,7 +288,7 @@ fun <T : Parcelable?> Fragment.observeAndClearNavigationResult(key: String, onRe
  * be retrieved using getBackStackEntry() and the observer needs to be attached to that entry.
  * https://developer.android.com/guide/navigation/navigation-programmatic#additional_considerations
  */
-fun <T : Any?> NavBackStackEntry.observeAndClearNavigationResult(lifecycleOwner: LifecycleOwner, key: String, onResult: (T?) -> Any?) {
+fun <T : Any?> NavBackStackEntry.observeThenClearNavigationResult(lifecycleOwner: LifecycleOwner, key: String, onResult: (T?) -> Any?) {
     val observer = LifecycleEventObserver { _, event ->
         if (event == Lifecycle.Event.ON_RESUME && savedStateHandle.contains(key)) {
             val result = savedStateHandle.get<T>(key)

@@ -184,7 +184,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 start()
             }
         }
-        observeAndClearNavigationResult(ExtraKeys.ROLL) { roll: Roll ->
+        observeThenClearNavigationResult(ExtraKeys.ROLL) { roll: Roll ->
             rollModel.submitRoll(roll)
             model.setRoll(roll)
         }

@@ -243,9 +243,9 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         postponeEnterTransition()
-        observeAndClearNavigationResult(ExtraKeys.ROLL, model::submitRoll)
+        observeThenClearNavigationResult(ExtraKeys.ROLL, model::submitRoll)
         val navBackStackEntry = findNavController().getBackStackEntry(R.id.rolls_list_dest)
-        navBackStackEntry.observeAndClearNavigationResult<FilmStock>(viewLifecycleOwner, ExtraKeys.FILM_STOCK) { filmStock ->
+        navBackStackEntry.observeThenClearNavigationResult<FilmStock>(viewLifecycleOwner, ExtraKeys.FILM_STOCK) { filmStock ->
             MaterialAlertDialogBuilder(requireActivity()).apply {
                 setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
                 setNegativeButton(R.string.No) { _, _ ->

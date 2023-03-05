@@ -103,7 +103,7 @@ class CamerasFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        observeAndClearNavigationResult(ExtraKeys.CAMERA, model::submitCamera)
+        observeThenClearNavigationResult(ExtraKeys.CAMERA, model::submitCamera)
     }
 
     @SuppressLint("RestrictedApi")
