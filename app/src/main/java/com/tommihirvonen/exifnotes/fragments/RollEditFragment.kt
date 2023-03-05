@@ -27,6 +27,7 @@ import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.*
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.ChangeBounds
@@ -34,11 +35,11 @@ import androidx.transition.ChangeImageTransform
 import androidx.transition.ChangeTransform
 import androidx.transition.Fade
 import androidx.transition.TransitionSet
+import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentRollEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModelFactory
@@ -76,11 +77,6 @@ class RollEditFragment : Fragment() {
 //            .findFragmentByTag(FilmStockEditDialog.TAG)
 //        addFilmStockFragment
 //            ?.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY, onFilmStockAdded)
-
-        // TODO
-//        val addCameraFragment = requireParentFragment().childFragmentManager
-//            .findFragmentByTag(CameraEditFragment.TAG)
-//        addCameraFragment?.setFragmentResultListener(CameraEditFragment.REQUEST_KEY, onCameraAdded)
 
         // TODO
 //        val selectFilmStockDialog = requireParentFragment().childFragmentManager
@@ -128,35 +124,16 @@ class RollEditFragment : Fragment() {
 //            dialog.setFragmentResultListener(SelectFilmStockDialog.REQUEST_KEY, onFilmStockSelected)
 //        }
 //
-//        binding.addCamera.setOnClickListener {
-//            val sharedElementTransition = TransitionSet()
-//                .addTransition(ChangeBounds())
-//                .addTransition(ChangeTransform())
-//                .addTransition(ChangeImageTransform())
-//                .addTransition(Fade())
-//                .setCommonInterpolator(FastOutSlowInInterpolator())
-//                .apply { duration = 250L }
-//            val fragment = CameraEditFragment().apply {
-//                sharedElementEnterTransition = sharedElementTransition
-//            }
-//            val sharedElement = binding.addCamera
-//            val arguments = Bundle()
-//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
-//            arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-//            arguments.putString(ExtraKeys.BACKSTACK_NAME, backStackName)
-//            arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, fragmentContainerId)
-//            fragment.arguments = arguments
-//
-//            requireParentFragment().childFragmentManager
-//                .beginTransaction()
-//                .setReorderingAllowed(true)
-//                .addSharedElement(sharedElement, sharedElement.transitionName)
-//                .replace(fragmentContainerId, fragment, CameraEditFragment.TAG)
-//                .addToBackStack(backStackName)
-//                .commit()
-//
-//            fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY, onCameraAdded)
-//        }
+        binding.addCamera.setOnClickListener {
+            val sharedElement = binding.addCamera
+            val title = resources.getString(R.string.AddNewCamera)
+            val action = RollEditFragmentDirections
+                .rollCameraEditAction(null, title, sharedElement.transitionName)
+            val extras = FragmentNavigatorExtras(
+                sharedElement to sharedElement.transitionName
+            )
+            findNavController().navigate(action, extras)
+        }
 
         // DATE
         if (roll.date == null) {
@@ -198,6 +175,10 @@ class RollEditFragment : Fragment() {
         (view.parent as ViewGroup).doOnPreDraw {
             startPostponedEnterTransition()
         }
+        observeThenClearNavigationResult<Camera>(ExtraKeys.CAMERA) { camera ->
+            rollsModel.addCamera(camera)
+            model.observable.setCamera(camera)
+        }
     }
 
     private val onFilmStockSelected: (String, Bundle) -> Unit = { _, bundle ->
@@ -206,12 +187,5 @@ class RollEditFragment : Fragment() {
 
     private val onFilmStockAdded: (String, Bundle) -> Unit = { _, bundle ->
         bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::addFilmStock)
-    }
-
-    private val onCameraAdded: (String, Bundle) -> Unit = { _, bundle ->
-        bundle.parcelable<Camera>(ExtraKeys.CAMERA)?.let { camera ->
-            rollsModel.addCamera(camera)
-            model.observable.setCamera(camera)
-        }
     }
 }

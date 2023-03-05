@@ -80,6 +80,9 @@
         <argument
             android:name="transitionName"
             app:argType="string" />
+        <action
+            android:id="@+id/roll_camera_edit_action"
+            app:destination="@id/camera_edit_dest" />
     </fragment>
     <dialog
         android:id="@+id/select_film_stock_dest"
