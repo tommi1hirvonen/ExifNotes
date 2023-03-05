@@ -32,11 +32,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.*
@@ -60,7 +60,7 @@ import kotlinx.coroutines.launch
  */
 class RollsListFragment : Fragment(), RollAdapterListener {
 
-    private val model by navGraphViewModels<RollsViewModel>(R.id.main_navigation)
+    private val model by activityViewModels<RollsViewModel>()
     private var rolls = emptyList<Roll>()
     private lateinit var rollAdapter: RollAdapter
     private lateinit var binding: FragmentRollsListBinding
@@ -372,29 +372,11 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 }
             }
 
-            val sharedElementTransition = TransitionSet()
-                .addTransition(ChangeBounds())
-                .addTransition(ChangeTransform())
-                .addTransition(ChangeImageTransform())
-                .setCommonInterpolator(transitionInterpolator)
-                .apply { duration = transitionDurationShowFrames }
-
-            val framesFragment = FramesFragment().apply {
-                sharedElementEnterTransition = sharedElementTransition
-                sharedElementReturnTransition = sharedElementTransition
-            }
-
-            val arguments = Bundle()
-            arguments.putParcelable(ExtraKeys.ROLL, roll)
-            arguments.putString(ExtraKeys.TRANSITION_NAME, layout.transitionName)
-            framesFragment.arguments = arguments
-
-            requireParentFragment().childFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .addSharedElement(layout, layout.transitionName)
-                .replace(R.id.rolls_fragment_container, framesFragment, FramesFragment.TAG)
-                .commit()
+            val action = RollsListFragmentDirections.framesListAction(roll, layout.transitionName)
+            val extras = FragmentNavigatorExtras(
+                layout to layout.transitionName
+            )
+            findNavController().navigate(action, extras)
         }
     }
 

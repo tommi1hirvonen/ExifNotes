@@ -39,6 +39,21 @@
         <action
             android:id="@+id/select_film_stock_action"
             app:destination="@id/select_film_stock_dest" />
+        <action
+            android:id="@+id/frames_list_action"
+            app:destination="@id/frames_navigation">
+            <!--
+            Arguments need to be added manually to the action when navigating to a subgraph.
+            There is an issue that is tracking the bug.
+            https://issuetracker.google.com/issues/109505019
+            -->
+            <argument
+                android:name="roll"
+                app:argType="com.tommihirvonen.exifnotes.datastructures.Roll" />
+            <argument
+                android:name="transitionName"
+                app:argType="string" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/rolls_map_dest"
@@ -63,4 +78,18 @@
         android:id="@+id/select_film_stock_dest"
         android:name="com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog"
         android:label="SelectFilmStockDialog" />
+    <navigation android:id="@+id/frames_navigation"
+        app:startDestination="@id/frames_list_dest">
+        <fragment
+            android:id="@+id/frames_list_dest"
+            android:name="com.tommihirvonen.exifnotes.fragments.FramesListFragment"
+            android:label="FramesListFragment">
+            <argument
+                android:name="roll"
+                app:argType="com.tommihirvonen.exifnotes.datastructures.Roll" />
+            <argument
+                android:name="transitionName"
+                app:argType="string" />
+        </fragment>
+    </navigation>
 </navigation>

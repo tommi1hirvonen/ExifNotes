@@ -29,19 +29,16 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.navGraphViewModels
 import androidx.transition.ChangeBounds
 import androidx.transition.ChangeImageTransform
 import androidx.transition.ChangeTransform
 import androidx.transition.Fade
 import androidx.transition.TransitionSet
-import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentRollEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.dialogs.FilmStockEditDialog
-import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModelFactory
@@ -53,7 +50,7 @@ import java.time.LocalDateTime
  */
 class RollEditFragment : Fragment() {
 
-    private val rollsModel by navGraphViewModels<RollsViewModel>(R.id.main_navigation)
+    private val rollsModel by activityViewModels<RollsViewModel>()
     private val roll by lazy {
         val args: RollEditFragmentArgs by navArgs()
         args.roll?: Roll()
