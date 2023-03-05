@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   ~ Exif Notes
-  ~ Copyright (C) 2022  Tommi Hirvonen
+  ~ Copyright (C) 2023  Tommi Hirvonen
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -16,20 +16,13 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    tools:ignore="MergeRootFrame">
+    android:id="@+id/gear_navigation"
+    app:startDestination="@id/gear_dest">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:layout_width="match_parent"
-        android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_height="match_parent"
-        android:id="@+id/nav_host_fragment"
-        app:defaultNavHost="true"
-        app:navGraph="@navigation/gear_navigation"/>
-
-</FrameLayout>
+    <fragment
+        android:id="@+id/gear_dest"
+        android:name="com.tommihirvonen.exifnotes.fragments.GearFragment"
+        android:label="GearFragment" />
+</navigation>

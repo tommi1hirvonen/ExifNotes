@@ -49,7 +49,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
 
     private val model by activityViewModels<FilmStocksViewModel>()
     private val gearFragment by lazy {
-        requireParentFragment().requireParentFragment() as GearFragment
+        requireParentFragment() as GearFragment
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,7 +71,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         val adapter = FilmStockAdapter(requireActivity(), onFilmStockClickListener)
         binding.filmsRecyclerView.adapter = adapter
 
-        val pagerFragment = requireParentFragment() as GearPagerFragment
+        val pagerFragment = requireParentFragment() as GearFragment
         pagerFragment.topAppBar.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         model.filmStocks.observe(viewLifecycleOwner) { filmStocks ->
@@ -150,25 +150,26 @@ class FilmStocksFragment : Fragment(), MenuProvider {
     }
 
     private fun openFilmStockEditDialog(filmStock: FilmStock?) {
-        val dialog = FilmStockEditDialog()
-        val arguments = Bundle()
-        if (filmStock != null) {
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilmStock))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-            arguments.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
-        } else {
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-        }
-        dialog.arguments = arguments
-
-        val transaction = gearFragment.childFragmentManager
-            .beginTransaction()
-            .addToBackStack(GearFragment.BACKSTACK_NAME)
-        dialog.show(transaction, FilmStockEditDialog.TAG)
-        dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::submitFilmStock)
-        }
+        // TODO
+//        val dialog = FilmStockEditDialog()
+//        val arguments = Bundle()
+//        if (filmStock != null) {
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilmStock))
+//            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
+//            arguments.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
+//        } else {
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilmStock))
+//            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+//        }
+//        dialog.arguments = arguments
+//
+//        val transaction = gearFragment.childFragmentManager
+//            .beginTransaction()
+//            .addToBackStack(GearFragment.BACKSTACK_NAME)
+//        dialog.show(transaction, FilmStockEditDialog.TAG)
+//        dialog.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY) { _, bundle ->
+//            bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model::submitFilmStock)
+//        }
     }
 
     private fun confirmDeleteFilmStock(filmStock: FilmStock) {

@@ -20,21 +20,12 @@ package com.tommihirvonen.exifnotes.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityGearBinding
-import com.tommihirvonen.exifnotes.fragments.GearFragment
 
 class GearActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityGearBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val tag = GearFragment.TAG
-        // Check if the GearFragment is already in the fragment manager and restore it if so.
-        val fragment = supportFragmentManager.findFragmentByTag(tag) ?: GearFragment()
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragment_container, fragment, tag)
-            .commit()
     }
 }

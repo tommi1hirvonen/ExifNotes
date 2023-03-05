@@ -46,7 +46,7 @@ import com.tommihirvonen.exifnotes.viewmodels.State
 class LensesFragment : Fragment() {
 
     private val gearFragment by lazy {
-        requireParentFragment().requireParentFragment() as GearFragment
+        requireParentFragment() as GearFragment
     }
     private val model: GearViewModel by activityViewModels()
     private var cameras: List<Camera> = emptyList()
@@ -118,39 +118,40 @@ class LensesFragment : Fragment() {
     }
 
     private fun showEditLensFragment(sharedElement: View, lens: Lens?) {
-        val sharedElementTransition = TransitionSet()
-            .addTransition(ChangeBounds())
-            .addTransition(ChangeTransform())
-            .addTransition(ChangeImageTransform())
-            .addTransition(Fade())
-            .setCommonInterpolator(FastOutSlowInInterpolator())
-            .apply { duration = 250L }
-        val fragment = LensEditFragment().apply {
-            sharedElementEnterTransition = sharedElementTransition
-        }
-        val arguments = Bundle()
-        arguments.putBoolean(ExtraKeys.FIXED_LENS, false)
-        if (lens == null) {
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
-        } else {
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditLens))
-            arguments.putParcelable(ExtraKeys.LENS, lens)
-        }
-
-        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-        fragment.arguments = arguments
-
-        gearFragment.childFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.gear_fragment_container, fragment, LensEditFragment.TAG)
-            .addToBackStack(GearFragment.BACKSTACK_NAME)
-            .commit()
-
-        fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::submitLens)
-        }
+        // TODO
+//        val sharedElementTransition = TransitionSet()
+//            .addTransition(ChangeBounds())
+//            .addTransition(ChangeTransform())
+//            .addTransition(ChangeImageTransform())
+//            .addTransition(Fade())
+//            .setCommonInterpolator(FastOutSlowInInterpolator())
+//            .apply { duration = 250L }
+//        val fragment = LensEditFragment().apply {
+//            sharedElementEnterTransition = sharedElementTransition
+//        }
+//        val arguments = Bundle()
+//        arguments.putBoolean(ExtraKeys.FIXED_LENS, false)
+//        if (lens == null) {
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
+//        } else {
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditLens))
+//            arguments.putParcelable(ExtraKeys.LENS, lens)
+//        }
+//
+//        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+//        fragment.arguments = arguments
+//
+//        gearFragment.childFragmentManager
+//            .beginTransaction()
+//            .setReorderingAllowed(true)
+//            .addSharedElement(sharedElement, sharedElement.transitionName)
+//            .replace(R.id.gear_fragment_container, fragment, LensEditFragment.TAG)
+//            .addToBackStack(GearFragment.BACKSTACK_NAME)
+//            .commit()
+//
+//        fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
+//            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::submitLens)
+//        }
     }
 
     private fun confirmDeleteLens(lens: Lens) {

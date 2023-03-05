@@ -45,7 +45,7 @@ class FiltersFragment : Fragment() {
 
     private val model: GearViewModel by activityViewModels()
     private val gearFragment by lazy {
-        requireParentFragment().requireParentFragment() as GearFragment
+        requireParentFragment() as GearFragment
     }
 
     private var cameras: List<Camera> = emptyList()
@@ -178,24 +178,25 @@ class FiltersFragment : Fragment() {
     }
 
     private fun openFilterEditDialog(filter: Filter?) {
-        val dialog = FilterEditDialog()
-        val arguments = Bundle()
-        if (filter != null) {
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilter))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-            arguments.putParcelable(ExtraKeys.FILTER, filter)
-        } else {
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-        }
-        dialog.arguments = arguments
-        val transaction = gearFragment.childFragmentManager
-            .beginTransaction()
-            .addToBackStack(GearFragment.BACKSTACK_NAME)
-        dialog.show(transaction, FilterEditDialog.TAG)
-        dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::submitFilter)
-        }
+        // TODO
+//        val dialog = FilterEditDialog()
+//        val arguments = Bundle()
+//        if (filter != null) {
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilter))
+//            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
+//            arguments.putParcelable(ExtraKeys.FILTER, filter)
+//        } else {
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
+//            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+//        }
+//        dialog.arguments = arguments
+//        val transaction = gearFragment.childFragmentManager
+//            .beginTransaction()
+//            .addToBackStack(GearFragment.BACKSTACK_NAME)
+//        dialog.show(transaction, FilterEditDialog.TAG)
+//        dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
+//            bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::submitFilter)
+//        }
     }
 
     private fun confirmDeleteFilter(filter: Filter) {

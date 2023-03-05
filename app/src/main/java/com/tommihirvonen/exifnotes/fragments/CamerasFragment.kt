@@ -46,7 +46,7 @@ import com.tommihirvonen.exifnotes.viewmodels.State
 class CamerasFragment : Fragment() {
 
     private val gearFragment by lazy {
-        requireParentFragment().requireParentFragment() as GearFragment
+        requireParentFragment() as GearFragment
     }
     private val model: GearViewModel by activityViewModels()
     private var cameras: List<Camera> = emptyList()
@@ -157,43 +157,44 @@ class CamerasFragment : Fragment() {
     }
 
     private fun showEditCameraFragment(sharedElement: View, camera: Camera?) {
-        val sharedElementTransition = TransitionSet()
-            .addTransition(ChangeBounds())
-            .addTransition(ChangeTransform())
-            .addTransition(ChangeImageTransform())
-            .addTransition(Fade())
-            .setCommonInterpolator(FastOutSlowInInterpolator())
-            .apply { duration = 250L }
-
-        val fragment = CameraEditFragment().apply {
-            sharedElementEnterTransition = sharedElementTransition
-        }
-
-        val arguments = Bundle()
-        if (camera == null) {
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
-        } else {
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditCamera))
-            arguments.putParcelable(ExtraKeys.CAMERA, camera)
-        }
-
-        val fragmentContainerId = R.id.gear_fragment_container
-
-        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-        arguments.putString(ExtraKeys.BACKSTACK_NAME, GearFragment.BACKSTACK_NAME)
-        arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, fragmentContainerId)
-        fragment.arguments = arguments
-
-        gearFragment.childFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(fragmentContainerId, fragment, CameraEditFragment.TAG)
-            .addToBackStack(GearFragment.BACKSTACK_NAME)
-            .commit()
-        fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Camera>(ExtraKeys.CAMERA)?.let(model::submitCamera)
-        }
+        // TODO
+//        val sharedElementTransition = TransitionSet()
+//            .addTransition(ChangeBounds())
+//            .addTransition(ChangeTransform())
+//            .addTransition(ChangeImageTransform())
+//            .addTransition(Fade())
+//            .setCommonInterpolator(FastOutSlowInInterpolator())
+//            .apply { duration = 250L }
+//
+//        val fragment = CameraEditFragment().apply {
+//            sharedElementEnterTransition = sharedElementTransition
+//        }
+//
+//        val arguments = Bundle()
+//        if (camera == null) {
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
+//        } else {
+//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditCamera))
+//            arguments.putParcelable(ExtraKeys.CAMERA, camera)
+//        }
+//
+//        val fragmentContainerId = R.id.gear_fragment_container
+//
+//        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
+//        arguments.putString(ExtraKeys.BACKSTACK_NAME, GearFragment.BACKSTACK_NAME)
+//        arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, fragmentContainerId)
+//        fragment.arguments = arguments
+//
+//        gearFragment.childFragmentManager
+//            .beginTransaction()
+//            .setReorderingAllowed(true)
+//            .addSharedElement(sharedElement, sharedElement.transitionName)
+//            .replace(fragmentContainerId, fragment, CameraEditFragment.TAG)
+//            .addToBackStack(GearFragment.BACKSTACK_NAME)
+//            .commit()
+//        fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY) { _, bundle ->
+//            bundle.parcelable<Camera>(ExtraKeys.CAMERA)?.let(model::submitCamera)
+//        }
     }
 
     /**
