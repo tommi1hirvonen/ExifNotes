@@ -59,7 +59,7 @@ class SelectFilmStockDialog : DialogFragment() {
     }
 
     private val onFilmStockSelected = { filmStock: FilmStock? ->
-        setNavigationResult(filmStock, ExtraKeys.FILM_STOCK)
+        setNavigationResult(filmStock, ExtraKeys.SELECT_FILM_STOCK)
         findNavController().navigateUp()
     }
 

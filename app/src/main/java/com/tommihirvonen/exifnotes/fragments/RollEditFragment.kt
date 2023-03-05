@@ -109,15 +109,11 @@ class RollEditFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        // TODO Implement with JetPack Navigation
-//        binding.filmStockLayout.setOnClickListener {
-//            val dialog = SelectFilmStockDialog()
-//            val transaction = requireParentFragment().childFragmentManager
-//                .beginTransaction().addToBackStack(backStackName)
-//            dialog.show(transaction, SelectFilmStockDialog.TAG)
-//            dialog.setFragmentResultListener(SelectFilmStockDialog.REQUEST_KEY, onFilmStockSelected)
-//        }
-//
+        binding.filmStockLayout.setOnClickListener {
+            val action = RollEditFragmentDirections.rollSelectFilmStockAction()
+            findNavController().navigate(action)
+        }
+
         binding.addCamera.setOnClickListener {
             val sharedElement = binding.addCamera
             val title = resources.getString(R.string.AddNewCamera)
@@ -177,9 +173,8 @@ class RollEditFragment : Fragment() {
         navBackStackEntry.observeThenClearNavigationResult<FilmStock>(viewLifecycleOwner, ExtraKeys.FILM_STOCK) { filmStock ->
             filmStock?.let(model::addFilmStock)
         }
-    }
-
-    private val onFilmStockSelected: (String, Bundle) -> Unit = { _, bundle ->
-        bundle.parcelable<FilmStock>(ExtraKeys.FILM_STOCK)?.let(model.observable::setFilmStock)
+        navBackStackEntry.observeThenClearNavigationResult<FilmStock>(viewLifecycleOwner, ExtraKeys.SELECT_FILM_STOCK) { filmStock ->
+            filmStock?.let(model.observable::setFilmStock)
+        }
     }
 }

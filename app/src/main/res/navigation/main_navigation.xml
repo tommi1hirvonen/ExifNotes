@@ -86,6 +86,9 @@
         <action
             android:id="@+id/roll_film_stock_edit_action"
             app:destination="@id/film_stock_edit_dest" />
+        <action
+            android:id="@+id/roll_select_film_stock_action"
+            app:destination="@id/select_film_stock_dest" />
     </fragment>
     <dialog
         android:id="@+id/select_film_stock_dest"
