@@ -26,8 +26,8 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -45,9 +45,6 @@ import com.tommihirvonen.exifnotes.viewmodels.State
  */
 class CamerasFragment : Fragment() {
 
-    private val gearFragment by lazy {
-        requireParentFragment() as GearFragment
-    }
     private val model: GearViewModel by activityViewModels()
     private var cameras: List<Camera> = emptyList()
     private var lenses: List<Lens> = emptyList()
@@ -55,16 +52,7 @@ class CamerasFragment : Fragment() {
 
     private lateinit var binding: FragmentCamerasBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Check if an existing camera edit fragment is open after configuration change
-        // and attach listener if so.
-        val fragment = gearFragment.childFragmentManager.findFragmentByTag(CameraEditFragment.TAG)
-        fragment?.setFragmentResultListener(CameraEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Camera>(ExtraKeys.CAMERA)?.let(model::submitCamera)
-        }
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentCamerasBinding.inflate(inflater, container, false)
@@ -114,6 +102,10 @@ class CamerasFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        observeAndClearNavigationResult(ExtraKeys.CAMERA, model::submitCamera)
+    }
+
     @SuppressLint("RestrictedApi")
     private val onCameraClickListener = { camera: Camera, view: View ->
         val menuRes = if (camera.isFixedLens) {
@@ -157,44 +149,16 @@ class CamerasFragment : Fragment() {
     }
 
     private fun showEditCameraFragment(sharedElement: View, camera: Camera?) {
-        // TODO
-//        val sharedElementTransition = TransitionSet()
-//            .addTransition(ChangeBounds())
-//            .addTransition(ChangeTransform())
-//            .addTransition(ChangeImageTransform())
-//            .addTransition(Fade())
-//            .setCommonInterpolator(FastOutSlowInInterpolator())
-//            .apply { duration = 250L }
-//
-//        val fragment = CameraEditFragment().apply {
-//            sharedElementEnterTransition = sharedElementTransition
-//        }
-//
-//        val arguments = Bundle()
-//        if (camera == null) {
-//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewCamera))
-//        } else {
-//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditCamera))
-//            arguments.putParcelable(ExtraKeys.CAMERA, camera)
-//        }
-//
-//        val fragmentContainerId = R.id.gear_fragment_container
-//
-//        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-//        arguments.putString(ExtraKeys.BACKSTACK_NAME, GearFragment.BACKSTACK_NAME)
-//        arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, fragmentContainerId)
-//        fragment.arguments = arguments
-//
-//        gearFragment.childFragmentManager
-//            .beginTransaction()
-//            .setReorderingAllowed(true)
-//            .addSharedElement(sharedElement, sharedElement.transitionName)
-//            .replace(fragmentContainerId, fragment, CameraEditFragment.TAG)
-//            .addToBackStack(GearFragment.BACKSTACK_NAME)
-//            .commit()
-//        fragment.setFragmentResultListener(CameraEditFragment.REQUEST_KEY) { _, bundle ->
-//            bundle.parcelable<Camera>(ExtraKeys.CAMERA)?.let(model::submitCamera)
-//        }
+        val title = if (camera == null) {
+            resources.getString(R.string.AddNewCamera)
+        } else {
+            resources.getString(R.string.EditCamera)
+        }
+        val action = GearFragmentDirections.cameraEditAction(camera, title, sharedElement.transitionName)
+        val extras = FragmentNavigatorExtras(
+            sharedElement to sharedElement.transitionName
+        )
+        findNavController().navigate(action, extras)
     }
 
     /**

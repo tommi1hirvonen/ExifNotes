@@ -50,10 +50,10 @@ import java.time.LocalDateTime
  */
 class RollEditFragment : Fragment() {
 
+    private val arguments by navArgs<RollEditFragmentArgs>()
     private val rollsModel by activityViewModels<RollsViewModel>()
     private val roll by lazy {
-        val args: RollEditFragmentArgs by navArgs()
-        args.roll?: Roll()
+        arguments.roll?: Roll()
     }
     private val model by lazy {
         val factory = RollEditViewModelFactory(requireActivity().application, roll.copy())
@@ -76,9 +76,10 @@ class RollEditFragment : Fragment() {
         addFilmStockFragment
             ?.setFragmentResultListener(FilmStockEditDialog.REQUEST_KEY, onFilmStockAdded)
 
-        val addCameraFragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(CameraEditFragment.TAG)
-        addCameraFragment?.setFragmentResultListener(CameraEditFragment.REQUEST_KEY, onCameraAdded)
+        // TODO
+//        val addCameraFragment = requireParentFragment().childFragmentManager
+//            .findFragmentByTag(CameraEditFragment.TAG)
+//        addCameraFragment?.setFragmentResultListener(CameraEditFragment.REQUEST_KEY, onCameraAdded)
 
         // TODO
 //        val selectFilmStockDialog = requireParentFragment().childFragmentManager
@@ -90,9 +91,8 @@ class RollEditFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentRollEditBinding.inflate(inflater, container, false)
 
-        val args: RollEditFragmentArgs by navArgs()
-        binding.root.transitionName = args.transitionName
-        binding.topAppBar.title = args.title
+        binding.root.transitionName = arguments.transitionName
+        binding.topAppBar.title = arguments.title
         binding.topAppBar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }

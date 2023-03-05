@@ -24,5 +24,24 @@
     <fragment
         android:id="@+id/gear_dest"
         android:name="com.tommihirvonen.exifnotes.fragments.GearFragment"
-        android:label="GearFragment" />
+        android:label="GearFragment" >
+        <action
+            android:id="@+id/camera_edit_action"
+            app:destination="@id/camera_edit_dest" />
+    </fragment>
+    <fragment
+        android:id="@+id/camera_edit_dest"
+        android:name="com.tommihirvonen.exifnotes.fragments.CameraEditFragment"
+        android:label="CameraEditFragment" >
+        <argument
+            android:name="camera"
+            app:argType="com.tommihirvonen.exifnotes.datastructures.Camera"
+            app:nullable="true" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="transitionName"
+            app:argType="string" />
+    </fragment>
 </navigation>

@@ -70,7 +70,7 @@ import java.util.*
  */
 class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
-    val arguments: FramesListFragmentArgs by navArgs()
+    val arguments by navArgs<FramesListFragmentArgs>()
 
     private val model by navGraphViewModels<FramesViewModel>(R.id.frames_navigation) {
         FramesViewModelFactory(requireActivity().application, arguments.roll)
