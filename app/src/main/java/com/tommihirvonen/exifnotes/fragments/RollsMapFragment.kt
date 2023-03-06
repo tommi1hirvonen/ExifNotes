@@ -88,13 +88,14 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         fragmentRestored = savedInstanceState != null
 
+        // TODO
         // Check if a frame edit fragment was left open after configuration change.
         // If so, reattach the fragment result listener.
-        val fragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(FrameEditFragment.TAG)
-        fragment?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
-        }
+//        val fragment = requireParentFragment().childFragmentManager
+//            .findFragmentByTag(FrameEditFragment.TAG)
+//        fragment?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
+//            bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
+//        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -344,20 +345,21 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                 val arguments = Bundle()
                 val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
                 val positiveButton = requireActivity().resources.getString(R.string.OK)
-                arguments.putString(ExtraKeys.TITLE, title)
-                arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-                arguments.putParcelable(ExtraKeys.FRAME, frame)
-                arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.rolls_fragment_container)
-                fragment.arguments = arguments
-                requireParentFragment().childFragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment, R.anim.enter_fragment, R.anim.exit_fragment)
-                    .setReorderingAllowed(true)
-                    .add(R.id.rolls_fragment_container, fragment, FrameEditFragment.TAG)
-                    .commit()
-                fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-                    bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
-                }
+                // TODO
+//                arguments.putString(ExtraKeys.TITLE, title)
+//                arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
+//                arguments.putParcelable(ExtraKeys.FRAME, frame)
+//                arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.rolls_fragment_container)
+//                fragment.arguments = arguments
+//                requireParentFragment().childFragmentManager
+//                    .beginTransaction()
+//                    .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment, R.anim.enter_fragment, R.anim.exit_fragment)
+//                    .setReorderingAllowed(true)
+//                    .add(R.id.rolls_fragment_container, fragment, FrameEditFragment.TAG)
+//                    .commit()
+//                fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
+//                    bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
+//                }
             }
         }
     }

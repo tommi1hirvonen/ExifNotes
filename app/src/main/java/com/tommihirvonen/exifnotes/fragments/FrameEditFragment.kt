@@ -35,7 +35,6 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
-import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
@@ -43,11 +42,11 @@ import androidx.core.content.FileProvider
 import androidx.core.view.doOnPreDraw
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.transition.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -57,7 +56,6 @@ import com.tommihirvonen.exifnotes.databinding.DialogSingleEditTextBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFrameEditBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.datastructures.Filter
-import com.tommihirvonen.exifnotes.dialogs.FilterEditDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FrameEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.FrameEditViewModelFactory
@@ -73,36 +71,23 @@ import kotlin.math.roundToInt
  */
 class FrameEditFragment : Fragment() {
 
-    companion object {
-        const val TAG = "FRAME_EDIT_FRAGMENT"
-        const val REQUEST_KEY = TAG
-    }
+    private val arguments by navArgs<FrameEditFragmentArgs>()
     
     private lateinit var binding: FragmentFrameEditBinding
 
-    private val backStackName by lazy {
-        requireArguments().getString(ExtraKeys.BACKSTACK_NAME)
-    }
-
-    private val fragmentContainerId by lazy {
-        requireArguments().getInt(ExtraKeys.FRAGMENT_CONTAINER_ID)
-    }
-
-    private val frame by lazy {
-        requireArguments().parcelable<Frame>(ExtraKeys.FRAME)
-            ?: throw IllegalArgumentException("Frame is a required argument for fragment FrameEditFragment")
-    }
-
-    private val model by lazy {
-        val factory = FrameEditViewModelFactory(requireActivity().application, frame.copy())
-        ViewModelProvider(this, factory)[FrameEditViewModel::class.java]
+    private val model by viewModels<FrameEditViewModel> {
+        FrameEditViewModelFactory(requireActivity().application, arguments.frame.copy())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            requireParentFragment().childFragmentManager.popBackStack()
-        }
+        sharedElementEnterTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(FastOutSlowInInterpolator())
+            .apply { duration = 250L }
 
         // TODO
 //        val addFilterDialog = requireParentFragment().childFragmentManager
@@ -121,11 +106,10 @@ class FrameEditFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFrameEditBinding.inflate(inflater, container, false)
-        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
-        binding.root.transitionName = transitionName
-        binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
+        binding.root.transitionName = arguments.transitionName
+        binding.topAppBar.title = arguments.title
         binding.topAppBar.setNavigationOnClickListener {
-            requireParentFragment().childFragmentManager.popBackStack()
+            findNavController().navigateUp()
         }
         binding.viewmodel = model.observable
         binding.addLens.setOnClickListener { showNewLensFragment() }
@@ -238,11 +222,8 @@ class FrameEditFragment : Fragment() {
 
         binding.positiveButton.setOnClickListener {
             if (model.validate()) {
-                val bundle = Bundle().apply {
-                    putParcelable(ExtraKeys.FRAME, model.frame)
-                }
-                setFragmentResult(REQUEST_KEY, bundle)
-                requireParentFragment().childFragmentManager.popBackStack()
+                setNavigationResult(model.frame, ExtraKeys.FRAME)
+                findNavController().navigateUp()
             }
         }
 

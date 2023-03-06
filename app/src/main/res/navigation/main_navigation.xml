@@ -119,6 +119,9 @@
             <action
                 android:id="@+id/frames_gear_action"
                 app:destination="@id/gear_navigation" />
+            <action
+                android:id="@+id/frames_frame_edit_action"
+                app:destination="@id/frame_edit_dest" />
         </fragment>
         <fragment
             android:id="@+id/frames_map_dest"
@@ -211,4 +214,18 @@
                 app:destination="@id/film_stock_edit_dest" />
         </fragment>
     </navigation>
+    <fragment
+        android:id="@+id/frame_edit_dest"
+        android:name="com.tommihirvonen.exifnotes.fragments.FrameEditFragment"
+        android:label="FrameEditFragment" >
+        <argument
+            android:name="frame"
+            app:argType="com.tommihirvonen.exifnotes.datastructures.Frame" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="transitionName"
+            app:argType="string" />
+    </fragment>
 </navigation>
