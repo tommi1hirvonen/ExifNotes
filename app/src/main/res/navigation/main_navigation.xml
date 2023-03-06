@@ -65,7 +65,11 @@
     <fragment
         android:id="@+id/rolls_map_dest"
         android:name="com.tommihirvonen.exifnotes.fragments.RollsMapFragment"
-        android:label="RollsMapFragment" />
+        android:label="RollsMapFragment" >
+        <action
+            android:id="@+id/rolls_map_frame_edit_action"
+            app:destination="@id/frame_edit_dest" />
+    </fragment>
     <fragment
         android:id="@+id/roll_edit_dest"
         android:name="com.tommihirvonen.exifnotes.fragments.RollEditFragment"
