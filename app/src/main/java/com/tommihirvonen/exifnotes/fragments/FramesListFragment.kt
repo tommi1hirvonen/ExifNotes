@@ -315,9 +315,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 model.setFrameSortMode(FrameSortMode.LENS)
             }
             R.id.menu_item_gear -> {
-                // TODO
-//                val gearActivityIntent = Intent(activity, GearActivity::class.java)
-//                startActivity(gearActivityIntent)
+                val action = FramesListFragmentDirections.framesGearAction()
+                findNavController().navigate(action)
             }
             R.id.menu_item_preferences -> {
                 val preferenceActivityIntent = Intent(activity, PreferenceActivity::class.java)

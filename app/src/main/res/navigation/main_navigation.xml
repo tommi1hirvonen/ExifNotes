@@ -116,6 +116,9 @@
                 app:exitAnim="@anim/exit_fragment"
                 app:popEnterAnim="@anim/enter_fragment"
                 app:popExitAnim="@anim/exit_fragment" />
+            <action
+                android:id="@+id/frames_gear_action"
+                app:destination="@id/gear_navigation" />
         </fragment>
         <fragment
             android:id="@+id/frames_map_dest"
