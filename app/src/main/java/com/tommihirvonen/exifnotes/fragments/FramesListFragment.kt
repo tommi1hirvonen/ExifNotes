@@ -118,6 +118,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             ?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY, onFrameEditListener)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentFramesListBinding.inflate(inflater, container, false)
@@ -323,15 +324,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 preferenceResultLauncher.launch(preferenceActivityIntent)
             }
             R.id.menu_item_show_on_map -> {
-                // TODO
-//                val fragment = FramesMapFragment()
-//                requireParentFragment().childFragmentManager
-//                    .beginTransaction()
-//                    .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment, R.anim.enter_fragment, R.anim.exit_fragment)
-//                    .setReorderingAllowed(true)
-//                    .addToBackStack(FramesFragment.BACKSTACK_NAME)
-//                    .add(R.id.frames_fragment_container, fragment, FramesMapFragment.TAG)
-//                    .commit()
+                val action = FramesListFragmentDirections.framesMapAction()
+                findNavController().navigate(action)
             }
             R.id.menu_item_share_intent ->
                 ExportFileSelectDialogBuilder(R.string.FilesToShare) { selectedOptions ->

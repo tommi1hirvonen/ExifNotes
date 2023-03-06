@@ -109,7 +109,18 @@
             <action
                 android:id="@+id/frames_roll_edit_action"
                 app:destination="@id/roll_edit_dest" />
+            <action
+                android:id="@+id/frames_map_action"
+                app:destination="@id/frames_map_dest"
+                app:enterAnim="@anim/enter_fragment"
+                app:exitAnim="@anim/exit_fragment"
+                app:popEnterAnim="@anim/enter_fragment"
+                app:popExitAnim="@anim/exit_fragment" />
         </fragment>
+        <fragment
+            android:id="@+id/frames_map_dest"
+            android:name="com.tommihirvonen.exifnotes.fragments.FramesMapFragment"
+            android:label="FramesMapFragment" />
     </navigation>
     <fragment
         android:id="@+id/camera_edit_dest"
