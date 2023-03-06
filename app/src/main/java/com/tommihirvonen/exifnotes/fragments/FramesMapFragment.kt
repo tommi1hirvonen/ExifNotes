@@ -234,28 +234,9 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
         override fun onInfoWindowClick(marker: Marker) {
             if (marker.tag is Frame) {
                 val frame = marker.tag as Frame? ?: return
-                val fragment = FrameEditFragment()
-                val arguments = Bundle()
                 val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
-                val positiveButton = requireActivity().resources.getString(R.string.OK)
-                // TODO
-//                arguments.putString(ExtraKeys.TITLE, title)
-//                arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-//                arguments.putParcelable(ExtraKeys.FRAME, frame)
-//                arguments.putString(ExtraKeys.BACKSTACK_NAME, FramesFragment.BACKSTACK_NAME)
-//                arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.frames_fragment_container)
-//                fragment.arguments = arguments
-//                requireParentFragment().childFragmentManager
-//                    .beginTransaction()
-//                    .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment,
-//                        R.anim.enter_fragment, R.anim.exit_fragment)
-//                    .setReorderingAllowed(true)
-//                    .add(R.id.frames_fragment_container, fragment, FrameEditFragment.TAG)
-//                    .addToBackStack(FramesFragment.BACKSTACK_NAME)
-//                    .commit()
-//                fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-//                    bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
-//                }
+                val action = FramesMapFragmentDirections.framesMapFrameEditAction(frame, title, "")
+                findNavController().navigate(action)
             }
         }
     }

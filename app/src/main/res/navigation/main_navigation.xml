@@ -130,7 +130,11 @@
         <fragment
             android:id="@+id/frames_map_dest"
             android:name="com.tommihirvonen.exifnotes.fragments.FramesMapFragment"
-            android:label="FramesMapFragment" />
+            android:label="FramesMapFragment" >
+            <action
+                android:id="@+id/frames_map_frame_edit_action"
+                app:destination="@id/frame_edit_dest" />
+        </fragment>
     </navigation>
     <fragment
         android:id="@+id/camera_edit_dest"
