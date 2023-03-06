@@ -235,5 +235,11 @@
         <argument
             android:name="transitionName"
             app:argType="string" />
+        <action
+            android:id="@+id/frame_edit_filter_edit_action"
+            app:destination="@id/filter_edit_dest" />
+        <action
+            android:id="@+id/frame_edit_lens_edit_action"
+            app:destination="@id/lens_edit_dest" />
     </fragment>
 </navigation>

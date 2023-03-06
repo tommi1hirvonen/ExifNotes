@@ -45,6 +45,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.*
@@ -88,20 +89,6 @@ class FrameEditFragment : Fragment() {
             .addTransition(Fade())
             .setCommonInterpolator(FastOutSlowInInterpolator())
             .apply { duration = 250L }
-
-        // TODO
-//        val addFilterDialog = requireParentFragment().childFragmentManager
-//            .findFragmentByTag(FilterEditDialog.TAG)
-//        addFilterDialog?.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-//            bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
-//        }
-
-        // TODO
-//        val addLensFragment = requireParentFragment().childFragmentManager
-//            .findFragmentByTag(LensEditFragment.TAG)
-//        addLensFragment?.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-//            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
-//        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -201,20 +188,11 @@ class FrameEditFragment : Fragment() {
         binding.filtersButton.setOnClickListener(filtersButtonOnClickListener)
 
         binding.addFilter.setOnClickListener {
-            // TODO
-//            binding.noteEditText.clearFocus()
-//            val dialog = FilterEditDialog()
-//            val arguments = Bundle()
-//            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
-//            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
-//            dialog.arguments = arguments
-//            val transaction = requireParentFragment().childFragmentManager
-//                .beginTransaction()
-//                .addToBackStack(backStackName)
-//            dialog.show(transaction, FilterEditDialog.TAG)
-//            dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-//                bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::addFilter)
-//            }
+            val title = resources.getString(R.string.AddNewFilter)
+            val positiveButtonText = resources.getString(R.string.Add)
+            val action = FrameEditFragmentDirections
+                .frameEditFilterEditAction(null, title, positiveButtonText)
+            findNavController().navigate(action)
         }
 
         binding.complementaryPicturesOptionsButton
@@ -237,6 +215,11 @@ class FrameEditFragment : Fragment() {
         (view.parent as ViewGroup).doOnPreDraw {
             startPostponedEnterTransition()
         }
+        val navBackStackEntry = findNavController().getBackStackEntry(R.id.frame_edit_dest)
+        navBackStackEntry.observeThenClearNavigationResult<Filter>(viewLifecycleOwner, ExtraKeys.FILTER) { filter ->
+            filter?.let(model::addFilter)
+        }
+        observeThenClearNavigationResult(ExtraKeys.LENS, model::addLens)
     }
 
     override fun onResume() {
@@ -421,34 +404,13 @@ class FrameEditFragment : Fragment() {
     }
 
     private fun showNewLensFragment() {
-        // TODO
-//        val sharedElementTransition = TransitionSet()
-//            .addTransition(ChangeBounds())
-//            .addTransition(ChangeTransform())
-//            .addTransition(ChangeImageTransform())
-//            .addTransition(Fade())
-//            .setCommonInterpolator(FastOutSlowInInterpolator())
-//            .apply { duration = 250L }
-//        val fragment = LensEditFragment().apply {
-//            sharedElementEnterTransition = sharedElementTransition
-//        }
-//        val arguments = Bundle()
-//        arguments.putBoolean(ExtraKeys.FIXED_LENS, false)
-//        arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewLens))
-//        val sharedElement = binding.addLens
-//        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-//        fragment.arguments = arguments
-//        requireParentFragment().childFragmentManager
-//            .beginTransaction()
-//            .setReorderingAllowed(true)
-//            .addSharedElement(sharedElement, sharedElement.transitionName)
-//            .replace(fragmentContainerId, fragment, LensEditFragment.TAG)
-//            .addToBackStack(backStackName)
-//            .commit()
-//
-//        fragment.setFragmentResultListener(LensEditFragment.REQUEST_KEY) { _, bundle ->
-//            bundle.parcelable<Lens>(ExtraKeys.LENS)?.let(model::addLens)
-//        }
+        val sharedElement = binding.addLens
+        val title = resources.getString(R.string.AddNewLens)
+        val action = FrameEditFragmentDirections.frameEditLensEditAction(null, false, title, sharedElement.transitionName)
+        val extras = FragmentNavigatorExtras(
+            sharedElement to sharedElement.transitionName
+        )
+        findNavController().navigate(action, extras)
     }
 
     // LISTENER CLASSES USED TO OPEN NEW DIALOGS AFTER ONCLICK EVENTS
