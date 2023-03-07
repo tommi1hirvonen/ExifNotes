@@ -18,7 +18,6 @@
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navigation"
     app:startDestination="@id/rolls_list_dest">
 
@@ -86,7 +85,11 @@
             app:argType="string" />
         <action
             android:id="@+id/roll_camera_edit_action"
-            app:destination="@id/camera_edit_dest" />
+            app:destination="@id/camera_edit_dest"
+            app:enterAnim="@anim/enter_fragment"
+            app:exitAnim="@anim/exit_fragment"
+            app:popEnterAnim="@anim/enter_fragment"
+            app:popExitAnim="@anim/exit_fragment" />
         <action
             android:id="@+id/roll_film_stock_edit_action"
             app:destination="@id/film_stock_edit_dest" />
@@ -149,10 +152,15 @@
             app:argType="string" />
         <argument
             android:name="transitionName"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true" />
         <action
             android:id="@+id/fixed_lens_edit_action"
-            app:destination="@id/lens_edit_dest" />
+            app:destination="@id/lens_edit_dest"
+            app:enterAnim="@anim/enter_fragment"
+            app:exitAnim="@anim/exit_fragment"
+            app:popEnterAnim="@anim/enter_fragment"
+            app:popExitAnim="@anim/exit_fragment" />
     </fragment>
     <fragment
         android:id="@+id/lens_edit_dest"
@@ -170,7 +178,8 @@
             app:argType="string" />
         <argument
             android:name="transitionName"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <dialog
         android:id="@+id/filter_edit_dest"
@@ -240,6 +249,10 @@
             app:destination="@id/filter_edit_dest" />
         <action
             android:id="@+id/frame_edit_lens_edit_action"
-            app:destination="@id/lens_edit_dest" />
+            app:destination="@id/lens_edit_dest"
+            app:enterAnim="@anim/enter_fragment"
+            app:exitAnim="@anim/exit_fragment"
+            app:popEnterAnim="@anim/enter_fragment"
+            app:popExitAnim="@anim/exit_fragment" />
     </fragment>
 </navigation>

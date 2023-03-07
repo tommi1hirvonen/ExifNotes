@@ -27,7 +27,6 @@ import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.ChangeBounds
@@ -81,7 +80,10 @@ class CameraEditFragment : Fragment() {
             }.create().show()
         }
         binding.fixedLensLayout.setOnClickListener {
-            showFixedLensFragment(binding.fixedLensLayout)
+            val title = resources.getString(R.string.SetFixedLens)
+            val action = CameraEditFragmentDirections
+                .fixedLensEditAction(editModel.camera.lens, true, title, null)
+            findNavController().navigate(action)
         }
         binding.positiveButton.setOnClickListener {
             if (editModel.validate()) {
@@ -103,15 +105,5 @@ class CameraEditFragment : Fragment() {
     }
 
     private fun navigateBack() = findNavController().navigateUp()
-
-    private fun showFixedLensFragment(sharedElement: View) {
-        val title = resources.getString(R.string.SetFixedLens)
-        val action = CameraEditFragmentDirections
-            .fixedLensEditAction(editModel.camera.lens, true, title, sharedElement.transitionName)
-        val extras = FragmentNavigatorExtras(
-            sharedElement to sharedElement.transitionName
-        )
-        findNavController().navigate(action, extras)
-    }
 
 }

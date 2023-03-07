@@ -26,7 +26,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.*
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.ChangeBounds
@@ -101,14 +100,10 @@ class RollEditFragment : Fragment() {
         }
 
         binding.addCamera.setOnClickListener {
-            val sharedElement = binding.addCamera
             val title = resources.getString(R.string.AddNewCamera)
             val action = RollEditFragmentDirections
-                .rollCameraEditAction(null, title, sharedElement.transitionName)
-            val extras = FragmentNavigatorExtras(
-                sharedElement to sharedElement.transitionName
-            )
-            findNavController().navigate(action, extras)
+                .rollCameraEditAction(null, title, null)
+            findNavController().navigate(action)
         }
 
         // DATE
