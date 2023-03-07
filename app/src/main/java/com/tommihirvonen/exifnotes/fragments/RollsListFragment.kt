@@ -287,12 +287,13 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         val navigationMenu = binding.navigationView.menu
         when (item.itemId) {
             R.id.menu_item_gear -> {
+                exitTransition = null
                 model.gearRefreshPending = true
                 val action = RollsListFragmentDirections.gearAction()
                 viewLifecycleOwner.lifecycleScope.launch {
                     // Small delay so that the drawer has enough time to close
                     // before the transaction happens
-                    delay(200)
+                    delay(225)
                     findNavController().navigate(action)
                 }
             }
@@ -301,15 +302,16 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 viewLifecycleOwner.lifecycleScope.launch {
                     // Small delay so that the drawer has enough time to close
                     // before a new activity is started.
-                    delay(200)
+                    delay(225)
                     preferenceResultLauncher.launch(preferenceActivityIntent)
                 }
             }
             R.id.menu_item_show_on_map -> {
+                exitTransition = null
                 viewLifecycleOwner.lifecycleScope.launch {
                     // Small delay so that the drawer has enough time to close
                     // before a new fragment is started.
-                    delay(200)
+                    delay(225)
                     val action = RollsListFragmentDirections.rollsMapAction()
                     findNavController().navigate(action)
                 }
