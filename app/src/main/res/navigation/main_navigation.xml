@@ -146,6 +146,13 @@
             <action
                 android:id="@+id/frames_frame_edit_action"
                 app:destination="@id/frame_edit_dest" />
+            <action
+                android:id="@+id/frames_list_location_pick_action"
+                app:destination="@id/location_pick_dest"
+                app:enterAnim="@anim/enter_fragment"
+                app:exitAnim="@anim/exit_fragment"
+                app:popEnterAnim="@anim/enter_fragment"
+                app:popExitAnim="@anim/exit_fragment" />
         </fragment>
         <fragment
             android:id="@+id/frames_map_dest"
@@ -276,5 +283,25 @@
             app:exitAnim="@anim/exit_fragment"
             app:popEnterAnim="@anim/enter_fragment"
             app:popExitAnim="@anim/exit_fragment" />
+        <action
+            android:id="@+id/frame_edit_location_pick_action"
+            app:destination="@id/location_pick_dest"
+            app:enterAnim="@anim/enter_fragment"
+            app:exitAnim="@anim/exit_fragment"
+            app:popEnterAnim="@anim/enter_fragment"
+            app:popExitAnim="@anim/exit_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/location_pick_dest"
+        android:name="com.tommihirvonen.exifnotes.fragments.LocationPickFragment"
+        android:label="LocationPickFragment" >
+        <argument
+            android:name="location"
+            app:argType="com.google.android.gms.maps.model.LatLng"
+            app:nullable="true" />
+        <argument
+            android:name="formattedAddress"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 </navigation>

@@ -187,6 +187,14 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             rollModel.submitRoll(roll)
             model.setRoll(roll)
         }
+        observeThenClearNavigationResult<LocationPickResponse>(ExtraKeys.LOCATION) { response ->
+            val (location, formattedAddress) = response
+            model.selectedFrames.forEach { frame ->
+                frame.location = location
+                frame.formattedAddress = formattedAddress
+                model.submitFrame(frame)
+            }
+        }
     }
 
     override fun onItemClick(frame: Frame, view: View) {
@@ -590,8 +598,9 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 }
                                 // Edit location
                                 8 -> {
-                                    val intent = Intent(activity, LocationPickActivity::class.java)
-                                    locationResultLauncher.launch(intent)
+                                    val action = FramesListFragmentDirections
+                                        .framesListLocationPickAction(null, null)
+                                    findNavController().navigate(action)
                                 }
                                 // Edit light source
                                 9 -> {
@@ -705,24 +714,4 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
     }
 
-    private val locationResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            // Consume the case when the user has edited
-            // the location of several frames in action mode.
-            if (result.resultCode == Activity.RESULT_OK) {
-                val location: LatLng? =
-                    if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                        result.data?.parcelable(ExtraKeys.LOCATION)
-                    } else null
-                val formattedAddress: String? =
-                    if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
-                        result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
-                    } else null
-                model.selectedFrames.forEach { frame ->
-                    frame.location = location
-                    frame.formattedAddress = formattedAddress
-                    model.submitFrame(frame)
-                }
-            }
-        }
 }

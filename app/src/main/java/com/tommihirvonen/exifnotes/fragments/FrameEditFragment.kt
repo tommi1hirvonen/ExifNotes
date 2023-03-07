@@ -19,9 +19,7 @@
 package com.tommihirvonen.exifnotes.fragments
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -48,10 +46,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.*
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.activities.LocationPickActivity
 import com.tommihirvonen.exifnotes.databinding.DialogSingleEditTextBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFrameEditBinding
 import com.tommihirvonen.exifnotes.datastructures.*
@@ -178,10 +174,9 @@ class FrameEditFragment : Fragment() {
         binding.focalLengthButton.setOnClickListener(focalLengthButtonOnClickListener)
 
         binding.locationButton.setOnClickListener {
-            val intent = Intent(activity, LocationPickActivity::class.java)
-            intent.putExtra(ExtraKeys.LOCATION, model.frame.location)
-            intent.putExtra(ExtraKeys.FORMATTED_ADDRESS, model.frame.formattedAddress)
-            locationResultLauncher.launch(intent)
+            val action = FrameEditFragmentDirections
+                .frameEditLocationPickAction(model.frame.location, model.frame.formattedAddress)
+            findNavController().navigate(action)
         }
 
         binding.filtersButton.setOnClickListener(filtersButtonOnClickListener)
@@ -219,6 +214,10 @@ class FrameEditFragment : Fragment() {
             filter?.let(model::addFilter)
         }
         observeThenClearNavigationResult(ExtraKeys.LENS, model::addLens)
+        observeThenClearNavigationResult<LocationPickResponse>(ExtraKeys.LOCATION) { response ->
+            val (location, formattedAddress) = response
+            model.observable.setLocation(location, formattedAddress)
+        }
     }
 
     override fun onResume() {
@@ -228,22 +227,6 @@ class FrameEditFragment : Fragment() {
         // Handle both cases here.
         binding.root.doOnPreDraw {
             setComplementaryPicture()
-        }
-    }
-
-    private val locationResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val location = if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                result.data?.parcelable<LatLng>(ExtraKeys.LOCATION)
-            } else {
-                null
-            }
-            val formattedAddress = if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
-                result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
-            } else {
-                null
-            }
-            model.observable.setLocation(location, formattedAddress)
         }
     }
 

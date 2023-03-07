@@ -47,8 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/top_app_bar_layout"
-        android:layout_above="@id/bottom_bar"
-        tools:context=".activities.LocationPickActivity" />
+        android:layout_above="@id/bottom_bar" />
 
 
     <FrameLayout
@@ -88,7 +87,7 @@
         android:layout_above="@+id/bottom_bar"
         android:layout_alignParentRight="true"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="70dp"
         android:src="@drawable/ic_baseline_done_24" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
