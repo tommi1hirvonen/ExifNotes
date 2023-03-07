@@ -18,10 +18,11 @@
 
 package com.tommihirvonen.exifnotes.dialogs
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.setFragmentResult
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,14 +32,11 @@ import com.tommihirvonen.exifnotes.adapters.FilmManufacturerAdapter
 import com.tommihirvonen.exifnotes.datastructures.FilmStock
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.utilities.setNavigationResult
 
 class SelectFilmStockDialog : DialogFragment() {
 
-    companion object {
-        const val TAG = "SELECT_FILM_STOCK_DIALOG"
-        const val REQUEST_KEY = TAG
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val inflater = requireActivity().layoutInflater
         val view = inflater.inflate(R.layout.dialog_select_film_stock, null)
@@ -61,10 +59,8 @@ class SelectFilmStockDialog : DialogFragment() {
     }
 
     private val onFilmStockSelected = { filmStock: FilmStock? ->
-        dismiss()
-        val bundle = Bundle()
-        bundle.putParcelable(ExtraKeys.FILM_STOCK, filmStock)
-        setFragmentResult(REQUEST_KEY, bundle)
+        setNavigationResult(filmStock, ExtraKeys.SELECT_FILM_STOCK)
+        findNavController().navigateUp()
     }
 
 }

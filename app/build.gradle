@@ -21,6 +21,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'com.jaredsburrows.license'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
@@ -123,6 +124,8 @@ dependencies {
     implementation 'androidx.databinding:databinding-runtime:7.4.0'
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
+    implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigation_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigation_version"
 
     // For local unit tests
     testImplementation "junit:junit:4.13.2"

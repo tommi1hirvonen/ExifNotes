@@ -18,14 +18,15 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -33,7 +34,6 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilterAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentFiltersBinding
 import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.dialogs.FilterEditDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
@@ -43,10 +43,9 @@ import com.tommihirvonen.exifnotes.viewmodels.State
  */
 class FiltersFragment : Fragment() {
 
-    private val model: GearViewModel by activityViewModels()
-    private val gearFragment by lazy {
-        requireParentFragment().requireParentFragment() as GearFragment
-    }
+    // Share the ViewModel together with CamerasFragment and LensesFragment
+    // through the same navigation subgraph.
+    private val model by navGraphViewModels<GearViewModel>(R.id.gear_navigation)
 
     private var cameras: List<Camera> = emptyList()
     private var lenses: List<Lens> = emptyList()
@@ -54,16 +53,7 @@ class FiltersFragment : Fragment() {
 
     private lateinit var binding: FragmentFiltersBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Check if an existing filter edit dialog is open after configuration change
-        // and attach listener if so.
-        val editDialog = gearFragment.childFragmentManager.findFragmentByTag(FilterEditDialog.TAG)
-        editDialog?.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::submitFilter)
-        }
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -99,6 +89,14 @@ class FiltersFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val navBackStackEntry = findNavController().getBackStackEntry(R.id.gear_dest)
+        navBackStackEntry.observeThenClearNavigationResult<Filter>(
+            viewLifecycleOwner, ExtraKeys.FILTER) { filter ->
+            filter?.let(model::submitFilter)
+        }
     }
 
     private val onFilterClickListener = { filter: Filter, view: View ->
@@ -178,24 +176,13 @@ class FiltersFragment : Fragment() {
     }
 
     private fun openFilterEditDialog(filter: Filter?) {
-        val dialog = FilterEditDialog()
-        val arguments = Bundle()
-        if (filter != null) {
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.EditFilter))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.OK))
-            arguments.putParcelable(ExtraKeys.FILTER, filter)
+        val (title, positiveButtonText) = if (filter == null) {
+            resources.getString(R.string.AddNewFilter) to resources.getString(R.string.Add)
         } else {
-            arguments.putString(ExtraKeys.TITLE, resources.getString(R.string.AddNewFilter))
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, resources.getString(R.string.Add))
+            resources.getString(R.string.EditFilter) to resources.getString(R.string.OK)
         }
-        dialog.arguments = arguments
-        val transaction = gearFragment.childFragmentManager
-            .beginTransaction()
-            .addToBackStack(GearFragment.BACKSTACK_NAME)
-        dialog.show(transaction, FilterEditDialog.TAG)
-        dialog.setFragmentResultListener(FilterEditDialog.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Filter>(ExtraKeys.FILTER)?.let(model::submitFilter)
-        }
+        val action = GearFragmentDirections.filterEditAction(filter, title, positiveButtonText)
+        findNavController().navigate(action)
     }
 
     private fun confirmDeleteFilter(filter: Filter) {

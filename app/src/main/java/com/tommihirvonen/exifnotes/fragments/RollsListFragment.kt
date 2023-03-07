@@ -33,9 +33,10 @@ import androidx.appcompat.view.ActionMode
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.*
@@ -47,7 +48,6 @@ import com.tommihirvonen.exifnotes.adapters.RollAdapter
 import com.tommihirvonen.exifnotes.adapters.RollAdapter.RollAdapterListener
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsListBinding
 import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.dialogs.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
@@ -59,10 +59,6 @@ import kotlinx.coroutines.launch
  * a list of rolls the user has saved in the database.
  */
 class RollsListFragment : Fragment(), RollAdapterListener {
-
-    companion object {
-        const val TAG = "ROLLS_LIST_FRAGMENT"
-    }
 
     private val model by activityViewModels<RollsViewModel>()
     private var rolls = emptyList<Roll>()
@@ -85,17 +81,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     private var reenterFadeDuration = 0L
 
     private var tappedRollPosition = RecyclerView.NO_POSITION
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Check if the roll edit fragment was left open after configuration change.
-        // If so, reattach the fragment result listener.
-        val fragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(RollEditFragment.TAG)
-        fragment?.setFragmentResultListener(RollEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Roll>(ExtraKeys.ROLL)?.let(model::submitRoll)
-        }
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -258,6 +243,20 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         postponeEnterTransition()
+        observeThenClearNavigationResult(ExtraKeys.ROLL, model::submitRoll)
+        val navBackStackEntry = findNavController().getBackStackEntry(R.id.rolls_list_dest)
+        navBackStackEntry.observeThenClearNavigationResult<FilmStock>(viewLifecycleOwner, ExtraKeys.SELECT_FILM_STOCK) { filmStock ->
+            MaterialAlertDialogBuilder(requireActivity()).apply {
+                setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
+                setNegativeButton(R.string.No) { _, _ ->
+                    batchUpdateRollsFilmStock(filmStock, false)
+                }
+                setPositiveButton(R.string.Yes) { _, _ ->
+                    batchUpdateRollsFilmStock(filmStock, true)
+                }
+                setNeutralButton(R.string.Cancel) { _, _ -> }
+            }.create().show()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -288,12 +287,14 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         val navigationMenu = binding.navigationView.menu
         when (item.itemId) {
             R.id.menu_item_gear -> {
-                val gearActivityIntent = Intent(activity, GearActivity::class.java)
+                exitTransition = null
+                model.gearRefreshPending = true
+                val action = RollsListFragmentDirections.gearAction()
                 viewLifecycleOwner.lifecycleScope.launch {
                     // Small delay so that the drawer has enough time to close
-                    // before a new activity is started.
-                    delay(200)
-                    gearResultLauncher.launch(gearActivityIntent)
+                    // before the transaction happens
+                    delay(225)
+                    findNavController().navigate(action)
                 }
             }
             R.id.menu_item_preferences -> {
@@ -301,24 +302,18 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 viewLifecycleOwner.lifecycleScope.launch {
                     // Small delay so that the drawer has enough time to close
                     // before a new activity is started.
-                    delay(200)
+                    delay(225)
                     preferenceResultLauncher.launch(preferenceActivityIntent)
                 }
             }
             R.id.menu_item_show_on_map -> {
-                val fragment = RollsMapFragment()
+                exitTransition = null
                 viewLifecycleOwner.lifecycleScope.launch {
                     // Small delay so that the drawer has enough time to close
                     // before a new fragment is started.
-                    delay(200)
-                    requireParentFragment().childFragmentManager
-                        .beginTransaction()
-                        .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment,
-                            R.anim.enter_fragment, R.anim.exit_fragment)
-                        .setReorderingAllowed(true)
-                        .addToBackStack(RollsFragment.BACKSTACK_NAME)
-                        .add(R.id.rolls_fragment_container, fragment, RollsMapFragment.TAG)
-                        .commit()
+                    delay(225)
+                    val action = RollsListFragmentDirections.rollsMapAction()
+                    findNavController().navigate(action)
                 }
             }
             R.id.active_rolls_filter -> {
@@ -346,13 +341,11 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
+        if (model.gearRefreshPending) {
+            model.gearRefreshPending = false
+            model.loadAll()
+        }
         rollAdapter.notifyDataSetChanged()
-    }
-
-    private val gearResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        // Update fragment after the user navigates back from the GearActivity.
-        // Cameras might have been edited, so they need to be reloaded.
-        model.loadAll()
     }
 
     private val preferenceResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -380,30 +373,11 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 }
             }
 
-            val sharedElementTransition = TransitionSet()
-                .addTransition(ChangeBounds())
-                .addTransition(ChangeTransform())
-                .addTransition(ChangeImageTransform())
-                .setCommonInterpolator(transitionInterpolator)
-                .apply { duration = transitionDurationShowFrames }
-
-            val framesFragment = FramesFragment().apply {
-                sharedElementEnterTransition = sharedElementTransition
-                sharedElementReturnTransition = sharedElementTransition
-            }
-
-            val arguments = Bundle()
-            arguments.putParcelable(ExtraKeys.ROLL, roll)
-            arguments.putString(ExtraKeys.TRANSITION_NAME, layout.transitionName)
-            framesFragment.arguments = arguments
-
-            requireParentFragment().childFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .addSharedElement(layout, layout.transitionName)
-                .addToBackStack(RollsFragment.BACKSTACK_NAME)
-                .replace(R.id.rolls_fragment_container, framesFragment, FramesFragment.TAG)
-                .commit()
+            val action = RollsListFragmentDirections.framesListAction(roll, layout.transitionName)
+            val extras = FragmentNavigatorExtras(
+                layout to layout.transitionName
+            )
+            findNavController().navigate(action, extras)
         }
     }
 
@@ -429,47 +403,22 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         actionMode?.title = "${model.selectedRolls.size}/${rolls.size}"
     }
 
-    private fun showEditRollFragment(roll: Roll?, sharedElement: View) {
+    private fun showEditRollFragment(roll: Roll?, sharedElement: View?) {
         actionMode?.finish()
-
         exitTransition = null
         reenterFadeDuration = transitionDurationEditRoll
-
-        val sharedElementTransition = TransitionSet()
-            .addTransition(ChangeBounds())
-            .addTransition(ChangeTransform())
-            .addTransition(ChangeImageTransform())
-            .addTransition(Fade())
-            .setCommonInterpolator(transitionInterpolator)
-            .apply { duration = transitionDurationEditRoll }
-
-        val fragment = RollEditFragment().apply {
-            sharedElementEnterTransition = sharedElementTransition
-        }
-
-        val arguments = Bundle()
-        if (roll == null) {
-            arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.AddNewRoll))
+        val title = if (roll == null) {
+            requireActivity().resources.getString(R.string.AddNewRoll)
         } else {
-            arguments.putParcelable(ExtraKeys.ROLL, roll)
-            arguments.putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
+            requireActivity().resources.getString(R.string.EditRoll)
         }
-
-        arguments.putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-        arguments.putString(ExtraKeys.BACKSTACK_NAME, RollsFragment.BACKSTACK_NAME)
-        arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.rolls_fragment_container)
-        fragment.arguments = arguments
-
-        requireParentFragment().childFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.rolls_fragment_container, fragment, RollEditFragment.TAG)
-            .addToBackStack(RollsFragment.BACKSTACK_NAME)
-            .commit()
-
-        fragment.setFragmentResultListener(RollEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Roll>(ExtraKeys.ROLL)?.let(model::submitRoll)
+        val action = RollsListFragmentDirections.rollEditAction(roll, title, sharedElement?.transitionName)
+        if (sharedElement == null) {
+            findNavController().navigate(action)
+        } else {
+            val extras = FragmentNavigatorExtras(
+                sharedElement to sharedElement.transitionName)
+            findNavController().navigate(action, extras)
         }
     }
 
@@ -548,7 +497,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         // Get the first of the selected rolls (only one should be selected anyway)
                         // Finish action mode if the user clicked ok when editing the roll ->
                         // this is done in onActivityResult().
-                        showEditRollFragment(selectedRoll, binding.topAppBar)
+                        showEditRollFragment(selectedRoll, null)
                     } else {
                         // Show batch edit features
                         val builder = MaterialAlertDialogBuilder(requireActivity())
@@ -559,25 +508,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                             when (which) {
                                 0 -> {
                                     // Edit film stock
-                                    val filmStockDialog = SelectFilmStockDialog()
-                                    val transaction = requireParentFragment().childFragmentManager
-                                        .beginTransaction().addToBackStack(RollsFragment.BACKSTACK_NAME)
-                                    filmStockDialog.show(transaction, SelectFilmStockDialog.TAG)
-                                    filmStockDialog.setFragmentResultListener(
-                                        SelectFilmStockDialog.REQUEST_KEY) { _, bundle ->
-                                        val filmStock: FilmStock = bundle.parcelable(ExtraKeys.FILM_STOCK)
-                                            ?: return@setFragmentResultListener
-                                        MaterialAlertDialogBuilder(requireActivity()).apply {
-                                            setMessage(R.string.BatchEditRollsFilmStockISOConfirmation)
-                                            setNegativeButton(R.string.No) { _, _ ->
-                                                batchUpdateRollsFilmStock(filmStock, false)
-                                            }
-                                            setPositiveButton(R.string.Yes) { _, _ ->
-                                                batchUpdateRollsFilmStock(filmStock, true)
-                                            }
-                                            setNeutralButton(R.string.Cancel) { _, _ -> }
-                                        }.create().show()
-                                    }
+                                    val action = RollsListFragmentDirections.selectFilmStockAction()
+                                    findNavController().navigate(action)
                                 }
                                 1 -> {
                                     // Clear film stock

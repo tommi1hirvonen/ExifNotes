@@ -24,14 +24,15 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilterBinding
 import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.parcelable
+import com.tommihirvonen.exifnotes.utilities.setNavigationResult
 import com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModelFactory
 
@@ -40,27 +41,21 @@ import com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModelFactory
  */
 class FilterEditDialog : DialogFragment() {
 
-    companion object {
-        const val TAG = "FILTER_EDIT_DIALOG"
-        const val REQUEST_KEY: String = TAG
-    }
+    private val arguments by navArgs<FilterEditDialogArgs>()
 
-    private val editModel by lazy {
-        val filter = requireArguments().parcelable<Filter>(ExtraKeys.FILTER)?.copy() ?: Filter()
-        val factory = FilterEditViewModelFactory(requireActivity().application, filter)
-        ViewModelProvider(this, factory)[FilterEditViewModel::class.java]
+    private val editModel by viewModels<FilterEditViewModel> {
+        val filter = arguments.filter?.copy() ?: Filter()
+        FilterEditViewModelFactory(requireActivity().application, filter)
     }
 
     override fun onCreateDialog(SavedInstanceState: Bundle?): Dialog {
         val layoutInflater = requireActivity().layoutInflater
         val binding = DialogFilterBinding.inflate(layoutInflater)
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        val title = requireArguments().getString(ExtraKeys.TITLE)
-        builder.setTitle(title)
+        builder.setTitle(arguments.title)
         builder.setView(binding.root)
         binding.viewmodel = editModel.observable
-        val positiveButton = requireArguments().getString(ExtraKeys.POSITIVE_BUTTON)
-        builder.setPositiveButton(positiveButton, null)
+        builder.setPositiveButton(arguments.positiveButtonText, null)
         builder.setNegativeButton(R.string.Cancel) { _: DialogInterface?, _: Int -> }
         val dialog = builder.create()
 
@@ -73,11 +68,8 @@ class FilterEditDialog : DialogFragment() {
         // only when both make and model are set.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             if (editModel.validate()) {
-                val bundle = Bundle().apply {
-                    putParcelable(ExtraKeys.FILTER, editModel.filter)
-                }
-                setFragmentResult(REQUEST_KEY, bundle)
-                dialog.dismiss()
+                setNavigationResult(editModel.filter, ExtraKeys.FILTER)
+                findNavController().navigateUp()
             }
         }
         return dialog

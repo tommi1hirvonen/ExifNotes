@@ -35,7 +35,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
-import com.tommihirvonen.exifnotes.fragments.RollsFragment
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.utilities.purgeDirectory
@@ -119,12 +118,8 @@ class MainActivity : AppCompatActivity() {
             if (!isGPSEnabled && requestingLocationUpdates) showSettingsAlert()
         }
 
-        val tag = RollsFragment.TAG
-        val fragment = supportFragmentManager.findFragmentByTag(tag) ?: RollsFragment()
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragment_container, fragment, tag)
-            .commit()
+        // val host = binding.navHostFragment.getFragment<NavHostFragment>()
+        // val navController = host.navController
     }
 
     override fun onStart() {

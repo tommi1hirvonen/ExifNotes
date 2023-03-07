@@ -25,12 +25,11 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.*
 import android.widget.*
-import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -58,10 +57,6 @@ import kotlin.math.roundToInt
  */
 class RollsMapFragment : Fragment(), OnMapReadyCallback {
 
-    companion object {
-        const val TAG = "ROLLS_MAP_FRAGMENT"
-    }
-
     private val filterMode by lazy {
         val activity = requireActivity()
         val prefs = PreferenceManager.getDefaultSharedPreferences(activity.baseContext)
@@ -69,10 +64,8 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
             prefs.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, RollFilterMode.ACTIVE.value))
     }
 
-    private val model by lazy {
-        val activity = requireActivity()
-        val factory = RollsMapViewModelFactory(activity.application, filterMode)
-        ViewModelProvider(this, factory)[RollsMapViewModel::class.java]
+    private val model by viewModels<RollsMapViewModel> {
+        RollsMapViewModelFactory(requireActivity().application, filterMode)
     }
 
     private var rollSelections = emptyList<RollData>()
@@ -90,18 +83,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            requireParentFragment().childFragmentManager.popBackStack()
-        }
         fragmentRestored = savedInstanceState != null
-
-        // Check if a frame edit fragment was left open after configuration change.
-        // If so, reattach the fragment result listener.
-        val fragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(FrameEditFragment.TAG)
-        fragment?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -115,7 +97,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         }
         binding.topAppBar.title = title
         binding.topAppBar.setNavigationOnClickListener {
-            requireParentFragment().childFragmentManager.popBackStack()
+            findNavController().navigateUp()
         }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
 
@@ -175,6 +157,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         postponeEnterTransition()
+        observeThenClearNavigationResult(ExtraKeys.FRAME, database::updateFrame)
     }
 
     private val onMenuItemSelected = { item: MenuItem ->
@@ -347,26 +330,9 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         override fun onInfoWindowClick(marker: Marker) {
             if (marker.tag is Frame) {
                 val frame = marker.tag as Frame? ?: return
-                val fragment = FrameEditFragment()
-                val arguments = Bundle()
                 val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
-                val positiveButton = requireActivity().resources.getString(R.string.OK)
-                arguments.putString(ExtraKeys.TITLE, title)
-                arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-                arguments.putParcelable(ExtraKeys.FRAME, frame)
-                arguments.putString(ExtraKeys.BACKSTACK_NAME, RollsFragment.BACKSTACK_NAME)
-                arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.rolls_fragment_container)
-                fragment.arguments = arguments
-                requireParentFragment().childFragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment, R.anim.enter_fragment, R.anim.exit_fragment)
-                    .setReorderingAllowed(true)
-                    .add(R.id.rolls_fragment_container, fragment, FrameEditFragment.TAG)
-                    .addToBackStack(RollsFragment.BACKSTACK_NAME)
-                    .commit()
-                fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-                    bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(database::updateFrame)
-                }
+                val action = RollsMapFragmentDirections.rollsMapFrameEditAction(frame, title, null)
+                findNavController().navigate(action)
             }
         }
     }

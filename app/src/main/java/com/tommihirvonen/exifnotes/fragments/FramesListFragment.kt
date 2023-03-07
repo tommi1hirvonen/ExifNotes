@@ -26,17 +26,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.EditText
-import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.doOnPreDraw
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.*
 import com.google.android.gms.maps.model.LatLng
@@ -54,6 +55,7 @@ import com.tommihirvonen.exifnotes.databinding.FragmentFramesListBinding
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
+import com.tommihirvonen.exifnotes.viewmodels.FramesViewModelFactory
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -67,12 +69,12 @@ import java.util.*
  */
 class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
-    companion object {
-        const val TAG = "FRAMES_LIST_FRAGMENT"
+    val arguments by navArgs<FramesListFragmentArgs>()
+
+    private val model by navGraphViewModels<FramesViewModel>(R.id.frames_navigation) {
+        FramesViewModelFactory(requireActivity().application, arguments.roll)
     }
 
-    // The ViewModel has been instantiated using a factory by the parent fragment.
-    private val model by viewModels<FramesViewModel>(ownerProducer = { requireParentFragment() })
     private val rollModel by activityViewModels<RollsViewModel>()
 
     private val roll get() = model.roll.value!!
@@ -98,28 +100,27 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            requireParentFragment().requireParentFragment().childFragmentManager.popBackStack()
-        }
 
-        val rollEditFragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(RollEditFragment.TAG)
-        rollEditFragment
-            ?.setFragmentResultListener(RollEditFragment.REQUEST_KEY, onRollEditListener)
+        val sharedElementTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .setCommonInterpolator(transitionInterpolator)
+            .apply { duration = 400L }
 
-        val frameEditFragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(FrameEditFragment.TAG)
-        frameEditFragment
-            ?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY, onFrameEditListener)
+        sharedElementEnterTransition = sharedElementTransition
+        sharedElementReturnTransition = sharedElementTransition
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentFramesListBinding.inflate(inflater, container, false)
+        binding.root.transitionName = arguments.transitionName
         binding.topAppBar.transitionName = "frames_top_app_bar_transition"
         binding.viewmodel = model
         binding.topAppBar.setNavigationOnClickListener {
-            requireParentFragment().requireParentFragment().childFragmentManager.popBackStack()
+            findNavController().navigateUp()
         }
         binding.topAppBar.setOnMenuItemClickListener(onTopMenuItemClick)
         binding.bottomAppBar.setOnMenuItemClickListener(onBottomMenuItemSelected)
@@ -152,6 +153,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
 
         model.frames.observe(viewLifecycleOwner) { frames ->
+            // When the frames have been loaded from the database, start transition animation.
+            startPostponedEnterTransition()
             this.frames = frames
             frameAdapter.items = frames
             if (model.selectedFrames.isNotEmpty()) {
@@ -171,10 +174,25 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         postponeEnterTransition()
         // Start the transition once all views have been measured and laid out.
         (view.parent as? ViewGroup)?.doOnPreDraw {
-            startPostponedEnterTransition()
             ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
                 duration = transitionDuration
                 start()
+            }
+        }
+        observeThenClearNavigationResult<Frame>(ExtraKeys.FRAME) { frame ->
+            actionMode?.finish()
+            model.submitFrame(frame)
+        }
+        observeThenClearNavigationResult(ExtraKeys.ROLL) { roll: Roll ->
+            rollModel.submitRoll(roll)
+            model.setRoll(roll)
+        }
+        observeThenClearNavigationResult<LocationPickResponse>(ExtraKeys.LOCATION) { response ->
+            val (location, formattedAddress) = response
+            model.selectedFrames.forEach { frame ->
+                frame.location = location
+                frame.formattedAddress = formattedAddress
+                model.submitFrame(frame)
             }
         }
     }
@@ -192,96 +210,57 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
     }
 
     private fun showEditFrameFragment(frame: Frame?, sharedElement: View) {
-        val sharedElementTransition = TransitionSet()
-            .addTransition(ChangeBounds())
-            .addTransition(ChangeTransform())
-            .addTransition(ChangeImageTransform())
-            .addTransition(Fade())
-            .setCommonInterpolator(transitionInterpolator)
-            .apply { duration = transitionDuration }
-
-        val fragment = FrameEditFragment().apply {
-            sharedElementEnterTransition = sharedElementTransition
+        val title = if (frame == null) {
+            requireActivity().resources.getString(R.string.AddNewFrame)
+        } else {
+            "${requireActivity().getString(R.string.EditFrame)}${frame.count}"
         }
 
-        val arguments = Bundle()
-        // New frame is being added.
-        if (frame == null) {
+        val frameToEdit = frame ?: Frame(roll).apply {
             // If the frame count is greater than 100, then don't add a new frame.
             val nextFrameCount = frames.maxOfOrNull(Frame::count)?.plus(1) ?: 1
             if (nextFrameCount > 100) {
                 binding.container.snackbar(R.string.TooManyFrames, binding.bottomAppBar)
                 return
             }
-            val newFrame = Frame(roll).apply {
-                date = LocalDateTime.now()
-                count = nextFrameCount
-                noOfExposures = 1
-                //Get the location only if the app has location permission (locationPermissionsGranted) and
-                //the user has enabled GPS updates in the app's settings.
-                if (locationPermissionsGranted && requestingLocationUpdates) {
-                    lastLocation?.let { location = LatLng(it.latitude, it.longitude) }
-                }
-                //Get the information for the last added frame.
-                //The last added frame has the highest id number (database autoincrement).
-                val previousFrame = frames.maxByOrNull(Frame::id)
-                // Here we can list the properties we want to bring from the previous frame
-                previousFrame?.let {
-                    lens = it.lens
-                    shutter = it.shutter
-                    aperture = it.aperture
-                    filters = it.filters
-                    focalLength = it.focalLength
-                    lightSource = it.lightSource
-                }
+            date = LocalDateTime.now()
+            count = nextFrameCount
+            noOfExposures = 1
+            //Get the location only if the app has location permission (locationPermissionsGranted) and
+            //the user has enabled GPS updates in the app's settings.
+            if (locationPermissionsGranted && requestingLocationUpdates) {
+                lastLocation?.let { location = LatLng(it.latitude, it.longitude) }
             }
-            val title = requireActivity().resources.getString(R.string.AddNewFrame)
-            val positiveButton = requireActivity().resources.getString(R.string.Add)
-            arguments.putString(ExtraKeys.TITLE, title)
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-            arguments.putParcelable(ExtraKeys.FRAME, newFrame)
+            //Get the information for the last added frame.
+            //The last added frame has the highest id number (database autoincrement).
+            val previousFrame = frames.maxByOrNull(Frame::id)
+            // Here we can list the properties we want to bring from the previous frame
+            previousFrame?.let {
+                lens = it.lens
+                shutter = it.shutter
+                aperture = it.aperture
+                filters = it.filters
+                focalLength = it.focalLength
+                lightSource = it.lightSource
+            }
         }
-        // Existing frame is being edited.
-        else {
-            val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
-            val positiveButton = requireActivity().resources.getString(R.string.OK)
-            arguments.putString(ExtraKeys.TITLE, title)
-            arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-            arguments.putParcelable(ExtraKeys.FRAME, frame)
-        }
 
-        // Use the provided view as a primary shared element.
-        // If no view was provided, use the floating action button.
-        arguments.putSerializable(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-        arguments.putString(ExtraKeys.BACKSTACK_NAME, FramesFragment.BACKSTACK_NAME)
-        arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.frames_fragment_container)
-        fragment.arguments = arguments
-        requireParentFragment().childFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.frames_fragment_container, fragment, FrameEditFragment.TAG)
-            .addToBackStack(FramesFragment.BACKSTACK_NAME)
-            .commit()
-
-        fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY, onFrameEditListener)
-    }
-
-    private val onFrameEditListener: (String, Bundle) -> Unit = { _, bundle ->
-        actionMode?.finish()
-        bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
-    }
-
-    private val onRollEditListener: (String, Bundle) -> Unit = { _, bundle ->
-        bundle.parcelable<Roll>(ExtraKeys.ROLL)?.let{
-            rollModel.submitRoll(it)
-            model.setRoll(it)
-        }
+        val action = FramesListFragmentDirections
+            .framesFrameEditAction(frameToEdit, title, sharedElement.transitionName)
+        val extras = FragmentNavigatorExtras(
+            sharedElement to sharedElement.transitionName
+        )
+        findNavController().navigate(action, extras)
     }
 
     private val onTopMenuItemClick = { item: MenuItem ->
         when (item.itemId) {
-            R.id.menu_item_edit -> showRollEditFragment()
+            R.id.menu_item_edit -> {
+                val title = requireActivity().resources.getString(R.string.EditRoll)
+                val action = FramesListFragmentDirections
+                    .framesRollEditAction(roll, title, null)
+                findNavController().navigate(action)
+            }
         }
         true
     }
@@ -309,22 +288,16 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 model.setFrameSortMode(FrameSortMode.LENS)
             }
             R.id.menu_item_gear -> {
-                val gearActivityIntent = Intent(activity, GearActivity::class.java)
-                startActivity(gearActivityIntent)
+                val action = FramesListFragmentDirections.framesGearAction()
+                findNavController().navigate(action)
             }
             R.id.menu_item_preferences -> {
                 val preferenceActivityIntent = Intent(activity, PreferenceActivity::class.java)
                 preferenceResultLauncher.launch(preferenceActivityIntent)
             }
             R.id.menu_item_show_on_map -> {
-                val fragment = FramesMapFragment()
-                requireParentFragment().childFragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment, R.anim.enter_fragment, R.anim.exit_fragment)
-                    .setReorderingAllowed(true)
-                    .addToBackStack(FramesFragment.BACKSTACK_NAME)
-                    .add(R.id.frames_fragment_container, fragment, FramesMapFragment.TAG)
-                    .commit()
+                val action = FramesListFragmentDirections.framesMapAction()
+                findNavController().navigate(action)
             }
             R.id.menu_item_share_intent ->
                 ExportFileSelectDialogBuilder(R.string.FilesToShare) { selectedOptions ->
@@ -391,36 +364,6 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 }
             }
         }
-
-    private fun showRollEditFragment() {
-        val sharedElement = binding.topAppBar
-        val sharedElementTransition = TransitionSet()
-            .addTransition(ChangeBounds())
-            .addTransition(ChangeTransform())
-            .addTransition(ChangeImageTransform())
-            .addTransition(Fade())
-            .setCommonInterpolator(transitionInterpolator)
-            .apply { duration = transitionDuration }
-        val args = Bundle().apply {
-            putParcelable(ExtraKeys.ROLL, roll)
-            putString(ExtraKeys.TITLE, requireActivity().resources.getString(R.string.EditRoll))
-            putString(ExtraKeys.TRANSITION_NAME, sharedElement.transitionName)
-            putString(ExtraKeys.BACKSTACK_NAME, FramesFragment.BACKSTACK_NAME)
-            putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.frames_fragment_container)
-        }
-        val fragment = RollEditFragment().apply {
-            sharedElementEnterTransition = sharedElementTransition
-            arguments = args
-        }
-        requireParentFragment().childFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .addSharedElement(sharedElement, sharedElement.transitionName)
-            .replace(R.id.frames_fragment_container, fragment, RollEditFragment.TAG)
-            .addToBackStack(FramesFragment.BACKSTACK_NAME)
-            .commit()
-        fragment.setFragmentResultListener(RollEditFragment.REQUEST_KEY, onRollEditListener)
-    }
 
     private fun enableActionMode(frame: Frame) {
         frameAdapter.toggleSelection(frame)
@@ -655,8 +598,9 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 }
                                 // Edit location
                                 8 -> {
-                                    val intent = Intent(activity, LocationPickActivity::class.java)
-                                    locationResultLauncher.launch(intent)
+                                    val action = FramesListFragmentDirections
+                                        .framesListLocationPickAction(null, null)
+                                    findNavController().navigate(action)
                                 }
                                 // Edit light source
                                 9 -> {
@@ -770,24 +714,4 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
     }
 
-    private val locationResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            // Consume the case when the user has edited
-            // the location of several frames in action mode.
-            if (result.resultCode == Activity.RESULT_OK) {
-                val location: LatLng? =
-                    if (result.data?.hasExtra(ExtraKeys.LOCATION) == true) {
-                        result.data?.parcelable(ExtraKeys.LOCATION)
-                    } else null
-                val formattedAddress: String? =
-                    if (result.data?.hasExtra(ExtraKeys.FORMATTED_ADDRESS) == true) {
-                        result.data?.getStringExtra(ExtraKeys.FORMATTED_ADDRESS)
-                    } else null
-                model.selectedFrames.forEach { frame ->
-                    frame.location = location
-                    frame.formattedAddress = formattedAddress
-                    model.submitFrame(frame)
-                }
-            }
-        }
 }

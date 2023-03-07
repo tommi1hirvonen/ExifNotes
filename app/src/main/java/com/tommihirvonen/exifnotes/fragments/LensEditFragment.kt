@@ -28,18 +28,25 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import androidx.activity.addCallback
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.transition.ChangeBounds
+import androidx.transition.ChangeImageTransform
+import androidx.transition.ChangeTransform
+import androidx.transition.Fade
+import androidx.transition.TransitionSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogCustomApertureValuesBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentLensEditBinding
 import com.tommihirvonen.exifnotes.datastructures.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.parcelable
+import com.tommihirvonen.exifnotes.utilities.setCommonInterpolator
+import com.tommihirvonen.exifnotes.utilities.setNavigationResult
 import com.tommihirvonen.exifnotes.viewmodels.LensEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.LensEditViewModelFactory
 
@@ -48,38 +55,34 @@ import com.tommihirvonen.exifnotes.viewmodels.LensEditViewModelFactory
  */
 class LensEditFragment : Fragment() {
 
-    companion object {
-        const val TAG = "LENS_EDIT_FRAGMENT"
-        const val REQUEST_KEY = TAG
-    }
+    private val arguments by navArgs<LensEditFragmentArgs>()
 
-    private val model by lazy {
-        val fixedLens = requireArguments().getBoolean(ExtraKeys.FIXED_LENS)
-        val lens = requireArguments().parcelable<Lens>(ExtraKeys.LENS)?.copy() ?: Lens()
-        val factory = LensEditViewModelFactory(requireActivity().application, fixedLens, lens.copy())
-        ViewModelProvider(this, factory)[LensEditViewModel::class.java]
+    private val model by viewModels<LensEditViewModel> {
+        val fixedLens = arguments.fixedLens
+        val lens = arguments.lens?.copy() ?: Lens()
+        LensEditViewModelFactory(requireActivity().application, fixedLens, lens.copy())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            navigateBack()
-        }
+        sharedElementEnterTransition = TransitionSet()
+            .addTransition(ChangeBounds())
+            .addTransition(ChangeTransform())
+            .addTransition(ChangeImageTransform())
+            .addTransition(Fade())
+            .setCommonInterpolator(FastOutSlowInInterpolator())
+            .apply { duration = 250L }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentLensEditBinding.inflate(inflater)
         binding.viewmodel = model.observable
-        val transitionName = requireArguments().getString(ExtraKeys.TRANSITION_NAME)
-        binding.root.transitionName = transitionName
-        binding.topAppBar.title = requireArguments().getString(ExtraKeys.TITLE)
+        binding.root.transitionName = arguments.transitionName
+        binding.topAppBar.title = arguments.title
         binding.topAppBar.setNavigationOnClickListener { navigateBack() }
         binding.positiveButton.setOnClickListener {
             if (model.validate()) {
-                val bundle = Bundle().apply {
-                    putParcelable(ExtraKeys.LENS, model.lens)
-                }
-                setFragmentResult(REQUEST_KEY, bundle)
+                setNavigationResult(model.lens, ExtraKeys.LENS)
                 navigateBack()
             }
         }
@@ -129,8 +132,7 @@ class LensEditFragment : Fragment() {
         }
     }
 
-    private fun navigateBack() =
-        requireParentFragment().childFragmentManager.popBackStack()
+    private fun navigateBack() = findNavController().navigateUp()
 
     private class CustomApertureValueAdapter(context: Context,
         private val values: MutableList<Float>)

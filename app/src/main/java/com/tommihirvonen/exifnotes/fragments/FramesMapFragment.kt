@@ -23,11 +23,10 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
 import android.widget.*
-import androidx.activity.addCallback
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import androidx.preference.PreferenceManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -48,12 +47,7 @@ import com.tommihirvonen.exifnotes.viewmodels.ViewModelUtility
  */
 class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
-    companion object {
-        const val TAG = "FRAMES_MAP_FRAGMENT"
-    }
-
-    // The ViewModel has been instantiated using a factory by the parent fragment.
-    private val model by viewModels<FramesViewModel>(ownerProducer = { requireParentFragment() })
+    private val model by navGraphViewModels<FramesViewModel>(R.id.frames_navigation)
 
     /**
      * GoogleMap object to show the map and to hold all the markers for all frames
@@ -70,16 +64,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            requireParentFragment().childFragmentManager.popBackStack()
-        }
         fragmentRestored = savedInstanceState != null
-
-        val fragment = requireParentFragment().childFragmentManager
-            .findFragmentByTag(FrameEditFragment.TAG)
-        fragment?.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-            bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -87,7 +72,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
         binding = FragmentFramesMapBinding.inflate(layoutInflater)
         binding.viewmodel = model
         binding.topAppBar.setNavigationOnClickListener {
-            requireParentFragment().childFragmentManager.popBackStack()
+            findNavController().navigateUp()
         }
         binding.topAppBar.setOnMenuItemClickListener(onMenuItemSelected)
 
@@ -118,6 +103,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         postponeEnterTransition()
+        observeThenClearNavigationResult(ExtraKeys.FRAME, model::submitFrame)
     }
 
     private val onMenuItemSelected = { item: MenuItem ->
@@ -248,27 +234,9 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
         override fun onInfoWindowClick(marker: Marker) {
             if (marker.tag is Frame) {
                 val frame = marker.tag as Frame? ?: return
-                val fragment = FrameEditFragment()
-                val arguments = Bundle()
                 val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
-                val positiveButton = requireActivity().resources.getString(R.string.OK)
-                arguments.putString(ExtraKeys.TITLE, title)
-                arguments.putString(ExtraKeys.POSITIVE_BUTTON, positiveButton)
-                arguments.putParcelable(ExtraKeys.FRAME, frame)
-                arguments.putString(ExtraKeys.BACKSTACK_NAME, FramesFragment.BACKSTACK_NAME)
-                arguments.putInt(ExtraKeys.FRAGMENT_CONTAINER_ID, R.id.frames_fragment_container)
-                fragment.arguments = arguments
-                requireParentFragment().childFragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(R.anim.enter_fragment, R.anim.exit_fragment,
-                        R.anim.enter_fragment, R.anim.exit_fragment)
-                    .setReorderingAllowed(true)
-                    .add(R.id.frames_fragment_container, fragment, FrameEditFragment.TAG)
-                    .addToBackStack(FramesFragment.BACKSTACK_NAME)
-                    .commit()
-                fragment.setFragmentResultListener(FrameEditFragment.REQUEST_KEY) { _, bundle ->
-                    bundle.parcelable<Frame>(ExtraKeys.FRAME)?.let(model::submitFrame)
-                }
+                val action = FramesMapFragmentDirections.framesMapFrameEditAction(frame, title, null)
+                findNavController().navigate(action)
             }
         }
     }
