@@ -235,7 +235,7 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
             if (marker.tag is Frame) {
                 val frame = marker.tag as Frame? ?: return
                 val title = "" + requireActivity().getString(R.string.EditFrame) + frame.count
-                val action = FramesMapFragmentDirections.framesMapFrameEditAction(frame, title, "")
+                val action = FramesMapFragmentDirections.framesMapFrameEditAction(frame, title, null)
                 findNavController().navigate(action)
             }
         }

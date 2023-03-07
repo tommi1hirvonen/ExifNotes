@@ -247,7 +247,12 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     private val onTopMenuItemClick = { item: MenuItem ->
         when (item.itemId) {
-            R.id.menu_item_edit -> showRollEditFragment()
+            R.id.menu_item_edit -> {
+                val title = requireActivity().resources.getString(R.string.EditRoll)
+                val action = FramesListFragmentDirections
+                    .framesRollEditAction(roll, title, null)
+                findNavController().navigate(action)
+            }
         }
         true
     }
@@ -351,17 +356,6 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 }
             }
         }
-
-    private fun showRollEditFragment() {
-        val sharedElement = binding.topAppBar
-        val title = requireActivity().resources.getString(R.string.EditRoll)
-        val action = FramesListFragmentDirections
-            .framesRollEditAction(roll, title, sharedElement.transitionName)
-        val extras = FragmentNavigatorExtras(
-            sharedElement to sharedElement.transitionName
-        )
-        findNavController().navigate(action, extras)
-    }
 
     private fun enableActionMode(frame: Frame) {
         frameAdapter.toggleSelection(frame)

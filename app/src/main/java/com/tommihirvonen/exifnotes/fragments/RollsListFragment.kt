@@ -403,7 +403,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         actionMode?.title = "${model.selectedRolls.size}/${rolls.size}"
     }
 
-    private fun showEditRollFragment(roll: Roll?, sharedElement: View) {
+    private fun showEditRollFragment(roll: Roll?, sharedElement: View?) {
         actionMode?.finish()
         exitTransition = null
         reenterFadeDuration = transitionDurationEditRoll
@@ -412,10 +412,14 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         } else {
             requireActivity().resources.getString(R.string.EditRoll)
         }
-        val action = RollsListFragmentDirections.rollEditAction(roll, title, sharedElement.transitionName)
-        val extras = FragmentNavigatorExtras(
-            sharedElement to sharedElement.transitionName)
-        findNavController().navigate(action, extras)
+        val action = RollsListFragmentDirections.rollEditAction(roll, title, sharedElement?.transitionName)
+        if (sharedElement == null) {
+            findNavController().navigate(action)
+        } else {
+            val extras = FragmentNavigatorExtras(
+                sharedElement to sharedElement.transitionName)
+            findNavController().navigate(action, extras)
+        }
     }
 
     /**
@@ -493,7 +497,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         // Get the first of the selected rolls (only one should be selected anyway)
                         // Finish action mode if the user clicked ok when editing the roll ->
                         // this is done in onActivityResult().
-                        showEditRollFragment(selectedRoll, binding.topAppBar)
+                        showEditRollFragment(selectedRoll, null)
                     } else {
                         // Show batch edit features
                         val builder = MaterialAlertDialogBuilder(requireActivity())
