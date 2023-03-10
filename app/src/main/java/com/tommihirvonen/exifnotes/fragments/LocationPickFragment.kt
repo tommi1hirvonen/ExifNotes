@@ -61,6 +61,7 @@ import com.tommihirvonen.exifnotes.viewmodels.Animate
 import com.tommihirvonen.exifnotes.viewmodels.LocationPickViewModel
 import com.tommihirvonen.exifnotes.viewmodels.LocationPickViewModelFactory
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener,
     MenuProvider, SearchView.OnQueryTextListener {
@@ -184,6 +185,17 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
     override fun onMapReady(googleMap_: GoogleMap) {
         googleMap = googleMap_
         googleMap?.let { googleMap ->
+
+            // Set map padding so that the map icons aren't hidden by the bottom sheet.
+            val orientation = resources.configuration.orientation
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                val cardViewWidth = binding.bottomBar.width
+                googleMap.setPadding(cardViewWidth, 0, 0, 0)
+            } else {
+                val cardViewHeight = binding.bottomBar.height - binding.bottomBar.translationY
+                googleMap.setPadding(0, 0, 0, cardViewHeight.roundToInt())
+            }
+
             googleMap.uiSettings.isMyLocationButtonEnabled = false
             googleMap.setOnMapClickListener(this)
             // If night mode is enabled, stylize the map with the custom dark theme.
@@ -200,6 +212,11 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
                 googleMap.isMyLocationEnabled = true
             }
 
+            if (!fragmentRestored) {
+                binding.root.snackbar(R.string.TapOnMap,
+                    binding.bottomBar, Snackbar.LENGTH_SHORT)
+            }
+
             model.location.observe(viewLifecycleOwner) { (location, animate) ->
                 if (location == null) {
                     return@observe
@@ -210,17 +227,18 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
                 } else {
                     marker?.position = location
                 }
-                if (!fragmentRestored) {
-                    when (animate) {
-                        Animate.MOVE -> googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
-                        Animate.ANIMATE -> googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
-                        Animate.NONE -> {}
-                    }
+
+                if (fragmentRestored) {
+                    fragmentRestored = false
+                    return@observe
+                }
+
+                when (animate) {
+                    Animate.MOVE -> googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+                    Animate.ANIMATE -> googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+                    Animate.NONE -> {}
                 }
             }
-
-            binding.root.snackbar(R.string.TapOnMap,
-                binding.bottomBar, Snackbar.LENGTH_SHORT)
         }
     }
 
