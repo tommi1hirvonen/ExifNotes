@@ -55,10 +55,9 @@ import com.tommihirvonen.exifnotes.databinding.FragmentLocationPickBinding
 import com.tommihirvonen.exifnotes.datastructures.LocationPickResponse
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.Geocoder
-import com.tommihirvonen.exifnotes.utilities.decimalString
 import com.tommihirvonen.exifnotes.utilities.setNavigationResult
 import com.tommihirvonen.exifnotes.utilities.snackbar
+import com.tommihirvonen.exifnotes.viewmodels.Animate
 import com.tommihirvonen.exifnotes.viewmodels.LocationPickViewModel
 import com.tommihirvonen.exifnotes.viewmodels.LocationPickViewModelFactory
 import kotlinx.coroutines.launch
@@ -69,7 +68,7 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
     private val arguments by navArgs<LocationPickFragmentArgs>()
 
     private val model by viewModels<LocationPickViewModel> {
-        LocationPickViewModelFactory(arguments.location, arguments.formattedAddress)
+        LocationPickViewModelFactory(requireActivity().application, arguments.location, arguments.formattedAddress)
     }
 
     private var googleMap: GoogleMap? = null
@@ -91,6 +90,8 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentLocationPickBinding.inflate(layoutInflater)
+
+        binding.viewmodel = model.observable
 
         binding.fab.setOnClickListener(onLocationSet)
         binding.fabCurrentLocation.setOnClickListener(onRequestCurrentLocation)
@@ -121,24 +122,10 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        // If the formatted address is set, display it
-        val (location, formattedAddress) = model
-        if (location != null && formattedAddress?.isNotEmpty() == true) {
-            binding.formattedAddress.text = formattedAddress
-        } else if (location != null) {
-            binding.progressBar.visibility = View.VISIBLE
-            // Start a coroutine to asynchronously fetch the formatted address.
-            lifecycleScope.launch {
-                val (_, addressResult) = Geocoder(requireContext()).getData(location.decimalString)
-                binding.progressBar.visibility = View.INVISIBLE
-                model.formattedAddress = if (addressResult.isNotEmpty()) {
-                    binding.formattedAddress.text = addressResult
-                    addressResult
-                } else {
-                    binding.formattedAddress.setText(R.string.AddressNotFound)
-                    null
-                }
-            }
+        val (locationData, address) = model.location.value to model.formattedAddress
+        // If the formatted address is not yet, set the model location to start address query.
+        if (locationData?.location != null && address == null) {
+            lifecycleScope.launch { model.setLocation(locationData.location) }
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -147,7 +134,7 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
     }
 
     private val onLocationSet: (View) -> Unit = {
-        model.location?.let {
+        model.location.value?.location?.let {
             val response = LocationPickResponse(it, model.formattedAddress)
             setNavigationResult(response, ExtraKeys.LOCATION)
             findNavController().navigateUp()
@@ -162,8 +149,7 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
             fusedLocationClient.lastLocation.addOnSuccessListener(requireActivity()) { location: android.location.Location? ->
                 if (location != null) {
                     val position = LatLng(location.latitude, location.longitude)
-                    onMapClick(position)
-                    googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
+                    lifecycleScope.launch { model.setLocation(position, Animate.ANIMATE) }
                 }
             }
         }
@@ -195,15 +181,6 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        // Store the currently set location to outState.
-        model.location?.let {
-            outState.putParcelable(ExtraKeys.LOCATION, LatLng(it.latitude, it.longitude))
-            outState.putString(ExtraKeys.FORMATTED_ADDRESS, model.formattedAddress)
-        }
-    }
-
     override fun onMapReady(googleMap_: GoogleMap) {
         googleMap = googleMap_
         googleMap?.let { googleMap ->
@@ -222,47 +199,33 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
                 PackageManager.PERMISSION_GRANTED) {
                 googleMap.isMyLocationEnabled = true
             }
-            model.location?.let { latLngLocation ->
-                marker = googleMap.addMarker(MarkerOptions().position(latLngLocation))
+
+            model.location.observe(viewLifecycleOwner) { (location, animate) ->
+                if (location == null) {
+                    return@observe
+                }
+
+                if (marker == null) {
+                    marker = googleMap.addMarker(MarkerOptions().position(location))
+                } else {
+                    marker?.position = location
+                }
                 if (!fragmentRestored) {
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngLocation, 15f))
-                    binding.root.snackbar(
-                        R.string.TapOnMap, binding.bottomBar,
-                        Snackbar.LENGTH_SHORT)
+                    when (animate) {
+                        Animate.MOVE -> googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+                        Animate.ANIMATE -> googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+                        Animate.NONE -> {}
+                    }
                 }
             }
+
+            binding.root.snackbar(R.string.TapOnMap,
+                binding.bottomBar, Snackbar.LENGTH_SHORT)
         }
     }
 
     override fun onMapClick(latLng: LatLng) {
-        // Get the formatted address
-        binding.formattedAddress.text = ""
-        binding.progressBar.visibility = View.VISIBLE
-        val latitude = "" + latLng.latitude
-        val longitude = "" + latLng.longitude
-        val query = "$latitude $longitude"
-
-        // Start a coroutine to asynchronously fetch the formatted address.
-        lifecycleScope.launch {
-            val (_, addressResult) = Geocoder(requireContext()).getData(query)
-            binding.progressBar.visibility = View.INVISIBLE
-            model.formattedAddress = if (addressResult.isNotEmpty()) {
-                binding.formattedAddress.text = addressResult
-                addressResult
-            } else {
-                binding.formattedAddress.setText(R.string.AddressNotFound)
-                null
-            }
-        }
-
-        // if the location was cleared before editing -> add marker to selected location
-        if (marker == null) {
-            marker = googleMap?.addMarker(MarkerOptions().position(latLng))
-        } else {
-            marker?.position = latLng
-        }
-
-        model.location = latLng
+        lifecycleScope.launch { model.setLocation(latLng) }
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -279,33 +242,7 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
     }
 
     override fun onQueryTextSubmit(query: String): Boolean {
-        // When the user enters the search string, use a coroutine to get
-        // the formatted address and coordinates. Also move the marker if the result was valid.
-        binding.formattedAddress.text = ""
-        binding.progressBar.visibility = View.VISIBLE
-
-        lifecycleScope.launch {
-            val (position, addressResult) = Geocoder(requireContext()).getData(query)
-            if (position != null) {
-                // marker is null, if the search was made before the marker has been added
-                // -> add marker to selected location
-                if (marker == null) {
-                    marker = googleMap?.addMarker(MarkerOptions().position(position))
-                } else {
-                    // otherwise just set the location
-                    marker?.position = position
-                }
-                model.location = position
-                googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
-                binding.formattedAddress.text = addressResult
-                model.formattedAddress = addressResult
-            } else {
-                binding.formattedAddress.setText(R.string.AddressNotFound)
-                model.formattedAddress = null
-            }
-            binding.progressBar.visibility = View.INVISIBLE
-        }
-
+        lifecycleScope.launch { model.submitQuery(query) }
         return false
     }
 

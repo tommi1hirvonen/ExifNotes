@@ -18,22 +18,96 @@
 
 package com.tommihirvonen.exifnotes.viewmodels
 
+import android.app.Application
+import android.view.View
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.model.LatLng
+import com.tommihirvonen.exifnotes.BR
+import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.utilities.Geocoder
+import com.tommihirvonen.exifnotes.utilities.decimalString
 
-class LocationPickViewModel(var location: LatLng?, var formattedAddress: String?) : ViewModel() {
-    operator fun component1() = location
-    operator fun component2() = formattedAddress
+class LocationPickViewModel(private val application: Application,
+                            location: LatLng?,
+                            var formattedAddress: String?) : AndroidViewModel(application) {
+
+    val location: LiveData<LocationData> get() = mLocation
+
+    private val mLocation: MutableLiveData<LocationData> = MutableLiveData(LocationData(location, Animate.MOVE))
+
+    val observable = Observable(formattedAddress ?: "")
+
+    suspend fun setLocation(latLng: LatLng, animate: Animate = Animate.NONE) {
+        observable.progressBarVisibility = View.VISIBLE
+        observable.addressText = ""
+
+        mLocation.value = LocationData(latLng, animate)
+
+        val (_, addressResult) = Geocoder(application.applicationContext).getData(latLng.decimalString)
+        formattedAddress = if (addressResult.isNotEmpty()) {
+            observable.addressText = addressResult
+            addressResult
+        } else {
+            observable.addressText = application.resources.getString(R.string.AddressNotFound)
+            null
+        }
+
+        observable.progressBarVisibility = View.INVISIBLE
+    }
+
+    suspend fun submitQuery(query: String) {
+        observable.progressBarVisibility = View.VISIBLE
+        observable.addressText = ""
+        val (position, addressResult) = Geocoder(application.applicationContext).getData(query)
+        if (position != null) {
+            formattedAddress = addressResult
+            observable.addressText = addressResult
+            mLocation.value = LocationData(position, Animate.ANIMATE)
+        } else {
+            formattedAddress = null
+            observable.addressText = application.resources.getString(R.string.AddressNotFound)
+        }
+        observable.progressBarVisibility = View.INVISIBLE
+    }
+
+    inner class Observable(addressText: String) : BaseObservable() {
+        @get:Bindable
+        var progressBarVisibility = View.INVISIBLE
+        set(value) {
+            field = value
+            notifyPropertyChanged(BR.progressBarVisibility)
+        }
+
+        @get:Bindable
+        var addressText = addressText
+            set(value) {
+                field = value
+                notifyPropertyChanged(BR.addressText)
+            }
+    }
 }
 
-class LocationPickViewModelFactory(private val location: LatLng?, private val formattedAddress: String?)
+class LocationPickViewModelFactory(private val application: Application,
+                                   val location: LatLng?,
+                                   private val formattedAddress: String?)
     : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         if (modelClass.isAssignableFrom(LocationPickViewModel::class.java)) {
-            return LocationPickViewModel(location, formattedAddress) as T
+            return LocationPickViewModel(application, location, formattedAddress) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
+}
+
+data class LocationData(val location: LatLng?, val animate: Animate)
+
+enum class Animate {
+    NONE, MOVE, ANIMATE
 }
