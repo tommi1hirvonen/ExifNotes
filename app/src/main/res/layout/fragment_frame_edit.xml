@@ -26,6 +26,9 @@
         <variable
             name="viewmodel"
             type="com.tommihirvonen.exifnotes.viewmodels.FrameEditViewModel.Observable" />
+        <variable
+            name="fragment"
+            type="com.tommihirvonen.exifnotes.fragments.FrameEditFragment" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -122,6 +125,7 @@
                     android:layout_marginTop="15dp"
                     android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
                     dateTime="@{viewmodel.date}"
+                    dateTimePickHandler="@{fragment.dateTimePickHandler}"
                     app:label="@string/Date"/>
 
                 <androidx.constraintlayout.widget.ConstraintLayout

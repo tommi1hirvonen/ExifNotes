@@ -23,17 +23,23 @@ import android.util.AttributeSet
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.utilities.DateTimePickHandler
 
 class DateTimeLayout(context: Context, attrs: AttributeSet): ConstraintLayout(context, attrs) {
 
     val dateLayout: DropdownButtonLayout
     val timeLayout: DropdownButtonLayout
 
+    var dateTimePickHandler: DateTimePickHandler? = null
+
     init {
         inflate(context, R.layout.date_time_layout, this)
 
         dateLayout = findViewById(R.id.date_time_layout_date_layout)
         timeLayout = findViewById(R.id.date_time_layout_time_layout)
+        dateLayout.setOnClickListener { dateTimePickHandler?.showDatePickDialog() }
+        timeLayout.setOnClickListener { dateTimePickHandler?.showTimePickDialog() }
+
         val labelText = findViewById<TextView>(R.id.label)
 
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.DateTimeLayout)

@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.*
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -88,24 +87,6 @@ class RollEditFragment : Fragment() {
             model.cameras = cameras
         }
 
-        DateTimeLayoutManager(
-            requireActivity() as AppCompatActivity,
-            binding.dateLoadedLayout,
-            model.roll::date,
-            model.observable::setLoadedOn)
-
-        DateTimeLayoutManager(
-            requireActivity() as AppCompatActivity,
-            binding.dateUnloadedLayout,
-            model.roll::unloaded,
-            model.observable::setUnloadedOn)
-
-        DateTimeLayoutManager(
-            requireActivity() as AppCompatActivity,
-            binding.dateDevelopedLayout,
-            model.roll::developed,
-            model.observable::setDevelopedOn)
-
         return binding.root
     }
 
@@ -128,6 +109,12 @@ class RollEditFragment : Fragment() {
             filmStock?.let(model.observable::setFilmStock)
         }
     }
+
+    val dateTimeLoadedHandler by lazy { dateTimePickHandler(model.roll::date, model.observable::setLoadedOn) }
+
+    val dateTimeUnloadedHandler by lazy { dateTimePickHandler(model.roll::unloaded, model.observable::setUnloadedOn) }
+
+    val dateTimeDevelopedHandler by lazy { dateTimePickHandler(model.roll::developed, model.observable::setDevelopedOn) }
 
     fun openAddFilmStockDialog() {
         binding.noteEditText.clearFocus()

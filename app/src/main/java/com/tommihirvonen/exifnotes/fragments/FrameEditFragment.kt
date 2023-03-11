@@ -34,7 +34,6 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.FileProvider
 import androidx.core.view.doOnPreDraw
@@ -76,6 +75,8 @@ class FrameEditFragment : Fragment() {
         FrameEditViewModelFactory(requireActivity().application, arguments.frame.copy())
     }
 
+    val dateTimePickHandler by lazy { dateTimePickHandler(model.frame::date, model.observable::setDate) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedElementEnterTransition = TransitionSet()
@@ -95,6 +96,7 @@ class FrameEditFragment : Fragment() {
             findNavController().navigateUp()
         }
         binding.viewmodel = model.observable
+        binding.fragment = this
 
         binding.addLens.setOnClickListener {
             val title = resources.getString(R.string.AddNewLens)
@@ -106,12 +108,6 @@ class FrameEditFragment : Fragment() {
             )
             findNavController().navigate(action, extras)
         }
-
-        DateTimeLayoutManager(
-            requireActivity() as AppCompatActivity,
-            binding.dateLayout,
-            model.frame::date,
-            model.observable::setDate)
 
         binding.apertureEditButton.setOnClickListener {
             val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)

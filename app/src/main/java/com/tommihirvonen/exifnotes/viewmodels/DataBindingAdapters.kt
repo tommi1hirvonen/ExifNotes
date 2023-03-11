@@ -28,6 +28,7 @@ import androidx.databinding.InverseBindingListener
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.tommihirvonen.exifnotes.utilities.DateTimePickHandler
 import com.tommihirvonen.exifnotes.utilities.sortableDate
 import com.tommihirvonen.exifnotes.utilities.sortableTime
 import com.tommihirvonen.exifnotes.views.DateTimeLayout
@@ -95,5 +96,11 @@ object DataBindingAdapters {
     fun setDateTime(view: DateTimeLayout, dateTime: LocalDateTime?) {
         view.dateLayout.text = dateTime?.sortableDate
         view.timeLayout.text = dateTime?.sortableTime
+    }
+
+    @BindingAdapter("dateTimePickHandler")
+    @JvmStatic
+    fun setDateTimePickHandler(view: DateTimeLayout, handler: DateTimePickHandler?) {
+        view.dateTimePickHandler = handler
     }
 }
