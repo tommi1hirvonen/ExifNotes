@@ -99,12 +99,28 @@
                     android:id="@+id/guideline_v55"
                     app:layout_constraintGuide_percent="0.55"/>
 
+                <androidx.constraintlayout.widget.Guideline
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:orientation="vertical"
+                    android:id="@+id/guideline_v25"
+                    app:layout_constraintGuide_percent="0.25"/>
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:orientation="vertical"
+                    android:id="@+id/guideline_v75"
+                    app:layout_constraintGuide_percent="0.75"/>
+
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/FrameCount"
                     android:id="@+id/frame_count"
+                    app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/guideline_v25"
                     style="@style/TextAppearance.Material3.BodySmall"/>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -112,8 +128,9 @@
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
                     endIconOnClick="@{null}"
-                    app:layout_constraintRight_toRightOf="@id/guideline_v50"
+                    app:layout_constraintRight_toRightOf="@id/guideline_v25"
                     app:layout_constraintTop_toBottomOf="@id/frame_count"
                     app:layout_constraintLeft_toLeftOf="parent">
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -128,10 +145,12 @@
 
                 <com.tommihirvonen.exifnotes.views.DateTimeLayout
                     android:id="@+id/date_layout"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    app:layout_constraintTop_toBottomOf="@id/frame_count_menu"
+                    android:layout_marginLeft="5dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="@id/guideline_v25"
+                    app:layout_constraintRight_toRightOf="parent"
                     dateTime="@{viewmodel.date}"
                     dateTimePickHandler="@{fragment.dateTimePickHandler}"
                     app:label="@string/Date"/>
@@ -143,7 +162,7 @@
                     android:text="@string/Aperture"
                     android:layout_marginTop="10dp"
                     app:layout_constraintTop_toBottomOf="@id/date_layout"
-                    app:layout_constraintRight_toLeftOf="@id/guideline_v55"
+                    app:layout_constraintRight_toLeftOf="@id/guideline_v50"
                     app:layout_constraintLeft_toLeftOf="parent"
                     style="@style/TextAppearance.Material3.BodySmall"/>
 
@@ -155,7 +174,7 @@
                     android:layout_marginRight="5dp"
                     endIconOnClick="@{null}"
                     app:layout_constraintTop_toBottomOf="@id/aperture_label"
-                    app:layout_constraintRight_toLeftOf="@id/guideline_v55"
+                    app:layout_constraintRight_toLeftOf="@id/aperture_edit_button"
                     app:layout_constraintLeft_toLeftOf="parent">
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:layout_width="match_parent"
@@ -175,11 +194,12 @@
                     style="@style/IconButton.Tonal"
                     android:id="@+id/aperture_edit_button"
                     android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
                     android:onClick="@{() -> fragment.showCustomApertureDialog()}"
                     app:icon="@drawable/ic_outline_edit_24"
                     app:layout_constraintTop_toTopOf="@id/aperture_menu"
                     app:layout_constraintBottom_toBottomOf="@id/aperture_menu"
-                    app:layout_constraintLeft_toRightOf="@id/aperture_menu" />
+                    app:layout_constraintRight_toRightOf="@id/guideline_v50" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -187,9 +207,9 @@
                     android:text="@string/ShutterSpeed"
                     android:id="@+id/shutter_speed_label"
                     android:layout_marginTop="10dp"
-                    app:layout_constraintTop_toBottomOf="@id/aperture_menu"
+                    app:layout_constraintTop_toBottomOf="@id/date_layout"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintLeft_toLeftOf="@id/guideline_v50"
                     style="@style/TextAppearance.Material3.BodySmall"/>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -197,11 +217,11 @@
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="5dp"
+                    android:layout_marginHorizontal="5dp"
                     endIconOnClick="@{null}"
                     app:layout_constraintTop_toBottomOf="@id/shutter_speed_label"
-                    app:layout_constraintRight_toLeftOf="@id/guideline_v55"
-                    app:layout_constraintLeft_toLeftOf="parent">
+                    app:layout_constraintLeft_toLeftOf="@id/guideline_v50"
+                    app:layout_constraintRight_toLeftOf="@id/shutter_edit_button">
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -223,13 +243,16 @@
                     app:icon="@drawable/ic_outline_edit_24"
                     app:layout_constraintTop_toTopOf="@id/shutter_speed_menu"
                     app:layout_constraintBottom_toBottomOf="@id/shutter_speed_menu"
-                    app:layout_constraintLeft_toRightOf="@id/shutter_speed_menu" />
+                    app:layout_constraintRight_toRightOf="parent" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
+                    android:layout_marginLeft="5dp"
                     app:layout_constraintTop_toBottomOf="@id/shutter_speed_menu"
+                    app:layout_constraintLeft_toLeftOf="@id/guideline_v50"
+                    app:layout_constraintRight_toRightOf="parent"
                     android:id="@+id/lens_layout"
                     android:visibility="@{viewmodel.lensLayoutVisibility}">
 
@@ -279,20 +302,23 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/filters_label"
                     android:text="@string/FilterOrFilters"
                     android:layout_marginTop="10dp"
-                    app:layout_constraintTop_toBottomOf="@id/lens_layout"
+                    app:layout_constraintTop_toBottomOf="@id/aperture_menu"
+                    app:layout_constraintRight_toRightOf="@id/guideline_v50"
+                    app:layout_constraintLeft_toLeftOf="parent"
                     style="@style/TextAppearance.Material3.BodySmall"/>
 
                 <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/filters_button"
-                    android:onClick="@{() -> fragment.showFiltersPickDialog()}"
                     android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:onClick="@{() -> fragment.showFiltersPickDialog()}"
                     app:maxLines="3"
                     app:text="@{viewmodel.filters}"
                     app:layout_constraintTop_toBottomOf="@id/filters_label"
@@ -304,41 +330,45 @@
                     style="@style/IconButton.Tonal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginHorizontal="5dp"
                     android:onClick="@{() -> fragment.showAddFilterDialog()}"
                     app:icon="@drawable/ic_baseline_add_24"
                     app:layout_constraintTop_toTopOf="@id/filters_button"
                     app:layout_constraintBottom_toBottomOf="@id/filters_button"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/filters_button"/>
+                    app:layout_constraintRight_toRightOf="@id/guideline_v50"/>
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/FocalLengthSingleLine"
                     android:layout_marginTop="10dp"
                     android:id="@+id/focal_length_label"
                     app:layout_constraintTop_toBottomOf="@id/filters_button"
+                    app:layout_constraintRight_toRightOf="@id/guideline_v25"
+                    app:layout_constraintLeft_toLeftOf="parent"
                     style="@style/TextAppearance.Material3.BodySmall"/>
 
                 <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
                     android:id="@+id/focal_length_button"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
                     android:onClick="@{() -> fragment.showFocalLengthDialog()}"
                     app:text="@{viewmodel.focalLength}"
                     app:layout_constraintTop_toBottomOf="@id/focal_length_label"
-                    app:layout_constraintRight_toRightOf="@id/guideline_v50"
+                    app:layout_constraintRight_toRightOf="@id/guideline_v25"
                     app:layout_constraintLeft_toLeftOf="parent"/>
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/Location"
                     android:layout_marginTop="10dp"
+                    android:layout_marginHorizontal="5dp"
                     android:id="@+id/location_label"
-                    app:layout_constraintTop_toBottomOf="@id/focal_length_button"
+                    app:layout_constraintTop_toBottomOf="@id/filters_button"
+                    app:layout_constraintLeft_toLeftOf="@id/guideline_v25"
                     style="@style/TextAppearance.Material3.BodySmall"/>
 
 
@@ -348,12 +378,12 @@
                     android:id="@+id/location_button"
                     android:layout_marginTop="5dp"
                     tools:text="This is my long location description text"
-                    android:layout_marginRight="5dp"
+                    android:layout_marginHorizontal="5dp"
                     android:onClick="@{() -> fragment.navigateToLocationPickFragment()}"
                     app:maxLines="2"
                     app:text="@{viewmodel.location}"
                     app:layout_constraintTop_toBottomOf="@id/location_label"
-                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintLeft_toLeftOf="@id/guideline_v25"
                     app:layout_constraintRight_toLeftOf="@id/clear_location"/>
 
                 <ProgressBar
@@ -385,7 +415,7 @@
                     android:text="@string/ExposureComp"
                     android:layout_marginTop="10dp"
                     app:layout_constraintTop_toBottomOf="@id/location_button"
-                    app:layout_constraintRight_toLeftOf="@id/guideline_v50"
+                    app:layout_constraintRight_toLeftOf="@id/guideline_v25"
                     app:layout_constraintLeft_toLeftOf="parent"
                     style="@style/TextAppearance.Material3.BodySmall"/>
 
@@ -396,7 +426,7 @@
                     android:layout_height="wrap_content"
                     endIconOnClick="@{null}"
                     app:layout_constraintTop_toBottomOf="@id/exposure_comp_label"
-                    app:layout_constraintRight_toLeftOf="@id/guideline_v50"
+                    app:layout_constraintRight_toLeftOf="@id/guideline_v25"
                     app:layout_constraintLeft_toLeftOf="parent"
                     android:layout_marginRight="5dp">
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -417,8 +447,8 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginLeft="5dp"
                     app:layout_constraintTop_toBottomOf="@id/location_button"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/guideline_v50"
+                    app:layout_constraintRight_toRightOf="@id/guideline_v50"
+                    app:layout_constraintLeft_toRightOf="@id/guideline_v25"
                     style="@style/TextAppearance.Material3.BodySmall"/>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -428,8 +458,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     app:layout_constraintTop_toBottomOf="@id/no_of_exposures_label"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/guideline_v50">
+                    app:layout_constraintRight_toRightOf="@id/guideline_v50"
+                    app:layout_constraintLeft_toRightOf="@id/guideline_v25">
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -445,19 +475,19 @@
                     android:id="@+id/flash_label"
                     android:text="@string/Flash"
                     android:layout_marginTop="10dp"
-                    app:layout_constraintTop_toBottomOf="@id/exposure_comp_menu"
-                    app:layout_constraintRight_toLeftOf="@id/guideline_v50"
-                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/location_button"
+                    app:layout_constraintRight_toLeftOf="@id/guideline_v75"
+                    app:layout_constraintLeft_toLeftOf="@id/guideline_v50"
                     style="@style/TextAppearance.Material3.BodySmall"/>
 
                 <CheckBox
                     android:id="@+id/flash_checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="40dp"
                     android:checked="@={viewmodel.flashUsed}"
                     app:layout_constraintTop_toBottomOf="@id/flash_label"
-                    app:layout_constraintRight_toLeftOf="@id/guideline_v50" />
+                    app:layout_constraintRight_toLeftOf="@id/guideline_v75"
+                    app:layout_constraintLeft_toRightOf="@id/guideline_v50"/>
 
                 <TextView
                     android:layout_width="0dp"
@@ -466,9 +496,9 @@
                     android:id="@+id/light_source_label"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="10dp"
-                    app:layout_constraintTop_toBottomOf="@id/no_of_exposures_menu"
+                    app:layout_constraintTop_toBottomOf="@id/location_button"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/guideline_v50"
+                    app:layout_constraintLeft_toRightOf="@id/guideline_v75"
                     style="@style/TextAppearance.Material3.BodySmall"/>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -479,7 +509,7 @@
                     android:layout_marginLeft="5dp"
                     app:layout_constraintTop_toBottomOf="@id/light_source_label"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintLeft_toRightOf="@id/guideline_v50">
+                    app:layout_constraintLeft_toRightOf="@id/guideline_v75">
                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
