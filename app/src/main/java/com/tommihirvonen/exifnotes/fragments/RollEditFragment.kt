@@ -58,6 +58,8 @@ class RollEditFragment : Fragment() {
         RollEditViewModelFactory(requireActivity().application, roll.copy())
     }
 
+    private lateinit var binding: FragmentRollEditBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -71,7 +73,7 @@ class RollEditFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val binding = FragmentRollEditBinding.inflate(inflater, container, false)
+        binding = FragmentRollEditBinding.inflate(inflater, container, false)
 
         binding.root.transitionName = arguments.transitionName
         binding.topAppBar.title = arguments.title
@@ -80,34 +82,10 @@ class RollEditFragment : Fragment() {
         }
 
         binding.viewmodel = model.observable
+        binding.fragment = this
 
         rollsModel.cameras.observe(viewLifecycleOwner) { cameras ->
             model.cameras = cameras
-        }
-
-        binding.addFilmStock.setOnClickListener {
-            binding.noteEditText.clearFocus()
-            binding.nameEditText.clearFocus()
-            val title = resources.getString(R.string.AddNewFilmStock)
-            val positiveButtonText = resources.getString(R.string.Add)
-            val action = RollEditFragmentDirections.rollFilmStockEditAction(null, title, positiveButtonText)
-            findNavController().navigate(action)
-        }
-
-        binding.filmStockLayout.setOnClickListener {
-            val action = RollEditFragmentDirections.rollSelectFilmStockAction()
-            findNavController().navigate(action)
-        }
-
-        binding.addCamera.setOnClickListener {
-            val title = resources.getString(R.string.AddNewCamera)
-            val sharedElement = binding.addCamera
-            val action = RollEditFragmentDirections
-                .rollCameraEditAction(null, title, sharedElement.transitionName)
-            val extras = FragmentNavigatorExtras(
-                sharedElement to sharedElement.transitionName
-            )
-            findNavController().navigate(action, extras)
         }
 
         DateTimeLayoutManager(
@@ -127,13 +105,6 @@ class RollEditFragment : Fragment() {
             binding.dateDevelopedLayout,
             model.roll::developed,
             model.observable::setDevelopedOn)
-
-        binding.positiveButton.setOnClickListener {
-            if (model.validate()) {
-                setNavigationResult(model.roll, ExtraKeys.ROLL)
-                findNavController().navigateUp()
-            }
-        }
 
         return binding.root
     }
@@ -155,6 +126,38 @@ class RollEditFragment : Fragment() {
         }
         navBackStackEntry.observeThenClearNavigationResult<FilmStock>(viewLifecycleOwner, ExtraKeys.SELECT_FILM_STOCK) { filmStock ->
             filmStock?.let(model.observable::setFilmStock)
+        }
+    }
+
+    fun openAddFilmStockDialog() {
+        binding.noteEditText.clearFocus()
+        binding.nameEditText.clearFocus()
+        val title = resources.getString(R.string.AddNewFilmStock)
+        val positiveButtonText = resources.getString(R.string.Add)
+        val action = RollEditFragmentDirections.rollFilmStockEditAction(null, title, positiveButtonText)
+        findNavController().navigate(action)
+    }
+
+    fun openSelectFilmStockDialog() {
+        val action = RollEditFragmentDirections.rollSelectFilmStockAction()
+        findNavController().navigate(action)
+    }
+
+    fun navigateCameraAddFragment() {
+        val title = resources.getString(R.string.AddNewCamera)
+        val sharedElement = binding.addCamera
+        val action = RollEditFragmentDirections
+            .rollCameraEditAction(null, title, sharedElement.transitionName)
+        val extras = FragmentNavigatorExtras(
+            sharedElement to sharedElement.transitionName
+        )
+        findNavController().navigate(action, extras)
+    }
+
+    fun submit() {
+        if (model.validate()) {
+            setNavigationResult(model.roll, ExtraKeys.ROLL)
+            findNavController().navigateUp()
         }
     }
 }
