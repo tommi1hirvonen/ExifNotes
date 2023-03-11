@@ -106,14 +106,13 @@ class ExifToolCommandsBuilder(context: Context, private val roll: Roll, private 
                     .append(quote).append(space)
             }
             val date = frame.date
-            if (date != null) {
-                //DateTime
-                stringBuilder.append(dateTag).append(quote).append(date.sortableDateTime
-                    .replace("-", ":")).append(quote).append(space)
-                //DateTimeOriginal
-                stringBuilder.append(dateTimeOriginalTag).append(quote).append(date.sortableDateTime
-                    .replace("-", ":")).append(quote).append(space)
-            }
+            //DateTime
+            stringBuilder.append(dateTag).append(quote).append(date.sortableDateTime
+                .replace("-", ":")).append(quote).append(space)
+            //DateTimeOriginal
+            stringBuilder.append(dateTimeOriginalTag).append(quote).append(date.sortableDateTime
+                .replace("-", ":")).append(quote).append(space)
+
             //ShutterSpeedValue & ExposureTime
             val shutter = frame.shutter
             if (shutter != null) {

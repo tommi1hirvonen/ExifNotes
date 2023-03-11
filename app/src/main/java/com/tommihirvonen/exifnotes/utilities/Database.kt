@@ -137,7 +137,7 @@ class Database private constructor(private val context: Context)
             flashUsed = row.getInt(KEY_FLASH_USED) > 0,
             flashPower = row.getStringOrNull(KEY_FLASH_POWER),
             location = row.getStringOrNull(KEY_LOCATION)?.let(::latLngOrNull),
-            date = row.getStringOrNull(KEY_DATE)?.let(::localDateTimeOrNull),
+            date = row.getStringOrNull(KEY_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
             lens = row.getLongOrNull(KEY_LENS_ID)?.let(::getLens)
         ).apply {
             filters = getLinkedFilters(this)
@@ -721,7 +721,7 @@ class Database private constructor(private val context: Context)
     private fun buildFrameContentValues(frame: Frame) = ContentValues().apply {
         put(KEY_ROLL_ID, frame.roll.id)
         put(KEY_COUNT, frame.count)
-        put(KEY_DATE, frame.date?.sortableDateTime)
+        put(KEY_DATE, frame.date.sortableDateTime)
 
         val lens = frame.lens
         if (lens != null) put(KEY_LENS_ID, lens.id)

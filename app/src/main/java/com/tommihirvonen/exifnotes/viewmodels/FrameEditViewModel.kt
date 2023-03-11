@@ -43,9 +43,6 @@ class FrameEditViewModel(application: Application, val frame: Frame)
         if (frame.roll.camera?.isFixedLens == true) {
             frame.lens = null
         }
-        if (frame.date == null) {
-            frame.date = LocalDateTime.now()
-        }
     }
 
     private val context get() = getApplication<Application>()

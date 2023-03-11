@@ -17,219 +17,242 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<FrameLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/item_frame_layout"
+    <data>
+        <import type="android.view.View" />
+        <import type="com.tommihirvonen.exifnotes.utilities.ExtensionsKt" />
+        <variable
+            name="frame"
+            type="com.tommihirvonen.exifnotes.datastructures.Frame" />
+        <variable
+            name="complementaryPictureFound"
+            type="Boolean" />
+    </data>
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="2dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:strokeWidth="0dp">
+        android:transitionName="@{`transition_frame_` + frame.id}">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/item_frame_layout"
             android:layout_width="match_parent"
-            android:layout_height="64dp">
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="2dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:strokeWidth="0dp">
 
-            <com.google.android.material.card.MaterialCardView
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/selected_background"
-                android:visibility="gone"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="?attr/colorSurfaceVariant">
-            </com.google.android.material.card.MaterialCardView>
+                android:layout_height="64dp">
 
-            <ImageView
-                android:id="@+id/background_frame"
-                android:src="@drawable/background_frame_small"
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                app:layout_constraintEnd_toStartOf="@+id/guideline1"
-                app:layout_constraintStart_toStartOf="@+id/guideline0"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                tools:ignore="ContentDescription,RtlHardcoded"
-                app:tint="?attr/colorControlHighlight" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/selected_background"
+                    android:visibility="gone"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant">
+                </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/tvCount"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/Text"
-                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                app:layout_constraintBottom_toBottomOf="@+id/background_frame"
-                app:layout_constraintEnd_toEndOf="@+id/background_frame"
-                app:layout_constraintStart_toStartOf="@+id/guideline0"
-                app:layout_constraintTop_toTopOf="@+id/background_frame"
-                app:layout_widthPercent="22%"
-                tools:ignore="RtlHardcoded" />
+                <ImageView
+                    android:id="@+id/background_frame"
+                    android:src="@drawable/background_frame_small"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline1"
+                    app:layout_constraintStart_toStartOf="@+id/guideline0"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    tools:ignore="ContentDescription,RtlHardcoded"
+                    app:tint="?attr/colorControlHighlight" />
 
-            <TextView
-                android:id="@+id/tvFrameText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="@string/Text"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:ellipsize="end"
-                android:maxLines="1"
-                app:layout_constraintEnd_toStartOf="@+id/guideline3"
-                app:layout_constraintStart_toStartOf="@+id/guideline1"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_widthPercent="55%"
-                tools:ignore="RtlHardcoded,RtlSymmetry" />
+                <TextView
+                    android:id="@+id/tvCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@{Integer.toString(frame.count)}"
+                    tools:text="Text"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                    app:layout_constraintBottom_toBottomOf="@+id/background_frame"
+                    app:layout_constraintEnd_toEndOf="@+id/background_frame"
+                    app:layout_constraintStart_toStartOf="@+id/guideline0"
+                    app:layout_constraintTop_toTopOf="@+id/background_frame"
+                    app:layout_widthPercent="22%"
+                    tools:ignore="RtlHardcoded" />
 
-            <TextView
-                android:id="@+id/tvFrameText2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:gravity="center_vertical"
-                android:maxLines="1"
-                android:scrollHorizontally="true"
-                android:text="@string/Text"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                app:layout_constraintEnd_toStartOf="@+id/guideline3"
-                app:layout_constraintStart_toStartOf="@+id/guideline1"
-                app:layout_constraintTop_toBottomOf="@+id/tvFrameText"
-                app:layout_widthPercent="55%"
-                tools:ignore="RtlHardcoded,RtlSymmetry" />
+                <TextView
+                    android:id="@+id/tvFrameText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="@{ExtensionsKt.getSortableDateTime(frame.date)}"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    tools:text="Text"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline3"
+                    app:layout_constraintStart_toStartOf="@+id/guideline1"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_widthPercent="55%"
+                    tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-            <TextView
-                android:id="@+id/tv_frame_note"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:gravity="center_vertical"
-                android:maxLines="1"
-                android:scrollHorizontally="true"
-                android:text="@string/Text"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                android:textStyle="italic"
-                app:layout_constraintRight_toLeftOf="@id/picture_image_view"
-                app:layout_constraintLeft_toLeftOf="@id/guideline1"
-                app:layout_constraintTop_toBottomOf="@id/tvFrameText2"
-                app:layout_widthPercent="88%"
-                tools:ignore="RtlHardcoded,RtlSymmetry" />
+                <TextView
+                    android:id="@+id/tvFrameText2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:scrollHorizontally="true"
+                    android:text="@{frame.lens != null ? frame.lens.name : frame.roll.camera.lens == null ? @string/NoLens : ``}"
+                    tools:text="Text"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline3"
+                    app:layout_constraintStart_toStartOf="@+id/guideline1"
+                    app:layout_constraintTop_toBottomOf="@+id/tvFrameText"
+                    app:layout_widthPercent="55%"
+                    tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:id="@+id/picture_image_view"
-                android:src="@drawable/ic_baseline_image_24"
-                app:layout_constraintStart_toStartOf="@id/drawable_clock"
-                app:layout_constraintEnd_toEndOf="@id/drawable_clock"
-                app:layout_constraintTop_toBottomOf="@id/tvAperture"
-                app:tint="?attr/colorControlNormal" />
+                <TextView
+                    android:id="@+id/tv_frame_note"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:scrollHorizontally="true"
+                    android:text="@{frame.note}"
+                    tools:text="Text"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textStyle="italic"
+                    app:layout_constraintRight_toLeftOf="@id/picture_image_view"
+                    app:layout_constraintLeft_toLeftOf="@id/guideline1"
+                    app:layout_constraintTop_toBottomOf="@id/tvFrameText2"
+                    app:layout_widthPercent="88%"
+                    tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:id="@+id/broken_picture_image_view"
-                android:src="@drawable/ic_baseline_broken_image_24"
-                app:layout_constraintStart_toStartOf="@id/drawable_clock"
-                app:layout_constraintEnd_toEndOf="@id/drawable_clock"
-                app:layout_constraintTop_toBottomOf="@id/tvAperture"
-                app:tint="?attr/colorControlNormal" />
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:id="@+id/picture_image_view"
+                    android:src="@drawable/ic_baseline_image_24"
+                    android:visibility="@{frame.pictureFilename != null &amp;&amp; complementaryPictureFound ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintStart_toStartOf="@id/drawable_clock"
+                    app:layout_constraintEnd_toEndOf="@id/drawable_clock"
+                    app:layout_constraintTop_toBottomOf="@id/tvAperture"
+                    app:tint="?attr/colorControlNormal" />
 
-            <ImageView
-                android:id="@+id/drawable_clock"
-                android:layout_width="17dp"
-                android:layout_height="17dp"
-                android:src="@drawable/ic_baseline_shutter_speed_24"
-                app:layout_constraintStart_toStartOf="@+id/guideline3"
-                app:layout_constraintBottom_toBottomOf="@id/tvShutter"
-                app:layout_constraintTop_toTopOf="@id/tvShutter"
-                tools:ignore="ContentDescription,RtlHardcoded"
-                app:tint="?attr/colorControlNormal" />
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:id="@+id/broken_picture_image_view"
+                    android:src="@drawable/ic_baseline_broken_image_24"
+                    android:visibility="@{frame.pictureFilename != null &amp;&amp; !complementaryPictureFound ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintStart_toStartOf="@id/drawable_clock"
+                    app:layout_constraintEnd_toEndOf="@id/drawable_clock"
+                    app:layout_constraintTop_toBottomOf="@id/tvAperture"
+                    app:tint="?attr/colorControlNormal" />
 
-            <TextView
-                android:id="@+id/tvShutter"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:paddingLeft="3dp"
-                android:text="@string/Text"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/drawable_clock"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="RtlHardcoded,RtlSymmetry" />
+                <ImageView
+                    android:id="@+id/drawable_clock"
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:src="@drawable/ic_baseline_shutter_speed_24"
+                    app:layout_constraintStart_toStartOf="@+id/guideline3"
+                    app:layout_constraintBottom_toBottomOf="@id/tvShutter"
+                    app:layout_constraintTop_toTopOf="@id/tvShutter"
+                    tools:ignore="ContentDescription,RtlHardcoded"
+                    app:tint="?attr/colorControlNormal" />
 
-            <ImageView
-                android:id="@+id/drawable_aperture"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/ic_baseline_camera_24"
-                app:layout_constraintStart_toStartOf="@id/drawable_clock"
-                app:layout_constraintEnd_toEndOf="@id/drawable_clock"
-                app:layout_constraintTop_toTopOf="@id/tvAperture"
-                app:layout_constraintBottom_toBottomOf="@id/tvAperture"
-                tools:ignore="ContentDescription,RtlHardcoded"
-                app:tint="?attr/colorControlNormal" />
+                <TextView
+                    android:id="@+id/tvShutter"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="3dp"
+                    android:text="@{frame.shutter}"
+                    tools:text="Text"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/drawable_clock"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-            <TextView
-                android:id="@+id/tvAperture"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:paddingLeft="3dp"
-                android:text="@string/Text"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:maxLines="1"
-                android:ellipsize="end"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/drawable_clock"
-                app:layout_constraintTop_toBottomOf="@+id/tvShutter"
-                tools:ignore="RtlHardcoded,RtlSymmetry" />
+                <ImageView
+                    android:id="@+id/drawable_aperture"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_baseline_camera_24"
+                    app:layout_constraintStart_toStartOf="@id/drawable_clock"
+                    app:layout_constraintEnd_toEndOf="@id/drawable_clock"
+                    app:layout_constraintTop_toTopOf="@id/tvAperture"
+                    app:layout_constraintBottom_toBottomOf="@id/tvAperture"
+                    tools:ignore="ContentDescription,RtlHardcoded"
+                    app:tint="?attr/colorControlNormal" />
 
-            <include
-                layout="@layout/layout_selected_check"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:id="@+id/checkbox"
-                android:visibility="visible"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintRight_toRightOf="@+id/guideline1"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                <TextView
+                    android:id="@+id/tvAperture"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="3dp"
+                    tools:text="@string/Text"
+                    android:text="@{frame.aperture != null ? `f/` + frame.aperture : ``}"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/drawable_clock"
+                    app:layout_constraintTop_toBottomOf="@+id/tvShutter"
+                    tools:ignore="RtlHardcoded,RtlSymmetry" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline0"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.0" />
+                <include
+                    layout="@layout/layout_selected_check"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:id="@+id/checkbox"
+                    android:visibility="visible"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintRight_toRightOf="@+id/guideline1"
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.22" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.0" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="72dp" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.22" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.77" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_begin="72dp" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-</FrameLayout>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.77" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+</layout>

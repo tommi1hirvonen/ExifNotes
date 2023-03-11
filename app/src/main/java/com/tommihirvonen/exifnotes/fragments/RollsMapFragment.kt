@@ -316,7 +316,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                 cameraTextView.text = frame.roll.camera?.name ?: getString(R.string.NoCamera)
                 val frameCountText = "#" + frame.count
                 frameCountTextView.text = frameCountText
-                dateTimeTextView.text = frame.date?.sortableDateTime ?: ""
+                dateTimeTextView.text = frame.date.sortableDateTime
                 lensTextView.text = frame.lens?.name ?: getString(R.string.NoLens)
                 noteTextView.text = frame.note
                 view

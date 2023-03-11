@@ -69,7 +69,7 @@ class CsvBuilder(private val context: Context, private val roll: Roll, private v
             .append("\n")
         for (frame in frameList) {
             stringBuilder.append(frame.count.toString()).append(separator)
-                .append(frame.date?.sortableDateTime ?: "").append(separator)
+                .append(frame.date.sortableDateTime).append(separator)
                 .escape(frame.lens?.name ?: "").append(separator)
                 .escape(frame.lens?.serialNumber ?: "").append(separator)
                 .append(frame.shutter ?: "").append(separator)

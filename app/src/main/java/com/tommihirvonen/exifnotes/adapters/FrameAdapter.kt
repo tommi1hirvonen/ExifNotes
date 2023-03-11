@@ -23,11 +23,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemFrameConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Frame
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
-import com.tommihirvonen.exifnotes.utilities.sortableDateTime
 
 /**
  * FrameAdapter acts as an adapter to link an ArrayList of Frames and a RecyclerView together.
@@ -91,23 +89,12 @@ class FrameAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val frame = items[position]
-        holder.binding.root.transitionName = "transition_frame_${frame.id}"
-        holder.binding.tvFrameText.text = frame.date?.sortableDateTime
-        holder.binding.tvCount.text = "${frame.count}"
-        holder.binding.tvFrameText2.text = frame.lens?.name
-            ?: if (frame.roll.camera?.isNotFixedLens == true) context.resources.getString(R.string.NoLens)
-            else ""
-        holder.binding.tvFrameNote.text = frame.note
-        holder.binding.tvAperture.text = frame.aperture?.let { "f/$it" } ?: ""
-        holder.binding.tvShutter.text = frame.shutter
-
-        holder.binding.pictureImageView.visibility = View.INVISIBLE
-        holder.binding.brokenPictureImageView.visibility = View.INVISIBLE
-        frame.pictureFilename?.let {
+        holder.binding.frame = frame
+        val pictureFound = frame.pictureFilename?.let {
             val pictureFile = ComplementaryPicturesManager.getPictureFile(context, it)
-            if (pictureFile.exists()) holder.binding.pictureImageView.visibility = View.VISIBLE
-            else holder.binding.brokenPictureImageView.visibility = View.VISIBLE
-        }
+            pictureFile.exists()
+        } ?: false
+        holder.binding.complementaryPictureFound = pictureFound
 
         // Call to super to handle checkbox animations.
         super.onBindViewHolder(holder, position)

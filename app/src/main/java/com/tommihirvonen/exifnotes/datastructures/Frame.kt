@@ -41,7 +41,7 @@ data class Frame(
     @EncodeDefault
     var count: Int = 0,
     @Serializable(with = LocalDateTimeSerializer::class)
-    var date: LocalDateTime? = null,
+    var date: LocalDateTime = LocalDateTime.now(),
     var shutter: String? = null,
     var aperture: String? = null,
     var note: String? = null,
