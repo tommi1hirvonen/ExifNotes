@@ -82,6 +82,18 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
     private var tappedRollPosition = RecyclerView.NO_POSITION
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        tappedRollPosition = savedInstanceState
+            ?.getInt(ExtraKeys.TAP_POSITION, RecyclerView.NO_POSITION)
+            ?: RecyclerView.NO_POSITION
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(ExtraKeys.TAP_POSITION, tappedRollPosition)
+        super.onSaveInstanceState(outState)
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -201,10 +213,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
                     // If returning from FramesFragment,
                     // reset the exitTransition in case it was lost because of configuration change.
-                    val savedPosition = savedInstanceState?.getInt(ExtraKeys.TAP_POSITION,
-                        RecyclerView.NO_POSITION
-                    ) ?: RecyclerView.NO_POSITION
-                    if (savedPosition != RecyclerView.NO_POSITION) {
+                    if (tappedRollPosition != RecyclerView.NO_POSITION) {
                         if (exitTransition == null) {
                             exitTransition = SeparateVertical().apply {
                                 duration = transitionDurationShowFrames
@@ -213,9 +222,9 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         }
                     }
                     (view?.parent as? ViewGroup)?.doOnPreDraw {
-                        if (savedPosition != RecyclerView.NO_POSITION) {
+                        if (tappedRollPosition != RecyclerView.NO_POSITION) {
                             val lm = binding.rollsRecyclerView.layoutManager as LinearLayoutManager
-                            val itemView = lm.findViewByPosition(savedPosition)
+                            val itemView = lm.findViewByPosition(tappedRollPosition)
                             itemView?.let { v ->
                                 (exitTransition as Transition).epicenterCallback =
                                     object : Transition.EpicenterCallback() {
@@ -257,11 +266,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 setNeutralButton(R.string.Cancel) { _, _ -> }
             }.create().show()
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(ExtraKeys.TAP_POSITION, tappedRollPosition)
-        super.onSaveInstanceState(outState)
     }
 
     private val onTopMenuItemClickListener = { item: MenuItem ->
