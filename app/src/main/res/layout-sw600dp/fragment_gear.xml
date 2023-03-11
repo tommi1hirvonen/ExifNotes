@@ -42,7 +42,7 @@
     android:layout_height="match_parent">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_above="@id/navigation_bar"
+        android:layout_toEndOf="@id/navigation_rail"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -75,12 +75,12 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/navigation_bar"
-        android:layout_width="match_parent"
+    <com.google.android.material.navigationrail.NavigationRailView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:labelVisibilityMode="labeled"
-        app:menu="@menu/menu_gear_activity_bottom_navigation" />
+        android:id="@+id/navigation_rail"
+        app:menu="@menu/menu_gear_activity_bottom_navigation"
+        app:labelVisibilityMode="labeled">
+    </com.google.android.material.navigationrail.NavigationRailView>
 
 </RelativeLayout>

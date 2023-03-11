@@ -30,7 +30,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationBarView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentGearBinding
 import java.lang.IllegalArgumentException
@@ -54,11 +54,16 @@ class GearFragment : Fragment() {
         topAppBar = binding.topAppBar
         topAppBar.setNavigationOnClickListener { findNavController().navigateUp() }
         binding.viewPager.adapter = PagerAdapter()
-        val onPageChange = OnPageChangeCallback(binding.bottomNavigation)
-        binding.viewPager.registerOnPageChangeCallback(onPageChange)
-        binding.bottomNavigation.setOnItemSelectedListener { menuItem ->
-            navigationItemSelectedListener(menuItem, binding.viewPager)
+        // Use the bottom navigation bar or the side navigation rail depending on device screen size.
+        val navigation = binding.navigationBar ?: binding.navigationRail
+        if (navigation != null) {
+            val onPageChange = OnPageChangeCallback(navigation)
+            binding.viewPager.registerOnPageChangeCallback(onPageChange)
+            navigation.setOnItemSelectedListener { menuItem ->
+                navigationItemSelectedListener(menuItem, binding.viewPager)
+            }
         }
+
         return binding.root
     }
 
@@ -97,7 +102,7 @@ class GearFragment : Fragment() {
         }
     }
 
-    private inner class OnPageChangeCallback(private val bottomNavigation: BottomNavigationView)
+    private inner class OnPageChangeCallback(private val bottomNavigation: NavigationBarView)
         : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             when (position) {

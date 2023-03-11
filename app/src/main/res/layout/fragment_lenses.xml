@@ -50,9 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:layout_marginBottom="96dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_margin="16dp"
         android:src="@drawable/ic_baseline_add_24" />
 
 </FrameLayout>
