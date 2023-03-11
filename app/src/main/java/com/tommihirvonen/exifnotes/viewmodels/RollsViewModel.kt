@@ -24,6 +24,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
+import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.database
@@ -31,7 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class RollsViewModel(application: Application) : AndroidViewModel(application) {
+class RollsViewModel(private val application: Application) : AndroidViewModel(application) {
     private val database = application.database
 
     private val sharedPreferences = PreferenceManager
@@ -42,10 +43,22 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
     val rollFilterMode: LiveData<RollFilterMode> get() = mRollFilterMode
     val rollSortMode: LiveData<RollSortMode> get() = mRollSortMode
     val rollCounts: LiveData<Pair<Int, Int>> get() = mRollCounts
+    val toolbarSubtitle: LiveData<String> get() = mToolbarSubtitle
 
     val selectedRolls = HashSet<Roll>()
 
     var gearRefreshPending = false
+
+    private val mToolbarSubtitle: MutableLiveData<String> by lazy {
+        val subtitleResId = when(rollFilterMode.value) {
+            RollFilterMode.ACTIVE -> R.string.ActiveRolls
+            RollFilterMode.ARCHIVED -> R.string.ArchivedRolls
+            RollFilterMode.ALL -> R.string.AllRolls
+            null -> R.string.ActiveRolls
+        }
+        val subtitle = application.applicationContext.resources.getString(subtitleResId)
+        MutableLiveData<String>(subtitle)
+    }
 
     private val mRollFilterMode: MutableLiveData<RollFilterMode> by lazy {
         MutableLiveData<RollFilterMode>().apply {
@@ -88,6 +101,12 @@ class RollsViewModel(application: Application) : AndroidViewModel(application) {
         editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, rollFilterMode.value)
         editor.apply()
         mRollFilterMode.value = rollFilterMode
+        val subtitleResId = when(rollFilterMode) {
+            RollFilterMode.ACTIVE -> R.string.ActiveRolls
+            RollFilterMode.ARCHIVED -> R.string.ArchivedRolls
+            RollFilterMode.ALL -> R.string.AllRolls
+        }
+        mToolbarSubtitle.value = application.applicationContext.resources.getString(subtitleResId)
         viewModelScope.launch { loadRolls() }
     }
 

@@ -34,83 +34,88 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <data>
+        <variable
+            name="model"
+            type="com.tommihirvonen.exifnotes.viewmodels.RollsViewModel" />
+    </data>
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_toEndOf="@id/navigation_view"
-        android:id="@+id/container">
+        android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/top_app_bar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:titleCentered="true"
-                app:subtitleCentered="true"
-                app:menu="@menu/menu_rolls_fragment"
-                app:title="Exif Notes"
-                app:subtitle="@string/AllRolls" />
-
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <TextView
-            android:id="@+id/no_added_rolls"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            app:layout_anchor="@id/top_app_bar"
-            app:layout_anchorGravity="bottom"
-            android:paddingTop="70dp"
-            android:gravity="center"
-            android:visibility="gone"
-            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-            android:text="@string/NoRolls"/>
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="70dp"
-            android:visibility="visible"
-            app:layout_anchor="@id/top_app_bar"
-            app:layout_anchorGravity="bottom"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rolls_recycler_view"
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="80dp"
-            android:clipToPadding="false"
-            android:scrollbars="vertical"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            />
+            android:layout_toEndOf="@id/navigation_view"
+            android:id="@+id/container">
 
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/fab"
-            android:transitionName="transition_edit_roll"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="16dp"
-            android:text="@string/NewRoll"
-            app:icon="@drawable/ic_baseline_add_24" />
+            <com.google.android.material.appbar.AppBarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/top_app_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:menu="@menu/menu_rolls_fragment" />
 
-    <com.google.android.material.navigation.NavigationView
-        app:headerLayout=""
-        android:layout_width="300dp"
-        android:layout_height="match_parent"
-        android:id="@+id/navigation_view"
-        app:menu="@menu/navigation_drawer"
-        android:layout_gravity="start" />
+            </com.google.android.material.appbar.AppBarLayout>
 
-</RelativeLayout>
+            <TextView
+                android:id="@+id/no_added_rolls"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                app:layout_anchor="@id/top_app_bar"
+                app:layout_anchorGravity="bottom"
+                android:paddingTop="70dp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+                android:text="@string/NoRolls"/>
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="70dp"
+                android:visibility="visible"
+                app:layout_anchor="@id/top_app_bar"
+                app:layout_anchorGravity="bottom"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rolls_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="80dp"
+                android:clipToPadding="false"
+                android:scrollbars="vertical"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                />
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/fab"
+                android:transitionName="transition_edit_roll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:layout_margin="16dp"
+                android:text="@string/NewRoll"
+                app:icon="@drawable/ic_baseline_add_24" />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <com.google.android.material.navigation.NavigationView
+            app:headerLayout="@layout/header_navigation_drawer"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:id="@+id/navigation_view"
+            app:menu="@menu/navigation_drawer"
+            android:layout_gravity="start" />
+
+    </RelativeLayout>
+</layout>

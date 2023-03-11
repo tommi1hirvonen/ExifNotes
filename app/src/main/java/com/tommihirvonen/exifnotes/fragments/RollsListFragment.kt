@@ -98,6 +98,9 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         binding = FragmentRollsListBinding.inflate(inflater, container, false)
+        binding.model = model
+        binding.lifecycleOwner = this
+
         binding.fab.setOnClickListener { showEditRollFragment(null, binding.fab) }
         val layoutManager = LinearLayoutManager(activity)
         binding.rollsRecyclerView.layoutManager = layoutManager
@@ -147,7 +150,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
             binding.noAddedRolls.visibility = View.GONE
             when (mode) {
                 RollFilterMode.ACTIVE -> {
-                    binding.topAppBar.subtitle = resources.getString(R.string.ActiveRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveRolls)
                     navigationMenu.findItem(R.id.active_rolls_filter).isChecked = true
                     activeRollsCountBadge.setTypeface(null, Typeface.BOLD)
@@ -155,7 +157,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     allRollsCountBadge.setTypeface(null, Typeface.NORMAL)
                 }
                 RollFilterMode.ARCHIVED -> {
-                    binding.topAppBar.subtitle = resources.getString(R.string.ArchivedRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoArchivedRolls)
                     navigationMenu.findItem(R.id.archived_rolls_filter).isChecked = true
                     activeRollsCountBadge.setTypeface(null, Typeface.NORMAL)
@@ -163,7 +164,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     allRollsCountBadge.setTypeface(null, Typeface.NORMAL)
                 }
                 RollFilterMode.ALL -> {
-                    binding.topAppBar.subtitle = resources.getString(R.string.AllRolls)
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveOrArchivedRolls)
                     navigationMenu.findItem(R.id.all_rolls_filter).isChecked = true
                     activeRollsCountBadge.setTypeface(null, Typeface.NORMAL)
