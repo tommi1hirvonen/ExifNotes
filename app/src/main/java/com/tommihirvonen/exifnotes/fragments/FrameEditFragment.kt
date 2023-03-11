@@ -98,114 +98,6 @@ class FrameEditFragment : Fragment() {
         binding.viewmodel = model.observable
         binding.fragment = this
 
-        binding.addLens.setOnClickListener {
-            val title = resources.getString(R.string.AddNewLens)
-            val sharedElement = binding.addLens
-            val action = FrameEditFragmentDirections
-                .frameEditLensEditAction(null, false, title, sharedElement.transitionName)
-            val extras = FragmentNavigatorExtras(
-                sharedElement to sharedElement.transitionName
-            )
-            findNavController().navigate(action, extras)
-        }
-
-        binding.apertureEditButton.setOnClickListener {
-            val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
-            val editText = view.findViewById<EditText>(R.id.edit_text)
-            try {
-                val num = model.frame.aperture?.toDouble()
-                num?.let { editText.setText(num.toString()) }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            MaterialAlertDialogBuilder(requireContext())
-                    .setView(view)
-                    .setTitle(R.string.EnterCustomerApertureValue)
-                    .setPositiveButton(R.string.OK) { _, _ ->
-                        model.observable.setAperture(editText.text.toString())
-                    }
-                    .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
-                    .create()
-                    .show()
-            editText.requestFocus()
-        }
-
-        binding.shutterEditButton.setOnClickListener {
-            val customShutterBinding = DialogSingleEditTextBinding.inflate(layoutInflater)
-            customShutterBinding.textView.text = resources.getString(R.string.AllowedFormatsCustomShutterValue)
-            val regexInteger = "[1-9]+[0-9]*\\.?".toRegex()
-            val regexDecimal = "[1-9]+[0-9]*(?:\\.[0-9]+)?".toRegex()
-            val regexFractionPartial = "1/".toRegex()
-            val regexFraction = "1/[1-9]+[0-9]*".toRegex()
-            customShutterBinding.editText.filters = arrayOf(object : InputFilter {
-                override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned?,
-                                    dstart: Int, dend: Int): CharSequence? {
-                    val sourceString = source.toString()
-                    val destString = dest.toString()
-                    val text = destString.substring(0, dstart) +
-                            sourceString.substring(start, end) +
-                            destString.substring(dend)
-                    val regexes = arrayOf(regexInteger, regexDecimal, regexFractionPartial, regexFraction)
-                    val anyMatches = regexes.any {
-                        val result = it.matches(text)
-                        result
-                    }
-                    return if (anyMatches) null else ""
-                }
-            })
-            val dialog = MaterialAlertDialogBuilder(requireContext())
-                .setView(customShutterBinding.root)
-                .setTitle(R.string.EnterCustomShutterSpeedValue)
-                .setPositiveButton(R.string.OK) { _, _ -> }
-                .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
-                .create()
-            dialog.setOnShowListener {
-                dialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener shutterPositiveOnClick@ {
-                    val value = customShutterBinding.editText.text.toString()
-                    if (regexInteger.matches(value)) {
-                        model.observable.setShutterSpeed("${value.replace(".", "")}\"")
-                    } else if (regexDecimal.matches(value)) {
-                        model.observable.setShutterSpeed("$value\"")
-                    } else if (regexFraction.matches(value)) {
-                        model.observable.setShutterSpeed(value)
-                    } else {
-                        Toast.makeText(requireContext(), R.string.IncorrectValueFormat, Toast.LENGTH_SHORT).show()
-                        return@shutterPositiveOnClick
-                    }
-                    dialog.dismiss()
-                }
-            }
-            dialog.show()
-        }
-
-        binding.focalLengthButton.setOnClickListener(focalLengthButtonOnClickListener)
-
-        binding.locationButton.setOnClickListener {
-            val action = FrameEditFragmentDirections
-                .frameEditLocationPickAction(model.frame.location, model.frame.formattedAddress)
-            findNavController().navigate(action)
-        }
-
-        binding.filtersButton.setOnClickListener(filtersButtonOnClickListener)
-
-        binding.addFilter.setOnClickListener {
-            val title = resources.getString(R.string.AddNewFilter)
-            val positiveButtonText = resources.getString(R.string.Add)
-            val action = FrameEditFragmentDirections
-                .frameEditFilterEditAction(null, title, positiveButtonText)
-            findNavController().navigate(action)
-        }
-
-        binding.complementaryPicturesOptionsButton
-            .setOnClickListener(ComplementaryPictureOptionsListener())
-
-        binding.positiveButton.setOnClickListener {
-            if (model.validate()) {
-                setNavigationResult(model.frame, ExtraKeys.FRAME)
-                findNavController().navigateUp()
-            }
-        }
-
         return binding.root
     }
 
@@ -234,6 +126,251 @@ class FrameEditFragment : Fragment() {
         // Handle both cases here.
         binding.root.doOnPreDraw {
             setComplementaryPicture()
+        }
+    }
+
+    fun showCustomApertureDialog() {
+        val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
+        val editText = view.findViewById<EditText>(R.id.edit_text)
+        try {
+            val num = model.frame.aperture?.toDouble()
+            num?.let { editText.setText(num.toString()) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(view)
+            .setTitle(R.string.EnterCustomerApertureValue)
+            .setPositiveButton(R.string.OK) { _, _ ->
+                model.observable.setAperture(editText.text.toString())
+            }
+            .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
+            .create()
+            .show()
+        editText.requestFocus()
+    }
+
+    fun showCustomShutterDialog() {
+        val customShutterBinding = DialogSingleEditTextBinding.inflate(layoutInflater)
+        customShutterBinding.textView.text = resources.getString(R.string.AllowedFormatsCustomShutterValue)
+        val regexInteger = "[1-9]+[0-9]*\\.?".toRegex()
+        val regexDecimal = "[1-9]+[0-9]*(?:\\.[0-9]+)?".toRegex()
+        val regexFractionPartial = "1/".toRegex()
+        val regexFraction = "1/[1-9]+[0-9]*".toRegex()
+        customShutterBinding.editText.filters = arrayOf(object : InputFilter {
+            override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned?,
+                                dstart: Int, dend: Int): CharSequence? {
+                val sourceString = source.toString()
+                val destString = dest.toString()
+                val text = destString.substring(0, dstart) +
+                        sourceString.substring(start, end) +
+                        destString.substring(dend)
+                val regexes = arrayOf(regexInteger, regexDecimal, regexFractionPartial, regexFraction)
+                val anyMatches = regexes.any {
+                    val result = it.matches(text)
+                    result
+                }
+                return if (anyMatches) null else ""
+            }
+        })
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(customShutterBinding.root)
+            .setTitle(R.string.EnterCustomShutterSpeedValue)
+            .setPositiveButton(R.string.OK) { _, _ -> }
+            .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(Dialog.BUTTON_POSITIVE).setOnClickListener shutterPositiveOnClick@ {
+                val value = customShutterBinding.editText.text.toString()
+                if (regexInteger.matches(value)) {
+                    model.observable.setShutterSpeed("${value.replace(".", "")}\"")
+                } else if (regexDecimal.matches(value)) {
+                    model.observable.setShutterSpeed("$value\"")
+                } else if (regexFraction.matches(value)) {
+                    model.observable.setShutterSpeed(value)
+                } else {
+                    Toast.makeText(requireContext(), R.string.IncorrectValueFormat, Toast.LENGTH_SHORT).show()
+                    return@shutterPositiveOnClick
+                }
+                dialog.dismiss()
+            }
+        }
+        dialog.show()
+    }
+
+    fun navigateToAddLensFragment() {
+        val title = resources.getString(R.string.AddNewLens)
+        val sharedElement = binding.addLens
+        val action = FrameEditFragmentDirections
+            .frameEditLensEditAction(null, false, title, sharedElement.transitionName)
+        val extras = FragmentNavigatorExtras(
+            sharedElement to sharedElement.transitionName
+        )
+        findNavController().navigate(action, extras)
+    }
+
+    fun navigateToLocationPickFragment() {
+        val action = FrameEditFragmentDirections
+            .frameEditLocationPickAction(model.frame.location, model.frame.formattedAddress)
+        findNavController().navigate(action)
+    }
+
+    fun showAddFilterDialog() {
+        val title = resources.getString(R.string.AddNewFilter)
+        val positiveButtonText = resources.getString(R.string.Add)
+        val action = FrameEditFragmentDirections
+            .frameEditFilterEditAction(null, title, positiveButtonText)
+        findNavController().navigate(action)
+    }
+
+    fun showFiltersPickDialog() {
+        val possibleFilters = model.filters
+        // Create a list with filter names to be shown on the multi choice dialog.
+        val listItems = possibleFilters.map(Filter::name).toTypedArray()
+        // Bool array for preselected items in the multi choice list.
+        val booleans = possibleFilters.map(model.frame.filters::contains).toBooleanArray()
+
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        builder.setTitle(R.string.UsedFilters)
+        builder.setMultiChoiceItems(listItems, booleans) { _, which, isChecked ->
+            booleans[which] = isChecked
+        }
+        builder.setPositiveButton(R.string.OK) { _, _ ->
+            val selectedFilters = booleans.zip(possibleFilters)
+                .mapNotNull { (selected, filter) -> if (selected) filter else null }
+            model.observable.setFilters(selectedFilters)
+        }
+        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
+        val alert = builder.create()
+        alert.show()
+    }
+
+    fun showFocalLengthDialog() {
+        val builder = MaterialAlertDialogBuilder(requireActivity())
+        val inflater = requireActivity().layoutInflater
+        @SuppressLint("InflateParams")
+        val dialogView = inflater.inflate(R.layout.dialog_seek_bar, null)
+        val focalLengthSeekBar = dialogView.findViewById<SeekBar>(R.id.seek_bar)
+        val focalLengthText = dialogView.findViewById<TextView>(R.id.value_text_view)
+
+        // Get the min and max focal lengths
+        val minValue: Int = model.lens?.minFocalLength ?: 0
+        val maxValue: Int = model.lens?.maxFocalLength ?: 500
+
+        // Set the SeekBar progress percent
+        when {
+            model.frame.focalLength > maxValue -> {
+                focalLengthSeekBar.progress = 100
+                focalLengthText.text = maxValue.toString()
+            }
+            model.frame.focalLength < minValue -> {
+                focalLengthSeekBar.progress = 0
+                focalLengthText.text = minValue.toString()
+            }
+            minValue == maxValue -> {
+                focalLengthSeekBar.progress = 50
+                focalLengthText.text = minValue.toString()
+            }
+            else -> {
+                focalLengthSeekBar.progress =
+                    calculateProgress(model.frame.focalLength, minValue, maxValue)
+                focalLengthText.text = model.frame.focalLength.toString()
+            }
+        }
+
+        // When the user scrolls the SeekBar, change the TextView to indicate
+        // the current focal length converted from the progress (int i)
+        focalLengthSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+                val focalLength = minValue + (maxValue - minValue) * i / 100
+                focalLengthText.text = focalLength.toString()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+        val increaseFocalLength = dialogView.findViewById<TextView>(R.id.increase_focal_length)
+        val decreaseFocalLength = dialogView.findViewById<TextView>(R.id.decrease_focal_length)
+        increaseFocalLength.setOnClickListener {
+            var focalLength = focalLengthText.text.toString().toInt()
+            if (focalLength < maxValue) {
+                ++focalLength
+                focalLengthSeekBar.progress = calculateProgress(focalLength, minValue, maxValue)
+                focalLengthText.text = focalLength.toString()
+            }
+        }
+        decreaseFocalLength.setOnClickListener {
+            var focalLength = focalLengthText.text.toString().toInt()
+            if (focalLength > minValue) {
+                --focalLength
+                focalLengthSeekBar.progress = calculateProgress(focalLength, minValue, maxValue)
+                focalLengthText.text = focalLength.toString()
+            }
+        }
+        builder.setView(dialogView)
+        builder.setTitle(resources.getString(R.string.ChooseFocalLength))
+        builder.setPositiveButton(resources.getString(R.string.OK)) { _, _ ->
+            model.observable.setFocalLength(focalLengthText.text.toString().toInt())
+        }
+        builder.setNegativeButton(resources.getString(R.string.Cancel)) { _, _ -> }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    fun showComplementaryPictureOptions(view: View) {
+        val popupMenu = PopupMenu(requireContext(), view)
+        // If a complementary picture was not set, set only the two first options
+        val menuRes = if (model.frame.pictureFilename == null) {
+            R.menu.menu_complementary_picture_not_set
+        } else {
+            R.menu.menu_complementary_picture_set
+        }
+        popupMenu.inflate(menuRes)
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.new_complementary_picture -> {
+                    startPictureActivity()
+                }
+                R.id.select_from_gallery -> {
+                    selectImageResultLauncher.launch("image/*")
+                }
+                R.id.add_to_gallery -> {
+                    try {
+                        ComplementaryPicturesManager
+                            .addPictureToGallery(requireActivity(), model.frame.pictureFilename)
+                        binding.root.snackbar(R.string.PictureAddedToGallery)
+                    } catch (e: Exception) {
+                        binding.root.snackbar(R.string.ErrorAddingPictureToGallery)
+                    }
+                }
+                R.id.rotate_right -> rotateComplementaryPictureRight()
+                R.id.rotate_left -> rotateComplementaryPictureLeft()
+                R.id.clear -> {
+                    model.frame.pictureFilename = null
+                    binding.ivPicture.visibility = View.GONE
+                    binding.pictureText.visibility = View.VISIBLE
+                    binding.pictureText.text = null
+                }
+            }
+            return@setOnMenuItemClickListener true
+        }
+        // Use reflection to enable icons for the popup menu.
+        try {
+            val popup = PopupMenu::class.java.getDeclaredField("mPopup")
+            popup.isAccessible = true
+            val menu = popup.get(popupMenu)
+            menu.javaClass
+                .getDeclaredMethod("setForceShowIcon", Boolean::class.java)
+                .invoke(menu, true)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        popupMenu.show()
+    }
+
+    fun submit() {
+        if (model.validate()) {
+            setNavigationResult(model.frame, ExtraKeys.FRAME)
+            findNavController().navigateUp()
         }
     }
 
@@ -392,221 +529,62 @@ class FrameEditFragment : Fragment() {
         }
     }
 
-    // LISTENER CLASSES USED TO OPEN NEW DIALOGS AFTER ONCLICK EVENTS
-
     /**
-     * Listener class attached to filter layout.
-     * Opens a new dialog to display filter options for current lens.
+     * Starts a camera activity to take a new complementary picture
      */
-    private val filtersButtonOnClickListener = View.OnClickListener {
-        val possibleFilters = model.filters
-        // Create a list with filter names to be shown on the multi choice dialog.
-        val listItems = possibleFilters.map(Filter::name).toTypedArray()
-        // Bool array for preselected items in the multi choice list.
-        val booleans = possibleFilters.map(model.frame.filters::contains).toBooleanArray()
+    private fun startPictureActivity() {
+        // Check if the camera feature is available
+        if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+            binding.root.snackbar(R.string.NoCameraFeatureWasFound)
+            return
+        }
 
-        val builder = MaterialAlertDialogBuilder(requireActivity())
-        builder.setTitle(R.string.UsedFilters)
-        builder.setMultiChoiceItems(listItems, booleans) { _, which, isChecked ->
-            booleans[which] = isChecked
+        // Advance with taking the picture
+
+        // Create the file where the photo should go
+        val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
+        // Store the filename to the view model, so that it is retained even if the fragments gets recreated.
+        model.pictureFilename = pictureFile.name
+        //Android Nougat requires that the file is given via FileProvider
+        val photoURI: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
+                .packageName + ".provider", pictureFile)
+        } else {
+            Uri.fromFile(pictureFile)
         }
-        builder.setPositiveButton(R.string.OK) { _, _ ->
-            val selectedFilters = booleans.zip(possibleFilters)
-                .mapNotNull { (selected, filter) -> if (selected) filter else null }
-            model.observable.setFilters(selectedFilters)
-        }
-        builder.setNegativeButton(R.string.Cancel) { _, _ -> }
-        val alert = builder.create()
-        alert.show()
+        captureImageResultLauncher.launch(photoURI)
     }
 
     /**
-     * Listener class attached to focal length layout.
-     * Opens a new dialog to display focal length options.
+     * Rotate the complementary picture ImageView 90 degrees clockwise and
+     * set the complementary picture orientation with ComplementaryPicturesManager.
      */
-    private val focalLengthButtonOnClickListener = View.OnClickListener {
-        val builder = MaterialAlertDialogBuilder(requireActivity())
-        val inflater = requireActivity().layoutInflater
-        @SuppressLint("InflateParams")
-        val dialogView = inflater.inflate(R.layout.dialog_seek_bar, null)
-        val focalLengthSeekBar = dialogView.findViewById<SeekBar>(R.id.seek_bar)
-        val focalLengthText = dialogView.findViewById<TextView>(R.id.value_text_view)
-
-        // Get the min and max focal lengths
-        val minValue: Int = model.lens?.minFocalLength ?: 0
-        val maxValue: Int = model.lens?.maxFocalLength ?: 500
-
-        // Set the SeekBar progress percent
-        when {
-            model.frame.focalLength > maxValue -> {
-                focalLengthSeekBar.progress = 100
-                focalLengthText.text = maxValue.toString()
-            }
-            model.frame.focalLength < minValue -> {
-                focalLengthSeekBar.progress = 0
-                focalLengthText.text = minValue.toString()
-            }
-            minValue == maxValue -> {
-                focalLengthSeekBar.progress = 50
-                focalLengthText.text = minValue.toString()
-            }
-            else -> {
-                focalLengthSeekBar.progress =
-                    calculateProgress(model.frame.focalLength, minValue, maxValue)
-                focalLengthText.text = model.frame.focalLength.toString()
-            }
+    private fun rotateComplementaryPictureRight() {
+        val filename = model.frame.pictureFilename ?: return
+        try {
+            ComplementaryPicturesManager.rotatePictureRight(requireActivity(), filename)
+            binding.ivPicture.rotation = binding.ivPicture.rotation + 90
+            val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_right)
+            binding.ivPicture.startAnimation(animation)
+        } catch (e: IOException) {
+            binding.root.snackbar(R.string.ErrorWhileEditingPicturesExifData)
         }
-
-        // When the user scrolls the SeekBar, change the TextView to indicate
-        // the current focal length converted from the progress (int i)
-        focalLengthSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
-                val focalLength = minValue + (maxValue - minValue) * i / 100
-                focalLengthText.text = focalLength.toString()
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-        val increaseFocalLength = dialogView.findViewById<TextView>(R.id.increase_focal_length)
-        val decreaseFocalLength = dialogView.findViewById<TextView>(R.id.decrease_focal_length)
-        increaseFocalLength.setOnClickListener {
-            var focalLength = focalLengthText.text.toString().toInt()
-            if (focalLength < maxValue) {
-                ++focalLength
-                focalLengthSeekBar.progress = calculateProgress(focalLength, minValue, maxValue)
-                focalLengthText.text = focalLength.toString()
-            }
-        }
-        decreaseFocalLength.setOnClickListener {
-            var focalLength = focalLengthText.text.toString().toInt()
-            if (focalLength > minValue) {
-                --focalLength
-                focalLengthSeekBar.progress = calculateProgress(focalLength, minValue, maxValue)
-                focalLengthText.text = focalLength.toString()
-            }
-        }
-        builder.setView(dialogView)
-        builder.setTitle(resources.getString(R.string.ChooseFocalLength))
-        builder.setPositiveButton(resources.getString(R.string.OK)) { _, _ ->
-            model.observable.setFocalLength(focalLengthText.text.toString().toInt())
-        }
-        builder.setNegativeButton(resources.getString(R.string.Cancel)) { _, _ -> }
-        val dialog = builder.create()
-        dialog.show()
     }
 
     /**
-     * Listener class attached to complementary picture layout.
-     * Shows various actions regarding the complementary picture.
+     * Rotate the complementary picture ImageView 90 degrees counterclockwise and set
+     * the complementary picture orientation with ComplementaryPicturesManager.
      */
-    private inner class ComplementaryPictureOptionsListener : View.OnClickListener {
-        override fun onClick(view: View) {
-            val popupMenu = PopupMenu(requireContext(), view)
-            // If a complementary picture was not set, set only the two first options
-            val menuRes = if (model.frame.pictureFilename == null) {
-                R.menu.menu_complementary_picture_not_set
-            } else {
-                R.menu.menu_complementary_picture_set
-            }
-            popupMenu.inflate(menuRes)
-            popupMenu.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.new_complementary_picture -> {
-                        startPictureActivity()
-                    }
-                    R.id.select_from_gallery -> {
-                        selectImageResultLauncher.launch("image/*")
-                    }
-                    R.id.add_to_gallery -> {
-                        try {
-                            ComplementaryPicturesManager
-                                .addPictureToGallery(requireActivity(), model.frame.pictureFilename)
-                            binding.root.snackbar(R.string.PictureAddedToGallery)
-                        } catch (e: Exception) {
-                            binding.root.snackbar(R.string.ErrorAddingPictureToGallery)
-                        }
-                    }
-                    R.id.rotate_right -> rotateComplementaryPictureRight()
-                    R.id.rotate_left -> rotateComplementaryPictureLeft()
-                    R.id.clear -> {
-                        model.frame.pictureFilename = null
-                        binding.ivPicture.visibility = View.GONE
-                        binding.pictureText.visibility = View.VISIBLE
-                        binding.pictureText.text = null
-                    }
-                }
-                return@setOnMenuItemClickListener true
-            }
-            // Use reflection to enable icons for the popup menu.
-            try {
-                val popup = PopupMenu::class.java.getDeclaredField("mPopup")
-                popup.isAccessible = true
-                val menu = popup.get(popupMenu)
-                menu.javaClass
-                    .getDeclaredMethod("setForceShowIcon", Boolean::class.java)
-                    .invoke(menu, true)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            popupMenu.show()
-        }
-
-        /**
-         * Starts a camera activity to take a new complementary picture
-         */
-        private fun startPictureActivity() {
-            // Check if the camera feature is available
-            if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-                binding.root.snackbar(R.string.NoCameraFeatureWasFound)
-                return
-            }
-
-            // Advance with taking the picture
-
-            // Create the file where the photo should go
-            val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
-            // Store the filename to the view model, so that it is retained even if the fragments gets recreated.
-            model.pictureFilename = pictureFile.name
-            //Android Nougat requires that the file is given via FileProvider
-            val photoURI: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                FileProvider.getUriForFile(requireContext(), requireContext().applicationContext
-                        .packageName + ".provider", pictureFile)
-            } else {
-                Uri.fromFile(pictureFile)
-            }
-            captureImageResultLauncher.launch(photoURI)
-        }
-
-        /**
-         * Rotate the complementary picture ImageView 90 degrees clockwise and
-         * set the complementary picture orientation with ComplementaryPicturesManager.
-         */
-        private fun rotateComplementaryPictureRight() {
-            val filename = model.frame.pictureFilename ?: return
-            try {
-                ComplementaryPicturesManager.rotatePictureRight(requireActivity(), filename)
-                binding.ivPicture.rotation = binding.ivPicture.rotation + 90
-                val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_right)
-                binding.ivPicture.startAnimation(animation)
-            } catch (e: IOException) {
-                binding.root.snackbar(R.string.ErrorWhileEditingPicturesExifData)
-            }
-        }
-
-        /**
-         * Rotate the complementary picture ImageView 90 degrees counterclockwise and set
-         * the complementary picture orientation with ComplementaryPicturesManager.
-         */
-        private fun rotateComplementaryPictureLeft() {
-            val filename = model.frame.pictureFilename ?: return
-            try {
-                ComplementaryPicturesManager.rotatePictureLeft(requireActivity(), filename)
-                binding.ivPicture.rotation = binding.ivPicture.rotation - 90
-                val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_left)
-                binding.ivPicture.startAnimation(animation)
-            } catch (e: IOException) {
-                binding.root.snackbar(R.string.ErrorWhileEditingPicturesExifData)
-            }
+    private fun rotateComplementaryPictureLeft() {
+        val filename = model.frame.pictureFilename ?: return
+        try {
+            ComplementaryPicturesManager.rotatePictureLeft(requireActivity(), filename)
+            binding.ivPicture.rotation = binding.ivPicture.rotation - 90
+            val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_left)
+            binding.ivPicture.startAnimation(animation)
+        } catch (e: IOException) {
+            binding.root.snackbar(R.string.ErrorWhileEditingPicturesExifData)
         }
     }
+
 }
