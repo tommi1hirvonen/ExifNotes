@@ -342,7 +342,7 @@ class FrameEditFragment : Fragment() {
                 R.id.rotate_left -> rotateComplementaryPictureLeft()
                 R.id.clear -> {
                     model.frame.pictureFilename = null
-                    binding.ivPicture.visibility = View.GONE
+                    binding.complementaryPicture.visibility = View.GONE
                     binding.pictureText.visibility = View.VISIBLE
                     binding.pictureText.text = null
                 }
@@ -468,7 +468,7 @@ class FrameEditFragment : Fragment() {
             // Set the visibilities first, so that the views in general are displayed
             // when the user scrolls down.
             binding.pictureText.visibility = View.GONE
-            binding.ivPicture.visibility = View.VISIBLE
+            binding.complementaryPicture.visibility = View.VISIBLE
 
             // Load the bitmap on a background thread
             lifecycleScope.launch(Dispatchers.IO) {
@@ -514,10 +514,10 @@ class FrameEditFragment : Fragment() {
 
                 // Do UI changes on the UI thread.
                 withContext(Dispatchers.Main) {
-                    binding.ivPicture.rotation = rotation.toFloat()
-                    binding.ivPicture.setImageBitmap(bitmap)
+                    binding.complementaryPicture.rotation = rotation.toFloat()
+                    binding.complementaryPicture.setImageBitmap(bitmap)
                     val animation = AnimationUtils.loadAnimation(activity, R.anim.fade_in_fast)
-                    binding.ivPicture.startAnimation(animation)
+                    binding.complementaryPicture.startAnimation(animation)
                 }
             }
         } else {
@@ -559,9 +559,9 @@ class FrameEditFragment : Fragment() {
         val filename = model.frame.pictureFilename ?: return
         try {
             ComplementaryPicturesManager.rotatePictureRight(requireActivity(), filename)
-            binding.ivPicture.rotation = binding.ivPicture.rotation + 90
+            binding.complementaryPicture.rotation = binding.complementaryPicture.rotation + 90
             val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_right)
-            binding.ivPicture.startAnimation(animation)
+            binding.complementaryPicture.startAnimation(animation)
         } catch (e: IOException) {
             binding.root.snackbar(R.string.ErrorWhileEditingPicturesExifData)
         }
@@ -575,9 +575,9 @@ class FrameEditFragment : Fragment() {
         val filename = model.frame.pictureFilename ?: return
         try {
             ComplementaryPicturesManager.rotatePictureLeft(requireActivity(), filename)
-            binding.ivPicture.rotation = binding.ivPicture.rotation - 90
+            binding.complementaryPicture.rotation = binding.complementaryPicture.rotation - 90
             val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_left)
-            binding.ivPicture.startAnimation(animation)
+            binding.complementaryPicture.startAnimation(animation)
         } catch (e: IOException) {
             binding.root.snackbar(R.string.ErrorWhileEditingPicturesExifData)
         }

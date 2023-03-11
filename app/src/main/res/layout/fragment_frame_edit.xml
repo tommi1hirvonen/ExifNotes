@@ -602,7 +602,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:visibility="gone"
-                        android:id="@+id/iv_picture"
+                        android:id="@+id/complementary_picture"
                         app:layout_constraintTop_toBottomOf="@id/complementary_pictures_options_button"
                         android:layout_marginTop="5dp"
                         android:layout_gravity="center_horizontal"/>
