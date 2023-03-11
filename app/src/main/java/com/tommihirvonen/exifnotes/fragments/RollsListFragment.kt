@@ -117,7 +117,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         // Transition named used when editing frame via ActionMode menu.
         binding.topAppBar.transitionName = "rolls_top_app_bar_transition"
         binding.topAppBar.setNavigationOnClickListener {
-            binding.drawerLayout.open()
+            binding.drawerLayout?.open()
         }
         binding.topAppBar.setOnMenuItemClickListener(onTopMenuItemClickListener)
 
@@ -287,7 +287,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     }
 
     private val onDrawerMenuItemClickListener = { item: MenuItem ->
-        binding.drawerLayout.close()
+        binding.drawerLayout?.close()
         val navigationMenu = binding.navigationView.menu
         when (item.itemId) {
             R.id.menu_item_gear -> {
