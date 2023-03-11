@@ -46,36 +46,19 @@ class GearFragment : Fragment() {
     }
 
     lateinit var topAppBar: MaterialToolbar
-
-    private lateinit var binding: FragmentGearBinding
-
-    /**
-     * ViewPager is responsible for changing the layout when the user swipes or clicks on a tab.
-     */
-    private lateinit var viewPager: ViewPager2
-
-    /**
-     * PagerAdapter adapts fragments to show in the ViewPager
-     */
-    private lateinit var pagerAdapter: PagerAdapter
-
-    private lateinit var bottomNavigation: BottomNavigationView
+        private set
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        binding = FragmentGearBinding.inflate(inflater)
-
+        val binding = FragmentGearBinding.inflate(inflater)
         topAppBar = binding.topAppBar
         topAppBar.setNavigationOnClickListener { findNavController().navigateUp() }
-
-        // Get the ViewPager and set it's PagerAdapter so that it can display items
-        viewPager = binding.viewPager
-        pagerAdapter = PagerAdapter()
-        viewPager.adapter = pagerAdapter
-        viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-
-        bottomNavigation = binding.bottomNavigation
-        bottomNavigation.setOnItemSelectedListener(navigationItemSelectedListener)
+        binding.viewPager.adapter = PagerAdapter()
+        val onPageChange = OnPageChangeCallback(binding.bottomNavigation)
+        binding.viewPager.registerOnPageChangeCallback(onPageChange)
+        binding.bottomNavigation.setOnItemSelectedListener { menuItem ->
+            navigationItemSelectedListener(menuItem, binding.viewPager)
+        }
         return binding.root
     }
 
@@ -84,7 +67,7 @@ class GearFragment : Fragment() {
         // Start the transition once all views have been
         // measured and laid out
         (view.parent as? ViewGroup)?.doOnPreDraw {
-            ObjectAnimator.ofFloat(binding.root, View.ALPHA, 0f, 1f).apply {
+            ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f).apply {
                 duration = 250L
                 start()
             }
@@ -92,29 +75,30 @@ class GearFragment : Fragment() {
         }
     }
 
-    private val navigationItemSelectedListener = { item: MenuItem ->
+    private val navigationItemSelectedListener = { item: MenuItem, pager: ViewPager2 ->
         when (item.itemId) {
             R.id.page_cameras -> {
-                viewPager.currentItem = POSITION_CAMERAS
+                pager.currentItem = POSITION_CAMERAS
                 true
             }
             R.id.page_lenses -> {
-                viewPager.currentItem = POSITION_LENSES
+                pager.currentItem = POSITION_LENSES
                 true
             }
             R.id.page_filters -> {
-                viewPager.currentItem = POSITION_FILTERS
+                pager.currentItem = POSITION_FILTERS
                 true
             }
             R.id.page_film_stocks -> {
-                viewPager.currentItem = POSITION_FILMS
+                pager.currentItem = POSITION_FILMS
                 true
             }
             else -> false
         }
     }
 
-    private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+    private inner class OnPageChangeCallback(private val bottomNavigation: BottomNavigationView)
+        : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             when (position) {
                 POSITION_CAMERAS -> {
