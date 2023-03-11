@@ -34,6 +34,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
+import java.time.LocalDateTime
 
 val Context.database: Database get() = Database.getInstance(applicationContext)
 
@@ -480,7 +481,7 @@ class Database private constructor(private val context: Context)
             Roll(
                 id = row.getLong(KEY_ROLL_ID),
                 name = row.getStringOrNull(KEY_ROLLNAME),
-                date = row.getStringOrNull(KEY_ROLL_DATE)?.let(::localDateTimeOrNull),
+                date = row.getStringOrNull(KEY_ROLL_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
                 unloaded = row.getStringOrNull(KEY_ROLL_UNLOADED)?.let(::localDateTimeOrNull),
                 developed = row.getStringOrNull(KEY_ROLL_DEVELOPED)?.let(::localDateTimeOrNull),
                 note = row.getStringOrNull(KEY_ROLL_NOTE),
@@ -788,7 +789,7 @@ class Database private constructor(private val context: Context)
      */
     private fun buildRollContentValues(roll: Roll) = ContentValues().apply {
         put(KEY_ROLLNAME, roll.name)
-        put(KEY_ROLL_DATE, roll.date?.sortableDateTime)
+        put(KEY_ROLL_DATE, roll.date.sortableDateTime)
         put(KEY_ROLL_NOTE, roll.note)
 
         val camera = roll.camera

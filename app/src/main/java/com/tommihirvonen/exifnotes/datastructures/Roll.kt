@@ -34,7 +34,7 @@ import java.time.LocalDateTime
 @Serializable
 data class Roll(var id: Long = 0,
                 var name: String? = null,
-                var date: LocalDateTime? = null,
+                var date: LocalDateTime = LocalDateTime.now(),
                 var unloaded: LocalDateTime? = null,
                 var developed: LocalDateTime? = null,
                 var note: String? = null,

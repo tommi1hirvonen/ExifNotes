@@ -23,10 +23,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemRollConstraintBinding
 import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.utilities.sortableDateTime
 import com.tommihirvonen.exifnotes.utilities.database
 
 /**
@@ -91,37 +89,9 @@ class RollAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val roll = this.items[position]
         val numberOfFrames = context.database.getNumberOfFrames(roll)
-        holder.binding.itemRollTopLayout.transitionName = "transition_roll_${roll.id}"
-        holder.binding.tvRollDate.text =
-                roll.developed?.sortableDateTime?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Developed) }
-                        ?: roll.unloaded?.sortableDateTime?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Unloaded) }
-                                ?: roll.date?.sortableDateTime?.also { holder.binding.statusTextView.text = context.resources.getString(R.string.Loaded) }
-
-        holder.binding.tvRollName.text = roll.name
-
-        if (roll.note?.isNotEmpty() == true) {
-            holder.binding.tvRollNote.text = roll.note
-            holder.binding.notesLayout.visibility = View.VISIBLE
-        } else {
-            holder.binding.notesLayout.visibility = View.GONE
-        }
-
-        roll.filmStock?.let {
-            holder.binding.tvFilmStock.text = it.name
-            holder.binding.filmStockLayout.visibility = View.VISIBLE
-        } ?: run {
-            holder.binding.tvFilmStock.text = ""
-            holder.binding.filmStockLayout.visibility = View.GONE
-        }
-
-        holder.binding.tvCamera.text = roll.camera?.name ?: context.resources.getString(R.string.NoCamera)
-
-        if (numberOfFrames == 0) {
-            holder.binding.tvPhotos.text = context.resources.getString(R.string.NoPhotos)
-        } else {
-            holder.binding.tvPhotos.text = context.resources.getQuantityString(
-                    R.plurals.PhotosAmount, numberOfFrames, numberOfFrames)
-        }
+        holder.binding.roll = roll
+        holder.binding.frameCount = numberOfFrames
+        holder.binding.executePendingBindings()
 
         // Call to super to handle checkbox animations.
         super.onBindViewHolder(holder, position)

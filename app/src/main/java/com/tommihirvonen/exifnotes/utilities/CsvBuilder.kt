@@ -36,7 +36,7 @@ class CsvBuilder(private val context: Context, private val roll: Roll, private v
 
         //Roll and camera information
         stringBuilder.append("Roll name: ").append(roll.name).append("\n")
-        stringBuilder.append("Loaded on: ").append(roll.date?.sortableDateTime ?: "").append("\n")
+        stringBuilder.append("Loaded on: ").append(roll.date.sortableDateTime).append("\n")
         stringBuilder.append("Unloaded on: ").append(roll.unloaded?.sortableDateTime ?: "").append("\n")
         stringBuilder.append("Developed on: ").append(roll.developed?.sortableDateTime ?: "").append("\n")
         stringBuilder.append("Film stock: ").append(filmStock?.name ?: "").append("\n")

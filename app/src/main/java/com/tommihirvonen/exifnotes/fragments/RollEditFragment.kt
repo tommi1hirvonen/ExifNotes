@@ -43,7 +43,6 @@ import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModelFactory
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
-import java.time.LocalDateTime
 
 /**
  * Dialog to edit Roll's information
@@ -109,11 +108,6 @@ class RollEditFragment : Fragment() {
                 sharedElement to sharedElement.transitionName
             )
             findNavController().navigate(action, extras)
-        }
-
-        // DATE
-        if (roll.date == null) {
-            model.observable.setLoadedOn(LocalDateTime.now())
         }
 
         DateTimeLayoutManager(
