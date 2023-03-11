@@ -17,9 +17,9 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <variable
@@ -35,6 +35,7 @@
         android:layout_height="match_parent"
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true"
+        android:transitionName="@{fragment.arguments.transitionName}"
         android:background="?attr/colorSurface">
 
         <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
@@ -50,7 +51,9 @@
                 android:layout_height="?attr/actionBarSize"
                 app:navigationIcon="@drawable/ic_baseline_close_24"
                 app:navigationIconTint="?attr/colorControlNormal"
-                app:title="@string/EditRoll">
+                app:title="@{fragment.arguments.title}"
+                tools:title="Title"
+                navigationOnClick="@{() -> fragment.navigateBack()}">
                 <Button
                     android:id="@+id/positive_button"
                     android:layout_height="wrap_content"

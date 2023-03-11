@@ -67,7 +67,7 @@ import kotlin.math.roundToInt
  */
 class FrameEditFragment : Fragment() {
 
-    private val arguments by navArgs<FrameEditFragmentArgs>()
+    val arguments by navArgs<FrameEditFragmentArgs>()
     
     private lateinit var binding: FragmentFrameEditBinding
 
@@ -90,14 +90,8 @@ class FrameEditFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFrameEditBinding.inflate(inflater, container, false)
-        binding.root.transitionName = arguments.transitionName
-        binding.topAppBar.title = arguments.title
-        binding.topAppBar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
         binding.viewmodel = model.observable
         binding.fragment = this
-
         return binding.root
     }
 
@@ -128,6 +122,8 @@ class FrameEditFragment : Fragment() {
             setComplementaryPicture()
         }
     }
+
+    fun navigateBack() = findNavController().navigateUp()
 
     fun showCustomApertureDialog() {
         val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
@@ -370,7 +366,7 @@ class FrameEditFragment : Fragment() {
     fun submit() {
         if (model.validate()) {
             setNavigationResult(model.frame, ExtraKeys.FRAME)
-            findNavController().navigateUp()
+            navigateBack()
         }
     }
 

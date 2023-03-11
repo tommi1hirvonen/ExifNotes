@@ -48,7 +48,7 @@ import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
  */
 class RollEditFragment : Fragment() {
 
-    private val arguments by navArgs<RollEditFragmentArgs>()
+    val arguments by navArgs<RollEditFragmentArgs>()
     private val rollsModel by activityViewModels<RollsViewModel>()
     private val roll by lazy {
         arguments.roll?: Roll()
@@ -73,20 +73,11 @@ class RollEditFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentRollEditBinding.inflate(inflater, container, false)
-
-        binding.root.transitionName = arguments.transitionName
-        binding.topAppBar.title = arguments.title
-        binding.topAppBar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
-
         binding.viewmodel = model.observable
         binding.fragment = this
-
         rollsModel.cameras.observe(viewLifecycleOwner) { cameras ->
             model.cameras = cameras
         }
-
         return binding.root
     }
 
@@ -144,7 +135,9 @@ class RollEditFragment : Fragment() {
     fun submit() {
         if (model.validate()) {
             setNavigationResult(model.roll, ExtraKeys.ROLL)
-            findNavController().navigateUp()
+            navigateBack()
         }
     }
+
+    fun navigateBack() = findNavController().navigateUp()
 }
