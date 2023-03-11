@@ -55,7 +55,7 @@ import com.tommihirvonen.exifnotes.viewmodels.LensEditViewModelFactory
  */
 class LensEditFragment : Fragment() {
 
-    private val arguments by navArgs<LensEditFragmentArgs>()
+    val arguments by navArgs<LensEditFragmentArgs>()
 
     private val model by viewModels<LensEditViewModel> {
         val fixedLens = arguments.fixedLens
@@ -77,49 +77,7 @@ class LensEditFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentLensEditBinding.inflate(inflater)
         binding.viewmodel = model.observable
-        binding.root.transitionName = arguments.transitionName
-        binding.topAppBar.title = arguments.title
-        binding.topAppBar.setNavigationOnClickListener { navigateBack() }
-        binding.positiveButton.setOnClickListener {
-            if (model.validate()) {
-                setNavigationResult(model.lens, ExtraKeys.LENS)
-                navigateBack()
-            }
-        }
-        binding.customApertureValuesHelp.setOnClickListener {
-            MaterialAlertDialogBuilder(requireContext()).apply {
-                setMessage(R.string.CustomApertureValuesHelp)
-                setPositiveButton(R.string.Close) { _: DialogInterface, _: Int -> }
-            }.create().show()
-        }
-        binding.addCustomApertureValue.setOnClickListener {
-            val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
-            val editText = view.findViewById<EditText>(R.id.edit_text)
-            MaterialAlertDialogBuilder(requireContext())
-                .setView(view)
-                .setTitle(R.string.EnterCustomerApertureValue)
-                .setPositiveButton(R.string.OK) { _, _ ->
-                    val value = editText.text.toString().toFloatOrNull() ?: return@setPositiveButton
-                    val values = model.lens.customApertureValues.plus(value)
-                    model.observable.setCustomApertureValues(values)
-                }
-                .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
-                .create()
-                .show()
-            editText.requestFocus()
-        }
-        binding.customApertureValuesButton.setOnClickListener {
-            val mutableValues = model.lens.customApertureValues.toMutableList()
-            val dialogBinding = DialogCustomApertureValuesBinding.inflate(layoutInflater)
-            val adapter = CustomApertureValueAdapter(requireContext(), mutableValues)
-            dialogBinding.listViewCustomApertureValues.adapter = adapter
-            MaterialAlertDialogBuilder(requireContext())
-                .setView(dialogBinding.root)
-                .setPositiveButton(R.string.OK) { _, _ -> model.observable.setCustomApertureValues(mutableValues) }
-                .setNegativeButton(R.string.Cancel) { _, _ -> }
-                .create()
-                .show()
-        }
+        binding.fragment = this
         return binding.root
     }
 
@@ -132,7 +90,51 @@ class LensEditFragment : Fragment() {
         }
     }
 
-    private fun navigateBack() = findNavController().navigateUp()
+    fun submit() {
+        if (model.validate()) {
+            setNavigationResult(model.lens, ExtraKeys.LENS)
+            navigateBack()
+        }
+    }
+
+    fun showCustomApertureValuesHelp() {
+        MaterialAlertDialogBuilder(requireContext()).apply {
+            setMessage(R.string.CustomApertureValuesHelp)
+            setPositiveButton(R.string.Close) { _: DialogInterface, _: Int -> }
+        }.create().show()
+    }
+
+    fun showAddCustomApertureValue() {
+        val view = requireActivity().layoutInflater.inflate(R.layout.dialog_single_decimal_edit_text, null)
+        val editText = view.findViewById<EditText>(R.id.edit_text)
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(view)
+            .setTitle(R.string.EnterCustomerApertureValue)
+            .setPositiveButton(R.string.OK) { _, _ ->
+                val value = editText.text.toString().toFloatOrNull() ?: return@setPositiveButton
+                val values = model.lens.customApertureValues.plus(value)
+                model.observable.setCustomApertureValues(values)
+            }
+            .setNegativeButton(R.string.Cancel) { _, _ -> /*Do nothing*/ }
+            .create()
+            .show()
+        editText.requestFocus()
+    }
+
+    fun showCustomApertureValues() {
+        val mutableValues = model.lens.customApertureValues.toMutableList()
+        val dialogBinding = DialogCustomApertureValuesBinding.inflate(layoutInflater)
+        val adapter = CustomApertureValueAdapter(requireContext(), mutableValues)
+        dialogBinding.listViewCustomApertureValues.adapter = adapter
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogBinding.root)
+            .setPositiveButton(R.string.OK) { _, _ -> model.observable.setCustomApertureValues(mutableValues) }
+            .setNegativeButton(R.string.Cancel) { _, _ -> }
+            .create()
+            .show()
+    }
+
+    fun navigateBack() = findNavController().navigateUp()
 
     private class CustomApertureValueAdapter(context: Context,
         private val values: MutableList<Float>)

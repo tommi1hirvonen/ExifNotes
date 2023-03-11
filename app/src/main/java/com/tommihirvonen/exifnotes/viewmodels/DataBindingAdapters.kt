@@ -21,6 +21,7 @@ package com.tommihirvonen.exifnotes.viewmodels
 import android.text.InputFilter
 import android.view.View
 import android.widget.AdapterView
+import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
@@ -102,5 +103,11 @@ object DataBindingAdapters {
     @JvmStatic
     fun setDateTimePickHandler(view: DateTimeLayout, handler: DateTimePickHandler?) {
         view.dateTimePickHandler = handler
+    }
+
+    @BindingAdapter("navigationOnClick")
+    @JvmStatic
+    fun setNavigationOnClickListener(toolbar: Toolbar, listener: View.OnClickListener) {
+        toolbar.setNavigationOnClickListener(listener)
     }
 }

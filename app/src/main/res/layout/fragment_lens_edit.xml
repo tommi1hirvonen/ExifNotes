@@ -21,6 +21,9 @@
         <variable
             name="viewmodel"
             type="com.tommihirvonen.exifnotes.viewmodels.LensEditViewModel.Observable" />
+        <variable
+            name="fragment"
+            type="com.tommihirvonen.exifnotes.fragments.LensEditFragment" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -30,6 +33,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true"
+        android:transitionName="@{fragment.arguments.transitionName}"
         android:background="?attr/colorSurface">
 
         <!-- We set the root layout to be focusableInTouchMode so that the notes EditText
@@ -43,8 +47,10 @@
                 android:id="@+id/top_app_bar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                navigationOnClick="@{() -> fragment.navigateBack()}"
                 app:navigationIcon="@drawable/ic_baseline_close_24"
                 app:navigationIconTint="?attr/colorControlNormal"
+                app:title="@{fragment.arguments.title}"
                 tools:title="@string/EditLens">
                 <Button
                     android:id="@+id/positive_button"
@@ -52,6 +58,7 @@
                     android:layout_width="wrap_content"
                     android:layout_gravity="end"
                     android:layout_marginEnd="10dp"
+                    android:onClick="@{() -> fragment.submit()}"
                     style="@style/Widget.Material3.Button.Icon"
                     app:icon="@drawable/ic_baseline_done_24"
                     app:iconGravity="textStart"
@@ -288,6 +295,7 @@
                         android:id="@+id/custom_aperture_values_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:onClick="@{() -> fragment.showCustomApertureValues()}"
                         app:text="@{viewmodel.customApertureValuesText}"
                         android:layout_alignParentLeft="true"
                         android:layout_marginRight="10dp"
@@ -300,6 +308,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
+                        android:onClick="@{() -> fragment.showAddCustomApertureValue()}"
                         android:layout_marginRight="10dp"
                         android:layout_toLeftOf="@id/custom_aperture_values_help"
                         app:icon="@drawable/ic_baseline_add_24" />
@@ -311,6 +320,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
+                        android:onClick="@{() -> fragment.showCustomApertureValuesHelp()}"
                         app:icon="@drawable/ic_outline_info_24" />
 
                 </RelativeLayout>
