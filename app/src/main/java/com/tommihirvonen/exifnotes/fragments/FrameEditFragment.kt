@@ -43,6 +43,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.*
@@ -94,7 +95,17 @@ class FrameEditFragment : Fragment() {
             findNavController().navigateUp()
         }
         binding.viewmodel = model.observable
-        binding.addLens.setOnClickListener { showNewLensFragment() }
+
+        binding.addLens.setOnClickListener {
+            val title = resources.getString(R.string.AddNewLens)
+            val sharedElement = binding.addLens
+            val action = FrameEditFragmentDirections
+                .frameEditLensEditAction(null, false, title, sharedElement.transitionName)
+            val extras = FragmentNavigatorExtras(
+                sharedElement to sharedElement.transitionName
+            )
+            findNavController().navigate(action, extras)
+        }
 
         DateTimeLayoutManager(
             requireActivity() as AppCompatActivity,
@@ -383,13 +394,6 @@ class FrameEditFragment : Fragment() {
         } else {
             binding.pictureText.setText(R.string.PictureSetButNotFound)
         }
-    }
-
-    private fun showNewLensFragment() {
-        val title = resources.getString(R.string.AddNewLens)
-        val action = FrameEditFragmentDirections
-            .frameEditLensEditAction(null, false, title, null)
-        findNavController().navigate(action)
     }
 
     // LISTENER CLASSES USED TO OPEN NEW DIALOGS AFTER ONCLICK EVENTS
