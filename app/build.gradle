@@ -102,6 +102,15 @@ android {
     }
     namespace 'com.tommihirvonen.exifnotes'
 
+    tasks.withType(Test) {
+        def propsFile = rootProject.file('googlemapsapi.properties')
+        if (propsFile.exists()) {
+            def props = new Properties()
+            props.load(new FileInputStream(propsFile))
+            environment 'google_maps_key', props['googleMapsKey']
+        }
+    }
+
     return void // Used to mute a warning about not all execution paths returning a value
 }
 
