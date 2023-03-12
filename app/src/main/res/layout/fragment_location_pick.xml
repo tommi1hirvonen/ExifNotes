@@ -30,38 +30,21 @@
     <RelativeLayout
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/top_app_bar_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/top_app_bar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:navigationIcon="@drawable/ic_ab_back_material"
-                app:navigationIconTint="?attr/colorControlNormal"
-                app:title="@string/PickLocation"
-                app:menu="@menu/menu_location_pick"/>
-
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/top_app_bar_layout"
              />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/bottom_bar"
             android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
-            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            style="@style/Widget.Material3.CardView.Filled"
+            app:strokeWidth="0.5dp"
             android:translationY="10dp"
             android:layout_height="90dp">
 
@@ -122,6 +105,24 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:src="@drawable/ic_outline_map_24" />
+
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/SearchWEllipsis"
+            app:strokeWidth="0.5dp"
+            app:strokeColor="?attr/colorOutline"
+            app:navigationIcon="@drawable/ic_ab_back_material"
+            app:navigationIconTint="?attr/colorControlNormal"
+            />
+
+        <com.google.android.material.search.SearchView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/search_view"
+            app:layout_constraintTop_toTopOf="parent">
+        </com.google.android.material.search.SearchView>
 
     </RelativeLayout>
 </layout>

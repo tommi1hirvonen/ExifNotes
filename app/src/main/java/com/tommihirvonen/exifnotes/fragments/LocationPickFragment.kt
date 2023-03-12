@@ -24,15 +24,11 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -63,8 +59,7 @@ import com.tommihirvonen.exifnotes.viewmodels.LocationPickViewModelFactory
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener,
-    MenuProvider, SearchView.OnQueryTextListener {
+class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private val arguments by navArgs<LocationPickFragmentArgs>()
 
@@ -97,8 +92,27 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
         binding.fab.setOnClickListener(onLocationSet)
         binding.fabCurrentLocation.setOnClickListener(onRequestCurrentLocation)
 
-        binding.topAppBar.setNavigationOnClickListener { findNavController().navigateUp() }
-        binding.topAppBar.addMenuProvider(this)
+        binding.searchBar.setNavigationOnClickListener {
+            val text = binding.searchBar.text ?: ""
+            if (text.isNotEmpty()) {
+                binding.searchBar.text = null
+            } else {
+                findNavController().navigateUp()
+            }
+        }
+        binding.searchView.setupWithSearchBar(binding.searchBar)
+        binding.searchView.editText.setOnEditorActionListener { _, _, event ->
+            if (event == null) {
+                return@setOnEditorActionListener false
+            }
+            val query = binding.searchView.text.toString().trim()
+            binding.searchBar.text = binding.searchView.text.toString()
+            binding.searchView.hide()
+            if (query.isNotEmpty()) {
+                lifecycleScope.launch { model.submitQuery(query) }
+            }
+            false
+        }
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
         mapType = sharedPreferences.getInt(PreferenceConstants.KEY_MAP_TYPE, GoogleMap.MAP_TYPE_NORMAL)
@@ -244,29 +258,6 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
 
     override fun onMapClick(latLng: LatLng) {
         lifecycleScope.launch { model.setLocation(latLng) }
-    }
-
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        // Retrieve the SearchView and plug it into SearchManager
-        val searchView = menu.findItem(R.id.action_search).actionView as SearchView
-        // The SearchView's query hint is localization dependant by default.
-        // Replace it with the English text.
-        searchView.queryHint = getString(R.string.SearchWEllipsis)
-        searchView.setOnQueryTextListener(this)
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        return false
-    }
-
-    override fun onQueryTextSubmit(query: String): Boolean {
-        lifecycleScope.launch { model.submitQuery(query) }
-        return false
-    }
-
-    override fun onQueryTextChange(newText: String): Boolean {
-        // Do nothing
-        return false
     }
 
     private fun setMapType(mapType: Int) {
