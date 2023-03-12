@@ -29,7 +29,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.utilities.Geocoder
+import com.tommihirvonen.exifnotes.utilities.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.utilities.decimalString
 import com.tommihirvonen.exifnotes.utilities.readableCoordinates
@@ -47,6 +47,7 @@ class FrameEditViewModel(application: Application, val frame: Frame)
 
     private val context get() = getApplication<Application>()
     private val database get() = context.database
+    private val geocoderRequestBuilder by lazy { GeocoderRequestBuilder(context) }
 
     val lens get() = frame.roll.camera?.lens ?: frame.lens
 
@@ -57,8 +58,10 @@ class FrameEditViewModel(application: Application, val frame: Frame)
             locationProgressBarVisibility = View.VISIBLE
             // Start a coroutine to asynchronously fetch the formatted address.
             viewModelScope.launch {
-                val (_, addressResult) = Geocoder(context).getData(location.decimalString)
-                setLocation(location, addressResult.ifEmpty { null })
+                val (_, addressResult) =
+                    geocoderRequestBuilder.build(location.decimalString).getResponse()
+                        ?: (null to null)
+                setLocation(location, addressResult?.ifEmpty { null })
                 locationProgressBarVisibility = View.INVISIBLE
             }
         }

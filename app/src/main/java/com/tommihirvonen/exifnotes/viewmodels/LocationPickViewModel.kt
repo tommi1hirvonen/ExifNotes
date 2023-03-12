@@ -30,7 +30,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.utilities.Geocoder
+import com.tommihirvonen.exifnotes.utilities.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.utilities.decimalString
 
 class LocationPickViewModel(private val application: Application,
@@ -43,14 +43,19 @@ class LocationPickViewModel(private val application: Application,
 
     val observable = Observable(formattedAddress ?: "")
 
+    private val geocoderRequestBuilder by lazy {
+        GeocoderRequestBuilder(application.applicationContext)
+    }
+
     suspend fun setLocation(latLng: LatLng, animate: Animate = Animate.NONE) {
         observable.progressBarVisibility = View.VISIBLE
         observable.addressText = ""
 
         mLocation.value = LocationData(latLng, animate)
 
-        val (_, addressResult) = Geocoder(application.applicationContext).getData(latLng.decimalString)
-        formattedAddress = if (addressResult.isNotEmpty()) {
+        val (_, addressResult) =
+            geocoderRequestBuilder.build(latLng.decimalString).getResponse() ?: (null to null)
+        formattedAddress = if (addressResult?.isNotEmpty() == true) {
             observable.addressText = addressResult
             addressResult
         } else {
@@ -64,8 +69,9 @@ class LocationPickViewModel(private val application: Application,
     suspend fun submitQuery(query: String) {
         observable.progressBarVisibility = View.VISIBLE
         observable.addressText = ""
-        val (position, addressResult) = Geocoder(application.applicationContext).getData(query)
-        if (position != null) {
+        val (position, addressResult) =
+            geocoderRequestBuilder.build(query).getResponse() ?: (null to null)
+        if (position != null && addressResult != null) {
             formattedAddress = addressResult
             observable.addressText = addressResult
             mLocation.value = LocationData(position, Animate.ANIMATE)

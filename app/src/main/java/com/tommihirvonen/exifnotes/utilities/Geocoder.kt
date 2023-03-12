@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2023  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,77 +19,80 @@
 package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
-import android.net.Uri
 import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.R
+import io.ktor.http.Parameters
+import io.ktor.http.URLBuilder
+import io.ktor.http.URLProtocol
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNames
 import java.net.URL
-import javax.net.ssl.HttpsURLConnection
+import java.time.Duration
 
-class Geocoder(context: Context) {
-
-    private val apiKey = context.resources.getString(R.string.google_maps_key)
+class GeocoderRequestBuilder(private val apiKey: String) {
+    constructor(context: Context) : this(context.resources.getString(R.string.google_maps_key))
 
     /**
      * @param coordinatesOrQuery Latitude and longitude coordinates in decimal format or a search query
+     * @return new GeocoderRequest instance
+     */
+    fun build(coordinatesOrQuery: String): GeocoderRequest {
+        val urlBuilder = URLBuilder(
+            protocol = URLProtocol.HTTPS,
+            host = "maps.google.com",
+            pathSegments = listOf("maps", "api", "geocode", "json"),
+            parameters = Parameters.build {
+                append("address", coordinatesOrQuery)
+                append("sensor", "false")
+                append("key", apiKey)
+            }
+        )
+        val url = urlBuilder.build().toString()
+        return GeocoderRequest(url)
+    }
+}
+
+class GeocoderRequest(val requestUrl: String) {
+    /**
      * @return Pair object where first is latitude and longitude in decimal format and second is
      * the formatted address
      */
-    suspend fun getData(coordinatesOrQuery: String): Pair<LatLng?, String> {
-        val queryUrl = Uri.Builder() // Requests must be made over SSL.
-            .scheme("https")
-            .authority("maps.google.com")
-            .appendPath("maps")
-            .appendPath("api")
-            .appendPath("geocode")
-            .appendPath("json")
-            // Use address parameter for both the coordinates and search string.
-            .appendQueryParameter("address", coordinatesOrQuery)
-            .appendQueryParameter("sensor", "false")
-            // Use key parameter to pass the API key credentials.
-            .appendQueryParameter("key", apiKey)
-            .build().toString()
-
-        return withContext(Dispatchers.IO) {
-            val connection = try {
-                URL(queryUrl).openConnection() as HttpsURLConnection
-            } catch (e: Exception) {
-                return@withContext null to ""
-            }
-
-            try {
-                connection.readTimeout = 15000
-                connection.connectTimeout = 15000
-                connection.requestMethod = "GET"
-                connection.doInput = true
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-                connection.doOutput = true
-
-                val data = if (connection.responseCode == HttpsURLConnection.HTTP_OK) {
-                    connection.inputStream.bufferedReader().readText()
-                } else {
-                    return@withContext null to ""
+    suspend fun getResponse(): Pair<LatLng, String>? {
+        return withTimeout(Duration.ofSeconds(10).toMillis()) {
+            withContext(Dispatchers.IO) {
+                try {
+                    val data = URL(requestUrl).readText()
+                    val format = Json { ignoreUnknownKeys = true }
+                    val response = format.decodeFromString<Response>(data)
+                    val (lat, lng) = response.results.first().geometry.location
+                    val formattedAddress = response.results.first().formattedAddress
+                    val latNlg = LatLng(lat, lng)
+                    return@withContext latNlg to formattedAddress
+                } catch (e: Exception) {
+                    return@withContext null
                 }
-
-                val jsonObject = JSONObject(data)
-                val lng = (jsonObject["results"] as JSONArray).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lng")
-                val lat = (jsonObject["results"] as JSONArray).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lat")
-                val formattedAddress = (jsonObject["results"] as JSONArray).getJSONObject(0)
-                    .getString("formatted_address")
-
-                return@withContext latLngOrNull("$lat $lng") to formattedAddress
-            } catch (e: Exception) {
-                return@withContext null to ""
-            } finally {
-                connection.disconnect()
             }
         }
+    }
+
+    @Serializable
+    data class Response(val results: List<Result>) {
+        @OptIn(ExperimentalSerializationApi::class)
+        @Serializable
+        data class Result(
+            @JsonNames("formatted_address")
+            val formattedAddress: String,
+            val geometry: Geometry
+        )
+        @Serializable
+        data class Geometry(val location: Location)
+        @Serializable
+        data class Location(val lat: Double, val lng: Double)
     }
 }
