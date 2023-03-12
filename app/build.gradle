@@ -136,6 +136,7 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigation_version"
     implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigation_version"
     implementation 'io.ktor:ktor-http:2.2.4'
+    implementation 'com.google.android.libraries.places:places:3.0.0'
 
     // For local unit tests
     testImplementation "junit:junit:4.13.2"

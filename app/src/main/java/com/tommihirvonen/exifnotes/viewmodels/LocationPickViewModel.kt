@@ -54,7 +54,7 @@ class LocationPickViewModel(private val application: Application,
         mLocation.value = LocationData(latLng, animate)
 
         val (_, addressResult) =
-            geocoderRequestBuilder.build(latLng.decimalString).getResponse() ?: (null to null)
+            geocoderRequestBuilder.fromQuery(latLng.decimalString).getResponse() ?: (null to null)
         formattedAddress = if (addressResult?.isNotEmpty() == true) {
             observable.addressText = addressResult
             addressResult
@@ -66,11 +66,27 @@ class LocationPickViewModel(private val application: Application,
         observable.progressBarVisibility = View.INVISIBLE
     }
 
+    suspend fun submitPlaceId(placeId: String) {
+        observable.progressBarVisibility = View.VISIBLE
+        observable.addressText = ""
+        val (position, addressResult) =
+            geocoderRequestBuilder.fromPlaceId(placeId).getResponse() ?: (null to null)
+        if (position != null && addressResult != null) {
+            formattedAddress = addressResult
+            observable.addressText = addressResult
+            mLocation.value = LocationData(position, Animate.ANIMATE)
+        } else {
+            formattedAddress = null
+            observable.addressText = application.resources.getString(R.string.AddressNotFound)
+        }
+        observable.progressBarVisibility = View.INVISIBLE
+    }
+
     suspend fun submitQuery(query: String) {
         observable.progressBarVisibility = View.VISIBLE
         observable.addressText = ""
         val (position, addressResult) =
-            geocoderRequestBuilder.build(query).getResponse() ?: (null to null)
+            geocoderRequestBuilder.fromQuery(query).getResponse() ?: (null to null)
         if (position != null && addressResult != null) {
             formattedAddress = addressResult
             observable.addressText = addressResult

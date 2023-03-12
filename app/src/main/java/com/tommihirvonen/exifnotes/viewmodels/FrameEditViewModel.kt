@@ -59,7 +59,7 @@ class FrameEditViewModel(application: Application, val frame: Frame)
             // Start a coroutine to asynchronously fetch the formatted address.
             viewModelScope.launch {
                 val (_, addressResult) =
-                    geocoderRequestBuilder.build(location.decimalString).getResponse()
+                    geocoderRequestBuilder.fromQuery(location.decimalString).getResponse()
                         ?: (null to null)
                 setLocation(location, addressResult?.ifEmpty { null })
                 locationProgressBarVisibility = View.INVISIBLE

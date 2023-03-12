@@ -42,7 +42,7 @@ class GeocoderRequestBuilder(private val apiKey: String) {
      * @param coordinatesOrQuery Latitude and longitude coordinates in decimal format or a search query
      * @return new GeocoderRequest instance
      */
-    fun build(coordinatesOrQuery: String): GeocoderRequest {
+    fun fromQuery(coordinatesOrQuery: String): GeocoderRequest {
         val urlBuilder = URLBuilder(
             protocol = URLProtocol.HTTPS,
             host = "maps.google.com",
@@ -50,6 +50,20 @@ class GeocoderRequestBuilder(private val apiKey: String) {
             parameters = Parameters.build {
                 append("address", coordinatesOrQuery)
                 append("sensor", "false")
+                append("key", apiKey)
+            }
+        )
+        val url = urlBuilder.build().toString()
+        return GeocoderRequest(url)
+    }
+
+    fun fromPlaceId(placeId: String): GeocoderRequest {
+        val urlBuilder = URLBuilder(
+            protocol = URLProtocol.HTTPS,
+            host = "maps.google.com",
+            pathSegments = listOf("maps", "api", "geocode", "json"),
+            parameters = Parameters.build {
+                append("place_id", placeId)
                 append("key", apiKey)
             }
         )

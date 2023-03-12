@@ -23,18 +23,25 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -45,8 +52,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken
+import com.google.android.libraries.places.api.model.RectangularBounds
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.adapters.PlacePredictionAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentLocationPickBinding
 import com.tommihirvonen.exifnotes.datastructures.LocationPickResponse
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
@@ -79,6 +91,14 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private val placesClient by lazy { Places.createClient(requireContext()) }
+
+    private val predictionsAdapter = PlacePredictionAdapter()
+
+    private val predictionHandler = Handler(Looper.getMainLooper())
+
+    private val sessionToken by lazy { AutocompleteSessionToken.newInstance() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fragmentRestored = savedInstanceState != null
@@ -92,6 +112,20 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
         binding.fab.setOnClickListener(onLocationSet)
         binding.fabCurrentLocation.setOnClickListener(onRequestCurrentLocation)
 
+        // Initialize place predictions
+        val layoutManager = LinearLayoutManager(requireContext())
+        binding.placePredictions.layoutManager = LinearLayoutManager(requireContext())
+        binding.placePredictions.adapter = predictionsAdapter
+        binding.placePredictions.addItemDecoration(DividerItemDecoration(requireContext(), layoutManager.orientation))
+        predictionsAdapter.onPlaceClickListener = { place ->
+            // User selected a place suggestion. Run a geocoding request with the place id.
+            binding.searchBar.text = place.getPrimaryText(null).toString()
+            binding.searchView.clearFocusAndHideKeyboard()
+            binding.searchView.hide()
+            lifecycleScope.launch { model.submitPlaceId(place.placeId) }
+        }
+
+        binding.searchBar.setOnClickListener { binding.searchBar.expand(binding.searchView) }
         binding.searchBar.setNavigationOnClickListener {
             val text = binding.searchBar.text ?: ""
             if (text.isNotEmpty()) {
@@ -100,11 +134,14 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
                 findNavController().navigateUp()
             }
         }
+
         binding.searchView.setupWithSearchBar(binding.searchBar)
         binding.searchView.editText.setOnEditorActionListener { _, _, event ->
+            // Check that the event is nothing other than enter (submit)
             if (event == null) {
                 return@setOnEditorActionListener false
             }
+            // Run a geocoding request with the raw query.
             val query = binding.searchView.text.toString().trim()
             binding.searchBar.text = binding.searchView.text.toString()
             binding.searchView.hide()
@@ -112,6 +149,11 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
                 lifecycleScope.launch { model.submitQuery(query) }
             }
             false
+        }
+
+        // Hook up place predictions to SearchView text onChange.
+        binding.searchView.editText.doOnTextChanged { text, _, _, _ ->
+            getPlacePredictions(text.toString())
         }
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity().baseContext)
@@ -146,54 +188,6 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         return binding.root
-    }
-
-    private val onLocationSet: (View) -> Unit = {
-        model.location.value?.location?.let {
-            val response = LocationPickResponse(it, model.formattedAddress)
-            setNavigationResult(response, ExtraKeys.LOCATION)
-            findNavController().navigateUp()
-        } ?: binding.root.snackbar(R.string.NoLocation, binding.bottomBar,
-            Snackbar.LENGTH_SHORT)
-    }
-
-    @SuppressLint("MissingPermission")
-    private val onRequestCurrentLocation = { _: View ->
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            || ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.lastLocation.addOnSuccessListener(requireActivity()) { location: android.location.Location? ->
-                if (location != null) {
-                    val position = LatLng(location.latitude, location.longitude)
-                    lifecycleScope.launch { model.setLocation(position, Animate.ANIMATE) }
-                }
-            }
-        }
-    }
-
-    private val onPopupMenuItemSelected = { item: MenuItem ->
-        when (item.itemId) {
-            R.id.menu_item_normal -> {
-                item.isChecked = true
-                setMapType(GoogleMap.MAP_TYPE_NORMAL)
-                true
-            }
-            R.id.menu_item_hybrid -> {
-                item.isChecked = true
-                setMapType(GoogleMap.MAP_TYPE_HYBRID)
-                true
-            }
-            R.id.menu_item_satellite -> {
-                item.isChecked = true
-                setMapType(GoogleMap.MAP_TYPE_SATELLITE)
-                true
-            }
-            R.id.menu_item_terrain -> {
-                item.isChecked = true
-                setMapType(GoogleMap.MAP_TYPE_TERRAIN)
-                true
-            }
-            else -> false
-        }
     }
 
     override fun onMapReady(googleMap_: GoogleMap) {
@@ -258,6 +252,82 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
 
     override fun onMapClick(latLng: LatLng) {
         lifecycleScope.launch { model.setLocation(latLng) }
+    }
+
+    private fun getPlacePredictions(query: String) {
+        predictionHandler.removeCallbacksAndMessages(null)
+        if (query.isBlank()) {
+            return
+        }
+        predictionHandler.postDelayed({
+            val bounds = googleMap?.projection?.visibleRegion?.latLngBounds
+            val builder = FindAutocompletePredictionsRequest
+                .builder()
+                .setSessionToken(sessionToken)
+                .setQuery(query)
+            if (bounds != null) {
+                val bias = RectangularBounds.newInstance(bounds)
+                builder.locationBias = bias
+            }
+            val request = builder.build()
+            placesClient.findAutocompletePredictions(request).addOnSuccessListener { response ->
+                predictionsAdapter.setPredictions(response.autocompletePredictions)
+            }.addOnFailureListener { exception ->
+                if (exception is ApiException) {
+                    Toast.makeText(requireContext(),
+                        "Place not found: ${exception.statusCode}",
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
+        }, 350)
+    }
+
+    private val onLocationSet: (View) -> Unit = {
+        model.location.value?.location?.let {
+            val response = LocationPickResponse(it, model.formattedAddress)
+            setNavigationResult(response, ExtraKeys.LOCATION)
+            findNavController().navigateUp()
+        } ?: binding.root.snackbar(R.string.NoLocation, binding.bottomBar,
+            Snackbar.LENGTH_SHORT)
+    }
+
+    @SuppressLint("MissingPermission")
+    private val onRequestCurrentLocation = { _: View ->
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            || ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation.addOnSuccessListener(requireActivity()) { location: android.location.Location? ->
+                if (location != null) {
+                    val position = LatLng(location.latitude, location.longitude)
+                    lifecycleScope.launch { model.setLocation(position, Animate.ANIMATE) }
+                }
+            }
+        }
+    }
+
+    private val onPopupMenuItemSelected = { item: MenuItem ->
+        when (item.itemId) {
+            R.id.menu_item_normal -> {
+                item.isChecked = true
+                setMapType(GoogleMap.MAP_TYPE_NORMAL)
+                true
+            }
+            R.id.menu_item_hybrid -> {
+                item.isChecked = true
+                setMapType(GoogleMap.MAP_TYPE_HYBRID)
+                true
+            }
+            R.id.menu_item_satellite -> {
+                item.isChecked = true
+                setMapType(GoogleMap.MAP_TYPE_SATELLITE)
+                true
+            }
+            R.id.menu_item_terrain -> {
+                item.isChecked = true
+                setMapType(GoogleMap.MAP_TYPE_TERRAIN)
+                true
+            }
+            else -> false
+        }
     }
 
     private fun setMapType(mapType: Int) {

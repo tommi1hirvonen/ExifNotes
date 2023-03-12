@@ -31,6 +31,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
+import com.google.android.libraries.places.api.Places
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
@@ -118,8 +119,10 @@ class MainActivity : AppCompatActivity() {
             if (!isGPSEnabled && requestingLocationUpdates) showSettingsAlert()
         }
 
-        // val host = binding.navHostFragment.getFragment<NavHostFragment>()
-        // val navController = host.navController
+        if (!Places.isInitialized()) {
+            val apiKey = resources.getString(R.string.google_maps_key)
+            Places.initialize(applicationContext, apiKey)
+        }
     }
 
     override fun onStart() {
