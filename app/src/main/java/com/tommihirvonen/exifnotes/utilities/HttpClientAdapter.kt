@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2023  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,17 @@
 
 package com.tommihirvonen.exifnotes.utilities
 
-import android.app.Application
-import com.google.android.material.color.DynamicColors
-import dagger.hilt.android.HiltAndroidApp
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import javax.inject.Inject
+import javax.inject.Singleton
 
-@HiltAndroidApp
-class ExifNotesApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        DynamicColors.applyToActivitiesIfAvailable(this)
-    }
+/**
+ * Singleton container for getting a common instance of HttpClient.
+ * The recommendation is to use the same HttpClient instance for multiple requests,
+ * since creating a HttpClient is not a cheap operation.
+ */
+@Singleton
+class HttpClientAdapter @Inject constructor() {
+    val client = HttpClient(CIO) { expectSuccess = true }
 }

@@ -36,7 +36,9 @@ import com.tommihirvonen.exifnotes.utilities.readableCoordinates
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-class FrameEditViewModel(application: Application, val frame: Frame)
+class FrameEditViewModel(application: Application,
+                         private val geocoderRequestBuilder: GeocoderRequestBuilder,
+                         val frame: Frame)
     : AndroidViewModel(application) {
 
     init {
@@ -47,7 +49,6 @@ class FrameEditViewModel(application: Application, val frame: Frame)
 
     private val context get() = getApplication<Application>()
     private val database get() = context.database
-    private val geocoderRequestBuilder by lazy { GeocoderRequestBuilder(context) }
 
     val lens get() = frame.roll.camera?.lens ?: frame.lens
 
@@ -314,12 +315,14 @@ class FrameEditViewModel(application: Application, val frame: Frame)
     }
 }
 
-class FrameEditViewModelFactory(val application: Application, val frame: Frame)
+class FrameEditViewModelFactory(val application: Application,
+                                private val geocoderRequestBuilder: GeocoderRequestBuilder,
+                                val frame: Frame)
     : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(FrameEditViewModel::class.java)) {
-            return FrameEditViewModel(application, frame) as T
+            return FrameEditViewModel(application, geocoderRequestBuilder, frame) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -55,24 +55,31 @@ import com.tommihirvonen.exifnotes.datastructures.Filter
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FrameEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.FrameEditViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 import java.io.IOException
+import javax.inject.Inject
 import kotlin.math.roundToInt
 
 /**
  * Dialog to edit Frame's information
  */
+@AndroidEntryPoint
 class FrameEditFragment : Fragment() {
+
+    @Inject
+    lateinit var geocoderRequestBuilder: GeocoderRequestBuilder
 
     val arguments by navArgs<FrameEditFragmentArgs>()
     
     private lateinit var binding: FragmentFrameEditBinding
 
     private val model by viewModels<FrameEditViewModel> {
-        FrameEditViewModelFactory(requireActivity().application, arguments.frame.copy())
+        FrameEditViewModelFactory(requireActivity().application, geocoderRequestBuilder,
+            arguments.frame.copy())
     }
 
     val dateTimePickHandler by lazy { dateTimePickHandler(model.frame::date, model.observable::setDate) }

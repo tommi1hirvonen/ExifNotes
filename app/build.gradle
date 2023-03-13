@@ -21,6 +21,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.dagger.hilt.android'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'com.jaredsburrows.license'
 apply plugin: 'org.jetbrains.kotlin.android'
@@ -135,8 +136,12 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigation_version"
     implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigation_version"
-    implementation 'io.ktor:ktor-http:2.2.4'
+    implementation "io.ktor:ktor-http:$rootProject.ktor_version"
+    implementation "io.ktor:ktor-client-core:$rootProject.ktor_version"
+    implementation "io.ktor:ktor-client-cio:$rootProject.ktor_version"
     implementation 'com.google.android.libraries.places:places:3.0.0'
+    implementation "com.google.dagger:hilt-android:$rootProject.hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$rootProject.hilt_version"
 
     // For local unit tests
     testImplementation "junit:junit:4.13.2"
@@ -147,6 +152,12 @@ dependencies {
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.2'
 }
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes true
+}
+
 repositories {
     mavenCentral()
 }

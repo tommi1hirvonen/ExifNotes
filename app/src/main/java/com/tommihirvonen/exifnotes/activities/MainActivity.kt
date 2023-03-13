@@ -40,12 +40,14 @@ import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.utilities.purgeDirectory
 import com.tommihirvonen.exifnotes.utilities.snackbar
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * MainActivity is the first activity to be called when the app is launched.
  * It contains the RollsFragment and FramesFragment fragments.
  * The activity switches between these two fragments.
  */
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     companion object {

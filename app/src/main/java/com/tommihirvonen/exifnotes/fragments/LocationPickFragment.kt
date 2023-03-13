@@ -67,19 +67,27 @@ import com.tommihirvonen.exifnotes.databinding.FragmentLocationPickBinding
 import com.tommihirvonen.exifnotes.datastructures.LocationPickResponse
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.utilities.setNavigationResult
 import com.tommihirvonen.exifnotes.utilities.snackbar
 import com.tommihirvonen.exifnotes.viewmodels.Animate
 import com.tommihirvonen.exifnotes.viewmodels.LocationPickViewModel
 import com.tommihirvonen.exifnotes.viewmodels.LocationPickViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
+
+    @Inject
+    lateinit var geocoderRequestBuilder: GeocoderRequestBuilder
 
     private val arguments by navArgs<LocationPickFragmentArgs>()
 
     private val model by viewModels<LocationPickViewModel> {
-        LocationPickViewModelFactory(requireActivity().application, arguments.location, arguments.formattedAddress)
+        LocationPickViewModelFactory(requireActivity().application, geocoderRequestBuilder,
+            arguments.location, arguments.formattedAddress)
     }
 
     private var googleMap: GoogleMap? = null

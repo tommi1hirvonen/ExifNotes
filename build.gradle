@@ -22,6 +22,8 @@ buildscript {
     ext {
         kotlin_version = '1.8.0'
         navigation_version = '2.5.3'
+        ktor_version = '2.2.4'
+        hilt_version = '2.44'
     }
 
     repositories {
@@ -38,6 +40,10 @@ buildscript {
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
+}
+
+plugins {
+    id 'com.google.dagger.hilt.android' version "$hilt_version" apply false
 }
 
 allprojects {

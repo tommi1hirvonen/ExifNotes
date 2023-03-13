@@ -21,6 +21,10 @@ package com.tommihirvonen.exifnotes.utilities
 import android.content.Context
 import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.R
+import dagger.hilt.android.qualifiers.ApplicationContext
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.http.Parameters
 import io.ktor.http.URLBuilder
 import io.ktor.http.URLProtocol
@@ -32,11 +36,18 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNames
-import java.net.URL
 import java.time.Duration
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class GeocoderRequestBuilder(private val apiKey: String) {
-    constructor(context: Context) : this(context.resources.getString(R.string.google_maps_key))
+@Singleton
+class GeocoderRequestBuilder(
+    private val httpClientAdapter: HttpClientAdapter,
+    private val apiKey: String) {
+
+    @Inject
+    constructor(@ApplicationContext context: Context, httpClientAdapter: HttpClientAdapter)
+            : this(httpClientAdapter, context.resources.getString(R.string.google_maps_key))
 
     /**
      * @param coordinatesOrQuery Latitude and longitude coordinates in decimal format or a search query
@@ -54,7 +65,7 @@ class GeocoderRequestBuilder(private val apiKey: String) {
             }
         )
         val url = urlBuilder.build().toString()
-        return GeocoderRequest(url)
+        return GeocoderRequest(httpClientAdapter.client, url)
     }
 
     fun fromPlaceId(placeId: String): GeocoderRequest {
@@ -68,32 +79,32 @@ class GeocoderRequestBuilder(private val apiKey: String) {
             }
         )
         val url = urlBuilder.build().toString()
-        return GeocoderRequest(url)
+        return GeocoderRequest(httpClientAdapter.client, url)
     }
 }
 
-class GeocoderRequest(val requestUrl: String) {
+class GeocoderRequest(private val httpClient: HttpClient, val requestUrl: String) {
     /**
      * @return Pair object where first is latitude and longitude in decimal format and second is
      * the formatted address
      */
-    suspend fun getResponse(): Pair<LatLng, String>? {
-        return withTimeout(Duration.ofSeconds(10).toMillis()) {
-            withContext(Dispatchers.IO) {
-                try {
-                    val data = URL(requestUrl).readText()
+    suspend fun getResponse(): Pair<LatLng, String>? =
+        try {
+            withTimeout(Duration.ofSeconds(10).toMillis()) {
+                withContext(Dispatchers.IO) {
+                    val httpResponse = httpClient.get(requestUrl)
+                    val data: String = httpResponse.body()
                     val format = Json { ignoreUnknownKeys = true }
-                    val response = format.decodeFromString<Response>(data)
-                    val (lat, lng) = response.results.first().geometry.location
-                    val formattedAddress = response.results.first().formattedAddress
+                    val responseObject = format.decodeFromString<Response>(data)
+                    val (lat, lng) = responseObject.results.first().geometry.location
+                    val formattedAddress = responseObject.results.first().formattedAddress
                     val latNlg = LatLng(lat, lng)
-                    return@withContext latNlg to formattedAddress
-                } catch (e: Exception) {
-                    return@withContext null
+                    latNlg to formattedAddress
                 }
             }
+        } catch (e: Exception) {
+            null
         }
-    }
 
     @Serializable
     data class Response(val results: List<Result>) {

@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes
 
 import com.tommihirvonen.exifnotes.utilities.GeocoderRequest
 import com.tommihirvonen.exifnotes.utilities.GeocoderRequestBuilder
+import com.tommihirvonen.exifnotes.utilities.HttpClientAdapter
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
@@ -29,7 +30,7 @@ class GeocoderTest {
     @Test
     fun queryUrlTest() {
         val key = "dummy"
-        val request = GeocoderRequestBuilder(key).fromQuery("Helsinki")
+        val request = GeocoderRequestBuilder(HttpClientAdapter(), key).fromQuery("Helsinki")
         assertEquals(
             "https://maps.google.com/maps/api/geocode/json?address=Helsinki&sensor=false&key=dummy",
             request.requestUrl

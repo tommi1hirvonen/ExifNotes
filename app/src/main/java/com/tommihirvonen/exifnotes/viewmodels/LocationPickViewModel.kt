@@ -34,6 +34,7 @@ import com.tommihirvonen.exifnotes.utilities.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.utilities.decimalString
 
 class LocationPickViewModel(private val application: Application,
+                            private val geocoderRequestBuilder: GeocoderRequestBuilder,
                             location: LatLng?,
                             var formattedAddress: String?) : AndroidViewModel(application) {
 
@@ -42,10 +43,6 @@ class LocationPickViewModel(private val application: Application,
     private val mLocation: MutableLiveData<LocationData> = MutableLiveData(LocationData(location, Animate.MOVE))
 
     val observable = Observable(formattedAddress ?: "")
-
-    private val geocoderRequestBuilder by lazy {
-        GeocoderRequestBuilder(application.applicationContext)
-    }
 
     suspend fun setLocation(latLng: LatLng, animate: Animate = Animate.NONE) {
         observable.progressBarVisibility = View.VISIBLE
@@ -116,13 +113,14 @@ class LocationPickViewModel(private val application: Application,
 }
 
 class LocationPickViewModelFactory(private val application: Application,
+                                   private val geocoderRequestBuilder: GeocoderRequestBuilder,
                                    val location: LatLng?,
                                    private val formattedAddress: String?)
     : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         if (modelClass.isAssignableFrom(LocationPickViewModel::class.java)) {
-            return LocationPickViewModel(application, location, formattedAddress) as T
+            return LocationPickViewModel(application, geocoderRequestBuilder, location, formattedAddress) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
