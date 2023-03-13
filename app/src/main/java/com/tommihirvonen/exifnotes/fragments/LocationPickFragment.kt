@@ -65,9 +65,9 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.PlacePredictionAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentLocationPickBinding
 import com.tommihirvonen.exifnotes.datastructures.LocationPickResponse
+import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.utilities.setNavigationResult
 import com.tommihirvonen.exifnotes.utilities.snackbar
 import com.tommihirvonen.exifnotes.viewmodels.Animate

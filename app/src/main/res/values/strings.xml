@@ -146,6 +146,7 @@
     <string name="ErrorExporting">An error occurred while exporting the files.</string>
     <string name="ErrorExportingComplementaryPictures">Error exporting complementary pictures</string>
     <string name="ErrorExportingDatabase">Error exporting database</string>
+    <string name="ErrorGettingAddress">Error getting address</string>
     <string name="ErrorImportingComplementaryPictures">Error importing complementary pictures</string>
     <string name="ErrorImportingDatabaseFrom">Error importing database from:\u0020</string>
     <string name="ErrorLocatingSelectedPicture">Error locating selected picture</string>
@@ -377,6 +378,7 @@
     <string name="TimeDeveloped">Time developed</string>
     <string name="TimeLoaded">Time loaded</string>
     <string name="TimeUnloaded">Time unloaded</string>
+    <string name="TimeoutGettingAddress">Timeout getting address</string>
     <string name="To">To</string>
     <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
     <string name="Tungsten">Tungsten</string>

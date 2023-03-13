@@ -29,7 +29,8 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.utilities.GeocoderRequestBuilder
+import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
+import com.tommihirvonen.exifnotes.geocoder.GeocoderResponse
 import com.tommihirvonen.exifnotes.utilities.database
 import com.tommihirvonen.exifnotes.utilities.decimalString
 import com.tommihirvonen.exifnotes.utilities.readableCoordinates
@@ -59,10 +60,10 @@ class FrameEditViewModel(application: Application,
             locationProgressBarVisibility = View.VISIBLE
             // Start a coroutine to asynchronously fetch the formatted address.
             viewModelScope.launch {
-                val (_, addressResult) =
-                    geocoderRequestBuilder.fromQuery(location.decimalString).getResponse()
-                        ?: (null to null)
-                setLocation(location, addressResult?.ifEmpty { null })
+                val response = geocoderRequestBuilder.fromQuery(location.decimalString).getResponse()
+                if (response is GeocoderResponse.Success) {
+                    setLocation(location, response.formattedAddress.ifEmpty { null })
+                }
                 locationProgressBarVisibility = View.INVISIBLE
             }
         }

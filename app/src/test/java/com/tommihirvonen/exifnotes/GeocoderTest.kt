@@ -18,8 +18,8 @@
 
 package com.tommihirvonen.exifnotes
 
-import com.tommihirvonen.exifnotes.utilities.GeocoderRequest
-import com.tommihirvonen.exifnotes.utilities.GeocoderRequestBuilder
+import com.tommihirvonen.exifnotes.geocoder.GeocoderRequest
+import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.utilities.HttpClientAdapter
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json

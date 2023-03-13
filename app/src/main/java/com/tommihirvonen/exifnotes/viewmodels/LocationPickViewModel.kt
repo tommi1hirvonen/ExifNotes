@@ -30,7 +30,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.utilities.GeocoderRequestBuilder
+import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
+import com.tommihirvonen.exifnotes.geocoder.GeocoderResponse.*
 import com.tommihirvonen.exifnotes.utilities.decimalString
 
 class LocationPickViewModel(private val application: Application,
@@ -47,34 +48,50 @@ class LocationPickViewModel(private val application: Application,
     suspend fun setLocation(latLng: LatLng, animate: Animate = Animate.NONE) {
         observable.progressBarVisibility = View.VISIBLE
         observable.addressText = ""
-
         mLocation.value = LocationData(latLng, animate)
-
-        val (_, addressResult) =
-            geocoderRequestBuilder.fromQuery(latLng.decimalString).getResponse() ?: (null to null)
-        formattedAddress = if (addressResult?.isNotEmpty() == true) {
-            observable.addressText = addressResult
-            addressResult
-        } else {
-            observable.addressText = application.resources.getString(R.string.AddressNotFound)
-            null
-        }
-
+        val result = geocoderRequestBuilder.fromQuery(latLng.decimalString).getResponse()
+        val (formattedAddress, showText) =
+            when (result) {
+                is Success -> {
+                    result.formattedAddress to result.formattedAddress
+                }
+                is NotFound -> {
+                    null to application.resources.getString(R.string.AddressNotFound)
+                }
+                is Timeout -> {
+                    null to application.resources.getString(R.string.TimeoutGettingAddress)
+                }
+                is Error -> {
+                    null to application.resources.getString(R.string.ErrorGettingAddress)
+                }
+            }
+        this.formattedAddress = formattedAddress
+        observable.addressText = showText
         observable.progressBarVisibility = View.INVISIBLE
     }
 
     suspend fun submitPlaceId(placeId: String) {
         observable.progressBarVisibility = View.VISIBLE
         observable.addressText = ""
-        val (position, addressResult) =
-            geocoderRequestBuilder.fromPlaceId(placeId).getResponse() ?: (null to null)
-        if (position != null && addressResult != null) {
-            formattedAddress = addressResult
-            observable.addressText = addressResult
-            mLocation.value = LocationData(position, Animate.ANIMATE)
-        } else {
-            formattedAddress = null
-            observable.addressText = application.resources.getString(R.string.AddressNotFound)
+
+        when (val result = geocoderRequestBuilder.fromPlaceId(placeId).getResponse()) {
+            is Success -> {
+                formattedAddress = result.formattedAddress
+                observable.addressText = result.formattedAddress
+                mLocation.value = LocationData(result.location, Animate.ANIMATE)
+            }
+            is NotFound -> {
+                formattedAddress = null
+                observable.addressText = application.resources.getString(R.string.AddressNotFound)
+            }
+            is Timeout -> {
+                formattedAddress = null
+                observable.addressText = application.resources.getString(R.string.TimeoutGettingAddress)
+            }
+            is Error -> {
+                formattedAddress = null
+                observable.addressText = application.resources.getString(R.string.ErrorGettingAddress)
+            }
         }
         observable.progressBarVisibility = View.INVISIBLE
     }
@@ -82,15 +99,24 @@ class LocationPickViewModel(private val application: Application,
     suspend fun submitQuery(query: String) {
         observable.progressBarVisibility = View.VISIBLE
         observable.addressText = ""
-        val (position, addressResult) =
-            geocoderRequestBuilder.fromQuery(query).getResponse() ?: (null to null)
-        if (position != null && addressResult != null) {
-            formattedAddress = addressResult
-            observable.addressText = addressResult
-            mLocation.value = LocationData(position, Animate.ANIMATE)
-        } else {
-            formattedAddress = null
-            observable.addressText = application.resources.getString(R.string.AddressNotFound)
+        when (val result = geocoderRequestBuilder.fromQuery(query).getResponse()) {
+            is Success -> {
+                formattedAddress = result.formattedAddress
+                observable.addressText = result.formattedAddress
+                mLocation.value = LocationData(result.location, Animate.ANIMATE)
+            }
+            is NotFound -> {
+                formattedAddress = null
+                observable.addressText = application.resources.getString(R.string.AddressNotFound)
+            }
+            is Timeout -> {
+                formattedAddress = null
+                observable.addressText = application.resources.getString(R.string.TimeoutGettingAddress)
+            }
+            is Error -> {
+                formattedAddress = null
+                observable.addressText = application.resources.getString(R.string.ErrorGettingAddress)
+            }
         }
         observable.progressBarVisibility = View.INVISIBLE
     }

@@ -16,19 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.utilities
+package com.tommihirvonen.exifnotes.geocoder
 
-import android.content.Context
 import com.google.android.gms.maps.model.LatLng
-import com.tommihirvonen.exifnotes.R
-import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.http.Parameters
-import io.ktor.http.URLBuilder
-import io.ktor.http.URLProtocol
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -37,58 +32,13 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNames
 import java.time.Duration
-import javax.inject.Inject
-import javax.inject.Singleton
-
-@Singleton
-class GeocoderRequestBuilder(
-    private val httpClientAdapter: HttpClientAdapter,
-    private val apiKey: String) {
-
-    @Inject
-    constructor(@ApplicationContext context: Context, httpClientAdapter: HttpClientAdapter)
-            : this(httpClientAdapter, context.resources.getString(R.string.google_maps_key))
-
-    /**
-     * @param coordinatesOrQuery Latitude and longitude coordinates in decimal format or a search query
-     * @return new GeocoderRequest instance
-     */
-    fun fromQuery(coordinatesOrQuery: String): GeocoderRequest {
-        val urlBuilder = URLBuilder(
-            protocol = URLProtocol.HTTPS,
-            host = "maps.google.com",
-            pathSegments = listOf("maps", "api", "geocode", "json"),
-            parameters = Parameters.build {
-                append("address", coordinatesOrQuery)
-                append("sensor", "false")
-                append("key", apiKey)
-            }
-        )
-        val url = urlBuilder.build().toString()
-        return GeocoderRequest(httpClientAdapter.client, url)
-    }
-
-    fun fromPlaceId(placeId: String): GeocoderRequest {
-        val urlBuilder = URLBuilder(
-            protocol = URLProtocol.HTTPS,
-            host = "maps.google.com",
-            pathSegments = listOf("maps", "api", "geocode", "json"),
-            parameters = Parameters.build {
-                append("place_id", placeId)
-                append("key", apiKey)
-            }
-        )
-        val url = urlBuilder.build().toString()
-        return GeocoderRequest(httpClientAdapter.client, url)
-    }
-}
 
 class GeocoderRequest(private val httpClient: HttpClient, val requestUrl: String) {
     /**
      * @return Pair object where first is latitude and longitude in decimal format and second is
      * the formatted address
      */
-    suspend fun getResponse(): Pair<LatLng, String>? =
+    suspend fun getResponse(): GeocoderResponse =
         try {
             withTimeout(Duration.ofSeconds(10).toMillis()) {
                 withContext(Dispatchers.IO) {
@@ -96,14 +46,19 @@ class GeocoderRequest(private val httpClient: HttpClient, val requestUrl: String
                     val data: String = httpResponse.body()
                     val format = Json { ignoreUnknownKeys = true }
                     val responseObject = format.decodeFromString<Response>(data)
+                    if (responseObject.results.isEmpty()) {
+                        return@withContext GeocoderResponse.NotFound
+                    }
                     val (lat, lng) = responseObject.results.first().geometry.location
                     val formattedAddress = responseObject.results.first().formattedAddress
                     val latNlg = LatLng(lat, lng)
-                    latNlg to formattedAddress
+                    GeocoderResponse.Success(latNlg, formattedAddress)
                 }
             }
+        } catch (e: TimeoutCancellationException) {
+            GeocoderResponse.Timeout
         } catch (e: Exception) {
-            null
+            GeocoderResponse.Error
         }
 
     @Serializable
