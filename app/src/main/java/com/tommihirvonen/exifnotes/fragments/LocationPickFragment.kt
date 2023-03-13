@@ -259,6 +259,7 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
         if (query.isBlank()) {
             return
         }
+        binding.progressBarPredictions.isIndeterminate = true
         predictionHandler.postDelayed({
             val bounds = googleMap?.projection?.visibleRegion?.latLngBounds
             val builder = FindAutocompletePredictionsRequest
@@ -272,7 +273,9 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
             val request = builder.build()
             placesClient.findAutocompletePredictions(request).addOnSuccessListener { response ->
                 predictionsAdapter.setPredictions(response.autocompletePredictions)
+                binding.progressBarPredictions.isIndeterminate = false
             }.addOnFailureListener { exception ->
+                binding.progressBarPredictions.isIndeterminate = false
                 if (exception is ApiException) {
                     Toast.makeText(requireContext(),
                         "Place not found: ${exception.statusCode}",
