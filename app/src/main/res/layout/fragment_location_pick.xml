@@ -36,17 +36,16 @@
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-             />
+            android:layout_height="match_parent" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/bottom_bar"
             android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
-            style="@style/Widget.Material3.CardView.Filled"
-            app:strokeWidth="0.5dp"
-            android:translationY="10dp"
-            android:layout_height="90dp">
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_height="70dp">
 
             <TextView
                 android:id="@+id/formatted_address"
@@ -54,20 +53,20 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
-                android:translationY="-5dp"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:text="@{viewmodel.addressText}"
-                tools:text="Formatted address" />
+                android:maxLines="2"
+                android:ellipsize="end"
+                tools:text="A really long text that spans two lines. A really long text that spans two lines." />
 
-            <ProgressBar
+            <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/progress_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:indeterminate="true"
                 android:padding="5dp"
-                android:translationY="-5dp"
                 android:visibility="@{viewmodel.progressBarVisibility}" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -111,8 +110,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/SearchWEllipsis"
+            style="@style/Widget.Material3.SearchBar"
             app:strokeWidth="0.5dp"
-            app:strokeColor="?attr/colorOutline"
+            app:strokeColor="?attr/colorOnSurfaceVariant"
             app:navigationIcon="@drawable/ic_ab_back_material"
             app:navigationIconTint="?attr/colorControlNormal"
             />

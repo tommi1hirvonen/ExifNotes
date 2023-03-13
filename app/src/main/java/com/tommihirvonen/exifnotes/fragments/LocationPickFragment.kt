@@ -32,6 +32,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityCompat
+import androidx.core.view.marginBottom
+import androidx.core.view.marginLeft
+import androidx.core.view.marginRight
+import androidx.core.view.marginTop
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -69,7 +73,6 @@ import com.tommihirvonen.exifnotes.viewmodels.Animate
 import com.tommihirvonen.exifnotes.viewmodels.LocationPickViewModel
 import com.tommihirvonen.exifnotes.viewmodels.LocationPickViewModelFactory
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
@@ -197,11 +200,15 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
             // Set map padding so that the map icons aren't hidden by the bottom sheet.
             val orientation = resources.configuration.orientation
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                val cardViewWidth = binding.bottomBar.width
+                val cardViewWidth = binding.bottomBar.width +
+                        binding.bottomBar.marginLeft +
+                        binding.bottomBar.marginRight
                 googleMap.setPadding(cardViewWidth, 0, 0, 0)
             } else {
-                val cardViewHeight = binding.bottomBar.height - binding.bottomBar.translationY
-                googleMap.setPadding(0, 0, 0, cardViewHeight.roundToInt())
+                val cardViewHeight = binding.bottomBar.height +
+                        binding.bottomBar.marginBottom +
+                        binding.bottomBar.marginTop
+                googleMap.setPadding(0, 0, 0, cardViewHeight)
             }
 
             googleMap.uiSettings.isMyLocationButtonEnabled = false

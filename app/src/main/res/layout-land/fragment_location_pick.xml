@@ -50,13 +50,12 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/bottom_bar"
             android:layout_width="0dp"
-            app:strokeWidth="0.5dp"
-            style="@style/Widget.Material3.CardView.Filled"
+            style="?attr/materialCardViewElevatedStyle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@id/guideline"
-            android:translationY="10dp"
-            android:layout_height="90dp">
+            android:layout_margin="10dp"
+            android:layout_height="70dp">
 
             <TextView
                 android:id="@+id/formatted_address"
@@ -64,20 +63,20 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
-                android:translationY="-5dp"
                 android:textColor="?attr/colorOnSurfaceVariant"
+                android:maxLines="2"
+                android:ellipsize="end"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:text="@{viewmodel.addressText}"
                 tools:text="Formatted address" />
 
-            <ProgressBar
+            <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/progress_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:indeterminate="true"
                 android:padding="5dp"
-                android:translationY="-5dp"
                 android:visibility="@{viewmodel.progressBarVisibility}" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -122,7 +121,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/SearchWEllipsis"
             app:strokeWidth="0.5dp"
-            app:strokeColor="?attr/colorOutline"
+            app:strokeColor="?attr/colorOnSurfaceVariant"
             app:layout_constraintTop_toTopOf="parent"
             app:navigationIcon="@drawable/ic_ab_back_material"
             app:navigationIconTint="?attr/colorControlNormal"
