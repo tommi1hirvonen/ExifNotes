@@ -79,7 +79,7 @@ class CameraEditFragment : Fragment() {
                 setPositiveButton(R.string.Close) { _: DialogInterface, _: Int -> }
             }.create().show()
         }
-        binding.fixedLensLayout.setOnClickListener {
+        binding.fixedLensButton.setOnClickListener {
             val title = resources.getString(R.string.SetFixedLens)
             val action = CameraEditFragmentDirections
                 .fixedLensEditAction(editModel.camera.lens, true, title, null)

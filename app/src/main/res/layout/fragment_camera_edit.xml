@@ -72,15 +72,22 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             >
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                >
+                android:paddingBottom="15dp">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:id="@+id/guideline_v50"
+                    app:layout_constraintGuide_percent="0.5"
+                    android:orientation="vertical"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
                     android:id="@+id/make_layout"
                     android:layout_marginTop="15dp"
                     errorText="@{viewmodel.makeError}"
@@ -99,6 +106,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/make_layout"
                     android:id="@+id/model_layout"
                     android:layout_marginTop="15dp"
                     errorText="@{viewmodel.modelError}"
@@ -117,6 +125,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/model_layout"
                     android:id="@+id/serial_number_layout"
                     android:layout_marginTop="15dp"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
@@ -130,30 +139,37 @@
                         android:hint="@string/SerialNumber"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ShutterSpeedIncrements"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
-                    style="@style/TextAppearance.Material3.BodySmall"/>
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:id="@+id/shutter_increments_layout"
+                    app:layout_constraintTop_toBottomOf="@id/serial_number_layout"
+                    android:layout_marginTop="15dp"
                     android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/shutter_increments_label"
+                        android:text="@string/ShutterSpeedIncrements"
+                        app:layout_constraintTop_toTopOf="parent"
+                        style="@style/TextAppearance.Material3.BodySmall"/>
+
                     <androidx.constraintlayout.widget.Guideline
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         android:id="@+id/guideline"
                         app:layout_constraintGuide_percent="0.5"
                         android:orientation="vertical"/>
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/shutter_speed_increments_menu"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         app:layout_constraintRight_toRightOf="@id/guideline"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/shutter_increments_label"
                         app:layout_constraintLeft_toLeftOf="parent">
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             app:simpleItems="@array/StopIncrements"
@@ -166,19 +182,21 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ShutterRange"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
-                    style="@style/TextAppearance.Material3.BodySmall"/>
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:id="@+id/shutter_range_layout"
+                    app:layout_constraintTop_toBottomOf="@id/shutter_increments_layout"
                     android:layout_marginTop="15dp"
                     android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/shutter_range_label"
+                        android:text="@string/ShutterRange"
+                        app:layout_constraintTop_toTopOf="parent"
+                        style="@style/TextAppearance.Material3.BodySmall"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -186,7 +204,8 @@
                         android:text="@string/From"
                         android:id="@+id/shutter_min_label"
                         android:layout_marginRight="5dp"
-                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginTop="10dp"
+                        app:layout_constraintTop_toBottomOf="@id/shutter_range_label"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toLeftOf="@id/shutter_max_label"
                         style="@style/TextAppearance.Material3.BodySmall"/>
@@ -219,7 +238,8 @@
                         android:text="@string/To"
                         android:id="@+id/shutter_max_label"
                         android:layout_marginLeft="5dp"
-                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginTop="10dp"
+                        app:layout_constraintTop_toBottomOf="@id/shutter_range_label"
                         app:layout_constraintLeft_toRightOf="@id/shutter_min_label"
                         app:layout_constraintRight_toLeftOf="@id/clear_shutter_range"
                         style="@style/TextAppearance.Material3.BodySmall"/>
@@ -261,30 +281,37 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ExposureCompensationIncrements"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
-                    style="@style/TextAppearance.Material3.BodySmall"/>
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:id="@+id/exposure_comp_increments_layout"
+                    app:layout_constraintTop_toBottomOf="@id/shutter_range_layout"
+                    android:layout_marginTop="15dp"
                     android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/exposure_comp_increments_label"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:text="@string/ExposureCompensationIncrements"
+                        style="@style/TextAppearance.Material3.BodySmall"/>
+
                     <androidx.constraintlayout.widget.Guideline
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         android:id="@+id/guideline_exp_comp"
                         app:layout_constraintGuide_percent="0.5"
                         android:orientation="vertical"/>
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/exp_comp_increments_menu"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
                         app:layout_constraintRight_toRightOf="@id/guideline_exp_comp"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/exposure_comp_increments_label"
                         app:layout_constraintLeft_toLeftOf="parent">
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             app:simpleItems="@array/ExposureCompIncrements"
@@ -298,26 +325,32 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <!--FIXED LENS-->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/FixedLens"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
-                    style="@style/TextAppearance.Material3.BodySmall"/>
+
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:id="@+id/fixed_lens_layout"
+                    app:layout_constraintTop_toBottomOf="@id/exposure_comp_increments_layout"
                     android:layout_marginHorizontal="15dp"
-                    android:layout_marginTop="5dp">
+                    android:layout_marginTop="15dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/fixed_lens_label"
+                        android:layout_alignParentTop="true"
+                        android:text="@string/FixedLens"
+                        style="@style/TextAppearance.Material3.BodySmall"/>
 
                     <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
-                        android:id="@+id/fixed_lens_layout"
+                        android:id="@+id/fixed_lens_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:text="@{viewmodel.fixedLensSummary}"
                         android:layout_alignParentLeft="true"
+                        android:layout_below="@id/fixed_lens_label"
+                        android:layout_marginTop="10dp"
                         android:layout_marginRight="10dp"
                         android:layout_toLeftOf="@id/lens_clear"
                         android:transitionName="transition_edit_lens" />
@@ -327,7 +360,7 @@
                         style="@style/IconButton.Tonal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
+                        android:layout_alignParentBottom="true"
                         android:layout_marginRight="10dp"
                         android:layout_toLeftOf="@id/fixed_lens_help"
                         android:visibility="@{viewmodel.clearLensVisibility}"
@@ -340,37 +373,42 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
+                        android:layout_alignParentBottom="true"
                         app:icon="@drawable/ic_outline_info_24" />
 
                 </RelativeLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/DefaultFormat"
-                    android:id="@+id/format_label"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginHorizontal="15dp"
-                    style="@style/TextAppearance.Material3.BodySmall"/>
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/fixed_lens_layout"
+                    android:id="@+id/default_format_layout"
+                    android:layout_marginTop="15dp"
                     android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:text="@string/DefaultFormat"
+                        android:id="@+id/format_label"
+                        style="@style/TextAppearance.Material3.BodySmall"/>
+
                     <androidx.constraintlayout.widget.Guideline
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         android:id="@+id/guideline2"
                         app:layout_constraintGuide_percent="0.5"
                         android:orientation="vertical"/>
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/format_menu"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
                         app:layout_constraintRight_toRightOf="@id/guideline2"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/format_label"
                         app:layout_constraintLeft_toLeftOf="parent">
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:layout_width="match_parent"
@@ -383,7 +421,7 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>
 
