@@ -35,7 +35,7 @@ enum class RollSortMode constructor(value: Int) {
             roll.date
         }
         NAME -> compareByDescending<Roll> { roll ->
-            val numberPrefixRegex = "(\\d+)[\\w\\s]*".toRegex()
+            val numberPrefixRegex = "^(\\d+).*".toRegex(RegexOption.DOT_MATCHES_ALL)
             val result = numberPrefixRegex.matchEntire(roll.name ?: "")
             val numberPrefix = result?.groups?.get(1)?.value?.toIntOrNull()
             // Use descending order and reverse values
