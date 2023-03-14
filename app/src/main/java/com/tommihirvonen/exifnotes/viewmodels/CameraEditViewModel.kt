@@ -219,10 +219,28 @@ class CameraEditViewModel(application: Application, val camera: Camera)
             }
 
         @get:Bindable
-        val fixedLensSummary: String get() = if (camera.lens == null) {
-            context.resources.getString(R.string.ClickToSet)
-        } else {
-            context.resources.getString(R.string.ClickToEdit)
+        val fixedLensSummary: String get() {
+            val lens = camera.lens
+            return if (lens == null) {
+                context.resources.getString(R.string.ClickToSet)
+            } else {
+                val (minFocal, maxFocal) = lens.minFocalLength to lens.maxFocalLength
+                val focalText = when {
+                    minFocal != maxFocal -> "$minFocal-${maxFocal}mm"
+                    minFocal > 0 -> "${minFocal}mm"
+                    else -> null
+                }
+                val maxAperture = lens.maxAperture
+                val apertureText = if (maxAperture == null) {
+                    null
+                } else {
+                    "f/$maxAperture"
+                }
+                val text = listOfNotNull(focalText, apertureText).joinToString(" ").ifEmpty {
+                    context.resources.getString(R.string.ClickToEdit)
+                }
+                text
+            }
         }
 
         @get:Bindable
