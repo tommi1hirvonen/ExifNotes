@@ -16,7 +16,11 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
-<layout>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
         <variable
             name="viewmodel"
@@ -26,11 +30,9 @@
             type="com.tommihirvonen.exifnotes.fragments.LensEditFragment" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true"
         android:transitionName="@{fragment.arguments.transitionName}"
@@ -79,15 +81,21 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             >
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                >
+                android:layout_height="wrap_content">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:id="@+id/guideline_v50"
+                    app:layout_constraintGuide_percent="0.5"
+                    android:orientation="vertical"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
                     android:id="@+id/make_layout"
                     android:layout_marginTop="15dp"
                     android:visibility="@{viewmodel.interchangeableLensLayoutVisibility}"
@@ -107,6 +115,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/make_layout"
                     android:id="@+id/model_layout"
                     android:layout_marginTop="15dp"
                     android:visibility="@{viewmodel.interchangeableLensLayoutVisibility}"
@@ -126,6 +135,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/model_layout"
                     android:id="@+id/serial_number_layout"
                     android:layout_marginTop="15dp"
                     android:visibility="@{viewmodel.interchangeableLensLayoutVisibility}"
@@ -140,31 +150,31 @@
                         android:hint="@string/SerialNumber"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ApertureIncrements"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
-                    style="@style/TextAppearance.Material3.BodySmall"/>
+
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/serial_number_layout"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/guideline_v50"
+                    android:id="@+id/aperture_increments_layout"
+                    android:layout_marginTop="15dp"
                     android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
-                    <androidx.constraintlayout.widget.Guideline
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:id="@+id/guideline"
-                        app:layout_constraintGuide_percent="0.5"
-                        android:orientation="vertical"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/aperture_increment_label"
+                        android:text="@string/ApertureIncrements"
+                        app:layout_constraintTop_toTopOf="parent"
+                        style="@style/TextAppearance.Material3.BodySmall"/>
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/aperture_increments_menu"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:layout_constraintRight_toRightOf="@id/guideline"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent">
+                        app:layout_constraintTop_toBottomOf="@id/aperture_increment_label">
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             app:simpleItems="@array/StopIncrements"
                             onItemClick="@{viewmodel.apertureIncrementOnItemClickListener}"
@@ -176,24 +186,26 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <!--
-                The min and max layouts are reversed on purpose (max on the left and min on the right).
-                Large aperture values mean a small aperture and vice versa.
-                However, it is more intuitive to think of apertures in numbers.
-                 -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ApertureRange"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
-                    style="@style/TextAppearance.Material3.BodySmall"/>
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/aperture_increments_layout"
+                    android:id="@+id/aperture_range_layout"
                     android:layout_marginTop="15dp"
                     android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
+
+                    <!--
+                    The min and max layouts are reversed on purpose (max on the left and min on the right).
+                    Large aperture values mean a small aperture and vice versa.
+                    However, it is more intuitive to think of apertures in numbers.
+                     -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ApertureRange"
+                        android:id="@+id/aperture_range_label"
+                        app:layout_constraintTop_toTopOf="parent"
+                        style="@style/TextAppearance.Material3.BodySmall"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -201,7 +213,8 @@
                         android:text="@string/From"
                         android:id="@+id/aperture_max_label"
                         android:layout_marginRight="5dp"
-                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginTop="15dp"
+                        app:layout_constraintTop_toBottomOf="@id/aperture_range_label"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toLeftOf="@id/aperture_min_label"
                         style="@style/TextAppearance.Material3.BodySmall"/>
@@ -234,7 +247,8 @@
                         android:text="@string/To"
                         android:id="@+id/aperture_min_label"
                         android:layout_marginLeft="5dp"
-                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginTop="15dp"
+                        app:layout_constraintTop_toBottomOf="@id/aperture_range_label"
                         app:layout_constraintLeft_toRightOf="@id/aperture_max_label"
                         app:layout_constraintRight_toLeftOf="@id/clear_aperture_range"
                         style="@style/TextAppearance.Material3.BodySmall"/>
@@ -276,20 +290,22 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <!--CUSTOM APERTURE VALUES-->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/CustomApertureValues"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
-                    style="@style/TextAppearance.Material3.BodySmall"/>
-
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/aperture_range_layout"
+                    android:id="@+id/custom_aperture_values_layout"
                     android:layout_marginHorizontal="15dp"
-                    android:layout_marginTop="5dp">
+                    android:layout_marginTop="15dp">
+
+                    <!--CUSTOM APERTURE VALUES-->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/CustomApertureValues"
+                        android:layout_alignParentTop="true"
+                        android:id="@+id/custom_aperture_values_label"
+                        style="@style/TextAppearance.Material3.BodySmall"/>
 
                     <com.tommihirvonen.exifnotes.views.DropdownButtonLayout
                         android:id="@+id/custom_aperture_values_button"
@@ -297,8 +313,10 @@
                         android:layout_height="wrap_content"
                         android:onClick="@{() -> fragment.showCustomApertureValues()}"
                         app:text="@{viewmodel.customApertureValuesText}"
+                        android:layout_below="@id/custom_aperture_values_label"
                         android:layout_alignParentLeft="true"
                         android:layout_marginRight="10dp"
+                        android:layout_marginTop="5dp"
                         android:layout_toLeftOf="@id/add_custom_aperture_value"
                         android:transitionName="transition_edit_lens" />
 
@@ -307,7 +325,7 @@
                         style="@style/IconButton.Tonal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
+                        android:layout_alignParentBottom="true"
                         android:onClick="@{() -> fragment.showAddCustomApertureValue()}"
                         android:layout_marginRight="10dp"
                         android:layout_toLeftOf="@id/custom_aperture_values_help"
@@ -319,23 +337,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
+                        android:layout_alignParentBottom="true"
                         android:onClick="@{() -> fragment.showCustomApertureValuesHelp()}"
                         app:icon="@drawable/ic_outline_info_24" />
 
                 </RelativeLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/FocalLengthRange"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginHorizontal="@dimen/FrameDialogSidePadding"
-                    style="@style/TextAppearance.Material3.BodySmall"/>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/custom_aperture_values_layout"
+                    android:id="@+id/focal_length_range_layout"
                     android:layout_marginTop="15dp"
                     android:layout_marginHorizontal="@dimen/FrameDialogSidePadding">
 
@@ -347,12 +360,21 @@
                         android:orientation="vertical"/>
 
                     <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/focal_length_label"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:text="@string/FocalLengthRange"
+                        style="@style/TextAppearance.Material3.BodySmall"/>
+
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/From"
                         android:id="@+id/focal_length_min_label"
                         android:layout_marginRight="5dp"
-                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginTop="15dp"
+                        app:layout_constraintTop_toBottomOf="@id/focal_length_label"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="@id/guideline_focal_length"
                         style="@style/TextAppearance.Material3.BodySmall"/>
@@ -385,7 +407,8 @@
                         android:text="@string/To"
                         android:id="@+id/focal_length_max_label"
                         android:layout_marginLeft="5dp"
-                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginTop="15dp"
+                        app:layout_constraintTop_toBottomOf="@id/focal_length_label"
                         app:layout_constraintLeft_toLeftOf="@id/guideline_focal_length"
                         app:layout_constraintRight_toRightOf="parent"
                         style="@style/TextAppearance.Material3.BodySmall"/>
@@ -414,9 +437,7 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>
 
