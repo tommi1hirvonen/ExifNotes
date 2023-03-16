@@ -107,13 +107,17 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(view: View, i: Int) {}
             override fun onSlide(view: View, v: Float) {
-                val offset = binding.bottomSheet.height * v + peekHeightOffset - peekHeightOffset * v
-                when (bottomSheetBehavior.state) {
-                    BottomSheetBehavior.STATE_DRAGGING, BottomSheetBehavior.STATE_SETTLING -> {
-                        googleMap?.setPadding(0, 0, 0, offset.roundToInt())
+                val orientation = resources.configuration.orientation
+                val isTablet = resources.getBoolean(R.bool.isTablet)
+                if (orientation == Configuration.ORIENTATION_PORTRAIT && !isTablet) {
+                    val offset = (binding.bottomSheet.height - peekHeightOffset) * v + peekHeightOffset
+                    when (bottomSheetBehavior.state) {
+                        BottomSheetBehavior.STATE_DRAGGING, BottomSheetBehavior.STATE_SETTLING -> {
+                            googleMap?.setPadding(0, 0, 0, offset.roundToInt())
+                        }
+                        BottomSheetBehavior.STATE_COLLAPSED, BottomSheetBehavior.STATE_EXPANDED,
+                        BottomSheetBehavior.STATE_HALF_EXPANDED, BottomSheetBehavior.STATE_HIDDEN -> { }
                     }
-                    BottomSheetBehavior.STATE_COLLAPSED, BottomSheetBehavior.STATE_EXPANDED,
-                    BottomSheetBehavior.STATE_HALF_EXPANDED, BottomSheetBehavior.STATE_HIDDEN -> { }
                 }
             }
         })
@@ -221,7 +225,11 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         googleMap = googleMap_
 
         val peekHeightOffset = resources.getDimensionPixelSize(R.dimen.MapActivityBottomSheetPeekHeight)
-        googleMap?.setPadding(0, 0, 0, peekHeightOffset)
+        val orientation = resources.configuration.orientation
+        val isTablet = resources.getBoolean(R.bool.isTablet)
+        if (orientation == Configuration.ORIENTATION_PORTRAIT && !isTablet) {
+            googleMap?.setPadding(0, 0, 0, peekHeightOffset)
+        }
 
         // If the app's theme is dark, stylize the map with the custom night mode
         when (resources.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
