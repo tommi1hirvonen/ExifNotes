@@ -324,7 +324,7 @@
     <string name="Preadded">Preadded</string>
     <string name="Preferences">Settings</string>
     <string name="PrivacyPolicy">Privacy policy</string>
-    <string name="PrivacyPolicyStatement"><b>Exif Notes does not collect or use your data outside your own device.</b> Beyond the information Google provides to developers that you can decide to provide (e.g. bug/crash reports), it uses no third-party analytics or advertising frameworks.\n\nThe application can track your location if you give it the appropriate permissions, but the location data is not collected or stored outside the user\'s own device. Exif Notes uses the Google Geocoding API to translate between coordinates and addresses. Queries to the API are done over a secure connection (HTTPS).</string>
+    <string name="PrivacyPolicyStatement"><b>Exif Notes does not collect or use your data outside your own device.</b> Beyond the information Google provides to developers that you can decide to provide (e.g. bug/crash reports), it uses no third-party analytics or advertising frameworks.\n\nThe application can track your location if you give it the appropriate permissions, but the location data is not collected or stored outside the user\'s own device. Exif Notes uses the Google Geocoding API to translate between coordinates and addresses as well as the Places API to get search autocomplete suggestions. Queries to the APIs are done over a secure connection (HTTPS).</string>
     <string name="Purple">Purple</string>
     <string name="PushPull">Push(+)/pull(-)</string>
     <string name="Red">Red</string>
@@ -402,18 +402,23 @@
         \nhttps://github.com/tommi1hirvonen/ExifNotes
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Rolls can be exported/shared in JSON format
-        \n-Custom aperture values can be added to lenses
-        \n-Frames can have custom shutter speed values
-        \n-Cameras have a default film format
-        \n-Negative frame counts are available when editing frames (starting from -3)
-        \n-Exported files are selected during export and not in settings
-        \n-Other small improvements
+        \n\n-Implemented JetPack Navigation component
+        \n-Some landscape and tablet specific layout resources
+        \n-Search result autocomplete suggestions when editing a frame\'s location (Google Places API)
+        \n-Other minor UI changes
+        \n-Bug fixes
         \n-Code refactoring
         \n
     </string>
     <string name="VersionHistory">Version history</string>
-    <string name="VersionHistoryStatement">v1.19.0 2023-03-03:
+    <string name="VersionHistoryStatement">v1.20.0 2023-03-17:
+        \n-Implemented JetPack Navigation component
+        \n-Some landscape and tablet specific layout resources
+        \n-Search result autocomplete suggestions when editing a frame\'s location (Google Places API)
+        \n-Other minor UI changes
+        \n-Bug fixes
+        \n-Code refactoring
+        \n\nv1.19.0 2023-03-03:
         \n-Rolls can be exported/shared in JSON format
         \n-Custom aperture values can be added to lenses
         \n-Frames can have custom shutter speed values
