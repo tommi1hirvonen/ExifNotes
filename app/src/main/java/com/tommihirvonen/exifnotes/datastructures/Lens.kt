@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.datastructures
 
 import android.content.Context
+import androidx.annotation.Keep
 import com.tommihirvonen.exifnotes.R
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.EncodeDefault
@@ -29,6 +30,7 @@ import kotlinx.serialization.Transient
 @OptIn(ExperimentalSerializationApi::class)
 @Parcelize
 @Serializable
+@Keep
 data class Lens(
         override var id: Long = 0,
         override var make: String? = null,

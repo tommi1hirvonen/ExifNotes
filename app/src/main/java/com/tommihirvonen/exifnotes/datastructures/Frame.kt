@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.datastructures
 
 import android.content.Context
 import android.os.Parcelable
+import androidx.annotation.Keep
 import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.utilities.LatLngSerializer
 import com.tommihirvonen.exifnotes.utilities.LocalDateTimeSerializer
@@ -34,6 +35,7 @@ import java.util.ArrayList
 @OptIn(ExperimentalSerializationApi::class)
 @Parcelize
 @Serializable
+@Keep
 data class Frame(
     var id: Long = 0,
     @Transient

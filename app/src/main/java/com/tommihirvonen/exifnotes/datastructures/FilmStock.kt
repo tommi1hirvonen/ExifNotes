@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.datastructures
 
+import androidx.annotation.Keep
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -26,6 +27,7 @@ import kotlinx.serialization.Serializable
 @OptIn(ExperimentalSerializationApi::class)
 @Parcelize
 @Serializable
+@Keep
 data class FilmStock(
     override var id: Long = 0,
     override var make: String? = null,

@@ -21,6 +21,7 @@
 package com.tommihirvonen.exifnotes.datastructures
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import com.tommihirvonen.exifnotes.utilities.LocalDateTimeSerializer
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.EncodeDefault
@@ -32,6 +33,7 @@ import java.time.LocalDateTime
 @OptIn(ExperimentalSerializationApi::class)
 @Parcelize
 @Serializable
+@Keep
 data class Roll(var id: Long = 0,
                 var name: String? = null,
                 var date: LocalDateTime = LocalDateTime.now(),
