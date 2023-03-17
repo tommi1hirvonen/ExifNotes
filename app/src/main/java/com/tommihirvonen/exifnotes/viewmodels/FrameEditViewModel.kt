@@ -32,7 +32,6 @@ import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.geocoder.GeocoderResponse
 import com.tommihirvonen.exifnotes.utilities.database
-import com.tommihirvonen.exifnotes.utilities.decimalString
 import com.tommihirvonen.exifnotes.utilities.readableCoordinates
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -60,7 +59,7 @@ class FrameEditViewModel(application: Application,
             locationProgressBarVisibility = View.VISIBLE
             // Start a coroutine to asynchronously fetch the formatted address.
             viewModelScope.launch {
-                val response = geocoderRequestBuilder.fromQuery(location.decimalString).getResponse()
+                val response = geocoderRequestBuilder.fromLatLng(location).getResponse()
                 if (response is GeocoderResponse.Success) {
                     setLocation(location, response.formattedAddress.ifEmpty { null })
                 }

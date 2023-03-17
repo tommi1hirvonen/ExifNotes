@@ -19,10 +19,13 @@
 package com.tommihirvonen.exifnotes.geocoder
 
 import android.content.Context
+import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.utilities.HttpClientAdapter
+import com.tommihirvonen.exifnotes.utilities.decimalString
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.ktor.http.Parameters
+import io.ktor.client.HttpClient
+import io.ktor.http.ParametersBuilder
 import io.ktor.http.URLBuilder
 import io.ktor.http.URLProtocol
 import javax.inject.Inject
@@ -30,43 +33,35 @@ import javax.inject.Singleton
 
 @Singleton
 class GeocoderRequestBuilder(
-    private val httpClientAdapter: HttpClientAdapter,
+    private val httpClient: HttpClient,
     private val apiKey: String) {
 
     @Inject
     constructor(@ApplicationContext context: Context, httpClientAdapter: HttpClientAdapter)
-            : this(httpClientAdapter, context.resources.getString(R.string.google_maps_key))
+            : this(httpClientAdapter.client, context.resources.getString(R.string.google_maps_key))
 
-    /**
-     * @param coordinatesOrQuery Latitude and longitude coordinates in decimal format or a search query
-     * @return new GeocoderRequest instance
-     */
-    fun fromQuery(coordinatesOrQuery: String): GeocoderRequest {
-        val urlBuilder = URLBuilder(
+    fun fromQuery(query: String) = ParametersBuilder().apply {
+        append("address", query)
+        append("sensor", "false")
+    }.buildRequest()
+
+    fun fromLatLng(latLng: LatLng) = ParametersBuilder().apply {
+        append("address", latLng.decimalString)
+        append("sensor", "false")
+    }.buildRequest()
+
+    fun fromPlaceId(placeId: String) = ParametersBuilder().apply {
+        append("place_id", placeId)
+    }.buildRequest()
+
+    private fun ParametersBuilder.buildRequest(): GeocoderRequest {
+        append("key", apiKey)
+        val url = URLBuilder(
             protocol = URLProtocol.HTTPS,
             host = "maps.google.com",
             pathSegments = listOf("maps", "api", "geocode", "json"),
-            parameters = Parameters.build {
-                append("address", coordinatesOrQuery)
-                append("sensor", "false")
-                append("key", apiKey)
-            }
-        )
-        val url = urlBuilder.build().toString()
-        return GeocoderRequest(httpClientAdapter.client, url)
-    }
-
-    fun fromPlaceId(placeId: String): GeocoderRequest {
-        val urlBuilder = URLBuilder(
-            protocol = URLProtocol.HTTPS,
-            host = "maps.google.com",
-            pathSegments = listOf("maps", "api", "geocode", "json"),
-            parameters = Parameters.build {
-                append("place_id", placeId)
-                append("key", apiKey)
-            }
-        )
-        val url = urlBuilder.build().toString()
-        return GeocoderRequest(httpClientAdapter.client, url)
+            parameters = build()
+        ).build().toString()
+        return GeocoderRequest(httpClient, url)
     }
 }

@@ -32,7 +32,6 @@ import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.geocoder.GeocoderResponse.*
-import com.tommihirvonen.exifnotes.utilities.decimalString
 
 class LocationPickViewModel(private val application: Application,
                             private val geocoderRequestBuilder: GeocoderRequestBuilder,
@@ -49,7 +48,7 @@ class LocationPickViewModel(private val application: Application,
         observable.progressBarVisibility = View.VISIBLE
         observable.addressText = ""
         mLocation.value = LocationData(latLng, animate)
-        val result = geocoderRequestBuilder.fromQuery(latLng.decimalString).getResponse()
+        val result = geocoderRequestBuilder.fromLatLng(latLng).getResponse()
         val (formattedAddress, showText) =
             when (result) {
                 is Success -> {
