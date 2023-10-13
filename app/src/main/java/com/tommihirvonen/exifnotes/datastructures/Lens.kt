@@ -57,14 +57,14 @@ data class Lens(
             Increment.FULL -> context.resources.getStringArray(R.array.ApertureValuesFull)
         }
             .reversed()
-            .let {
-                val minIndex = it.indexOfFirst { it_ -> it_ == minAperture }
-                val maxIndex = it.indexOfFirst { it_ -> it_ == maxAperture }
+            .let { values ->
+                val minIndex = values.indexOfFirst { it == minAperture }
+                val maxIndex = values.indexOfFirst { it == maxAperture }
                 if (minIndex != -1 && maxIndex != -1) {
-                    it.filterIndexed { index, _ -> index in minIndex..maxIndex }
+                    values.filterIndexed { index, _ -> index in minIndex..maxIndex }
                             .plus(context.resources.getString(R.string.NoValue))
                 } else {
-                    it
+                    values
                 }
             }
             .plus(customApertureValues.map(Float::toString))

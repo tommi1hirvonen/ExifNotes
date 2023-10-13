@@ -29,6 +29,6 @@ enum class Format {
 
     companion object {
         fun from(value: Int) =
-            values().firstOrNull { it.ordinal == value } ?: MM35
+            entries.firstOrNull { it.ordinal == value } ?: MM35
     }
 }

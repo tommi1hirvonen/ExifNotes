@@ -203,8 +203,8 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
         return binding.root
     }
 
-    override fun onMapReady(googleMap_: GoogleMap) {
-        googleMap = googleMap_
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
         googleMap?.let { googleMap ->
 
             // Set map padding so that the map icons aren't hidden by the bottom sheet.

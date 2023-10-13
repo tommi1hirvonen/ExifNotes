@@ -73,7 +73,6 @@ class ComplementaryPicturesExportWorker(private val context: Context, parameters
 
         setForeground(createProgressForegroundInfo(0, pictureFiles.size))
 
-        @Suppress("BlockingMethodInNonBlockingContext")
         val result = withContext(Dispatchers.IO) {
             val tempFile = File.createTempFile("complementary_pictures", ".zip",
                 applicationContext.externalCacheDir)

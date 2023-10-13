@@ -132,8 +132,8 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    override fun onMapReady(googleMap_: GoogleMap) {
-        googleMap = googleMap_
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
 
         // If the app's theme is dark, stylize the map with the custom night mode
         when (resources.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {

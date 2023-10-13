@@ -60,7 +60,6 @@ class ComplementaryPicturesImportWorker(private val context: Context, parameters
         val picturesUri = inputData.getString(ExtraKeys.TARGET_URI)?.toUri()
             ?: return Result.failure()
 
-        @Suppress("BlockingMethodInNonBlockingContext")
         val result = withContext(Dispatchers.IO) {
 
             val filePath: String = try {

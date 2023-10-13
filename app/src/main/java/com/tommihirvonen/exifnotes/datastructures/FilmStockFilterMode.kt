@@ -22,6 +22,6 @@ enum class FilmStockFilterMode {
     ALL, PREADDED, USER_ADDED;
 
     companion object {
-        fun from(value: Int) = values().firstOrNull { it.ordinal == value } ?: ALL
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: ALL
     }
 }

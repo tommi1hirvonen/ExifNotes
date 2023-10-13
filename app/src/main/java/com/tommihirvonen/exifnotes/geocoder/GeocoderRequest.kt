@@ -33,7 +33,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNames
 import java.time.Duration
 
-class GeocoderRequest(private val httpClient: HttpClient, val requestUrl: String) {
+class GeocoderRequest(private val httpClient: HttpClient, private val requestUrl: String) {
     /**
      * @return Pair object where first is latitude and longitude in decimal format and second is
      * the formatted address

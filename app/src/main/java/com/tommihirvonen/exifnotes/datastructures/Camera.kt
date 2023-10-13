@@ -56,15 +56,15 @@ data class Camera(
             Increment.THIRD -> context.resources.getStringArray(R.array.ShutterValuesThird)
             Increment.HALF -> context.resources.getStringArray(R.array.ShutterValuesHalf)
             Increment.FULL -> context.resources.getStringArray(R.array.ShutterValuesFull)
-        }.reversed().let {
-            val minIndex = it.indexOfFirst { it_ -> it_ == minShutter }
-            val maxIndex = it.indexOfFirst { it_ -> it_ == maxShutter }
+        }.reversed().let { values ->
+            val minIndex = values.indexOfFirst { it == minShutter }
+            val maxIndex = values.indexOfFirst { it == maxShutter }
             if (minIndex != -1 && maxIndex != -1) {
-                it.filterIndexed { index, _ -> index in minIndex..maxIndex }
+                values.filterIndexed { index, _ -> index in minIndex..maxIndex }
                         .plus("B")
                         .plus(context.resources.getString(R.string.NoValue))
             } else {
-                it.toMutableList().also { it_ -> it_.add(it_.size - 1, "B") }
+                values.toMutableList().also { it.add(it.size - 1, "B") }
             }
         }.toTypedArray()
 

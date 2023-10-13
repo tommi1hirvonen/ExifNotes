@@ -324,7 +324,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         : MaterialAlertDialogBuilder(requireContext()) {
         init {
             setTitle(titleStringResourceId)
-            val options = RollExportOption.values()
+            val options = RollExportOption.entries.toTypedArray()
             val items = options.map { it.toString() }.toTypedArray()
             val booleans = items.map { false }.toBooleanArray()
             setMultiChoiceItems(items, booleans) { _, which, isChecked ->
@@ -604,7 +604,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 }
                                 // Edit light source
                                 9 -> {
-                                    val lightSources = LightSource.values()
+                                    val lightSources = LightSource.entries.toTypedArray()
                                     val descriptions = lightSources
                                         .map { it.description(requireContext()) }
                                         .toTypedArray()

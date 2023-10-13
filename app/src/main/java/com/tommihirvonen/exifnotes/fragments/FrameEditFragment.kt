@@ -567,7 +567,7 @@ class FrameEditFragment : Fragment() {
         val filename = model.frame.pictureFilename ?: return
         try {
             ComplementaryPicturesManager.rotatePictureRight(requireActivity(), filename)
-            binding.complementaryPicture.rotation = binding.complementaryPicture.rotation + 90
+            binding.complementaryPicture.rotation += 90
             val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_right)
             binding.complementaryPicture.startAnimation(animation)
         } catch (e: IOException) {
@@ -583,7 +583,7 @@ class FrameEditFragment : Fragment() {
         val filename = model.frame.pictureFilename ?: return
         try {
             ComplementaryPicturesManager.rotatePictureLeft(requireActivity(), filename)
-            binding.complementaryPicture.rotation = binding.complementaryPicture.rotation - 90
+            binding.complementaryPicture.rotation -= 90
             val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_left)
             binding.complementaryPicture.startAnimation(animation)
         } catch (e: IOException) {

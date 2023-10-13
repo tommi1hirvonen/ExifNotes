@@ -22,7 +22,7 @@ import com.google.android.gms.maps.model.LatLng
 
 sealed class GeocoderResponse {
     class Success(val location: LatLng, val formattedAddress: String) : GeocoderResponse()
-    object NotFound : GeocoderResponse()
-    object Timeout : GeocoderResponse()
-    object Error : GeocoderResponse()
+    data object NotFound : GeocoderResponse()
+    data object Timeout : GeocoderResponse()
+    data object Error : GeocoderResponse()
 }

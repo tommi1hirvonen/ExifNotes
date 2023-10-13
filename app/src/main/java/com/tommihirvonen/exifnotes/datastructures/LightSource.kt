@@ -35,6 +35,6 @@ enum class LightSource {
         context.resources.getStringArray(R.array.LightSource).getOrNull(ordinal)
 
     companion object {
-        fun from(value: Int) = values().firstOrNull { it.ordinal == value } ?: UNKNOWN
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: UNKNOWN
     }
 }

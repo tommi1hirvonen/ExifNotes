@@ -221,8 +221,8 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    override fun onMapReady(googleMap_: GoogleMap) {
-        googleMap = googleMap_
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
 
         val peekHeightOffset = resources.getDimensionPixelSize(R.dimen.MapActivityBottomSheetPeekHeight)
         val orientation = resources.configuration.orientation

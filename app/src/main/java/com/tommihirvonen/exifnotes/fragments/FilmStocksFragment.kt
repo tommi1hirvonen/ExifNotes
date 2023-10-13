@@ -215,7 +215,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
 
     private fun showFilmTypeFilterDialog() {
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        val filmTypes = FilmType.values()
+        val filmTypes = FilmType.entries.toTypedArray()
         val filmTypeDescriptions = filmTypes.map { it.description(requireContext()) }.toTypedArray()
         val checkedItems = filmTypes.map(model.filterSet.types::contains).toBooleanArray()
 
@@ -239,7 +239,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
 
     private fun showFilmProcessFilterDialog() {
         val builder = MaterialAlertDialogBuilder(requireActivity())
-        val filmProcesses = FilmProcess.values()
+        val filmProcesses = FilmProcess.entries.toTypedArray()
         val filmProcessDescriptions = filmProcesses.map { it.description(requireContext()) }.toTypedArray()
         val checkedItems = filmProcesses.map(model.filterSet.processes::contains).toBooleanArray()
         builder.setMultiChoiceItems(filmProcessDescriptions, checkedItems) { _, which, isChecked ->
