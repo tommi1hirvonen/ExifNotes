@@ -170,20 +170,20 @@ class CameraEditViewModel(application: Application, val camera: Camera)
             }
 
         val minShutterOnItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            // Handle empty item selection (first in list)
-            if (position > 0) {
-                setMinShutter(shutterValueOptions[position])
-            } else {
+            // Handle empty item selection (last in list)
+            if (position == shutterValueOptions.lastIndex) {
                 setMinShutter(null)
+            } else {
+                setMinShutter(shutterValueOptions[position])
             }
         }
 
         val maxShutterOnItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            // Handle empty item selection (first in list)
-            if (position > 0) {
-                setMaxShutter(shutterValueOptions[position])
-            } else {
+            // Handle empty item selection (last in list)
+            if (position == shutterValueOptions.lastIndex) {
                 setMaxShutter(null)
+            } else {
+                setMaxShutter(shutterValueOptions[position])
             }
         }
 
