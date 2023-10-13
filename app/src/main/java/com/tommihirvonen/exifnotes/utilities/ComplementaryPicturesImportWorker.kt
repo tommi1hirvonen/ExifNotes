@@ -60,7 +60,7 @@ class ComplementaryPicturesImportWorker(private val context: Context, parameters
         val picturesUri = inputData.getString(ExtraKeys.TARGET_URI)?.toUri()
             ?: return Result.failure()
 
-        val result = withContext(Dispatchers.IO) {
+        val (result, succeeded) = withContext(Dispatchers.IO) {
 
             val filePath: String = try {
                 val inputStream = applicationContext.contentResolver.openInputStream(picturesUri)
@@ -73,19 +73,19 @@ class ComplementaryPicturesImportWorker(private val context: Context, parameters
                 outputFile.absolutePath
             } catch (e: IOException) {
                 e.printStackTrace()
-                return@withContext Result.failure()
+                return@withContext Result.failure() to false
             }
 
             val zipFile = File(filePath)
             val targetDirectory = ComplementaryPicturesManager
                 .getComplementaryPicturesDirectory(applicationContext)
-                ?: return@withContext Result.failure()
+                ?: return@withContext Result.failure() to false
 
             try {
                 val totalEntries = ZipFile(zipFile).size()
                 // If the zip file was empty, end here.
                 if (totalEntries == 0) {
-                    return@withContext Result.failure()
+                    return@withContext Result.failure() to false
                 }
                 // Publish empty progress to tell the interface, that the process has begun.
                 setForeground(createProgressForegroundInfo(0, totalEntries))
@@ -94,7 +94,7 @@ class ComplementaryPicturesImportWorker(private val context: Context, parameters
                 ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
                     generateSequence { zipInputStream.nextEntry }.forEachIndexed { index, zipEntry ->
                         if (isStopped) {
-                            return@withContext Result.success()
+                            return@withContext Result.success() to true
                         }
                         val targetFile = File(targetDirectory, zipEntry.name)
                         if (!targetFile.canonicalPath.startsWith(targetDirectory.canonicalPath)) {
@@ -113,15 +113,15 @@ class ComplementaryPicturesImportWorker(private val context: Context, parameters
                         }
                     }
                 }
-                return@withContext Result.success()
+                return@withContext Result.success() to true
             } catch (e: Exception) {
                 e.printStackTrace()
-                return@withContext Result.failure()
+                return@withContext Result.failure() to false
             }
         }
 
         with(NotificationManagerCompat.from(applicationContext)) {
-            val notification = createResultNotification(result is Result.Success)
+            val notification = createResultNotification(succeeded)
             if (ActivityCompat.checkSelfPermission(context,
                     Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 return@with

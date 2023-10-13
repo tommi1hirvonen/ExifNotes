@@ -73,14 +73,14 @@ class ComplementaryPicturesExportWorker(private val context: Context, parameters
 
         setForeground(createProgressForegroundInfo(0, pictureFiles.size))
 
-        val result = withContext(Dispatchers.IO) {
+        val (result, succeeded) = withContext(Dispatchers.IO) {
             val tempFile = File.createTempFile("complementary_pictures", ".zip",
                 applicationContext.externalCacheDir)
             val tempOutputStream = FileOutputStream(tempFile)
             ZipOutputStream(tempOutputStream).use { outputStream ->
                 pictureFiles.forEachIndexed { index, file ->
                     if (isStopped) {
-                        return@withContext Result.success()
+                        return@withContext Result.success() to true
                     }
                     BufferedInputStream(FileInputStream(file)).use { inputStream ->
                         val entry = ZipEntry(file.name)
@@ -92,18 +92,18 @@ class ComplementaryPicturesExportWorker(private val context: Context, parameters
             }
 
             val targetUri = inputData.getString(ExtraKeys.TARGET_URI)?.toUri()
-                ?: return@withContext Result.failure()
+                ?: return@withContext Result.failure() to false
             val targetOutputStream = applicationContext.contentResolver.openOutputStream(targetUri)
 
             val tempInputStream = FileInputStream(tempFile)
             tempInputStream.copyTo(targetOutputStream!!)
             tempInputStream.close()
             targetOutputStream.close()
-            return@withContext Result.success()
+            return@withContext Result.success() to true
         }
 
         with(NotificationManagerCompat.from(applicationContext)) {
-            val notification = createResultNotification(result is Result.Success)
+            val notification = createResultNotification(succeeded)
             if (ActivityCompat.checkSelfPermission(context,
                     Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 return@with
