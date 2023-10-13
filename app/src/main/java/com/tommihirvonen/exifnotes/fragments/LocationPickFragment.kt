@@ -130,7 +130,8 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
         binding.placePredictions.addItemDecoration(DividerItemDecoration(requireContext(), layoutManager.orientation))
         predictionsAdapter.onPlaceClickListener = { place ->
             // User selected a place suggestion. Run a geocoding request with the place id.
-            binding.searchBar.text = place.getPrimaryText(null).toString()
+            val text = place.getPrimaryText(null).toString()
+            binding.searchBar.setText(text)
             binding.searchView.clearFocusAndHideKeyboard()
             binding.searchView.hide()
             lifecycleScope.launch { model.submitPlaceId(place.placeId) }
@@ -138,9 +139,9 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
 
         binding.searchBar.setOnClickListener { binding.searchBar.expand(binding.searchView) }
         binding.searchBar.setNavigationOnClickListener {
-            val text = binding.searchBar.text ?: ""
+            val text = binding.searchBar.text
             if (text.isNotEmpty()) {
-                binding.searchBar.text = null
+                binding.searchBar.setText("")
             } else {
                 findNavController().navigateUp()
             }
@@ -154,7 +155,8 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
             }
             // Run a geocoding request with the raw query.
             val query = binding.searchView.text.toString().trim()
-            binding.searchBar.text = binding.searchView.text.toString()
+            val text = binding.searchView.text.toString()
+            binding.searchBar.setText(text)
             binding.searchView.hide()
             if (query.isNotEmpty()) {
                 lifecycleScope.launch { model.submitQuery(query) }

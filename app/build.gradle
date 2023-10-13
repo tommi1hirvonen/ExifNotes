@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2023  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,12 +51,11 @@ android {
         jvmTarget = '1.8'
     }
 
-    compileSdkVersion 33
-    buildToolsVersion '33.0.0'
     defaultConfig {
         applicationId 'com.tommihirvonen.exifnotes'
+        compileSdk 34
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
         versionCode 44
         versionName "1.20.0"
         // Enabling this allows us to use resources when PNGs are generated during build-time
@@ -103,7 +102,7 @@ android {
     }
     namespace 'com.tommihirvonen.exifnotes'
 
-    tasks.withType(Test) {
+    tasks.withType(Test).configureEach {
         def propsFile = rootProject.file('googlemapsapi.properties')
         if (propsFile.exists()) {
             def props = new Properties()
@@ -117,29 +116,29 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.6.0'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'com.google.android.material:material:1.9.0-alpha01'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.1'
+    implementation 'com.google.android.material:material:1.11.0-alpha03'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.exifinterface:exifinterface:1.3.5'
-    implementation "androidx.core:core-ktx:1.9.0"
-    implementation 'androidx.preference:preference-ktx:1.2.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation 'androidx.exifinterface:exifinterface:1.3.6'
+    implementation "androidx.core:core-ktx:1.12.0"
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'org.apache.commons:commons-text:1.9'
-    implementation 'androidx.fragment:fragment-ktx:1.5.5'
-    implementation 'androidx.databinding:databinding-runtime:7.4.0'
-    implementation 'androidx.work:work-runtime-ktx:2.7.1'
+    implementation 'androidx.fragment:fragment-ktx:1.6.1'
+    implementation 'androidx.databinding:databinding-runtime:8.1.2'
+    implementation 'androidx.work:work-runtime-ktx:2.8.1'
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigation_version"
     implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigation_version"
     implementation "io.ktor:ktor-http:$rootProject.ktor_version"
     implementation "io.ktor:ktor-client-core:$rootProject.ktor_version"
     implementation "io.ktor:ktor-client-cio:$rootProject.ktor_version"
-    implementation 'com.google.android.libraries.places:places:3.0.0'
+    implementation 'com.google.android.libraries.places:places:3.2.0'
     implementation "com.google.dagger:hilt-android:$rootProject.hilt_version"
     kapt "com.google.dagger:hilt-compiler:$rootProject.hilt_version"
 
@@ -150,7 +149,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:1.1.5"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 }
 
 // Allow references to generated code

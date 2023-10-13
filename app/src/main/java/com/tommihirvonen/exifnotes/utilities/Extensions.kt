@@ -80,7 +80,6 @@ val Context.packageInfo: PackageInfo? get() {
             packageManager.getPackageInfo(packageName,
                 PackageManager.PackageInfoFlags.of(0))
         } else {
-            @Suppress("DEPRECATION")
             packageManager.getPackageInfo(packageName, 0)
         }
     } catch (e: PackageManager.NameNotFoundException) {

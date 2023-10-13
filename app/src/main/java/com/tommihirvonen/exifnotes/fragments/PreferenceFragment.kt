@@ -103,7 +103,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
      * Creates a new OnSharedPreferenceChangeListener to detect app theme changes.
      */
     private val preferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener get() =
-        SharedPreferences.OnSharedPreferenceChangeListener { _: SharedPreferences, key: String ->
+        SharedPreferences.OnSharedPreferenceChangeListener { _: SharedPreferences, key: String? ->
             if (key == PreferenceConstants.KEY_APP_THEME) {
                 val appThemePreference = findPreference<ListPreference>(PreferenceConstants.KEY_APP_THEME)
                 appThemePreference?.summary = appThemePreference?.entry
