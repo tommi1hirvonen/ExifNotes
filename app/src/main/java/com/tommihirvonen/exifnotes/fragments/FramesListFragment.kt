@@ -599,7 +599,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 // Edit location
                                 8 -> {
                                     val action = FramesListFragmentDirections
-                                        .framesListLocationPickAction(null, null)
+                                        .framesListLocationPickAction(null, null, showToolbar = true)
                                     findNavController().navigate(action)
                                 }
                                 // Edit light source
@@ -669,6 +669,10 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
+            val fragment = parentFragmentManager.primaryNavigationFragment
+            if (fragment is LocationPickFragment) {
+                findNavController().navigateUp()
+            }
             frameAdapter.clearSelections()
             actionMode = null
             // Make the floating action bar visible again since action mode is exited.

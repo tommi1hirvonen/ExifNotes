@@ -303,5 +303,9 @@
             android:name="formattedAddress"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="showToolbar"
+            app:argType="boolean"
+            android:defaultValue="false" />
     </fragment>
 </navigation>

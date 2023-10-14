@@ -117,7 +117,7 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentLocationPickBinding.inflate(layoutInflater)
-
+        binding.toolbar.visibility = if (arguments.showToolbar) View.VISIBLE else View.GONE
         binding.viewmodel = model.observable
 
         binding.fab.setOnClickListener(onLocationSet)
