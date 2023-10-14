@@ -394,7 +394,7 @@
     <string name="UserAdded">User added</string>
     <string name="AboutAndTermsOfUse">Version %s
         \nExif Notes
-        \nCopyright © 2023  Tommi Hirvonen
+        \nCopyright © 2023  Exif Notes contributors
         \n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
         \n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
         \n\nYou should have received a copy of the GNU General Public License along with this program.  If not, see https://www.gnu.org/licenses/.
@@ -402,16 +402,19 @@
         \nhttps://github.com/tommi1hirvonen/ExifNotes
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Implemented JetPack Navigation component
-        \n-Some landscape and tablet specific layout resources
-        \n-Search result autocomplete suggestions when editing a frame\'s location (Google Places API)
-        \n-Other minor UI changes
-        \n-Bug fixes
-        \n-Code refactoring
+        \n\n-Bug fixes
+        \n-Themed app icon support
+        \n-Library and SDK updates
+        \n-Targeting Android 14
         \n
     </string>
     <string name="VersionHistory">Version history</string>
-    <string name="VersionHistoryStatement">v1.20.0 2023-03-17:
+    <string name="VersionHistoryStatement">v1.20.1 2023-10-14:
+        \n-Bug fixes
+        \n-Themed app icon support
+        \n-Library and SDK updates
+        \n-Targeting Android 14
+        \n\nv1.20.0 2023-03-17:
         \n-Implemented JetPack Navigation component
         \n-Some landscape and tablet specific layout resources
         \n-Search result autocomplete suggestions when editing a frame\'s location (Google Places API)
