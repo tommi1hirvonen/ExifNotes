@@ -1213,7 +1213,7 @@ class Database private constructor(private val context: Context)
                 cursor.close()
 
                 //Check that the attributes are correct and return the result
-                return columnType.startsWith(columnTypeInput) && //type can be int or integer
+                return columnType.startsWith(columnTypeInput, ignoreCase = true) && //type can be int or integer
                         notNull == notNullInput && primaryKey == primaryKeyInput
             }
         }
