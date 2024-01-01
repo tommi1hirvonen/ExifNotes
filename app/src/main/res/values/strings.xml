@@ -394,7 +394,7 @@
     <string name="UserAdded">User added</string>
     <string name="AboutAndTermsOfUse">Version %s
         \nExif Notes
-        \nCopyright © 2023  Exif Notes contributors
+        \nCopyright © 2024  Exif Notes contributors
         \n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
         \n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
         \n\nYou should have received a copy of the GNU General Public License along with this program.  If not, see https://www.gnu.org/licenses/.
@@ -403,13 +403,14 @@
     </string>
     <string name="Updates">Updates in this version:
         \n\n-Bug fixes
-        \n-Themed app icon support
-        \n-Library and SDK updates
-        \n-Targeting Android 14
+        \n-Library updates
         \n
     </string>
     <string name="VersionHistory">Version history</string>
-    <string name="VersionHistoryStatement">v1.20.1 2023-10-14:
+    <string name="VersionHistoryStatement">v1.20.2 2024-01-01:
+        \n-Bug fixes
+        \n-Library updates
+        \n\nv1.20.1 2023-10-14:
         \n-Bug fixes
         \n-Themed app icon support
         \n-Library and SDK updates
