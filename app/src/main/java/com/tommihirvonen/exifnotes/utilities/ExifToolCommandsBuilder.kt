@@ -70,7 +70,7 @@ class ExifToolCommandsBuilder(context: Context, private val roll: Roll, private 
 
         val quote = "\""
         val space = " "
-        val lineSep = "\r\n"
+        val lineSep = "\n"
         val camera = roll.camera
         for (frame in frameList) {
             //ExifTool path
