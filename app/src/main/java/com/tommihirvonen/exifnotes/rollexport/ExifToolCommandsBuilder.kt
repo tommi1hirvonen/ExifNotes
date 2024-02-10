@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2024  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.utilities
+package com.tommihirvonen.exifnotes.rollexport
 
 import android.content.Context
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.entities.Frame
 import com.tommihirvonen.exifnotes.entities.LightSource
 import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.utilities.exifToolLocation
+import com.tommihirvonen.exifnotes.utilities.sortableDateTime
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.Normalizer
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ExifToolCommandsBuilder(context: Context, private val roll: Roll, private val frameList: List<Frame>) {
+@Singleton
+class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: Context) {
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
@@ -56,7 +62,7 @@ class ExifToolCommandsBuilder(context: Context, private val roll: Roll, private 
         private const val lightSourceTag = "-LightSource="
     }
 
-    fun create(): String {
+    fun create(roll: Roll, frames: List<Frame>): String {
         val stringBuilder = StringBuilder()
         val artistName = prefs.getString("ArtistName", "") ?: ""
         val copyrightInformation = prefs.getString("CopyrightInformation", "") ?: ""
@@ -72,7 +78,7 @@ class ExifToolCommandsBuilder(context: Context, private val roll: Roll, private 
         val space = " "
         val lineSep = "\n"
         val camera = roll.camera
-        for (frame in frameList) {
+        for (frame in frames) {
             //ExifTool path
             if (exiftoolPath.isNotEmpty()) stringBuilder.append(exiftoolPath)
             //ExifTool command

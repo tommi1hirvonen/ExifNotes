@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2024  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,38 +16,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.utilities
+package com.tommihirvonen.exifnotes.rollexport
 
 import android.content.Context
 import androidx.documentfile.provider.DocumentFile
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.entities.Roll
-import com.tommihirvonen.exifnotes.entities.RollExportOption
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.OutputStreamWriter
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class RollExportHelper(
-    private val context: Context,
-    database: Database,
-    roll: Roll,
-    private val targetDirectory: DocumentFile,
-    private val options: List<RollExportOption>) : RollExport(context, database, roll) {
+@Singleton
+class RollExportHelper @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val builder: RollExportBuilder) {
 
-    private val fileMapping = { option: RollExportOption ->
-        when (option) {
-            RollExportOption.CSV ->
-                targetDirectory.createFile("text/plain", fileNameMapping(option))
-            RollExportOption.EXIFTOOL ->
-                targetDirectory.createFile("text/plain", fileNameMapping(option))
-            RollExportOption.JSON ->
-                targetDirectory.createFile("application/json", fileNameMapping(option))
-        }
-    }
-
-    fun export() {
-        options.forEach { option ->
-            val file = fileMapping(option) ?: return@forEach
+    fun export(roll: Roll, options: List<RollExportOption>, targetDirectory: DocumentFile) {
+        val exports = builder.create(roll, options)
+        exports.forEach { export ->
+            val (option, filename, content) = export
+            val file = when (option) {
+                RollExportOption.CSV -> targetDirectory.createFile("text/plain", filename)
+                RollExportOption.EXIFTOOL -> targetDirectory.createFile("text/plain", filename)
+                RollExportOption.JSON -> targetDirectory.createFile("application/json", filename)
+            } ?: return@forEach
             val stream = context.contentResolver.openOutputStream(file.uri) ?: return@forEach
-            val content = contentMapping(option)
             val writer = OutputStreamWriter(stream)
             writer.write(content)
             writer.flush()

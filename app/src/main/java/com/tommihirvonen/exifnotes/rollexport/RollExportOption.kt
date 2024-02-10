@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2023  Tommi Hirvonen
+ * Copyright (C) 2024  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,17 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.utilities
+package com.tommihirvonen.exifnotes.rollexport
 
-import com.tommihirvonen.exifnotes.entities.Frame
-import com.tommihirvonen.exifnotes.entities.Roll
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+enum class RollExportOption {
+    CSV, EXIFTOOL, JSON;
 
-class JsonBuilder(private val roll: Roll, private val frames: List<Frame>) {
-    fun create(): String {
-        val rollCopy = roll.copy(frames = frames)
-        val format = Json { prettyPrint = true }
-        return format.encodeToString(rollCopy)
+    override fun toString(): String = when (this) {
+        CSV -> "csv"
+        EXIFTOOL -> "ExifTool"
+        JSON -> "JSON"
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2024  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.utilities
+package com.tommihirvonen.exifnotes.rollexport
 
 import android.content.Context
 import android.content.Intent
@@ -24,22 +24,17 @@ import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.entities.Roll
-import com.tommihirvonen.exifnotes.entities.RollExportOption
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 
-/**
- * Creates an Intent to share exiftool commands and a csv
- * for the frames of the roll in question.
- */
-class RollShareIntentBuilder(
-    private val context: Context,
-    database: Database,
-    roll: Roll,
-    private val options: List<RollExportOption>) : RollExport(context, database, roll) {
+@Singleton
+class RollShareIntentBuilder @Inject constructor(
+    @ApplicationContext private val context: Context, private val builder: RollExportBuilder) {
 
-    fun create(): Intent? {
+    fun create(roll: Roll, options: List<RollExportOption>): Intent? {
 
         if (options.isEmpty()) {
             return null
@@ -51,11 +46,11 @@ class RollShareIntentBuilder(
         //Get the external storage path (not the same as SD card)
         val externalStorageDir = context.getExternalFilesDir(null)
 
+        val exports = builder.create(roll, options)
         val files: List<File>
         try {
-            files = options.map { option ->
-                val filename = fileNameMapping(option)
-                val content = contentMapping(option)
+            files = exports.map { export ->
+                val (_, filename, content) = export
                 val file = File(externalStorageDir, filename)
                 file.writeText(content)
                 file

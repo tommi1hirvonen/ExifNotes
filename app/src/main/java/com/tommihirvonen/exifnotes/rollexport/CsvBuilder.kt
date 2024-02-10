@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2024  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.utilities
+package com.tommihirvonen.exifnotes.rollexport
 
 import android.content.Context
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.entities.Frame
 import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.utilities.readableCoordinates
+import com.tommihirvonen.exifnotes.utilities.sortableDateTime
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.apache.commons.text.StringEscapeUtils
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class CsvBuilder(private val context: Context, private val roll: Roll, private val frameList: List<Frame>) {
-    fun create(): String {
+@Singleton
+class CsvBuilder @Inject constructor(@ApplicationContext private val context: Context) {
+    fun create(roll: Roll, frames: List<Frame>): String {
         val camera = roll.camera
         val filmStock = roll.filmStock
         val separator = ","
@@ -67,7 +73,7 @@ class CsvBuilder(private val context: Context, private val roll: Roll, private v
             .append("Flash").append(separator)
             .append("Light source")
             .append("\n")
-        for (frame in frameList) {
+        for (frame in frames) {
             stringBuilder.append(frame.count.toString()).append(separator)
                 .append(frame.date.sortableDateTime).append(separator)
                 .escape(frame.lens?.name ?: "").append(separator)
