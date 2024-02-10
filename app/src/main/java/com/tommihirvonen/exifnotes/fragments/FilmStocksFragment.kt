@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilmStockAdapter
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.FragmentFilmsBinding
 import com.tommihirvonen.exifnotes.entities.FilmProcess
 import com.tommihirvonen.exifnotes.entities.FilmStock
@@ -39,13 +40,18 @@ import com.tommihirvonen.exifnotes.entities.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.entities.FilmStockSortMode
 import com.tommihirvonen.exifnotes.entities.FilmType
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.utilities.observeThenClearNavigationResult
 import com.tommihirvonen.exifnotes.utilities.setIconsVisible
 import com.tommihirvonen.exifnotes.viewmodels.FilmStockFilterSet
 import com.tommihirvonen.exifnotes.viewmodels.FilmStocksViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class FilmStocksFragment : Fragment(), MenuProvider {
+
+    @Inject
+    lateinit var database: Database
 
     private val model by viewModels<FilmStocksViewModel>()
 

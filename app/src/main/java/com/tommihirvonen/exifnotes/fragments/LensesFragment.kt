@@ -33,7 +33,7 @@ import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.LensAdapter
-import com.tommihirvonen.exifnotes.data.database
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.FragmentLensesBinding
 import com.tommihirvonen.exifnotes.entities.Camera
 import com.tommihirvonen.exifnotes.entities.Filter
@@ -41,15 +41,23 @@ import com.tommihirvonen.exifnotes.entities.Lens
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Fragment to display all lenses from the database along with details
  */
+@AndroidEntryPoint
 class LensesFragment : Fragment() {
+
+    @Inject
+    lateinit var database: Database
 
     // Share the ViewModel together with FiltersFragment and CamerasFragment
     // through the same navigation subgraph.
-    private val model by navGraphViewModels<GearViewModel>(R.id.gear_navigation)
+    private val model by navGraphViewModels<GearViewModel>(R.id.gear_navigation) {
+        defaultViewModelProviderFactory
+    }
 
     private var cameras: List<Camera> = emptyList()
     private var lenses: List<Lens> = emptyList()

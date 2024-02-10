@@ -25,18 +25,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
-import com.tommihirvonen.exifnotes.data.database
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class RollsViewModel(private val application: Application) : AndroidViewModel(application) {
-    private val database = application.database
+@HiltViewModel
+class RollsViewModel @Inject constructor(
+    application: Application, private val database: Database) : AndroidViewModel(application) {
+
+    private val context get() = getApplication<Application>()
 
     private val sharedPreferences = PreferenceManager
-        .getDefaultSharedPreferences(application.baseContext)
+        .getDefaultSharedPreferences(context)
 
     val cameras: LiveData<List<Camera>> get() = mCameras
     val rolls: LiveData<State<List<Roll>>> get() = mRolls
@@ -56,7 +61,7 @@ class RollsViewModel(private val application: Application) : AndroidViewModel(ap
             RollFilterMode.ALL -> R.string.AllRolls
             null -> R.string.ActiveRolls
         }
-        val subtitle = application.applicationContext.resources.getString(subtitleResId)
+        val subtitle = context.resources.getString(subtitleResId)
         MutableLiveData<String>(subtitle)
     }
 
@@ -106,7 +111,7 @@ class RollsViewModel(private val application: Application) : AndroidViewModel(ap
             RollFilterMode.ARCHIVED -> R.string.ArchivedRolls
             RollFilterMode.ALL -> R.string.AllRolls
         }
-        mToolbarSubtitle.value = application.applicationContext.resources.getString(subtitleResId)
+        mToolbarSubtitle.value = context.resources.getString(subtitleResId)
         viewModelScope.launch { loadRolls() }
     }
 

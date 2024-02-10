@@ -41,7 +41,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.data.database
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsMapBinding
 import com.tommihirvonen.exifnotes.entities.Frame
 import com.tommihirvonen.exifnotes.entities.Roll
@@ -51,12 +51,18 @@ import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollData
 import com.tommihirvonen.exifnotes.viewmodels.RollsMapViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollsMapViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlin.math.roundToInt
 
 /**
  * Activity to display all the frames from a list of rolls on a map.
  */
+@AndroidEntryPoint
 class RollsMapFragment : Fragment(), OnMapReadyCallback {
+
+    @Inject
+    lateinit var database: Database
 
     private val filterMode by lazy {
         val activity = requireActivity()
@@ -66,7 +72,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private val model by viewModels<RollsMapViewModel> {
-        RollsMapViewModelFactory(requireActivity().application, filterMode)
+        RollsMapViewModelFactory(requireActivity().application, database, filterMode)
     }
 
     private var rollSelections = emptyList<RollData>()

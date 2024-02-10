@@ -26,23 +26,21 @@ import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
 import android.widget.Toast
 import androidx.core.database.getLongOrNull
-import androidx.fragment.app.Fragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.utilities.decimalString
 import com.tommihirvonen.exifnotes.utilities.latLngOrNull
 import com.tommihirvonen.exifnotes.utilities.localDateTimeOrNull
 import com.tommihirvonen.exifnotes.utilities.sortableDateTime
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
 import java.time.LocalDateTime
-
-val Context.database: Database get() = Database.getInstance(applicationContext)
-
-val Fragment.database: Database get() = Database.getInstance(requireContext().applicationContext)
+import javax.inject.Inject
+import javax.inject.Singleton
 
 fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
         generateSequence { if (moveToNext()) this else null }.map(transform).toList()
@@ -90,9 +88,9 @@ fun Cursor.getStringOrNull(columnName: String): String? = getString(getColumnInd
  * the user stores in the app. This class provides all necessary CRUD operations as well as
  * export and import functionality.
  */
-class Database private constructor(private val context: Context)
+@Singleton
+class Database @Inject constructor(@ApplicationContext private val context: Context)
     : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-
 
     // ******************** CRUD operations for the frames table ********************
     /**
@@ -1310,29 +1308,6 @@ class Database private constructor(private val context: Context)
     }
 
     companion object {
-        /**
-         * Store reference to the singleton instance.
-         */
-        private var instance: Database? = null
-
-        /**
-         * Singleton method to get reference to the database instance
-         *
-         * @param context current context
-         * @return reference to the database singleton instance
-         */
-        @Synchronized
-        internal fun getInstance(context: Context): Database {
-            // Use the application context, which will ensure that you
-            // don't accidentally leak an Activity's context.
-            // See this article for more information: http://bit.ly/6LRzfx
-            if (instance == null) {
-                instance = Database(context.applicationContext)
-            }
-            // Safe to assert not null because instance is private and getInstance() is synchronized.
-            return instance!!
-        }
-
         /**
          * Returns a File object referencing the .db database file used to store this database.
          *

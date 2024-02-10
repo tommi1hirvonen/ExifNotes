@@ -18,21 +18,22 @@
 
 package com.tommihirvonen.exifnotes.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.entities.Camera
 import com.tommihirvonen.exifnotes.entities.Filter
 import com.tommihirvonen.exifnotes.entities.Lens
-import com.tommihirvonen.exifnotes.data.database
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class GearViewModel(application: Application) : AndroidViewModel(application) {
-    private val database = application.database
+@HiltViewModel
+class GearViewModel @Inject constructor(private val database: Database) : ViewModel() {
 
     val cameras: LiveData<State<List<Camera>>> get() = mCameras
     val lenses: LiveData<List<Lens>> get() = mLenses

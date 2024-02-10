@@ -48,6 +48,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.DialogSingleEditTextBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFrameEditBinding
 import com.tommihirvonen.exifnotes.entities.*
@@ -72,6 +73,9 @@ import kotlin.math.roundToInt
 class FrameEditFragment : Fragment() {
 
     @Inject
+    lateinit var database: Database
+
+    @Inject
     lateinit var geocoderRequestBuilder: GeocoderRequestBuilder
 
     val arguments by navArgs<FrameEditFragmentArgs>()
@@ -79,7 +83,7 @@ class FrameEditFragment : Fragment() {
     private lateinit var binding: FragmentFrameEditBinding
 
     private val model by viewModels<FrameEditViewModel> {
-        FrameEditViewModelFactory(requireActivity().application, geocoderRequestBuilder,
+        FrameEditViewModelFactory(requireActivity().application, database, geocoderRequestBuilder,
             arguments.frame.copy())
     }
 

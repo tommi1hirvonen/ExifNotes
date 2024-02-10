@@ -18,11 +18,11 @@
 
 package com.tommihirvonen.exifnotes.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.entities.FilmProcess
 import com.tommihirvonen.exifnotes.entities.FilmStock
 import com.tommihirvonen.exifnotes.entities.FilmStockFilterMode
@@ -30,13 +30,15 @@ import com.tommihirvonen.exifnotes.entities.FilmStockSortMode
 import com.tommihirvonen.exifnotes.entities.FilmType
 import com.tommihirvonen.exifnotes.entities.sorted
 import com.tommihirvonen.exifnotes.utilities.applyPredicates
-import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.utilities.isEmptyOrContains
 import com.tommihirvonen.exifnotes.utilities.mapDistinct
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FilmStocksViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class FilmStocksViewModel @Inject constructor(private val database: Database) : ViewModel() {
 
     val filmStocks get() = filmStocksData as LiveData<List<FilmStock>>
     val sortMode get() = _sortMode as LiveData<FilmStockSortMode>
@@ -46,8 +48,6 @@ class FilmStocksViewModel(application: Application) : AndroidViewModel(applicati
         field = value
         applyFilters()
     }
-
-    private val database = application.database
 
     private val filmStocksData: MutableLiveData<List<FilmStock>> by lazy {
         MutableLiveData<List<FilmStock>>().apply {

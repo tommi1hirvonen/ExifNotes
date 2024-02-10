@@ -20,15 +20,17 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import androidx.documentfile.provider.DocumentFile
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.entities.Roll
 import com.tommihirvonen.exifnotes.entities.RollExportOption
 import java.io.OutputStreamWriter
 
 class RollExportHelper(
     private val context: Context,
+    database: Database,
     roll: Roll,
     private val targetDirectory: DocumentFile,
-    private val options: List<RollExportOption>) : RollExport(context, roll) {
+    private val options: List<RollExportOption>) : RollExport(context, database, roll) {
 
     private val fileMapping = { option: RollExportOption ->
         when (option) {

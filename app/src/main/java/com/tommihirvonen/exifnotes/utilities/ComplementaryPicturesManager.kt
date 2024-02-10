@@ -29,7 +29,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.exifinterface.media.ExifInterface
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.data.database
+import com.tommihirvonen.exifnotes.data.Database
 import java.io.*
 import java.util.*
 
@@ -321,11 +321,11 @@ object ComplementaryPicturesManager {
     /**
      * Deletes all complementary pictures which are not linked to any frame in the database.
      *
-     * @param context activity's context
+     * @param database app database reference
      */
-    fun deleteUnusedPictures(context: Context) {
+    fun deleteUnusedPictures(context: Context, database: Database) {
         // List of all filenames that are being used in the database
-        val complementaryPictureFilenames = context.database.complementaryPictureFilenames
+        val complementaryPictureFilenames = database.complementaryPictureFilenames
         // The application private external storage directory, where complementary pictures are stored
         val picturesDirectory = getComplementaryPicturesDirectory(context)
         // Create a FileNameFilter using the filenames

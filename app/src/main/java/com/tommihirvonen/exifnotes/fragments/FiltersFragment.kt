@@ -32,21 +32,29 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilterAdapter
-import com.tommihirvonen.exifnotes.data.database
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.FragmentFiltersBinding
 import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Fragment to display all filters from the database along with details
  */
+@AndroidEntryPoint
 class FiltersFragment : Fragment() {
+
+    @Inject
+    lateinit var database: Database
 
     // Share the ViewModel together with CamerasFragment and LensesFragment
     // through the same navigation subgraph.
-    private val model by navGraphViewModels<GearViewModel>(R.id.gear_navigation)
+    private val model by navGraphViewModels<GearViewModel>(R.id.gear_navigation) {
+        defaultViewModelProviderFactory
+    }
 
     private var cameras: List<Camera> = emptyList()
     private var lenses: List<Lens> = emptyList()

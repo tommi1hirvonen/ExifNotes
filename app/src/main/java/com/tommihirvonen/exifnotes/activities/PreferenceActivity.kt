@@ -24,11 +24,13 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ActivitySettingsBinding
 import com.tommihirvonen.exifnotes.fragments.PreferenceFragment
 import com.tommihirvonen.exifnotes.utilities.*
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * PreferenceActivity contains the PreferenceFragment for editing the app's settings
  * and preferences.
  */
+@AndroidEntryPoint
 class PreferenceActivity : AppCompatActivity() {
 
     companion object {

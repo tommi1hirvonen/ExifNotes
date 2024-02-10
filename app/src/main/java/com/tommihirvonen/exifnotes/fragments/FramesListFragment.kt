@@ -50,7 +50,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter
 import com.tommihirvonen.exifnotes.adapters.FrameAdapter.FrameAdapterListener
-import com.tommihirvonen.exifnotes.data.database
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.DialogSingleDropdownBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFramesListBinding
 import com.tommihirvonen.exifnotes.entities.*
@@ -58,22 +58,28 @@ import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModelFactory
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.time.LocalDateTime
 import java.util.*
+import javax.inject.Inject
 
 /**
  * FramesFragment is the fragment which is called when the user presses on a roll
  * on the ListView in RollsFragment. It displays all the frames from that roll.
  */
+@AndroidEntryPoint
 class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
+
+    @Inject
+    lateinit var database: Database
 
     val arguments by navArgs<FramesListFragmentArgs>()
 
     private val model by navGraphViewModels<FramesViewModel>(R.id.frames_navigation) {
-        FramesViewModelFactory(requireActivity().application, arguments.roll)
+        FramesViewModelFactory(requireActivity().application, database, arguments.roll)
     }
 
     private val rollModel by activityViewModels<RollsViewModel>()
@@ -304,7 +310,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 ExportFileSelectDialogBuilder(R.string.FilesToShare) { selectedOptions ->
                     lifecycleScope.launch(Dispatchers.IO) {
                         val shareIntent =
-                            RollShareIntentBuilder(requireActivity(), roll, selectedOptions).create()
+                            RollShareIntentBuilder(requireActivity(), database, roll, selectedOptions).create()
                         shareIntent?.let { startActivity(Intent.createChooser(it, resources.getString(R.string.Share))) }
                     }
                 }.create().show()
@@ -357,7 +363,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     val directoryUri = result.data?.data ?: return@registerForActivityResult
                     val directoryDocumentFile = DocumentFile.fromTreeUri(requireContext(), directoryUri)
                         ?: return@registerForActivityResult
-                    RollExportHelper(requireActivity(), roll, directoryDocumentFile, selectedRollExportOptions).export()
+                    RollExportHelper(requireActivity(), database, roll, directoryDocumentFile, selectedRollExportOptions).export()
                     binding.root.snackbar(R.string.ExportedFilesSuccessfully, binding.bottomAppBar)
                 } catch (e: IOException) {
                     e.printStackTrace()

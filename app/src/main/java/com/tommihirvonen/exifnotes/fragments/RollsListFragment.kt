@@ -46,19 +46,26 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.RollAdapter
 import com.tommihirvonen.exifnotes.adapters.RollAdapter.RollAdapterListener
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsListBinding
 import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * RollsFragment is the fragment that is displayed first in MainActivity. It contains
  * a list of rolls the user has saved in the database.
  */
+@AndroidEntryPoint
 class RollsListFragment : Fragment(), RollAdapterListener {
+
+    @Inject
+    lateinit var database: Database
 
     private val model by activityViewModels<RollsViewModel>()
     private var rolls = emptyList<Roll>()
@@ -106,7 +113,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
 
-        rollAdapter = RollAdapter(requireActivity(), this, binding.rollsRecyclerView)
+        rollAdapter = RollAdapter(database, requireActivity(), this, binding.rollsRecyclerView)
         binding.rollsRecyclerView.adapter = rollAdapter
         rollAdapter.onItemSelectedChanged = { item, selected ->
             if (selected) model.selectedRolls.add(item)

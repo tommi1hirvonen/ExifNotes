@@ -34,6 +34,7 @@ import androidx.preference.PreferenceManager
 import com.google.android.libraries.places.api.Places
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
@@ -41,6 +42,7 @@ import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.utilities.purgeDirectory
 import com.tommihirvonen.exifnotes.utilities.snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * MainActivity is the first activity to be called when the app is launched.
@@ -49,6 +51,9 @@ import dagger.hilt.android.AndroidEntryPoint
  */
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var database: Database
 
     companion object {
         /**
@@ -60,12 +65,6 @@ class MainActivity : AppCompatActivity() {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Delete all complementary pictures, which are not linked to any frame.
-        // Do this each time the app is launched to keep the storage consumption to a minimum.
-        // If savedInstanceState is not null, then the activity is being recreated. In this case,
-        // don't delete pictures.
-        if (savedInstanceState == null) ComplementaryPicturesManager.deleteUnusedPictures(this)
-
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
         // If the app theme was set in the app's preferences, override the night mode setting.
@@ -75,6 +74,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         super.onCreate(savedInstanceState)
+
+        // Delete all complementary pictures, which are not linked to any frame.
+        // Do this each time the app is launched to keep the storage consumption to a minimum.
+        // If savedInstanceState is not null, then the activity is being recreated. In this case,
+        // don't delete pictures.
+        if (savedInstanceState == null) {
+            ComplementaryPicturesManager.deleteUnusedPictures(this, database)
+        }
 
         setContentView(binding.root)
 

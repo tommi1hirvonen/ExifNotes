@@ -37,17 +37,22 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
 import com.tommihirvonen.exifnotes.data.Database
-import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.preferences.*
 import com.tommihirvonen.exifnotes.utilities.*
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.*
 import java.time.LocalDateTime
+import javax.inject.Inject
 
 /**
  * PreferenceFragment is shown in PreferenceActivity.
  * It is responsible for displaying all the preference options.
  */
+@AndroidEntryPoint
 class PreferenceFragment : PreferenceFragmentCompat() {
+
+    @Inject
+    lateinit var database: Database
 
     private inner class ExportPictures : CreateDocument("application/zip") {
         override fun createIntent(context: Context, input: String): Intent {
@@ -239,7 +244,6 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
             //If the length of filePath is 0, then the user canceled the import.
             if (filePath.isNotEmpty() && extension == "db") {
-                val database = database
                 val importSuccess: Boolean = try {
                     database.importDatabase(requireActivity(), filePath)
                 } catch (e: IOException) {

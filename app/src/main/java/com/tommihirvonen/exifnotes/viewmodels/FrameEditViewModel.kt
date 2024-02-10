@@ -28,15 +28,16 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.geocoder.GeocoderResponse
-import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.utilities.readableCoordinates
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class FrameEditViewModel(application: Application,
+                         private val database: Database,
                          private val geocoderRequestBuilder: GeocoderRequestBuilder,
                          val frame: Frame)
     : AndroidViewModel(application) {
@@ -48,7 +49,6 @@ class FrameEditViewModel(application: Application,
     }
 
     private val context get() = getApplication<Application>()
-    private val database get() = context.database
 
     val lens get() = frame.roll.camera?.lens ?: frame.lens
 
@@ -323,13 +323,14 @@ class FrameEditViewModel(application: Application,
 }
 
 class FrameEditViewModelFactory(val application: Application,
+                                private val database: Database,
                                 private val geocoderRequestBuilder: GeocoderRequestBuilder,
                                 val frame: Frame)
     : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(FrameEditViewModel::class.java)) {
-            return FrameEditViewModel(application, geocoderRequestBuilder, frame) as T
+            return FrameEditViewModel(application, database, geocoderRequestBuilder, frame) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

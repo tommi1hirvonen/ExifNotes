@@ -24,6 +24,7 @@ import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.entities.Roll
 import com.tommihirvonen.exifnotes.entities.RollExportOption
 import java.io.File
@@ -34,8 +35,9 @@ import java.io.File
  */
 class RollShareIntentBuilder(
     private val context: Context,
+    database: Database,
     roll: Roll,
-    private val options: List<RollExportOption>) : RollExport(context, roll) {
+    private val options: List<RollExportOption>) : RollExport(context, database, roll) {
 
     fun create(): Intent? {
 

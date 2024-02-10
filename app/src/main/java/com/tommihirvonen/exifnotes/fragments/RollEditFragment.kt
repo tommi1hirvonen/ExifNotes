@@ -34,6 +34,7 @@ import androidx.transition.ChangeTransform
 import androidx.transition.Fade
 import androidx.transition.TransitionSet
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.FragmentRollEditBinding
 import com.tommihirvonen.exifnotes.entities.Camera
 import com.tommihirvonen.exifnotes.entities.FilmStock
@@ -42,19 +43,24 @@ import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModelFactory
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Dialog to edit Roll's information
  */
+@AndroidEntryPoint
 class RollEditFragment : Fragment() {
 
+    @Inject
+    lateinit var database: Database
     val arguments by navArgs<RollEditFragmentArgs>()
     private val rollsModel by activityViewModels<RollsViewModel>()
     private val roll by lazy {
         arguments.roll?: Roll()
     }
     private val model by viewModels<RollEditViewModel> {
-        RollEditViewModelFactory(requireActivity().application, roll.copy())
+        RollEditViewModelFactory(requireActivity().application, database, roll.copy())
     }
 
     private lateinit var binding: FragmentRollEditBinding

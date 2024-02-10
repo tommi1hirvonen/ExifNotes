@@ -19,16 +19,17 @@
 package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
-import com.tommihirvonen.exifnotes.data.database
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.entities.Roll
 import com.tommihirvonen.exifnotes.entities.RollExportOption
 
 abstract class RollExport(private val context: Context,
+                          private val database: Database,
                           private val roll: Roll
 ) {
     private val rollName = roll.name?.illegalCharsRemoved()
 
-    private val frames = lazy { context.database.getFrames(roll) }
+    private val frames = lazy { database.getFrames(roll) }
 
     protected val fileNameMapping = { option: RollExportOption ->
         when (option) {

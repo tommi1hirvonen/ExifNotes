@@ -23,9 +23,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.ItemRollConstraintBinding
 import com.tommihirvonen.exifnotes.entities.Roll
-import com.tommihirvonen.exifnotes.data.database
 
 /**
  * RollAdapter acts as an adapter between a List of rolls and a RecyclerView.
@@ -35,6 +35,7 @@ import com.tommihirvonen.exifnotes.data.database
  * @property listener Reference to the implementing class's OnItemClickListener.
  */
 class RollAdapter(
+    private val database: Database,
     private val context: Context,
     private val listener: RollAdapterListener,
     recyclerView: RecyclerView)
@@ -88,7 +89,7 @@ class RollAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val roll = this.items[position]
-        val numberOfFrames = context.database.getNumberOfFrames(roll)
+        val numberOfFrames = database.getNumberOfFrames(roll)
         holder.binding.roll = roll
         holder.binding.frameCount = numberOfFrames
         holder.binding.executePendingBindings()

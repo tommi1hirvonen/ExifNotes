@@ -21,18 +21,18 @@ package com.tommihirvonen.exifnotes.viewmodels
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
+import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.entities.Frame
 import com.tommihirvonen.exifnotes.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.entities.Roll
 import com.tommihirvonen.exifnotes.entities.sorted
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
-import com.tommihirvonen.exifnotes.data.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FramesViewModel(application: Application, roll: Roll) : AndroidViewModel(application) {
-    private val database = application.database
+class FramesViewModel(application: Application, private val database: Database, roll: Roll)
+    : AndroidViewModel(application) {
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.baseContext)
 
@@ -94,12 +94,15 @@ class FramesViewModel(application: Application, roll: Roll) : AndroidViewModel(a
     }
 }
 
-class FramesViewModelFactory(private val application: Application, private val roll: Roll)
+class FramesViewModelFactory(
+    private val application: Application,
+    private val database: Database,
+    private val roll: Roll)
     : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         if (modelClass.isAssignableFrom(FramesViewModel::class.java)) {
-            return FramesViewModel(application, roll) as T
+            return FramesViewModel(application, database, roll) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
