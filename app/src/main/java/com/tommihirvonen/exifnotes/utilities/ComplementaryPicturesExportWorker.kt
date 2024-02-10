@@ -36,6 +36,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.data.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*

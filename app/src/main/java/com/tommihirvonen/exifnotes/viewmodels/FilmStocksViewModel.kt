@@ -30,7 +30,7 @@ import com.tommihirvonen.exifnotes.datastructures.FilmStockSortMode
 import com.tommihirvonen.exifnotes.datastructures.FilmType
 import com.tommihirvonen.exifnotes.datastructures.sorted
 import com.tommihirvonen.exifnotes.utilities.applyPredicates
-import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.utilities.isEmptyOrContains
 import com.tommihirvonen.exifnotes.utilities.mapDistinct
 import kotlinx.coroutines.Dispatchers

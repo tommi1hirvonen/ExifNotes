@@ -29,6 +29,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.exifinterface.media.ExifInterface
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.data.database
 import java.io.*
 import java.util.*
 

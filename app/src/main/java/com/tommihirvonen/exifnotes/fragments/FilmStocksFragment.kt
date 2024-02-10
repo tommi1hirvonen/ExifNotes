@@ -39,7 +39,7 @@ import com.tommihirvonen.exifnotes.datastructures.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.datastructures.FilmStockSortMode
 import com.tommihirvonen.exifnotes.datastructures.FilmType
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
-import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.utilities.observeThenClearNavigationResult
 import com.tommihirvonen.exifnotes.utilities.setIconsVisible
 import com.tommihirvonen.exifnotes.viewmodels.FilmStockFilterSet

@@ -33,6 +33,7 @@ import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.LensAdapter
+import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.databinding.FragmentLensesBinding
 import com.tommihirvonen.exifnotes.datastructures.Camera
 import com.tommihirvonen.exifnotes.datastructures.Filter

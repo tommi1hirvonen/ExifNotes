@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
+import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.datastructures.RollExportOption
 

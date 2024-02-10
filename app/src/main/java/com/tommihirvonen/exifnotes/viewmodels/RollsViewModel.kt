@@ -27,7 +27,7 @@ import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
-import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.data.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

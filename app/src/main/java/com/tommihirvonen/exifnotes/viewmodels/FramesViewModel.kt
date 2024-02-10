@@ -26,7 +26,7 @@ import com.tommihirvonen.exifnotes.datastructures.FrameSortMode
 import com.tommihirvonen.exifnotes.datastructures.Roll
 import com.tommihirvonen.exifnotes.datastructures.sorted
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
-import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.data.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

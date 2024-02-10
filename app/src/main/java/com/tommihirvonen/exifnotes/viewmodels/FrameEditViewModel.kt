@@ -31,7 +31,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
 import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.geocoder.GeocoderResponse
-import com.tommihirvonen.exifnotes.utilities.database
+import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.utilities.readableCoordinates
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime

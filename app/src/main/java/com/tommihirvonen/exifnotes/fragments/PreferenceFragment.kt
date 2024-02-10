@@ -36,6 +36,8 @@ import androidx.work.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
+import com.tommihirvonen.exifnotes.data.Database
+import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.preferences.*
 import com.tommihirvonen.exifnotes.utilities.*
 import java.io.*

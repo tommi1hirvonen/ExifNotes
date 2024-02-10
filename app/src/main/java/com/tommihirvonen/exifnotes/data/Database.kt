@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2024  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.utilities
+package com.tommihirvonen.exifnotes.data
 
 import android.content.ContentValues
 import android.content.Context
@@ -29,6 +29,10 @@ import androidx.core.database.getLongOrNull
 import androidx.fragment.app.Fragment
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.datastructures.*
+import com.tommihirvonen.exifnotes.utilities.decimalString
+import com.tommihirvonen.exifnotes.utilities.latLngOrNull
+import com.tommihirvonen.exifnotes.utilities.localDateTimeOrNull
+import com.tommihirvonen.exifnotes.utilities.sortableDateTime
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -115,10 +119,12 @@ class Database private constructor(private val context: Context)
      * @param roll Roll object whose frames should be fetched
      * @return an array of Frames
      */
-    fun getFrames(roll: Roll): List<Frame> = select(TABLE_FRAMES,
+    fun getFrames(roll: Roll): List<Frame> = select(
+        TABLE_FRAMES,
         selection = "$KEY_ROLL_ID=?",
         selectionArgs = listOf(roll.id.toString()),
-        orderBy = KEY_COUNT) { row ->
+        orderBy = KEY_COUNT
+    ) { row ->
         Frame(
             roll = roll,
             id = row.getLong(KEY_FRAME_ID),
@@ -172,7 +178,8 @@ class Database private constructor(private val context: Context)
      * @return List of all complementary picture filenames
      */
     val complementaryPictureFilenames: List<String> get() {
-        return select(TABLE_FRAMES,
+        return select(
+            TABLE_FRAMES,
             columns = listOf(KEY_PICTURE_FILENAME),
             selection = "$KEY_PICTURE_FILENAME IS NOT NULL") { row ->
             row.getString(KEY_PICTURE_FILENAME)
@@ -196,19 +203,22 @@ class Database private constructor(private val context: Context)
      * @return a Lens corresponding to the id
      */
     private fun getLens(lensId: Long): Lens? {
-        val filters = select(TABLE_LINK_LENS_FILTER,
+        val filters = select(
+            TABLE_LINK_LENS_FILTER,
             columns = listOf(KEY_FILTER_ID),
             selection = "$KEY_LENS_ID=?",
             selectionArgs = listOf(lensId.toString())) { row ->
             row.getLong(KEY_FILTER_ID)
         }.toHashSet()
-        val cameras = select(TABLE_LINK_CAMERA_LENS,
+        val cameras = select(
+            TABLE_LINK_CAMERA_LENS,
             columns = listOf(KEY_CAMERA_ID),
             selection = "$KEY_LENS_ID=?",
             selectionArgs = listOf(lensId.toString())) { row ->
             row.getLong(KEY_CAMERA_ID)
         }.toHashSet()
-        return selectFirstOrNull(TABLE_LENSES,
+        return selectFirstOrNull(
+            TABLE_LENSES,
             selection = "$KEY_LENS_ID=?",
             selectionArgs = listOf(lensId.toString())) { row ->
             lensMapper(row).apply {
@@ -268,7 +278,8 @@ class Database private constructor(private val context: Context)
      * @param lens Lens to be checked
      * @return true if the lens is in use, false if not
      */
-    fun isLensInUse(lens: Lens) = selectFirstOrNull(TABLE_FRAMES,
+    fun isLensInUse(lens: Lens) = selectFirstOrNull(
+        TABLE_FRAMES,
         selection = "$KEY_LENS_ID=?",
         selectionArgs = listOf(lens.id.toString())) { true } ?: false
 
@@ -308,7 +319,9 @@ class Database private constructor(private val context: Context)
             minShutter = cursor.getStringOrNull(KEY_CAMERA_MIN_SHUTTER),
             maxShutter = cursor.getStringOrNull(KEY_CAMERA_MAX_SHUTTER),
             shutterIncrements = Increment.from(cursor.getInt(KEY_CAMERA_SHUTTER_INCREMENTS)),
-            exposureCompIncrements = PartialIncrement.from(cursor.getInt(KEY_CAMERA_EXPOSURE_COMP_INCREMENTS)),
+            exposureCompIncrements = PartialIncrement.from(cursor.getInt(
+                KEY_CAMERA_EXPOSURE_COMP_INCREMENTS
+            )),
             format = Format.from(cursor.getInt(KEY_CAMERA_FORMAT)),
             lens = cursor.getLongOrNull(KEY_LENS_ID)?.let(::getLens)
         )
@@ -320,13 +333,15 @@ class Database private constructor(private val context: Context)
      * @return the Camera corresponding to the given id
      */
     private fun getCamera(cameraId: Long): Camera? {
-        val lenses = select(TABLE_LINK_CAMERA_LENS,
+        val lenses = select(
+            TABLE_LINK_CAMERA_LENS,
             columns = listOf(KEY_LENS_ID),
             selection = "$KEY_CAMERA_ID=?",
             selectionArgs = listOf(cameraId.toString())) { row ->
             row.getLong(KEY_LENS_ID)
         }.toHashSet()
-        return selectFirstOrNull(TABLE_CAMERAS,
+        return selectFirstOrNull(
+            TABLE_CAMERAS,
             selection = "$KEY_CAMERA_ID=?",
             selectionArgs = listOf(cameraId.toString())) { row ->
                 cameraMapper(row).apply { lensIds = lenses }
@@ -337,7 +352,8 @@ class Database private constructor(private val context: Context)
         val lenses = select(TABLE_LINK_CAMERA_LENS) { row ->
             row.getLong(KEY_CAMERA_ID) to row.getLong(KEY_LENS_ID)
         }.groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
-        return select(TABLE_CAMERAS,
+        return select(
+            TABLE_CAMERAS,
             orderBy = "$KEY_CAMERA_MAKE collate nocase,$KEY_CAMERA_MODEL collate nocase") { row ->
             cameraMapper(row).apply {
                 lensIds = lenses[id]?.toHashSet() ?: HashSet()
@@ -360,7 +376,8 @@ class Database private constructor(private val context: Context)
      * @param camera the camera to be checked
      * @return true if the camera is in use, false if not
      */
-    fun isCameraBeingUsed(camera: Camera) = selectFirstOrNull(TABLE_ROLLS,
+    fun isCameraBeingUsed(camera: Camera) = selectFirstOrNull(
+        TABLE_ROLLS,
         selection = "$KEY_CAMERA_ID=?",
         selectionArgs = listOf(camera.id.toString())) { true } ?: false
 
@@ -370,7 +387,8 @@ class Database private constructor(private val context: Context)
      */
     fun updateCamera(camera: Camera): Int {
         // Check if the camera previously had a fixed lens.
-        val previousLensId = selectFirstOrNull(TABLE_CAMERAS,
+        val previousLensId = selectFirstOrNull(
+            TABLE_CAMERAS,
             columns = listOf(KEY_LENS_ID),
             selection = "$KEY_CAMERA_ID=?",
             selectionArgs = listOf(camera.id.toString())) { row ->
@@ -433,7 +451,8 @@ class Database private constructor(private val context: Context)
      * @param lens the lens that can be mounted with the camera
      */
     fun deleteCameraLensLink(camera: Camera, lens: Lens) =
-            writableDatabase.delete(TABLE_LINK_CAMERA_LENS,
+            writableDatabase.delete(
+                TABLE_LINK_CAMERA_LENS,
                     "$KEY_CAMERA_ID = ? AND $KEY_LENS_ID = ?", arrayOf(camera.id.toString(), lens.id.toString()))
 
     /**
@@ -442,7 +461,8 @@ class Database private constructor(private val context: Context)
      * @return a List of all linked lenses
      */
     fun getLinkedLenses(camera: Camera): List<Lens> {
-        val lensIds = select(TABLE_LINK_CAMERA_LENS,
+        val lensIds = select(
+            TABLE_LINK_CAMERA_LENS,
             columns = listOf(KEY_LENS_ID),
             selection = "$KEY_CAMERA_ID = ?",
             selectionArgs = listOf(camera.id.toString())) { row ->
@@ -475,7 +495,8 @@ class Database private constructor(private val context: Context)
             RollFilterMode.ALL -> null
             else -> "$KEY_ROLL_ARCHIVED=0"
         }
-        return select(TABLE_ROLLS,
+        return select(
+            TABLE_ROLLS,
             selection = selection,
             orderBy = "$KEY_ROLL_DATE DESC") { row ->
             Roll(
@@ -497,7 +518,8 @@ class Database private constructor(private val context: Context)
 
     val rollCounts: Pair<Int, Int> get() {
         val (active, archived) = arrayOf("$KEY_ROLL_ARCHIVED <= 0", "$KEY_ROLL_ARCHIVED > 0").map {
-            selectFirstOrNull(TABLE_ROLLS,
+            selectFirstOrNull(
+                TABLE_ROLLS,
                 columns = listOf("COUNT(*)"),
                 selection = it) { row ->
                 row.getInt(0)
@@ -527,7 +549,8 @@ class Database private constructor(private val context: Context)
      * @param roll the roll whose frame count we want
      * @return an integer of the the number of frames on that roll
      */
-    fun getNumberOfFrames(roll: Roll): Int = selectFirstOrNull(TABLE_FRAMES,
+    fun getNumberOfFrames(roll: Roll): Int = selectFirstOrNull(
+        TABLE_FRAMES,
         columns = listOf("COUNT(*)"),
         selection = "$KEY_ROLL_ID=?",
         selectionArgs = listOf(roll.id.toString())) { row -> row.getInt(0) } ?: 0
@@ -560,7 +583,8 @@ class Database private constructor(private val context: Context)
         val lenses = select(TABLE_LINK_LENS_FILTER) { row ->
             row.getLong(KEY_FILTER_ID) to row.getLong(KEY_LENS_ID)
         }.groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
-        return select(TABLE_FILTERS,
+        return select(
+            TABLE_FILTERS,
             orderBy = "$KEY_FILTER_MAKE collate nocase,$KEY_FILTER_MODEL collate nocase") { row ->
             filterMapper(row).apply {
                 lensIds = lenses[id]?.toHashSet() ?: HashSet()
@@ -580,7 +604,8 @@ class Database private constructor(private val context: Context)
      * @param filter the filter to be checked
      * @return true if the filter is in use, false if not
      */
-    fun isFilterBeingUsed(filter: Filter) = selectFirstOrNull(TABLE_LINK_FRAME_FILTER,
+    fun isFilterBeingUsed(filter: Filter) = selectFirstOrNull(
+        TABLE_LINK_FRAME_FILTER,
         columns = listOf(KEY_FILTER_ID),
         selection = "$KEY_FILTER_ID=?",
         selectionArgs = listOf(filter.id.toString())) { true } ?: false
@@ -616,7 +641,8 @@ class Database private constructor(private val context: Context)
      * @param lens the lens that can be mounted with the filter
      */
     fun deleteLensFilterLink(filter: Filter, lens: Lens): Int =
-        writableDatabase.delete(TABLE_LINK_LENS_FILTER,
+        writableDatabase.delete(
+            TABLE_LINK_LENS_FILTER,
             "$KEY_FILTER_ID = ? AND $KEY_LENS_ID = ?",
             arrayOf(filter.id.toString(), lens.id.toString()))
 
@@ -625,7 +651,8 @@ class Database private constructor(private val context: Context)
      * @param lens the lens whose filters we want to get
      * @return a List of all linked filters
      */
-    fun getLinkedFilters(lens: Lens) = select(TABLE_FILTERS,
+    fun getLinkedFilters(lens: Lens) = select(
+        TABLE_FILTERS,
             selection = "$KEY_FILTER_ID IN (SELECT $KEY_FILTER_ID FROM $TABLE_LINK_LENS_FILTER WHERE $KEY_LENS_ID = ?)",
             selectionArgs = listOf(lens.id.toString()),
             transform = filterMapper)
@@ -663,7 +690,8 @@ class Database private constructor(private val context: Context)
      * @param frame the Frame object whose linked filters we want to get
      * @return List object containing all Filter objects linked to the specified Frame object
      */
-    private fun getLinkedFilters(frame: Frame) = select(TABLE_FILTERS,
+    private fun getLinkedFilters(frame: Frame) = select(
+        TABLE_FILTERS,
         selection = "$KEY_FILTER_ID IN (SELECT $KEY_FILTER_ID FROM $TABLE_LINK_FRAME_FILTER WHERE $KEY_FRAME_ID = ?)",
         selectionArgs = listOf(frame.id.toString()),
         transform = filterMapper)
@@ -688,16 +716,19 @@ class Database private constructor(private val context: Context)
         )
     }
 
-    private fun getFilmStock(filmStockId: Long) = selectFirstOrNull(TABLE_FILM_STOCKS,
+    private fun getFilmStock(filmStockId: Long) = selectFirstOrNull(
+        TABLE_FILM_STOCKS,
         selection = "$KEY_FILM_STOCK_ID=?",
         selectionArgs = listOf(filmStockId.toString()),
         transform = filmStockMapper)
 
-    val filmStocks: List<FilmStock> get() = select(TABLE_FILM_STOCKS,
+    val filmStocks: List<FilmStock> get() = select(
+        TABLE_FILM_STOCKS,
         orderBy = "$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase",
         transform = filmStockMapper)
 
-    fun isFilmStockBeingUsed(filmStock: FilmStock) = selectFirstOrNull(TABLE_ROLLS,
+    fun isFilmStockBeingUsed(filmStock: FilmStock) = selectFirstOrNull(
+        TABLE_ROLLS,
         selection = "$KEY_FILM_STOCK_ID=?",
         selectionArgs = listOf(filmStock.id.toString())) { true } ?: false
 
@@ -991,7 +1022,8 @@ class Database private constructor(private val context: Context)
             // Access the copied database so SQLiteHelper will cache it and mark it as created.
             val success = booleanArrayOf(true)
             try {
-                SQLiteDatabase.openDatabase(getDatabaseFile(context).absolutePath, null,
+                SQLiteDatabase.openDatabase(
+                    getDatabaseFile(context).absolutePath, null,
                         SQLiteDatabase.OPEN_READWRITE
                 ) {
                     // If the database was corrupt, try to replace with the old backup.
@@ -1042,7 +1074,8 @@ class Database private constructor(private val context: Context)
         val cascade = "CASCADE"
         val setNull = "SET NULL"
         //Run integrity checks to see if the current database is whole
-        return checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_ID, integer, 0,
+        return checkColumnProperties(
+            TABLE_CAMERAS, KEY_CAMERA_ID, integer, 0,
                 primaryKeyInput = true, autoIncrementInput = true) &&
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAKE, text, 1) &&
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MODEL, text, 1) &&
@@ -1051,11 +1084,13 @@ class Database private constructor(private val context: Context)
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SERIAL_NO, text, 0) &&
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SHUTTER_INCREMENTS, integer, 1) &&
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, integer, 1) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_LENS_ID, integer, 0,
+                checkColumnProperties(
+                    TABLE_CAMERAS, KEY_LENS_ID, integer, 0,
                     primaryKeyInput = false, autoIncrementInput = false, foreignKeyInput = true,
                     referenceTableNameInput = TABLE_LENSES, onDeleteActionInput = setNull) &&
                 checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_FORMAT, integer, 0) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_ID, integer, 0,
+                checkColumnProperties(
+                    TABLE_LENSES, KEY_LENS_ID, integer, 0,
                         primaryKeyInput = true, autoIncrementInput = true) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_MAKE, text, 1) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_MODEL, text, 1) &&
@@ -1066,34 +1101,43 @@ class Database private constructor(private val context: Context)
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_SERIAL_NO, text, 0) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_APERTURE_INCREMENTS, integer, 1) &&
                 checkColumnProperties(TABLE_LENSES, KEY_LENS_CUSTOM_APERTURE_VALUES, text, 0) &&
-                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_ID, integer, 0,
+                checkColumnProperties(
+                    TABLE_FILTERS, KEY_FILTER_ID, integer, 0,
                         primaryKeyInput = true, autoIncrementInput = true) &&
                 checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MAKE, text, 1) &&
                 checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MODEL, text, 1) &&
-                checkColumnProperties(TABLE_LINK_CAMERA_LENS, KEY_CAMERA_ID, integer, 1,
+                checkColumnProperties(
+                    TABLE_LINK_CAMERA_LENS, KEY_CAMERA_ID, integer, 1,
                         primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
                         referenceTableNameInput = TABLE_CAMERAS, onDeleteActionInput = cascade) &&
-                checkColumnProperties(TABLE_LINK_CAMERA_LENS, KEY_LENS_ID, integer, 1,
+                checkColumnProperties(
+                    TABLE_LINK_CAMERA_LENS, KEY_LENS_ID, integer, 1,
                         primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
                         referenceTableNameInput = TABLE_LENSES, onDeleteActionInput = cascade) &&
-                checkColumnProperties(TABLE_LINK_LENS_FILTER, KEY_LENS_ID, integer, 1,
+                checkColumnProperties(
+                    TABLE_LINK_LENS_FILTER, KEY_LENS_ID, integer, 1,
                         primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
                         referenceTableNameInput = TABLE_LENSES, onDeleteActionInput = cascade) &&
-                checkColumnProperties(TABLE_LINK_LENS_FILTER, KEY_FILTER_ID, integer, 1,
+                checkColumnProperties(
+                    TABLE_LINK_LENS_FILTER, KEY_FILTER_ID, integer, 1,
                         primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
                         referenceTableNameInput = TABLE_FILTERS, onDeleteActionInput = cascade) &&
-                checkColumnProperties(TABLE_LINK_FRAME_FILTER, KEY_FRAME_ID, integer, 1,
+                checkColumnProperties(
+                    TABLE_LINK_FRAME_FILTER, KEY_FRAME_ID, integer, 1,
                         primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
                         referenceTableNameInput = TABLE_FRAMES, onDeleteActionInput = cascade) &&
-                checkColumnProperties(TABLE_LINK_FRAME_FILTER, KEY_FILTER_ID, integer, 1,
+                checkColumnProperties(
+                    TABLE_LINK_FRAME_FILTER, KEY_FILTER_ID, integer, 1,
                         primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
                         referenceTableNameInput = TABLE_FILTERS, onDeleteActionInput = cascade) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ID, integer, 0,
+                checkColumnProperties(
+                    TABLE_ROLLS, KEY_ROLL_ID, integer, 0,
                         primaryKeyInput = true, autoIncrementInput = true) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLLNAME, text, 1) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_DATE, text, 1) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_NOTE, text, 0) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_CAMERA_ID, integer, 0,
+                checkColumnProperties(
+                    TABLE_ROLLS, KEY_CAMERA_ID, integer, 0,
                         primaryKeyInput = false, autoIncrementInput = false, foreignKeyInput = true,
                         referenceTableNameInput = TABLE_CAMERAS, onDeleteActionInput = setNull) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ISO, integer, 0) &&
@@ -1103,14 +1147,17 @@ class Database private constructor(private val context: Context)
                 checkColumnProperties(TABLE_ROLLS, KEY_FILM_STOCK_ID, integer, 0) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_UNLOADED, text, 0) &&
                 checkColumnProperties(TABLE_ROLLS, KEY_ROLL_DEVELOPED, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_ID, integer, 0,
+                checkColumnProperties(
+                    TABLE_FRAMES, KEY_FRAME_ID, integer, 0,
                         primaryKeyInput = true, autoIncrementInput = true) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_ROLL_ID, integer, 1,
+                checkColumnProperties(
+                    TABLE_FRAMES, KEY_ROLL_ID, integer, 1,
                         primaryKeyInput = false, autoIncrementInput = false, foreignKeyInput = true,
                         referenceTableNameInput = TABLE_ROLLS, onDeleteActionInput = cascade) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_COUNT, integer, 1) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_DATE, text, 1) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_LENS_ID, integer, 0,
+                checkColumnProperties(
+                    TABLE_FRAMES, KEY_LENS_ID, integer, 0,
                         primaryKeyInput = false, autoIncrementInput = false, foreignKeyInput = true,
                         referenceTableNameInput = TABLE_LENSES, onDeleteActionInput = setNull) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_SHUTTER, text, 0) &&
@@ -1128,7 +1175,8 @@ class Database private constructor(private val context: Context)
                 checkColumnProperties(TABLE_FRAMES, KEY_FORMATTED_ADDRESS, text, 0) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_PICTURE_FILENAME, text, 0) &&
                 checkColumnProperties(TABLE_FRAMES, KEY_LIGHT_SOURCE, integer, 0) &&
-                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_STOCK_ID, integer, 0,
+                checkColumnProperties(
+                    TABLE_FILM_STOCKS, KEY_FILM_STOCK_ID, integer, 0,
                         primaryKeyInput = true, autoIncrementInput = true) &&
                 checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_STOCK_NAME, text, 1) &&
                 checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_MANUFACTURER_NAME, text, 1) &&
@@ -1241,7 +1289,8 @@ class Database private constructor(private val context: Context)
                 val values = buildFilmStockContentValues(filmStock)
 
                 // Insert film stocks if they do not already exist.
-                val cursor = db.query(TABLE_FILM_STOCKS, null,
+                val cursor = db.query(
+                    TABLE_FILM_STOCKS, null,
                         "$KEY_FILM_MANUFACTURER_NAME=? AND $KEY_FILM_STOCK_NAME=?",
                         arrayOf(filmStock.make, filmStock.model), null, null, null)
                 if (cursor.moveToFirst()) {
