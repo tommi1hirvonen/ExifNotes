@@ -76,6 +76,9 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
     @Inject
     lateinit var database: Database
 
+    @Inject
+    lateinit var complementaryPicturesManager: ComplementaryPicturesManager
+
     val arguments by navArgs<FramesListFragmentArgs>()
 
     private val model by navGraphViewModels<FramesViewModel>(R.id.frames_navigation) {
@@ -136,7 +139,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         val layoutManager = LinearLayoutManager(activity)
         binding.framesRecyclerView.layoutManager = layoutManager
 
-        frameAdapter = FrameAdapter(requireActivity(), this, binding.framesRecyclerView)
+        frameAdapter = FrameAdapter(requireActivity(), complementaryPicturesManager,
+            this, binding.framesRecyclerView)
         binding.framesRecyclerView.adapter = frameAdapter
         frameAdapter.onItemSelectedChanged = { frame, selected ->
             if (selected) model.selectedFrames.add(frame)

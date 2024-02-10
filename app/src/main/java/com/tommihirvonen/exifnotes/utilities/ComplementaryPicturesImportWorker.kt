@@ -24,6 +24,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -44,6 +45,9 @@ import java.util.zip.ZipInputStream
 class ComplementaryPicturesImportWorker(private val context: Context, parameters: WorkerParameters)
     : CoroutineWorker(context, parameters) {
 
+    private val complementaryPicturesDirectoryProvider =
+        ComplementaryPicturesDirectoryProvider(context)
+
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -51,6 +55,39 @@ class ComplementaryPicturesImportWorker(private val context: Context, parameters
 
     private val progressNotificationId = 10
     private val resultNotificationId = 11
+
+    private var progress = 0
+    private var total = 0
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        val title = applicationContext
+            .getString(R.string.NotificationComplementaryPicturesImportTitle)
+        val cancel = applicationContext.getString(R.string.Cancel)
+        // This PendingIntent can be used to cancel the worker
+        val intent = WorkManager.getInstance(applicationContext)
+            .createCancelPendingIntent(id)
+
+        // Create a Notification channel if necessary
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createChannel()
+        }
+
+        val message = "$progress/$total"
+        val notification = NotificationCompat.Builder(applicationContext, channelId)
+            .setContentTitle(title)
+            .setTicker(title)
+            .setContentText(message)
+            .setProgress(total, progress, false)
+            .setOngoing(true)
+            .setSmallIcon(R.drawable.ic_notification_icon)
+            .addAction(android.R.drawable.ic_delete, cancel, intent)
+            .build()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(progressNotificationId, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            ForegroundInfo(progressNotificationId, notification)
+        }
+    }
 
     override suspend fun doWork(): Result {
         if (runAttemptCount > 0) {
@@ -77,8 +114,7 @@ class ComplementaryPicturesImportWorker(private val context: Context, parameters
             }
 
             val zipFile = File(filePath)
-            val targetDirectory = ComplementaryPicturesManager
-                .getComplementaryPicturesDirectory(applicationContext)
+            val targetDirectory = complementaryPicturesDirectoryProvider.directory
                 ?: return@withContext Result.failure() to false
 
             try {
@@ -88,7 +124,8 @@ class ComplementaryPicturesImportWorker(private val context: Context, parameters
                     return@withContext Result.failure() to false
                 }
                 // Publish empty progress to tell the interface, that the process has begun.
-                setForeground(createProgressForegroundInfo(0, totalEntries))
+                total = totalEntries
+                setForeground(getForegroundInfo())
                 // Create target directory if it does not exists
                 targetDirectory.makeDirsIfNotExists()
                 ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
@@ -109,7 +146,8 @@ class ComplementaryPicturesImportWorker(private val context: Context, parameters
                                 zipInputStream.copyTo(outputStream)
                             }
                             zipInputStream.closeEntry()
-                            setForeground(createProgressForegroundInfo(index + 1, totalEntries))
+                            progress = index + 1
+                            setForeground(getForegroundInfo())
                         }
                     }
                 }
@@ -130,34 +168,6 @@ class ComplementaryPicturesImportWorker(private val context: Context, parameters
         }
 
         return result
-    }
-
-    // Creates an instance of ForegroundInfo which can be used to update the
-    // ongoing notification.
-    private fun createProgressForegroundInfo(progress: Int, total: Int): ForegroundInfo {
-        val title = applicationContext
-            .getString(R.string.NotificationComplementaryPicturesImportTitle)
-        val cancel = applicationContext.getString(R.string.Cancel)
-        // This PendingIntent can be used to cancel the worker
-        val intent = WorkManager.getInstance(applicationContext)
-            .createCancelPendingIntent(id)
-
-        // Create a Notification channel if necessary
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createChannel()
-        }
-
-        val message = "$progress/$total"
-        val notification = NotificationCompat.Builder(applicationContext, channelId)
-            .setContentTitle(title)
-            .setTicker(title)
-            .setContentText(message)
-            .setProgress(total, progress, false)
-            .setOngoing(true)
-            .setSmallIcon(R.drawable.ic_notification_icon)
-            .addAction(android.R.drawable.ic_delete, cancel, intent)
-            .build()
-        return ForegroundInfo(progressNotificationId, notification)
     }
 
     private fun createResultNotification(success: Boolean): Notification {

@@ -36,6 +36,7 @@ import com.tommihirvonen.exifnotes.utilities.ComplementaryPicturesManager
  */
 class FrameAdapter(
     private val context: Context,
+    private val complementaryPicturesManager: ComplementaryPicturesManager,
     private val listener: FrameAdapterListener,
     recyclerView: RecyclerView)
     : SelectableItemAdapter<Frame, FrameAdapter.ViewHolder>(context, recyclerView) {
@@ -91,7 +92,7 @@ class FrameAdapter(
         val frame = items[position]
         holder.binding.frame = frame
         val pictureFound = frame.pictureFilename?.let {
-            val pictureFile = ComplementaryPicturesManager.getPictureFile(context, it)
+            val pictureFile = complementaryPicturesManager.getPictureFile(it)
             pictureFile.exists()
         } ?: false
         holder.binding.complementaryPictureFound = pictureFound

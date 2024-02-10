@@ -30,41 +30,39 @@ import android.provider.MediaStore
 import androidx.exifinterface.media.ExifInterface
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.data.Database
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.*
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Manages all complementary pictures attached to frames.
  */
-object ComplementaryPicturesManager {
+@Singleton
+class ComplementaryPicturesManager @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val complementaryPicturesDirectoryProvider: ComplementaryPicturesDirectoryProvider,
+    private val database: Database) {
 
-    /**
-     * Constant specifying the maximum allowed length of the complementary picture's longer side.
-     */
-    private const val MAX_SIZE = 1024
-
-    /**
-     * Method to get the directory location of complementary pictures.
-     *
-     * @param context activity's context
-     * @return directory File for the location of complementary pictures
-     */
-    fun getComplementaryPicturesDirectory(context: Context): File? {
-        return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+    companion object {
+        /**
+         * Constant specifying the maximum allowed length of the complementary picture's longer side.
+         */
+        private const val MAX_SIZE = 1024
     }
 
     /**
      * Creates a new placeholder file with a universally unique
      * 128-bit filename in the complementary pictures location.
      *
-     * @param context activity's context
      * @return File referencing to the newly created placeholder File
      */
-    fun createNewPictureFile(context: Context): File {
+    fun createNewPictureFile(): File {
         // Create a unique name for the new picture file
         val pictureFilename = UUID.randomUUID().toString() + ".jpg"
         // Create a reference to the picture file
-        val picture = getPictureFile(context, pictureFilename)
+        val picture = getPictureFile(pictureFilename)
         // Get reference to the destination folder by the file's parent
         val pictureStorageDirectory = picture.parentFile
         // If the destination folder does not exist, create it
@@ -79,24 +77,22 @@ object ComplementaryPicturesManager {
      * Method the get reference to a complementary picture file in the complementary pictures
      * location with only the filename.
      *
-     * @param context activity's location
      * @param fileName the name of the complementary picture file
      * @return reference to the complementary picture file
      */
-    fun getPictureFile(context: Context, fileName: String): File {
+    fun getPictureFile(fileName: String): File {
         // Get the absolute path to the picture file.
-        return File(getComplementaryPicturesDirectory(context), fileName)
+        return File(complementaryPicturesDirectoryProvider.directory, fileName)
     }
 
     /**
      * Method to copy a complementary picture to a public external storage directory
      * and to notify the gallery application(s), that they should scan that file.
      *
-     * @param context activity's context
      * @param filename the name of the complementary picture
      * @throws IOException thrown if the file copying failed
      */
-    fun addPictureToGallery(context: Context, filename: String?) {
+    fun addPictureToGallery(filename: String?) {
         if (filename == null) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val contentValues = ContentValues()
@@ -105,7 +101,7 @@ object ComplementaryPicturesManager {
             val uri = context.contentResolver
                     .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
             if (uri != null) {
-                val source = getPictureFile(context, filename)
+                val source = getPictureFile(filename)
                 val outputStream = context.contentResolver.openOutputStream(uri)
                 val bitmap = BitmapFactory.decodeFile(source.absolutePath)
                 if (outputStream != null) {
@@ -118,7 +114,7 @@ object ComplementaryPicturesManager {
         } else {
             val publicPictureDirectory = File(Environment
                     .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), context.getString(R.string.app_name))
-            val copyFromFile = getPictureFile(context, filename)
+            val copyFromFile = getPictureFile(filename)
             val copyToFile = File(publicPictureDirectory, filename)
             copyFromFile.copyTo(target = copyToFile, overwrite = true)
             @Suppress("DEPRECATION")
@@ -132,14 +128,13 @@ object ComplementaryPicturesManager {
     /**
      * Compresses a complementary picture file to the size specified by MAX_SIZE.
      *
-     * @param context activity's context
      * @param fileName the name of the complementary picture
      * @throws IOException thrown if saving the bitmap causes an IOException
      */
     @Throws(IOException::class)
-    fun compressPictureFile(context: Context, fileName: String) {
+    fun compressPictureFile(fileName: String) {
         // Compress the image
-        val pictureFile = getPictureFile(context, fileName)
+        val pictureFile = getPictureFile(fileName)
         if (pictureFile.exists()) {
             // Get the original orientation
             val exif = ExifInterface(pictureFile.absolutePath)
@@ -177,13 +172,12 @@ object ComplementaryPicturesManager {
      * Method first decodes the bitmap using scaling to save memory
      * and then resizes it to exact dimension.
      *
-     * @param context activity's context
      * @param uri uri to the file
      * @return compressed bitmap
      * @throws FileNotFoundException if no file was found using the given Uri
      */
     @Throws(FileNotFoundException::class)
-    fun getCompressedBitmap(context: Context, uri: Uri): Bitmap? {
+    fun getCompressedBitmap(uri: Uri): Bitmap? {
         // Get the dimensions of the picture
         val options = BitmapFactory.Options()
         // Setting the inJustDecodeBounds property to true while decoding avoids memory allocation,
@@ -273,13 +267,12 @@ object ComplementaryPicturesManager {
     /**
      * Set the picture orientation 90 degrees clockwise using ExifInterface.
      *
-     * @param context activity's context
      * @param filename the name of the picture file to be rotated
      * @throws IOException if reading/writing exif data caused an exception
      */
     @Throws(IOException::class)
-    fun rotatePictureRight(context: Context, filename: String) {
-        val pictureFile = getPictureFile(context, filename)
+    fun rotatePictureRight(filename: String) {
+        val pictureFile = getPictureFile(filename)
         val exifInterface = ExifInterface(pictureFile.absolutePath)
         val orientation = exifInterface
                 .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
@@ -297,13 +290,12 @@ object ComplementaryPicturesManager {
     /**
      * Set the picture orientation 90 degrees counterclockwise using ExifInterface.
      *
-     * @param context activity's context
      * @param filename the name of the picture file to be rotated
      * @throws IOException if reading/writing exif data caused an exception
      */
     @Throws(IOException::class)
-    fun rotatePictureLeft(context: Context, filename: String) {
-        val pictureFile = getPictureFile(context, filename)
+    fun rotatePictureLeft(filename: String) {
+        val pictureFile = getPictureFile(filename)
         val exifInterface = ExifInterface(pictureFile.absolutePath)
         val orientation = exifInterface
                 .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
@@ -321,13 +313,12 @@ object ComplementaryPicturesManager {
     /**
      * Deletes all complementary pictures which are not linked to any frame in the database.
      *
-     * @param database app database reference
      */
-    fun deleteUnusedPictures(context: Context, database: Database) {
+    fun deleteUnusedPictures() {
         // List of all filenames that are being used in the database
         val complementaryPictureFilenames = database.complementaryPictureFilenames
         // The application private external storage directory, where complementary pictures are stored
-        val picturesDirectory = getComplementaryPicturesDirectory(context)
+        val picturesDirectory = complementaryPicturesDirectoryProvider.directory
         // Create a FileNameFilter using the filenames
         val filter = FilenameFilter { _: File?, s: String? -> !complementaryPictureFilenames.contains(s) }
         // Delete all files, that are not filtered

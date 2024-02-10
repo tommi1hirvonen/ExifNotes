@@ -34,7 +34,6 @@ import androidx.preference.PreferenceManager
 import com.google.android.libraries.places.api.Places
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.ActivityMainBinding
 import com.tommihirvonen.exifnotes.dialogs.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
@@ -53,7 +52,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var database: Database
+    lateinit var complementaryPicturesManager: ComplementaryPicturesManager
 
     companion object {
         /**
@@ -80,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         // If savedInstanceState is not null, then the activity is being recreated. In this case,
         // don't delete pictures.
         if (savedInstanceState == null) {
-            ComplementaryPicturesManager.deleteUnusedPictures(this, database)
+            complementaryPicturesManager.deleteUnusedPictures()
         }
 
         setContentView(binding.root)

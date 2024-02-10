@@ -54,6 +54,9 @@ class PreferenceFragment : PreferenceFragmentCompat() {
     @Inject
     lateinit var database: Database
 
+    @Inject
+    lateinit var complementaryPicturesManager: ComplementaryPicturesManager
+
     private inner class ExportPictures : CreateDocument("application/zip") {
         override fun createIntent(context: Context, input: String): Intent {
             val intent = super.createIntent(context, input)

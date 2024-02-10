@@ -76,6 +76,9 @@ class FrameEditFragment : Fragment() {
     lateinit var database: Database
 
     @Inject
+    lateinit var complementaryPicturesManager: ComplementaryPicturesManager
+
+    @Inject
     lateinit var geocoderRequestBuilder: GeocoderRequestBuilder
 
     val arguments by navArgs<FrameEditFragmentArgs>()
@@ -343,8 +346,8 @@ class FrameEditFragment : Fragment() {
                 }
                 R.id.add_to_gallery -> {
                     try {
-                        ComplementaryPicturesManager
-                            .addPictureToGallery(requireActivity(), model.frame.pictureFilename)
+                        complementaryPicturesManager
+                            .addPictureToGallery(model.frame.pictureFilename)
                         binding.root.snackbar(R.string.PictureAddedToGallery)
                     } catch (e: Exception) {
                         binding.root.snackbar(R.string.ErrorAddingPictureToGallery)
@@ -396,7 +399,7 @@ class FrameEditFragment : Fragment() {
                 model.frame.pictureFilename = filename
                 // Compress the picture file.
                 try {
-                    ComplementaryPicturesManager.compressPictureFile(requireActivity(), filename)
+                    complementaryPicturesManager.compressPictureFile(filename)
                 } catch (e: IOException) {
                     withContext(Dispatchers.Main) {
                         binding.root.snackbar(R.string.ErrorCompressingComplementaryPicture)
@@ -416,14 +419,14 @@ class FrameEditFragment : Fragment() {
         // Decode and compress the selected file on a background thread.
         lifecycleScope.launch(Dispatchers.IO) {
             // Create the placeholder file in the complementary pictures directory.
-            val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
+            val pictureFile = complementaryPicturesManager.createNewPictureFile()
             try {
                 // Get the compressed bitmap from the Uri.
-                val pictureBitmap = ComplementaryPicturesManager
-                    .getCompressedBitmap(requireActivity(), resultUri) ?: return@launch
+                val pictureBitmap = complementaryPicturesManager
+                    .getCompressedBitmap(resultUri) ?: return@launch
                 try {
                     // Save the compressed bitmap to the placeholder file.
-                    ComplementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile)
+                    complementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile)
                     // Update the member reference and set the complementary picture.
                     model.frame.pictureFilename = pictureFile.name
                     withContext(Dispatchers.Main) { setComplementaryPicture() }
@@ -473,7 +476,7 @@ class FrameEditFragment : Fragment() {
             binding.pictureText.text = null
             return
         }
-        val pictureFile = ComplementaryPicturesManager.getPictureFile(requireActivity(), filename)
+        val pictureFile = complementaryPicturesManager.getPictureFile(filename)
 
         // If the picture file exists, set the picture ImageView.
         if (pictureFile.exists()) {
@@ -550,7 +553,7 @@ class FrameEditFragment : Fragment() {
         // Advance with taking the picture
 
         // Create the file where the photo should go
-        val pictureFile = ComplementaryPicturesManager.createNewPictureFile(requireActivity())
+        val pictureFile = complementaryPicturesManager.createNewPictureFile()
         // Store the filename to the view model, so that it is retained even if the fragments gets recreated.
         model.pictureFilename = pictureFile.name
         //Android Nougat requires that the file is given via FileProvider
@@ -570,7 +573,7 @@ class FrameEditFragment : Fragment() {
     private fun rotateComplementaryPictureRight() {
         val filename = model.frame.pictureFilename ?: return
         try {
-            ComplementaryPicturesManager.rotatePictureRight(requireActivity(), filename)
+            complementaryPicturesManager.rotatePictureRight(filename)
             binding.complementaryPicture.rotation += 90
             val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_right)
             binding.complementaryPicture.startAnimation(animation)
@@ -586,7 +589,7 @@ class FrameEditFragment : Fragment() {
     private fun rotateComplementaryPictureLeft() {
         val filename = model.frame.pictureFilename ?: return
         try {
-            ComplementaryPicturesManager.rotatePictureLeft(requireActivity(), filename)
+            complementaryPicturesManager.rotatePictureLeft(filename)
             binding.complementaryPicture.rotation -= 90
             val animation = AnimationUtils.loadAnimation(activity, R.anim.rotate_left)
             binding.complementaryPicture.startAnimation(animation)
