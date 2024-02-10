@@ -41,4 +41,5 @@ object ExtraKeys {
     const val FRAGMENT_CONTAINER_ID = "FRAGMENT_CONTAINER_ID"
     const val TARGET_URI = "TARGET_URI"
     const val TAP_POSITION = "TAP_POSITION"
+    const val FILENAMES = "FILENAMES"
 }

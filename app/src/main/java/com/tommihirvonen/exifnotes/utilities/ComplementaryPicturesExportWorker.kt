@@ -36,16 +36,13 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.data.Database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-class ComplementaryPicturesExportWorker(private val context: Context,
-                                        private val database: Database,
-                                        parameters: WorkerParameters)
+class ComplementaryPicturesExportWorker(private val context: Context, parameters: WorkerParameters)
     : CoroutineWorker(context, parameters) {
 
     private val notificationManager =
@@ -61,7 +58,8 @@ class ComplementaryPicturesExportWorker(private val context: Context,
             return Result.failure()
         }
 
-        val complementaryPictureFilenames = database.complementaryPictureFilenames
+        val complementaryPictureFilenames = inputData.getStringArray(ExtraKeys.FILENAMES)
+            ?: return Result.failure()
         val picturesDirectory =
             ComplementaryPicturesManager.getComplementaryPicturesDirectory(applicationContext)
             ?: return Result.failure()

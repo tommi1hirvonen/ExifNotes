@@ -272,8 +272,10 @@ class PreferenceFragment : PreferenceFragmentCompat() {
     }
 
     private fun exportComplementaryPictures(picturesUri: Uri) {
+        val complementaryPictureFilenames = database.complementaryPictureFilenames.toTypedArray()
         val data = Data.Builder()
             .putString(ExtraKeys.TARGET_URI, picturesUri.toString())
+            .putStringArray(ExtraKeys.FILENAMES, complementaryPictureFilenames)
             .build()
         val request = OneTimeWorkRequestBuilder<ComplementaryPicturesExportWorker>()
             .setInputData(data)
