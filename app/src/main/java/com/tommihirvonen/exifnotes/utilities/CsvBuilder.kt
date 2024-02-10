@@ -20,8 +20,8 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import androidx.preference.PreferenceManager
-import com.tommihirvonen.exifnotes.datastructures.Frame
-import com.tommihirvonen.exifnotes.datastructures.Roll
+import com.tommihirvonen.exifnotes.entities.Frame
+import com.tommihirvonen.exifnotes.entities.Roll
 import org.apache.commons.text.StringEscapeUtils
 
 class CsvBuilder(private val context: Context, private val roll: Roll, private val frameList: List<Frame>) {

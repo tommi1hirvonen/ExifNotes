@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.entities
 
 import android.os.Parcelable
 import kotlinx.serialization.Serializable

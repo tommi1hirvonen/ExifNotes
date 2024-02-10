@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2023  Tommi Hirvonen
+ * Copyright (C) 2022  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,24 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.entities
 
-import android.content.Context
-import com.tommihirvonen.exifnotes.R
+enum class RollFilterMode(value: Int) {
+    ACTIVE(0),
+    ARCHIVED(1),
+    ALL(2);
 
-enum class FilmProcess {
-    UNKNOWN,
-    BW_NEGATIVE,
-    BW_REVERSAL,
-    C41,
-    E6,
-    ECN2,
-    INTEGRAL;
+    var value: Int = 0
+        internal set
 
-    fun description(context: Context) =
-        context.resources.getStringArray(R.array.FilmProcesses).getOrNull(ordinal)
+    init {
+        this.value = value
+    }
 
     companion object {
-        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: UNKNOWN
+
+        fun fromValue(value: Int): RollFilterMode {
+            return when (value) {
+                0 -> ACTIVE
+                1 -> ARCHIVED
+                2 -> ALL
+                else -> ACTIVE
+            }
+        }
     }
 }

@@ -27,7 +27,7 @@
         <import type="com.tommihirvonen.exifnotes.utilities.ExtensionsKt" />
         <variable
             name="frame"
-            type="com.tommihirvonen.exifnotes.datastructures.Frame" />
+            type="com.tommihirvonen.exifnotes.entities.Frame" />
         <variable
             name="complementaryPictureFound"
             type="Boolean" />

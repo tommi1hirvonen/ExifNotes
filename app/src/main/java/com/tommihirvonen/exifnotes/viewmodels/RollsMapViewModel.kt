@@ -21,9 +21,9 @@ package com.tommihirvonen.exifnotes.viewmodels
 import android.app.Application
 import android.graphics.Bitmap
 import androidx.lifecycle.*
-import com.tommihirvonen.exifnotes.datastructures.Frame
-import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.datastructures.RollFilterMode
+import com.tommihirvonen.exifnotes.entities.Frame
+import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.data.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

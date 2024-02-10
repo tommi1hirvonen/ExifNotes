@@ -21,10 +21,10 @@ package com.tommihirvonen.exifnotes.viewmodels
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
-import com.tommihirvonen.exifnotes.datastructures.Frame
-import com.tommihirvonen.exifnotes.datastructures.FrameSortMode
-import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.datastructures.sorted
+import com.tommihirvonen.exifnotes.entities.Frame
+import com.tommihirvonen.exifnotes.entities.FrameSortMode
+import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.entities.sorted
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.data.database
 import kotlinx.coroutines.Dispatchers

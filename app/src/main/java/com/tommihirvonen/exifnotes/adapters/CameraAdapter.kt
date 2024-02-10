@@ -25,9 +25,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.ItemGearBinding
-import com.tommihirvonen.exifnotes.datastructures.Camera
-import com.tommihirvonen.exifnotes.datastructures.Filter
-import com.tommihirvonen.exifnotes.datastructures.Lens
+import com.tommihirvonen.exifnotes.entities.Camera
+import com.tommihirvonen.exifnotes.entities.Filter
+import com.tommihirvonen.exifnotes.entities.Lens
 import com.tommihirvonen.exifnotes.utilities.toStringList
 
 class CameraAdapter(

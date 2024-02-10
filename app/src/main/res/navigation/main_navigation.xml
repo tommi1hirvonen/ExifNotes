@@ -52,7 +52,7 @@
             -->
             <argument
                 android:name="roll"
-                app:argType="com.tommihirvonen.exifnotes.datastructures.Roll" />
+                app:argType="com.tommihirvonen.exifnotes.entities.Roll" />
             <argument
                 android:name="transitionName"
                 app:argType="string" />
@@ -83,7 +83,7 @@
         android:label="RollEditFragment" >
         <argument
             android:name="roll"
-            app:argType="com.tommihirvonen.exifnotes.datastructures.Roll"
+            app:argType="com.tommihirvonen.exifnotes.entities.Roll"
             app:nullable="true" />
         <argument
             android:name="title"
@@ -118,7 +118,7 @@
             android:label="FramesListFragment">
             <argument
                 android:name="roll"
-                app:argType="com.tommihirvonen.exifnotes.datastructures.Roll" />
+                app:argType="com.tommihirvonen.exifnotes.entities.Roll" />
             <argument
                 android:name="transitionName"
                 app:argType="string" />
@@ -173,7 +173,7 @@
         android:label="CameraEditFragment" >
         <argument
             android:name="camera"
-            app:argType="com.tommihirvonen.exifnotes.datastructures.Camera"
+            app:argType="com.tommihirvonen.exifnotes.entities.Camera"
             app:nullable="true" />
         <argument
             android:name="title"
@@ -196,7 +196,7 @@
         android:label="LensEditFragment" >
         <argument
             android:name="lens"
-            app:argType="com.tommihirvonen.exifnotes.datastructures.Lens"
+            app:argType="com.tommihirvonen.exifnotes.entities.Lens"
             app:nullable="true" />
         <argument
             android:name="fixedLens"
@@ -215,7 +215,7 @@
         android:label="FilterEditDialog" >
         <argument
             android:name="filter"
-            app:argType="com.tommihirvonen.exifnotes.datastructures.Filter"
+            app:argType="com.tommihirvonen.exifnotes.entities.Filter"
             app:nullable="true" />
         <argument
             android:name="title"
@@ -230,7 +230,7 @@
         android:label="FilmStockEditDialog" >
         <argument
             android:name="filmStock"
-            app:argType="com.tommihirvonen.exifnotes.datastructures.FilmStock"
+            app:argType="com.tommihirvonen.exifnotes.entities.FilmStock"
             app:nullable="true" />
         <argument
             android:name="title"
@@ -265,7 +265,7 @@
         android:label="FrameEditFragment" >
         <argument
             android:name="frame"
-            app:argType="com.tommihirvonen.exifnotes.datastructures.Frame" />
+            app:argType="com.tommihirvonen.exifnotes.entities.Frame" />
         <argument
             android:name="title"
             app:argType="string" />

@@ -44,8 +44,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionSet
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
-import com.tommihirvonen.exifnotes.datastructures.Coordinates
-import com.tommihirvonen.exifnotes.datastructures.Gear
+import com.tommihirvonen.exifnotes.entities.Coordinates
+import com.tommihirvonen.exifnotes.entities.Gear
 import java.io.*
 import java.time.Instant
 import java.time.LocalDateTime

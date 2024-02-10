@@ -20,8 +20,8 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import androidx.documentfile.provider.DocumentFile
-import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.datastructures.RollExportOption
+import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.entities.RollExportOption
 import java.io.OutputStreamWriter
 
 class RollExportHelper(

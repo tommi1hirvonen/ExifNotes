@@ -18,7 +18,7 @@
 
 package com.tommihirvonen.exifnotes
 
-import com.tommihirvonen.exifnotes.datastructures.Filter
+import com.tommihirvonen.exifnotes.entities.Filter
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test

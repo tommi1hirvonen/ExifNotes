@@ -25,7 +25,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.datastructures.*
+import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.data.database
 import kotlinx.coroutines.Dispatchers

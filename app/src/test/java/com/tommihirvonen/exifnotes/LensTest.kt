@@ -18,8 +18,8 @@
 
 package com.tommihirvonen.exifnotes
 
-import com.tommihirvonen.exifnotes.datastructures.Increment
-import com.tommihirvonen.exifnotes.datastructures.Lens
+import com.tommihirvonen.exifnotes.entities.Increment
+import com.tommihirvonen.exifnotes.entities.Lens
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test

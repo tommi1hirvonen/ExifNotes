@@ -27,7 +27,7 @@
         <import type="com.tommihirvonen.exifnotes.utilities.ExtensionsKt" />
         <variable
             name="roll"
-            type="com.tommihirvonen.exifnotes.datastructures.Roll" />
+            type="com.tommihirvonen.exifnotes.entities.Roll" />
         <variable
             name="frameCount"
             type="Integer" />

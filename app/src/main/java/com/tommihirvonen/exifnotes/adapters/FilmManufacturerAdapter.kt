@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.databinding.ItemFilmManufacturerBinding
 import com.tommihirvonen.exifnotes.databinding.ItemFilmStockBinding
-import com.tommihirvonen.exifnotes.datastructures.FilmStock
+import com.tommihirvonen.exifnotes.entities.FilmStock
 import java.util.*
 
 class FilmManufacturerAdapter(

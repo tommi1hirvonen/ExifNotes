@@ -47,7 +47,7 @@ import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.RollAdapter
 import com.tommihirvonen.exifnotes.adapters.RollAdapter.RollAdapterListener
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsListBinding
-import com.tommihirvonen.exifnotes.datastructures.*
+import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State

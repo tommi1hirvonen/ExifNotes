@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2023  Tommi Hirvonen
+ * Copyright (C) 2022  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,25 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.entities
 
-import android.content.Context
-import com.tommihirvonen.exifnotes.R
+import androidx.annotation.Keep
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
-enum class LightSource {
-    UNKNOWN,
-    DAYLIGHT,
-    SUNNY,
-    CLOUDY,
-    SHADE,
-    FLUORESCENT,
-    TUNGSTEN,
-    FLASH;
-
-    fun description(context: Context) =
-        context.resources.getStringArray(R.array.LightSource).getOrNull(ordinal)
-
-    companion object {
-        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: UNKNOWN
-    }
-}
+@Parcelize
+@Serializable
+@Keep
+data class Filter(
+        override var id: Long = 0,
+        override var make: String? = null,
+        override var model: String? = null,
+        @Transient
+        var lensIds: HashSet<Long> = HashSet()) : Gear(), Comparable<Gear>

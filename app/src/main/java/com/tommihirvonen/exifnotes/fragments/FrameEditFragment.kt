@@ -50,8 +50,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogSingleEditTextBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFrameEditBinding
-import com.tommihirvonen.exifnotes.datastructures.*
-import com.tommihirvonen.exifnotes.datastructures.Filter
+import com.tommihirvonen.exifnotes.entities.*
+import com.tommihirvonen.exifnotes.entities.Filter
 import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FrameEditViewModel

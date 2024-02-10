@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2023  Tommi Hirvonen
+ * Copyright (C) 2022  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,26 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.entities
 
-import android.content.Context
-import com.tommihirvonen.exifnotes.R
+enum class FilmStockSortMode {
+    NAME, ISO;
 
-enum class FilmType {
-    UNKNOWN,
-    BW_NEGATIVE,
-    BW_REVERSAL,
-    BW_INSTANT,
-    COLOR_NEGATIVE,
-    COLOR_REVERSAL,
-    COLOR_INSTANT,
-    MOTION_PIC_BW_NEGATIVE,
-    MOTION_PIC_COLOR_NEGATIVE;
-
-    fun description(context: Context) =
-        context.resources.getStringArray(R.array.FilmTypes).getOrNull(ordinal)
-
-    companion object {
-        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: UNKNOWN
+    val comparator: Comparator<FilmStock> get() = when (this) {
+        NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+        ISO -> compareBy { it.iso }
     }
 }

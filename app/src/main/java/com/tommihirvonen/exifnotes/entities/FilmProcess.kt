@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2023  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,11 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.entities
 
-enum class Increment {
-    THIRD, HALF, FULL;
+import android.content.Context
+import com.tommihirvonen.exifnotes.R
+
+enum class FilmProcess {
+    UNKNOWN,
+    BW_NEGATIVE,
+    BW_REVERSAL,
+    C41,
+    E6,
+    ECN2,
+    INTEGRAL;
+
+    fun description(context: Context) =
+        context.resources.getStringArray(R.array.FilmProcesses).getOrNull(ordinal)
+
     companion object {
-        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: THIRD
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: UNKNOWN
     }
 }

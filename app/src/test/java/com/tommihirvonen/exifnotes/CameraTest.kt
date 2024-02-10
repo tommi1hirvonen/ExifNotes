@@ -18,11 +18,11 @@
 
 package com.tommihirvonen.exifnotes
 
-import com.tommihirvonen.exifnotes.datastructures.Camera
-import com.tommihirvonen.exifnotes.datastructures.Format
-import com.tommihirvonen.exifnotes.datastructures.Increment
-import com.tommihirvonen.exifnotes.datastructures.Lens
-import com.tommihirvonen.exifnotes.datastructures.PartialIncrement
+import com.tommihirvonen.exifnotes.entities.Camera
+import com.tommihirvonen.exifnotes.entities.Format
+import com.tommihirvonen.exifnotes.entities.Increment
+import com.tommihirvonen.exifnotes.entities.Lens
+import com.tommihirvonen.exifnotes.entities.PartialIncrement
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test

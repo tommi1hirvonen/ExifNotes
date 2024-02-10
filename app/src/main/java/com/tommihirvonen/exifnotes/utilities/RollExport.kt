@@ -20,8 +20,8 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import com.tommihirvonen.exifnotes.data.database
-import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.datastructures.RollExportOption
+import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.entities.RollExportOption
 
 abstract class RollExport(private val context: Context,
                           private val roll: Roll

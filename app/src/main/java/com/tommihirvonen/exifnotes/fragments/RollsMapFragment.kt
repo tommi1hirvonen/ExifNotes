@@ -43,9 +43,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsMapBinding
-import com.tommihirvonen.exifnotes.datastructures.Frame
-import com.tommihirvonen.exifnotes.datastructures.Roll
-import com.tommihirvonen.exifnotes.datastructures.RollFilterMode
+import com.tommihirvonen.exifnotes.entities.Frame
+import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollData

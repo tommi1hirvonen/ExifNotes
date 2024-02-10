@@ -29,9 +29,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.datastructures.FilmProcess
-import com.tommihirvonen.exifnotes.datastructures.FilmStock
-import com.tommihirvonen.exifnotes.datastructures.FilmType
+import com.tommihirvonen.exifnotes.entities.FilmProcess
+import com.tommihirvonen.exifnotes.entities.FilmStock
+import com.tommihirvonen.exifnotes.entities.FilmType
 import com.tommihirvonen.exifnotes.utilities.validate
 
 class FilmStockEditViewModel(application: Application, val filmStock: FilmStock)

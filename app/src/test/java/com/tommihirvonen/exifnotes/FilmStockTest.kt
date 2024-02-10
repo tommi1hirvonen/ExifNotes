@@ -18,9 +18,9 @@
 
 package com.tommihirvonen.exifnotes
 
-import com.tommihirvonen.exifnotes.datastructures.FilmProcess
-import com.tommihirvonen.exifnotes.datastructures.FilmStock
-import com.tommihirvonen.exifnotes.datastructures.FilmType
+import com.tommihirvonen.exifnotes.entities.FilmProcess
+import com.tommihirvonen.exifnotes.entities.FilmStock
+import com.tommihirvonen.exifnotes.entities.FilmType
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test

@@ -28,7 +28,7 @@ import android.widget.Toast
 import androidx.core.database.getLongOrNull
 import androidx.fragment.app.Fragment
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.datastructures.*
+import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.utilities.decimalString
 import com.tommihirvonen.exifnotes.utilities.latLngOrNull
 import com.tommihirvonen.exifnotes.utilities.localDateTimeOrNull

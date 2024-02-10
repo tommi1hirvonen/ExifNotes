@@ -36,7 +36,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.CameraAdapter
 import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.databinding.FragmentCamerasBinding
-import com.tommihirvonen.exifnotes.datastructures.*
+import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State

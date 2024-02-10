@@ -29,10 +29,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.datastructures.Camera
-import com.tommihirvonen.exifnotes.datastructures.FilmStock
-import com.tommihirvonen.exifnotes.datastructures.Format
-import com.tommihirvonen.exifnotes.datastructures.Roll
+import com.tommihirvonen.exifnotes.entities.Camera
+import com.tommihirvonen.exifnotes.entities.FilmStock
+import com.tommihirvonen.exifnotes.entities.Format
+import com.tommihirvonen.exifnotes.entities.Roll
 import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.utilities.validate
 import java.time.LocalDateTime

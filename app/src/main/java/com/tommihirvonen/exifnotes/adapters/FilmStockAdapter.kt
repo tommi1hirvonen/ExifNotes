@@ -24,7 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.databinding.ItemGearBinding
-import com.tommihirvonen.exifnotes.datastructures.*
+import com.tommihirvonen.exifnotes.entities.*
 
 class FilmStockAdapter(
     private val context: Context,

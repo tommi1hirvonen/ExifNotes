@@ -148,7 +148,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:visibility="@{viewmodel.clearFilmStockVisibility}"
-                            android:onClick="@{(view) -> viewmodel.setFilmStock((com.tommihirvonen.exifnotes.datastructures.FilmStock)null)}"
+                            android:onClick="@{(view) -> viewmodel.setFilmStock((com.tommihirvonen.exifnotes.entities.FilmStock)null)}"
                             app:icon="@drawable/ic_baseline_close_24"
                             style="@style/IconButton.Tonal"
                             />

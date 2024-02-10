@@ -31,8 +31,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.datastructures.Increment
-import com.tommihirvonen.exifnotes.datastructures.Lens
+import com.tommihirvonen.exifnotes.entities.Increment
+import com.tommihirvonen.exifnotes.entities.Lens
 import com.tommihirvonen.exifnotes.utilities.validate
 
 class LensEditViewModel(application: Application, val fixedLens: Boolean, val lens: Lens)

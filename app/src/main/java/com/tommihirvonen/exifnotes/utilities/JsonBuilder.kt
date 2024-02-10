@@ -18,8 +18,8 @@
 
 package com.tommihirvonen.exifnotes.utilities
 
-import com.tommihirvonen.exifnotes.datastructures.Frame
-import com.tommihirvonen.exifnotes.datastructures.Roll
+import com.tommihirvonen.exifnotes.entities.Frame
+import com.tommihirvonen.exifnotes.entities.Roll
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 

@@ -16,14 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.entities
 
-enum class RollExportOption {
-    CSV, EXIFTOOL, JSON;
+import android.content.Context
+import com.tommihirvonen.exifnotes.R
 
-    override fun toString(): String = when (this) {
-        CSV -> "csv"
-        EXIFTOOL -> "ExifTool"
-        JSON -> "JSON"
+enum class LightSource {
+    UNKNOWN,
+    DAYLIGHT,
+    SUNNY,
+    CLOUDY,
+    SHADE,
+    FLUORESCENT,
+    TUNGSTEN,
+    FLASH;
+
+    fun description(context: Context) =
+        context.resources.getStringArray(R.array.LightSource).getOrNull(ordinal)
+
+    companion object {
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: UNKNOWN
     }
 }

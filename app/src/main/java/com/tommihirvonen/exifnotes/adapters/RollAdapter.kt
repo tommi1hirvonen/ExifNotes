@@ -24,7 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.databinding.ItemRollConstraintBinding
-import com.tommihirvonen.exifnotes.datastructures.Roll
+import com.tommihirvonen.exifnotes.entities.Roll
 import com.tommihirvonen.exifnotes.data.database
 
 /**

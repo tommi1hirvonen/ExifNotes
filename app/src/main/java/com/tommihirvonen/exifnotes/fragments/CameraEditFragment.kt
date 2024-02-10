@@ -37,7 +37,7 @@ import androidx.transition.TransitionSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.FragmentCameraEditBinding
-import com.tommihirvonen.exifnotes.datastructures.Camera
+import com.tommihirvonen.exifnotes.entities.Camera
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.CameraEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.CameraEditViewModelFactory

@@ -30,7 +30,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogFilterBinding
-import com.tommihirvonen.exifnotes.datastructures.Filter
+import com.tommihirvonen.exifnotes.entities.Filter
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.setNavigationResult
 import com.tommihirvonen.exifnotes.viewmodels.FilterEditViewModel

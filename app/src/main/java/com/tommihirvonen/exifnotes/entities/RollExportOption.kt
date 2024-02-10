@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2023  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,13 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.entities
 
-enum class FilmStockSortMode {
-    NAME, ISO;
+enum class RollExportOption {
+    CSV, EXIFTOOL, JSON;
 
-    val comparator: Comparator<FilmStock> get() = when (this) {
-        NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
-        ISO -> compareBy { it.iso }
+    override fun toString(): String = when (this) {
+        CSV -> "csv"
+        EXIFTOOL -> "ExifTool"
+        JSON -> "JSON"
     }
 }

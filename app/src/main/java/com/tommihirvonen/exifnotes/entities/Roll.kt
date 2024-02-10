@@ -18,7 +18,7 @@
 
 @file:UseSerializers(LocalDateTimeSerializer::class)
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.entities
 
 import android.os.Parcelable
 import androidx.annotation.Keep

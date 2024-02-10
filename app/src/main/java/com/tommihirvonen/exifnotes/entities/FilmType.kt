@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2023  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +16,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.entities
 
-import androidx.annotation.Keep
-import kotlinx.parcelize.Parcelize
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
+import android.content.Context
+import com.tommihirvonen.exifnotes.R
 
-@Parcelize
-@Serializable
-@Keep
-data class Filter(
-        override var id: Long = 0,
-        override var make: String? = null,
-        override var model: String? = null,
-        @Transient
-        var lensIds: HashSet<Long> = HashSet()) : Gear(), Comparable<Gear>
+enum class FilmType {
+    UNKNOWN,
+    BW_NEGATIVE,
+    BW_REVERSAL,
+    BW_INSTANT,
+    COLOR_NEGATIVE,
+    COLOR_REVERSAL,
+    COLOR_INSTANT,
+    MOTION_PIC_BW_NEGATIVE,
+    MOTION_PIC_COLOR_NEGATIVE;
+
+    fun description(context: Context) =
+        context.resources.getStringArray(R.array.FilmTypes).getOrNull(ordinal)
+
+    companion object {
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: UNKNOWN
+    }
+}

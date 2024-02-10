@@ -20,9 +20,9 @@ package com.tommihirvonen.exifnotes.utilities
 
 import android.content.Context
 import androidx.preference.PreferenceManager
-import com.tommihirvonen.exifnotes.datastructures.Frame
-import com.tommihirvonen.exifnotes.datastructures.LightSource
-import com.tommihirvonen.exifnotes.datastructures.Roll
+import com.tommihirvonen.exifnotes.entities.Frame
+import com.tommihirvonen.exifnotes.entities.LightSource
+import com.tommihirvonen.exifnotes.entities.Roll
 import java.text.Normalizer
 
 class ExifToolCommandsBuilder(context: Context, private val roll: Roll, private val frameList: List<Frame>) {

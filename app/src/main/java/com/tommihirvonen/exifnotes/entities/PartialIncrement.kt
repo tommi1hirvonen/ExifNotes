@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2023  Tommi Hirvonen
+ * Copyright (C) 2022  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,15 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.datastructures
+package com.tommihirvonen.exifnotes.entities
 
-data class Coordinates(
-    val latitudeRef: String,
-    val latitudeDegrees: String,
-    val latitudeMinutes: String,
-    val latitudeSeconds: String,
-    val longitudeRef: String,
-    val longitudeDegrees: String,
-    val longitudeMinutes: String,
-    val longitudeSeconds: String
-)
+enum class PartialIncrement {
+    THIRD, HALF;
+    companion object {
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: THIRD
+    }
+}

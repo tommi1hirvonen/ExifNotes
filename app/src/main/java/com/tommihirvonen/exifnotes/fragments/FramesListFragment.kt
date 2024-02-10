@@ -53,7 +53,7 @@ import com.tommihirvonen.exifnotes.adapters.FrameAdapter.FrameAdapterListener
 import com.tommihirvonen.exifnotes.data.database
 import com.tommihirvonen.exifnotes.databinding.DialogSingleDropdownBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFramesListBinding
-import com.tommihirvonen.exifnotes.datastructures.*
+import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModelFactory
