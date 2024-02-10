@@ -39,7 +39,7 @@ sealed class Gear : Parcelable, Comparable<Gear> {
     /**
      * @return make and model of the Gear concatenated
      */
-    val name: String get() = this.make + " " + this.model
+    val name: String get() = "$make $model"
 
     override fun equals(other: Any?): Boolean {
         val gear: Gear

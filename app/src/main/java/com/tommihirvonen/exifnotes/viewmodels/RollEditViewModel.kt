@@ -70,7 +70,14 @@ class RollEditViewModel(application: Application, val roll: Roll)
 
         @get:Bindable
         val cameraItems get() = listOf(context.resources.getString(R.string.NoCamera))
-            .plus(cameras.map(Camera::name)).toTypedArray()
+            .plus(cameras.map { c ->
+                val nameIsNotDistinct = cameras.any { it.id != c.id && it.name == c.name }
+                if (nameIsNotDistinct && !c.serialNumber.isNullOrEmpty())
+                    "${c.name} (${c.serialNumber})"
+                else
+                    c.name
+            })
+            .toTypedArray()
 
         @get:Bindable
         val isoValues: Array<String> get() = context.resources.getStringArray(R.array.ISOValues)

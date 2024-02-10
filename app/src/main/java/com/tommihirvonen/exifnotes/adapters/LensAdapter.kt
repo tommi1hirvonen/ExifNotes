@@ -66,7 +66,13 @@ class LensAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val lens = lenses[position]
-        holder.binding.title.text = lens.name
+        val nameIsNotDistinct = lenses.any { it.id != lens.id && it.name == lens.name }
+        val name = if (nameIsNotDistinct && !lens.serialNumber.isNullOrEmpty())
+            "${lens.name} (${lens.serialNumber})"
+        else
+            lens.name
+
+        holder.binding.title.text = name
         holder.binding.root.transitionName = "transition_lens_${lens.id}"
         val stringBuilder = StringBuilder()
         val compatibleCameras = cameras.filter { lens.cameraIds.contains(it.id) }

@@ -111,7 +111,14 @@ class FrameEditViewModel(application: Application,
 
         @get:Bindable
         val lensItems get() = listOf(context.resources.getString(R.string.NoLens))
-            .plus(lenses.map(Lens::name)).toTypedArray()
+            .plus(lenses.map { l ->
+                val nameIsNotDistinct = lenses.any { it.id != l.id && it.name == l.name }
+                if (nameIsNotDistinct && !l.serialNumber.isNullOrEmpty())
+                    "${l.name} (${l.serialNumber})"
+                else
+                    l.name
+            })
+            .toTypedArray()
 
         @get:Bindable
         val shutterSpeedItems = frame.roll.camera?.shutterSpeedValues(context)

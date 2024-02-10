@@ -67,7 +67,13 @@ class CameraAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val camera = cameras[position]
-        holder.binding.title.text = camera.name
+        val nameIsNotDistinct = cameras.any { it.id != camera.id && it.name == camera.name }
+        val name = if (nameIsNotDistinct && !camera.serialNumber.isNullOrEmpty())
+            "${camera.name} (${camera.serialNumber})"
+        else
+            camera.name
+
+        holder.binding.title.text = name
         holder.binding.root.transitionName = "transition_camera_${camera.id}"
         val stringBuilder = StringBuilder()
         if (camera.isFixedLens) {
