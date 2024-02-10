@@ -30,7 +30,9 @@ class GeocoderTest {
     @Test
     fun queryUrlTest() {
         val key = "dummy"
-        val request = GeocoderRequestBuilder(HttpClientAdapter(), key).fromQuery("Helsinki")
+        val client = HttpClientAdapter().client
+        val builder = GeocoderRequestBuilder(client, key)
+        val request = builder.fromQuery("Helsinki")
         assertEquals(
             "https://maps.google.com/maps/api/geocode/json?address=Helsinki&sensor=false&key=dummy",
             request.requestUrl
