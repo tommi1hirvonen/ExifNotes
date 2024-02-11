@@ -26,12 +26,13 @@ import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.sorted
+import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FramesViewModel(application: Application, private val database: Database, roll: Roll)
+class FramesViewModel(application: Application, private val repository: FrameRepository, roll: Roll)
     : AndroidViewModel(application) {
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.baseContext)
@@ -69,8 +70,8 @@ class FramesViewModel(application: Application, private val database: Database, 
     }
 
     fun submitFrame(frame: Frame) {
-        if (database.updateFrame(frame) == 0) {
-            database.addFrame(frame)
+        if (repository.updateFrame(frame) == 0) {
+            repository.addFrame(frame)
         }
         val sortMode = mFrameSortMode.value ?: FrameSortMode.FRAME_COUNT
         mFrames.value = mFrames.value
@@ -80,7 +81,7 @@ class FramesViewModel(application: Application, private val database: Database, 
     }
 
     fun deleteFrame(frame: Frame) {
-        database.deleteFrame(frame)
+        repository.deleteFrame(frame)
         mFrames.value = mFrames.value?.minus(frame)
     }
 
@@ -88,7 +89,7 @@ class FramesViewModel(application: Application, private val database: Database, 
         val sortMode = mFrameSortMode.value ?: FrameSortMode.FRAME_COUNT
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                mFrames.postValue(database.getFrames(roll).sorted(getApplication(), sortMode))
+                mFrames.postValue(repository.getFrames(roll).sorted(getApplication(), sortMode))
             }
         }
     }
@@ -96,14 +97,14 @@ class FramesViewModel(application: Application, private val database: Database, 
 
 class FramesViewModelFactory(
     private val application: Application,
-    private val database: Database,
+    private val repository: FrameRepository,
     private val roll: Roll
 )
     : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         if (modelClass.isAssignableFrom(FramesViewModel::class.java)) {
-            return FramesViewModel(application, database, roll) as T
+            return FramesViewModel(application, repository, roll) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

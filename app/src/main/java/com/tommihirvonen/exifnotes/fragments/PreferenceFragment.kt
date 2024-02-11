@@ -37,6 +37,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.activities.PreferenceActivity
 import com.tommihirvonen.exifnotes.data.Database
+import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.preferences.*
 import com.tommihirvonen.exifnotes.utilities.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,11 +52,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class PreferenceFragment : PreferenceFragmentCompat() {
 
-    @Inject
-    lateinit var database: Database
-
-    @Inject
-    lateinit var complementaryPicturesManager: ComplementaryPicturesManager
+    @Inject lateinit var database: Database
+    @Inject lateinit var frameRepository: FrameRepository
+    @Inject lateinit var complementaryPicturesManager: ComplementaryPicturesManager
 
     private inner class ExportPictures : CreateDocument("application/zip") {
         override fun createIntent(context: Context, input: String): Intent {
@@ -248,7 +247,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
             //If the length of filePath is 0, then the user canceled the import.
             if (filePath.isNotEmpty() && extension == "db") {
                 val importSuccess: Boolean = try {
-                    database.importDatabase(requireActivity(), filePath)
+                    database.importDatabase(filePath)
                 } catch (e: IOException) {
                     val message = resources.getString(R.string.ErrorImportingDatabaseFrom) +
                             filePath
@@ -275,7 +274,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
     }
 
     private fun exportComplementaryPictures(picturesUri: Uri) {
-        val complementaryPictureFilenames = database.complementaryPictureFilenames.toTypedArray()
+        val complementaryPictureFilenames = frameRepository.complementaryPictureFilenames.toTypedArray()
         val data = Data.Builder()
             .putString(ExtraKeys.TARGET_URI, picturesUri.toString())
             .putStringArray(ExtraKeys.FILENAMES, complementaryPictureFilenames)
@@ -290,7 +289,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
     private fun exportDatabase(destinationUri: Uri) {
         try {
             val outputStream = requireContext().contentResolver.openOutputStream(destinationUri)
-            val databaseFile = Database.getDatabaseFile(requireActivity())
+            val databaseFile = database.getDatabaseFile()
             val inputStream: InputStream = FileInputStream(databaseFile)
             inputStream.copyTo(outputStream!!)
             inputStream.close()

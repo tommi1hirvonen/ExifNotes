@@ -26,6 +26,11 @@ import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.data.repositories.CameraLensRepository
+import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
+import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
+import com.tommihirvonen.exifnotes.data.repositories.LensFilterRepository
+import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,7 +38,12 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class GearViewModel @Inject constructor(private val database: Database) : ViewModel() {
+class GearViewModel @Inject constructor(private val cameraRepository: CameraRepository,
+                                        private val lensRepository: LensRepository,
+                                        private val filterRepository: FilterRepository,
+                                        private val cameraLensRepository: CameraLensRepository,
+                                        private val lensFilterRepository: LensFilterRepository)
+    : ViewModel() {
 
     val cameras: LiveData<State<List<Camera>>> get() = mCameras
     val lenses: LiveData<List<Lens>> get() = mLenses
@@ -44,7 +54,7 @@ class GearViewModel @Inject constructor(private val database: Database) : ViewMo
             viewModelScope.launch {
                 withContext(Dispatchers.IO) {
                     postValue(State.InProgress())
-                    cameraList = database.cameras.sorted()
+                    cameraList = cameraRepository.cameras.sorted()
                     postValue(State.Success(cameraList))
                 }
             }
@@ -57,7 +67,7 @@ class GearViewModel @Inject constructor(private val database: Database) : ViewMo
         MutableLiveData<List<Lens>>().apply {
             viewModelScope.launch {
                 withContext(Dispatchers.IO) {
-                    postValue(database.lenses.sorted())
+                    postValue(lensRepository.lenses.sorted())
                 }
             }
         }
@@ -67,15 +77,15 @@ class GearViewModel @Inject constructor(private val database: Database) : ViewMo
         MutableLiveData<List<Filter>>().apply {
             viewModelScope.launch {
                 withContext(Dispatchers.IO) {
-                    postValue(database.filters.sorted())
+                    postValue(filterRepository.filters.sorted())
                 }
             }
         }
     }
 
     fun submitCamera(camera: Camera) {
-        if (database.updateCamera(camera) == 0) {
-            database.addCamera(camera)
+        if (cameraRepository.updateCamera(camera) == 0) {
+            cameraRepository.addCamera(camera)
         }
         replaceCamera(camera)
     }
@@ -86,14 +96,14 @@ class GearViewModel @Inject constructor(private val database: Database) : ViewMo
     }
 
     fun deleteCamera(camera: Camera) {
-        database.deleteCamera(camera)
+        cameraRepository.deleteCamera(camera)
         cameraList = cameraList.minus(camera)
         mCameras.value = State.Success(cameraList)
     }
 
     fun submitLens(lens: Lens) {
-        if (database.updateLens(lens) == 0) {
-            database.addLens(lens)
+        if (lensRepository.updateLens(lens) == 0) {
+            lensRepository.addLens(lens)
         }
         replaceLens(lens)
     }
@@ -103,13 +113,13 @@ class GearViewModel @Inject constructor(private val database: Database) : ViewMo
     }
 
     fun deleteLens(lens: Lens) {
-        database.deleteLens(lens)
+        lensRepository.deleteLens(lens)
         mLenses.value = mLenses.value?.minus(lens)
     }
 
     fun submitFilter(filter: Filter) {
-        if (database.updateFilter(filter) == 0) {
-            database.addFilter(filter)
+        if (filterRepository.updateFilter(filter) == 0) {
+            filterRepository.addFilter(filter)
         }
         replaceFilter(filter)
     }
@@ -119,12 +129,12 @@ class GearViewModel @Inject constructor(private val database: Database) : ViewMo
     }
 
     fun deleteFilter(filter: Filter) {
-        database.deleteFilter(filter)
+        filterRepository.deleteFilter(filter)
         mFilters.value = mFilters.value?.minus(filter)
     }
 
     fun addCameraLensLink(camera: Camera, lens: Lens) {
-        database.addCameraLensLink(camera, lens)
+        cameraLensRepository.addCameraLensLink(camera, lens)
         camera.lensIds = camera.lensIds.plus(lens.id).toHashSet()
         lens.cameraIds = lens.cameraIds.plus(camera.id).toHashSet()
         replaceCamera(camera)
@@ -132,7 +142,7 @@ class GearViewModel @Inject constructor(private val database: Database) : ViewMo
     }
 
     fun deleteCameraLensLink(camera: Camera, lens: Lens) {
-        database.deleteCameraLensLink(camera, lens)
+        cameraLensRepository.deleteCameraLensLink(camera, lens)
         camera.lensIds = camera.lensIds.minus(lens.id).toHashSet()
         lens.cameraIds = lens.cameraIds.minus(camera.id).toHashSet()
         replaceCamera(camera)
@@ -140,7 +150,7 @@ class GearViewModel @Inject constructor(private val database: Database) : ViewMo
     }
 
     fun addLensFilterLink(filter: Filter, lens: Lens, isFixedLens: Boolean) {
-        database.addLensFilterLink(filter, lens)
+        lensFilterRepository.addLensFilterLink(filter, lens)
         filter.lensIds = filter.lensIds.plus(lens.id).toHashSet()
         lens.filterIds = lens.filterIds.plus(filter.id).toHashSet()
         replaceFilter(filter)
@@ -150,7 +160,7 @@ class GearViewModel @Inject constructor(private val database: Database) : ViewMo
     }
 
     fun deleteLensFilterLink(filter: Filter, lens: Lens, isFixedLens: Boolean) {
-        database.deleteLensFilterLink(filter, lens)
+        lensFilterRepository.deleteLensFilterLink(filter, lens)
         filter.lensIds = filter.lensIds.minus(lens.id).toHashSet()
         lens.filterIds = lens.filterIds.minus(filter.id).toHashSet()
         replaceFilter(filter)

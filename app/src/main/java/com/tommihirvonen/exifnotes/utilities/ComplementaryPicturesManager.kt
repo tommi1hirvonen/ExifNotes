@@ -29,7 +29,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.exifinterface.media.ExifInterface
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.data.Database
+import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.*
 import java.util.*
@@ -43,7 +43,7 @@ import javax.inject.Singleton
 class ComplementaryPicturesManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val complementaryPicturesDirectoryProvider: ComplementaryPicturesDirectoryProvider,
-    private val database: Database
+    private val frameRepository: FrameRepository
 ) {
 
     companion object {
@@ -317,7 +317,7 @@ class ComplementaryPicturesManager @Inject constructor(
      */
     fun deleteUnusedPictures() {
         // List of all filenames that are being used in the database
-        val complementaryPictureFilenames = database.complementaryPictureFilenames
+        val complementaryPictureFilenames = frameRepository.complementaryPictureFilenames
         // The application private external storage directory, where complementary pictures are stored
         val picturesDirectory = complementaryPicturesDirectoryProvider.directory
         // Create a FileNameFilter using the filenames

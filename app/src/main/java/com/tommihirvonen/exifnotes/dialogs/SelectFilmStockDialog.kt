@@ -29,8 +29,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilmManufacturerAdapter
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.data.repositories.FilmStockRepository
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.setNavigationResult
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,8 +39,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SelectFilmStockDialog : DialogFragment() {
 
-    @Inject
-    lateinit var database: Database
+    @Inject lateinit var filmStockRepository: FilmStockRepository
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -58,7 +57,7 @@ class SelectFilmStockDialog : DialogFragment() {
         val dialog = builder.create()
         val adapter = FilmManufacturerAdapter(requireContext(), onFilmStockSelected)
         manufacturersRecyclerView.adapter = adapter
-        val filmStocks = database.filmStocks
+        val filmStocks = filmStockRepository.filmStocks
         adapter.setFilmStocks(filmStocks)
         adapter.notifyDataSetChanged()
         return dialog

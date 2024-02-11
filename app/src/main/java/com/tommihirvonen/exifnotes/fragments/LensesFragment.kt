@@ -33,11 +33,11 @@ import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.LensAdapter
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.FragmentLensesBinding
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
@@ -50,8 +50,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class LensesFragment : Fragment() {
 
-    @Inject
-    lateinit var database: Database
+    @Inject lateinit var lensRepository: LensRepository
 
     // Share the ViewModel together with FiltersFragment and CamerasFragment
     // through the same navigation subgraph.
@@ -138,7 +137,7 @@ class LensesFragment : Fragment() {
 
     private fun confirmDeleteLens(lens: Lens) {
         // Check if the lens is being used with one of the frames.
-        if (database.isLensInUse(lens)) {
+        if (lensRepository.isLensInUse(lens)) {
             val message = resources.getString(R.string.LensNoColon) +
                     " " + lens.name + " " +
                     resources.getString(R.string.IsBeingUsed)

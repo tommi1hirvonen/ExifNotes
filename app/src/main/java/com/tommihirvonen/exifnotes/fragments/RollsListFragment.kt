@@ -50,7 +50,7 @@ import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
-import com.tommihirvonen.exifnotes.data.Database
+import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsListBinding
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
@@ -67,8 +67,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class RollsListFragment : Fragment(), RollAdapterListener {
 
-    @Inject
-    lateinit var database: Database
+    @Inject lateinit var rollRepository: RollRepository
 
     private val model by activityViewModels<RollsViewModel>()
     private var rolls = emptyList<Roll>()
@@ -116,7 +115,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         binding.rollsRecyclerView.layoutManager = layoutManager
         binding.rollsRecyclerView.addOnScrollListener(OnScrollExtendedFabListener(binding.fab))
 
-        rollAdapter = RollAdapter(database, requireActivity(), this, binding.rollsRecyclerView)
+        rollAdapter = RollAdapter(rollRepository, requireActivity(), this, binding.rollsRecyclerView)
         binding.rollsRecyclerView.adapter = rollAdapter
         rollAdapter.onItemSelectedChanged = { item, selected ->
             if (selected) model.selectedRolls.add(item)

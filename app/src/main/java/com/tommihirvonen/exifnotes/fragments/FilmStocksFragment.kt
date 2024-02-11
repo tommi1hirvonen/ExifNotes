@@ -32,13 +32,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilmStockAdapter
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.FragmentFilmsBinding
 import com.tommihirvonen.exifnotes.core.entities.FilmProcess
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.core.entities.FilmStockSortMode
 import com.tommihirvonen.exifnotes.core.entities.FilmType
+import com.tommihirvonen.exifnotes.data.repositories.FilmStockRepository
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.observeThenClearNavigationResult
 import com.tommihirvonen.exifnotes.utilities.setIconsVisible
@@ -50,8 +50,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class FilmStocksFragment : Fragment(), MenuProvider {
 
-    @Inject
-    lateinit var database: Database
+    @Inject lateinit var filmStockRepository: FilmStockRepository
 
     private val model by viewModels<FilmStocksViewModel>()
 
@@ -166,7 +165,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         builder.setTitle(
             resources.getString(R.string.DeleteFilmStock) + " " + filmStock.name
         )
-        if (database.isFilmStockBeingUsed(filmStock)) {
+        if (filmStockRepository.isFilmStockBeingUsed(filmStock)) {
             builder.setMessage(R.string.FilmStockIsInUseConfirmation)
         }
         builder.setNegativeButton(R.string.Cancel) { _, _ -> }

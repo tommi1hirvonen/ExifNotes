@@ -41,12 +41,13 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsMapBinding
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.sortableDateTime
+import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
+import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollData
@@ -62,8 +63,8 @@ import kotlin.math.roundToInt
 @AndroidEntryPoint
 class RollsMapFragment : Fragment(), OnMapReadyCallback {
 
-    @Inject
-    lateinit var database: Database
+    @Inject lateinit var rollRepository: RollRepository
+    @Inject lateinit var frameRepository: FrameRepository
 
     private val filterMode by lazy {
         val activity = requireActivity()
@@ -73,7 +74,11 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private val model by viewModels<RollsMapViewModel> {
-        RollsMapViewModelFactory(requireActivity().application, database, filterMode)
+        RollsMapViewModelFactory(
+            requireActivity().application,
+            rollRepository,
+            frameRepository,
+            filterMode)
     }
 
     private var rollSelections = emptyList<RollData>()
@@ -169,7 +174,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         postponeEnterTransition()
-        observeThenClearNavigationResult(ExtraKeys.FRAME, database::updateFrame)
+        observeThenClearNavigationResult(ExtraKeys.FRAME, frameRepository::updateFrame)
     }
 
     private val onMenuItemSelected = { item: MenuItem ->

@@ -37,7 +37,7 @@ import com.tommihirvonen.exifnotes.adapters.CameraAdapter
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
-import com.tommihirvonen.exifnotes.data.Database
+import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.databinding.FragmentCamerasBinding
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
@@ -51,8 +51,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class CamerasFragment : Fragment() {
 
-    @Inject
-    lateinit var database: Database
+    @Inject lateinit var cameraRepository: CameraRepository
 
     // Share the ViewModel together with FiltersFragment and LensesFragment
     // through the same navigation subgraph.
@@ -144,7 +143,7 @@ class CamerasFragment : Fragment() {
 
     private fun confirmDeleteCamera(camera: Camera) {
         // Check if the camera is being used with one of the rolls.
-        if (database.isCameraBeingUsed(camera)) {
+        if (cameraRepository.isCameraBeingUsed(camera)) {
             val message = resources.getString(R.string.CameraNoColon) +
                     " " + camera.name + " " +
                     resources.getString(R.string.IsBeingUsed)

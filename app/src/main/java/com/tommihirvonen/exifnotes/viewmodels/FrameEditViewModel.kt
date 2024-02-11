@@ -33,7 +33,11 @@ import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
-import com.tommihirvonen.exifnotes.data.Database
+import com.tommihirvonen.exifnotes.data.repositories.CameraLensRepository
+import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
+import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
+import com.tommihirvonen.exifnotes.data.repositories.LensFilterRepository
+import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.geocoder.GeocoderResponse
 import com.tommihirvonen.exifnotes.utilities.readableCoordinates
@@ -41,7 +45,11 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class FrameEditViewModel(application: Application,
-                         private val database: Database,
+                         private val cameraRepository: CameraRepository,
+                         private val lensRepository: LensRepository,
+                         private val cameraLensRepository: CameraLensRepository,
+                         private val filterRepository: FilterRepository,
+                         private val lensFilterRepository: LensFilterRepository,
                          private val geocoderRequestBuilder: GeocoderRequestBuilder,
                          val frame: Frame
 )
@@ -76,26 +84,26 @@ class FrameEditViewModel(application: Application,
     var pictureFilename: String? = null
 
     private var lenses: List<Lens> =
-        frame.roll.camera?.let(database::getLinkedLenses) ?: database.lenses
+        frame.roll.camera?.let(cameraRepository::getLinkedLenses) ?: lensRepository.lenses
         set(value) {
             field = value
             observable.notifyPropertyChanged(BR.lensItems)
         }
 
-    var filters: List<Filter> = lens?.let(database::getLinkedFilters) ?: database.filters
+    var filters: List<Filter> = lens?.let(lensRepository::getLinkedFilters) ?: filterRepository.filters
 
     fun addLens(lens: Lens) {
-        database.addLens(lens)
+        lensRepository.addLens(lens)
         frame.roll.camera?.let {
-            database.addCameraLensLink(it, lens)
+            cameraLensRepository.addCameraLensLink(it, lens)
         }
         lenses = lenses.plus(lens).sorted()
         observable.setLens(lens)
     }
 
     fun addFilter(filter: Filter) {
-        database.addFilter(filter)
-        lens?.let { database.addLensFilterLink(filter, it) }
+        filterRepository.addFilter(filter)
+        lens?.let { lensFilterRepository.addLensFilterLink(filter, it) }
         filters = filters.plus(filter).sorted()
         observable.setFilters(frame.filters.plus(filter))
     }
@@ -182,7 +190,7 @@ class FrameEditViewModel(application: Application,
             notifyPropertyChanged(BR.lens)
 
             // Check that filters only contain compatible filters with the current lens.
-            filters = value?.let(database::getLinkedFilters) ?: database.filters
+            filters = value?.let(lensRepository::getLinkedFilters) ?: filterRepository.filters
             setFilters(frame.filters.filter(filters::contains))
 
             // Check that the aperture value is compatible with the current lens.
@@ -328,7 +336,11 @@ class FrameEditViewModel(application: Application,
 }
 
 class FrameEditViewModelFactory(val application: Application,
-                                private val database: Database,
+                                private val cameraRepository: CameraRepository,
+                                private val lensRepository: LensRepository,
+                                private val cameraLensRepository: CameraLensRepository,
+                                private val filterRepository: FilterRepository,
+                                private val lensFilterRepository: LensFilterRepository,
                                 private val geocoderRequestBuilder: GeocoderRequestBuilder,
                                 val frame: Frame
 )
@@ -336,7 +348,15 @@ class FrameEditViewModelFactory(val application: Application,
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(FrameEditViewModel::class.java)) {
-            return FrameEditViewModel(application, database, geocoderRequestBuilder, frame) as T
+            return FrameEditViewModel(
+                application,
+                cameraRepository,
+                lensRepository,
+                cameraLensRepository,
+                filterRepository,
+                lensFilterRepository,
+                geocoderRequestBuilder,
+                frame) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

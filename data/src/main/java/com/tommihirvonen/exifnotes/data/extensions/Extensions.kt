@@ -16,11 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.data
+package com.tommihirvonen.exifnotes.data.extensions
 
+import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteOpenHelper
 import androidx.core.database.getLongOrNull
+import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.data.constants.*
 
 internal fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
     generateSequence { if (moveToNext()) this else null }.map(transform).toList()
@@ -66,3 +69,18 @@ internal fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndexOrThr
 internal fun Cursor.getString(columnName: String): String = getString(getColumnIndexOrThrow(columnName))
 
 internal fun Cursor.getStringOrNull(columnName: String): String? = getString(getColumnIndexOrThrow(columnName))
+
+/**
+ * Builds ContentValues container from a FilmStock object
+ *
+ * @param filmStock FilmStock object of which the ContentValues is created
+ * @return ContentValues containing the attributes of the FilmStock object
+ */
+internal fun buildFilmStockContentValues(filmStock: FilmStock) = ContentValues().apply {
+    put(KEY_FILM_MANUFACTURER_NAME, filmStock.make)
+    put(KEY_FILM_STOCK_NAME, filmStock.model)
+    put(KEY_FILM_ISO, filmStock.iso)
+    put(KEY_FILM_TYPE, filmStock.type.ordinal)
+    put(KEY_FILM_PROCESS, filmStock.process.ordinal)
+    put(KEY_FILM_IS_PREADDED, filmStock.isPreadded)
+}

@@ -59,7 +59,10 @@ import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.utilities.LocationPickResponse
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.localDateTimeOrNull
-import com.tommihirvonen.exifnotes.data.Database
+import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
+import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
+import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
+import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.databinding.DialogSingleDropdownBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFramesListBinding
 import com.tommihirvonen.exifnotes.rollexport.RollExportHelper
@@ -84,7 +87,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
-    @Inject lateinit var database: Database
+    @Inject lateinit var frameRepository: FrameRepository
+    @Inject lateinit var cameraRepository: CameraRepository
+    @Inject lateinit var lensRepository: LensRepository
+    @Inject lateinit var filterRepository: FilterRepository
     @Inject lateinit var complementaryPicturesManager: ComplementaryPicturesManager
     @Inject lateinit var rollShareIntentBuilder: RollShareIntentBuilder
     @Inject lateinit var rollExportHelper: RollExportHelper
@@ -92,7 +98,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
     val arguments by navArgs<FramesListFragmentArgs>()
 
     private val model by navGraphViewModels<FramesViewModel>(R.id.frames_navigation) {
-        FramesViewModelFactory(requireActivity().application, database, arguments.roll)
+        FramesViewModelFactory(requireActivity().application, frameRepository, arguments.roll)
     }
 
     private val rollModel by activityViewModels<RollsViewModel>()
@@ -495,8 +501,8 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 2 -> {
                                     MaterialAlertDialogBuilder(requireContext()).apply {
                                         setNegativeButton(R.string.Cancel) { _, _ -> }
-                                        val lenses = roll.camera?.let(database::getLinkedLenses)
-                                            ?: database.lenses
+                                        val lenses = roll.camera?.let(cameraRepository::getLinkedLenses)
+                                            ?: lensRepository.lenses
                                         val listItems = listOf(resources.getString(R.string.NoLens))
                                             .plus(lenses.map(Lens::name)).toTypedArray()
                                         setItems(listItems) { dialog, which ->
@@ -561,7 +567,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                                 }
                                 // Edit filters
                                 5 -> {
-                                    val filters = database.filters
+                                    val filters = filterRepository.filters
                                     val listItems = filters.map(Filter::name).toTypedArray()
                                     val selections = BooleanArray(filters.size)
                                     MaterialAlertDialogBuilder(requireContext())

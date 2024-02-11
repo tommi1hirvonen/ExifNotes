@@ -18,21 +18,21 @@
 
 package com.tommihirvonen.exifnotes.rollexport
 
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.utilities.illegalCharsRemoved
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class RollExportBuilder @Inject constructor(
-    private val database: Database,
+    private val frameRepository: FrameRepository,
     private val csvBuilder: CsvBuilder,
     private val exifToolCommandsBuilder: ExifToolCommandsBuilder) {
 
     fun create(roll: Roll, options: List<RollExportOption>): List<RollExport> {
-        val frames = database.getFrames(roll)
+        val frames = frameRepository.getFrames(roll)
         return options.map { option ->
             val (filename, content) = contentMapping(roll, frames, option)
             RollExport(option, filename, content)

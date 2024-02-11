@@ -29,15 +29,17 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.data.repositories.FilmStockRepository
 import com.tommihirvonen.exifnotes.utilities.validate
 import java.time.LocalDateTime
 
-class RollEditViewModel(application: Application, private val database: Database, val roll: Roll)
+class RollEditViewModel(application: Application,
+                        private val filmStockRepository: FilmStockRepository,
+                        val roll: Roll)
     :AndroidViewModel(application) {
 
     var cameras: List<Camera> = emptyList()
@@ -62,7 +64,7 @@ class RollEditViewModel(application: Application, private val database: Database
     }
 
     fun addFilmStock(filmStock: FilmStock) {
-        database.addFilmStock(filmStock)
+        filmStockRepository.addFilmStock(filmStock)
         observable.setFilmStock(filmStock)
     }
 
@@ -222,14 +224,14 @@ class RollEditViewModel(application: Application, private val database: Database
 }
 
 class RollEditViewModelFactory(private val application: Application,
-                               private val database: Database,
+                               private val filmStockRepository: FilmStockRepository,
                                private val roll: Roll
 )
     : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         if (modelClass.isAssignableFrom(RollEditViewModel::class.java)) {
-            return RollEditViewModel(application, database, roll) as T
+            return RollEditViewModel(application, filmStockRepository, roll) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -25,12 +25,15 @@ import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
+import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
+import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class RollsMapViewModel(application: Application,
-                        private val database: Database,
+                        private val rollRepository: RollRepository,
+                        private val frameRepository: FrameRepository,
                         private val filterMode: RollFilterMode
 )
     : AndroidViewModel(application) {
@@ -61,10 +64,10 @@ class RollsMapViewModel(application: Application,
     private fun loadData() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val rolls = database.getRolls(filterMode)
+                val rolls = rollRepository.getRolls(filterMode)
                 val data = rolls.mapIndexed { index, roll ->
                     val i = index % markerBitmaps.size
-                    RollData(roll, true, markerBitmaps[i], database.getFrames(roll))
+                    RollData(roll, true, markerBitmaps[i], frameRepository.getFrames(roll))
                 }
                 mRolls.postValue(data)
             }
@@ -80,13 +83,14 @@ data class RollData(
 
 class RollsMapViewModelFactory(
     private val application: Application,
-    private val database: Database,
+    private val rollRepository: RollRepository,
+    private val frameRepository: FrameRepository,
     private val filterMode: RollFilterMode
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         if (modelClass.isAssignableFrom(RollsMapViewModel::class.java)) {
-            return RollsMapViewModel(application, database, filterMode) as T
+            return RollsMapViewModel(application, rollRepository, frameRepository, filterMode) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

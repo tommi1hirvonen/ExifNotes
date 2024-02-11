@@ -29,6 +29,7 @@ import com.tommihirvonen.exifnotes.core.entities.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.core.entities.FilmStockSortMode
 import com.tommihirvonen.exifnotes.core.entities.FilmType
 import com.tommihirvonen.exifnotes.core.entities.sorted
+import com.tommihirvonen.exifnotes.data.repositories.FilmStockRepository
 import com.tommihirvonen.exifnotes.utilities.applyPredicates
 import com.tommihirvonen.exifnotes.utilities.isEmptyOrContains
 import com.tommihirvonen.exifnotes.utilities.mapDistinct
@@ -38,7 +39,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class FilmStocksViewModel @Inject constructor(private val database: Database) : ViewModel() {
+class FilmStocksViewModel @Inject constructor(private val repository: FilmStockRepository) : ViewModel() {
 
     val filmStocks get() = filmStocksData as LiveData<List<FilmStock>>
     val sortMode get() = _sortMode as LiveData<FilmStockSortMode>
@@ -52,7 +53,7 @@ class FilmStocksViewModel @Inject constructor(private val database: Database) : 
     private val filmStocksData: MutableLiveData<List<FilmStock>> by lazy {
         MutableLiveData<List<FilmStock>>().apply {
             viewModelScope.launch(Dispatchers.IO) {
-                allFilmStocks = database.filmStocks
+                allFilmStocks = repository.filmStocks
                 filteredFilmStocks = allFilmStocks
                 postValue(filteredFilmStocks)
             }
@@ -73,14 +74,14 @@ class FilmStocksViewModel @Inject constructor(private val database: Database) : 
     }
 
     fun submitFilmStock(filmStock: FilmStock) {
-        if (database.updateFilmStock(filmStock) == 0) {
-            database.addFilmStock(filmStock)
+        if (repository.updateFilmStock(filmStock) == 0) {
+            repository.addFilmStock(filmStock)
         }
         replaceFilmStock(filmStock)
     }
 
     fun deleteFilmStock(filmStock: FilmStock) {
-        database.deleteFilmStock(filmStock)
+        repository.deleteFilmStock(filmStock)
         allFilmStocks = allFilmStocks.minus(filmStock)
         filteredFilmStocks = filteredFilmStocks.minus(filmStock)
         filmStocksData.value = filteredFilmStocks

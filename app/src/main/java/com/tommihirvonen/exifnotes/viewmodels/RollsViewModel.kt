@@ -30,7 +30,8 @@ import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 import com.tommihirvonen.exifnotes.core.entities.sorted
-import com.tommihirvonen.exifnotes.data.Database
+import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
+import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -39,9 +40,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class RollsViewModel @Inject constructor(
-    application: Application, private val database: Database
-) : AndroidViewModel(application) {
+class RollsViewModel @Inject constructor(application: Application,
+                                         private val rollRepository: RollRepository,
+                                         private val cameraRepository: CameraRepository)
+    : AndroidViewModel(application) {
 
     private val context get() = getApplication<Application>()
 
@@ -138,13 +140,13 @@ class RollsViewModel @Inject constructor(
     }
 
     fun addCamera(camera: Camera) {
-        database.addCamera(camera)
+        cameraRepository.addCamera(camera)
         mCameras.value = mCameras.value?.filterNot { it.id == camera.id }?.plus(camera)?.sorted()
     }
 
     fun submitRoll(roll: Roll) {
-        if (database.updateRoll(roll) == 0) {
-            database.addRoll(roll)
+        if (rollRepository.updateRoll(roll) == 0) {
+            rollRepository.addRoll(roll)
         }
         if (mRollFilterMode.value == RollFilterMode.ACTIVE && roll.archived
             || mRollFilterMode.value == RollFilterMode.ARCHIVED && !roll.archived) {
@@ -157,7 +159,7 @@ class RollsViewModel @Inject constructor(
     }
 
     fun deleteRoll(roll: Roll) {
-        database.deleteRoll(roll)
+        rollRepository.deleteRoll(roll)
         rollList = rollList.minus(roll)
         mRolls.value = State.Success(rollList)
         viewModelScope.launch { loadRollCounts() }
@@ -171,7 +173,7 @@ class RollsViewModel @Inject constructor(
 
     private suspend fun loadCameras() {
         withContext(Dispatchers.IO) {
-            mCameras.postValue(database.cameras)
+            mCameras.postValue(cameraRepository.cameras)
         }
     }
 
@@ -180,14 +182,14 @@ class RollsViewModel @Inject constructor(
             mRolls.postValue(State.InProgress())
             val filterMode = rollFilterMode.value ?: RollFilterMode.ACTIVE
             val sortMode = rollSortMode.value ?: RollSortMode.DATE
-            rollList = database.getRolls(filterMode).sorted(sortMode)
+            rollList = rollRepository.getRolls(filterMode).sorted(sortMode)
             mRolls.postValue(State.Success(rollList))
         }
     }
 
     private suspend fun loadRollCounts() {
         withContext(Dispatchers.IO) {
-            mRollCounts.postValue(database.rollCounts)
+            mRollCounts.postValue(rollRepository.rollCounts)
         }
     }
 }

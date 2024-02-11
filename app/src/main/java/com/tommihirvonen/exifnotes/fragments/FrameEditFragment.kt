@@ -48,10 +48,14 @@ import androidx.navigation.fragment.navArgs
 import androidx.transition.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.DialogSingleEditTextBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFrameEditBinding
 import com.tommihirvonen.exifnotes.core.entities.Filter
+import com.tommihirvonen.exifnotes.data.repositories.CameraLensRepository
+import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
+import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
+import com.tommihirvonen.exifnotes.data.repositories.LensFilterRepository
+import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.utilities.LocationPickResponse
 import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.utilities.*
@@ -72,21 +76,27 @@ import kotlin.math.roundToInt
 @AndroidEntryPoint
 class FrameEditFragment : Fragment() {
 
-    @Inject
-    lateinit var database: Database
-
-    @Inject
-    lateinit var complementaryPicturesManager: ComplementaryPicturesManager
-
-    @Inject
-    lateinit var geocoderRequestBuilder: GeocoderRequestBuilder
+    @Inject lateinit var cameraRepository: CameraRepository
+    @Inject lateinit var lensRepository: LensRepository
+    @Inject lateinit var cameraLensRepository: CameraLensRepository
+    @Inject lateinit var filterRepository: FilterRepository
+    @Inject lateinit var lensFilterRepository: LensFilterRepository
+    @Inject lateinit var complementaryPicturesManager: ComplementaryPicturesManager
+    @Inject lateinit var geocoderRequestBuilder: GeocoderRequestBuilder
 
     val arguments by navArgs<FrameEditFragmentArgs>()
     
     private lateinit var binding: FragmentFrameEditBinding
 
     private val model by viewModels<FrameEditViewModel> {
-        FrameEditViewModelFactory(requireActivity().application, database, geocoderRequestBuilder,
+        FrameEditViewModelFactory(
+            requireActivity().application,
+            cameraRepository,
+            lensRepository,
+            cameraLensRepository,
+            filterRepository,
+            lensFilterRepository,
+            geocoderRequestBuilder,
             arguments.frame.copy())
     }
 

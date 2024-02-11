@@ -35,7 +35,7 @@ import com.tommihirvonen.exifnotes.adapters.FilterAdapter
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
-import com.tommihirvonen.exifnotes.data.Database
+import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
 import com.tommihirvonen.exifnotes.databinding.FragmentFiltersBinding
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
@@ -49,8 +49,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class FiltersFragment : Fragment() {
 
-    @Inject
-    lateinit var database: Database
+    @Inject lateinit var filterRepository: FilterRepository
 
     // Share the ViewModel together with CamerasFragment and LensesFragment
     // through the same navigation subgraph.
@@ -198,7 +197,7 @@ class FiltersFragment : Fragment() {
 
     private fun confirmDeleteFilter(filter: Filter) {
         // Check if the filter is being used with one of the rolls.
-        if (database.isFilterBeingUsed(filter)) {
+        if (filterRepository.isFilterBeingUsed(filter)) {
             val message = resources.getString(R.string.FilterNoColon) +
                     " " + filter.name + " " +
                     resources.getString(R.string.IsBeingUsed)

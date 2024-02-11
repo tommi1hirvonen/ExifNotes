@@ -47,13 +47,11 @@ import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.core.entities.Coordinates
 import com.tommihirvonen.exifnotes.core.entities.Gear
 import java.io.*
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 import kotlin.math.absoluteValue
 
 inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
