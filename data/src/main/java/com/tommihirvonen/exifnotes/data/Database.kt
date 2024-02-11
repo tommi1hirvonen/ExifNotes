@@ -25,6 +25,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.widget.Toast
 import com.tommihirvonen.exifnotes.core.entities.*
 import com.tommihirvonen.exifnotes.data.constants.*
+import com.tommihirvonen.exifnotes.data.integrity.ExifNotesIntegrityCheck
 import com.tommihirvonen.exifnotes.data.repositories.FilmStockRepository
 import com.tommihirvonen.exifnotes.database.R
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -234,7 +235,8 @@ class Database @Inject constructor(@ApplicationContext private val context: Cont
                         Toast.LENGTH_LONG).show()
                 return false
             }
-            if (!runIntegrityCheck()) {
+            val integrityCheck = ExifNotesIntegrityCheck(readableDatabase)
+            if (!integrityCheck.runCheck()) {
                 //If the new database file failed the integrity check, replace it with the backup.
                 close()
                 oldDbBackup.copyTo(oldDb, overwrite = true)
@@ -244,218 +246,6 @@ class Database @Inject constructor(@ApplicationContext private val context: Cont
             }
             return true
         }
-        return false
-    }
-
-    /**
-     * Check the integrity of the current database.
-     * The database is valid if it can be used with this app.
-     *
-     * The integrity of the database is checked AFTER a new database is imported.
-     * New columns added during onUpgrade() will be present, which is why
-     * checkColumnProperties() should be run for all new columns as well.
-     *
-     * @return true if the database is a valid database to be used with this app
-     */
-    private fun runIntegrityCheck(): Boolean {
-        val integer = "int"
-        val text = "text"
-        val cascade = "CASCADE"
-        val setNull = "SET NULL"
-        //Run integrity checks to see if the current database is whole
-        return checkColumnProperties(
-            TABLE_CAMERAS, KEY_CAMERA_ID, integer, 0,
-                primaryKeyInput = true, autoIncrementInput = true) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAKE, text, 1) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MODEL, text, 1) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MAX_SHUTTER, text, 0) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_MIN_SHUTTER, text, 0) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SERIAL_NO, text, 0) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_SHUTTER_INCREMENTS, integer, 1) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_EXPOSURE_COMP_INCREMENTS, integer, 1) &&
-                checkColumnProperties(
-                    TABLE_CAMERAS, KEY_LENS_ID, integer, 0,
-                    primaryKeyInput = false, autoIncrementInput = false, foreignKeyInput = true,
-                    referenceTableNameInput = TABLE_LENSES, onDeleteActionInput = setNull) &&
-                checkColumnProperties(TABLE_CAMERAS, KEY_CAMERA_FORMAT, integer, 0) &&
-                checkColumnProperties(
-                    TABLE_LENSES, KEY_LENS_ID, integer, 0,
-                        primaryKeyInput = true, autoIncrementInput = true) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAKE, text, 1) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MODEL, text, 1) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_APERTURE, text, 0) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_APERTURE, text, 0) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MAX_FOCAL_LENGTH, integer, 0) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_MIN_FOCAL_LENGTH, integer, 0) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_SERIAL_NO, text, 0) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_APERTURE_INCREMENTS, integer, 1) &&
-                checkColumnProperties(TABLE_LENSES, KEY_LENS_CUSTOM_APERTURE_VALUES, text, 0) &&
-                checkColumnProperties(
-                    TABLE_FILTERS, KEY_FILTER_ID, integer, 0,
-                        primaryKeyInput = true, autoIncrementInput = true) &&
-                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MAKE, text, 1) &&
-                checkColumnProperties(TABLE_FILTERS, KEY_FILTER_MODEL, text, 1) &&
-                checkColumnProperties(
-                    TABLE_LINK_CAMERA_LENS, KEY_CAMERA_ID, integer, 1,
-                        primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
-                        referenceTableNameInput = TABLE_CAMERAS, onDeleteActionInput = cascade) &&
-                checkColumnProperties(
-                    TABLE_LINK_CAMERA_LENS, KEY_LENS_ID, integer, 1,
-                        primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
-                        referenceTableNameInput = TABLE_LENSES, onDeleteActionInput = cascade) &&
-                checkColumnProperties(
-                    TABLE_LINK_LENS_FILTER, KEY_LENS_ID, integer, 1,
-                        primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
-                        referenceTableNameInput = TABLE_LENSES, onDeleteActionInput = cascade) &&
-                checkColumnProperties(
-                    TABLE_LINK_LENS_FILTER, KEY_FILTER_ID, integer, 1,
-                        primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
-                        referenceTableNameInput = TABLE_FILTERS, onDeleteActionInput = cascade) &&
-                checkColumnProperties(
-                    TABLE_LINK_FRAME_FILTER, KEY_FRAME_ID, integer, 1,
-                        primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
-                        referenceTableNameInput = TABLE_FRAMES, onDeleteActionInput = cascade) &&
-                checkColumnProperties(
-                    TABLE_LINK_FRAME_FILTER, KEY_FILTER_ID, integer, 1,
-                        primaryKeyInput = true, autoIncrementInput = false, foreignKeyInput = true,
-                        referenceTableNameInput = TABLE_FILTERS, onDeleteActionInput = cascade) &&
-                checkColumnProperties(
-                    TABLE_ROLLS, KEY_ROLL_ID, integer, 0,
-                        primaryKeyInput = true, autoIncrementInput = true) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLLNAME, text, 1) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_DATE, text, 1) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_NOTE, text, 0) &&
-                checkColumnProperties(
-                    TABLE_ROLLS, KEY_CAMERA_ID, integer, 0,
-                        primaryKeyInput = false, autoIncrementInput = false, foreignKeyInput = true,
-                        referenceTableNameInput = TABLE_CAMERAS, onDeleteActionInput = setNull) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ISO, integer, 0) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_PUSH, text, 0) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_FORMAT, integer, 0) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_ARCHIVED, integer, 1) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_FILM_STOCK_ID, integer, 0) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_UNLOADED, text, 0) &&
-                checkColumnProperties(TABLE_ROLLS, KEY_ROLL_DEVELOPED, text, 0) &&
-                checkColumnProperties(
-                    TABLE_FRAMES, KEY_FRAME_ID, integer, 0,
-                        primaryKeyInput = true, autoIncrementInput = true) &&
-                checkColumnProperties(
-                    TABLE_FRAMES, KEY_ROLL_ID, integer, 1,
-                        primaryKeyInput = false, autoIncrementInput = false, foreignKeyInput = true,
-                        referenceTableNameInput = TABLE_ROLLS, onDeleteActionInput = cascade) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_COUNT, integer, 1) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_DATE, text, 1) &&
-                checkColumnProperties(
-                    TABLE_FRAMES, KEY_LENS_ID, integer, 0,
-                        primaryKeyInput = false, autoIncrementInput = false, foreignKeyInput = true,
-                        referenceTableNameInput = TABLE_LENSES, onDeleteActionInput = setNull) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_SHUTTER, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_APERTURE, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_NOTE, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_LOCATION, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FOCAL_LENGTH, integer, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_EXPOSURE_COMP, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_NO_OF_EXPOSURES, integer, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_USED, integer, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_POWER, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FLASH_COMP, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FRAME_SIZE, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_METERING_MODE, integer, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_FORMATTED_ADDRESS, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_PICTURE_FILENAME, text, 0) &&
-                checkColumnProperties(TABLE_FRAMES, KEY_LIGHT_SOURCE, integer, 0) &&
-                checkColumnProperties(
-                    TABLE_FILM_STOCKS, KEY_FILM_STOCK_ID, integer, 0,
-                        primaryKeyInput = true, autoIncrementInput = true) &&
-                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_STOCK_NAME, text, 1) &&
-                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_MANUFACTURER_NAME, text, 1) &&
-                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_ISO, integer, 0) &&
-                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_TYPE, integer, 0) &&
-                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_PROCESS, integer, 0) &&
-                checkColumnProperties(TABLE_FILM_STOCKS, KEY_FILM_IS_PREADDED, integer, 0)
-    }
-    /**
-     * Checks the properties of a table column. If all the parameters match to the
-     * database's properties, then the method returns true.
-     *
-     * @param tableNameInput the name of the table
-     * @param columnNameInput the name of the column in the table
-     * @param columnTypeInput the data type of the column
-     * @param notNullInput 1 if the column should be 'not null', 0 if null
-     * @param primaryKeyInput 1 if the column should be a primary key, 0 if not
-     * @param autoIncrementInput true if the table should be autoincrement
-     * @return true if the parameter properties match the database
-     */
-    private fun checkColumnProperties(tableNameInput: String, columnNameInput: String, columnTypeInput: String,
-                                      notNullInput: Int, primaryKeyInput: Boolean = false, autoIncrementInput: Boolean = false,
-                                      foreignKeyInput: Boolean = false, referenceTableNameInput: String? = null,
-                                      onDeleteActionInput: String? = null): Boolean {
-        val db = this.readableDatabase
-
-        //Check for possible autoincrement
-        if (autoIncrementInput) {
-            // We can check that the table is autoincrement from the master tables.
-            // Column 'sql' is the query with which the table was created.
-            // If a table is autoincrement, then it can only have one primary key.
-            // If the primary key matches, then also the autoincrement column is correct.
-            // The primary key will be checked later in this method.
-            val incrementQuery = "SELECT * FROM sqlite_master WHERE type = 'table' AND name = '$tableNameInput' AND sql LIKE '%AUTOINCREMENT%'"
-            val incrementCursor = db.rawQuery(incrementQuery, null)
-            if (!incrementCursor.moveToFirst()) {
-                //No rows were returned. The table has no autoincrement. Integrity check fails.
-                incrementCursor.close()
-                return false
-            }
-            incrementCursor.close()
-        }
-
-        //Check for possible foreign key reference
-        if (foreignKeyInput) {
-            // We can check that the column is a foreign key column using one of the SQLite pragma statements.
-            val foreignKeyQuery = "PRAGMA FOREIGN_KEY_LIST('$tableNameInput')"
-            val foreignKeyCursor = db.rawQuery(foreignKeyQuery, null)
-            var foreignKeyFound = false
-            //Iterate through the tables foreign key columns and get the properties.
-            while (foreignKeyCursor.moveToNext()) {
-                val table = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndexOrThrow("table"))
-                val from = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndexOrThrow("from"))
-                val onDelete = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndexOrThrow("on_delete"))
-                val to = foreignKeyCursor.getString(foreignKeyCursor.getColumnIndexOrThrow("to"))
-                //If the table, from-column and on-delete actions match to those defined
-                //by the parameters, the foreign key is correct. The to-column value
-                //should be null, because during table creation we have used the shorthand form
-                //to reference the parent table's primary key.
-                if (table == referenceTableNameInput && from == columnNameInput
-                        && onDelete.equals(onDeleteActionInput, ignoreCase = true) && to == null) {
-                    foreignKeyFound = true
-                    break
-                }
-            }
-            foreignKeyCursor.close()
-            //If foreign key was not defined, integrity check fails -> return false.
-            if (!foreignKeyFound) return false
-        }
-        val query = "PRAGMA TABLE_INFO('$tableNameInput');"
-        val cursor = db.rawQuery(query, null)
-
-        //Iterate the result rows...
-        while (cursor.moveToNext()) {
-            val columnName = cursor.getString(cursor.getColumnIndexOrThrow("name"))
-            // ...until the name checks.
-            if (columnName == columnNameInput) {
-                val columnType = cursor.getString(cursor.getColumnIndexOrThrow("type"))
-                val notNull = cursor.getInt(cursor.getColumnIndexOrThrow("notnull"))
-                //If the column is defined as primary key, the pk value is 1.
-                val primaryKey = cursor.getInt(cursor.getColumnIndexOrThrow("pk")) > 0
-                cursor.close()
-
-                //Check that the attributes are correct and return the result
-                return columnType.startsWith(columnTypeInput, ignoreCase = true) && //type can be int or integer
-                        notNull == notNullInput && primaryKey == primaryKeyInput
-            }
-        }
-        //We get here if no matching column names were found
-        cursor.close()
         return false
     }
 
