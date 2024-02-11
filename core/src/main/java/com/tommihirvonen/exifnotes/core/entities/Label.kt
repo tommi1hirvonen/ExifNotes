@@ -16,16 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.data.constants
+package com.tommihirvonen.exifnotes.core.entities
 
-internal const val TABLE_FRAMES = "frames"
-internal const val TABLE_LENSES = "lenses"
-internal const val TABLE_ROLLS = "rolls"
-internal const val TABLE_CAMERAS = "cameras"
-internal const val TABLE_LINK_CAMERA_LENS = "link_camera_lens"
-internal const val TABLE_FILTERS = "filters"
-internal const val TABLE_LINK_LENS_FILTER = "link_lens_filter"
-internal const val TABLE_LINK_FRAME_FILTER = "link_frame_filter"
-internal const val TABLE_FILM_STOCKS = "film_stocks"
-internal const val TABLE_LABELS = "labels"
-internal const val TABLE_LINK_ROLL_LABEL = "link_roll_label"
+import android.os.Parcelable
+import androidx.annotation.Keep
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
+
+@Parcelize
+@Serializable
+@Keep
+data class Label(var id: Long = 0, var name: String = "") : Parcelable {
+    override fun equals(other: Any?) = other is Label && other.id == id
+    override fun hashCode() = id.hashCode()
+}

@@ -34,11 +34,22 @@ import javax.inject.Singleton
 @Singleton
 class RollRepository @Inject constructor(private val database: Database,
                                          private val cameras: CameraRepository,
+                                         private val labels: LabelRepository,
                                          private val filmStocks: FilmStockRepository) {
 
     fun addRoll(roll: Roll): Long {
         val id = database.writableDatabase.insert(TABLE_ROLLS, null, buildRollContentValues(roll))
         roll.id = id
+        for (label in roll.labels) {
+            if (label.id == 0L) {
+                labels.addLabel(label)
+            }
+            val values = ContentValues().apply {
+                put(KEY_ROLL_ID, id)
+                put(KEY_LABEL_ID, label.id)
+            }
+            database.writableDatabase.insert(TABLE_LINK_ROLL_LABEL, null, values)
+        }
         return id
     }
 
@@ -49,8 +60,7 @@ class RollRepository @Inject constructor(private val database: Database,
             RollFilterMode.ALL -> null
             else -> "$KEY_ROLL_ARCHIVED=0"
         }
-        return database.select(
-            TABLE_ROLLS,
+        return database.select(TABLE_ROLLS,
             selection = selection,
             orderBy = "$KEY_ROLL_DATE DESC") { row ->
             Roll(
@@ -65,8 +75,11 @@ class RollRepository @Inject constructor(private val database: Database,
                 pushPull = row.getStringOrNull(KEY_ROLL_PUSH),
                 format = Format.from(row.getInt(KEY_ROLL_FORMAT)),
                 archived = row.getInt(KEY_ROLL_ARCHIVED) > 0,
+                favorite = row.getInt(KEY_ROLL_FAVORITE) > 0,
                 filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(filmStocks::getFilmStock)
-            )
+            ).apply {
+                labels.addAll(this@RollRepository.labels.getLabels(this))
+            }
         }
     }
 
@@ -87,6 +100,20 @@ class RollRepository @Inject constructor(private val database: Database,
 
     fun updateRoll(roll: Roll): Int {
         val contentValues = buildRollContentValues(roll)
+        val labels = labels.getLabels(roll)
+        val labelsToAdd = roll.labels.filterNot { labels.contains(it) }
+        val labelsToRemove = labels.filterNot { roll.labels.contains(it) }
+        for (label in labelsToAdd) {
+            val values = ContentValues().apply {
+                put(KEY_ROLL_ID, roll.id)
+                put(KEY_LABEL_ID, label.id)
+            }
+            database.writableDatabase.insert(TABLE_LINK_ROLL_LABEL, null, values)
+        }
+        for (label in labelsToRemove) {
+            database.writableDatabase.delete(TABLE_LINK_ROLL_LABEL,
+                "$KEY_ROLL_ID = ? AND $KEY_LABEL_ID = ?", arrayOf(roll.id.toString(), label.id.toString()))
+        }
         return database.writableDatabase
             .update(TABLE_ROLLS, contentValues, "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()))
     }
@@ -110,6 +137,7 @@ class RollRepository @Inject constructor(private val database: Database,
         put(KEY_ROLL_PUSH, roll.pushPull)
         put(KEY_ROLL_FORMAT, roll.format.ordinal)
         put(KEY_ROLL_ARCHIVED, roll.archived)
+        put(KEY_ROLL_FAVORITE, roll.favorite)
 
         val filmStock = roll.filmStock
         if (filmStock != null) put(KEY_FILM_STOCK_ID, filmStock.id)

@@ -79,6 +79,7 @@ internal class ExifNotesIntegrityCheck(db: SQLiteDatabase) : IntegrityCheck(db) 
             col(KEY_FILM_STOCK_ID, INT).foreignKey(TABLE_FILM_STOCKS, SET_NULL)
             col(KEY_ROLL_UNLOADED, TEXT)
             col(KEY_ROLL_DEVELOPED, TEXT)
+            col(KEY_ROLL_FAVORITE, INT).notNull()
         }
         table(TABLE_FRAMES) {
             col(KEY_FRAME_ID, INT).primaryKey().autoIncrement()
@@ -110,6 +111,14 @@ internal class ExifNotesIntegrityCheck(db: SQLiteDatabase) : IntegrityCheck(db) 
             col(KEY_FILM_TYPE, INT)
             col(KEY_FILM_PROCESS, INT)
             col(KEY_FILM_IS_PREADDED, INT)
+        }
+        table(TABLE_LABELS) {
+            col(KEY_LABEL_ID, INT).notNull().primaryKey().autoIncrement()
+            col(KEY_LABEL_NAME, TEXT).notNull()
+        }
+        table(TABLE_LINK_ROLL_LABEL) {
+            col(KEY_ROLL_ID, INT).notNull().primaryKey().foreignKey(TABLE_ROLLS, CASCADE)
+            col(KEY_LABEL_ID, INT).notNull().primaryKey().foreignKey(TABLE_LABELS, CASCADE)
         }
     }
 }

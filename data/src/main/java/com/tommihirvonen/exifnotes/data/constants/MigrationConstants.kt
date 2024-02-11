@@ -218,3 +218,6 @@ internal const val LENS_FILTER_LINK_TABLE_REVISION_3 = ("insert into " + TABLE_L
         + "where " + KEY_LENS_ID + " in (select " + KEY_LENS_ID + " from " + TABLE_LENSES + ") "
         + "and " + KEY_FILTER_ID + " in (select " + KEY_FILTER_ID + " from " + TABLE_FILTERS + ")" + ";")
 internal const val LENS_FILTER_LINK_TABLE_REVISION_4 = "drop table temp_mountable_filters_lenses;"
+
+internal const val ALTER_TABLE_ROLLS_ADD_FAVORITE =
+    "alter table $TABLE_ROLLS add column $KEY_ROLL_FAVORITE integer not null default 0;"

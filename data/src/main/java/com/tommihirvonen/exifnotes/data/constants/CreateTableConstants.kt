@@ -72,7 +72,8 @@ internal const val CREATE_ROLL_TABLE = ("create table " + TABLE_ROLLS
         + KEY_ROLL_ARCHIVED + " integer not null default 0,"
         + KEY_FILM_STOCK_ID + " integer references " + TABLE_FILM_STOCKS + " on delete set null, "
         + KEY_ROLL_UNLOADED + " text, "
-        + KEY_ROLL_DEVELOPED + " text"
+        + KEY_ROLL_DEVELOPED + " text, "
+        + KEY_ROLL_FAVORITE + " integer not null default 0"
         + ");")
 
 internal const val CREATE_FRAME_TABLE = ("create table " + TABLE_FRAMES
@@ -115,3 +116,18 @@ internal const val CREATE_LINK_FRAME_FILTER_TABLE = ("create table " + TABLE_LIN
         + KEY_FILTER_ID + " integer not null references " + TABLE_FILTERS + " on delete cascade, "
         + "primary key(" + KEY_FRAME_ID + ", " + KEY_FILTER_ID + ")"
         + ");")
+
+internal val CREATE_LABEL_TABLE = """
+    |create table $TABLE_LABELS (
+    |    $KEY_LABEL_ID integer not null primary key autoincrement,
+    |    $KEY_LABEL_NAME text not null
+    |);
+    """.trimMargin()
+
+internal val CREATE_ROLL_LABEL_LINK_TABLE = """
+    |create table $TABLE_LINK_ROLL_LABEL (
+    |    $KEY_ROLL_ID integer not null references $TABLE_ROLLS on delete cascade,
+    |    $KEY_LABEL_ID integer not null references $TABLE_LABELS on delete cascade,
+    |    primary key ($KEY_ROLL_ID, $KEY_LABEL_ID)
+    |);
+    """.trimMargin()

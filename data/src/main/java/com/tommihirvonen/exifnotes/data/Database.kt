@@ -45,7 +45,7 @@ class Database @Inject constructor(@ApplicationContext private val context: Cont
 
     companion object {
         private const val DATABASE_NAME = "filmnotes.db"
-        private const val DATABASE_VERSION = 24
+        private const val DATABASE_VERSION = 25
     }
 
     override fun onOpen(db: SQLiteDatabase) {
@@ -69,6 +69,8 @@ class Database @Inject constructor(@ApplicationContext private val context: Cont
         database.execSQL(CREATE_LINK_CAMERA_LENS_TABLE)
         database.execSQL(CREATE_LINK_LENS_FILTER_TABLE)
         database.execSQL(CREATE_LINK_FRAME_FILTER_TABLE)
+        database.execSQL(CREATE_LABEL_TABLE)
+        database.execSQL(CREATE_ROLL_LABEL_LINK_TABLE)
         populateFilmStocks(database)
     }
 
@@ -172,6 +174,11 @@ class Database @Inject constructor(@ApplicationContext private val context: Cont
         }
         if (oldVersion < 24) {
             db.execSQL(ALTER_TABLE_LENSES_7)
+        }
+        if (oldVersion < 25) {
+            db.execSQL(ALTER_TABLE_ROLLS_ADD_FAVORITE)
+            db.execSQL(CREATE_LABEL_TABLE)
+            db.execSQL(CREATE_ROLL_LABEL_LINK_TABLE)
         }
     }
 
