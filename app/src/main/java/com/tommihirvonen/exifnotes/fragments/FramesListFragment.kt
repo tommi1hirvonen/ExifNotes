@@ -103,8 +103,6 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             frameRepository, arguments.roll)
     }
 
-    private val rollModel by activityViewModels<RollsViewModel>()
-
     private val roll get() = model.roll.value!!
 
     private lateinit var frameAdapter: FrameAdapter
@@ -219,7 +217,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             model.submitFrame(frame)
         }
         observeThenClearNavigationResult(ExtraKeys.ROLL) { roll: Roll ->
-            rollModel.submitRoll(roll)
+            rollsModel.submitRoll(roll)
             model.setRoll(roll)
         }
         observeThenClearNavigationResult<LocationPickResponse>(ExtraKeys.LOCATION) { response ->
