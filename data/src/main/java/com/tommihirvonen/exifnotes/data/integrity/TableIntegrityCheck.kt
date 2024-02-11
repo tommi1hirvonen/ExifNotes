@@ -25,14 +25,8 @@ internal class TableIntegrityCheck(private val tableName: String) {
 
     fun check(db: SQLiteDatabase) = columns.all { it.check(db) }
 
-    fun int(columnName: String): ColumnIntegrityCheck {
-        val column = ColumnIntegrityCheck(tableName, columnName, Datatype.INT)
-        columns.add(column)
-        return column
-    }
-
-    fun text(columnName: String): ColumnIntegrityCheck {
-        val column = ColumnIntegrityCheck(tableName, columnName, Datatype.TEXT)
+    fun col(columnName: String, datatype: Datatype): ColumnIntegrityCheck {
+        val column = ColumnIntegrityCheck(tableName, columnName, datatype)
         columns.add(column)
         return column
     }
