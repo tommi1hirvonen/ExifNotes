@@ -170,6 +170,7 @@
     <string name="ExposureComp">Exposure comp.</string>
     <string name="ExposureCompSingleLine">Exposure compensation</string>
     <string name="ExposureCompensationIncrements">Exposure compensation increments</string>
+    <string name="Favorites">Favorites</string>
     <string name="FStop">F-stop</string>
     <string name="FileEndingSummary">File ending of the files you wish to tag (e.g. .jpg or .tiff etc.)</string>
     <string name="FileEndingTitle">File ending</string>
@@ -269,6 +270,7 @@
     <string name="NoCamera">No camera</string>
     <string name="NoCameraFeatureWasFound">No camera feature was found!</string>
     <string name="NoCameras">No added cameras</string>
+    <string name="NoFavorites">No favorites</string>
     <string name="NoFilmStocks">No added film stocks</string>
     <string name="NoFilters">No added filters</string>
     <string name="NoFrames">No added frames</string>

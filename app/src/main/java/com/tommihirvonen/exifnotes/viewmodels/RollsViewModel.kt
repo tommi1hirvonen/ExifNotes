@@ -31,6 +31,7 @@ import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 import com.tommihirvonen.exifnotes.core.entities.sorted
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
+import com.tommihirvonen.exifnotes.data.repositories.RollCounts
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,7 +55,7 @@ class RollsViewModel @Inject constructor(application: Application,
     val rolls: LiveData<State<List<Roll>>> get() = mRolls
     val rollFilterMode: LiveData<RollFilterMode> get() = mRollFilterMode
     val rollSortMode: LiveData<RollSortMode> get() = mRollSortMode
-    val rollCounts: LiveData<Pair<Int, Int>> get() = mRollCounts
+    val rollCounts: LiveData<RollCounts> get() = mRollCounts
     val toolbarSubtitle: LiveData<String> get() = mToolbarSubtitle
 
     val selectedRolls = HashSet<Roll>()
@@ -66,6 +67,7 @@ class RollsViewModel @Inject constructor(application: Application,
             RollFilterMode.ACTIVE -> R.string.ActiveRolls
             RollFilterMode.ARCHIVED -> R.string.ArchivedRolls
             RollFilterMode.ALL -> R.string.AllRolls
+            RollFilterMode.FAVORITES -> R.string.Favorites
             null -> R.string.ActiveRolls
         }
         val subtitle = context.resources.getString(subtitleResId)
@@ -94,8 +96,8 @@ class RollsViewModel @Inject constructor(application: Application,
         }
     }
 
-    private val mRollCounts: MutableLiveData<Pair<Int, Int>> by lazy {
-        MutableLiveData<Pair<Int, Int>>().also {
+    private val mRollCounts: MutableLiveData<RollCounts> by lazy {
+        MutableLiveData<RollCounts>().also {
             viewModelScope.launch { loadRollCounts() }
         }
     }
@@ -117,6 +119,7 @@ class RollsViewModel @Inject constructor(application: Application,
             RollFilterMode.ACTIVE -> R.string.ActiveRolls
             RollFilterMode.ARCHIVED -> R.string.ArchivedRolls
             RollFilterMode.ALL -> R.string.AllRolls
+            RollFilterMode.FAVORITES -> R.string.Favorites
         }
         mToolbarSubtitle.value = context.resources.getString(subtitleResId)
         viewModelScope.launch { loadRolls() }

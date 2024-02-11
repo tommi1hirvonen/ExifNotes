@@ -107,6 +107,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
             RollFilterMode.ACTIVE -> resources.getString(R.string.ActiveRolls)
             RollFilterMode.ARCHIVED -> resources.getString(R.string.ArchivedRolls)
             RollFilterMode.ALL -> resources.getString(R.string.AllRolls)
+            RollFilterMode.FAVORITES -> resources.getString(R.string.Favorites)
         }
         binding.topAppBar.title = title
         binding.topAppBar.setNavigationOnClickListener {

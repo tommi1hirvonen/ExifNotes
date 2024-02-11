@@ -16,31 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.core.entities
+package com.tommihirvonen.exifnotes.data.repositories
 
-enum class RollFilterMode(value: Int) {
-    ACTIVE(0),
-    ARCHIVED(1),
-    ALL(2),
-    FAVORITES(3);
-
-    var value: Int = 0
-        internal set
-
-    init {
-        this.value = value
-    }
-
-    companion object {
-
-        fun fromValue(value: Int): RollFilterMode {
-            return when (value) {
-                0 -> ACTIVE
-                1 -> ARCHIVED
-                2 -> ALL
-                3 -> FAVORITES
-                else -> ACTIVE
-            }
-        }
-    }
-}
+data class RollCounts(val active: Int, val archived: Int, val favorites: Int)

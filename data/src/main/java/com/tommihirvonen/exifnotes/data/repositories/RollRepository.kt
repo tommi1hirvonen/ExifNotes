@@ -58,6 +58,7 @@ class RollRepository @Inject constructor(private val database: Database,
             RollFilterMode.ACTIVE -> "$KEY_ROLL_ARCHIVED=0"
             RollFilterMode.ARCHIVED -> "$KEY_ROLL_ARCHIVED>0"
             RollFilterMode.ALL -> null
+            RollFilterMode.FAVORITES -> "$KEY_ROLL_FAVORITE>0"
             else -> "$KEY_ROLL_ARCHIVED=0"
         }
         return database.select(TABLE_ROLLS,
@@ -83,8 +84,12 @@ class RollRepository @Inject constructor(private val database: Database,
         }
     }
 
-    val rollCounts: Pair<Int, Int> get() {
-        val (active, archived) = arrayOf("$KEY_ROLL_ARCHIVED <= 0", "$KEY_ROLL_ARCHIVED > 0").map {
+    val rollCounts: RollCounts get() {
+        val (active, archived, favorites) = arrayOf(
+            "$KEY_ROLL_ARCHIVED <= 0",
+            "$KEY_ROLL_ARCHIVED > 0",
+            "$KEY_ROLL_FAVORITE > 0"
+        ).map {
             database.selectFirstOrNull(
                 TABLE_ROLLS,
                 columns = listOf("COUNT(*)"),
@@ -92,7 +97,7 @@ class RollRepository @Inject constructor(private val database: Database,
                 row.getInt(0)
             } ?: 0
         }
-        return Pair(active, archived)
+        return RollCounts(active, archived, favorites)
     }
 
     fun deleteRoll(roll: Roll): Int = database

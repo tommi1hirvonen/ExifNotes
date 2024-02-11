@@ -39,15 +39,13 @@
                 android:title="@string/Archived"
                 app:actionViewClass="android.widget.TextView"
                 />
-            <!--
             <item
                 android:id="@+id/favorite_rolls_filter"
-                android:enabled="false"
                 android:checkable="true"
-                android:icon="@drawable/ic_outline_favorite_24"
-                android:title="Favorites (coming soon)"
+                android:icon="@drawable/ic_outline_favorite_border_24"
+                android:title="@string/Favorites"
+                app:actionViewClass="android.widget.TextView"
                 />
-                -->
             <item
                 android:id="@+id/all_rolls_filter"
                 android:checkable="true"
