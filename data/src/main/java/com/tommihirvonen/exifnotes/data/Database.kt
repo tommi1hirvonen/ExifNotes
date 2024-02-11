@@ -42,47 +42,6 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
-fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
-        generateSequence { if (moveToNext()) this else null }.map(transform).toList()
-
-fun <T> SQLiteOpenHelper.select(table: String,
-                                columns: List<String>? = null,
-                                selection: String? = null,
-                                selectionArgs: List<String>? = null,
-                                distinct: Boolean = false,
-                                groupBy: String? = null,
-                                having: String? = null,
-                                orderBy: String? = null,
-                                limit: String? = null,
-                                transform: (Cursor) -> T
-): List<T> = readableDatabase
-    .query(distinct, table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
-        groupBy, having, orderBy, limit).use { cursor ->
-            cursor.map(transform)
-        }
-
-fun <T> SQLiteOpenHelper.selectFirstOrNull(table: String,
-                                           columns: List<String>? = null,
-                                           selection: String? = null,
-                                           selectionArgs: List<String>? = null,
-                                           orderBy: String? = null,
-                                           transform: (Cursor) -> T
-): T? = readableDatabase
-    .query(table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
-        null, null, orderBy, null).use { cursor ->
-        if (cursor.moveToFirst()) {
-            transform(cursor)
-        } else {
-            null
-        }
-    }
-
-fun Cursor.getLong(columnName: String): Long = getLong(getColumnIndexOrThrow(columnName))
-fun Cursor.getLongOrNull(columnName: String): Long? = getLongOrNull(getColumnIndexOrThrow(columnName))
-fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndexOrThrow(columnName))
-fun Cursor.getString(columnName: String): String = getString(getColumnIndexOrThrow(columnName))
-fun Cursor.getStringOrNull(columnName: String): String? = getString(getColumnIndexOrThrow(columnName))
-
 /**
  * FilmDbHelper is the SQL database class that holds all the information
  * the user stores in the app. This class provides all necessary CRUD operations as well as
