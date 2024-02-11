@@ -22,10 +22,10 @@ import android.app.Application
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.data.Database
-import com.tommihirvonen.exifnotes.entities.Frame
-import com.tommihirvonen.exifnotes.entities.FrameSortMode
-import com.tommihirvonen.exifnotes.entities.Roll
-import com.tommihirvonen.exifnotes.entities.sorted
+import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
+import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.sorted
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -97,7 +97,8 @@ class FramesViewModel(application: Application, private val database: Database, 
 class FramesViewModelFactory(
     private val application: Application,
     private val database: Database,
-    private val roll: Roll)
+    private val roll: Roll
+)
     : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")

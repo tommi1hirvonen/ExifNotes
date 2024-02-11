@@ -26,7 +26,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.entities.Filter
+import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.utilities.validate
 
 class FilterEditViewModel(application: Application, val filter: Filter)

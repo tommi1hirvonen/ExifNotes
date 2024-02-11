@@ -22,16 +22,17 @@ import android.app.Application
 import android.graphics.Bitmap
 import androidx.lifecycle.*
 import com.tommihirvonen.exifnotes.data.Database
-import com.tommihirvonen.exifnotes.entities.Frame
-import com.tommihirvonen.exifnotes.entities.Roll
-import com.tommihirvonen.exifnotes.entities.RollFilterMode
+import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class RollsMapViewModel(application: Application,
                         private val database: Database,
-                        private val filterMode: RollFilterMode)
+                        private val filterMode: RollFilterMode
+)
     : AndroidViewModel(application) {
 
     private val markerBitmaps = ViewModelUtility.getMarkerBitmaps(application)
@@ -80,7 +81,8 @@ data class RollData(
 class RollsMapViewModelFactory(
     private val application: Application,
     private val database: Database,
-    private val filterMode: RollFilterMode) : ViewModelProvider.Factory {
+    private val filterMode: RollFilterMode
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         if (modelClass.isAssignableFrom(RollsMapViewModel::class.java)) {

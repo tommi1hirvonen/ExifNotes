@@ -27,7 +27,7 @@
         <import type="com.tommihirvonen.exifnotes.utilities.ExtensionsKt" />
         <variable
             name="frame"
-            type="com.tommihirvonen.exifnotes.entities.Frame" />
+            type="com.tommihirvonen.exifnotes.core.entities.Frame" />
         <variable
             name="complementaryPictureFound"
             type="Boolean" />
@@ -93,7 +93,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:text="@{ExtensionsKt.getSortableDateTime(frame.date)}"
+                    android:text="@{com.tommihirvonen.exifnotes.core.ExtensionsKt.getSortableDateTime(frame.date)}"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:ellipsize="end"
                     android:maxLines="1"

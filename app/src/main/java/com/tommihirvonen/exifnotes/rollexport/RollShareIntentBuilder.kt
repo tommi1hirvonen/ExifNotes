@@ -24,7 +24,7 @@ import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.Roll
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject

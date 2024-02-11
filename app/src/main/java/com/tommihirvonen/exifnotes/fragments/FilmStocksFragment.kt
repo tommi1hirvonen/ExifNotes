@@ -34,11 +34,11 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.FilmStockAdapter
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.FragmentFilmsBinding
-import com.tommihirvonen.exifnotes.entities.FilmProcess
-import com.tommihirvonen.exifnotes.entities.FilmStock
-import com.tommihirvonen.exifnotes.entities.FilmStockFilterMode
-import com.tommihirvonen.exifnotes.entities.FilmStockSortMode
-import com.tommihirvonen.exifnotes.entities.FilmType
+import com.tommihirvonen.exifnotes.core.entities.FilmProcess
+import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.core.entities.FilmStockFilterMode
+import com.tommihirvonen.exifnotes.core.entities.FilmStockSortMode
+import com.tommihirvonen.exifnotes.core.entities.FilmType
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.observeThenClearNavigationResult
 import com.tommihirvonen.exifnotes.utilities.setIconsVisible

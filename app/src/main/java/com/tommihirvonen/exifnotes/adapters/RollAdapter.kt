@@ -25,7 +25,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.databinding.ItemRollConstraintBinding
-import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.Roll
 
 /**
  * RollAdapter acts as an adapter between a List of rolls and a RecyclerView.

@@ -21,8 +21,8 @@ package com.tommihirvonen.exifnotes.geocoder
 import android.content.Context
 import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.decimalString
 import com.tommihirvonen.exifnotes.utilities.HttpClientAdapter
-import com.tommihirvonen.exifnotes.utilities.decimalString
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
 import io.ktor.http.ParametersBuilder

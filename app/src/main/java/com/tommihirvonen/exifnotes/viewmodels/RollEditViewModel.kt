@@ -30,10 +30,10 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.data.Database
-import com.tommihirvonen.exifnotes.entities.Camera
-import com.tommihirvonen.exifnotes.entities.FilmStock
-import com.tommihirvonen.exifnotes.entities.Format
-import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.Camera
+import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.core.entities.Format
+import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.utilities.validate
 import java.time.LocalDateTime
 
@@ -223,7 +223,8 @@ class RollEditViewModel(application: Application, private val database: Database
 
 class RollEditViewModelFactory(private val application: Application,
                                private val database: Database,
-                               private val roll: Roll)
+                               private val roll: Roll
+)
     : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")

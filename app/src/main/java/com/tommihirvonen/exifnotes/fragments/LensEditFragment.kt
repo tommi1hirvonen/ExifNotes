@@ -43,7 +43,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.databinding.DialogCustomApertureValuesBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentLensEditBinding
-import com.tommihirvonen.exifnotes.entities.Lens
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.setCommonInterpolator
 import com.tommihirvonen.exifnotes.utilities.setNavigationResult

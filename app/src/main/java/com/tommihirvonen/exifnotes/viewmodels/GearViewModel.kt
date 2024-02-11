@@ -23,9 +23,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tommihirvonen.exifnotes.data.Database
-import com.tommihirvonen.exifnotes.entities.Camera
-import com.tommihirvonen.exifnotes.entities.Filter
-import com.tommihirvonen.exifnotes.entities.Lens
+import com.tommihirvonen.exifnotes.core.entities.Camera
+import com.tommihirvonen.exifnotes.core.entities.Filter
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -140,6 +140,8 @@ dependencies {
     implementation "io.ktor:ktor-client-cio:$rootProject.ktor_version"
     implementation 'com.google.android.libraries.places:places:3.2.0'
     implementation "com.google.dagger:hilt-android:$rootProject.hilt_version"
+    implementation project(':data')
+    implementation project(':core')
     kapt "com.google.dagger:hilt-compiler:$rootProject.hilt_version"
 
     // For local unit tests
@@ -149,7 +151,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:1.1.5"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 }
 
 // Allow references to generated code

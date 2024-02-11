@@ -20,10 +20,10 @@ package com.tommihirvonen.exifnotes.rollexport
 
 import android.content.Context
 import androidx.preference.PreferenceManager
-import com.tommihirvonen.exifnotes.entities.Frame
-import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.sortableDateTime
 import com.tommihirvonen.exifnotes.utilities.readableCoordinates
-import com.tommihirvonen.exifnotes.utilities.sortableDateTime
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.apache.commons.text.StringEscapeUtils
 import javax.inject.Inject

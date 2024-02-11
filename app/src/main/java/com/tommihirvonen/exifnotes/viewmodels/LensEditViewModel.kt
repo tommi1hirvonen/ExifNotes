@@ -31,8 +31,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.entities.Increment
-import com.tommihirvonen.exifnotes.entities.Lens
+import com.tommihirvonen.exifnotes.core.entities.Increment
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.utilities.validate
 
 class LensEditViewModel(application: Application, val fixedLens: Boolean, val lens: Lens)
@@ -294,7 +294,8 @@ class LensEditViewModel(application: Application, val fixedLens: Boolean, val le
 
 class LensEditViewModelFactory(private val application: Application,
                                private val fixedLens: Boolean,
-                               private val lens: Lens) : ViewModelProvider.Factory {
+                               private val lens: Lens
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         if (modelClass.isAssignableFrom(LensEditViewModel::class.java)) {

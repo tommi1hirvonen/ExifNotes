@@ -43,7 +43,8 @@ import javax.inject.Singleton
 class ComplementaryPicturesManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val complementaryPicturesDirectoryProvider: ComplementaryPicturesDirectoryProvider,
-    private val database: Database) {
+    private val database: Database
+) {
 
     companion object {
         /**

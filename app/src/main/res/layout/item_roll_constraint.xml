@@ -27,7 +27,7 @@
         <import type="com.tommihirvonen.exifnotes.utilities.ExtensionsKt" />
         <variable
             name="roll"
-            type="com.tommihirvonen.exifnotes.entities.Roll" />
+            type="com.tommihirvonen.exifnotes.core.entities.Roll" />
         <variable
             name="frameCount"
             type="Integer" />
@@ -147,7 +147,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:id="@+id/tv_roll_date"
-                        android:text="@{ExtensionsKt.getSortableDateTime(roll.developed ?? roll.unloaded ?? roll.date)}"
+                        android:text="@{com.tommihirvonen.exifnotes.core.ExtensionsKt.getSortableDateTime(roll.developed ?? roll.unloaded ?? roll.date)}"
                         tools:text="@string/Text"
                         android:paddingLeft="5dp"
                         android:paddingRight="@dimen/ItemRollLeftRightPadding"

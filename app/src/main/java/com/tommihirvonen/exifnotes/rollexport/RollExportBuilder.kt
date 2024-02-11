@@ -19,8 +19,8 @@
 package com.tommihirvonen.exifnotes.rollexport
 
 import com.tommihirvonen.exifnotes.data.Database
-import com.tommihirvonen.exifnotes.entities.Frame
-import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.utilities.illegalCharsRemoved
 import javax.inject.Inject
 import javax.inject.Singleton

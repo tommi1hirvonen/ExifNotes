@@ -44,8 +44,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionSet
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
-import com.tommihirvonen.exifnotes.entities.Coordinates
-import com.tommihirvonen.exifnotes.entities.Gear
+import com.tommihirvonen.exifnotes.core.entities.Coordinates
+import com.tommihirvonen.exifnotes.core.entities.Gear
 import java.io.*
 import java.time.Instant
 import java.time.LocalDateTime
@@ -88,36 +88,7 @@ val Context.packageInfo: PackageInfo? get() {
     return null
 }
 
-// New style formatting
-private val dateTimeFormatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-// Legacy style formatting for compatibility with older app versions
-private val dateTimeFormatter2 = DateTimeFormatter.ofPattern("yyyy-M-d H:mm")
 
-fun localDateTimeOrNull(value: String): LocalDateTime? =
-    try {
-        LocalDateTime.parse(value, dateTimeFormatter1)
-    } catch (e: DateTimeParseException) {
-        try {
-            LocalDateTime.parse(value, dateTimeFormatter2)
-        } catch (e: DateTimeParseException) {
-            null
-        }
-    }
-
-/**
- * @param value Epoch milliseconds
- */
-fun localDateTimeOrNull(value: Long): LocalDateTime? =
-    try {
-        val zone = ZoneId.of(ZoneOffset.UTC.id)
-        val instant = Instant.ofEpochMilli(value)
-        val zdt = instant.atZone(zone)
-        zdt.toLocalDateTime()
-    } catch (e: Exception) {
-        null
-    }
-
-val LocalDateTime.sortableDateTime: String get() = format(dateTimeFormatter1)
 
 val LocalDateTime.sortableDate: String get() =
     format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -131,18 +102,6 @@ val LocalDateTime.epochMilliseconds: Long get() {
     val instant = zdt.toInstant()
     return instant.toEpochMilli()
 }
-
-fun latLngOrNull(value: String): LatLng? =
-    try {
-        val (latString, lngString) = value.split(" ")
-        val lat = latString.replace(",", ".").toDouble()
-        val lng = lngString.replace(",", ".").toDouble()
-        LatLng(lat, lng)
-    } catch (e: Exception) {
-        null
-    }
-
-val LatLng.decimalString: String get() = "$latitude $longitude"
 
 val LatLng.coordinates: Coordinates
     get() {

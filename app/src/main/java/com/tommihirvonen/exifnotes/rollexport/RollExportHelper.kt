@@ -20,7 +20,7 @@ package com.tommihirvonen.exifnotes.rollexport
 
 import android.content.Context
 import androidx.documentfile.provider.DocumentFile
-import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.Roll
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.OutputStreamWriter
 import javax.inject.Inject

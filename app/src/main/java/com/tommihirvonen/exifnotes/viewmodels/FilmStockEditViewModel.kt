@@ -29,9 +29,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.entities.FilmProcess
-import com.tommihirvonen.exifnotes.entities.FilmStock
-import com.tommihirvonen.exifnotes.entities.FilmType
+import com.tommihirvonen.exifnotes.core.entities.FilmProcess
+import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.core.entities.FilmType
 import com.tommihirvonen.exifnotes.utilities.validate
 
 class FilmStockEditViewModel(application: Application, val filmStock: FilmStock)
@@ -136,7 +136,8 @@ class FilmStockEditViewModel(application: Application, val filmStock: FilmStock)
 }
 
 class FilmStockEditViewModelFactory(private val application: Application,
-                                    private val filmStock: FilmStock) : ViewModelProvider.Factory {
+                                    private val filmStock: FilmStock
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
         if (modelClass.isAssignableFrom(FilmStockEditViewModel::class.java)) {

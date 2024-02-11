@@ -18,8 +18,8 @@
 
 package com.tommihirvonen.exifnotes.rollexport
 
-import com.tommihirvonen.exifnotes.entities.Frame
-import com.tommihirvonen.exifnotes.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.Roll
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 

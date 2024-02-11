@@ -28,8 +28,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Camera
+import com.tommihirvonen.exifnotes.core.entities.Filter
+import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.data.Database
-import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.geocoder.GeocoderResponse
 import com.tommihirvonen.exifnotes.utilities.readableCoordinates
@@ -39,7 +43,8 @@ import java.time.LocalDateTime
 class FrameEditViewModel(application: Application,
                          private val database: Database,
                          private val geocoderRequestBuilder: GeocoderRequestBuilder,
-                         val frame: Frame)
+                         val frame: Frame
+)
     : AndroidViewModel(application) {
 
     init {
@@ -325,7 +330,8 @@ class FrameEditViewModel(application: Application,
 class FrameEditViewModelFactory(val application: Application,
                                 private val database: Database,
                                 private val geocoderRequestBuilder: GeocoderRequestBuilder,
-                                val frame: Frame)
+                                val frame: Frame
+)
     : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

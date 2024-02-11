@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Exif Notes
+  ~ Copyright (C) 2024  Tommi Hirvonen
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="NoValue">&lt;empty&gt;</string>
+    <string name="Sheet">Sheet</string>
+
+    <string name="Unknown">Unknown</string>
+    <string name="Daylight">Daylight</string>
+    <string name="Sunny">Sunny</string>
+    <string name="Cloudy">Cloudy</string>
+    <string name="Shade">Shade</string>
+    <string name="Fluorescent">Fluorescent</string>
+    <string name="Tungsten">Tungsten</string>
+    <string name="Flash">Flash</string>
+</resources>

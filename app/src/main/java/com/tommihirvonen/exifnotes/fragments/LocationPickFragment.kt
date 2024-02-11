@@ -64,7 +64,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.PlacePredictionAdapter
 import com.tommihirvonen.exifnotes.databinding.FragmentLocationPickBinding
-import com.tommihirvonen.exifnotes.entities.LocationPickResponse
+import com.tommihirvonen.exifnotes.utilities.LocationPickResponse
 import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.ExtraKeys

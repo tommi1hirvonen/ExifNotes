@@ -25,8 +25,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Camera
+import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
+import com.tommihirvonen.exifnotes.core.entities.RollSortMode
+import com.tommihirvonen.exifnotes.core.entities.sorted
 import com.tommihirvonen.exifnotes.data.Database
-import com.tommihirvonen.exifnotes.entities.*
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +40,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RollsViewModel @Inject constructor(
-    application: Application, private val database: Database) : AndroidViewModel(application) {
+    application: Application, private val database: Database
+) : AndroidViewModel(application) {
 
     private val context get() = getApplication<Application>()
 

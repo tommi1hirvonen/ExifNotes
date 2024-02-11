@@ -29,11 +29,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.entities.Camera
-import com.tommihirvonen.exifnotes.entities.Format
-import com.tommihirvonen.exifnotes.entities.Increment
-import com.tommihirvonen.exifnotes.entities.Lens
-import com.tommihirvonen.exifnotes.entities.PartialIncrement
+import com.tommihirvonen.exifnotes.core.entities.Camera
+import com.tommihirvonen.exifnotes.core.entities.Format
+import com.tommihirvonen.exifnotes.core.entities.Increment
+import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
 import com.tommihirvonen.exifnotes.utilities.validate
 
 class CameraEditViewModel(application: Application, val camera: Camera)
