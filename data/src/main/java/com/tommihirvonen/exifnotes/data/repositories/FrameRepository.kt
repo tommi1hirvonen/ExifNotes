@@ -35,7 +35,6 @@ import com.tommihirvonen.exifnotes.data.extensions.getLongOrNull
 import com.tommihirvonen.exifnotes.data.extensions.getString
 import com.tommihirvonen.exifnotes.data.extensions.getStringOrNull
 import com.tommihirvonen.exifnotes.data.extensions.select
-import com.tommihirvonen.exifnotes.data.filterMapper
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -105,7 +104,8 @@ class FrameRepository @Inject constructor(private val database: Database,
         TABLE_FILTERS,
         selection = "$KEY_FILTER_ID IN (SELECT $KEY_FILTER_ID FROM $TABLE_LINK_FRAME_FILTER WHERE $KEY_FRAME_ID = ?)",
         selectionArgs = listOf(frame.id.toString()),
-        transform = filterMapper)
+        transform = filterMapper
+    )
 
     fun updateFrame(frame: Frame): Int {
         val contentValues = buildFrameContentValues(frame)

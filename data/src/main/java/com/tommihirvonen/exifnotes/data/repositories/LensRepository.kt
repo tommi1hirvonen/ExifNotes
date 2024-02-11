@@ -26,7 +26,6 @@ import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.extensions.*
-import com.tommihirvonen.exifnotes.data.filterMapper
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

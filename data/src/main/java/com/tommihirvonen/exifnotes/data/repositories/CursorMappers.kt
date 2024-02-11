@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.data
+package com.tommihirvonen.exifnotes.data.repositories
 
 import android.database.Cursor
 import com.tommihirvonen.exifnotes.core.entities.Filter
