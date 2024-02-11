@@ -18,12 +18,12 @@
 
 package com.tommihirvonen.exifnotes.data.repositories
 
+import android.content.ContentValues
 import android.database.Cursor
 import com.tommihirvonen.exifnotes.core.entities.FilmProcess
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.FilmType
 import com.tommihirvonen.exifnotes.data.Database
-import com.tommihirvonen.exifnotes.data.extensions.buildFilmStockContentValues
 import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.extensions.*
 import javax.inject.Inject
@@ -31,6 +31,17 @@ import javax.inject.Singleton
 
 @Singleton
 class FilmStockRepository @Inject constructor(private val database: Database) {
+    companion object {
+        internal fun buildFilmStockContentValues(filmStock: FilmStock) = ContentValues().apply {
+            put(KEY_FILM_MANUFACTURER_NAME, filmStock.make)
+            put(KEY_FILM_STOCK_NAME, filmStock.model)
+            put(KEY_FILM_ISO, filmStock.iso)
+            put(KEY_FILM_TYPE, filmStock.type.ordinal)
+            put(KEY_FILM_PROCESS, filmStock.process.ordinal)
+            put(KEY_FILM_IS_PREADDED, filmStock.isPreadded)
+        }
+    }
+
     fun addFilmStock(filmStock: FilmStock): Long {
         val id = database.writableDatabase
             .insert(TABLE_FILM_STOCKS, null, buildFilmStockContentValues(filmStock))

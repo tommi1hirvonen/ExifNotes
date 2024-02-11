@@ -25,7 +25,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.widget.Toast
 import com.tommihirvonen.exifnotes.core.entities.*
 import com.tommihirvonen.exifnotes.data.constants.*
-import com.tommihirvonen.exifnotes.data.extensions.buildFilmStockContentValues
+import com.tommihirvonen.exifnotes.data.repositories.FilmStockRepository
 import com.tommihirvonen.exifnotes.database.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -475,7 +475,7 @@ class Database @Inject constructor(@ApplicationContext private val context: Cont
                 filmStock.type = FilmType.from(components[3].toInt())
                 filmStock.process = FilmProcess.from(components[4].toInt())
                 filmStock.isPreadded = true
-                val values = buildFilmStockContentValues(filmStock)
+                val values = FilmStockRepository.buildFilmStockContentValues(filmStock)
 
                 // Insert film stocks if they do not already exist.
                 val cursor = db.query(
