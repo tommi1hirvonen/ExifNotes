@@ -26,4 +26,20 @@
         android:title="@string/Edit"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
+    <item
+        android:id="@+id/menu_item_favorite_off"
+        android:icon="@drawable/ic_outline_favorite_24"
+        app:iconTint="?attr/colorControlNormal"
+        android:title="@string/Favorite"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"
+        />
+    <item
+        android:id="@+id/menu_item_favorite_on"
+        android:icon="@drawable/ic_outline_favorite_border_24"
+        app:iconTint="?attr/colorControlNormal"
+        android:title="@string/Favorite"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"
+        />
 </menu>

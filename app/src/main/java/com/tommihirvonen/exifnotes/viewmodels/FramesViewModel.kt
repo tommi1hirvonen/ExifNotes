@@ -21,7 +21,6 @@ package com.tommihirvonen.exifnotes.viewmodels
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.core.entities.Roll
@@ -32,8 +31,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FramesViewModel(application: Application, private val repository: FrameRepository, roll: Roll)
-    : AndroidViewModel(application) {
+class FramesViewModel(application: Application,
+                      private val repository: FrameRepository,
+                      roll: Roll) : AndroidViewModel(application) {
+
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.baseContext)
 
@@ -55,6 +56,12 @@ class FramesViewModel(application: Application, private val repository: FrameRep
                 sharedPreferences.getInt(
                     PreferenceConstants.KEY_FRAME_SORT_ORDER, FrameSortMode.FRAME_COUNT.value))
         }
+    }
+
+    fun toggleFavorite(isFavorite: Boolean) {
+        val roll = mRoll.value ?: return
+        roll.favorite = isFavorite
+        mRoll.value = roll
     }
 
     fun setRoll(roll: Roll) {

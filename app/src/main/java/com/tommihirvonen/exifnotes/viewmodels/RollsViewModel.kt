@@ -152,7 +152,8 @@ class RollsViewModel @Inject constructor(application: Application,
             rollRepository.addRoll(roll)
         }
         if (mRollFilterMode.value == RollFilterMode.ACTIVE && roll.archived
-            || mRollFilterMode.value == RollFilterMode.ARCHIVED && !roll.archived) {
+            || mRollFilterMode.value == RollFilterMode.ARCHIVED && !roll.archived
+            || mRollFilterMode.value == RollFilterMode.FAVORITES && !roll.favorite) {
             rollList = rollList.minus(roll)
             mRolls.value = State.Success(rollList)
         } else {

@@ -170,6 +170,7 @@
     <string name="ExposureComp">Exposure comp.</string>
     <string name="ExposureCompSingleLine">Exposure compensation</string>
     <string name="ExposureCompensationIncrements">Exposure compensation increments</string>
+    <string name="Favorite">Favorite</string>
     <string name="Favorites">Favorites</string>
     <string name="FStop">F-stop</string>
     <string name="FileEndingSummary">File ending of the files you wish to tag (e.g. .jpg or .tiff etc.)</string>

@@ -97,8 +97,10 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     val arguments by navArgs<FramesListFragmentArgs>()
 
+    private val rollsModel by activityViewModels<RollsViewModel>()
     private val model by navGraphViewModels<FramesViewModel>(R.id.frames_navigation) {
-        FramesViewModelFactory(requireActivity().application, frameRepository, arguments.roll)
+        FramesViewModelFactory(requireActivity().application,
+            frameRepository, arguments.roll)
     }
 
     private val rollModel by activityViewModels<RollsViewModel>()
@@ -177,6 +179,12 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 FrameSortMode.LENS -> bottomMenu.findItem(R.id.lens_sort_mode).isChecked = true
                 null -> {}
             }
+        }
+
+        val topMenu = binding.topAppBar.menu
+        model.roll.observe(viewLifecycleOwner) { roll ->
+            topMenu.findItem(R.id.menu_item_favorite_on).isVisible = !roll.favorite
+            topMenu.findItem(R.id.menu_item_favorite_off).isVisible = roll.favorite
         }
 
         model.frames.observe(viewLifecycleOwner) { frames ->
@@ -287,6 +295,14 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 val action = FramesListFragmentDirections
                     .framesRollEditAction(roll, title, null)
                 findNavController().navigate(action)
+            }
+            R.id.menu_item_favorite_on -> {
+                model.toggleFavorite(true)
+                rollsModel.submitRoll(roll)
+            }
+            R.id.menu_item_favorite_off -> {
+                model.toggleFavorite(false)
+                rollsModel.submitRoll(roll)
             }
         }
         true
