@@ -131,6 +131,7 @@ class RollsViewModel @Inject constructor(application: Application,
             loadCameras()
             loadRolls()
             loadRollCounts()
+            loadLabels()
         }
     }
 
@@ -151,14 +152,20 @@ class RollsViewModel @Inject constructor(application: Application,
         } else {
             replaceRoll(roll)
         }
-        viewModelScope.launch { loadRollCounts() }
+        viewModelScope.launch {
+            loadRollCounts()
+            loadLabels()
+        }
     }
 
     fun deleteRoll(roll: Roll) {
         rollRepository.deleteRoll(roll)
         rollList = rollList.minus(roll)
         mRolls.value = State.Success(rollList)
-        viewModelScope.launch { loadRollCounts() }
+        viewModelScope.launch {
+            loadRollCounts()
+            loadLabels()
+        }
     }
 
     private fun replaceRoll(roll: Roll) {

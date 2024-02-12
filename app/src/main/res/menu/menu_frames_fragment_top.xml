@@ -27,6 +27,13 @@
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
     <item
+        android:id="@+id/menu_item_labels"
+        android:icon="@drawable/ic_outline_label_24"
+        app:iconTint="?attr/colorControlNormal"
+        android:title="@string/Labels"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+    <item
         android:id="@+id/menu_item_favorite_off"
         android:icon="@drawable/ic_outline_favorite_24"
         app:iconTint="?attr/colorControlNormal"

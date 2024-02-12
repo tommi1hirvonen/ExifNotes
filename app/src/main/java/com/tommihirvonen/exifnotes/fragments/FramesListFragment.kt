@@ -54,6 +54,7 @@ import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
+import com.tommihirvonen.exifnotes.core.entities.Label
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.utilities.LocationPickResponse
@@ -302,6 +303,9 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 model.toggleFavorite(false)
                 rollsModel.submitRoll(roll)
             }
+            R.id.menu_item_labels -> {
+                LabelsDialogBuilder().show()
+            }
         }
         true
     }
@@ -356,6 +360,31 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             }
         }
         true
+    }
+
+    private inner class LabelsDialogBuilder : MaterialAlertDialogBuilder(requireActivity()) {
+        init {
+            val labels = rollsModel.labels.value!!
+            val listItems = labels.map(Label::name).toTypedArray()
+            val selections = labels.map(roll.labels::contains).toBooleanArray()
+            setTitle(R.string.Labels)
+            setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
+                selections[which] = isChecked
+            }
+            setPositiveButton(R.string.OK) { _, _ ->
+                val (added, removed) = selections
+                    .zip(labels) { selected, label ->
+                        val before = roll.labels.contains(label)
+                        Triple(label, before, selected)
+                    }
+                    .filter { it.second != it.third }
+                    .partition { it.third }
+                added.forEach { roll.labels.add(it.first) }
+                removed.forEach { roll.labels.remove(it.first) }
+                rollsModel.submitRoll(roll)
+            }
+            setNegativeButton(R.string.Cancel) { _, _ -> }
+        }
     }
 
     private inner class ExportFileSelectDialogBuilder(
