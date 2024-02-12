@@ -18,29 +18,10 @@
 
 package com.tommihirvonen.exifnotes.core.entities
 
-enum class RollFilterMode(value: Int) {
-    ACTIVE(0),
-    ARCHIVED(1),
-    ALL(2),
-    FAVORITES(3);
-
-    var value: Int = 0
-        internal set
-
-    init {
-        this.value = value
-    }
-
-    companion object {
-
-        fun fromValue(value: Int): RollFilterMode {
-            return when (value) {
-                0 -> ACTIVE
-                1 -> ARCHIVED
-                2 -> ALL
-                3 -> FAVORITES
-                else -> ACTIVE
-            }
-        }
-    }
+sealed class RollFilterMode {
+    data object Active : RollFilterMode()
+    data object Archived : RollFilterMode()
+    data object All : RollFilterMode()
+    data object Favorites : RollFilterMode()
+    class HasLabel(val label: Label) : RollFilterMode()
 }

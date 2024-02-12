@@ -28,6 +28,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
@@ -53,6 +54,7 @@ import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.RollData
 import com.tommihirvonen.exifnotes.viewmodels.RollsMapViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollsMapViewModelFactory
+import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -66,13 +68,8 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
     @Inject lateinit var rollRepository: RollRepository
     @Inject lateinit var frameRepository: FrameRepository
 
-    private val filterMode by lazy {
-        val activity = requireActivity()
-        val prefs = PreferenceManager.getDefaultSharedPreferences(activity.baseContext)
-        RollFilterMode.fromValue(
-            prefs.getInt(PreferenceConstants.KEY_VISIBLE_ROLLS, RollFilterMode.ACTIVE.value))
-    }
-
+    private val rollsModel by activityViewModels<RollsViewModel>()
+    private val filterMode by lazy { rollsModel.rollFilterMode.value!! }
     private val model by viewModels<RollsMapViewModel> {
         RollsMapViewModelFactory(
             requireActivity().application,
@@ -103,11 +100,12 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
                               savedInstanceState: Bundle?): View {
         binding = FragmentRollsMapBinding.inflate(layoutInflater)
 
-        val title = when (filterMode) {
-            RollFilterMode.ACTIVE -> resources.getString(R.string.ActiveRolls)
-            RollFilterMode.ARCHIVED -> resources.getString(R.string.ArchivedRolls)
-            RollFilterMode.ALL -> resources.getString(R.string.AllRolls)
-            RollFilterMode.FAVORITES -> resources.getString(R.string.Favorites)
+        val title = when(val filter = filterMode) {
+            is RollFilterMode.Active -> requireContext().resources.getString(R.string.ActiveRolls)
+            is RollFilterMode.Archived -> requireContext().resources.getString(R.string.ArchivedRolls)
+            is RollFilterMode.All -> requireContext().resources.getString(R.string.AllRolls)
+            is RollFilterMode.Favorites -> requireContext().resources.getString(R.string.Favorites)
+            is RollFilterMode.HasLabel -> filter.label.name
         }
         binding.topAppBar.title = title
         binding.topAppBar.setNavigationOnClickListener {

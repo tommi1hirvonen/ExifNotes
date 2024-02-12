@@ -135,14 +135,14 @@ class RollsListFragment : Fragment(), RollAdapterListener {
 
         binding.navigationView.setNavigationItemSelectedListener(onDrawerMenuItemClickListener)
         val navigationMenu = binding.navigationView.menu
-        val activeRollsCountBadge = navigationMenu
-            .findItem(R.id.active_rolls_filter).actionView as TextView
-        val archivedRollsCountBadge = navigationMenu
-            .findItem(R.id.archived_rolls_filter).actionView as TextView
-        val allRollsCountBadge = navigationMenu
-            .findItem(R.id.all_rolls_filter).actionView as TextView
-        val favoriteRollsCountBadge = navigationMenu
-            .findItem(R.id.favorite_rolls_filter).actionView as TextView
+        val activeRollsMenuItem = navigationMenu.findItem(R.id.active_rolls_filter)
+        val activeRollsCountBadge = activeRollsMenuItem.actionView as TextView
+        val archivedRollsMenuItem = navigationMenu.findItem(R.id.archived_rolls_filter)
+        val archivedRollsCountBadge = archivedRollsMenuItem.actionView as TextView
+        val allRollsMenuItem = navigationMenu.findItem(R.id.all_rolls_filter)
+        val allRollsCountBadge = allRollsMenuItem.actionView as TextView
+        val favoriteRollsMenuItem = navigationMenu.findItem(R.id.favorite_rolls_filter)
+        val favoriteRollsCountBadge = favoriteRollsMenuItem.actionView as TextView
         val initializeActionView = { textView: TextView ->
             textView.gravity = Gravity.CENTER_VERTICAL
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -153,43 +153,85 @@ class RollsListFragment : Fragment(), RollAdapterListener {
             }
         }
 
-        val filterMenuItems = sequenceOf(activeRollsCountBadge, archivedRollsCountBadge,
+        val filterMenuItems = sequenceOf(activeRollsMenuItem, archivedRollsMenuItem,
+            allRollsMenuItem, favoriteRollsMenuItem)
+        val filterMenuItemBadges = sequenceOf(activeRollsCountBadge, archivedRollsCountBadge,
             allRollsCountBadge, favoriteRollsCountBadge)
-        filterMenuItems.forEach(initializeActionView)
+        filterMenuItemBadges.forEach(initializeActionView)
 
-        val topMenu = binding.topAppBar.menu
+        val labelsMenu = binding.navigationView.menu.addSubMenu(resources.getString(R.string.Labels))
+        val labelBadges = mutableListOf<TextView>()
+        val labelMenuItems = mutableListOf<MenuItem>()
+        model.labels.observe(viewLifecycleOwner) { labels ->
+            labelsMenu.clear()
+            labelBadges.clear()
+            labelMenuItems.clear()
+            for (label in labels) {
+                val item = labelsMenu.add(label.name)
+                labelMenuItems.add(item)
+                item.isCheckable = true
+                item.setIcon(R.drawable.ic_outline_label_24)
+                val textView = TextView(requireActivity())
+                labelBadges.add(textView)
+                item.actionView = textView
+                initializeActionView(textView)
+                textView.text = label.rollCount.toString()
+                val filter = model.rollFilterMode.value
+                if (filter is RollFilterMode.HasLabel && filter.label.id == label.id) {
+                    item.isChecked = true
+                    textView.setTypeface(null, Typeface.BOLD)
+                }
+                item.setOnMenuItemClickListener {
+                    model.setRollFilterMode(RollFilterMode.HasLabel(label))
+                    labelMenuItems.forEach { it.isChecked = false }
+                    item.isChecked = true
+                    labelBadges.forEach { it.setTypeface(null, Typeface.NORMAL) }
+                    textView.setTypeface(null, Typeface.BOLD)
+                    binding.drawerLayout?.close()
+                    true
+                }
+            }
+        }
 
         model.rollFilterMode.observe(viewLifecycleOwner) { mode ->
             binding.noAddedRolls.visibility = View.GONE
             when (mode) {
-                RollFilterMode.ACTIVE -> {
+                RollFilterMode.Active, RollFilterMode.Archived,
+                RollFilterMode.All, RollFilterMode.Favorites -> {
+                    labelMenuItems.forEach { it.isChecked = false }
+                    filterMenuItemBadges.plus(labelBadges)
+                        .forEach { it.setTypeface(null, Typeface.NORMAL) }
+                }
+                RollFilterMode.Active -> {
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveRolls)
-                    navigationMenu.findItem(R.id.active_rolls_filter).isChecked = true
-                    filterMenuItems.forEach { it.setTypeface(null, Typeface.NORMAL) }
+                    activeRollsMenuItem.isChecked = true
                     activeRollsCountBadge.setTypeface(null, Typeface.BOLD)
                 }
-                RollFilterMode.ARCHIVED -> {
+                RollFilterMode.Archived -> {
                     binding.noAddedRolls.text = resources.getString(R.string.NoArchivedRolls)
-                    navigationMenu.findItem(R.id.archived_rolls_filter).isChecked = true
-                    filterMenuItems.forEach { it.setTypeface(null, Typeface.NORMAL) }
+                    archivedRollsMenuItem.isChecked = true
                     archivedRollsCountBadge.setTypeface(null, Typeface.BOLD)
                 }
-                RollFilterMode.ALL -> {
+                RollFilterMode.All -> {
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveOrArchivedRolls)
-                    navigationMenu.findItem(R.id.all_rolls_filter).isChecked = true
-                    filterMenuItems.forEach { it.setTypeface(null, Typeface.NORMAL) }
+                    allRollsMenuItem.isChecked = true
                     allRollsCountBadge.setTypeface(null, Typeface.BOLD)
                 }
-                RollFilterMode.FAVORITES -> {
+                RollFilterMode.Favorites -> {
                     binding.noAddedRolls.text = resources.getString(R.string.NoFavorites)
-                    navigationMenu.findItem(R.id.favorite_rolls_filter).isChecked = true
-                    filterMenuItems.forEach { it.setTypeface(null, Typeface.NORMAL) }
+                    favoriteRollsMenuItem.isChecked = true
                     favoriteRollsCountBadge.setTypeface(null, Typeface.BOLD)
+                }
+                is RollFilterMode.HasLabel -> {
+                    binding.noAddedRolls.text = resources.getString(R.string.NoRolls)
+                    filterMenuItems.forEach { it.isChecked = false }
+                    filterMenuItemBadges.forEach { it.setTypeface(null, Typeface.NORMAL) }
                 }
                 null -> {}
             }
         }
 
+        val topMenu = binding.topAppBar.menu
         model.rollSortMode.observe(viewLifecycleOwner) { mode ->
             when (mode) {
                 RollSortMode.DATE -> { topMenu.findItem(R.id.date_sort_mode).isChecked = true }
@@ -342,22 +384,22 @@ class RollsListFragment : Fragment(), RollAdapterListener {
             R.id.active_rolls_filter -> {
                 filterMenuItems.forEach { it.isChecked = false }
                 item.isChecked = true
-                model.setRollFilterMode(RollFilterMode.ACTIVE)
+                model.setRollFilterMode(RollFilterMode.Active)
             }
             R.id.archived_rolls_filter -> {
                 filterMenuItems.forEach { it.isChecked = false }
                 item.isChecked = true
-                model.setRollFilterMode(RollFilterMode.ARCHIVED)
+                model.setRollFilterMode(RollFilterMode.Archived)
             }
             R.id.all_rolls_filter -> {
                 filterMenuItems.forEach { it.isChecked = false }
                 item.isChecked = true
-                model.setRollFilterMode(RollFilterMode.ALL)
+                model.setRollFilterMode(RollFilterMode.All)
             }
             R.id.favorite_rolls_filter -> {
                 filterMenuItems.forEach { it.isChecked = false }
                 item.isChecked = true
-                model.setRollFilterMode(RollFilterMode.FAVORITES)
+                model.setRollFilterMode(RollFilterMode.Favorites)
             }
         }
         true
@@ -475,9 +517,10 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         override fun onCreateActionMode(actionMode: ActionMode, menu: Menu): Boolean {
             // Use different action mode menu layouts depending on which rolls are shown.
             when (model.rollFilterMode.value) {
-                RollFilterMode.ACTIVE -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_active, menu)
-                RollFilterMode.ARCHIVED -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_archived, menu)
-                RollFilterMode.ALL, RollFilterMode.FAVORITES -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_all, menu)
+                is RollFilterMode.Active -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_active, menu)
+                is RollFilterMode.Archived -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_archived, menu)
+                is RollFilterMode.All, is RollFilterMode.Favorites, is RollFilterMode.HasLabel ->
+                    actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_all, menu)
                 null -> {}
             }
             return true

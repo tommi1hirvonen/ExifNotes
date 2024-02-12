@@ -23,17 +23,17 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
+import com.tommihirvonen.exifnotes.core.entities.Label
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 import com.tommihirvonen.exifnotes.core.entities.sorted
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
+import com.tommihirvonen.exifnotes.data.repositories.LabelRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollCounts
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
-import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,13 +43,11 @@ import javax.inject.Inject
 @HiltViewModel
 class RollsViewModel @Inject constructor(application: Application,
                                          private val rollRepository: RollRepository,
-                                         private val cameraRepository: CameraRepository)
+                                         private val cameraRepository: CameraRepository,
+                                         private val labelRepository: LabelRepository)
     : AndroidViewModel(application) {
 
     private val context get() = getApplication<Application>()
-
-    private val sharedPreferences = PreferenceManager
-        .getDefaultSharedPreferences(context)
 
     val cameras: LiveData<List<Camera>> get() = mCameras
     val rolls: LiveData<State<List<Roll>>> get() = mRolls
@@ -57,37 +55,30 @@ class RollsViewModel @Inject constructor(application: Application,
     val rollSortMode: LiveData<RollSortMode> get() = mRollSortMode
     val rollCounts: LiveData<RollCounts> get() = mRollCounts
     val toolbarSubtitle: LiveData<String> get() = mToolbarSubtitle
+    val labels: LiveData<List<Label>> get() = mLabels
 
     val selectedRolls = HashSet<Roll>()
 
     var gearRefreshPending = false
 
     private val mToolbarSubtitle: MutableLiveData<String> by lazy {
-        val subtitleResId = when(rollFilterMode.value) {
-            RollFilterMode.ACTIVE -> R.string.ActiveRolls
-            RollFilterMode.ARCHIVED -> R.string.ArchivedRolls
-            RollFilterMode.ALL -> R.string.AllRolls
-            RollFilterMode.FAVORITES -> R.string.Favorites
-            null -> R.string.ActiveRolls
+        val text = when(val filter = rollFilterMode.value) {
+            is RollFilterMode.Active -> context.resources.getString(R.string.ActiveRolls)
+            is RollFilterMode.Archived -> context.resources.getString(R.string.ArchivedRolls)
+            is RollFilterMode.All -> context.resources.getString(R.string.AllRolls)
+            is RollFilterMode.Favorites -> context.resources.getString(R.string.Favorites)
+            is RollFilterMode.HasLabel -> filter.label.name
+            null -> context.resources.getString(R.string.ActiveRolls)
         }
-        val subtitle = context.resources.getString(subtitleResId)
-        MutableLiveData<String>(subtitle)
+        MutableLiveData<String>(text)
     }
 
-    private val mRollFilterMode: MutableLiveData<RollFilterMode> by lazy {
-        MutableLiveData<RollFilterMode>().apply {
-            value = RollFilterMode.fromValue(
-                sharedPreferences.getInt(
-                    PreferenceConstants.KEY_VISIBLE_ROLLS, RollFilterMode.ACTIVE.value))
-        }
+    private val mRollFilterMode = MutableLiveData<RollFilterMode>().apply {
+        value = RollFilterMode.Active
     }
 
-    private val mRollSortMode: MutableLiveData<RollSortMode> by lazy {
-        MutableLiveData<RollSortMode>().apply {
-            value = RollSortMode.fromValue(
-                sharedPreferences.getInt(
-                    PreferenceConstants.KEY_ROLL_SORT_ORDER, RollSortMode.DATE.value))
-        }
+    private val mRollSortMode = MutableLiveData<RollSortMode>().apply {
+        value = RollSortMode.DATE
     }
 
     private val mRolls: MutableLiveData<State<List<Roll>>> by lazy {
@@ -110,25 +101,26 @@ class RollsViewModel @Inject constructor(application: Application,
         }
     }
 
-    fun setRollFilterMode(rollFilterMode: RollFilterMode) {
-        val editor = sharedPreferences.edit()
-        editor.putInt(PreferenceConstants.KEY_VISIBLE_ROLLS, rollFilterMode.value)
-        editor.apply()
-        mRollFilterMode.value = rollFilterMode
-        val subtitleResId = when(rollFilterMode) {
-            RollFilterMode.ACTIVE -> R.string.ActiveRolls
-            RollFilterMode.ARCHIVED -> R.string.ArchivedRolls
-            RollFilterMode.ALL -> R.string.AllRolls
-            RollFilterMode.FAVORITES -> R.string.Favorites
+    private val mLabels: MutableLiveData<List<Label>> by lazy {
+        MutableLiveData<List<Label>>().also {
+            viewModelScope.launch { loadLabels() }
         }
-        mToolbarSubtitle.value = context.resources.getString(subtitleResId)
+    }
+
+    fun setRollFilterMode(rollFilterMode: RollFilterMode) {
+        mRollFilterMode.value = rollFilterMode
+        val text = when(rollFilterMode) {
+            is RollFilterMode.Active -> context.resources.getString(R.string.ActiveRolls)
+            is RollFilterMode.Archived -> context.resources.getString(R.string.ArchivedRolls)
+            is RollFilterMode.All -> context.resources.getString(R.string.AllRolls)
+            is RollFilterMode.Favorites -> context.resources.getString(R.string.Favorites)
+            is RollFilterMode.HasLabel -> rollFilterMode.label.name
+        }
+        mToolbarSubtitle.value = text
         viewModelScope.launch { loadRolls() }
     }
 
     fun setRollSortMode(rollSortMode: RollSortMode) {
-        val editor = sharedPreferences.edit()
-        editor.putInt(PreferenceConstants.KEY_ROLL_SORT_ORDER, rollSortMode.value)
-        editor.apply()
         mRollSortMode.value = rollSortMode
         rollList = rollList.sorted(rollSortMode)
         mRolls.value = State.Success(rollList)
@@ -151,9 +143,9 @@ class RollsViewModel @Inject constructor(application: Application,
         if (rollRepository.updateRoll(roll) == 0) {
             rollRepository.addRoll(roll)
         }
-        if (mRollFilterMode.value == RollFilterMode.ACTIVE && roll.archived
-            || mRollFilterMode.value == RollFilterMode.ARCHIVED && !roll.archived
-            || mRollFilterMode.value == RollFilterMode.FAVORITES && !roll.favorite) {
+        if (mRollFilterMode.value == RollFilterMode.Active && roll.archived
+            || mRollFilterMode.value == RollFilterMode.Archived && !roll.archived
+            || mRollFilterMode.value == RollFilterMode.Favorites && !roll.favorite) {
             rollList = rollList.minus(roll)
             mRolls.value = State.Success(rollList)
         } else {
@@ -184,10 +176,16 @@ class RollsViewModel @Inject constructor(application: Application,
     private suspend fun loadRolls() {
         withContext(Dispatchers.IO) {
             mRolls.postValue(State.InProgress())
-            val filterMode = rollFilterMode.value ?: RollFilterMode.ACTIVE
+            val filterMode = rollFilterMode.value ?: RollFilterMode.Active
             val sortMode = rollSortMode.value ?: RollSortMode.DATE
             rollList = rollRepository.getRolls(filterMode).sorted(sortMode)
             mRolls.postValue(State.Success(rollList))
+        }
+    }
+
+    private suspend fun loadLabels() {
+        withContext(Dispatchers.IO) {
+            mLabels.postValue(labelRepository.labels)
         }
     }
 
