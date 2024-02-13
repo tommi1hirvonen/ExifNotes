@@ -18,16 +18,13 @@
 
 package com.tommihirvonen.exifnotes.data.query
 
-interface Query : Queryable {
-    fun select(vararg columns: String): Queryable
+import android.database.sqlite.SQLiteDatabase
 
-    fun distinct(distinct: Boolean = true): Queryable
-
-    fun orderBy(vararg columns: String): Queryable
-
-    fun limit(limit: Int): Queryable
-
-    fun where(predicate: String, vararg arguments: String): Queryable
-
-    fun groupBy(vararg groupBy: String): AggregateQuery
-}
+data class Query(
+    val db: SQLiteDatabase,
+    val table: String,
+    val columns: List<String> = emptyList(),
+    val distinct: Boolean = false,
+    val filter: Pair<String, List<String>>? = null,
+    val orderBy: List<String> = emptyList(),
+    val limit: Int? = null)

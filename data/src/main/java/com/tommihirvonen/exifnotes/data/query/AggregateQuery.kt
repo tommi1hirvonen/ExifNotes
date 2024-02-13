@@ -18,6 +18,14 @@
 
 package com.tommihirvonen.exifnotes.data.query
 
-interface AggregateQuery : Queryable {
-    fun having(having: String): Queryable
-}
+import android.database.sqlite.SQLiteDatabase
+
+data class AggregateQuery(
+    val db: SQLiteDatabase,
+    val table: String,
+    val columns: List<String> = emptyList(),
+    val filter: Pair<String, List<String>>? = null,
+    val orderBy: List<String> = emptyList(),
+    val limit: Int? = null,
+    val groupBy: List<String>,
+    val having: String? = null)

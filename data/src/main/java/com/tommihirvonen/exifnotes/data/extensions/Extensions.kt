@@ -22,14 +22,12 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import androidx.core.database.getLongOrNull
-import com.tommihirvonen.exifnotes.data.query.TableQuery
-
-internal fun SQLiteOpenHelper.from(table: String) = TableQuery(this.readableDatabase, table)
 
 internal fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
     generateSequence { if (moveToNext()) this else null }
         .map(transform)
         .toList()
+
 internal fun <T> SQLiteOpenHelper.select(table: String,
                                          columns: List<String>? = null,
                                          selection: String? = null,

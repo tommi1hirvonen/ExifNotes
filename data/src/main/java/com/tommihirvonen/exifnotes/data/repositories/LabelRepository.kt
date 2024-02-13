@@ -25,20 +25,24 @@ import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.extensions.*
+import com.tommihirvonen.exifnotes.data.query.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class LabelRepository @Inject constructor(private val database: Database) {
-    val labels: List<Label> get() = database
-        .select(TABLE_LABELS, orderBy = KEY_LABEL_NAME, transform = labelMapper)
+    val labels: List<Label> get() =
+        database.from(TABLE_LABELS).orderBy(KEY_LABEL_NAME).map(labelMapper)
 
-    fun getLabels(roll: Roll) = database.select(
-        TABLE_LABELS,
-        selection = "$KEY_LABEL_ID IN (SELECT $KEY_LABEL_ID FROM $TABLE_LINK_ROLL_LABEL WHERE $KEY_ROLL_ID = ?)",
-        selectionArgs = listOf(roll.id.toString()),
-        transform = labelMapper
-    )
+    fun getLabels(roll: Roll) = database.from(TABLE_LABELS)
+        .filter("""
+            |$KEY_LABEL_ID IN (
+            |   SELECT $KEY_LABEL_ID
+            |   FROM $TABLE_LINK_ROLL_LABEL
+            |   WHERE $KEY_ROLL_ID = ?
+            |)
+            """.trimMargin(), roll.id)
+        .map(labelMapper)
 
     fun addLabel(label: Label): Long {
         val id = database.writableDatabase
