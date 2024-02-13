@@ -19,42 +19,65 @@
 package com.tommihirvonen.exifnotes.data.extensions
 
 import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import androidx.core.database.getLongOrNull
+import com.tommihirvonen.exifnotes.data.query.TableQuery
+
+internal fun SQLiteOpenHelper.from(table: String) = TableQuery(this.readableDatabase, table)
 
 internal fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
-    generateSequence { if (moveToNext()) this else null }.map(transform).toList()
-
+    generateSequence { if (moveToNext()) this else null }
+        .map(transform)
+        .toList()
 internal fun <T> SQLiteOpenHelper.select(table: String,
-                                columns: List<String>? = null,
-                                selection: String? = null,
-                                selectionArgs: List<String>? = null,
-                                distinct: Boolean = false,
-                                groupBy: String? = null,
-                                having: String? = null,
-                                orderBy: String? = null,
-                                limit: String? = null,
-                                transform: (Cursor) -> T
-): List<T> = readableDatabase
-    .query(distinct, table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
-        groupBy, having, orderBy, limit).use { cursor ->
-        cursor.map(transform)
-    }
+                                         columns: List<String>? = null,
+                                         selection: String? = null,
+                                         selectionArgs: List<String>? = null,
+                                         distinct: Boolean = false,
+                                         groupBy: String? = null,
+                                         having: String? = null,
+                                         orderBy: String? = null,
+                                         limit: String? = null,
+                                         transform: (Cursor) -> T): List<T> =
+    readableDatabase.select(table, columns, selection, selectionArgs, distinct,
+        groupBy, having, orderBy, limit, transform)
+
+internal fun <T> SQLiteDatabase.select(table: String,
+                                       columns: List<String>? = null,
+                                       selection: String? = null,
+                                       selectionArgs: List<String>? = null,
+                                       distinct: Boolean = false,
+                                       groupBy: String? = null,
+                                       having: String? = null,
+                                       orderBy: String? = null,
+                                       limit: String? = null,
+                                       transform: (Cursor) -> T): List<T> =
+    query(distinct, table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
+        groupBy, having, orderBy, limit).use { cursor -> cursor.map(transform) }
 
 internal fun <T> SQLiteOpenHelper.selectFirstOrNull(table: String,
-                                           columns: List<String>? = null,
-                                           selection: String? = null,
-                                           selectionArgs: List<String>? = null,
-                                           orderBy: String? = null,
-                                           transform: (Cursor) -> T
-): T? = readableDatabase
-    .query(table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
-        null, null, orderBy, null).use { cursor ->
-        if (cursor.moveToFirst()) {
-            transform(cursor)
-        } else {
-            null
-        }
+                                                    columns: List<String>? = null,
+                                                    selection: String? = null,
+                                                    selectionArgs: List<String>? = null,
+                                                    groupBy: String? = null,
+                                                    having: String? = null,
+                                                    orderBy: String? = null,
+                                                    transform: (Cursor) -> T): T? =
+    readableDatabase.selectFirstOrNull(table, columns, selection, selectionArgs, groupBy, having,
+        orderBy, transform)
+
+internal fun <T> SQLiteDatabase.selectFirstOrNull(table: String,
+                                                  columns: List<String>? = null,
+                                                  selection: String? = null,
+                                                  selectionArgs: List<String>? = null,
+                                                  groupBy: String? = null,
+                                                  having: String? = null,
+                                                  orderBy: String? = null,
+                                                  transform: (Cursor) -> T): T? =
+    query(table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
+        groupBy, having, orderBy, "1").use { cursor ->
+        if (cursor.moveToFirst()) transform(cursor) else null
     }
 
 internal fun Cursor.getLong(columnName: String): Long = getLong(getColumnIndexOrThrow(columnName))
