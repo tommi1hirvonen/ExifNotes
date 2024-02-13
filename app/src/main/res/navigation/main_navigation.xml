@@ -318,5 +318,24 @@
     <fragment
         android:id="@+id/labels_dest"
         android:name="com.tommihirvonen.exifnotes.fragments.LabelsFragment"
-        android:label="LabelsFragment" />
+        android:label="LabelsFragment" >
+        <action
+            android:id="@+id/label_edit_action"
+            app:destination="@id/label_edit_dest" />
+    </fragment>
+    <dialog
+        android:id="@+id/label_edit_dest"
+        android:name="com.tommihirvonen.exifnotes.dialogs.LabelEditDialog"
+        android:label="LabelEditDialog" >
+        <argument
+            android:name="label"
+            app:argType="com.tommihirvonen.exifnotes.core.entities.Label"
+            app:nullable="true" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="positiveButton"
+            app:argType="string" />
+    </dialog>
 </navigation>

@@ -27,6 +27,7 @@
     <string name="AddNewFilmStock">Add new film stock</string>
     <string name="AddNewFilter">Add new filter</string>
     <string name="AddNewFrame">Add new frame</string>
+    <string name="AddNewLabel">Add new label</string>
     <string name="AddNewLens">Add new lens</string>
     <string name="AddNewRoll">Add new roll</string>
     <string name="AddPictureToGallery">Add current picture to gallery</string>
@@ -114,6 +115,7 @@
     <string name="DefaultFormat">Default format</string>
     <string name="Delete">Delete</string>
     <string name="DeleteFilmStock">Delete film stock</string>
+    <string name="DeleteLabel">Delete label</string>
     <string name="DescriptionOrNote">Description/note</string>
     <string name="DeselectAll">Deselect all</string>
     <string name="Developed">Developed</string>
@@ -132,6 +134,7 @@
     <string name="EditFrameCounts">Edit frame counts</string>
     <string name="EditCopiedFramesCountsBy">Edit copied frames\' counts by…</string>
     <string name="EditFrameCountsBy">Edit frame counts by…</string>
+    <string name="EditLabel">Edit label</string>
     <string name="EditLens">Edit lens</string>
     <string name="EditLightSource">Edit light source</string>
     <string name="EditLocation">Edit location</string>

@@ -46,9 +46,11 @@ class LabelsViewModel @Inject constructor(private val labelRepository: LabelRepo
     fun submitLabel(label: Label) {
         if (labelRepository.updateLabel(label) == 0) {
             labelRepository.addLabel(label)
-            labelsList.add(label)
-            labelsList.sortBy { it.name }
         }
+        labelsList.removeIf { it.id == label.id }
+        labelsList.add(label)
+        labelsList.sortBy { it.name }
+        mLabels.postValue(labelsList)
     }
 
     fun deleteLabel(label: Label) {

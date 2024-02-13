@@ -42,4 +42,5 @@ object ExtraKeys {
     const val TARGET_URI = "TARGET_URI"
     const val TAP_POSITION = "TAP_POSITION"
     const val FILENAMES = "FILENAMES"
+    const val LABEL = "LABEL"
 }

@@ -27,9 +27,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.adapters.LabelAdapter
 import com.tommihirvonen.exifnotes.core.entities.Label
 import com.tommihirvonen.exifnotes.databinding.FragmentLabelsBinding
+import com.tommihirvonen.exifnotes.utilities.ExtraKeys
+import com.tommihirvonen.exifnotes.utilities.observeThenClearNavigationResult
 import com.tommihirvonen.exifnotes.viewmodels.LabelsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -63,14 +67,40 @@ class LabelsFragment : Fragment() {
             labelAdapter.notifyDataSetChanged()
         }
 
+        binding.fab.setOnClickListener { openLabelEditDialog() }
+
         return binding.root
     }
 
-    private val onLabelClickListener = { label: Label, view: View ->
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        observeThenClearNavigationResult<Label>(ExtraKeys.LABEL) { label ->
+            label.let(model::submitLabel)
+        }
     }
 
-    private val onLabelDeleteClickListener = { label: Label, view: View ->
+    private val onLabelClickListener = { label: Label, _: View ->
+        openLabelEditDialog(label)
+    }
 
+    private val onLabelDeleteClickListener = { label: Label, _: View ->
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.DeleteLabel)
+            .setMessage(label.name)
+            .setPositiveButton(R.string.Yes) { _, _ ->
+                model.deleteLabel(label)
+            }
+            .setNegativeButton(R.string.Cancel) { _, _ -> }
+            .create()
+            .show()
+    }
+
+    private fun openLabelEditDialog(label: Label? = null) {
+        val (title, positiveButtonText) = if (label == null) {
+            resources.getString(R.string.AddNewLabel) to resources.getString(R.string.Add)
+        } else {
+            resources.getString(R.string.EditLabel) to resources.getString(R.string.OK)
+        }
+        val action = LabelsFragmentDirections.labelEditAction(label, title, positiveButtonText)
+        findNavController().navigate(action)
     }
 }

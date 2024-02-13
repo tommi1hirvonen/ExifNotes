@@ -40,11 +40,12 @@ class LabelAdapter(private val context: Context,
 
     inner class ViewHolder(val binding: ItemLabelBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
-            val label = labels[bindingAdapterPosition]
             binding.itemLabelLayout.setOnClickListener {
+                val label = labels[bindingAdapterPosition]
                 onLabelClickListener(label, binding.root)
             }
             binding.deleteImageView.setOnClickListener {
+                val label = labels[bindingAdapterPosition]
                 onLabelDeleteClickListener(label, binding.deleteImageView)
             }
         }
