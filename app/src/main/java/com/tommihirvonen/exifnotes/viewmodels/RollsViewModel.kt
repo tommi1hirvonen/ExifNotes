@@ -59,7 +59,7 @@ class RollsViewModel @Inject constructor(application: Application,
 
     val selectedRolls = HashSet<Roll>()
 
-    var gearRefreshPending = false
+    var refreshPending = false
 
     private val mToolbarSubtitle: MutableLiveData<String> by lazy {
         val text = when(val filter = rollFilterMode.value) {

@@ -73,4 +73,10 @@
         android:icon="@drawable/ic_outline_settings_24"
         android:title="@string/Settings"
         />
+
+    <item
+        android:id="@+id/menu_item_labels"
+        android:icon="@drawable/ic_outline_new_label_24"
+        android:title="@string/ManageLabels"
+        />
 </menu>

@@ -250,6 +250,7 @@
     <string name="MainActivityTitle">Film rolls</string>
     <string name="Make">Make</string>
     <string name="MakeAndOrModelIsEmpty">Make and/or model is empty</string>
+    <string name="ManageLabels">Manage labels</string>
     <string name="Manufacturer">Manufacturer</string>
     <string name="Map">Map</string>
     <string name="MapType">Map type</string>
@@ -264,6 +265,7 @@
     <string name="NameNoColon">Name</string>
     <string name="New">New</string>
     <string name="NewFrame">New frame</string>
+    <string name="NewLabel">New label</string>
     <string name="NewRoll">New roll</string>
     <string name="No">No</string>
     <string name="NoActiveOrArchivedRolls">No active/archived rolls</string>
@@ -272,6 +274,7 @@
     <string name="NoCamera">No camera</string>
     <string name="NoCameraFeatureWasFound">No camera feature was found!</string>
     <string name="NoCameras">No added cameras</string>
+    <string name="NoLabels">No added labels</string>
     <string name="NoFavorites">No favorites</string>
     <string name="NoFilmStocks">No added film stocks</string>
     <string name="NoFilters">No added filters</string>
@@ -336,6 +339,10 @@
     <string name="ReverseFrameCounts">Reverse frame counts</string>
     <string name="RollsActivated">Roll(s) unarchived</string>
     <string name="RollsArchived">Roll(s) archived</string>
+    <plurals name="RollsAmount">
+        <item quantity="one">%d roll</item>
+        <item quantity="other">%d rolls</item>
+    </plurals>
     <string name="RotateLeft90Degrees">Rotate left 90 degrees</string>
     <string name="RotateRight90Degrees">Rotate right 90 degrees</string>
     <string name="Satellite">Satellite</string>

@@ -360,7 +360,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         when (item.itemId) {
             R.id.menu_item_gear -> {
                 exitTransition = null
-                model.gearRefreshPending = true
+                model.refreshPending = true
                 val action = RollsListFragmentDirections.gearAction()
                 viewLifecycleOwner.lifecycleScope.launch {
                     // Small delay so that the drawer has enough time to close
@@ -385,6 +385,15 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     // before a new fragment is started.
                     delay(225)
                     val action = RollsListFragmentDirections.rollsMapAction()
+                    findNavController().navigate(action)
+                }
+            }
+            R.id.menu_item_labels -> {
+                exitTransition = null
+                model.refreshPending = true
+                val action = RollsListFragmentDirections.labelsAction()
+                viewLifecycleOwner.lifecycleScope.launch {
+                    delay(225)
                     findNavController().navigate(action)
                 }
             }
@@ -415,8 +424,8 @@ class RollsListFragment : Fragment(), RollAdapterListener {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
-        if (model.gearRefreshPending) {
-            model.gearRefreshPending = false
+        if (model.refreshPending) {
+            model.refreshPending = false
             model.loadAll()
         }
         rollAdapter.notifyDataSetChanged()

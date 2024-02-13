@@ -64,6 +64,13 @@
             app:exitAnim="@anim/exit_fragment"
             app:popEnterAnim="@anim/enter_fragment"
             app:popExitAnim="@anim/exit_fragment" />
+        <action
+            android:id="@+id/labels_action"
+            app:destination="@id/labels_dest"
+            app:enterAnim="@anim/enter_fragment"
+            app:exitAnim="@anim/exit_fragment"
+            app:popEnterAnim="@anim/enter_fragment"
+            app:popExitAnim="@anim/exit_fragment" />
     </fragment>
     <fragment
         android:id="@+id/rolls_map_dest"
@@ -308,4 +315,8 @@
             app:argType="boolean"
             android:defaultValue="false" />
     </fragment>
+    <fragment
+        android:id="@+id/labels_dest"
+        android:name="com.tommihirvonen.exifnotes.fragments.LabelsFragment"
+        android:label="LabelsFragment" />
 </navigation>
