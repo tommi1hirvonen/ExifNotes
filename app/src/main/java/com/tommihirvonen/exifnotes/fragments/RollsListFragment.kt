@@ -176,6 +176,7 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 item.actionView = textView
                 initializeActionView(textView)
                 textView.text = label.rollCount.toString()
+                textView.setTypeface(null, Typeface.NORMAL)
                 val filter = model.rollFilterMode.value
                 if (filter is RollFilterMode.HasLabel && filter.label.id == label.id) {
                     item.isChecked = true
@@ -196,28 +197,34 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         model.rollFilterMode.observe(viewLifecycleOwner) { mode ->
             binding.noAddedRolls.visibility = View.GONE
             when (mode) {
-                RollFilterMode.Active, RollFilterMode.Archived,
-                RollFilterMode.All, RollFilterMode.Favorites -> {
+                RollFilterMode.Active -> {
                     labelMenuItems.forEach { it.isChecked = false }
                     filterMenuItemBadges.plus(labelBadges)
                         .forEach { it.setTypeface(null, Typeface.NORMAL) }
-                }
-                RollFilterMode.Active -> {
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveRolls)
                     activeRollsMenuItem.isChecked = true
                     activeRollsCountBadge.setTypeface(null, Typeface.BOLD)
                 }
                 RollFilterMode.Archived -> {
+                    labelMenuItems.forEach { it.isChecked = false }
+                    filterMenuItemBadges.plus(labelBadges)
+                        .forEach { it.setTypeface(null, Typeface.NORMAL) }
                     binding.noAddedRolls.text = resources.getString(R.string.NoArchivedRolls)
                     archivedRollsMenuItem.isChecked = true
                     archivedRollsCountBadge.setTypeface(null, Typeface.BOLD)
                 }
                 RollFilterMode.All -> {
+                    labelMenuItems.forEach { it.isChecked = false }
+                    filterMenuItemBadges.plus(labelBadges)
+                        .forEach { it.setTypeface(null, Typeface.NORMAL) }
                     binding.noAddedRolls.text = resources.getString(R.string.NoActiveOrArchivedRolls)
                     allRollsMenuItem.isChecked = true
                     allRollsCountBadge.setTypeface(null, Typeface.BOLD)
                 }
                 RollFilterMode.Favorites -> {
+                    labelMenuItems.forEach { it.isChecked = false }
+                    filterMenuItemBadges.plus(labelBadges)
+                        .forEach { it.setTypeface(null, Typeface.NORMAL) }
                     binding.noAddedRolls.text = resources.getString(R.string.NoFavorites)
                     favoriteRollsMenuItem.isChecked = true
                     favoriteRollsCountBadge.setTypeface(null, Typeface.BOLD)
