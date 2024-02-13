@@ -53,7 +53,8 @@ class LabelsFragment : Fragment() {
         val layoutManager = LinearLayoutManager(activity)
         binding.labelsRecyclerView.layoutManager = layoutManager
 
-        val labelAdapter = LabelAdapter(requireContext(), onLabelClickListener)
+        val labelAdapter = LabelAdapter(requireContext(),onLabelClickListener,
+            onLabelDeleteClickListener)
         binding.labelsRecyclerView.adapter = labelAdapter
 
         model.labels.observe(viewLifecycleOwner) { labels ->
@@ -66,6 +67,10 @@ class LabelsFragment : Fragment() {
     }
 
     private val onLabelClickListener = { label: Label, view: View ->
+
+    }
+
+    private val onLabelDeleteClickListener = { label: Label, view: View ->
 
     }
 }

@@ -28,7 +28,8 @@ import com.tommihirvonen.exifnotes.core.entities.Label
 import com.tommihirvonen.exifnotes.databinding.ItemLabelBinding
 
 class LabelAdapter(private val context: Context,
-                   private val onLabelClickListener: (Label, View) -> Any)
+                   private val onLabelClickListener: (Label, View) -> Any,
+                   private val onLabelDeleteClickListener: (Label, View) -> Any)
     : RecyclerView.Adapter<LabelAdapter.ViewHolder>(){
 
     var labels = emptyList<Label>()
@@ -39,9 +40,12 @@ class LabelAdapter(private val context: Context,
 
     inner class ViewHolder(val binding: ItemLabelBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
+            val label = labels[bindingAdapterPosition]
             binding.itemLabelLayout.setOnClickListener {
-                val label = labels[bindingAdapterPosition]
                 onLabelClickListener(label, binding.root)
+            }
+            binding.deleteImageView.setOnClickListener {
+                onLabelDeleteClickListener(label, binding.deleteImageView)
             }
         }
     }
