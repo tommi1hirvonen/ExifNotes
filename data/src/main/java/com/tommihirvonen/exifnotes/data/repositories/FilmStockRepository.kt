@@ -26,6 +26,7 @@ import com.tommihirvonen.exifnotes.core.entities.FilmType
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.extensions.*
+import com.tommihirvonen.exifnotes.data.query.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -61,21 +62,20 @@ class FilmStockRepository @Inject constructor(private val database: Database) {
         )
     }
 
-    internal fun getFilmStock(filmStockId: Long) = database.selectFirstOrNull(
-        TABLE_FILM_STOCKS,
-        selection = "$KEY_FILM_STOCK_ID=?",
-        selectionArgs = listOf(filmStockId.toString()),
-        transform = filmStockMapper)
+    internal fun getFilmStock(filmStockId: Long) = database
+        .from(TABLE_FILM_STOCKS)
+        .filter("$KEY_FILM_STOCK_ID = ?", filmStockId)
+        .firstOrNull(filmStockMapper)
 
-    val filmStocks: List<FilmStock> get() = database.select(
-        TABLE_FILM_STOCKS,
-        orderBy = "$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase",
-        transform = filmStockMapper)
+    val filmStocks: List<FilmStock> get() = database
+        .from(TABLE_FILM_STOCKS)
+        .orderBy("$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase")
+        .map(filmStockMapper)
 
-    fun isFilmStockBeingUsed(filmStock: FilmStock) = database.selectFirstOrNull(
-        TABLE_ROLLS,
-        selection = "$KEY_FILM_STOCK_ID=?",
-        selectionArgs = listOf(filmStock.id.toString())) { true } ?: false
+    fun isFilmStockBeingUsed(filmStock: FilmStock) = database
+        .from(TABLE_ROLLS)
+        .filter("$KEY_FILM_STOCK_ID = ?", filmStock.id)
+        .firstOrNull { true } ?: false
 
     fun deleteFilmStock(filmStock: FilmStock) =
         database.writableDatabase

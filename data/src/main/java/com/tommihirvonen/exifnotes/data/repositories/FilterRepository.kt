@@ -23,6 +23,7 @@ import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.extensions.*
+import com.tommihirvonen.exifnotes.data.query.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,26 +38,21 @@ class FilterRepository @Inject constructor(private val database: Database) {
     }
 
     val filters: List<Filter> get() {
-        val lenses = database.select(TABLE_LINK_LENS_FILTER) { row ->
-            row.getLong(KEY_FILTER_ID) to row.getLong(KEY_LENS_ID)
-        }.groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
-        return database.select(
-            TABLE_FILTERS,
-            orderBy = "$KEY_FILTER_MAKE collate nocase,$KEY_FILTER_MODEL collate nocase") { row ->
-            filterMapper(row).apply {
-                lensIds = lenses[id]?.toHashSet() ?: HashSet()
-            }
-        }
+        val lenses = database.from(TABLE_LINK_LENS_FILTER)
+            .map { it.getLong(KEY_FILTER_ID) to it.getLong(KEY_LENS_ID) }
+            .groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
+        return database.from(TABLE_FILTERS)
+            .orderBy("$KEY_FILTER_MAKE collate nocase,$KEY_FILTER_MODEL collate nocase")
+            .map { filterMapper(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
     }
 
     fun deleteFilter(filter: Filter): Int = database.writableDatabase
         .delete(TABLE_FILTERS, "$KEY_FILTER_ID = ?", arrayOf(filter.id.toString()))
 
-    fun isFilterBeingUsed(filter: Filter) = database.selectFirstOrNull(
-        TABLE_LINK_FRAME_FILTER,
-        columns = listOf(KEY_FILTER_ID),
-        selection = "$KEY_FILTER_ID=?",
-        selectionArgs = listOf(filter.id.toString())) { true } ?: false
+    fun isFilterBeingUsed(filter: Filter) = database
+        .from(TABLE_LINK_FRAME_FILTER)
+        .filter("$KEY_FILTER_ID = ?", filter.id)
+        .firstOrNull { true } ?: false
 
     fun updateFilter(filter: Filter): Int {
         val contentValues = buildFilterContentValues(filter)
