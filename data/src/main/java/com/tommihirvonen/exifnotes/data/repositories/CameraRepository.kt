@@ -28,6 +28,7 @@ import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.extensions.*
+import com.tommihirvonen.exifnotes.data.query.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -65,32 +66,24 @@ class CameraRepository @Inject constructor(
     }
 
     internal fun getCamera(cameraId: Long): Camera? {
-        val lenses = database.select(
-            TABLE_LINK_CAMERA_LENS,
-            columns = listOf(KEY_LENS_ID),
-            selection = "$KEY_CAMERA_ID=?",
-            selectionArgs = listOf(cameraId.toString())) { row ->
-            row.getLong(KEY_LENS_ID)
-        }.toHashSet()
-        return database.selectFirstOrNull(
-            TABLE_CAMERAS,
-            selection = "$KEY_CAMERA_ID=?",
-            selectionArgs = listOf(cameraId.toString())) { row ->
-            cameraMapper(row).apply { lensIds = lenses }
-        }
+        val lenses = database
+            .from(TABLE_LINK_CAMERA_LENS)
+            .select(KEY_LENS_ID)
+            .filter("$KEY_CAMERA_ID = ?", cameraId)
+            .map { it.getLong(KEY_LENS_ID) }
+            .toHashSet()
+        return database.from(TABLE_CAMERAS)
+            .filter("$KEY_CAMERA_ID = ?", cameraId)
+            .firstOrNull { cameraMapper(it).apply { lensIds = lenses } }
     }
 
     val cameras: List<Camera> get() {
-        val lenses = database.select(TABLE_LINK_CAMERA_LENS) { row ->
-            row.getLong(KEY_CAMERA_ID) to row.getLong(KEY_LENS_ID)
-        }.groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
-        return database.select(
-            TABLE_CAMERAS,
-            orderBy = "$KEY_CAMERA_MAKE collate nocase,$KEY_CAMERA_MODEL collate nocase") { row ->
-            cameraMapper(row).apply {
-                lensIds = lenses[id]?.toHashSet() ?: HashSet()
-            }
-        }
+        val lenses = database.from(TABLE_LINK_CAMERA_LENS)
+            .map { it.getLong(KEY_CAMERA_ID) to it.getLong(KEY_LENS_ID) }
+            .groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
+        return database.from(TABLE_CAMERAS)
+            .orderBy("$KEY_CAMERA_MAKE collate nocase, $KEY_CAMERA_MODEL collate nocase")
+            .map { cameraMapper(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
     }
 
     fun deleteCamera(camera: Camera): Int {
@@ -100,20 +93,19 @@ class CameraRepository @Inject constructor(
             .delete(TABLE_CAMERAS, "$KEY_CAMERA_ID = ?", arrayOf(camera.id.toString()))
     }
 
-    fun isCameraBeingUsed(camera: Camera) = database.selectFirstOrNull(
-        TABLE_ROLLS,
-        selection = "$KEY_CAMERA_ID=?",
-        selectionArgs = listOf(camera.id.toString())) { true } ?: false
+    fun isCameraBeingUsed(camera: Camera) = database
+        .from(TABLE_ROLLS)
+        .filter("$KEY_CAMERA_ID = ?", camera.id)
+        .firstOrNull { true } ?: false
 
     fun updateCamera(camera: Camera): Int {
         // Check if the camera previously had a fixed lens.
-        val previousLensId = database.selectFirstOrNull(
-            TABLE_CAMERAS,
-            columns = listOf(KEY_LENS_ID),
-            selection = "$KEY_CAMERA_ID=?",
-            selectionArgs = listOf(camera.id.toString())) { row ->
-            row.getLong(KEY_LENS_ID)
-        } ?: 0
+        val previousLensId = database
+            .from(TABLE_CAMERAS)
+            .select(KEY_LENS_ID)
+            .filter("$KEY_CAMERA_ID = ?", camera.id)
+            .firstOrNull { it.getLong(KEY_LENS_ID) }
+            ?: 0
 
         val database = database.writableDatabase
         database.beginTransaction()
@@ -150,13 +142,11 @@ class CameraRepository @Inject constructor(
     }
 
     fun getLinkedLenses(camera: Camera): List<Lens> {
-        val lensIds = database.select(
-            TABLE_LINK_CAMERA_LENS,
-            columns = listOf(KEY_LENS_ID),
-            selection = "$KEY_CAMERA_ID = ?",
-            selectionArgs = listOf(camera.id.toString())) { row ->
-            row.getLong(KEY_LENS_ID)
-        }
+        val lensIds = database
+            .from(TABLE_LINK_CAMERA_LENS)
+            .select(KEY_LENS_ID)
+            .filter("$KEY_CAMERA_ID = ?", camera.id)
+            .map { it.getLong(KEY_LENS_ID) }
         return lensIds
             .mapNotNull(lenses::getLens)
             .sortedWith(compareBy(Lens::make).thenBy(Lens::model))
