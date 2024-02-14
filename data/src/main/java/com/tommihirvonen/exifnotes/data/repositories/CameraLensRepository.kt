@@ -30,15 +30,21 @@ class CameraLensRepository @Inject constructor(private val database: Database) {
     fun addCameraLensLink(camera: Camera, lens: Lens) {
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
-        val query = ("INSERT INTO " + TABLE_LINK_CAMERA_LENS + "(" + KEY_CAMERA_ID + "," + KEY_LENS_ID
-                + ") SELECT " + camera.id + ", " + lens.id
-                + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_LINK_CAMERA_LENS + " WHERE "
-                + KEY_CAMERA_ID + "=" + camera.id + " AND " + KEY_LENS_ID + "=" + lens.id + ");")
+        val query = """
+            |insert into $TABLE_LINK_CAMERA_LENS ($KEY_CAMERA_ID, $KEY_LENS_ID)
+            |select ${camera.id}, ${lens.id}
+            |where not exists (
+            |   select 1
+            |   from $TABLE_LINK_CAMERA_LENS
+            |   where $KEY_CAMERA_ID = ${camera.id} and $KEY_LENS_ID = ${lens.id}
+            |);
+        """.trimMargin()
         database.writableDatabase.execSQL(query)
     }
 
     fun deleteCameraLensLink(camera: Camera, lens: Lens) =
         database.writableDatabase.delete(
             TABLE_LINK_CAMERA_LENS,
-            "$KEY_CAMERA_ID = ? AND $KEY_LENS_ID = ?", arrayOf(camera.id.toString(), lens.id.toString()))
+            "$KEY_CAMERA_ID = ? AND $KEY_LENS_ID = ?",
+            arrayOf(camera.id.toString(), lens.id.toString()))
 }

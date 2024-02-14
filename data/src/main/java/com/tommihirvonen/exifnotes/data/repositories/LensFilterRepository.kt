@@ -27,14 +27,18 @@ import javax.inject.Singleton
 
 @Singleton
 class LensFilterRepository @Inject constructor(private val database: Database) {
-
     fun addLensFilterLink(filter: Filter, lens: Lens) {
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
-        val query = ("INSERT INTO " + TABLE_LINK_LENS_FILTER + "(" + KEY_FILTER_ID + "," + KEY_LENS_ID
-                + ") SELECT " + filter.id + ", " + lens.id
-                + " WHERE NOT EXISTS(SELECT 1 FROM " + TABLE_LINK_LENS_FILTER + " WHERE "
-                + KEY_FILTER_ID + "=" + filter.id + " AND " + KEY_LENS_ID + "=" + lens.id + ");")
+        val query = """
+            |insert into $TABLE_LINK_LENS_FILTER ($KEY_FILTER_ID, $KEY_LENS_ID)
+            |select ${filter.id}, ${lens.id}
+            |where not exists (
+            |   select 1
+            |   from $TABLE_LINK_LENS_FILTER
+            |   where $KEY_FILTER_ID = ${filter.id} and $KEY_LENS_ID = ${lens.id}
+            |);
+        """.trimMargin()
         database.writableDatabase.execSQL(query)
     }
 

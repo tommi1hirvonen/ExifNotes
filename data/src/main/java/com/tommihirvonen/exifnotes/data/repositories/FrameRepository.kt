@@ -60,12 +60,15 @@ class FrameRepository @Inject constructor(private val database: Database,
     private fun addFrameFilterLink(frame: Frame, filter: Filter) {
         //Here it is safe to use a raw query, because we only use id values, which are database generated.
         //So there is no danger of SQL injection.
-        val query = ("insert into " + TABLE_LINK_FRAME_FILTER + " ("
-                + KEY_FRAME_ID + ", " + KEY_FILTER_ID + ") "
-                + "select " + frame.id + ", " + filter.id + " "
-                + "where not exists (select * from " + TABLE_LINK_FRAME_FILTER + " "
-                + "where " + KEY_FRAME_ID + " = " + frame.id + " and "
-                + KEY_FILTER_ID + " = " + filter.id + ");")
+        val query = """
+            |insert into $TABLE_LINK_FRAME_FILTER ($KEY_FRAME_ID, $KEY_FILTER_ID)
+            |select ${frame.id}, ${filter.id}
+            |where not exists (
+            |   select *
+            |   from $TABLE_LINK_FRAME_FILTER
+            |   where $KEY_FRAME_ID = ${frame.id} and $KEY_FILTER_ID = ${filter.id}
+            |);
+        """.trimMargin()
         database.writableDatabase.execSQL(query)
     }
 
