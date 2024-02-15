@@ -67,12 +67,13 @@ class LabelRepository @Inject constructor(private val database: Database) {
     private val labelMapper = { cursor: Cursor ->
         val id = cursor.getLong(KEY_LABEL_ID)
         val name = cursor.getString(KEY_LABEL_NAME)
-        val rollCount = database.selectFirstOrNull(TABLE_LINK_ROLL_LABEL,
-            columns = listOf("COUNT(*)"),
-            selection = "$KEY_LABEL_ID = ?",
-            selectionArgs = listOf(id.toString())) { row ->
-            row.getInt(0)
-        }
+        val rollCount = database
+            .from(TABLE_LINK_ROLL_LABEL)
+            .select("count(*)")
+            .filter("$KEY_LABEL_ID = ?", id)
+            .firstOrNull { row ->
+                row.getInt(0)
+            }
         Label(id, name, rollCount ?: 0)
     }
 }

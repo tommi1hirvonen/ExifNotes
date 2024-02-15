@@ -26,6 +26,7 @@ import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.extensions.*
+import com.tommihirvonen.exifnotes.data.query.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -43,29 +44,24 @@ class LensRepository @Inject constructor(private val database: Database) {
     }
 
     internal fun getLens(lensId: Long): Lens? {
-        val filters = database.select(
-            TABLE_LINK_LENS_FILTER,
-            columns = listOf(KEY_FILTER_ID),
-            selection = "$KEY_LENS_ID=?",
-            selectionArgs = listOf(lensId.toString())) { row ->
-            row.getLong(KEY_FILTER_ID)
-        }.toHashSet()
-        val cameras = database.select(
-            TABLE_LINK_CAMERA_LENS,
-            columns = listOf(KEY_CAMERA_ID),
-            selection = "$KEY_LENS_ID=?",
-            selectionArgs = listOf(lensId.toString())) { row ->
-            row.getLong(KEY_CAMERA_ID)
-        }.toHashSet()
-        return database.selectFirstOrNull(
-            TABLE_LENSES,
-            selection = "$KEY_LENS_ID=?",
-            selectionArgs = listOf(lensId.toString())) { row ->
-            lensMapper(row).apply {
-                filterIds = filters
-                cameraIds = cameras
+        val filters = database.from(TABLE_LINK_LENS_FILTER)
+            .select(KEY_FILTER_ID)
+            .filter("$KEY_LENS_ID = ?", lensId)
+            .map { it.getLong(KEY_FILTER_ID) }
+            .toHashSet()
+        val cameras = database.from(TABLE_LINK_CAMERA_LENS)
+            .select(KEY_CAMERA_ID)
+            .filter("$KEY_LENS_ID = ?", lensId)
+            .map { it.getLong(KEY_CAMERA_ID) }
+            .toHashSet()
+        return database.from(TABLE_LENSES)
+            .filter("$KEY_LENS_ID = ?", lensId)
+            .firstOrNull {
+                lensMapper(it).apply {
+                    filterIds = filters
+                    cameraIds = cameras
+                }
             }
-        }
     }
 
     private val lensMapper = { row: Cursor ->
@@ -86,21 +82,27 @@ class LensRepository @Inject constructor(private val database: Database) {
     }
 
     val lenses: List<Lens> get() {
-        val filters = database.select(TABLE_LINK_LENS_FILTER) { row ->
-            row.getLong(KEY_LENS_ID) to row.getLong(KEY_FILTER_ID)
-        }.groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
-        val cameras = database.select(TABLE_LINK_CAMERA_LENS) { row ->
-            row.getLong(KEY_LENS_ID) to row.getLong(KEY_CAMERA_ID)
-        }.groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
-
-        val selection = "$KEY_LENS_ID not in (select $KEY_LENS_ID from $TABLE_CAMERAS where $KEY_LENS_ID is not null)"
+        val filters = database.from(TABLE_LINK_LENS_FILTER)
+            .map { it.getLong(KEY_LENS_ID) to it.getLong(KEY_FILTER_ID) }
+            .groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
+        val cameras = database.from(TABLE_LINK_CAMERA_LENS)
+            .map { it.getLong(KEY_LENS_ID) to it.getLong(KEY_CAMERA_ID) }
+            .groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
+        val selection = """
+            |$KEY_LENS_ID not in (
+            |   select $KEY_LENS_ID from $TABLE_CAMERAS where $KEY_LENS_ID is not null
+            |)
+            """.trimMargin()
         val orderBy = "$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase"
-        return database.select(TABLE_LENSES, selection = selection, orderBy = orderBy) { row ->
-            lensMapper(row).apply {
-                filterIds = filters[id]?.toHashSet() ?: HashSet()
-                cameraIds = cameras[id]?.toHashSet() ?: HashSet()
+        return database.from(TABLE_LENSES)
+            .filter(selection)
+            .orderBy(orderBy)
+            .map {
+                lensMapper(it).apply {
+                    filterIds = filters[id]?.toHashSet() ?: HashSet()
+                    cameraIds = cameras[id]?.toHashSet() ?: HashSet()
+                }
             }
-        }
     }
 
     fun deleteLens(lens: Lens, database: SQLiteDatabase? = null): Int {
@@ -108,10 +110,10 @@ class LensRepository @Inject constructor(private val database: Database) {
         return db.delete(TABLE_LENSES, "$KEY_LENS_ID = ?", arrayOf(lens.id.toString()))
     }
 
-    fun isLensInUse(lens: Lens) = database.selectFirstOrNull(
-        TABLE_FRAMES,
-        selection = "$KEY_LENS_ID=?",
-        selectionArgs = listOf(lens.id.toString())) { true } ?: false
+    fun isLensInUse(lens: Lens) = database
+        .from(TABLE_FRAMES)
+        .filter("$KEY_LENS_ID = ?", lens.id)
+        .firstOrNull { true } ?: false
 
     fun updateLens(lens: Lens, database: SQLiteDatabase? = null): Int {
         val db = database ?: this.database.writableDatabase
@@ -119,12 +121,15 @@ class LensRepository @Inject constructor(private val database: Database) {
         return db.update(TABLE_LENSES, contentValues, "$KEY_LENS_ID=?", arrayOf(lens.id.toString()))
     }
 
-    fun getLinkedFilters(lens: Lens) = database.select(
-        TABLE_FILTERS,
-        selection = "$KEY_FILTER_ID IN (SELECT $KEY_FILTER_ID FROM $TABLE_LINK_LENS_FILTER WHERE $KEY_LENS_ID = ?)",
-        selectionArgs = listOf(lens.id.toString()),
-        transform = filterMapper
-    )
+    fun getLinkedFilters(lens: Lens) = database
+        .from(TABLE_FILTERS)
+        .filter("""
+            |$KEY_FILTER_ID IN (
+            |   SELECT $KEY_FILTER_ID 
+            |   FROM $TABLE_LINK_LENS_FILTER WHERE $KEY_LENS_ID = ?
+            |)
+        """.trimMargin(), lens.id)
+        .map(filterMapper)
 
     private fun buildLensContentValues(lens: Lens) = ContentValues().apply {
         put(KEY_LENS_MAKE, lens.make)

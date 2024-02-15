@@ -27,6 +27,7 @@ import com.tommihirvonen.exifnotes.core.sortableDateTime
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.extensions.*
+import com.tommihirvonen.exifnotes.data.query.*
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -54,10 +55,10 @@ class RollRepository @Inject constructor(private val database: Database,
     }
 
     fun getRolls(filterMode: RollFilterMode): List<Roll> {
-        val selection: String? = when (filterMode) {
+        val selection: String = when (filterMode) {
             is RollFilterMode.Active -> "$KEY_ROLL_ARCHIVED = 0"
             is RollFilterMode.Archived -> "$KEY_ROLL_ARCHIVED > 0"
-            is RollFilterMode.All -> null
+            is RollFilterMode.All -> "1 = 1"
             is RollFilterMode.Favorites -> "$KEY_ROLL_FAVORITE > 0"
             is RollFilterMode.HasLabel -> """
                 |$KEY_ROLL_ID IN (
@@ -67,27 +68,28 @@ class RollRepository @Inject constructor(private val database: Database,
                 |)
                 """.trimMargin()
         }
-        return database.select(TABLE_ROLLS,
-            selection = selection,
-            orderBy = "$KEY_ROLL_DATE DESC") { row ->
-            Roll(
-                id = row.getLong(KEY_ROLL_ID),
-                name = row.getStringOrNull(KEY_ROLLNAME),
-                date = row.getStringOrNull(KEY_ROLL_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
-                unloaded = row.getStringOrNull(KEY_ROLL_UNLOADED)?.let(::localDateTimeOrNull),
-                developed = row.getStringOrNull(KEY_ROLL_DEVELOPED)?.let(::localDateTimeOrNull),
-                note = row.getStringOrNull(KEY_ROLL_NOTE),
-                camera = row.getLongOrNull(KEY_CAMERA_ID)?.let(cameras::getCamera),
-                iso = row.getInt(KEY_ROLL_ISO),
-                pushPull = row.getStringOrNull(KEY_ROLL_PUSH),
-                format = Format.from(row.getInt(KEY_ROLL_FORMAT)),
-                archived = row.getInt(KEY_ROLL_ARCHIVED) > 0,
-                favorite = row.getInt(KEY_ROLL_FAVORITE) > 0,
-                filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(filmStocks::getFilmStock)
-            ).apply {
-                labels.addAll(this@RollRepository.labels.getLabels(this))
+        return database.from(TABLE_ROLLS)
+            .filter(selection)
+            .orderBy("$KEY_ROLL_DATE DESC")
+            .map { row ->
+                Roll(
+                    id = row.getLong(KEY_ROLL_ID),
+                    name = row.getStringOrNull(KEY_ROLLNAME),
+                    date = row.getStringOrNull(KEY_ROLL_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
+                    unloaded = row.getStringOrNull(KEY_ROLL_UNLOADED)?.let(::localDateTimeOrNull),
+                    developed = row.getStringOrNull(KEY_ROLL_DEVELOPED)?.let(::localDateTimeOrNull),
+                    note = row.getStringOrNull(KEY_ROLL_NOTE),
+                    camera = row.getLongOrNull(KEY_CAMERA_ID)?.let(cameras::getCamera),
+                    iso = row.getInt(KEY_ROLL_ISO),
+                    pushPull = row.getStringOrNull(KEY_ROLL_PUSH),
+                    format = Format.from(row.getInt(KEY_ROLL_FORMAT)),
+                    archived = row.getInt(KEY_ROLL_ARCHIVED) > 0,
+                    favorite = row.getInt(KEY_ROLL_FAVORITE) > 0,
+                    filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(filmStocks::getFilmStock)
+                ).apply {
+                    labels.addAll(this@RollRepository.labels.getLabels(this))
+                }
             }
-        }
     }
 
     val rollCounts: RollCounts get() {
@@ -95,13 +97,11 @@ class RollRepository @Inject constructor(private val database: Database,
             "$KEY_ROLL_ARCHIVED <= 0",
             "$KEY_ROLL_ARCHIVED > 0",
             "$KEY_ROLL_FAVORITE > 0"
-        ).map {
-            database.selectFirstOrNull(
-                TABLE_ROLLS,
-                columns = listOf("COUNT(*)"),
-                selection = it) { row ->
-                row.getInt(0)
-            } ?: 0
+        ).map { predicate ->
+            database.from(TABLE_ROLLS)
+                .select("count(*)")
+                .filter(predicate)
+                .firstOrNull { it.getInt(0) } ?: 0
         }
         return RollCounts(active, archived, favorites)
     }
@@ -129,11 +129,11 @@ class RollRepository @Inject constructor(private val database: Database,
             .update(TABLE_ROLLS, contentValues, "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()))
     }
 
-    fun getNumberOfFrames(roll: Roll): Int = database.selectFirstOrNull(
-        TABLE_FRAMES,
-        columns = listOf("COUNT(*)"),
-        selection = "$KEY_ROLL_ID=?",
-        selectionArgs = listOf(roll.id.toString())) { row -> row.getInt(0) } ?: 0
+    fun getNumberOfFrames(roll: Roll): Int = database
+        .from(TABLE_FRAMES)
+        .select("count(*)")
+        .filter("$KEY_ROLL_ID = ?", roll.id)
+        .firstOrNull { it.getInt(0) } ?: 0
 
     private fun buildRollContentValues(roll: Roll) = ContentValues().apply {
         put(KEY_ROLLNAME, roll.name)

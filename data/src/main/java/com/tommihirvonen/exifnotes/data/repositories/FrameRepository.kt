@@ -34,7 +34,7 @@ import com.tommihirvonen.exifnotes.data.extensions.getLong
 import com.tommihirvonen.exifnotes.data.extensions.getLongOrNull
 import com.tommihirvonen.exifnotes.data.extensions.getString
 import com.tommihirvonen.exifnotes.data.extensions.getStringOrNull
-import com.tommihirvonen.exifnotes.data.extensions.select
+import com.tommihirvonen.exifnotes.data.query.*
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -72,43 +72,46 @@ class FrameRepository @Inject constructor(private val database: Database,
         database.writableDatabase.execSQL(query)
     }
 
-    fun getFrames(roll: Roll): List<Frame> = database.select(
-        TABLE_FRAMES,
-        selection = "$KEY_ROLL_ID=?",
-        selectionArgs = listOf(roll.id.toString()),
-        orderBy = KEY_COUNT
-    ) { row ->
-        Frame(
-            roll = roll,
-            id = row.getLong(KEY_FRAME_ID),
-            count = row.getInt(KEY_COUNT),
-            shutter = row.getStringOrNull(KEY_SHUTTER),
-            aperture = row.getStringOrNull(KEY_APERTURE),
-            note = row.getStringOrNull(KEY_FRAME_NOTE),
-            focalLength = row.getInt(KEY_FOCAL_LENGTH),
-            exposureComp = row.getStringOrNull(KEY_EXPOSURE_COMP),
-            noOfExposures = row.getInt(KEY_NO_OF_EXPOSURES),
-            flashComp = row.getStringOrNull(KEY_FLASH_COMP),
-            meteringMode = row.getInt(KEY_METERING_MODE),
-            formattedAddress = row.getStringOrNull(KEY_FORMATTED_ADDRESS),
-            pictureFilename = row.getStringOrNull(KEY_PICTURE_FILENAME),
-            lightSource = LightSource.from(row.getInt(KEY_LIGHT_SOURCE)),
-            flashUsed = row.getInt(KEY_FLASH_USED) > 0,
-            flashPower = row.getStringOrNull(KEY_FLASH_POWER),
-            location = row.getStringOrNull(KEY_LOCATION)?.let(::latLngOrNull),
-            date = row.getStringOrNull(KEY_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
-            lens = row.getLongOrNull(KEY_LENS_ID)?.let(lenses::getLens)
-        ).apply {
-            filters = getLinkedFilters(this)
+    fun getFrames(roll: Roll): List<Frame> = database
+        .from(TABLE_FRAMES)
+        .filter("$KEY_ROLL_ID=?", roll.id)
+        .orderBy(KEY_COUNT)
+        .map { row ->
+            Frame(
+                roll = roll,
+                id = row.getLong(KEY_FRAME_ID),
+                count = row.getInt(KEY_COUNT),
+                shutter = row.getStringOrNull(KEY_SHUTTER),
+                aperture = row.getStringOrNull(KEY_APERTURE),
+                note = row.getStringOrNull(KEY_FRAME_NOTE),
+                focalLength = row.getInt(KEY_FOCAL_LENGTH),
+                exposureComp = row.getStringOrNull(KEY_EXPOSURE_COMP),
+                noOfExposures = row.getInt(KEY_NO_OF_EXPOSURES),
+                flashComp = row.getStringOrNull(KEY_FLASH_COMP),
+                meteringMode = row.getInt(KEY_METERING_MODE),
+                formattedAddress = row.getStringOrNull(KEY_FORMATTED_ADDRESS),
+                pictureFilename = row.getStringOrNull(KEY_PICTURE_FILENAME),
+                lightSource = LightSource.from(row.getInt(KEY_LIGHT_SOURCE)),
+                flashUsed = row.getInt(KEY_FLASH_USED) > 0,
+                flashPower = row.getStringOrNull(KEY_FLASH_POWER),
+                location = row.getStringOrNull(KEY_LOCATION)?.let(::latLngOrNull),
+                date = row.getStringOrNull(KEY_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
+                lens = row.getLongOrNull(KEY_LENS_ID)?.let(lenses::getLens)
+            ).apply {
+                filters = getLinkedFilters(this)
+            }
         }
-    }
 
-    private fun getLinkedFilters(frame: Frame) = database.select(
-        TABLE_FILTERS,
-        selection = "$KEY_FILTER_ID IN (SELECT $KEY_FILTER_ID FROM $TABLE_LINK_FRAME_FILTER WHERE $KEY_FRAME_ID = ?)",
-        selectionArgs = listOf(frame.id.toString()),
-        transform = filterMapper
-    )
+    private fun getLinkedFilters(frame: Frame) = database
+        .from(TABLE_FILTERS)
+        .filter("""
+            |$KEY_FILTER_ID IN (
+            |   SELECT $KEY_FILTER_ID
+            |   FROM $TABLE_LINK_FRAME_FILTER
+            |   WHERE $KEY_FRAME_ID = ?
+            |)
+        """.trimMargin(), frame.id)
+        .map(filterMapper)
 
     fun updateFrame(frame: Frame): Int {
         val contentValues = buildFrameContentValues(frame)
@@ -131,14 +134,11 @@ class FrameRepository @Inject constructor(private val database: Database,
         arrayOf(frame.id.toString()))
 
 
-    val complementaryPictureFilenames: List<String> get() {
-        return database.select(
-            TABLE_FRAMES,
-            columns = listOf(KEY_PICTURE_FILENAME),
-            selection = "$KEY_PICTURE_FILENAME IS NOT NULL") { row ->
-            row.getString(KEY_PICTURE_FILENAME)
-        }
-    }
+    val complementaryPictureFilenames: List<String> get() = database
+        .from(TABLE_FRAMES)
+        .select(KEY_PICTURE_FILENAME)
+        .filter("$KEY_PICTURE_FILENAME IS NOT NULL")
+        .map { it.getString(KEY_PICTURE_FILENAME) }
 
     private fun buildFrameContentValues(frame: Frame) = ContentValues().apply {
         put(KEY_ROLL_ID, frame.roll.id)
