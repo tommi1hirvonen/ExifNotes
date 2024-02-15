@@ -25,7 +25,6 @@ import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.FilmType
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
-import com.tommihirvonen.exifnotes.data.extensions.*
 import com.tommihirvonen.exifnotes.data.query.*
 import javax.inject.Inject
 import javax.inject.Singleton

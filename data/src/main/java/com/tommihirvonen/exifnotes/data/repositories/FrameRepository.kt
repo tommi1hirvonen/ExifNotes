@@ -29,11 +29,6 @@ import com.tommihirvonen.exifnotes.core.localDateTimeOrNull
 import com.tommihirvonen.exifnotes.core.sortableDateTime
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
-import com.tommihirvonen.exifnotes.data.extensions.getInt
-import com.tommihirvonen.exifnotes.data.extensions.getLong
-import com.tommihirvonen.exifnotes.data.extensions.getLongOrNull
-import com.tommihirvonen.exifnotes.data.extensions.getString
-import com.tommihirvonen.exifnotes.data.extensions.getStringOrNull
 import com.tommihirvonen.exifnotes.data.query.*
 import java.time.LocalDateTime
 import javax.inject.Inject
