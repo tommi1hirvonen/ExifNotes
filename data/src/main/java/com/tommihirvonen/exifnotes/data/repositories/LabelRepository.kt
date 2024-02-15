@@ -30,10 +30,13 @@ import javax.inject.Singleton
 
 @Singleton
 class LabelRepository @Inject constructor(private val database: Database) {
-    val labels: List<Label> get() =
-        database.from(TABLE_LABELS).orderBy(KEY_LABEL_NAME).map(labelMapper)
+    val labels: List<Label> get() = database
+        .from(TABLE_LABELS)
+        .orderBy(KEY_LABEL_NAME)
+        .map(labelMapper)
 
-    fun getLabels(roll: Roll) = database.from(TABLE_LABELS)
+    fun getLabels(roll: Roll) = database
+        .from(TABLE_LABELS)
         .filter("""
             |$KEY_LABEL_ID IN (
             |   SELECT $KEY_LABEL_ID
@@ -44,23 +47,27 @@ class LabelRepository @Inject constructor(private val database: Database) {
         .map(labelMapper)
 
     fun addLabel(label: Label): Long {
-        val id = database.writableDatabase
-            .insert(TABLE_LABELS, null, buildContentValues(label))
+        val values = buildContentValues(label)
+        val id = database.insert(TABLE_LENSES, values)
         label.id = id
         return id
     }
 
     fun updateLabel(label: Label): Int {
-        val contentValues = buildContentValues(label)
-        return database.writableDatabase
-            .update(TABLE_LABELS, contentValues, "$KEY_LABEL_ID=?", arrayOf(label.id.toString()))
+        val values = buildContentValues(label)
+        return database
+            .from(TABLE_LABELS)
+            .filter("$KEY_LABEL_ID = ?", label.id)
+            .update(values)
     }
 
-    fun deleteLabel(label: Label): Int = database.writableDatabase
-        .delete(TABLE_LABELS, "$KEY_LABEL_ID = ?", arrayOf(label.id.toString()))
+    fun deleteLabel(label: Label): Int = database
+        .from(TABLE_LABELS)
+        .filter("$KEY_LABEL_ID = ?", label.id)
+        .delete()
 
-    private fun buildContentValues(label: Label) = ContentValues().apply {
-        put(KEY_LABEL_NAME, label.name)
+    private fun buildContentValues(label: Label) = { values: ContentValues ->
+        values.put(KEY_LABEL_NAME, label.name)
     }
 
     private val labelMapper = { cursor: Cursor ->

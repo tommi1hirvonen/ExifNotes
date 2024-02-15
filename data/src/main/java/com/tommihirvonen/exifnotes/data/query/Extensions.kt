@@ -20,11 +20,8 @@ package com.tommihirvonen.exifnotes.data.query
 
 import android.database.sqlite.SQLiteOpenHelper
 
-data class Query(
-    val db: SQLiteOpenHelper,
-    val table: String,
-    val columns: List<String> = emptyList(),
-    val distinct: Boolean = false,
-    val filter: Pair<String, List<String>>? = null,
-    val orderBy: List<String> = emptyList(),
-    val limit: Int? = null)
+internal fun SQLiteOpenHelper.from(table: String) =
+    TableReference(this, table)
+
+internal fun TableReference.filter(predicate: String, vararg arguments: Any) =
+    copy(filter = predicate to arguments.map { it.toString() })

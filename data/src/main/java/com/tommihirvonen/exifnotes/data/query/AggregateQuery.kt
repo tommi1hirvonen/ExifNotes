@@ -18,10 +18,10 @@
 
 package com.tommihirvonen.exifnotes.data.query
 
-import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
 
 data class AggregateQuery(
-    val db: SQLiteDatabase,
+    val db: SQLiteOpenHelper,
     val table: String,
     val columns: List<String> = emptyList(),
     val filter: Pair<String, List<String>>? = null,

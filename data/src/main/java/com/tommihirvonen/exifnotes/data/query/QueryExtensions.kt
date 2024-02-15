@@ -23,40 +23,61 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import androidx.core.database.getLongOrNull
 
-fun SQLiteOpenHelper.from(table: String) = Query(readableDatabase, table)
+internal fun TableReference.select(vararg columns: String) =
+    Query(db, table, filter = filter, columns = columns.toList())
 
-fun Query.select(vararg columns: String) = copy(columns = columns.toList())
+internal fun Query.select(vararg columns: String) =
+    copy(columns = columns.toList())
 
-fun Query.filter(predicate: String, vararg arguments: Any) =
+internal fun Query.filter(predicate: String, vararg arguments: Any) =
     copy(filter = predicate to arguments.map { it.toString() })
 
-fun Query.distinct(distinct: Boolean = true) = copy(distinct = distinct)
+internal fun TableReference.distinct(distinct: Boolean = true) =
+    Query(db, table, filter = filter, distinct = distinct)
 
-fun Query.orderBy(vararg columns: String) = copy(orderBy = columns.toList())
+internal fun Query.distinct(distinct: Boolean = true) =
+    copy(distinct = distinct)
 
-fun Query.limit(limit: Int?) = copy(limit = limit)
+internal fun TableReference.orderBy(vararg columns: String) =
+    Query(db, table, filter = filter, orderBy = columns.toList())
 
-fun Query.groupBy(vararg columns: String) = AggregateQuery(
+internal fun Query.orderBy(vararg columns: String) =
+    copy(orderBy = columns.toList())
+
+internal fun TableReference.limit(limit: Int?) =
+    Query(db, table, filter = filter, limit = limit)
+
+internal fun Query.limit(limit: Int?) =
+    copy(limit = limit)
+
+internal fun Query.groupBy(vararg columns: String) = AggregateQuery(
     db, table, this.columns, filter, orderBy, limit, columns.toList()
 )
 
-fun AggregateQuery.having(having: String) = copy(having = having)
+internal fun AggregateQuery.having(having: String) =
+    copy(having = having)
 
-fun <T> Query.map(transform: (Cursor) -> T): List<T> {
+internal fun <T> TableReference.map(transform: (Cursor) -> T): List<T> =
+    Query(db, table, filter = filter).map(transform)
+
+internal fun <T> Query.map(transform: (Cursor) -> T): List<T> {
     val (selection, selectionArgs) = filter ?: (null to null)
     val ordering = orderBy.joinToString(separator = ",").ifEmpty { null }
     return db.select(table, columns, selection, selectionArgs, distinct,
         orderBy = ordering, limit = limit?.toString(), transform = transform)
 }
 
-fun <T> Query.firstOrNull(transform: (Cursor) -> T): T? {
+internal fun <T> TableReference.firstOrNull(transform: (Cursor) -> T): T? =
+    Query(db, table, filter = filter).firstOrNull(transform)
+
+internal fun <T> Query.firstOrNull(transform: (Cursor) -> T): T? {
     val (selection, selectionArgs) = filter ?: (null to null)
     val ordering = orderBy.joinToString(separator = ",").ifEmpty { null }
     return db.selectFirstOrNull(table, columns, selection, selectionArgs,
         orderBy = ordering, transform = transform)
 }
 
-fun <T> AggregateQuery.map(transform: (Cursor) -> T): List<T> {
+internal fun <T> AggregateQuery.map(transform: (Cursor) -> T): List<T> {
     val (selection, selectionArgs) = filter ?: (null to null)
     val ordering = orderBy.joinToString(separator = ",").ifEmpty { null }
     val grouping = groupBy.joinToString(separator = ",").ifEmpty { null }
@@ -65,7 +86,7 @@ fun <T> AggregateQuery.map(transform: (Cursor) -> T): List<T> {
         limit = limit?.toString(), transform = transform)
 }
 
-fun <T> AggregateQuery.firstOrNull(transform: (Cursor) -> T): T? {
+internal fun <T> AggregateQuery.firstOrNull(transform: (Cursor) -> T): T? {
     val (selection, selectionArgs) = filter ?: (null to null)
     val ordering = orderBy.joinToString(separator = ",").ifEmpty { null }
     val grouping = groupBy.joinToString(separator = ",").ifEmpty { null }
@@ -74,12 +95,12 @@ fun <T> AggregateQuery.firstOrNull(transform: (Cursor) -> T): T? {
     )
 }
 
-internal fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
+private fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
     generateSequence { if (moveToNext()) this else null }
         .map(transform)
         .toList()
 
-internal fun <T> SQLiteOpenHelper.select(table: String,
+private fun <T> SQLiteOpenHelper.select(table: String,
                                          columns: List<String>? = null,
                                          selection: String? = null,
                                          selectionArgs: List<String>? = null,
@@ -89,23 +110,10 @@ internal fun <T> SQLiteOpenHelper.select(table: String,
                                          orderBy: String? = null,
                                          limit: String? = null,
                                          transform: (Cursor) -> T): List<T> =
-    readableDatabase.select(table, columns, selection, selectionArgs, distinct,
-        groupBy, having, orderBy, limit, transform)
-
-internal fun <T> SQLiteDatabase.select(table: String,
-                                       columns: List<String>? = null,
-                                       selection: String? = null,
-                                       selectionArgs: List<String>? = null,
-                                       distinct: Boolean = false,
-                                       groupBy: String? = null,
-                                       having: String? = null,
-                                       orderBy: String? = null,
-                                       limit: String? = null,
-                                       transform: (Cursor) -> T): List<T> =
-    query(distinct, table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
+    readableDatabase.query(distinct, table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
         groupBy, having, orderBy, limit).use { cursor -> cursor.map(transform) }
 
-internal fun <T> SQLiteDatabase.selectFirstOrNull(table: String,
+private fun <T> SQLiteOpenHelper.selectFirstOrNull(table: String,
                                                   columns: List<String>? = null,
                                                   selection: String? = null,
                                                   selectionArgs: List<String>? = null,
@@ -113,7 +121,7 @@ internal fun <T> SQLiteDatabase.selectFirstOrNull(table: String,
                                                   having: String? = null,
                                                   orderBy: String? = null,
                                                   transform: (Cursor) -> T): T? =
-    query(table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
+    readableDatabase.query(table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
         groupBy, having, orderBy, "1").use { cursor ->
         if (cursor.moveToFirst()) transform(cursor) else null
     }
