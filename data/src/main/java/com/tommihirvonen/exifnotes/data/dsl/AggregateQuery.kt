@@ -16,15 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.data.query
+package com.tommihirvonen.exifnotes.data.dsl
 
 import android.database.sqlite.SQLiteOpenHelper
 
-data class Query(
+data class AggregateQuery(
     val db: SQLiteOpenHelper,
     val table: String,
     val columns: List<String> = emptyList(),
-    val distinct: Boolean = false,
     val filter: Pair<String, List<String>>? = null,
     val orderBy: List<String> = emptyList(),
-    val limit: Int? = null)
+    val limit: Int? = null,
+    val groupBy: List<String>,
+    val having: String? = null)

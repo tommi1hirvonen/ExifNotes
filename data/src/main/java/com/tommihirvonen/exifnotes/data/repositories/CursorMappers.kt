@@ -21,7 +21,7 @@ package com.tommihirvonen.exifnotes.data.repositories
 import android.database.Cursor
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.data.constants.*
-import com.tommihirvonen.exifnotes.data.query.*
+import com.tommihirvonen.exifnotes.data.dsl.*
 
 internal val filterMapper = { cursor: Cursor ->
     Filter(

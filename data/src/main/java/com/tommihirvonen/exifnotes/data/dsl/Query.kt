@@ -16,12 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.data.query
+package com.tommihirvonen.exifnotes.data.dsl
 
 import android.database.sqlite.SQLiteOpenHelper
 
-internal fun SQLiteOpenHelper.from(table: String) =
-    TableReference(this, table)
-
-internal fun TableReference.filter(predicate: String, vararg arguments: Any) =
-    copy(filter = predicate to arguments.map { it.toString() })
+data class Query(
+    val db: SQLiteOpenHelper,
+    val table: String,
+    val columns: List<String> = emptyList(),
+    val distinct: Boolean = false,
+    val filter: Pair<String, List<String>>? = null,
+    val orderBy: List<String> = emptyList(),
+    val limit: Int? = null)

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.data.query
+package com.tommihirvonen.exifnotes.data.dsl
 
 import android.database.sqlite.SQLiteOpenHelper
 
