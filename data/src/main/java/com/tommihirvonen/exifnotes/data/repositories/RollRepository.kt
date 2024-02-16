@@ -68,7 +68,7 @@ class RollRepository @Inject constructor(private val database: Database,
                 """.trimMargin()
         }
         return database.from(TABLE_ROLLS)
-            .filter(selection)
+            .where(selection)
             .orderBy("$KEY_ROLL_DATE DESC")
             .map { row ->
                 Roll(
@@ -99,7 +99,7 @@ class RollRepository @Inject constructor(private val database: Database,
         ).map { predicate ->
             database.from(TABLE_ROLLS)
                 .select("count(*)")
-                .filter(predicate)
+                .where(predicate)
                 .firstOrNull { it.getInt(0) } ?: 0
         }
         return RollCounts(active, archived, favorites)
@@ -131,7 +131,7 @@ class RollRepository @Inject constructor(private val database: Database,
     fun getNumberOfFrames(roll: Roll): Int = database
         .from(TABLE_FRAMES)
         .select("count(*)")
-        .filter("$KEY_ROLL_ID = ?", roll.id)
+        .where("$KEY_ROLL_ID = ?", roll.id)
         .firstOrNull { it.getInt(0) } ?: 0
 
     private fun buildRollContentValues(roll: Roll) = ContentValues().apply {

@@ -69,7 +69,7 @@ class FrameRepository @Inject constructor(private val database: Database,
 
     fun getFrames(roll: Roll): List<Frame> = database
         .from(TABLE_FRAMES)
-        .filter("$KEY_ROLL_ID=?", roll.id)
+        .where("$KEY_ROLL_ID=?", roll.id)
         .orderBy(KEY_COUNT)
         .map { row ->
             Frame(
@@ -99,7 +99,7 @@ class FrameRepository @Inject constructor(private val database: Database,
 
     private fun getLinkedFilters(frame: Frame) = database
         .from(TABLE_FILTERS)
-        .filter("""
+        .where("""
             |$KEY_FILTER_ID IN (
             |   SELECT $KEY_FILTER_ID
             |   FROM $TABLE_LINK_FRAME_FILTER
@@ -132,7 +132,7 @@ class FrameRepository @Inject constructor(private val database: Database,
     val complementaryPictureFilenames: List<String> get() = database
         .from(TABLE_FRAMES)
         .select(KEY_PICTURE_FILENAME)
-        .filter("$KEY_PICTURE_FILENAME IS NOT NULL")
+        .where("$KEY_PICTURE_FILENAME IS NOT NULL")
         .map { it.getString(KEY_PICTURE_FILENAME) }
 
     private fun buildFrameContentValues(frame: Frame) = ContentValues().apply {

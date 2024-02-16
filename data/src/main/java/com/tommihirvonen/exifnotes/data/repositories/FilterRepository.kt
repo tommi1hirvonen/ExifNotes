@@ -50,7 +50,7 @@ class FilterRepository @Inject constructor(private val database: Database) {
 
     fun isFilterBeingUsed(filter: Filter) = database
         .from(TABLE_LINK_FRAME_FILTER)
-        .filter("$KEY_FILTER_ID = ?", filter.id)
+        .where("$KEY_FILTER_ID = ?", filter.id)
         .firstOrNull { true } ?: false
 
     fun updateFilter(filter: Filter): Int {

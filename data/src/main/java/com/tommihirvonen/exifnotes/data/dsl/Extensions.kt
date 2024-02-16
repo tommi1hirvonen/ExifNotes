@@ -23,5 +23,5 @@ import android.database.sqlite.SQLiteOpenHelper
 internal fun SQLiteOpenHelper.from(table: String) =
     TableReference(this, table)
 
-internal fun TableReference.filter(predicate: String, vararg arguments: Any) =
+internal fun TableReference.where(predicate: String, vararg arguments: Any) =
     copy(filter = predicate to arguments.map { it.toString() })

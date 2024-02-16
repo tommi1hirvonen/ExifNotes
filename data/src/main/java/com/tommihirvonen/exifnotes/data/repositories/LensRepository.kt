@@ -45,16 +45,16 @@ class LensRepository @Inject constructor(private val database: Database) {
     internal fun getLens(lensId: Long): Lens? {
         val filters = database.from(TABLE_LINK_LENS_FILTER)
             .select(KEY_FILTER_ID)
-            .filter("$KEY_LENS_ID = ?", lensId)
+            .where("$KEY_LENS_ID = ?", lensId)
             .map { it.getLong(KEY_FILTER_ID) }
             .toHashSet()
         val cameras = database.from(TABLE_LINK_CAMERA_LENS)
             .select(KEY_CAMERA_ID)
-            .filter("$KEY_LENS_ID = ?", lensId)
+            .where("$KEY_LENS_ID = ?", lensId)
             .map { it.getLong(KEY_CAMERA_ID) }
             .toHashSet()
         return database.from(TABLE_LENSES)
-            .filter("$KEY_LENS_ID = ?", lensId)
+            .where("$KEY_LENS_ID = ?", lensId)
             .firstOrNull {
                 lensMapper(it).apply {
                     filterIds = filters
@@ -94,7 +94,7 @@ class LensRepository @Inject constructor(private val database: Database) {
             """.trimMargin()
         val orderBy = "$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase"
         return database.from(TABLE_LENSES)
-            .filter(selection)
+            .where(selection)
             .orderBy(orderBy)
             .map {
                 lensMapper(it).apply {
@@ -111,7 +111,7 @@ class LensRepository @Inject constructor(private val database: Database) {
 
     fun isLensInUse(lens: Lens) = database
         .from(TABLE_FRAMES)
-        .filter("$KEY_LENS_ID = ?", lens.id)
+        .where("$KEY_LENS_ID = ?", lens.id)
         .firstOrNull { true } ?: false
 
     fun updateLens(lens: Lens, database: SQLiteDatabase? = null): Int {
@@ -122,7 +122,7 @@ class LensRepository @Inject constructor(private val database: Database) {
 
     fun getLinkedFilters(lens: Lens) = database
         .from(TABLE_FILTERS)
-        .filter("""
+        .where("""
             |$KEY_FILTER_ID IN (
             |   SELECT $KEY_FILTER_ID 
             |   FROM $TABLE_LINK_LENS_FILTER WHERE $KEY_LENS_ID = ?

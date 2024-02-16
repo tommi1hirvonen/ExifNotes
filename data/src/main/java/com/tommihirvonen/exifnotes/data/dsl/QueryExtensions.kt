@@ -28,7 +28,7 @@ internal fun TableReference.select(vararg columns: String) =
 internal fun Query.select(vararg columns: String) =
     copy(columns = columns.toList())
 
-internal fun Query.filter(predicate: String, vararg arguments: Any) =
+internal fun Query.where(predicate: String, vararg arguments: Any) =
     copy(filter = predicate to arguments.map { it.toString() })
 
 internal fun TableReference.distinct(distinct: Boolean = true) =

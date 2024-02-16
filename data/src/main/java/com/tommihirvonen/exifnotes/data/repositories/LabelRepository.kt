@@ -37,7 +37,7 @@ class LabelRepository @Inject constructor(private val database: Database) {
 
     fun getLabels(roll: Roll) = database
         .from(TABLE_LABELS)
-        .filter("""
+        .where("""
             |$KEY_LABEL_ID IN (
             |   SELECT $KEY_LABEL_ID
             |   FROM $TABLE_LINK_ROLL_LABEL
@@ -57,13 +57,13 @@ class LabelRepository @Inject constructor(private val database: Database) {
         val values = buildContentValues(label)
         return database
             .from(TABLE_LABELS)
-            .filter("$KEY_LABEL_ID = ?", label.id)
+            .where("$KEY_LABEL_ID = ?", label.id)
             .update(values)
     }
 
     fun deleteLabel(label: Label): Int = database
         .from(TABLE_LABELS)
-        .filter("$KEY_LABEL_ID = ?", label.id)
+        .where("$KEY_LABEL_ID = ?", label.id)
         .delete()
 
     private fun buildContentValues(label: Label) = { values: ContentValues ->
@@ -76,7 +76,7 @@ class LabelRepository @Inject constructor(private val database: Database) {
         val rollCount = database
             .from(TABLE_LINK_ROLL_LABEL)
             .select("count(*)")
-            .filter("$KEY_LABEL_ID = ?", id)
+            .where("$KEY_LABEL_ID = ?", id)
             .firstOrNull { row ->
                 row.getInt(0)
             }

@@ -63,7 +63,7 @@ class FilmStockRepository @Inject constructor(private val database: Database) {
 
     internal fun getFilmStock(filmStockId: Long) = database
         .from(TABLE_FILM_STOCKS)
-        .filter("$KEY_FILM_STOCK_ID = ?", filmStockId)
+        .where("$KEY_FILM_STOCK_ID = ?", filmStockId)
         .firstOrNull(filmStockMapper)
 
     val filmStocks: List<FilmStock> get() = database
@@ -73,7 +73,7 @@ class FilmStockRepository @Inject constructor(private val database: Database) {
 
     fun isFilmStockBeingUsed(filmStock: FilmStock) = database
         .from(TABLE_ROLLS)
-        .filter("$KEY_FILM_STOCK_ID = ?", filmStock.id)
+        .where("$KEY_FILM_STOCK_ID = ?", filmStock.id)
         .firstOrNull { true } ?: false
 
     fun deleteFilmStock(filmStock: FilmStock) =
