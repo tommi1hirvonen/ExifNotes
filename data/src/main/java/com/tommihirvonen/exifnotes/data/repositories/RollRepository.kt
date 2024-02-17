@@ -92,16 +92,16 @@ class RollRepository @Inject constructor(private val database: Database,
     }
 
     val rollCounts: RollCounts get() {
-        val (active, archived, favorites) = arrayOf(
-            "$KEY_ROLL_ARCHIVED <= 0",
-            "$KEY_ROLL_ARCHIVED > 0",
-            "$KEY_ROLL_FAVORITE > 0"
-        ).map { predicate ->
-            database.from(TABLE_ROLLS)
-                .select("count(*)")
-                .where(predicate)
-                .firstOrNull { it.getInt(0) } ?: 0
-        }
+        val pActive: (Predicate.() -> Any) = { KEY_ROLL_ARCHIVED lt 1 }
+        val pArchived: (Predicate.() -> Any) = { KEY_ROLL_ARCHIVED gt 0 }
+        val pFavorites: (Predicate.() -> Any) = { KEY_ROLL_FAVORITE gt 0 }
+        val (active, archived, favorites) = arrayOf(pActive, pArchived, pFavorites)
+            .map { predicate ->
+                database.from(TABLE_ROLLS)
+                    .select("count(*)")
+                    .where(predicate)
+                    .firstOrNull { it.getInt(0) } ?: 0
+            }
         return RollCounts(active, archived, favorites)
     }
 
