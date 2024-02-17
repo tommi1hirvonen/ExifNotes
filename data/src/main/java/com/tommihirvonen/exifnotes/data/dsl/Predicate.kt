@@ -37,17 +37,37 @@ class Predicate : Condition {
     private val conditions = mutableListOf<Condition>()
 
     infix fun String.eq(value: Int) = conditions.add(Equals(this, value))
-
     infix fun String.eq(value: Long) = conditions.add(Equals(this, value))
+    infix fun String.gt(value: Int) = conditions.add(Greater(this, value))
+    infix fun String.gt(value: Long) = conditions.add(Greater(this, value))
+    infix fun String.lt(value: Int) = conditions.add(Less(this, value))
+    infix fun String.lt(value: Long) = conditions.add(Less(this, value))
 }
 
-class Equals private constructor(private val column: String, private val value: Any) : Condition {
+abstract class Comparison(
+    private val column: String,
+    private val operator: String,
+    private val value: Any) : Condition {
 
-    constructor(column: String, value: Int) : this(column, value as Any)
-
-    constructor(column: String, value: Long) : this(column, value as Any)
-
-    override val expression: String get() = "$column = ?"
+    override val expression: String get() = "$column $operator ?"
 
     override val arguments: List<Any> get() = listOf(value)
+}
+
+class Equals private constructor(column: String, value: Any)
+    : Comparison(column, "=", value) {
+    constructor(column: String, value: Int) : this(column, value as Any)
+    constructor(column: String, value: Long) : this(column, value as Any)
+}
+
+class Greater private constructor(column: String, value: Any)
+    : Comparison(column, ">", value) {
+    constructor(column: String, value: Int) : this(column, value as Any)
+    constructor(column: String, value: Long) : this(column, value as Any)
+}
+
+class Less private constructor(column: String, value: Any)
+    : Comparison(column, "<", value) {
+    constructor(column: String, value: Int) : this(column, value as Any)
+    constructor(column: String, value: Long) : this(column, value as Any)
 }
