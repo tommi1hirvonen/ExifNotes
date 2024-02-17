@@ -77,12 +77,18 @@ class CameraRepository @Inject constructor(
     }
 
     val cameras: List<Camera> get() {
-        val lenses = database.from(TABLE_LINK_CAMERA_LENS)
+        val lenses = database
+            .from(TABLE_LINK_CAMERA_LENS)
             .map { it.getLong(KEY_CAMERA_ID) to it.getLong(KEY_LENS_ID) }
             .groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
-        return database.from(TABLE_CAMERAS)
+        return database
+            .from(TABLE_CAMERAS)
             .orderBy("$KEY_CAMERA_MAKE collate nocase, $KEY_CAMERA_MODEL collate nocase")
-            .map { cameraMapper(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
+            .map {
+                cameraMapper(it).apply {
+                    lensIds = lenses[id]?.toHashSet() ?: HashSet()
+                }
+            }
     }
 
     fun deleteCamera(camera: Camera): Int {
