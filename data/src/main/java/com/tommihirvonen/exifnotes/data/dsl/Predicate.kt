@@ -42,6 +42,8 @@ class Predicate : Condition {
     infix fun String.gt(value: Long) = conditions.add(Greater(this, value))
     infix fun String.lt(value: Int) = conditions.add(Less(this, value))
     infix fun String.lt(value: Long) = conditions.add(Less(this, value))
+    fun String.isNull() = conditions.add(IsNull(this))
+    fun String.isNotNull() = conditions.add(IsNotNull(this))
 }
 
 abstract class Comparison(
@@ -70,4 +72,14 @@ class Less private constructor(column: String, value: Any)
     : Comparison(column, "<", value) {
     constructor(column: String, value: Int) : this(column, value as Any)
     constructor(column: String, value: Long) : this(column, value as Any)
+}
+
+class IsNull(private val column: String) : Condition {
+    override val expression: String get() = "$column is null"
+    override val arguments: List<Any> get() = emptyList()
+}
+
+class IsNotNull(private val column: String) : Condition {
+    override val expression: String get() = "$column is not null"
+    override val arguments: List<Any> get() = emptyList()
 }
