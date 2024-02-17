@@ -22,11 +22,7 @@ import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
-import com.tommihirvonen.exifnotes.data.dsl.delete
-import com.tommihirvonen.exifnotes.data.dsl.exists
-import com.tommihirvonen.exifnotes.data.dsl.from
-import com.tommihirvonen.exifnotes.data.dsl.insert
-import com.tommihirvonen.exifnotes.data.dsl.where
+import com.tommihirvonen.exifnotes.data.dsl.*
 import javax.inject.Inject
 import javax.inject.Singleton
 

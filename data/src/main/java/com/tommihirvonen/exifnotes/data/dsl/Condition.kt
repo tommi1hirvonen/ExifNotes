@@ -18,12 +18,7 @@
 
 package com.tommihirvonen.exifnotes.data.dsl
 
-internal data class AggregateQuery(
-    val db: DatabaseProvider,
-    val table: String,
-    val columns: List<String> = emptyList(),
-    val filter: Pair<String, List<String>>? = null,
-    val orderBy: List<String> = emptyList(),
-    val limit: Int? = null,
-    val groupBy: List<String>,
-    val having: String? = null)
+internal interface Condition {
+    val expression: String
+    val arguments: List<Any>
+}

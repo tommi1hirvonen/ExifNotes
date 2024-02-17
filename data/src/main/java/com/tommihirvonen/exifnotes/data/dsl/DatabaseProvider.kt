@@ -20,7 +20,7 @@ package com.tommihirvonen.exifnotes.data.dsl
 
 import android.database.sqlite.SQLiteDatabase
 
-interface DatabaseProvider {
+internal interface DatabaseProvider {
     val read: SQLiteDatabase
     val write: SQLiteDatabase
 }

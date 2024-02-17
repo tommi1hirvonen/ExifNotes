@@ -18,7 +18,7 @@
 
 package com.tommihirvonen.exifnotes.data.dsl
 
-data class Query(
+internal data class Query(
     val db: DatabaseProvider,
     val table: String,
     val columns: List<String> = emptyList(),

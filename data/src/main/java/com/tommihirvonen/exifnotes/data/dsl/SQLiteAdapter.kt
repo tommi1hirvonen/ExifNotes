@@ -20,7 +20,7 @@ package com.tommihirvonen.exifnotes.data.dsl
 
 import android.database.sqlite.SQLiteDatabase
 
-class SQLiteAdapter(val db: SQLiteDatabase) : DatabaseProvider {
+internal class SQLiteAdapter(val db: SQLiteDatabase) : DatabaseProvider {
     override val read: SQLiteDatabase get() = db
     override val write: SQLiteDatabase get() = db
 }

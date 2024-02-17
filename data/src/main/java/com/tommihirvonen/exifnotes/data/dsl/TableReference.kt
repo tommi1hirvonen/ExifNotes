@@ -18,7 +18,7 @@
 
 package com.tommihirvonen.exifnotes.data.dsl
 
-data class TableReference(
+internal data class TableReference(
     val db: DatabaseProvider,
     val table: String,
     val filter: Pair<String, List<String>>? = null)

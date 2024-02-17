@@ -21,7 +21,7 @@ package com.tommihirvonen.exifnotes.data.dsl
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-class SQLiteHelperAdapter(val db: SQLiteOpenHelper) : DatabaseProvider {
+internal class SQLiteHelperAdapter(val db: SQLiteOpenHelper) : DatabaseProvider {
     override val read: SQLiteDatabase get() = db.readableDatabase
     override val write: SQLiteDatabase get() = db.writableDatabase
 }

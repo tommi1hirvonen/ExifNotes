@@ -18,12 +18,7 @@
 
 package com.tommihirvonen.exifnotes.data.dsl
 
-interface Condition {
-    val expression: String
-    val arguments: List<Any>
-}
-
-class Predicate : Condition {
+internal class Predicate : Condition {
     override val expression: String get() = if (conditions.isEmpty()) {
         "1 = 1"
     } else if (conditions.size == 1) {
@@ -48,75 +43,4 @@ class Predicate : Condition {
         conditions.add(InSubQuery(this, false, subQuery()))
     infix fun String.notIn(subQuery: () -> SubQuery) =
         conditions.add(InSubQuery(this, true, subQuery()))
-}
-
-abstract class Comparison(
-    private val column: String,
-    private val operator: String,
-    private val value: Any) : Condition {
-
-    override val expression: String get() = "$column $operator ?"
-
-    override val arguments: List<Any> get() = listOf(value)
-}
-
-class Equals private constructor(column: String, value: Any)
-    : Comparison(column, "=", value) {
-    constructor(column: String, value: Int) : this(column, value as Any)
-    constructor(column: String, value: Long) : this(column, value as Any)
-}
-
-class Greater private constructor(column: String, value: Any)
-    : Comparison(column, ">", value) {
-    constructor(column: String, value: Int) : this(column, value as Any)
-    constructor(column: String, value: Long) : this(column, value as Any)
-}
-
-class Less private constructor(column: String, value: Any)
-    : Comparison(column, "<", value) {
-    constructor(column: String, value: Int) : this(column, value as Any)
-    constructor(column: String, value: Long) : this(column, value as Any)
-}
-
-class IsNull(private val column: String) : Condition {
-    override val expression: String get() = "$column is null"
-    override val arguments: List<Any> get() = emptyList()
-}
-
-class IsNotNull(private val column: String) : Condition {
-    override val expression: String get() = "$column is not null"
-    override val arguments: List<Any> get() = emptyList()
-}
-
-class InSubQuery(
-    private val column: String,
-    private val notIn: Boolean,
-    private val inColumn: String,
-    private val inTable: String,
-    private val inPredicate: Predicate) : Condition {
-    constructor(column: String, notIn: Boolean, subQuery: SubQuery)
-            : this(column, notIn, subQuery.column, subQuery.table, subQuery.predicate)
-    private val operator get() = if (notIn) "not in" else "in"
-    override val expression: String get() = """
-        |$column $operator (
-        |   select $inColumn
-        |   from $inTable
-        |   where ${inPredicate.expression}
-        |)
-    """.trimMargin()
-    override val arguments: List<Any> get() = inPredicate.arguments
-}
-
-data class SubQueryTable(val table: String)
-
-data class SubQuery(val table: String, val column: String, val predicate: Predicate)
-
-fun from(table: String) = SubQueryTable(table)
-
-fun SubQueryTable.select(column: String) = SubQuery(table, column, Predicate())
-
-fun SubQuery.where(block: (Predicate.() -> Any)): SubQuery {
-    val predicate = Predicate()
-    block(predicate)
-    return copy(predicate = predicate)
 }
