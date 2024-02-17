@@ -75,11 +75,8 @@ class LabelRepository @Inject constructor(private val database: Database) {
         val name = cursor.getString(KEY_LABEL_NAME)
         val rollCount = database
             .from(TABLE_LINK_ROLL_LABEL)
-            .select("count(*)")
             .where { KEY_LABEL_ID eq id }
-            .firstOrNull { row ->
-                row.getInt(0)
-            }
-        Label(id, name, rollCount ?: 0)
+            .count()
+        Label(id, name, rollCount)
     }
 }

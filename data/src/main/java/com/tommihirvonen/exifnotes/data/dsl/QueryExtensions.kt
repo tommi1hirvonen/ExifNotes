@@ -63,6 +63,10 @@ internal fun Query.groupBy(vararg columns: String) = AggregateQuery(
 internal fun AggregateQuery.having(having: String) =
     copy(having = having)
 
+internal fun TableReference.count() = Query(db, table, filter = filter)
+    .select("count(*)")
+    .firstOrNull { it.getInt(0) } ?: 0
+
 internal fun TableReference.exists() = Query(db, table, filter = filter)
     .select("1")
     .firstOrNull {  } != null
