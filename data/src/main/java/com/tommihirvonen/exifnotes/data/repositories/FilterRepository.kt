@@ -30,8 +30,7 @@ import javax.inject.Singleton
 class FilterRepository @Inject constructor(private val database: Database) {
 
     fun addFilter(filter: Filter): Long {
-        val id = database.writableDatabase
-            .insert(TABLE_FILTERS, null, buildFilterContentValues(filter))
+        val id = database.insert(TABLE_FILTERS, buildFilterContentValues(filter))
         filter.id = id
         return id
     }
@@ -45,18 +44,22 @@ class FilterRepository @Inject constructor(private val database: Database) {
             .map { filterMapper(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
     }
 
-    fun deleteFilter(filter: Filter): Int = database.writableDatabase
-        .delete(TABLE_FILTERS, "$KEY_FILTER_ID = ?", arrayOf(filter.id.toString()))
+    fun deleteFilter(filter: Filter): Int = database
+        .from(TABLE_FILTERS)
+        .where { KEY_FILTER_ID eq filter.id }
+        .delete()
 
     fun isFilterBeingUsed(filter: Filter) = database
         .from(TABLE_LINK_FRAME_FILTER)
-        .where("$KEY_FILTER_ID = ?", filter.id)
-        .firstOrNull { true } ?: false
+        .where { KEY_FILTER_ID eq filter.id }
+        .exists()
 
     fun updateFilter(filter: Filter): Int {
         val contentValues = buildFilterContentValues(filter)
-        return database.writableDatabase
-            .update(TABLE_FILTERS, contentValues, "$KEY_FILTER_ID=?", arrayOf(filter.id.toString()))
+        return database
+            .from(TABLE_FILTERS)
+            .where { KEY_FILTER_ID eq filter.id }
+            .update(contentValues)
     }
 
     private fun buildFilterContentValues(filter: Filter) = ContentValues().apply {

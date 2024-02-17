@@ -45,16 +45,16 @@ class LensRepository @Inject constructor(private val database: Database) {
     internal fun getLens(lensId: Long): Lens? {
         val filters = database.from(TABLE_LINK_LENS_FILTER)
             .select(KEY_FILTER_ID)
-            .where("$KEY_LENS_ID = ?", lensId)
+            .where { KEY_LENS_ID eq lensId }
             .map { it.getLong(KEY_FILTER_ID) }
             .toHashSet()
         val cameras = database.from(TABLE_LINK_CAMERA_LENS)
             .select(KEY_CAMERA_ID)
-            .where("$KEY_LENS_ID = ?", lensId)
+            .where { KEY_LENS_ID eq lensId }
             .map { it.getLong(KEY_CAMERA_ID) }
             .toHashSet()
         return database.from(TABLE_LENSES)
-            .where("$KEY_LENS_ID = ?", lensId)
+            .where { KEY_LENS_ID eq lensId }
             .firstOrNull {
                 lensMapper(it).apply {
                     filterIds = filters
@@ -111,8 +111,8 @@ class LensRepository @Inject constructor(private val database: Database) {
 
     fun isLensInUse(lens: Lens) = database
         .from(TABLE_FRAMES)
-        .where("$KEY_LENS_ID = ?", lens.id)
-        .firstOrNull { true } ?: false
+        .where { KEY_LENS_ID eq lens.id }
+        .exists()
 
     fun updateLens(lens: Lens, database: SQLiteDatabase? = null): Int {
         val db = database ?: this.database.writableDatabase

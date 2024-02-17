@@ -42,7 +42,7 @@ class CameraRepository @Inject constructor(
             val lensId = lenses.addLens(lens)
             lens.id = lensId
         }
-        val cameraId = database.writableDatabase.insert(TABLE_CAMERAS, null, buildCameraContentValues(camera))
+        val cameraId = database.insert(TABLE_CAMERAS, buildCameraContentValues(camera))
         camera.id = cameraId
         return cameraId
     }
@@ -68,11 +68,11 @@ class CameraRepository @Inject constructor(
         val lenses = database
             .from(TABLE_LINK_CAMERA_LENS)
             .select(KEY_LENS_ID)
-            .where("$KEY_CAMERA_ID = ?", cameraId)
+            .where { KEY_CAMERA_ID eq cameraId }
             .map { it.getLong(KEY_LENS_ID) }
             .toHashSet()
         return database.from(TABLE_CAMERAS)
-            .where("$KEY_CAMERA_ID = ?", cameraId)
+            .where { KEY_CAMERA_ID eq cameraId }
             .firstOrNull { cameraMapper(it).apply { lensIds = lenses } }
     }
 
@@ -88,21 +88,23 @@ class CameraRepository @Inject constructor(
     fun deleteCamera(camera: Camera): Int {
         // In case of fixed lens cameras, also delete the lens from database.
         camera.lens?.let(lenses::deleteLens)
-        return database.writableDatabase
-            .delete(TABLE_CAMERAS, "$KEY_CAMERA_ID = ?", arrayOf(camera.id.toString()))
+        return database
+            .from(TABLE_CAMERAS)
+            .where { KEY_CAMERA_ID eq camera.id }
+            .delete()
     }
 
     fun isCameraBeingUsed(camera: Camera) = database
         .from(TABLE_ROLLS)
-        .where("$KEY_CAMERA_ID = ?", camera.id)
-        .firstOrNull { true } ?: false
+        .where { KEY_CAMERA_ID eq camera.id }
+        .exists()
 
     fun updateCamera(camera: Camera): Int {
         // Check if the camera previously had a fixed lens.
         val previousLensId = database
             .from(TABLE_CAMERAS)
             .select(KEY_LENS_ID)
-            .where("$KEY_CAMERA_ID = ?", camera.id)
+            .where { KEY_CAMERA_ID eq camera.id }
             .firstOrNull { it.getLong(KEY_LENS_ID) }
             ?: 0
 
@@ -144,7 +146,7 @@ class CameraRepository @Inject constructor(
         val lensIds = database
             .from(TABLE_LINK_CAMERA_LENS)
             .select(KEY_LENS_ID)
-            .where("$KEY_CAMERA_ID = ?", camera.id)
+            .where { KEY_CAMERA_ID eq camera.id }
             .map { it.getLong(KEY_LENS_ID) }
         return lensIds
             .mapNotNull(lenses::getLens)

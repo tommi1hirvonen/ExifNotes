@@ -39,9 +39,7 @@ class FrameRepository @Inject constructor(private val database: Database,
                                           private val lenses: LensRepository) {
     fun addFrame(frame: Frame): Boolean {
         val values = buildFrameContentValues(frame)
-        val rowId = database.writableDatabase.use { db ->
-            db.insert(TABLE_FRAMES, null, values)
-        }
+        val rowId = database.insert(TABLE_FRAMES, values)
         frame.id = rowId
         // Add the filter links, if the frame was inserted successfully.
         return if (rowId != -1L) {
@@ -53,23 +51,23 @@ class FrameRepository @Inject constructor(private val database: Database,
     }
 
     private fun addFrameFilterLink(frame: Frame, filter: Filter) {
-        //Here it is safe to use a raw query, because we only use id values, which are database generated.
-        //So there is no danger of SQL injection.
-        val query = """
-            |insert into $TABLE_LINK_FRAME_FILTER ($KEY_FRAME_ID, $KEY_FILTER_ID)
-            |select ${frame.id}, ${filter.id}
-            |where not exists (
-            |   select *
-            |   from $TABLE_LINK_FRAME_FILTER
-            |   where $KEY_FRAME_ID = ${frame.id} and $KEY_FILTER_ID = ${filter.id}
-            |);
-        """.trimMargin()
-        database.writableDatabase.execSQL(query)
+        val exists = database
+            .from(TABLE_LINK_FRAME_FILTER)
+            .where {
+                KEY_FRAME_ID eq frame.id
+                KEY_FILTER_ID eq filter.id
+            }.exists()
+        if (!exists) {
+            database.insert(TABLE_LINK_FRAME_FILTER) {
+                put(KEY_FRAME_ID, frame.id)
+                put(KEY_FILTER_ID, filter.id)
+            }
+        }
     }
 
     fun getFrames(roll: Roll): List<Frame> = database
         .from(TABLE_FRAMES)
-        .where("$KEY_ROLL_ID=?", roll.id)
+        .where { KEY_ROLL_ID eq roll.id }
         .orderBy(KEY_COUNT)
         .map { row ->
             Frame(
@@ -110,8 +108,10 @@ class FrameRepository @Inject constructor(private val database: Database,
 
     fun updateFrame(frame: Frame): Int {
         val contentValues = buildFrameContentValues(frame)
-        val rows = database.writableDatabase
-            .update(TABLE_FRAMES, contentValues, "$KEY_FRAME_ID=?", arrayOf(frame.id.toString()))
+        val rows = database
+            .from(TABLE_FRAMES)
+            .where { KEY_FRAME_ID eq frame.id }
+            .update(contentValues)
         if (rows > 0) {
             deleteFrameFilterLinks(frame)
             frame.filters.forEach { filter -> addFrameFilterLink(frame, filter) }
@@ -119,15 +119,15 @@ class FrameRepository @Inject constructor(private val database: Database,
         return rows
     }
 
-    private fun deleteFrameFilterLinks(frame: Frame): Int = database.writableDatabase
-        .delete(TABLE_LINK_FRAME_FILTER, "$KEY_FRAME_ID = ?", arrayOf(frame.id.toString()))
+    private fun deleteFrameFilterLinks(frame: Frame): Int = database
+        .from(TABLE_LINK_FRAME_FILTER)
+        .where { KEY_FRAME_ID eq frame.id }
+        .delete()
 
-
-    fun deleteFrame(frame: Frame): Int = database.writableDatabase.delete(
-        TABLE_FRAMES,
-        "$KEY_FRAME_ID = ?",
-        arrayOf(frame.id.toString()))
-
+    fun deleteFrame(frame: Frame): Int = database
+        .from(TABLE_FRAMES)
+        .where { KEY_FRAME_ID eq frame.id }
+        .delete()
 
     val complementaryPictureFilenames: List<String> get() = database
         .from(TABLE_FRAMES)

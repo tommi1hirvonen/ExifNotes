@@ -43,8 +43,7 @@ class FilmStockRepository @Inject constructor(private val database: Database) {
     }
 
     fun addFilmStock(filmStock: FilmStock): Long {
-        val id = database.writableDatabase
-            .insert(TABLE_FILM_STOCKS, null, buildFilmStockContentValues(filmStock))
+        val id = database.insert(TABLE_FILM_STOCKS, buildFilmStockContentValues(filmStock))
         filmStock.id = id
         return id
     }
@@ -63,7 +62,7 @@ class FilmStockRepository @Inject constructor(private val database: Database) {
 
     internal fun getFilmStock(filmStockId: Long) = database
         .from(TABLE_FILM_STOCKS)
-        .where("$KEY_FILM_STOCK_ID = ?", filmStockId)
+        .where { KEY_FILM_STOCK_ID eq filmStockId }
         .firstOrNull(filmStockMapper)
 
     val filmStocks: List<FilmStock> get() = database
@@ -73,16 +72,19 @@ class FilmStockRepository @Inject constructor(private val database: Database) {
 
     fun isFilmStockBeingUsed(filmStock: FilmStock) = database
         .from(TABLE_ROLLS)
-        .where("$KEY_FILM_STOCK_ID = ?", filmStock.id)
-        .firstOrNull { true } ?: false
+        .where { KEY_FILM_STOCK_ID eq filmStock.id }
+        .exists()
 
-    fun deleteFilmStock(filmStock: FilmStock) =
-        database.writableDatabase
-            .delete(TABLE_FILM_STOCKS, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
+    fun deleteFilmStock(filmStock: FilmStock) = database
+        .from(TABLE_FILM_STOCKS)
+        .where { KEY_FILM_STOCK_ID eq filmStock.id }
+        .delete()
 
     fun updateFilmStock(filmStock: FilmStock): Int {
         val contentValues = buildFilmStockContentValues(filmStock)
-        return database.writableDatabase
-            .update(TABLE_FILM_STOCKS, contentValues, "$KEY_FILM_STOCK_ID=?", arrayOf(filmStock.id.toString()))
+        return database
+            .from(TABLE_FILM_STOCKS)
+            .where { KEY_FILM_STOCK_ID eq filmStock.id }
+            .update(contentValues)
     }
 }

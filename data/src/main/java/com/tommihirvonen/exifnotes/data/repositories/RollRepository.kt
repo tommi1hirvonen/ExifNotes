@@ -38,7 +38,7 @@ class RollRepository @Inject constructor(private val database: Database,
                                          private val filmStocks: FilmStockRepository) {
 
     fun addRoll(roll: Roll): Long {
-        val id = database.writableDatabase.insert(TABLE_ROLLS, null, buildRollContentValues(roll))
+        val id = database.insert(TABLE_ROLLS, buildRollContentValues(roll))
         roll.id = id
         for (label in roll.labels) {
             if (label.id == 0L) {
@@ -48,7 +48,7 @@ class RollRepository @Inject constructor(private val database: Database,
                 put(KEY_ROLL_ID, id)
                 put(KEY_LABEL_ID, label.id)
             }
-            database.writableDatabase.insert(TABLE_LINK_ROLL_LABEL, null, values)
+            database.insert(TABLE_LINK_ROLL_LABEL, values)
         }
         return id
     }
@@ -106,7 +106,9 @@ class RollRepository @Inject constructor(private val database: Database,
     }
 
     fun deleteRoll(roll: Roll): Int = database
-        .writableDatabase.delete(TABLE_ROLLS, "$KEY_ROLL_ID = ?", arrayOf(roll.id.toString()))
+        .from(TABLE_ROLLS)
+        .where { KEY_ROLL_ID eq roll.id }
+        .delete()
 
     fun updateRoll(roll: Roll): Int {
         val contentValues = buildRollContentValues(roll)
@@ -118,20 +120,26 @@ class RollRepository @Inject constructor(private val database: Database,
                 put(KEY_ROLL_ID, roll.id)
                 put(KEY_LABEL_ID, label.id)
             }
-            database.writableDatabase.insert(TABLE_LINK_ROLL_LABEL, null, values)
+            database.insert(TABLE_LINK_ROLL_LABEL, values)
         }
         for (label in labelsToRemove) {
-            database.writableDatabase.delete(TABLE_LINK_ROLL_LABEL,
-                "$KEY_ROLL_ID = ? AND $KEY_LABEL_ID = ?", arrayOf(roll.id.toString(), label.id.toString()))
+            database
+                .from(TABLE_LINK_ROLL_LABEL)
+                .where {
+                    KEY_ROLL_ID eq roll.id
+                    KEY_LABEL_ID eq label.id
+                }.delete()
         }
-        return database.writableDatabase
-            .update(TABLE_ROLLS, contentValues, "$KEY_ROLL_ID=?", arrayOf(roll.id.toString()))
+        return database
+            .from(TABLE_ROLLS)
+            .where { KEY_ROLL_ID eq roll.id }
+            .update(contentValues)
     }
 
     fun getNumberOfFrames(roll: Roll): Int = database
         .from(TABLE_FRAMES)
         .select("count(*)")
-        .where("$KEY_ROLL_ID = ?", roll.id)
+        .where { KEY_ROLL_ID eq roll.id }
         .firstOrNull { it.getInt(0) } ?: 0
 
     private fun buildRollContentValues(roll: Roll) = ContentValues().apply {
