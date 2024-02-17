@@ -121,11 +121,14 @@ class CameraRepository @Inject constructor(
                 }
             }
             val contentValues = buildCameraContentValues(camera)
-            val affectedRows = database.update(TABLE_CAMERAS, contentValues, "$KEY_CAMERA_ID=?", arrayOf(camera.id.toString()))
+            val affectedRows = database
+                .from(TABLE_CAMERAS)
+                .where { KEY_CAMERA_ID eq camera.id }
+                .update(contentValues)
             if (affectedRows == 0) {
                 // If there are no affected rows, then the camera does not yet exist
                 // in the database. Returning here rolls back the transaction.
-                return affectedRows
+                return 0
             }
 
             // If the camera's current lens is null, delete the old fixed lens from the database.

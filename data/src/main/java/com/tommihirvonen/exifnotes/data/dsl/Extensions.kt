@@ -18,10 +18,14 @@
 
 package com.tommihirvonen.exifnotes.data.dsl
 
+import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
 internal fun SQLiteOpenHelper.from(table: String) =
-    TableReference(this, table)
+    TableReference(SQLiteHelperAdapter(this), table)
+
+internal fun SQLiteDatabase.from(table: String) =
+    TableReference(SQLiteAdapter(this), table)
 
 internal fun TableReference.where(predicate: String, vararg arguments: Any) =
     copy(filter = predicate to arguments.map { it.toString() })

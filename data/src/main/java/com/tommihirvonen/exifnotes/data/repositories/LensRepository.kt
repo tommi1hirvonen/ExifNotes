@@ -37,7 +37,7 @@ class LensRepository @Inject constructor(private val database: Database) {
 
     fun addLens(lens: Lens, database: SQLiteDatabase? = null): Long {
         val db = database ?: this.database.writableDatabase
-        val id = db.insert(TABLE_LENSES, null, buildLensContentValues(lens))
+        val id = db.insert(TABLE_LENSES, buildLensContentValues(lens))
         lens.id = id
         return id
     }
@@ -104,7 +104,10 @@ class LensRepository @Inject constructor(private val database: Database) {
 
     fun deleteLens(lens: Lens, database: SQLiteDatabase? = null): Int {
         val db = database ?: this.database.writableDatabase
-        return db.delete(TABLE_LENSES, "$KEY_LENS_ID = ?", arrayOf(lens.id.toString()))
+        return db
+            .from(TABLE_LENSES)
+            .where { KEY_LENS_ID eq lens.id }
+            .delete()
     }
 
     fun isLensInUse(lens: Lens) = database
@@ -115,7 +118,10 @@ class LensRepository @Inject constructor(private val database: Database) {
     fun updateLens(lens: Lens, database: SQLiteDatabase? = null): Int {
         val db = database ?: this.database.writableDatabase
         val contentValues = buildLensContentValues(lens)
-        return db.update(TABLE_LENSES, contentValues, "$KEY_LENS_ID=?", arrayOf(lens.id.toString()))
+        return db
+            .from(TABLE_LENSES)
+            .where { KEY_LENS_ID eq lens.id }
+            .update(contentValues)
     }
 
     fun getLinkedFilters(lens: Lens) = database

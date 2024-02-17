@@ -19,11 +19,12 @@
 package com.tommihirvonen.exifnotes.data.dsl
 
 import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
 internal fun TableReference.delete(): Int {
     val (selection, selectionArgs) = filter ?: (null to null)
-    return db.writableDatabase.delete(table, selection, selectionArgs?.toTypedArray())
+    return db.write.delete(table, selection, selectionArgs?.toTypedArray())
 }
 
 internal fun TableReference.update(valuesBuilder: ContentValues.() -> Any) : Int {
@@ -34,7 +35,7 @@ internal fun TableReference.update(valuesBuilder: ContentValues.() -> Any) : Int
 
 internal fun TableReference.update(values: ContentValues) : Int {
     val (selection, selectionArgs) = filter ?: (null to null)
-    return db.writableDatabase.update(table, values, selection, selectionArgs?.toTypedArray())
+    return db.write.update(table, values, selection, selectionArgs?.toTypedArray())
 }
 
 internal fun SQLiteOpenHelper.insert(table: String,
@@ -45,5 +46,9 @@ internal fun SQLiteOpenHelper.insert(table: String,
 }
 
 internal fun SQLiteOpenHelper.insert(table: String, values: ContentValues): Long {
-    return writableDatabase.insert(table, null, values)
+    return writableDatabase.insert(table, values)
+}
+
+internal fun SQLiteDatabase.insert(table: String, values: ContentValues): Long {
+    return insert(table, null, values)
 }

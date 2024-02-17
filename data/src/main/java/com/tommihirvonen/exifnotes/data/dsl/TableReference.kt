@@ -18,9 +18,7 @@
 
 package com.tommihirvonen.exifnotes.data.dsl
 
-import android.database.sqlite.SQLiteOpenHelper
-
 data class TableReference(
-    val db: SQLiteOpenHelper,
+    val db: DatabaseProvider,
     val table: String,
     val filter: Pair<String, List<String>>? = null)

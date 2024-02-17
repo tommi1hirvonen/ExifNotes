@@ -18,11 +18,10 @@
 
 package com.tommihirvonen.exifnotes.data.dsl
 
-data class Query(
-    val db: DatabaseProvider,
-    val table: String,
-    val columns: List<String> = emptyList(),
-    val distinct: Boolean = false,
-    val filter: Pair<String, List<String>>? = null,
-    val orderBy: List<String> = emptyList(),
-    val limit: Int? = null)
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+
+class SQLiteHelperAdapter(val db: SQLiteOpenHelper) : DatabaseProvider {
+    override val read: SQLiteDatabase get() = db.readableDatabase
+    override val write: SQLiteDatabase get() = db.writableDatabase
+}
