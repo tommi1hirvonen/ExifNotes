@@ -44,7 +44,10 @@ class Predicate : Condition {
     infix fun String.lt(value: Long) = conditions.add(Less(this, value))
     fun String.isNull() = conditions.add(IsNull(this))
     fun String.isNotNull() = conditions.add(IsNotNull(this))
-    infix fun String.`in`(subQuery: () -> SubQuery) = conditions.add(InSubQuery(this, subQuery()))
+    infix fun String.`in`(subQuery: () -> SubQuery) =
+        conditions.add(InSubQuery(this, false, subQuery()))
+    infix fun String.notIn(subQuery: () -> SubQuery) =
+        conditions.add(InSubQuery(this, true, subQuery()))
 }
 
 abstract class Comparison(
@@ -87,13 +90,15 @@ class IsNotNull(private val column: String) : Condition {
 
 class InSubQuery(
     private val column: String,
+    private val notIn: Boolean,
     private val inColumn: String,
     private val inTable: String,
     private val inPredicate: Predicate) : Condition {
-    constructor(column: String, subQuery: SubQuery)
-            : this(column, subQuery.column, subQuery.table, subQuery.predicate)
+    constructor(column: String, notIn: Boolean, subQuery: SubQuery)
+            : this(column, notIn, subQuery.column, subQuery.table, subQuery.predicate)
+    private val operator get() = if (notIn) "not in" else "in"
     override val expression: String get() = """
-        |$column in (
+        |$column $operator (
         |   select $inColumn
         |   from $inTable
         |   where ${inPredicate.expression}

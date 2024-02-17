@@ -87,15 +87,13 @@ class LensRepository @Inject constructor(private val database: Database) {
         val cameras = database.from(TABLE_LINK_CAMERA_LENS)
             .map { it.getLong(KEY_LENS_ID) to it.getLong(KEY_CAMERA_ID) }
             .groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
-        val selection = """
-            |$KEY_LENS_ID not in (
-            |   select $KEY_LENS_ID from $TABLE_CAMERAS where $KEY_LENS_ID is not null
-            |)
-            """.trimMargin()
-        val orderBy = "$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase"
         return database.from(TABLE_LENSES)
-            .where(selection)
-            .orderBy(orderBy)
+            .where {
+                KEY_LENS_ID notIn {
+                    from(TABLE_CAMERAS).select(KEY_LENS_ID).where { KEY_LENS_ID.isNotNull() }
+                }
+            }
+            .orderBy("$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase")
             .map {
                 lensMapper(it).apply {
                     filterIds = filters[id]?.toHashSet() ?: HashSet()
@@ -122,12 +120,11 @@ class LensRepository @Inject constructor(private val database: Database) {
 
     fun getLinkedFilters(lens: Lens) = database
         .from(TABLE_FILTERS)
-        .where("""
-            |$KEY_FILTER_ID IN (
-            |   SELECT $KEY_FILTER_ID 
-            |   FROM $TABLE_LINK_LENS_FILTER WHERE $KEY_LENS_ID = ?
-            |)
-        """.trimMargin(), lens.id)
+        .where {
+            KEY_FILTER_ID `in` {
+                from(TABLE_LINK_LENS_FILTER).select(KEY_FILTER_ID).where { KEY_LENS_ID eq lens.id }
+            }
+        }
         .map(filterMapper)
 
     private fun buildLensContentValues(lens: Lens) = ContentValues().apply {
