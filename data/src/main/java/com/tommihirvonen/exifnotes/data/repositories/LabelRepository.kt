@@ -37,13 +37,13 @@ class LabelRepository @Inject constructor(private val database: Database) {
 
     fun getLabels(roll: Roll) = database
         .from(TABLE_LABELS)
-        .where("""
-            |$KEY_LABEL_ID IN (
-            |   SELECT $KEY_LABEL_ID
-            |   FROM $TABLE_LINK_ROLL_LABEL
-            |   WHERE $KEY_ROLL_ID = ?
-            |)
-            """.trimMargin(), roll.id)
+        .where {
+            KEY_LABEL_ID `in` {
+                from(TABLE_LINK_ROLL_LABEL)
+                    .select(KEY_LABEL_ID)
+                    .where { KEY_ROLL_ID eq roll.id }
+            }
+        }
         .map(labelMapper)
 
     fun addLabel(label: Label): Long {

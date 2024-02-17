@@ -54,21 +54,24 @@ class RollRepository @Inject constructor(private val database: Database,
     }
 
     fun getRolls(filterMode: RollFilterMode): List<Roll> {
-        val selection: String = when (filterMode) {
-            is RollFilterMode.Active -> "$KEY_ROLL_ARCHIVED = 0"
-            is RollFilterMode.Archived -> "$KEY_ROLL_ARCHIVED > 0"
-            is RollFilterMode.All -> "1 = 1"
-            is RollFilterMode.Favorites -> "$KEY_ROLL_FAVORITE > 0"
-            is RollFilterMode.HasLabel -> """
-                |$KEY_ROLL_ID IN (
-                |   SELECT $KEY_ROLL_ID
-                |   FROM $TABLE_LINK_ROLL_LABEL
-                |   WHERE $KEY_LABEL_ID = ${filterMode.label.id}
-                |)
-                """.trimMargin()
+        val predicate: Predicate.() -> Any = {
+            when (filterMode) {
+                is RollFilterMode.Active -> KEY_ROLL_ARCHIVED lt 1
+                is RollFilterMode.Archived -> KEY_ROLL_ARCHIVED gt 0
+                is RollFilterMode.Favorites -> KEY_ROLL_FAVORITE gt 0
+                is RollFilterMode.HasLabel -> {
+                    KEY_ROLL_ID `in` {
+                        from(TABLE_LINK_ROLL_LABEL)
+                            .select(KEY_ROLL_ID)
+                            .where { KEY_LABEL_ID eq filterMode.label.id }
+                    }
+                }
+                is RollFilterMode.All -> {}
+            }
         }
         return database.from(TABLE_ROLLS)
-            .where(selection)
+            .where {  }
+            .where(predicate)
             .orderBy("$KEY_ROLL_DATE DESC")
             .map { row ->
                 Roll(

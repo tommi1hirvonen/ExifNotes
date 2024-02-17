@@ -44,6 +44,7 @@ class Predicate : Condition {
     infix fun String.lt(value: Long) = conditions.add(Less(this, value))
     fun String.isNull() = conditions.add(IsNull(this))
     fun String.isNotNull() = conditions.add(IsNotNull(this))
+    infix fun String.`in`(subQuery: () -> SubQuery) = conditions.add(InSubQuery(this, subQuery()))
 }
 
 abstract class Comparison(
@@ -82,4 +83,35 @@ class IsNull(private val column: String) : Condition {
 class IsNotNull(private val column: String) : Condition {
     override val expression: String get() = "$column is not null"
     override val arguments: List<Any> get() = emptyList()
+}
+
+class InSubQuery(
+    private val column: String,
+    private val inColumn: String,
+    private val inTable: String,
+    private val inPredicate: Predicate) : Condition {
+    constructor(column: String, subQuery: SubQuery)
+            : this(column, subQuery.column, subQuery.table, subQuery.predicate)
+    override val expression: String get() = """
+        |$column in (
+        |   select $inColumn
+        |   from $inTable
+        |   where ${inPredicate.expression}
+        |)
+    """.trimMargin()
+    override val arguments: List<Any> get() = inPredicate.arguments
+}
+
+data class SubQueryTable(val table: String)
+
+data class SubQuery(val table: String, val column: String, val predicate: Predicate)
+
+fun from(table: String) = SubQueryTable(table)
+
+fun SubQueryTable.select(column: String) = SubQuery(table, column, Predicate())
+
+fun SubQuery.where(block: (Predicate.() -> Any)): SubQuery {
+    val predicate = Predicate()
+    block(predicate)
+    return copy(predicate = predicate)
 }

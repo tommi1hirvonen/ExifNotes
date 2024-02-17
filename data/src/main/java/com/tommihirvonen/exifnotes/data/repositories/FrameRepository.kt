@@ -97,13 +97,13 @@ class FrameRepository @Inject constructor(private val database: Database,
 
     private fun getLinkedFilters(frame: Frame) = database
         .from(TABLE_FILTERS)
-        .where("""
-            |$KEY_FILTER_ID IN (
-            |   SELECT $KEY_FILTER_ID
-            |   FROM $TABLE_LINK_FRAME_FILTER
-            |   WHERE $KEY_FRAME_ID = ?
-            |)
-        """.trimMargin(), frame.id)
+        .where {
+            KEY_FILTER_ID `in` {
+                from(TABLE_LINK_FRAME_FILTER)
+                    .select(KEY_FILTER_ID)
+                    .where { KEY_FRAME_ID eq frame.id }
+            }
+        }
         .map(filterMapper)
 
     fun updateFrame(frame: Frame): Int {
