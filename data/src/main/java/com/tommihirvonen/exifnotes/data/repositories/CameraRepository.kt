@@ -83,7 +83,10 @@ class CameraRepository @Inject constructor(
             .groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
         return database
             .from(TABLE_CAMERAS)
-            .orderBy("$KEY_CAMERA_MAKE collate nocase, $KEY_CAMERA_MODEL collate nocase")
+            .orderBy {
+                KEY_CAMERA_MAKE.asc().ignoreCase()
+                KEY_CAMERA_MODEL.asc().ignoreCase()
+            }
             .map {
                 cameraMapper(it).apply {
                     lensIds = lenses[id]?.toHashSet() ?: HashSet()

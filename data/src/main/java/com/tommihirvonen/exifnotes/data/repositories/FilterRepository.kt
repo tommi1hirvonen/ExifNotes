@@ -36,11 +36,16 @@ class FilterRepository @Inject constructor(private val database: Database) {
     }
 
     val filters: List<Filter> get() {
-        val lenses = database.from(TABLE_LINK_LENS_FILTER)
+        val lenses = database
+            .from(TABLE_LINK_LENS_FILTER)
             .map { it.getLong(KEY_FILTER_ID) to it.getLong(KEY_LENS_ID) }
             .groupBy(Pair<Long, Long>::first, Pair<Long, Long>::second)
-        return database.from(TABLE_FILTERS)
-            .orderBy("$KEY_FILTER_MAKE collate nocase,$KEY_FILTER_MODEL collate nocase")
+        return database
+            .from(TABLE_FILTERS)
+            .orderBy {
+                KEY_FILTER_MAKE.asc().ignoreCase()
+                KEY_FILTER_MODEL.asc().ignoreCase()
+            }
             .map { filterMapper(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
     }
 

@@ -67,7 +67,10 @@ class FilmStockRepository @Inject constructor(private val database: Database) {
 
     val filmStocks: List<FilmStock> get() = database
         .from(TABLE_FILM_STOCKS)
-        .orderBy("$KEY_FILM_MANUFACTURER_NAME collate nocase,$KEY_FILM_STOCK_NAME collate nocase")
+        .orderBy {
+            KEY_FILM_MANUFACTURER_NAME.asc().ignoreCase()
+            KEY_FILM_STOCK_NAME.asc().ignoreCase()
+        }
         .map(filmStockMapper)
 
     fun isFilmStockBeingUsed(filmStock: FilmStock) = database

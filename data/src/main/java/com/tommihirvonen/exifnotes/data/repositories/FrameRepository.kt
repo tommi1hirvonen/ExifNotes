@@ -68,7 +68,7 @@ class FrameRepository @Inject constructor(private val database: Database,
     fun getFrames(roll: Roll): List<Frame> = database
         .from(TABLE_FRAMES)
         .where { KEY_ROLL_ID eq roll.id }
-        .orderBy(KEY_COUNT)
+        .orderBy { KEY_COUNT.asc() }
         .map { row ->
             Frame(
                 roll = roll,

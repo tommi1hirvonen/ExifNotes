@@ -93,7 +93,10 @@ class LensRepository @Inject constructor(private val database: Database) {
                     from(TABLE_CAMERAS).select(KEY_LENS_ID).where { KEY_LENS_ID.isNotNull() }
                 }
             }
-            .orderBy("$KEY_LENS_MAKE collate nocase,$KEY_LENS_MODEL collate nocase")
+            .orderBy {
+                KEY_LENS_MAKE.asc().ignoreCase()
+                KEY_LENS_MODEL.asc().ignoreCase()
+            }
             .map {
                 lensMapper(it).apply {
                     filterIds = filters[id]?.toHashSet() ?: HashSet()

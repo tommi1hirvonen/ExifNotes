@@ -19,7 +19,6 @@
 package com.tommihirvonen.exifnotes.data.dsl
 
 import android.database.Cursor
-import android.database.sqlite.SQLiteOpenHelper
 import androidx.core.database.getLongOrNull
 
 internal fun TableReference.select(vararg columns: String) =
@@ -44,11 +43,17 @@ internal fun TableReference.distinct(distinct: Boolean = true) =
 internal fun Query.distinct(distinct: Boolean = true) =
     copy(distinct = distinct)
 
-internal fun TableReference.orderBy(vararg columns: String) =
-    Query(db, table, filter = filter, orderBy = columns.toList())
+internal fun TableReference.orderBy(block: OrderByBuilder.() -> Any): Query {
+    val builder = OrderByBuilder()
+    block(builder)
+    return Query(db, table, filter = filter, orderBy = builder.expression)
+}
 
-internal fun Query.orderBy(vararg columns: String) =
-    copy(orderBy = columns.toList())
+internal fun Query.orderBy(block: OrderByBuilder.() -> Any): Query {
+    val builder = OrderByBuilder()
+    block(builder)
+    return copy(orderBy = builder.expression)
+}
 
 internal fun TableReference.limit(limit: Int?) =
     Query(db, table, filter = filter, limit = limit)
@@ -78,9 +83,8 @@ internal fun <T> TableReference.map(transform: (Cursor) -> T): List<T> =
 
 internal fun <T> Query.map(transform: (Cursor) -> T): List<T> {
     val (selection, selectionArgs) = filter ?: (null to null)
-    val ordering = orderBy.joinToString(separator = ",").ifEmpty { null }
     return db.select(table, columns, selection, selectionArgs, distinct,
-        orderBy = ordering, limit = limit?.toString(), transform = transform)
+        orderBy = orderBy, limit = limit?.toString(), transform = transform)
 }
 
 internal fun <T> TableReference.firstOrNull(transform: (Cursor) -> T): T? =
@@ -88,26 +92,23 @@ internal fun <T> TableReference.firstOrNull(transform: (Cursor) -> T): T? =
 
 internal fun <T> Query.firstOrNull(transform: (Cursor) -> T): T? {
     val (selection, selectionArgs) = filter ?: (null to null)
-    val ordering = orderBy.joinToString(separator = ",").ifEmpty { null }
     return db.selectFirstOrNull(table, columns, selection, selectionArgs,
-        orderBy = ordering, transform = transform)
+        orderBy = orderBy, transform = transform)
 }
 
 internal fun <T> AggregateQuery.map(transform: (Cursor) -> T): List<T> {
     val (selection, selectionArgs) = filter ?: (null to null)
-    val ordering = orderBy.joinToString(separator = ",").ifEmpty { null }
     val grouping = groupBy.joinToString(separator = ",").ifEmpty { null }
     return db.select(table, columns, selection, selectionArgs,
-        orderBy = ordering, groupBy = grouping, having = having,
+        orderBy = orderBy, groupBy = grouping, having = having,
         limit = limit?.toString(), transform = transform)
 }
 
 internal fun <T> AggregateQuery.firstOrNull(transform: (Cursor) -> T): T? {
     val (selection, selectionArgs) = filter ?: (null to null)
-    val ordering = orderBy.joinToString(separator = ",").ifEmpty { null }
     val grouping = groupBy.joinToString(separator = ",").ifEmpty { null }
     return db.selectFirstOrNull(table, columns, selection, selectionArgs,
-        orderBy = ordering, groupBy = grouping, having = having, transform = transform
+        orderBy = orderBy, groupBy = grouping, having = having, transform = transform
     )
 }
 

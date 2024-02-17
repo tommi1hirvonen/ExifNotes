@@ -24,5 +24,5 @@ internal data class Query(
     val columns: List<String> = emptyList(),
     val distinct: Boolean = false,
     val filter: Pair<String, List<String>>? = null,
-    val orderBy: List<String> = emptyList(),
+    val orderBy: String? = null,
     val limit: Int? = null)

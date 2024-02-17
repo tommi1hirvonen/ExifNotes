@@ -72,7 +72,7 @@ class RollRepository @Inject constructor(private val database: Database,
         return database.from(TABLE_ROLLS)
             .where {  }
             .where(predicate)
-            .orderBy("$KEY_ROLL_DATE DESC")
+            .orderBy { KEY_ROLL_DATE.desc() }
             .map { row ->
                 Roll(
                     id = row.getLong(KEY_ROLL_ID),

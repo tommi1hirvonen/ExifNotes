@@ -23,7 +23,7 @@ internal data class AggregateQuery(
     val table: String,
     val columns: List<String> = emptyList(),
     val filter: Pair<String, List<String>>? = null,
-    val orderBy: List<String> = emptyList(),
+    val orderBy: String? = null,
     val limit: Int? = null,
     val groupBy: List<String>,
     val having: String? = null)
