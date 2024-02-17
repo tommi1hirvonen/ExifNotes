@@ -25,3 +25,10 @@ internal fun SQLiteOpenHelper.from(table: String) =
 
 internal fun TableReference.where(predicate: String, vararg arguments: Any) =
     copy(filter = predicate to arguments.map { it.toString() })
+
+internal fun TableReference.where(block: (Predicate.() -> Any)): TableReference {
+    val predicate = Predicate()
+    block(predicate)
+    val filter = predicate.expression to predicate.arguments.map { it.toString() }
+    return copy(filter = filter)
+}

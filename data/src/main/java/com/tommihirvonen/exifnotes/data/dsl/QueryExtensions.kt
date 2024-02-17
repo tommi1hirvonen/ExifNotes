@@ -31,6 +31,13 @@ internal fun Query.select(vararg columns: String) =
 internal fun Query.where(predicate: String, vararg arguments: Any) =
     copy(filter = predicate to arguments.map { it.toString() })
 
+internal fun Query.where(block: (Predicate.() -> Any)): Query {
+    val predicate = Predicate()
+    block(predicate)
+    val filter = predicate.expression to predicate.arguments.map { it.toString() }
+    return copy(filter = filter)
+}
+
 internal fun TableReference.distinct(distinct: Boolean = true) =
     Query(db, table, filter = filter, distinct = distinct)
 
