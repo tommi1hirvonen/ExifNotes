@@ -22,29 +22,35 @@ import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
+import com.tommihirvonen.exifnotes.data.dsl.delete
+import com.tommihirvonen.exifnotes.data.dsl.exists
+import com.tommihirvonen.exifnotes.data.dsl.from
+import com.tommihirvonen.exifnotes.data.dsl.insert
+import com.tommihirvonen.exifnotes.data.dsl.where
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class LensFilterRepository @Inject constructor(private val database: Database) {
     fun addLensFilterLink(filter: Filter, lens: Lens) {
-        //Here it is safe to use a raw query, because we only use id values, which are database generated.
-        //So there is no danger of SQL injection.
-        val query = """
-            |insert into $TABLE_LINK_LENS_FILTER ($KEY_FILTER_ID, $KEY_LENS_ID)
-            |select ${filter.id}, ${lens.id}
-            |where not exists (
-            |   select 1
-            |   from $TABLE_LINK_LENS_FILTER
-            |   where $KEY_FILTER_ID = ${filter.id} and $KEY_LENS_ID = ${lens.id}
-            |);
-        """.trimMargin()
-        database.writableDatabase.execSQL(query)
+        val exists = database
+            .from(TABLE_LINK_LENS_FILTER)
+            .where {
+                KEY_FILTER_ID eq filter.id
+                KEY_LENS_ID eq lens.id
+            }.exists()
+        if (!exists) {
+            database.insert(TABLE_LINK_LENS_FILTER) {
+                put(KEY_FILTER_ID, filter.id)
+                put(KEY_LENS_ID, lens.id)
+            }
+        }
     }
 
-    fun deleteLensFilterLink(filter: Filter, lens: Lens): Int =
-        database.writableDatabase.delete(
-            TABLE_LINK_LENS_FILTER,
-            "$KEY_FILTER_ID = ? AND $KEY_LENS_ID = ?",
-            arrayOf(filter.id.toString(), lens.id.toString()))
+    fun deleteLensFilterLink(filter: Filter, lens: Lens): Int = database
+        .from(TABLE_LINK_LENS_FILTER)
+        .where {
+            KEY_FILTER_ID eq filter.id
+            KEY_LENS_ID eq lens.id
+        }.delete()
 }

@@ -22,29 +22,35 @@ import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
+import com.tommihirvonen.exifnotes.data.dsl.delete
+import com.tommihirvonen.exifnotes.data.dsl.exists
+import com.tommihirvonen.exifnotes.data.dsl.from
+import com.tommihirvonen.exifnotes.data.dsl.insert
+import com.tommihirvonen.exifnotes.data.dsl.where
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class CameraLensRepository @Inject constructor(private val database: Database) {
     fun addCameraLensLink(camera: Camera, lens: Lens) {
-        //Here it is safe to use a raw query, because we only use id values, which are database generated.
-        //So there is no danger of SQL injection.
-        val query = """
-            |insert into $TABLE_LINK_CAMERA_LENS ($KEY_CAMERA_ID, $KEY_LENS_ID)
-            |select ${camera.id}, ${lens.id}
-            |where not exists (
-            |   select 1
-            |   from $TABLE_LINK_CAMERA_LENS
-            |   where $KEY_CAMERA_ID = ${camera.id} and $KEY_LENS_ID = ${lens.id}
-            |);
-        """.trimMargin()
-        database.writableDatabase.execSQL(query)
+        val exists = database
+            .from(TABLE_LINK_CAMERA_LENS)
+            .where {
+                KEY_CAMERA_ID eq camera.id
+                KEY_LENS_ID eq lens.id
+            }.exists()
+        if (!exists) {
+            database.insert(TABLE_LINK_CAMERA_LENS) {
+                put(KEY_CAMERA_ID, camera.id)
+                put(KEY_LENS_ID, lens.id)
+            }
+        }
     }
 
-    fun deleteCameraLensLink(camera: Camera, lens: Lens) =
-        database.writableDatabase.delete(
-            TABLE_LINK_CAMERA_LENS,
-            "$KEY_CAMERA_ID = ? AND $KEY_LENS_ID = ?",
-            arrayOf(camera.id.toString(), lens.id.toString()))
+    fun deleteCameraLensLink(camera: Camera, lens: Lens) = database
+        .from(TABLE_LINK_CAMERA_LENS)
+        .where {
+            KEY_CAMERA_ID eq camera.id
+            KEY_LENS_ID eq lens.id
+        }.delete()
 }
