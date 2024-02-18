@@ -115,27 +115,29 @@ private fun <T> Cursor.map(transform: (Cursor) -> T): List<T> =
         .map(transform)
         .toList()
 
-private fun <T> DatabaseProvider.select(table: String,
-                                         columns: List<String>? = null,
-                                         selection: String? = null,
-                                         selectionArgs: List<String>? = null,
-                                         distinct: Boolean = false,
-                                         groupBy: String? = null,
-                                         having: String? = null,
-                                         orderBy: String? = null,
-                                         limit: String? = null,
-                                         transform: (Cursor) -> T): List<T> =
+private fun <T> DatabaseProvider.select(
+    table: String,
+    columns: List<String>? = null,
+    selection: String? = null,
+    selectionArgs: List<String>? = null,
+    distinct: Boolean = false,
+    groupBy: String? = null,
+    having: String? = null,
+    orderBy: String? = null,
+    limit: String? = null,
+    transform: (Cursor) -> T): List<T> =
     read.query(distinct, table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
         groupBy, having, orderBy, limit).use { cursor -> cursor.map(transform) }
 
-private fun <T> DatabaseProvider.selectFirstOrNull(table: String,
-                                                  columns: List<String>? = null,
-                                                  selection: String? = null,
-                                                  selectionArgs: List<String>? = null,
-                                                  groupBy: String? = null,
-                                                  having: String? = null,
-                                                  orderBy: String? = null,
-                                                  transform: (Cursor) -> T): T? =
+private fun <T> DatabaseProvider.selectFirstOrNull(
+    table: String,
+    columns: List<String>? = null,
+    selection: String? = null,
+    selectionArgs: List<String>? = null,
+    groupBy: String? = null,
+    having: String? = null,
+    orderBy: String? = null,
+    transform: (Cursor) -> T): T? =
     read.query(table, columns?.toTypedArray(), selection, selectionArgs?.toTypedArray(),
         groupBy, having, orderBy, "1").use { cursor ->
         if (cursor.moveToFirst()) transform(cursor) else null
