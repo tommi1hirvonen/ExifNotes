@@ -36,6 +36,7 @@ import javax.inject.Singleton
 
 @Singleton
 class FrameRepository @Inject constructor(private val database: Database,
+                                          private val filters: FilterRepository,
                                           private val lenses: LensRepository) {
     fun addFrame(frame: Frame): Boolean {
         val values = buildFrameContentValues(frame)
@@ -91,20 +92,9 @@ class FrameRepository @Inject constructor(private val database: Database,
                 date = row.getStringOrNull(KEY_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
                 lens = row.getLongOrNull(KEY_LENS_ID)?.let(lenses::getLens)
             ).apply {
-                filters = getLinkedFilters(this)
+                filters = this@FrameRepository.filters.getLinkedFilters(this)
             }
         }
-
-    private fun getLinkedFilters(frame: Frame) = database
-        .from(TABLE_FILTERS)
-        .where {
-            KEY_FILTER_ID `in` {
-                from(TABLE_LINK_FRAME_FILTER)
-                    .select(KEY_FILTER_ID)
-                    .where { KEY_FRAME_ID eq frame.id }
-            }
-        }
-        .map(filterMapper)
 
     fun updateFrame(frame: Frame): Int {
         val contentValues = buildFrameContentValues(frame)

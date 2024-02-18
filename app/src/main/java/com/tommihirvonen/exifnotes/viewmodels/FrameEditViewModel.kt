@@ -90,7 +90,7 @@ class FrameEditViewModel(application: Application,
             observable.notifyPropertyChanged(BR.lensItems)
         }
 
-    var filters: List<Filter> = lens?.let(lensRepository::getLinkedFilters) ?: filterRepository.filters
+    var filters: List<Filter> = lens?.let(filterRepository::getLinkedFilters) ?: filterRepository.filters
 
     fun addLens(lens: Lens) {
         lensRepository.addLens(lens)
@@ -190,7 +190,7 @@ class FrameEditViewModel(application: Application,
             notifyPropertyChanged(BR.lens)
 
             // Check that filters only contain compatible filters with the current lens.
-            filters = value?.let(lensRepository::getLinkedFilters) ?: filterRepository.filters
+            filters = value?.let(filterRepository::getLinkedFilters) ?: filterRepository.filters
             setFilters(frame.filters.filter(filters::contains))
 
             // Check that the aperture value is compatible with the current lens.

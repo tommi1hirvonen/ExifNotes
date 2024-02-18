@@ -127,15 +127,6 @@ class LensRepository @Inject constructor(private val database: Database) {
             .update(contentValues)
     }
 
-    fun getLinkedFilters(lens: Lens) = database
-        .from(TABLE_FILTERS)
-        .where {
-            KEY_FILTER_ID `in` {
-                from(TABLE_LINK_LENS_FILTER).select(KEY_FILTER_ID).where { KEY_LENS_ID eq lens.id }
-            }
-        }
-        .map(filterMapper)
-
     private fun buildLensContentValues(lens: Lens) = ContentValues().apply {
         put(KEY_LENS_MAKE, lens.make)
         put(KEY_LENS_MODEL, lens.model)

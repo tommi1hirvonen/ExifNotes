@@ -19,7 +19,10 @@
 package com.tommihirvonen.exifnotes.data.repositories
 
 import android.content.ContentValues
+import android.database.Cursor
 import com.tommihirvonen.exifnotes.core.entities.Filter
+import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.dsl.*
@@ -65,6 +68,32 @@ class FilterRepository @Inject constructor(private val database: Database) {
             .from(TABLE_FILTERS)
             .where { KEY_FILTER_ID eq filter.id }
             .update(contentValues)
+    }
+
+    fun getLinkedFilters(frame: Frame) = database
+        .from(TABLE_FILTERS)
+        .where {
+            KEY_FILTER_ID `in` {
+                from(TABLE_LINK_FRAME_FILTER)
+                    .select(KEY_FILTER_ID)
+                    .where { KEY_FRAME_ID eq frame.id }
+            }
+        }.map(filterMapper)
+
+    fun getLinkedFilters(lens: Lens) = database
+        .from(TABLE_FILTERS)
+        .where {
+            KEY_FILTER_ID `in` {
+                from(TABLE_LINK_LENS_FILTER).select(KEY_FILTER_ID).where { KEY_LENS_ID eq lens.id }
+            }
+        }.map(filterMapper)
+
+    private val filterMapper = { cursor: Cursor ->
+        Filter(
+            id = cursor.getLong(KEY_FILTER_ID),
+            make = cursor.getStringOrNull(KEY_FILTER_MAKE),
+            model = cursor.getStringOrNull(KEY_FILTER_MODEL)
+        )
     }
 
     private fun buildFilterContentValues(filter: Filter) = ContentValues().apply {
