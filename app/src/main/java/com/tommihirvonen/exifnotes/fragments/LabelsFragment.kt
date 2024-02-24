@@ -73,8 +73,10 @@ class LabelsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        observeThenClearNavigationResult<Label>(ExtraKeys.LABEL) { label ->
-            label.let(model::submitLabel)
+        val navBackStackEntry = findNavController().getBackStackEntry(R.id.labels_dest)
+        navBackStackEntry.observeThenClearNavigationResult<Label>(
+            viewLifecycleOwner, ExtraKeys.LABEL) { label ->
+            label?.let(model::submitLabel)
         }
     }
 
