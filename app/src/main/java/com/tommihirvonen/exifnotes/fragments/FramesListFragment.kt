@@ -225,7 +225,9 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
         observeThenClearNavigationResult<Label>(ExtraKeys.LABEL) { label ->
             labelRepository.addLabel(label)
-            roll.labels.add(label)
+            roll.labels = roll.labels
+                .plus(label)
+                .sortedBy { it.name }
             rollsModel.submitRoll(roll)
         }
         observeThenClearNavigationResult<LocationPickResponse>(ExtraKeys.LOCATION) { response ->
@@ -388,8 +390,11 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                     }
                     .filter { it.second != it.third }
                     .partition { it.third }
-                added.forEach { roll.labels.add(it.first) }
-                removed.forEach { l -> roll.labels.removeIf { it.id == l.first.id } }
+                val (toAdd, toRemove) = added.map { it.first } to removed.map{ it.first }
+                roll.labels = roll.labels
+                    .filterNot { l -> toRemove.any { it.id == l.id } }
+                    .plus(toAdd)
+                    .sortedBy { it.name }
                 rollsModel.submitRoll(roll)
             }
             setNeutralButton(R.string.NewLabel) { _, _ ->

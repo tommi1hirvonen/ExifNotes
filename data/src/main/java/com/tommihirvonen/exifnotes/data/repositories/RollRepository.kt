@@ -88,7 +88,7 @@ class RollRepository @Inject constructor(private val database: Database,
                     favorite = row.getInt(KEY_ROLL_FAVORITE) > 0,
                     filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(filmStocks::getFilmStock)
                 ).apply {
-                    labels.addAll(this@RollRepository.labels.getLabels(this))
+                    labels = this@RollRepository.labels.getLabels(this)
                 }
             }
     }

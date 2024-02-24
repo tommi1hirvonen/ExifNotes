@@ -50,7 +50,7 @@ data class Roll(var id: Long = 0,
                 var filmStock: FilmStock? = null,
                 @EncodeDefault
                 var favorite: Boolean = false,
-                val labels: MutableList<Label> = mutableListOf(),
+                var labels: List<Label> = emptyList(),
                 var frames: List<Frame> = emptyList()) : Parcelable {
 
     override fun equals(other: Any?) = other is Roll && other.id == id
