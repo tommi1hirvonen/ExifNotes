@@ -413,12 +413,19 @@
         \nhttps://github.com/tommi1hirvonen/ExifNotes
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Bug fixes
+        \n\n-Mark roll as favorite
+        \n-Categorize rolls with labels
         \n-Library updates
+        \n-Code and project refactoring
         \n
     </string>
     <string name="VersionHistory">Version history</string>
-    <string name="VersionHistoryStatement">v1.20.2 2024-01-01:
+    <string name="VersionHistoryStatement">v1.21.0 2024-02-24:
+        \n-Mark roll as favorite
+        \n-Categorize rolls with labels
+        \n-Library updates
+        \n-Code and project refactoring
+        \n\nv1.20.2 2024-01-01:
         \n-Bug fixes
         \n-Library updates
         \n\nv1.20.1 2023-10-14:
