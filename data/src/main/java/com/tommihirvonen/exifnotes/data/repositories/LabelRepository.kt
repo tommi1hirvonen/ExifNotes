@@ -48,7 +48,7 @@ class LabelRepository @Inject constructor(private val database: Database) {
 
     fun addLabel(label: Label): Long {
         val values = buildContentValues(label)
-        val id = database.insert(TABLE_LENSES, values)
+        val id = database.insert(TABLE_LABELS, values)
         label.id = id
         return id
     }
