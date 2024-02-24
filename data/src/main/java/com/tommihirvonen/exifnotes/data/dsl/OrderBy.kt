@@ -21,7 +21,7 @@ package com.tommihirvonen.exifnotes.data.dsl
 internal class OrderByBuilder {
     private val columns = mutableListOf<OrderByColumn>()
 
-    val expression = if (columns.isEmpty()) {
+    val expression get() = if (columns.isEmpty()) {
         null
     } else {
         columns.joinToString(", ") { it.expression }
@@ -44,7 +44,7 @@ internal data class OrderByColumn(
     private val column: String,
     private val descending: Boolean = false,
     private var ignoreCase: Boolean = false) {
-    val expression get() = "$column $direction $collate"
+    val expression get() = "$column $collate $direction"
     private val direction get() = if (descending) "desc" else "asc"
     private val collate get() = if (ignoreCase) "collate nocase" else ""
     fun ignoreCase() {
