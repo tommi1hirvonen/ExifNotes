@@ -63,6 +63,7 @@ import com.tommihirvonen.exifnotes.core.localDateTimeOrNull
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
+import com.tommihirvonen.exifnotes.data.repositories.LabelRepository
 import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.databinding.DialogSingleDropdownBinding
 import com.tommihirvonen.exifnotes.databinding.FragmentFramesListBinding
@@ -90,6 +91,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     @Inject lateinit var frameRepository: FrameRepository
     @Inject lateinit var cameraRepository: CameraRepository
+    @Inject lateinit var labelRepository: LabelRepository
     @Inject lateinit var lensRepository: LensRepository
     @Inject lateinit var filterRepository: FilterRepository
     @Inject lateinit var complementaryPicturesManager: ComplementaryPicturesManager
@@ -220,6 +222,11 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         observeThenClearNavigationResult(ExtraKeys.ROLL) { roll: Roll ->
             rollsModel.submitRoll(roll)
             model.setRoll(roll)
+        }
+        observeThenClearNavigationResult<Label>(ExtraKeys.LABEL) { label ->
+            labelRepository.addLabel(label)
+            roll.labels.add(label)
+            rollsModel.submitRoll(roll)
         }
         observeThenClearNavigationResult<LocationPickResponse>(ExtraKeys.LOCATION) { response ->
             val (location, formattedAddress) = response
@@ -382,6 +389,12 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                 added.forEach { roll.labels.add(it.first) }
                 removed.forEach { roll.labels.remove(it.first) }
                 rollsModel.submitRoll(roll)
+            }
+            setNeutralButton(R.string.NewLabel) { _, _ ->
+                val action = FramesListFragmentDirections.framesLabelEditAction(null,
+                    resources.getString(R.string.NewLabel),
+                    resources.getString(R.string.Add))
+                findNavController().navigate(action)
             }
             setNegativeButton(R.string.Cancel) { _, _ -> }
         }
