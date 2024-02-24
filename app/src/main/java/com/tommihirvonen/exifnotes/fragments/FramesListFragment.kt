@@ -373,7 +373,9 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         init {
             val labels = rollsModel.labels.value!!
             val listItems = labels.map(Label::name).toTypedArray()
-            val selections = labels.map(roll.labels::contains).toBooleanArray()
+            val selections = labels.map { label ->
+                roll.labels.any { it.id == label.id }
+            }.toBooleanArray()
             setTitle(R.string.Labels)
             setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
                 selections[which] = isChecked
@@ -381,13 +383,13 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             setPositiveButton(R.string.OK) { _, _ ->
                 val (added, removed) = selections
                     .zip(labels) { selected, label ->
-                        val before = roll.labels.contains(label)
+                        val before = roll.labels.any { l -> l.id == label.id }
                         Triple(label, before, selected)
                     }
                     .filter { it.second != it.third }
                     .partition { it.third }
                 added.forEach { roll.labels.add(it.first) }
-                removed.forEach { roll.labels.remove(it.first) }
+                removed.forEach { l -> roll.labels.removeIf { it.id == l.first.id } }
                 rollsModel.submitRoll(roll)
             }
             setNeutralButton(R.string.NewLabel) { _, _ ->

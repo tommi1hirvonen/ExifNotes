@@ -25,6 +25,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -36,6 +39,7 @@ import com.tommihirvonen.exifnotes.utilities.ExtraKeys
 import com.tommihirvonen.exifnotes.utilities.observeThenClearNavigationResult
 import com.tommihirvonen.exifnotes.viewmodels.LabelsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LabelsFragment : Fragment() {
@@ -44,28 +48,42 @@ class LabelsFragment : Fragment() {
         defaultViewModelProviderFactory
     }
 
+    private val labelAdapter by lazy {
+        LabelAdapter(requireContext(),onLabelClickListener, onLabelDeleteClickListener)
+    }
+
+    private lateinit var binding: FragmentLabelsBinding
+
     @SuppressLint("NotifyDataSetChanged")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                model.labels.collect { labels ->
+                    labelAdapter.labels = labels
+                    binding.noAddedLabels.visibility = if (labels.isEmpty()) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
+                    labelAdapter.notifyDataSetChanged()
+                }
+            }
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
 
-        val binding = FragmentLabelsBinding.inflate(inflater)
+        binding = FragmentLabelsBinding.inflate(inflater)
         binding.topAppBar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
         val layoutManager = LinearLayoutManager(activity)
         binding.labelsRecyclerView.layoutManager = layoutManager
-
-        val labelAdapter = LabelAdapter(requireContext(),onLabelClickListener,
-            onLabelDeleteClickListener)
         binding.labelsRecyclerView.adapter = labelAdapter
-
-        model.labels.observe(viewLifecycleOwner) { labels ->
-            labelAdapter.labels = labels
-            binding.noAddedLabels.visibility = if (labels.isEmpty()) View.VISIBLE else View.GONE
-            labelAdapter.notifyDataSetChanged()
-        }
 
         binding.fab.setOnClickListener { openLabelEditDialog() }
 

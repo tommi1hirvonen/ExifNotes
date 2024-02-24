@@ -26,7 +26,4 @@ import kotlinx.serialization.Serializable
 @Parcelize
 @Serializable
 @Keep
-data class Label(var id: Long = 0, var name: String = "", var rollCount: Int = 0) : Parcelable {
-    override fun equals(other: Any?) = other is Label && other.id == id
-    override fun hashCode() = id.hashCode()
-}
+data class Label(var id: Long = 0, var name: String = "", var rollCount: Int = 0) : Parcelable

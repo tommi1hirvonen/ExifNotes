@@ -18,14 +18,14 @@
 
 package com.tommihirvonen.exifnotes.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tommihirvonen.exifnotes.core.entities.Label
 import com.tommihirvonen.exifnotes.data.repositories.LabelRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -33,37 +33,35 @@ import javax.inject.Inject
 @HiltViewModel
 class LabelsViewModel @Inject constructor(private val labelRepository: LabelRepository)
     : ViewModel() {
-    val labels: LiveData<List<Label>> get() = mLabels
 
-    private val mLabels: MutableLiveData<List<Label>> by lazy {
-        MutableLiveData<List<Label>>().also {
-            viewModelScope.launch { loadLabels() }
+    val labels: StateFlow<List<Label>> get() = mLabels
+    private val mLabels = MutableStateFlow(emptyList<Label>())
+
+    init {
+        viewModelScope.launch {
+            loadLabels()
         }
     }
-
-    private val labelsList = mutableListOf<Label>()
 
     fun submitLabel(label: Label) {
         if (labelRepository.updateLabel(label) == 0) {
             labelRepository.addLabel(label)
         }
-        labelsList.removeIf { it.id == label.id }
-        labelsList.add(label)
-        labelsList.sortBy { it.name }
-        mLabels.postValue(labelsList)
+        val labels = labels.value
+            .filter { it.id != label.id }
+            .plus(label)
+            .sortedBy { it.name }
+        mLabels.value = labels
     }
 
     fun deleteLabel(label: Label) {
         labelRepository.deleteLabel(label)
-        labelsList.remove(label)
-        mLabels.postValue(labelsList)
+        mLabels.value = labels.value.minus(label)
     }
 
     private suspend fun loadLabels() {
         withContext(Dispatchers.IO) {
-            labelsList.clear()
-            labelsList.addAll(labelRepository.labels)
-            mLabels.postValue(labelsList)
+            mLabels.value = labelRepository.labels
         }
     }
 }
