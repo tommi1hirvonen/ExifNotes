@@ -32,7 +32,7 @@ import javax.inject.Singleton
 class LabelRepository @Inject constructor(private val database: Database) {
     val labels: List<Label> get() = database
         .from(TABLE_LABELS)
-        .orderBy { KEY_LABEL_NAME.asc() }
+        .orderBy { KEY_LABEL_NAME.asc().ignoreCase() }
         .map(labelMapper)
 
     fun getLabels(roll: Roll) = database
@@ -44,6 +44,7 @@ class LabelRepository @Inject constructor(private val database: Database) {
                     .where { KEY_ROLL_ID eq roll.id }
             }
         }
+        .orderBy { KEY_LABEL_NAME.asc().ignoreCase() }
         .map(labelMapper)
 
     fun addLabel(label: Label): Long {
