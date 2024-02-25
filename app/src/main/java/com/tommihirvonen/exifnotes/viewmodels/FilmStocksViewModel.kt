@@ -18,11 +18,8 @@
 
 package com.tommihirvonen.exifnotes.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.core.entities.FilmProcess
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.FilmStockFilterMode
@@ -35,33 +32,32 @@ import com.tommihirvonen.exifnotes.utilities.isEmptyOrContains
 import com.tommihirvonen.exifnotes.utilities.mapDistinct
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FilmStocksViewModel @Inject constructor(private val repository: FilmStockRepository) : ViewModel() {
 
-    val filmStocks get() = filmStocksData as LiveData<List<FilmStock>>
-    val sortMode get() = _sortMode as LiveData<FilmStockSortMode>
+    val filmStocks: StateFlow<List<FilmStock>> get() = _filmStocks
+    val sortMode: StateFlow<FilmStockSortMode> get() = _sortMode
+
+    private val _filmStocks = MutableStateFlow(emptyList<FilmStock>())
+    private val _sortMode = MutableStateFlow(FilmStockSortMode.NAME)
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            allFilmStocks = repository.filmStocks
+            filteredFilmStocks = allFilmStocks
+            _filmStocks.value = filteredFilmStocks
+        }
+    }
 
     var filterSet = FilmStockFilterSet()
     set(value) {
         field = value
         applyFilters()
-    }
-
-    private val filmStocksData: MutableLiveData<List<FilmStock>> by lazy {
-        MutableLiveData<List<FilmStock>>().apply {
-            viewModelScope.launch(Dispatchers.IO) {
-                allFilmStocks = repository.filmStocks
-                filteredFilmStocks = allFilmStocks
-                postValue(filteredFilmStocks)
-            }
-        }
-    }
-
-    private val _sortMode = MutableLiveData<FilmStockSortMode>().apply {
-        value = FilmStockSortMode.NAME
     }
 
     private var allFilmStocks = emptyList<FilmStock>()
@@ -70,7 +66,7 @@ class FilmStocksViewModel @Inject constructor(private val repository: FilmStockR
     fun setSortMode(sortMode: FilmStockSortMode) {
         _sortMode.value = sortMode
         filteredFilmStocks = filteredFilmStocks.sorted(sortMode)
-        filmStocksData.value = filteredFilmStocks
+        _filmStocks.value = filteredFilmStocks
     }
 
     fun submitFilmStock(filmStock: FilmStock) {
@@ -84,24 +80,24 @@ class FilmStocksViewModel @Inject constructor(private val repository: FilmStockR
         repository.deleteFilmStock(filmStock)
         allFilmStocks = allFilmStocks.minus(filmStock)
         filteredFilmStocks = filteredFilmStocks.minus(filmStock)
-        filmStocksData.value = filteredFilmStocks
+        _filmStocks.value = filteredFilmStocks
     }
 
     private fun replaceFilmStock(filmStock: FilmStock) {
-        val sortMode = _sortMode.value ?: FilmStockSortMode.NAME
+        val sortMode = _sortMode.value
         filteredFilmStocks = filteredFilmStocks
             .filterNot { it.id == filmStock.id }
             .plus(filmStock)
             .sorted(sortMode)
-        filmStocksData.value = filteredFilmStocks
+        _filmStocks.value = filteredFilmStocks
     }
 
     private fun applyFilters() {
         filteredFilmStocks = allFilmStocks
             .applyPredicates(manufacturerFilter, typeFilter, processFilter,
                 isoFilter, addedByFilter)
-            .sorted(_sortMode.value ?: FilmStockSortMode.NAME)
-        filmStocksData.value = filteredFilmStocks
+            .sorted(_sortMode.value)
+        _filmStocks.value = filteredFilmStocks
     }
 
     // Apply all filters except for the iso filter.

@@ -27,6 +27,8 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -45,6 +47,7 @@ import com.tommihirvonen.exifnotes.utilities.setIconsVisible
 import com.tommihirvonen.exifnotes.viewmodels.FilmStockFilterSet
 import com.tommihirvonen.exifnotes.viewmodels.FilmStocksViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -67,9 +70,13 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         val pagerFragment = requireParentFragment() as GearFragment
         pagerFragment.topAppBar.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-        model.filmStocks.observe(viewLifecycleOwner) { filmStocks ->
-            adapter.filmStocks = filmStocks
-            adapter.notifyDataSetChanged()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                model.filmStocks.collect { filmStocks ->
+                    adapter.filmStocks = filmStocks
+                    adapter.notifyDataSetChanged()
+                }
+            }
         }
 
         return binding.root
@@ -92,7 +99,6 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         when (model.sortMode.value) {
             FilmStockSortMode.NAME -> menu.findItem(R.id.sort_mode_film_stock_name).isChecked = true
             FilmStockSortMode.ISO -> menu.findItem(R.id.sort_mode_film_stock_iso).isChecked = true
-            null -> {}
         }
     }
 
