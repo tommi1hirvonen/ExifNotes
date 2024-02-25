@@ -71,7 +71,7 @@ class FilmStocksFragment : Fragment(), MenuProvider {
         pagerFragment.topAppBar.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.filmStocks.collect { filmStocks ->
                     adapter.filmStocks = filmStocks
                     adapter.notifyDataSetChanged()

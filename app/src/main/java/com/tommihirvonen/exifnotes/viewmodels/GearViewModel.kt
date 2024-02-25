@@ -18,11 +18,8 @@
 
 package com.tommihirvonen.exifnotes.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
@@ -33,52 +30,36 @@ import com.tommihirvonen.exifnotes.data.repositories.LensFilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class GearViewModel @Inject constructor(private val cameraRepository: CameraRepository,
-                                        private val lensRepository: LensRepository,
-                                        private val filterRepository: FilterRepository,
-                                        private val cameraLensRepository: CameraLensRepository,
-                                        private val lensFilterRepository: LensFilterRepository)
-    : ViewModel() {
+class GearViewModel @Inject constructor(
+    private val cameraRepository: CameraRepository,
+    private val lensRepository: LensRepository,
+    private val filterRepository: FilterRepository,
+    private val cameraLensRepository: CameraLensRepository,
+    private val lensFilterRepository: LensFilterRepository) : ViewModel() {
 
-    val cameras: LiveData<State<List<Camera>>> get() = mCameras
-    val lenses: LiveData<List<Lens>> get() = mLenses
-    val filters: LiveData<List<Filter>> get() = mFilters
+    val cameras: StateFlow<State<List<Camera>>> get() = mCameras
+    val lenses: StateFlow<List<Lens>> get() = mLenses
+    val filters: StateFlow<List<Filter>> get() = mFilters
 
-    private val mCameras: MutableLiveData<State<List<Camera>>> by lazy {
-        MutableLiveData<State<List<Camera>>>().apply {
-            viewModelScope.launch {
-                withContext(Dispatchers.IO) {
-                    postValue(State.InProgress())
-                    cameraList = cameraRepository.cameras.sorted()
-                    postValue(State.Success(cameraList))
-                }
-            }
-        }
-    }
-
+    private val mCameras = MutableStateFlow<State<List<Camera>>>(State.InProgress())
+    private val mLenses = MutableStateFlow(emptyList<Lens>())
+    private val mFilters = MutableStateFlow(emptyList<Filter>())
     private var cameraList = emptyList<Camera>()
 
-    private val mLenses: MutableLiveData<List<Lens>> by lazy {
-        MutableLiveData<List<Lens>>().apply {
-            viewModelScope.launch {
-                withContext(Dispatchers.IO) {
-                    postValue(lensRepository.lenses.sorted())
-                }
-            }
-        }
-    }
-
-    private val mFilters: MutableLiveData<List<Filter>> by lazy {
-        MutableLiveData<List<Filter>>().apply {
-            viewModelScope.launch {
-                withContext(Dispatchers.IO) {
-                    postValue(filterRepository.filters.sorted())
-                }
+    init {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                cameraList = cameraRepository.cameras.sorted()
+                mCameras.value = State.Success(cameraList)
+                mLenses.value = lensRepository.lenses.sorted()
+                mFilters.value = filterRepository.filters.sorted()
             }
         }
     }
@@ -91,7 +72,10 @@ class GearViewModel @Inject constructor(private val cameraRepository: CameraRepo
     }
 
     private fun replaceCamera(camera: Camera) {
-        cameraList = cameraList.filterNot { it.id == camera.id }.plus(camera).sorted()
+        cameraList = cameraList
+            .filterNot { it.id == camera.id }
+            .plus(camera)
+            .sorted()
         mCameras.value = State.Success(cameraList)
     }
 
@@ -109,12 +93,15 @@ class GearViewModel @Inject constructor(private val cameraRepository: CameraRepo
     }
 
     private fun replaceLens(lens: Lens) {
-        mLenses.value = mLenses.value?.filterNot { it.id == lens.id }?.plus(lens)?.sorted()
+        mLenses.value = mLenses.value
+            .filterNot { it.id == lens.id }
+            .plus(lens)
+            .sorted()
     }
 
     fun deleteLens(lens: Lens) {
         lensRepository.deleteLens(lens)
-        mLenses.value = mLenses.value?.minus(lens)
+        mLenses.value = mLenses.value.minus(lens)
     }
 
     fun submitFilter(filter: Filter) {
@@ -125,12 +112,15 @@ class GearViewModel @Inject constructor(private val cameraRepository: CameraRepo
     }
 
     private fun replaceFilter(filter: Filter) {
-        mFilters.value = mFilters.value?.filterNot { it.id == filter.id }?.plus(filter)?.sorted()
+        mFilters.value = mFilters.value
+            .filterNot { it.id == filter.id }
+            .plus(filter)
+            .sorted()
     }
 
     fun deleteFilter(filter: Filter) {
         filterRepository.deleteFilter(filter)
-        mFilters.value = mFilters.value?.minus(filter)
+        mFilters.value = mFilters.value.minus(filter)
     }
 
     fun addCameraLensLink(camera: Camera, lens: Lens) {

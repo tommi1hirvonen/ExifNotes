@@ -25,6 +25,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
@@ -42,6 +45,7 @@ import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -77,25 +81,39 @@ class LensesFragment : Fragment() {
         val lensAdapter = LensAdapter(requireActivity(), onLensClickListener)
         binding.lensesRecyclerView.adapter = lensAdapter
 
-        model.lenses.observe(viewLifecycleOwner) { lenses ->
-            this.lenses = lenses
-            lensAdapter.lenses = lenses
-            binding.noAddedLenses.visibility = if (lenses.isEmpty()) View.VISIBLE else View.GONE
-            lensAdapter.notifyDataSetChanged()
-        }
-
-        model.cameras.observe(viewLifecycleOwner) { state ->
-            if (state is State.Success) {
-                cameras = state.data
-                lensAdapter.cameras = cameras
-                lensAdapter.notifyDataSetChanged()
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.lenses.collect { lenses ->
+                    this@LensesFragment.lenses = lenses
+                    lensAdapter.lenses = lenses
+                    binding.noAddedLenses.visibility = if (lenses.isEmpty()) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
+                    lensAdapter.notifyDataSetChanged()
+                }
             }
         }
-
-        model.filters.observe(viewLifecycleOwner) { filters ->
-            this.filters = filters
-            lensAdapter.filters = filters
-            lensAdapter.notifyDataSetChanged()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.cameras.collect { state ->
+                    if (state is State.Success) {
+                        cameras = state.data
+                        lensAdapter.cameras = cameras
+                        lensAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.filters.collect { filters ->
+                    this@LensesFragment.filters = filters
+                    lensAdapter.filters = filters
+                    lensAdapter.notifyDataSetChanged()
+                }
+            }
         }
 
         return binding.root

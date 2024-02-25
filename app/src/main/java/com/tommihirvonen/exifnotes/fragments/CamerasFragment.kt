@@ -25,6 +25,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
@@ -43,6 +46,7 @@ import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.GearViewModel
 import com.tommihirvonen.exifnotes.viewmodels.State
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -82,34 +86,48 @@ class CamerasFragment : Fragment() {
         val cameraAdapter = CameraAdapter(requireActivity(), onCameraClickListener)
         binding.camerasRecyclerView.adapter = cameraAdapter
 
-        model.cameras.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is State.InProgress -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                    binding.noAddedCameras.visibility = View.GONE
-                    cameras = emptyList()
-                    cameraAdapter.cameras = cameras
-                }
-                is State.Success -> {
-                    cameras = state.data
-                    cameraAdapter.cameras = cameras
-                    binding.progressBar.visibility = View.GONE
-                    binding.noAddedCameras.visibility = if (cameras.isEmpty()) View.VISIBLE else View.GONE
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.cameras.collect { state ->
+                    when (state) {
+                        is State.InProgress -> {
+                            binding.progressBar.visibility = View.VISIBLE
+                            binding.noAddedCameras.visibility = View.GONE
+                            cameras = emptyList()
+                            cameraAdapter.cameras = cameras
+                        }
+                        is State.Success -> {
+                            cameras = state.data
+                            cameraAdapter.cameras = cameras
+                            binding.progressBar.visibility = View.GONE
+                            binding.noAddedCameras.visibility = if (cameras.isEmpty()) {
+                                View.VISIBLE
+                            } else {
+                                View.GONE
+                            }
+                        }
+                    }
+                    cameraAdapter.notifyDataSetChanged()
                 }
             }
-            cameraAdapter.notifyDataSetChanged()
         }
-
-        model.lenses.observe(viewLifecycleOwner) { lenses ->
-            this.lenses = lenses
-            cameraAdapter.lenses = lenses
-            cameraAdapter.notifyDataSetChanged()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.lenses.collect { lenses ->
+                    this@CamerasFragment.lenses = lenses
+                    cameraAdapter.lenses = lenses
+                    cameraAdapter.notifyDataSetChanged()
+                }
+            }
         }
-
-        model.filters.observe(viewLifecycleOwner) { filters ->
-            this.filters = filters
-            cameraAdapter.filters = filters
-            cameraAdapter.notifyDataSetChanged()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.filters.collect { filters ->
+                    this@CamerasFragment.filters = filters
+                    cameraAdapter.filters = filters
+                    cameraAdapter.notifyDataSetChanged()
+                }
+            }
         }
 
         return binding.root
