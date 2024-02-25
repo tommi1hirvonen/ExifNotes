@@ -33,7 +33,9 @@ import androidx.core.view.doOnPreDraw
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.activityViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -106,7 +108,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             frameRepository, arguments.roll)
     }
 
-    private val roll get() = model.roll.value!!
+    private val roll get() = model.roll.value
 
     private lateinit var frameAdapter: FrameAdapter
     private lateinit var binding: FragmentFramesListBinding
@@ -162,43 +164,65 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             this, binding.framesRecyclerView)
         binding.framesRecyclerView.adapter = frameAdapter
         frameAdapter.onItemSelectedChanged = { frame, selected ->
-            if (selected) model.selectedFrames.add(frame)
-            else model.selectedFrames.remove(frame)
+            if (selected) {
+                model.selectedFrames.add(frame)
+            } else {
+                model.selectedFrames.remove(frame)
+            }
         }
         frameAdapter.onAllSelectionsChanged = { selected ->
-            if (selected) model.selectedFrames.addAll(frames.filterNot(model.selectedFrames::contains))
-            else model.selectedFrames.clear()
+            if (selected) {
+                val framesToAdd = frames.filter { f -> model.selectedFrames.any { it.id == f.id } }
+                model.selectedFrames.addAll(framesToAdd)
+            } else {
+                model.selectedFrames.clear()
+            }
         }
 
         val bottomMenu = binding.bottomAppBar.menu
-        model.frameSortMode.observe(viewLifecycleOwner) { mode ->
-            when (mode) {
-                FrameSortMode.FRAME_COUNT -> bottomMenu.findItem(R.id.frame_count_sort_mode).isChecked = true
-                FrameSortMode.DATE -> bottomMenu.findItem(R.id.date_sort_mode).isChecked = true
-                FrameSortMode.F_STOP -> bottomMenu.findItem(R.id.f_stop_sort_mode).isChecked = true
-                FrameSortMode.SHUTTER_SPEED -> bottomMenu.findItem(R.id.shutter_speed_sort_mode).isChecked = true
-                FrameSortMode.LENS -> bottomMenu.findItem(R.id.lens_sort_mode).isChecked = true
-                null -> {}
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.frameSortMode.collect { mode ->
+                    when (mode) {
+                        FrameSortMode.FRAME_COUNT -> bottomMenu.findItem(R.id.frame_count_sort_mode).isChecked = true
+                        FrameSortMode.DATE -> bottomMenu.findItem(R.id.date_sort_mode).isChecked = true
+                        FrameSortMode.F_STOP -> bottomMenu.findItem(R.id.f_stop_sort_mode).isChecked = true
+                        FrameSortMode.SHUTTER_SPEED -> bottomMenu.findItem(R.id.shutter_speed_sort_mode).isChecked = true
+                        FrameSortMode.LENS -> bottomMenu.findItem(R.id.lens_sort_mode).isChecked = true
+                    }
+                }
             }
         }
 
         val topMenu = binding.topAppBar.menu
-        model.roll.observe(viewLifecycleOwner) { roll ->
-            topMenu.findItem(R.id.menu_item_favorite_on).isVisible = !roll.favorite
-            topMenu.findItem(R.id.menu_item_favorite_off).isVisible = roll.favorite
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.roll.collect { roll ->
+                    topMenu.findItem(R.id.menu_item_favorite_on).isVisible = !roll.favorite
+                    topMenu.findItem(R.id.menu_item_favorite_off).isVisible = roll.favorite
+                }
+            }
         }
 
-        model.frames.observe(viewLifecycleOwner) { frames ->
-            // When the frames have been loaded from the database, start transition animation.
-            startPostponedEnterTransition()
-            this.frames = frames
-            frameAdapter.items = frames
-            if (model.selectedFrames.isNotEmpty()) {
-                frameAdapter.setSelections(model.selectedFrames)
-                ensureActionMode()
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.frames.collect { frames ->
+                    // When the frames have been loaded from the database, start transition animation.
+                    startPostponedEnterTransition()
+                    this@FramesListFragment.frames = frames
+                    frameAdapter.items = frames
+                    if (model.selectedFrames.isNotEmpty()) {
+                        frameAdapter.setSelections(model.selectedFrames)
+                        ensureActionMode()
+                    }
+                    binding.noAddedFrames.visibility = if (frames.isEmpty()) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
+                    frameAdapter.notifyDataSetChanged()
+                }
             }
-            binding.noAddedFrames.visibility = if (frames.isEmpty()) View.VISIBLE else View.GONE
-            frameAdapter.notifyDataSetChanged()
         }
 
         return binding.root
@@ -373,7 +397,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     private inner class LabelsDialogBuilder : MaterialAlertDialogBuilder(requireActivity()) {
         init {
-            val labels = rollsModel.labels.value!!
+            val labels = rollsModel.labels.value
             val listItems = labels.map(Label::name).toTypedArray()
             val selections = labels.map { label ->
                 roll.labels.any { it.id == label.id }

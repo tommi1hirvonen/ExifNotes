@@ -66,11 +66,7 @@ data class Frame(
     var filters: List<Filter> = ArrayList()
 ) : Parcelable {
 
-    constructor(roll_: Roll) : this(roll = roll_)
-
-    override fun equals(other: Any?) = other is Frame && other.id == id
-
-    override fun hashCode() = id.hashCode()
+    constructor(roll1: Roll) : this(roll = roll1)
 }
 
 fun List<Frame>.sorted(context: Context, sortMode: FrameSortMode): List<Frame> =

@@ -28,6 +28,8 @@ import com.tommihirvonen.exifnotes.core.entities.sorted
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -38,28 +40,25 @@ class FramesViewModel(application: Application,
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.baseContext)
 
-    val roll get() = mRoll as LiveData<Roll>
-    val frames get() = mFrames as LiveData<List<Frame>>
-    val frameSortMode get() = mFrameSortMode as LiveData<FrameSortMode>
+    val roll: StateFlow<Roll> get() = mRoll
+    val frames: StateFlow<List<Frame>> get() = mFrames
+    val frameSortMode: StateFlow<FrameSortMode> get() = mFrameSortMode
+
+    private val mRoll = MutableStateFlow(roll)
+    private val mFrames = MutableStateFlow(emptyList<Frame>())
+    private val mFrameSortMode = MutableStateFlow(
+        FrameSortMode.fromValue(
+            sharedPreferences.getInt(
+                PreferenceConstants.KEY_FRAME_SORT_ORDER, FrameSortMode.FRAME_COUNT.value)))
+
+    init {
+        loadFrames(roll)
+    }
 
     val selectedFrames = HashSet<Frame>()
 
-    private val mRoll = MutableLiveData<Roll>().apply { value = roll }
-
-    private val mFrames by lazy {
-        MutableLiveData<List<Frame>>().also { loadFrames(roll) }
-    }
-
-    private val mFrameSortMode by lazy {
-        MutableLiveData<FrameSortMode>().apply {
-            value = FrameSortMode.fromValue(
-                sharedPreferences.getInt(
-                    PreferenceConstants.KEY_FRAME_SORT_ORDER, FrameSortMode.FRAME_COUNT.value))
-        }
-    }
-
     fun toggleFavorite(isFavorite: Boolean) {
-        val roll = mRoll.value ?: return
+        val roll = mRoll.value
         roll.favorite = isFavorite
         mRoll.value = roll
     }
@@ -73,30 +72,30 @@ class FramesViewModel(application: Application,
         editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, mode.value)
         editor.apply()
         mFrameSortMode.value = mode
-        mFrames.value = mFrames.value?.sorted(getApplication(), mode)
+        mFrames.value = mFrames.value.sorted(getApplication(), mode)
     }
 
     fun submitFrame(frame: Frame) {
         if (repository.updateFrame(frame) == 0) {
             repository.addFrame(frame)
         }
-        val sortMode = mFrameSortMode.value ?: FrameSortMode.FRAME_COUNT
+        val sortMode = mFrameSortMode.value
         mFrames.value = mFrames.value
-            ?.filterNot { it.id == frame.id }
-            ?.plus(frame)
-            ?.sorted(getApplication(), sortMode)
+            .filterNot { it.id == frame.id }
+            .plus(frame)
+            .sorted(getApplication(), sortMode)
     }
 
     fun deleteFrame(frame: Frame) {
         repository.deleteFrame(frame)
-        mFrames.value = mFrames.value?.minus(frame)
+        mFrames.value = mFrames.value.filterNot { it.id == frame.id }
     }
 
     private fun loadFrames(roll: Roll) {
-        val sortMode = mFrameSortMode.value ?: FrameSortMode.FRAME_COUNT
+        val sortMode = mFrameSortMode.value
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                mFrames.postValue(repository.getFrames(roll).sorted(getApplication(), sortMode))
+                mFrames.value = repository.getFrames(roll).sorted(getApplication(), sortMode)
             }
         }
     }

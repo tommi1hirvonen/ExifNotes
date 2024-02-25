@@ -25,6 +25,9 @@ import android.view.*
 import android.widget.*
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import androidx.preference.PreferenceManager
@@ -42,6 +45,7 @@ import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
 import com.tommihirvonen.exifnotes.viewmodels.ViewModelUtility
+import kotlinx.coroutines.launch
 
 /**
  * Activity to display all the frames from a list of rolls on a map.
@@ -149,42 +153,45 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
         startPostponedEnterTransition()
 
-        model.frames.observe(viewLifecycleOwner) { frames ->
-            markers.onEach { it.remove() }.clear()
-
-            val bitmap = ViewModelUtility.getMarkerBitmaps(requireContext()).first()
-                ?: return@observe
-            frames.forEach frames@ { frame ->
-                val position = frame.location ?: return@frames
-                val rollName = model.roll.value?.name
-                val frameCount = "#" + frame.count
-                val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bitmap)
-                val marker = googleMap?.addMarker(MarkerOptions()
-                    .icon(bitmapDescriptor)
-                    .position(position)
-                    .title(rollName)
-                    .snippet(frameCount)
-                    .anchor(0.5f, 1.0f)) // Since we use a custom marker icon, set offset.
-                    ?: return@frames
-                marker.tag = frame
-                markers.add(marker)
-            }
-            if (!fragmentRestored) {
-                if (markers.isNotEmpty() && firstDraw) {
-                    firstDraw = false
-                    val builder = LatLngBounds.Builder()
-                    markers.map(Marker::getPosition).forEach(builder::include)
-                    val bounds = builder.build()
-                    val width = resources.displayMetrics.widthPixels
-                    val height = resources.displayMetrics.heightPixels
-                    val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
-                    // We use this command where the map's dimensions are specified.
-                    // This is because on some devices, the map's layout may not have yet occurred
-                    // (map size is 0).
-                    val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
-                    googleMap?.moveCamera(cameraUpdate)
-                } else if (markers.isEmpty()) {
-                    binding.root.snackbar(R.string.NoFramesToShow)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                model.frames.collect { frames ->
+                    markers.onEach { it.remove() }.clear()
+                    val bitmap = ViewModelUtility.getMarkerBitmaps(requireContext()).first()
+                        ?: return@collect
+                    frames.forEach frames@ { frame ->
+                        val position = frame.location ?: return@frames
+                        val rollName = model.roll.value.name
+                        val frameCount = "#" + frame.count
+                        val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bitmap)
+                        val marker = googleMap?.addMarker(MarkerOptions()
+                            .icon(bitmapDescriptor)
+                            .position(position)
+                            .title(rollName)
+                            .snippet(frameCount)
+                            .anchor(0.5f, 1.0f)) // Since we use a custom marker icon, set offset.
+                            ?: return@frames
+                        marker.tag = frame
+                        markers.add(marker)
+                    }
+                    if (!fragmentRestored) {
+                        if (markers.isNotEmpty() && firstDraw) {
+                            firstDraw = false
+                            val builder = LatLngBounds.Builder()
+                            markers.map(Marker::getPosition).forEach(builder::include)
+                            val bounds = builder.build()
+                            val width = resources.displayMetrics.widthPixels
+                            val height = resources.displayMetrics.heightPixels
+                            val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
+                            // We use this command where the map's dimensions are specified.
+                            // This is because on some devices, the map's layout may not have yet occurred
+                            // (map size is 0).
+                            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
+                            googleMap?.moveCamera(cameraUpdate)
+                        } else if (markers.isEmpty()) {
+                            binding.root.snackbar(R.string.NoFramesToShow)
+                        }
+                    }
                 }
             }
         }

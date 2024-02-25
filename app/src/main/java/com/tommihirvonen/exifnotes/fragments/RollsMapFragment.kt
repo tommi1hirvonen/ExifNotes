@@ -69,7 +69,7 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
     @Inject lateinit var frameRepository: FrameRepository
 
     private val rollsModel by activityViewModels<RollsViewModel>()
-    private val filterMode by lazy { rollsModel.rollFilterMode.value!! }
+    private val filterMode by lazy { rollsModel.rollFilterMode.value }
     private val model by viewModels<RollsMapViewModel> {
         RollsMapViewModelFactory(
             requireActivity().application,
