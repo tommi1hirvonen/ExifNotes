@@ -147,7 +147,7 @@ class RollsViewModel @Inject constructor(application: Application,
         if (mRollFilterMode.value == RollFilterMode.Active && roll.archived
             || mRollFilterMode.value == RollFilterMode.Archived && !roll.archived
             || mRollFilterMode.value == RollFilterMode.Favorites && !roll.favorite) {
-            rollList = rollList.minus(roll)
+            rollList = rollList.filterNot { it.id == roll.id }
             mRolls.value = State.Success(rollList)
         } else {
             replaceRoll(roll)
@@ -160,7 +160,7 @@ class RollsViewModel @Inject constructor(application: Application,
 
     fun deleteRoll(roll: Roll) {
         rollRepository.deleteRoll(roll)
-        rollList = rollList.minus(roll)
+        rollList = rollList.filterNot { it.id == roll.id }
         mRolls.value = State.Success(rollList)
         viewModelScope.launch {
             loadRollCounts()

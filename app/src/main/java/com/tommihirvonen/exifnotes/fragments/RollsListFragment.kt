@@ -118,12 +118,19 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         rollAdapter = RollAdapter(rollRepository, requireActivity(), this, binding.rollsRecyclerView)
         binding.rollsRecyclerView.adapter = rollAdapter
         rollAdapter.onItemSelectedChanged = { item, selected ->
-            if (selected) model.selectedRolls.add(item)
-            else model.selectedRolls.remove(item)
+            if (selected) {
+                model.selectedRolls.add(item)
+            } else {
+                model.selectedRolls.removeIf { it.id == item.id }
+            }
         }
         rollAdapter.onAllSelectionsChanged = { selected ->
-            if (selected) model.selectedRolls.addAll(rolls.filterNot(model.selectedRolls::contains))
-            else model.selectedRolls.clear()
+            if (selected) {
+                val rollsToAdd = rolls.filterNot { l -> model.selectedRolls.any { it.id == l.id } }
+                model.selectedRolls.addAll(rollsToAdd)
+            } else {
+                model.selectedRolls.clear()
+            }
         }
 
         // Transition named used when editing frame via ActionMode menu.

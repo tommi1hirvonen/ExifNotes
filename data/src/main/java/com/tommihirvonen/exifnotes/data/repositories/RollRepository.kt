@@ -113,8 +113,8 @@ class RollRepository @Inject constructor(private val database: Database,
     fun updateRoll(roll: Roll): Int {
         val contentValues = buildRollContentValues(roll)
         val labels = labels.getLabels(roll)
-        val labelsToAdd = roll.labels.filterNot { labels.contains(it) }
-        val labelsToRemove = labels.filterNot { roll.labels.contains(it) }
+        val labelsToAdd = roll.labels.filterNot { l -> labels.any { it.id == l.id } }
+        val labelsToRemove = labels.filterNot { l -> roll.labels.any { it.id == l.id } }
         for (label in labelsToAdd) {
             val values = ContentValues().apply {
                 put(KEY_ROLL_ID, roll.id)

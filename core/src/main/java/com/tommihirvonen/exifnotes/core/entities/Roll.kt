@@ -51,11 +51,6 @@ data class Roll(var id: Long = 0,
                 @EncodeDefault
                 var favorite: Boolean = false,
                 var labels: List<Label> = emptyList(),
-                var frames: List<Frame> = emptyList()) : Parcelable {
-
-    override fun equals(other: Any?) = other is Roll && other.id == id
-
-    override fun hashCode() = id.hashCode()
-}
+                var frames: List<Frame> = emptyList()) : Parcelable
 
 fun List<Roll>.sorted(sortMode: RollSortMode): List<Roll> = sortedWith(sortMode.comparator)
