@@ -36,29 +36,9 @@ sealed class Gear : Parcelable, Comparable<Gear> {
     abstract var make: String?
     abstract var model: String?
 
-    /**
-     * @return make and model of the Gear concatenated
-     */
     val name: String get() = "$make $model"
-
-    override fun equals(other: Any?): Boolean {
-        val gear: Gear
-        if (other is Gear)
-            gear = other
-        else
-            return false
-        return gear.id == this.id
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + (make?.hashCode() ?: 0)
-        result = 31 * result + (model?.hashCode() ?: 0)
-        return result
-    }
 
     override fun compareTo(other: Gear): Int {
         return name.compareTo(other.name, ignoreCase = true)
     }
-
 }

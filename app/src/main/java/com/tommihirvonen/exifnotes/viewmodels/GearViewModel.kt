@@ -81,7 +81,7 @@ class GearViewModel @Inject constructor(
 
     fun deleteCamera(camera: Camera) {
         cameraRepository.deleteCamera(camera)
-        cameraList = cameraList.minus(camera)
+        cameraList = cameraList.filterNot { it.id == camera.id }
         mCameras.value = State.Success(cameraList)
     }
 
@@ -101,7 +101,7 @@ class GearViewModel @Inject constructor(
 
     fun deleteLens(lens: Lens) {
         lensRepository.deleteLens(lens)
-        mLenses.value = mLenses.value.minus(lens)
+        mLenses.value = mLenses.value.filterNot { it.id == lens.id }
     }
 
     fun submitFilter(filter: Filter) {
@@ -120,7 +120,7 @@ class GearViewModel @Inject constructor(
 
     fun deleteFilter(filter: Filter) {
         filterRepository.deleteFilter(filter)
-        mFilters.value = mFilters.value.minus(filter)
+        mFilters.value = mFilters.value.filterNot { it.id == filter.id }
     }
 
     fun addCameraLensLink(camera: Camera, lens: Lens) {

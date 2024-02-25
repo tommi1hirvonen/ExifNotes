@@ -41,14 +41,13 @@ data class Lens(
     var minFocalLength: Int = 0,
     var maxFocalLength: Int = 0,
     @EncodeDefault
-        var apertureIncrements: Increment = Increment.THIRD,
+    var apertureIncrements: Increment = Increment.THIRD,
     @Transient
-        var filterIds: HashSet<Long> = HashSet(),
+    var filterIds: HashSet<Long> = HashSet(),
     @Transient
-        var cameraIds: HashSet<Long> = HashSet(),
+    var cameraIds: HashSet<Long> = HashSet(),
     @Transient
-        var customApertureValues: List<Float> = emptyList())
-    : Gear(), Comparable<Gear> {
+    var customApertureValues: List<Float> = emptyList()) : Gear(), Comparable<Gear> {
 
     fun apertureValues(context: Context): Array<String> =
         when (apertureIncrements) {

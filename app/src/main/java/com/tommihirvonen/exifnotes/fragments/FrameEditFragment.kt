@@ -249,7 +249,9 @@ class FrameEditFragment : Fragment() {
         // Create a list with filter names to be shown on the multi choice dialog.
         val listItems = possibleFilters.map(Filter::name).toTypedArray()
         // Bool array for preselected items in the multi choice list.
-        val booleans = possibleFilters.map(model.frame.filters::contains).toBooleanArray()
+        val booleans = possibleFilters.map { f ->
+            model.frame.filters.any { it.id == f.id }
+        }.toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.UsedFilters)

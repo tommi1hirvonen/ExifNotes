@@ -184,7 +184,9 @@ class LensesFragment : Fragment() {
         // Make a list of strings for all the camera names to be shown in the multi choice list.
         val listItems = allCameras.map(Camera::name).toTypedArray()
         // Create a bool array for preselected items in the multi choice list.
-        val selections = allCameras.map(compatibleCameras::contains).toBooleanArray()
+        val selections = allCameras.map { c ->
+            compatibleCameras.any { it.id == c.id }
+        }.toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectCompatibleCameras)
@@ -194,7 +196,7 @@ class LensesFragment : Fragment() {
                 .setPositiveButton(R.string.OK) { _, _ ->
                     val (added, removed) = selections
                         .zip(allCameras) { selected, camera ->
-                            val beforeState = compatibleCameras.contains(camera)
+                            val beforeState = compatibleCameras.any { it.id == camera.id }
                             Triple(camera, beforeState, selected)
                         }
                         .filter { it.second != it.third }
@@ -217,7 +219,9 @@ class LensesFragment : Fragment() {
         // Make a list of strings for all the lens names to be shown in the multi choice list.
         val listItems = filters.map(Filter::name).toTypedArray()
         // Create a bool array for preselected items in the multi choice list.
-        val selections = filters.map(compatibleFilters::contains).toBooleanArray()
+        val selections = filters.map { f ->
+            compatibleFilters.any { it.id == f.id }
+        }.toBooleanArray()
 
         val builder = MaterialAlertDialogBuilder(requireActivity())
         builder.setTitle(R.string.SelectCompatibleFilters)
@@ -227,7 +231,7 @@ class LensesFragment : Fragment() {
                 .setPositiveButton(R.string.OK) { _, _ ->
                     val (added, removed) = selections
                         .zip(filters) { selected, filter ->
-                            val beforeState = compatibleFilters.contains(filter)
+                            val beforeState = compatibleFilters.any { it.id == filter.id }
                             Triple(filter, beforeState, selected)
                         }
                         .filter { it.second != it.third }
