@@ -25,6 +25,9 @@ import android.view.ViewGroup
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.*
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -44,6 +47,7 @@ import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollEditViewModelFactory
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -67,7 +71,13 @@ class RollEditFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                rollsModel.cameras.collect { cameras ->
+                    model.cameras = cameras
+                }
+            }
+        }
         sharedElementEnterTransition = TransitionSet()
             .addTransition(ChangeBounds())
             .addTransition(ChangeTransform())
@@ -81,9 +91,6 @@ class RollEditFragment : Fragment() {
         binding = FragmentRollEditBinding.inflate(inflater, container, false)
         binding.viewmodel = model.observable
         binding.fragment = this
-        rollsModel.cameras.observe(viewLifecycleOwner) { cameras ->
-            model.cameras = cameras
-        }
         return binding.root
     }
 

@@ -20,8 +20,6 @@ package com.tommihirvonen.exifnotes.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
@@ -36,76 +34,44 @@ import com.tommihirvonen.exifnotes.data.repositories.RollCounts
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class RollsViewModel @Inject constructor(application: Application,
-                                         private val rollRepository: RollRepository,
-                                         private val cameraRepository: CameraRepository,
-                                         private val labelRepository: LabelRepository)
-    : AndroidViewModel(application) {
+class RollsViewModel @Inject constructor(
+    application: Application,
+    private val rollRepository: RollRepository,
+    private val cameraRepository: CameraRepository,
+    private val labelRepository: LabelRepository) : AndroidViewModel(application) {
 
-    private val context get() = getApplication<Application>()
+    val rolls: StateFlow<State<List<Roll>>> get() = mRolls
+    val cameras: StateFlow<List<Camera>> get() = mCameras
+    val labels: StateFlow<List<Label>> get() = mLabels
+    val rollCounts: StateFlow<RollCounts> get() = mRollCounts
+    val toolbarSubtitle: StateFlow<String> get() = mToolbarSubtitle
+    val rollFilterMode: StateFlow<RollFilterMode> get() = mRollFilterMode
+    val rollSortMode: StateFlow<RollSortMode> get() = mRollSortMode
 
-    val cameras: LiveData<List<Camera>> get() = mCameras
-    val rolls: LiveData<State<List<Roll>>> get() = mRolls
-    val rollFilterMode: LiveData<RollFilterMode> get() = mRollFilterMode
-    val rollSortMode: LiveData<RollSortMode> get() = mRollSortMode
-    val rollCounts: LiveData<RollCounts> get() = mRollCounts
-    val toolbarSubtitle: LiveData<String> get() = mToolbarSubtitle
-    val labels: LiveData<List<Label>> get() = mLabels
+    private val mRolls = MutableStateFlow<State<List<Roll>>>(State.InProgress())
+    private val mCameras = MutableStateFlow(emptyList<Camera>())
+    private val mLabels = MutableStateFlow(emptyList<Label>())
+    private val mRollCounts = MutableStateFlow(RollCounts(0, 0, 0))
+    private val mToolbarSubtitle = MutableStateFlow(context.resources.getString(R.string.ActiveRolls))
+    private val mRollFilterMode = MutableStateFlow<RollFilterMode>(RollFilterMode.Active)
+    private val mRollSortMode = MutableStateFlow(RollSortMode.DATE)
+
+    init {
+        loadAll()
+    }
 
     val selectedRolls = HashSet<Roll>()
-
     var refreshPending = false
 
-    private val mToolbarSubtitle: MutableLiveData<String> by lazy {
-        val text = when(val filter = rollFilterMode.value) {
-            is RollFilterMode.Active -> context.resources.getString(R.string.ActiveRolls)
-            is RollFilterMode.Archived -> context.resources.getString(R.string.ArchivedRolls)
-            is RollFilterMode.All -> context.resources.getString(R.string.AllRolls)
-            is RollFilterMode.Favorites -> context.resources.getString(R.string.Favorites)
-            is RollFilterMode.HasLabel -> filter.label.name
-            null -> context.resources.getString(R.string.ActiveRolls)
-        }
-        MutableLiveData<String>(text)
-    }
-
-    private val mRollFilterMode = MutableLiveData<RollFilterMode>().apply {
-        value = RollFilterMode.Active
-    }
-
-    private val mRollSortMode = MutableLiveData<RollSortMode>().apply {
-        value = RollSortMode.DATE
-    }
-
-    private val mRolls: MutableLiveData<State<List<Roll>>> by lazy {
-        MutableLiveData<State<List<Roll>>>().also {
-            viewModelScope.launch { loadRolls() }
-        }
-    }
-
-    private val mRollCounts: MutableLiveData<RollCounts> by lazy {
-        MutableLiveData<RollCounts>().also {
-            viewModelScope.launch { loadRollCounts() }
-        }
-    }
-
+    private val context get() = getApplication<Application>()
     private var rollList = emptyList<Roll>()
-
-    private val mCameras: MutableLiveData<List<Camera>> by lazy {
-        MutableLiveData<List<Camera>>().also {
-            viewModelScope.launch { loadCameras() }
-        }
-    }
-
-    private val mLabels: MutableLiveData<List<Label>> by lazy {
-        MutableLiveData<List<Label>>().also {
-            viewModelScope.launch { loadLabels() }
-        }
-    }
 
     fun setRollFilterMode(rollFilterMode: RollFilterMode) {
         mRollFilterMode.value = rollFilterMode
@@ -137,7 +103,10 @@ class RollsViewModel @Inject constructor(application: Application,
 
     fun addCamera(camera: Camera) {
         cameraRepository.addCamera(camera)
-        mCameras.value = mCameras.value?.filterNot { it.id == camera.id }?.plus(camera)?.sorted()
+        mCameras.value = mCameras.value
+            .filterNot { it.id == camera.id }
+            .plus(camera)
+            .sorted()
     }
 
     fun submitRoll(roll: Roll) {
@@ -169,36 +138,36 @@ class RollsViewModel @Inject constructor(application: Application,
     }
 
     private fun replaceRoll(roll: Roll) {
-        val sortMode = mRollSortMode.value ?: RollSortMode.DATE
+        val sortMode = mRollSortMode.value
         rollList = rollList.filterNot { it.id == roll.id }.plus(roll).sorted(sortMode)
         mRolls.value = State.Success(rollList)
     }
 
     private suspend fun loadCameras() {
         withContext(Dispatchers.IO) {
-            mCameras.postValue(cameraRepository.cameras)
+            mCameras.value = cameraRepository.cameras
         }
     }
 
     private suspend fun loadRolls() {
         withContext(Dispatchers.IO) {
-            mRolls.postValue(State.InProgress())
-            val filterMode = rollFilterMode.value ?: RollFilterMode.Active
-            val sortMode = rollSortMode.value ?: RollSortMode.DATE
+            mRolls.value = State.InProgress()
+            val filterMode = rollFilterMode.value
+            val sortMode = rollSortMode.value
             rollList = rollRepository.getRolls(filterMode).sorted(sortMode)
-            mRolls.postValue(State.Success(rollList))
+            mRolls.value = State.Success(rollList)
         }
     }
 
     private suspend fun loadLabels() {
         withContext(Dispatchers.IO) {
-            mLabels.postValue(labelRepository.labels)
+            mLabels.value = labelRepository.labels
         }
     }
 
     private suspend fun loadRollCounts() {
         withContext(Dispatchers.IO) {
-            mRollCounts.postValue(rollRepository.rollCounts)
+            mRollCounts.value = rollRepository.rollCounts
         }
     }
 }

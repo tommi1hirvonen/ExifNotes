@@ -34,7 +34,9 @@ import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -169,156 +171,175 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         val labelsMenu = binding.navigationView.menu.addSubMenu(resources.getString(R.string.Labels))
         val labelBadges = mutableListOf<TextView>()
         val labelMenuItems = mutableListOf<MenuItem>()
-        model.labels.observe(viewLifecycleOwner) { labels ->
-            labelsMenu.clear()
-            labelBadges.clear()
-            labelMenuItems.clear()
-            for (label in labels) {
-                val item = labelsMenu.add(label.name)
-                labelMenuItems.add(item)
-                item.isCheckable = true
-                item.setIcon(R.drawable.ic_outline_label_24)
-                val textView = TextView(requireActivity())
-                labelBadges.add(textView)
-                item.actionView = textView
-                initializeActionView(textView)
-                textView.text = label.rollCount.toString()
-                textView.setTypeface(null, Typeface.NORMAL)
-                val filter = model.rollFilterMode.value
-                if (filter is RollFilterMode.HasLabel && filter.label.id == label.id) {
-                    item.isChecked = true
-                    textView.setTypeface(null, Typeface.BOLD)
-                }
-                item.setOnMenuItemClickListener {
-                    model.setRollFilterMode(RollFilterMode.HasLabel(label))
-                    labelMenuItems.forEach { it.isChecked = false }
-                    item.isChecked = true
-                    labelBadges.forEach { it.setTypeface(null, Typeface.NORMAL) }
-                    textView.setTypeface(null, Typeface.BOLD)
-                    binding.drawerLayout?.close()
-                    true
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                model.labels.collect { labels ->
+                    labelsMenu.clear()
+                    labelBadges.clear()
+                    labelMenuItems.clear()
+                    for (label in labels) {
+                        val item = labelsMenu.add(label.name)
+                        labelMenuItems.add(item)
+                        item.isCheckable = true
+                        item.setIcon(R.drawable.ic_outline_label_24)
+                        val textView = TextView(requireActivity())
+                        labelBadges.add(textView)
+                        item.actionView = textView
+                        initializeActionView(textView)
+                        textView.text = label.rollCount.toString()
+                        textView.setTypeface(null, Typeface.NORMAL)
+                        val filter = model.rollFilterMode.value
+                        if (filter is RollFilterMode.HasLabel && filter.label.id == label.id) {
+                            item.isChecked = true
+                            textView.setTypeface(null, Typeface.BOLD)
+                        }
+                        item.setOnMenuItemClickListener {
+                            model.setRollFilterMode(RollFilterMode.HasLabel(label))
+                            labelMenuItems.forEach { it.isChecked = false }
+                            item.isChecked = true
+                            labelBadges.forEach { it.setTypeface(null, Typeface.NORMAL) }
+                            textView.setTypeface(null, Typeface.BOLD)
+                            binding.drawerLayout?.close()
+                            true
+                        }
+                    }
                 }
             }
         }
 
-        model.rollFilterMode.observe(viewLifecycleOwner) { mode ->
-            binding.noAddedRolls.visibility = View.GONE
-            when (mode) {
-                RollFilterMode.Active -> {
-                    labelMenuItems.forEach { it.isChecked = false }
-                    filterMenuItemBadges.plus(labelBadges)
-                        .forEach { it.setTypeface(null, Typeface.NORMAL) }
-                    binding.noAddedRolls.text = resources.getString(R.string.NoActiveRolls)
-                    activeRollsMenuItem.isChecked = true
-                    activeRollsCountBadge.setTypeface(null, Typeface.BOLD)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                model.rollCounts.collect { counts ->
+                    val (active, archived, favorites) = counts
+                    val all = active + archived
+                    activeRollsCountBadge.text = active.toString()
+                    archivedRollsCountBadge.text = archived.toString()
+                    allRollsCountBadge.text = all.toString()
+                    favoriteRollsCountBadge.text = favorites.toString()
                 }
-                RollFilterMode.Archived -> {
-                    labelMenuItems.forEach { it.isChecked = false }
-                    filterMenuItemBadges.plus(labelBadges)
-                        .forEach { it.setTypeface(null, Typeface.NORMAL) }
-                    binding.noAddedRolls.text = resources.getString(R.string.NoArchivedRolls)
-                    archivedRollsMenuItem.isChecked = true
-                    archivedRollsCountBadge.setTypeface(null, Typeface.BOLD)
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                model.rollFilterMode.collect { mode ->
+                    binding.noAddedRolls.visibility = View.GONE
+                    when (mode) {
+                        RollFilterMode.Active -> {
+                            labelMenuItems.forEach { it.isChecked = false }
+                            filterMenuItemBadges.plus(labelBadges)
+                                .forEach { it.setTypeface(null, Typeface.NORMAL) }
+                            binding.noAddedRolls.text = resources.getString(R.string.NoActiveRolls)
+                            activeRollsMenuItem.isChecked = true
+                            activeRollsCountBadge.setTypeface(null, Typeface.BOLD)
+                        }
+                        RollFilterMode.Archived -> {
+                            labelMenuItems.forEach { it.isChecked = false }
+                            filterMenuItemBadges.plus(labelBadges)
+                                .forEach { it.setTypeface(null, Typeface.NORMAL) }
+                            binding.noAddedRolls.text = resources.getString(R.string.NoArchivedRolls)
+                            archivedRollsMenuItem.isChecked = true
+                            archivedRollsCountBadge.setTypeface(null, Typeface.BOLD)
+                        }
+                        RollFilterMode.All -> {
+                            labelMenuItems.forEach { it.isChecked = false }
+                            filterMenuItemBadges.plus(labelBadges)
+                                .forEach { it.setTypeface(null, Typeface.NORMAL) }
+                            binding.noAddedRolls.text = resources.getString(R.string.NoActiveOrArchivedRolls)
+                            allRollsMenuItem.isChecked = true
+                            allRollsCountBadge.setTypeface(null, Typeface.BOLD)
+                        }
+                        RollFilterMode.Favorites -> {
+                            labelMenuItems.forEach { it.isChecked = false }
+                            filterMenuItemBadges.plus(labelBadges)
+                                .forEach { it.setTypeface(null, Typeface.NORMAL) }
+                            binding.noAddedRolls.text = resources.getString(R.string.NoFavorites)
+                            favoriteRollsMenuItem.isChecked = true
+                            favoriteRollsCountBadge.setTypeface(null, Typeface.BOLD)
+                        }
+                        is RollFilterMode.HasLabel -> {
+                            binding.noAddedRolls.text = resources.getString(R.string.NoRolls)
+                            filterMenuItems.forEach { it.isChecked = false }
+                            filterMenuItemBadges.forEach { it.setTypeface(null, Typeface.NORMAL) }
+                        }
+                    }
                 }
-                RollFilterMode.All -> {
-                    labelMenuItems.forEach { it.isChecked = false }
-                    filterMenuItemBadges.plus(labelBadges)
-                        .forEach { it.setTypeface(null, Typeface.NORMAL) }
-                    binding.noAddedRolls.text = resources.getString(R.string.NoActiveOrArchivedRolls)
-                    allRollsMenuItem.isChecked = true
-                    allRollsCountBadge.setTypeface(null, Typeface.BOLD)
-                }
-                RollFilterMode.Favorites -> {
-                    labelMenuItems.forEach { it.isChecked = false }
-                    filterMenuItemBadges.plus(labelBadges)
-                        .forEach { it.setTypeface(null, Typeface.NORMAL) }
-                    binding.noAddedRolls.text = resources.getString(R.string.NoFavorites)
-                    favoriteRollsMenuItem.isChecked = true
-                    favoriteRollsCountBadge.setTypeface(null, Typeface.BOLD)
-                }
-                is RollFilterMode.HasLabel -> {
-                    binding.noAddedRolls.text = resources.getString(R.string.NoRolls)
-                    filterMenuItems.forEach { it.isChecked = false }
-                    filterMenuItemBadges.forEach { it.setTypeface(null, Typeface.NORMAL) }
-                }
-                null -> {}
             }
         }
 
         val topMenu = binding.topAppBar.menu
-        model.rollSortMode.observe(viewLifecycleOwner) { mode ->
-            when (mode) {
-                RollSortMode.DATE -> { topMenu.findItem(R.id.date_sort_mode).isChecked = true }
-                RollSortMode.NAME -> { topMenu.findItem(R.id.name_sort_mode).isChecked = true }
-                RollSortMode.CAMERA -> { topMenu.findItem(R.id.camera_sort_mode).isChecked = true }
-                null -> {}
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                model.rollSortMode.collect { mode ->
+                    when (mode) {
+                        RollSortMode.DATE -> { topMenu.findItem(R.id.date_sort_mode).isChecked = true }
+                        RollSortMode.NAME -> { topMenu.findItem(R.id.name_sort_mode).isChecked = true }
+                        RollSortMode.CAMERA -> { topMenu.findItem(R.id.camera_sort_mode).isChecked = true }
+                    }
+                }
             }
         }
 
-        model.rollCounts.observe(viewLifecycleOwner) { counts ->
-            val (active, archived, favorites) = counts
-            val all = active + archived
-            activeRollsCountBadge.text = active.toString()
-            archivedRollsCountBadge.text = archived.toString()
-            allRollsCountBadge.text = all.toString()
-            favoriteRollsCountBadge.text = favorites.toString()
-        }
-
-        model.rolls.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is State.InProgress -> {
-                    binding.noAddedRolls.visibility = View.GONE
-                    binding.progressBar.visibility = View.VISIBLE
-                    rolls = emptyList()
-                    rollAdapter.items = rolls
-                    startPostponedEnterTransition()
-                }
-                is State.Success -> {
-                    rolls = state.data
-                    rollAdapter.items = rolls
-                    if (model.selectedRolls.isNotEmpty()) {
-                        rollAdapter.setSelections(model.selectedRolls)
-                        ensureActionMode()
-                    }
-                    binding.progressBar.visibility = View.GONE
-                    binding.noAddedRolls.visibility =
-                        if (rolls.isEmpty()) View.VISIBLE else View.GONE
-
-                    // If returning from FramesFragment,
-                    // reset the exitTransition in case it was lost because of configuration change.
-                    if (tappedRollPosition != RecyclerView.NO_POSITION) {
-                        if (exitTransition == null) {
-                            exitTransition = SeparateVertical().apply {
-                                duration = transitionDurationShowFrames
-                                interpolator = transitionInterpolator
-                            }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.rolls.collect { state ->
+                    when (state) {
+                        is State.InProgress -> {
+                            binding.noAddedRolls.visibility = View.GONE
+                            binding.progressBar.visibility = View.VISIBLE
+                            rolls = emptyList()
+                            rollAdapter.items = rolls
+                            startPostponedEnterTransition()
                         }
-                    }
-                    (view?.parent as? ViewGroup)?.doOnPreDraw {
-                        if (tappedRollPosition != RecyclerView.NO_POSITION) {
-                            val lm = binding.rollsRecyclerView.layoutManager as LinearLayoutManager
-                            val itemView = lm.findViewByPosition(tappedRollPosition)
-                            itemView?.let { v ->
-                                (exitTransition as Transition).epicenterCallback =
-                                    object : Transition.EpicenterCallback() {
-                                        override fun onGetEpicenter(transition: Transition) =
-                                            Rect().also {
-                                                v.getGlobalVisibleRect(it)
+                        is State.Success -> {
+                            rolls = state.data
+                            rollAdapter.items = rolls
+                            if (model.selectedRolls.isNotEmpty()) {
+                                rollAdapter.setSelections(model.selectedRolls)
+                                ensureActionMode()
+                            }
+                            binding.progressBar.visibility = View.GONE
+                            binding.noAddedRolls.visibility =
+                                if (rolls.isEmpty()) View.VISIBLE else View.GONE
+
+                            // If returning from FramesFragment,
+                            // reset the exitTransition in case it was lost because of configuration change.
+                            if (tappedRollPosition != RecyclerView.NO_POSITION) {
+                                if (exitTransition == null) {
+                                    exitTransition = SeparateVertical().apply {
+                                        duration = transitionDurationShowFrames
+                                        interpolator = transitionInterpolator
+                                    }
+                                }
+                            }
+                            (view?.parent as? ViewGroup)?.doOnPreDraw {
+                                if (tappedRollPosition != RecyclerView.NO_POSITION) {
+                                    val lm = binding.rollsRecyclerView.layoutManager as LinearLayoutManager
+                                    val itemView = lm.findViewByPosition(tappedRollPosition)
+                                    itemView?.let { v ->
+                                        (exitTransition as Transition).epicenterCallback =
+                                            object : Transition.EpicenterCallback() {
+                                                override fun onGetEpicenter(transition: Transition) =
+                                                    Rect().also {
+                                                        v.getGlobalVisibleRect(it)
+                                                    }
                                             }
                                     }
+                                }
+                                ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
+                                    duration = reenterFadeDuration
+                                    start()
+                                }
+                                startPostponedEnterTransition()
+                                tappedRollPosition = RecyclerView.NO_POSITION
                             }
                         }
-                        ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
-                            duration = reenterFadeDuration
-                            start()
-                        }
-                        startPostponedEnterTransition()
-                        tappedRollPosition = RecyclerView.NO_POSITION
                     }
+                    rollAdapter.notifyDataSetChanged()
                 }
             }
-            rollAdapter.notifyDataSetChanged()
         }
+
 
         return binding.root
     }
@@ -544,7 +565,6 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 is RollFilterMode.Archived -> actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_archived, menu)
                 is RollFilterMode.All, is RollFilterMode.Favorites, is RollFilterMode.HasLabel ->
                     actionMode.menuInflater.inflate(R.menu.menu_action_mode_rolls_all, menu)
-                null -> {}
             }
             return true
         }
