@@ -41,21 +41,23 @@ class FramesViewModel(application: Application,
         .getDefaultSharedPreferences(application.baseContext)
 
     val roll: StateFlow<Roll> get() = mRoll
-    val frames: StateFlow<List<Frame>> get() = mFrames
+    val frames: StateFlow<State<List<Frame>>> get() = mFrames
     val frameSortMode: StateFlow<FrameSortMode> get() = mFrameSortMode
 
     private val mRoll = MutableStateFlow(roll)
-    private val mFrames = MutableStateFlow(emptyList<Frame>())
+    private val mFrames = MutableStateFlow<State<List<Frame>>>(State.InProgress())
     private val mFrameSortMode = MutableStateFlow(
         FrameSortMode.fromValue(
             sharedPreferences.getInt(
                 PreferenceConstants.KEY_FRAME_SORT_ORDER, FrameSortMode.FRAME_COUNT.value)))
 
     init {
-        loadFrames(roll)
+        loadFrames()
     }
 
     val selectedFrames = HashSet<Frame>()
+
+    private var framesList = emptyList<Frame>()
 
     fun toggleFavorite(isFavorite: Boolean) {
         val roll = mRoll.value
@@ -72,7 +74,8 @@ class FramesViewModel(application: Application,
         editor.putInt(PreferenceConstants.KEY_FRAME_SORT_ORDER, mode.value)
         editor.apply()
         mFrameSortMode.value = mode
-        mFrames.value = mFrames.value.sorted(getApplication(), mode)
+        framesList = framesList.sorted(getApplication(), mode)
+        mFrames.value = State.Success(framesList)
     }
 
     fun submitFrame(frame: Frame) {
@@ -80,22 +83,25 @@ class FramesViewModel(application: Application,
             repository.addFrame(frame)
         }
         val sortMode = mFrameSortMode.value
-        mFrames.value = mFrames.value
+        framesList = framesList
             .filterNot { it.id == frame.id }
             .plus(frame)
             .sorted(getApplication(), sortMode)
+        mFrames.value = State.Success(framesList)
     }
 
     fun deleteFrame(frame: Frame) {
         repository.deleteFrame(frame)
-        mFrames.value = mFrames.value.filterNot { it.id == frame.id }
+        framesList = framesList.filterNot { it.id == frame.id }
+        mFrames.value = State.Success(framesList)
     }
 
-    private fun loadFrames(roll: Roll) {
+    private fun loadFrames() {
         val sortMode = mFrameSortMode.value
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                mFrames.value = repository.getFrames(roll).sorted(getApplication(), sortMode)
+                framesList = repository.getFrames(roll.value).sorted(getApplication(), sortMode)
+                mFrames.value = State.Success(framesList)
             }
         }
     }

@@ -18,7 +18,6 @@
 
 package com.tommihirvonen.exifnotes.fragments
 
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -29,7 +28,6 @@ import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import androidx.core.view.doOnPreDraw
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.activityViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -76,6 +74,7 @@ import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModelFactory
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
+import com.tommihirvonen.exifnotes.viewmodels.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -124,10 +123,12 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
      */
     private var actionMode: ActionMode? = null
 
-    private val transitionInterpolator = FastOutSlowInInterpolator()
-    private val transitionDuration = 250L
-
     private var selectedRollExportOptions = emptyList<RollExportOption>()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        postponeEnterTransition()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -136,7 +137,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             .addTransition(ChangeBounds())
             .addTransition(ChangeTransform())
             .addTransition(ChangeImageTransform())
-            .setCommonInterpolator(transitionInterpolator)
+            .setCommonInterpolator(FastOutSlowInInterpolator())
             .apply { duration = 400L }
 
         sharedElementEnterTransition = sharedElementTransition
@@ -180,7 +181,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
 
         val bottomMenu = binding.bottomAppBar.menu
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.frameSortMode.collect { mode ->
                     when (mode) {
@@ -195,7 +196,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
 
         val topMenu = binding.topAppBar.menu
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.roll.collect { roll ->
                     topMenu.findItem(R.id.menu_item_favorite_on).isVisible = !roll.favorite
@@ -206,9 +207,11 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.frames.collect { frames ->
-                    // When the frames have been loaded from the database, start transition animation.
-                    startPostponedEnterTransition()
+                model.frames.collect { state ->
+                    if (state !is State.Success) {
+                        return@collect
+                    }
+                    val frames = state.data
                     this@FramesListFragment.frames = frames
                     frameAdapter.items = frames
                     if (model.selectedFrames.isNotEmpty()) {
@@ -221,6 +224,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                         View.GONE
                     }
                     frameAdapter.notifyDataSetChanged()
+                    startPostponedEnterTransition()
                 }
             }
         }
@@ -230,15 +234,6 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.container.alpha = 0f
-        postponeEnterTransition()
-        // Start the transition once all views have been measured and laid out.
-        (view.parent as? ViewGroup)?.doOnPreDraw {
-            ObjectAnimator.ofFloat(binding.container, View.ALPHA, 0f, 1f).apply {
-                duration = transitionDuration
-                start()
-            }
-        }
         observeThenClearNavigationResult<Frame>(ExtraKeys.FRAME) { frame ->
             actionMode?.finish()
             model.submitFrame(frame)

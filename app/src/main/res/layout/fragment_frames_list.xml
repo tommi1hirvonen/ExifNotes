@@ -66,6 +66,7 @@
             android:id="@+id/no_added_frames"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             app:layout_anchor="@id/top_app_bar_layout"
             app:layout_anchorGravity="bottom"
             android:paddingTop="80dp"

@@ -44,6 +44,7 @@ import com.tommihirvonen.exifnotes.core.sortableDateTime
 import com.tommihirvonen.exifnotes.preferences.PreferenceConstants
 import com.tommihirvonen.exifnotes.utilities.*
 import com.tommihirvonen.exifnotes.viewmodels.FramesViewModel
+import com.tommihirvonen.exifnotes.viewmodels.State
 import com.tommihirvonen.exifnotes.viewmodels.ViewModelUtility
 import kotlinx.coroutines.launch
 
@@ -155,7 +156,11 @@ class FramesMapFragment : Fragment(), OnMapReadyCallback {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                model.frames.collect { frames ->
+                model.frames.collect { state ->
+                    if (state !is State.Success) {
+                        return@collect
+                    }
+                    val frames = state.data
                     markers.onEach { it.remove() }.clear()
                     val bitmap = ViewModelUtility.getMarkerBitmaps(requireContext()).first()
                         ?: return@collect
