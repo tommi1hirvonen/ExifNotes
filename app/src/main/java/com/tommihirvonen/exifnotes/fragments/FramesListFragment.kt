@@ -271,7 +271,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         enableActionMode(frame)
     }
 
-    private fun showEditFrameFragment(frame: Frame?, sharedElement: View) {
+    private fun showEditFrameFragment(frame: Frame?, sharedElement: View?) {
         val title = if (frame == null) {
             requireActivity().resources.getString(R.string.AddNewFrame)
         } else {
@@ -308,11 +308,15 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
 
         val action = FramesListFragmentDirections
-            .framesFrameEditAction(frameToEdit, title, sharedElement.transitionName)
-        val extras = FragmentNavigatorExtras(
-            sharedElement to sharedElement.transitionName
-        )
-        findNavController().navigate(action, extras)
+            .framesFrameEditAction(frameToEdit, title, sharedElement?.transitionName)
+        if (sharedElement == null) {
+            findNavController().navigate(action)
+        } else {
+            val extras = FragmentNavigatorExtras(
+                sharedElement to sharedElement.transitionName
+            )
+            findNavController().navigate(action, extras)
+        }
     }
 
     private val onTopMenuItemClick = { item: MenuItem ->
@@ -533,7 +537,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                         // Capture it before calling mode.finish() and resetting the selected frames list.
                         val frame = selectedFrames.first()
                         mode.finish()
-                        showEditFrameFragment(frame, binding.topAppBar)
+                        showEditFrameFragment(frame, null)
                     } else {
                         val builder = MaterialAlertDialogBuilder(requireActivity())
                         builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), selectedFrames.size))
