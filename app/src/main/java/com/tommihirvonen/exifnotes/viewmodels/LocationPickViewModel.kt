@@ -23,8 +23,6 @@ import android.view.View
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.model.LatLng
@@ -32,15 +30,17 @@ import com.tommihirvonen.exifnotes.BR
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.geocoder.GeocoderResponse.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class LocationPickViewModel(private val application: Application,
                             private val geocoderRequestBuilder: GeocoderRequestBuilder,
                             location: LatLng?,
                             var formattedAddress: String?) : AndroidViewModel(application) {
 
-    val location: LiveData<LocationData> get() = mLocation
+    val location: StateFlow<LocationData> get() = mLocation
 
-    private val mLocation: MutableLiveData<LocationData> = MutableLiveData(LocationData(location, Animate.MOVE))
+    private val mLocation = MutableStateFlow(LocationData(location, Animate.MOVE))
 
     val observable = Observable(formattedAddress ?: "")
 

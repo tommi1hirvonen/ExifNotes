@@ -39,7 +39,9 @@ import androidx.core.view.marginTop
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.PreferenceManager
@@ -194,7 +196,7 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
 
         val (locationData, address) = model.location.value to model.formattedAddress
         // If the formatted address is not yet, set the model location to start address query.
-        if (locationData?.location != null && address == null) {
+        if (locationData.location != null && address == null) {
             lifecycleScope.launch { model.setLocation(locationData.location) }
         }
 
@@ -242,26 +244,30 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
                     binding.bottomBar, Snackbar.LENGTH_SHORT)
             }
 
-            model.location.observe(viewLifecycleOwner) { (location, animate) ->
-                if (location == null) {
-                    return@observe
-                }
+            viewLifecycleOwner.lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    model.location.collect { (location, animate) ->
+                        if (location == null) {
+                            return@collect
+                        }
 
-                if (marker == null) {
-                    marker = googleMap.addMarker(MarkerOptions().position(location))
-                } else {
-                    marker?.position = location
-                }
+                        if (marker == null) {
+                            marker = googleMap.addMarker(MarkerOptions().position(location))
+                        } else {
+                            marker?.position = location
+                        }
 
-                if (fragmentRestored) {
-                    fragmentRestored = false
-                    return@observe
-                }
+                        if (fragmentRestored) {
+                            fragmentRestored = false
+                            return@collect
+                        }
 
-                when (animate) {
-                    Animate.MOVE -> googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
-                    Animate.ANIMATE -> googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
-                    Animate.NONE -> {}
+                        when (animate) {
+                            Animate.MOVE -> googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+                            Animate.ANIMATE -> googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+                            Animate.NONE -> {}
+                        }
+                    }
                 }
             }
         }
@@ -303,7 +309,7 @@ class LocationPickFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClic
     }
 
     private val onLocationSet: (View) -> Unit = {
-        model.location.value?.location?.let {
+        model.location.value.location?.let {
             val response = LocationPickResponse(it, model.formattedAddress)
             setNavigationResult(response, ExtraKeys.LOCATION)
             findNavController().navigateUp()
