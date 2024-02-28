@@ -27,6 +27,8 @@ import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -39,16 +41,16 @@ class RollsMapViewModel(application: Application,
 
     private val markerBitmaps = ViewModelUtility.getMarkerBitmaps(application)
 
-    val rolls get() = mRolls as LiveData<List<RollData>>
+    val rolls: StateFlow<List<RollData>> get() = mRolls
 
-    private val mRolls: MutableLiveData<List<RollData>> by lazy {
-        MutableLiveData<List<RollData>>().also {
-            loadData()
-        }
+    private val mRolls = MutableStateFlow(emptyList<RollData>())
+
+    init {
+        loadData()
     }
 
     fun setSelections(selections: List<Roll>) {
-        val current = mRolls.value ?: return
+        val current = mRolls.value
         val updated = current.map {
             val selected = selections.contains(it.roll)
             it.copy(selected = selected)
@@ -68,7 +70,7 @@ class RollsMapViewModel(application: Application,
                     val i = index % markerBitmaps.size
                     RollData(roll, true, markerBitmaps[i], frameRepository.getFrames(roll))
                 }
-                mRolls.postValue(data)
+                mRolls.value = data
             }
         }
     }
