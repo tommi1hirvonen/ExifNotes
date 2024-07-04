@@ -53,9 +53,9 @@ android {
 
     defaultConfig {
         applicationId 'com.tommihirvonen.exifnotes'
-        compileSdk 34
+        compileSdk 35
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 47
         versionName "1.21.0"
         // Enabling this allows us to use resources when PNGs are generated during build-time
