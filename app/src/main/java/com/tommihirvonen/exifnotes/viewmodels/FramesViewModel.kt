@@ -41,10 +41,12 @@ class FramesViewModel(application: Application,
         .getDefaultSharedPreferences(application.baseContext)
 
     val roll: StateFlow<Roll> get() = mRoll
+    val favorite: StateFlow<Boolean> get() = mFavorite
     val frames: StateFlow<State<List<Frame>>> get() = mFrames
     val frameSortMode: StateFlow<FrameSortMode> get() = mFrameSortMode
 
     private val mRoll = MutableStateFlow(roll)
+    private val mFavorite = MutableStateFlow(roll.favorite)
     private val mFrames = MutableStateFlow<State<List<Frame>>>(State.InProgress())
     private val mFrameSortMode = MutableStateFlow(
         FrameSortMode.fromValue(
@@ -62,7 +64,7 @@ class FramesViewModel(application: Application,
     fun toggleFavorite(isFavorite: Boolean) {
         val roll = mRoll.value
         roll.favorite = isFavorite
-        mRoll.value = roll
+        mFavorite.value = isFavorite
     }
 
     fun setRoll(roll: Roll) {

@@ -198,9 +198,9 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         val topMenu = binding.topAppBar.menu
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.roll.collect { roll ->
-                    topMenu.findItem(R.id.menu_item_favorite_on).isVisible = !roll.favorite
-                    topMenu.findItem(R.id.menu_item_favorite_off).isVisible = roll.favorite
+                model.favorite.collect { favorite ->
+                    topMenu.findItem(R.id.menu_item_favorite_on).isVisible = !favorite
+                    topMenu.findItem(R.id.menu_item_favorite_off).isVisible = favorite
                 }
             }
         }
