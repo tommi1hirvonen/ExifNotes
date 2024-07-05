@@ -58,6 +58,7 @@ import com.tommihirvonen.exifnotes.viewmodels.RollData
 import com.tommihirvonen.exifnotes.viewmodels.RollsMapViewModel
 import com.tommihirvonen.exifnotes.viewmodels.RollsMapViewModelFactory
 import com.tommihirvonen.exifnotes.viewmodels.RollsViewModel
+import com.tommihirvonen.exifnotes.viewmodels.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -261,49 +262,52 @@ class RollsMapFragment : Fragment(), OnMapReadyCallback {
         startPostponedEnterTransition()
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                model.rolls.collect { rolls ->
-                    rollSelections = rolls
+                model.rolls.collect { state ->
+                    if (state is State.Success) {
+                        val rolls = state.data
+                        rollSelections = rolls
 
-                    markerList.onEach { it.remove() }.clear()
+                        markerList.onEach { it.remove() }.clear()
 
-                    val listRolls = rolls.filter(RollData::selected).map { it.roll to it.marker }
-                    val adapter = RollMarkerAdapter(requireContext(), listRolls)
-                    binding.rollsListView.adapter = adapter
-                    adapter.notifyDataSetChanged()
+                        val listRolls = rolls.filter(RollData::selected).map { it.roll to it.marker }
+                        val adapter = RollMarkerAdapter(requireContext(), listRolls)
+                        binding.rollsListView.adapter = adapter
+                        adapter.notifyDataSetChanged()
 
-                    rolls.filter(RollData::selected).forEach { data ->
-                        val bitmap = data.marker ?: return@forEach
-                        data.frames.forEach frames@ { frame ->
-                            val position = frame.location ?: return@frames
-                            val rollName = data.roll.name
-                            val frameCount = "#" + frame.count
-                            val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bitmap)
-                            val marker = googleMap?.addMarker(MarkerOptions()
-                                .icon(bitmapDescriptor)
-                                .position(position)
-                                .title(rollName)
-                                .snippet(frameCount)
-                                .anchor(0.5f, 1.0f)) // Since we use a custom marker icon, set offset.
-                                ?: return@frames
-                            marker.tag = frame
-                            markerList.add(marker)
+                        rolls.filter(RollData::selected).forEach { data ->
+                            val bitmap = data.marker ?: return@forEach
+                            data.frames.forEach frames@ { frame ->
+                                val position = frame.location ?: return@frames
+                                val rollName = data.roll.name
+                                val frameCount = "#" + frame.count
+                                val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bitmap)
+                                val marker = googleMap?.addMarker(MarkerOptions()
+                                    .icon(bitmapDescriptor)
+                                    .position(position)
+                                    .title(rollName)
+                                    .snippet(frameCount)
+                                    .anchor(0.5f, 1.0f)) // Since we use a custom marker icon, set offset.
+                                    ?: return@frames
+                                marker.tag = frame
+                                markerList.add(marker)
+                            }
                         }
-                    }
-                    if (!fragmentRestored) {
-                        if (markerList.isNotEmpty()) {
-                            val builder = LatLngBounds.Builder()
-                            markerList.map(Marker::getPosition).forEach(builder::include)
-                            val bounds = builder.build()
-                            val width = resources.displayMetrics.widthPixels
-                            val height = resources.displayMetrics.heightPixels
-                            val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
-                            // We use this command where the map's dimensions are specified.
-                            // This is because on some devices, the map's layout may not have yet occurred
-                            // (map size is 0).
-                            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
-                            googleMap?.moveCamera(cameraUpdate)
-                        } else {
-                            binding.root.snackbar(R.string.NoFramesToShow, binding.bottomSheet)
+                        if (!fragmentRestored) {
+                            if (markerList.isNotEmpty()) {
+                                val builder = LatLngBounds.Builder()
+                                markerList.map(Marker::getPosition).forEach(builder::include)
+                                val bounds = builder.build()
+                                val width = resources.displayMetrics.widthPixels
+                                val height = resources.displayMetrics.heightPixels
+                                val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
+                                // We use this command where the map's dimensions are specified.
+                                // This is because on some devices, the map's layout may not have yet occurred
+                                // (map size is 0).
+                                val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
+                                googleMap?.moveCamera(cameraUpdate)
+                            } else {
+                                binding.root.snackbar(R.string.NoFramesToShow, binding.bottomSheet)
+                            }
                         }
                     }
                 }

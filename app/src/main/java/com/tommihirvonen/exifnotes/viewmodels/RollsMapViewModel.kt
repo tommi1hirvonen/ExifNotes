@@ -32,18 +32,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class RollsMapViewModel(application: Application,
-                        private val rollRepository: RollRepository,
-                        private val frameRepository: FrameRepository,
-                        private val filterMode: RollFilterMode
-)
-    : AndroidViewModel(application) {
+class RollsMapViewModel(
+    application: Application,
+    private val rollRepository: RollRepository,
+    private val frameRepository: FrameRepository,
+    private val filterMode: RollFilterMode
+) : AndroidViewModel(application) {
 
     private val markerBitmaps = ViewModelUtility.getMarkerBitmaps(application)
 
-    val rolls: StateFlow<List<RollData>> get() = mRolls
+    val rolls: StateFlow<State<List<RollData>>> get() = mRolls
 
-    private val mRolls = MutableStateFlow(emptyList<RollData>())
+    private val mRolls = MutableStateFlow<State<List<RollData>>>(State.InProgress())
 
     init {
         loadData()
@@ -51,15 +51,17 @@ class RollsMapViewModel(application: Application,
 
     fun setSelections(selections: List<Roll>) {
         val current = mRolls.value
-        val updated = current.map {
-            val selected = selections.contains(it.roll)
-            it.copy(selected = selected)
+        if (current is State.Success) {
+            val updated = current.data.map {
+                val selected = selections.contains(it.roll)
+                it.copy(selected = selected)
+            }
+            updated.filter(RollData::selected).forEachIndexed { index, data ->
+                val i = index % markerBitmaps.size
+                data.marker = markerBitmaps[i]
+            }
+            mRolls.value = State.Success(updated)
         }
-        updated.filter(RollData::selected).forEachIndexed { index, data ->
-           val i = index % markerBitmaps.size
-           data.marker = markerBitmaps[i]
-        }
-        mRolls.value = updated
     }
 
     private fun loadData() {
@@ -70,7 +72,7 @@ class RollsMapViewModel(application: Application,
                     val i = index % markerBitmaps.size
                     RollData(roll, true, markerBitmaps[i], frameRepository.getFrames(roll))
                 }
-                mRolls.value = data
+                mRolls.value = State.Success(data)
             }
         }
     }
