@@ -156,7 +156,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         }
         binding.topAppBar.setOnMenuItemClickListener(onTopMenuItemClick)
         binding.bottomAppBar.setOnMenuItemClickListener(onBottomMenuItemSelected)
-        binding.fab.setOnClickListener { showEditFrameFragment(null, binding.bottomAppBar) }
+        binding.fab.setOnClickListener { showEditFrameFragment(null) }
 
         val layoutManager = LinearLayoutManager(activity)
         binding.framesRecyclerView.layoutManager = layoutManager
@@ -263,7 +263,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         if (model.selectedFrames.isNotEmpty() || actionMode != null) {
             enableActionMode(frame)
         } else {
-            showEditFrameFragment(frame, view)
+            showEditFrameFragment(frame)
         }
     }
 
@@ -271,7 +271,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
         enableActionMode(frame)
     }
 
-    private fun showEditFrameFragment(frame: Frame?, sharedElement: View?) {
+    private fun showEditFrameFragment(frame: Frame?) {
         val title = if (frame == null) {
             requireActivity().resources.getString(R.string.AddNewFrame)
         } else {
@@ -307,16 +307,13 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
             }
         }
 
+        val sharedElement = binding.bottomAppBar
         val action = FramesListFragmentDirections
-            .framesFrameEditAction(frameToEdit, title, sharedElement?.transitionName)
-        if (sharedElement == null) {
-            findNavController().navigate(action)
-        } else {
-            val extras = FragmentNavigatorExtras(
-                sharedElement to sharedElement.transitionName
-            )
-            findNavController().navigate(action, extras)
-        }
+            .framesFrameEditAction(frameToEdit, title, sharedElement.transitionName)
+        val extras = FragmentNavigatorExtras(
+            sharedElement to sharedElement.transitionName
+        )
+        findNavController().navigate(action, extras)
     }
 
     private val onTopMenuItemClick = { item: MenuItem ->
@@ -537,7 +534,7 @@ class FramesListFragment : LocationUpdatesFragment(), FrameAdapterListener {
                         // Capture it before calling mode.finish() and resetting the selected frames list.
                         val frame = selectedFrames.first()
                         mode.finish()
-                        showEditFrameFragment(frame, null)
+                        showEditFrameFragment(frame)
                     } else {
                         val builder = MaterialAlertDialogBuilder(requireActivity())
                         builder.setTitle(String.format(resources.getString(R.string.BatchEditFramesTitle), selectedFrames.size))
