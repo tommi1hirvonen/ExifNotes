@@ -53,6 +53,7 @@ import com.tommihirvonen.exifnotes.core.entities.Label
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
+import com.tommihirvonen.exifnotes.data.repositories.LabelRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.databinding.FragmentRollsListBinding
 import com.tommihirvonen.exifnotes.utilities.*
@@ -71,6 +72,7 @@ import javax.inject.Inject
 class RollsListFragment : Fragment(), RollAdapterListener {
 
     @Inject lateinit var rollRepository: RollRepository
+    @Inject lateinit var labelRepository: LabelRepository
 
     private val model by activityViewModels<RollsViewModel>()
     private var rolls = emptyList<Roll>()
@@ -360,6 +362,20 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                 }
                 setNeutralButton(R.string.Cancel) { _, _ -> }
             }.create().show()
+        }
+        observeThenClearNavigationResult<Label>(ExtraKeys.LABEL) { label ->
+            labelRepository.addLabel(label)
+            for (roll in model.selectedRolls) {
+                roll.labels = roll.labels
+                    .plus(label)
+                    .sortedBy { it.name }
+                model.submitRoll(roll)
+            }
+            actionMode?.finish()
+            binding.container.snackbar(
+                R.string.LabelsAdded,
+                binding.fab,
+                Snackbar.LENGTH_SHORT)
         }
     }
 
@@ -738,6 +754,12 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                     R.string.LabelsAdded,
                     binding.fab,
                     Snackbar.LENGTH_SHORT)
+            }
+            setNeutralButton(R.string.NewLabel) { _, _ ->
+                val action = RollsListFragmentDirections.rollsLabelEditAction(null,
+                    resources.getString(R.string.NewLabel),
+                    resources.getString(R.string.Add))
+                findNavController().navigate(action)
             }
             setNegativeButton(R.string.Cancel) { _, _ -> }
         }

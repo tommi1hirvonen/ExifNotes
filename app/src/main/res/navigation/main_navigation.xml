@@ -71,6 +71,9 @@
             app:exitAnim="@anim/exit_fragment"
             app:popEnterAnim="@anim/enter_fragment"
             app:popExitAnim="@anim/exit_fragment" />
+        <action
+            android:id="@+id/rolls_label_edit_action"
+            app:destination="@id/label_edit_dest" />
     </fragment>
     <fragment
         android:id="@+id/rolls_map_dest"
