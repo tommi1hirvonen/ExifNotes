@@ -65,9 +65,35 @@
                 app:iconTint="?attr/colorControlNormal"
                 android:title="@string/Unarchive"
                 />
+
+            <item
+                android:id="@+id/menu_item_favorite_on"
+                android:icon="@drawable/ic_outline_favorite_24"
+                app:iconTint="?attr/colorControlNormal"
+                android:title="@string/AddToFavorites"
+                />
+
+            <item
+                android:id="@+id/menu_item_favorite_off"
+                android:icon="@drawable/ic_outline_favorite_border_24"
+                app:iconTint="?attr/colorControlNormal"
+                android:title="@string/RemoveFromFavorites"
+                />
+
+            <item
+                android:id="@+id/menu_item_add_labels"
+                android:icon="@drawable/ic_outline_new_label_24"
+                app:iconTint="?attr/colorControlNormal"
+                android:title="@string/AddLabels"
+                />
+
+            <item
+                android:id="@+id/menu_item_remove_labels"
+                android:icon="@drawable/outline_label_off_24"
+                app:iconTint="?attr/colorControlNormal"
+                android:title="@string/RemoveLabels"
+                />
         </menu>
     </item>
-
-
 
 </menu>

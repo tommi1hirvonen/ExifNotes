@@ -49,6 +49,7 @@ import com.tommihirvonen.exifnotes.activities.*
 import com.tommihirvonen.exifnotes.adapters.RollAdapter
 import com.tommihirvonen.exifnotes.adapters.RollAdapter.RollAdapterListener
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.core.entities.Label
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
@@ -648,8 +649,10 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         model.submitRoll(roll)
                     }
                     actionMode.finish()
-                    binding.container
-                        .snackbar(R.string.RollsArchived, binding.fab, Snackbar.LENGTH_SHORT)
+                    binding.container.snackbar(
+                        R.string.RollsArchived,
+                        binding.fab,
+                        Snackbar.LENGTH_SHORT)
                     true
                 }
                 R.id.menu_item_unarchive -> {
@@ -658,8 +661,42 @@ class RollsListFragment : Fragment(), RollAdapterListener {
                         model.submitRoll(roll)
                     }
                     actionMode.finish()
-                    binding.container
-                        .snackbar(R.string.RollsActivated, binding.fab, Snackbar.LENGTH_SHORT)
+                    binding.container.snackbar(
+                        R.string.RollsActivated,
+                        binding.fab,
+                        Snackbar.LENGTH_SHORT)
+                    true
+                }
+                R.id.menu_item_favorite_on -> {
+                    selectedRolls.forEach { roll ->
+                        roll.favorite = true
+                        model.submitRoll(roll)
+                    }
+                    actionMode.finish()
+                    binding.container.snackbar(
+                        R.string.RollsAddedToFavorites,
+                        binding.fab,
+                        Snackbar.LENGTH_SHORT)
+                    true
+                }
+                R.id.menu_item_favorite_off -> {
+                    selectedRolls.forEach { roll ->
+                        roll.favorite = false
+                        model.submitRoll(roll)
+                    }
+                    actionMode.finish()
+                    binding.container.snackbar(
+                        R.string.RollsRemovedFromFavorites,
+                        binding.fab,
+                        Snackbar.LENGTH_SHORT)
+                    true
+                }
+                R.id.menu_item_add_labels -> {
+                    AddLabelsDialogBuilder(selectedRolls, actionMode).show()
+                    true
+                }
+                R.id.menu_item_remove_labels -> {
+                    RemoveLabelsDialogBuilder(selectedRolls, actionMode).show()
                     true
                 }
                 else -> false
@@ -672,4 +709,74 @@ class RollsListFragment : Fragment(), RollAdapterListener {
         }
     }
 
+    private inner class AddLabelsDialogBuilder(rolls: Iterable<Roll>, actionMode: ActionMode)
+        : MaterialAlertDialogBuilder(requireActivity()) {
+        init {
+            val labels = model.labels.value
+            val listItems = labels.map(Label::name).toTypedArray()
+            val selections = BooleanArray(labels.size)
+            setTitle(R.string.AddLabels)
+            setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
+                selections[which] = isChecked
+            }
+            setPositiveButton(R.string.OK) { _, _ ->
+                for (roll in rolls) {
+                    val toAdd = selections
+                        .zip(labels)
+                        .filter { (selected, label) ->
+                            val before = roll.labels.any { l -> l.id == label.id }
+                            selected && !before
+                        }
+                        .map { it.second }
+                    roll.labels = roll.labels
+                        .plus(toAdd)
+                        .sortedBy { it.name }
+                    model.submitRoll(roll)
+                }
+                actionMode.finish()
+                binding.container.snackbar(
+                    R.string.LabelsAdded,
+                    binding.fab,
+                    Snackbar.LENGTH_SHORT)
+            }
+            setNegativeButton(R.string.Cancel) { _, _ -> }
+        }
+    }
+
+    private inner class RemoveLabelsDialogBuilder(rolls: Iterable<Roll>, actionMode: ActionMode)
+        : MaterialAlertDialogBuilder(requireActivity()) {
+        init {
+            val labels = model.labels.value.filter { label ->
+                rolls.any { roll ->
+                    roll.labels.any { it.id == label.id }
+                }
+            }
+            val listItems = labels.map(Label::name).toTypedArray()
+            val selections = BooleanArray(labels.size)
+            setTitle(R.string.RemoveLabels)
+            setMultiChoiceItems(listItems, selections) { _, which, isChecked ->
+                selections[which] = isChecked
+            }
+            setPositiveButton(R.string.OK) { _, _ ->
+                for (roll in rolls) {
+                    val toRemove = selections
+                        .zip(labels)
+                        .filter { (selected, label) ->
+                            val before = roll.labels.any { l -> l.id == label.id }
+                            selected && before
+                        }
+                        .map { it.second }
+                    roll.labels = roll.labels
+                        .filterNot { label -> toRemove.any { it.id == label.id } }
+                    model.submitRoll(roll)
+                }
+                actionMode.finish()
+                binding.container.snackbar(
+                    R.string.LabelsRemoved,
+                    binding.fab,
+                    Snackbar.LENGTH_SHORT)
+            }
+            setNegativeButton(R.string.Cancel) { _, _ -> }
+        }
+    }
 }

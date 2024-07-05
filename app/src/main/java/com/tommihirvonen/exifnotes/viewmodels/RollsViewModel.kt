@@ -113,9 +113,17 @@ class RollsViewModel @Inject constructor(
         if (rollRepository.updateRoll(roll) == 0) {
             rollRepository.addRoll(roll)
         }
-        if (mRollFilterMode.value == RollFilterMode.Active && roll.archived
-            || mRollFilterMode.value == RollFilterMode.Archived && !roll.archived
-            || mRollFilterMode.value == RollFilterMode.Favorites && !roll.favorite) {
+        val filterMode = mRollFilterMode.value
+        val removeRollFromList = when {
+            filterMode == RollFilterMode.Active && roll.archived -> true
+            filterMode == RollFilterMode.Archived && !roll.archived -> true
+            filterMode == RollFilterMode.Favorites && !roll.favorite -> true
+            filterMode is RollFilterMode.HasLabel -> {
+                !roll.labels.any { filterMode.label.id == it.id }
+            }
+            else -> false
+        }
+        if (removeRollFromList) {
             rollList = rollList.filterNot { it.id == roll.id }
             mRolls.value = State.Success(rollList)
         } else {

@@ -23,6 +23,7 @@
     <string name="ActiveRolls">Active rolls</string>
     <string name="Add">Add</string>
     <string name="AddedBy">Added by</string>
+    <string name="AddLabels">Add labels</string>
     <string name="AddNewCamera">Add new camera</string>
     <string name="AddNewFilmStock">Add new film stock</string>
     <string name="AddNewFilter">Add new filter</string>
@@ -32,6 +33,7 @@
     <string name="AddNewRoll">Add new roll</string>
     <string name="AddPictureToGallery">Add current picture to gallery</string>
     <string name="AddressNotFound">Address not found</string>
+    <string name="AddToFavorites">Add to favorites</string>
     <string name="Agree">Agree</string>
     <string name="All">All</string>
     <string name="AllFrames">All frames</string>
@@ -239,6 +241,8 @@
     <string name="Information">Information</string>
     <string name="IsBeingUsed">is being used!</string>
     <string name="Labels">Labels</string>
+    <string name="LabelsAdded">Label(s) added</string>
+    <string name="LabelsRemoved">Label(s) removed</string>
     <string name="Lens">Lens</string>
     <string name="LensNoColon">Lens</string>
     <string name="Lenses">LENSES</string>
@@ -336,12 +340,16 @@
     <string name="PushPull">Push(+)/pull(-)</string>
     <string name="Red">Red</string>
     <string name="RemoveCameraMappingsMessage">This camera is set as a fixed lens camera, but it has other lens mappings. Do you want to remove these mappings?</string>
+    <string name="RemoveFromFavorites">Remove from favorites</string>
+    <string name="RemoveLabels">Remove labels</string>
     <string name="RemoveLensMappingsMessage">This lens has compatible camera mappings. Do you want to remove these mappings? No cameras or lenses will be deleted, only the links between them.</string>
     <string name="Required">Required</string>
     <string name="Reset">Reset</string>
     <string name="ReverseFrameCounts">Reverse frame counts</string>
     <string name="RollsActivated">Roll(s) unarchived</string>
     <string name="RollsArchived">Roll(s) archived</string>
+    <string name="RollsAddedToFavorites">Roll(s) added to favorites</string>
+    <string name="RollsRemovedFromFavorites">Roll(s) removed from favorites</string>
     <plurals name="RollsAmount">
         <item quantity="one">%d roll</item>
         <item quantity="other">%d rolls</item>
