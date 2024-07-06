@@ -19,28 +19,15 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext {
-        kotlin_version = "2.0.0"
-        core_ktx_version = "1.13.1"
-        navigation_version = "2.7.7"
-        ktor_version = "2.3.5"
-        hilt_version = "2.48.1"
-        desugar_version = "2.0.4"
-        maps_version = "19.0.0"
-        appcompat_version = "1.7.0"
-        material_version = "1.12.0"
-        serialization_version = "1.4.1"
-    }
-
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
         classpath(libs.gradle)
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        classpath("org.jetbrains.kotlin:kotlin-serialization:${kotlin_version}")
-        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:${navigation_version}")
+        classpath(libs.jetbrains.kotlin.gradle.plugin)
+        classpath(libs.jetbrains.kotlin.serialization)
+        classpath(libs.androidx.navigation.safe.args.gradle.plugin)
         classpath(libs.gradle.license.plugin)
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -49,8 +36,8 @@ buildscript {
 }
 
 plugins {
-    id "com.google.dagger.hilt.android" version "$hilt_version" apply false
-    id "org.jetbrains.kotlin.android" version "2.0.0" apply false
+    alias(libs.plugins.jetbrains.kotlin.android) apply false
+    alias(libs.plugins.android.hilt) apply false
 }
 
 allprojects {
