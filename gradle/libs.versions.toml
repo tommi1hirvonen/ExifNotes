@@ -33,6 +33,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbinding" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
