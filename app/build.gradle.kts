@@ -23,6 +23,7 @@ import java.io.FileInputStream
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.jetbrains.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.parcelize)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.jetbrains.kotlin.kapt) // used by data binding
@@ -95,6 +96,7 @@ android {
     }
 
     buildFeatures {
+        compose = true
         viewBinding = true
         dataBinding = true
     }
@@ -117,6 +119,10 @@ android {
 }
 
 dependencies {
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.constraintlayout)
@@ -144,7 +150,11 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":core"))
     kapt(libs.hilt.compiler)
+    debugImplementation(libs.androidx.compose.ui.tooling)
     testImplementation(libs.junit)
+    androidTestImplementation(composeBom)
+    androidTestImplementation(libs.androidx.compose.test.junit)
+    debugImplementation(libs.androidx.compose.test.manifest)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     coreLibraryDesugaring(libs.android.tools.desugar)
