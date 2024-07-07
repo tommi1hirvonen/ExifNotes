@@ -1,6 +1,6 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 android {
@@ -35,13 +35,13 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    implementation(libs.android.material)
     implementation(libs.play.services.maps)
-    implementation(libs.serialization)
+    implementation(libs.jetbrains.kotlinx.serialization.json)
     implementation(libs.hilt)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(project(":core"))
-    coreLibraryDesugaring(libs.desugaring)
+    coreLibraryDesugaring(libs.android.tools.desugar)
 }

@@ -16,33 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath(libs.gradle)
-        classpath(libs.jetbrains.kotlin.gradle.plugin)
-        classpath(libs.jetbrains.kotlin.serialization)
-        classpath(libs.androidx.navigation.safe.args.gradle.plugin)
-        classpath(libs.gradle.license.plugin)
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.android) apply false
-    alias(libs.plugins.android.hilt) apply false
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+    //alias(libs.plugins.android.application) apply false
+    //alias(libs.plugins.jetbrains.kotlin.android) apply false
+    //alias(libs.plugins.android.hilt) apply false
 }

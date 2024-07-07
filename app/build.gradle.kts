@@ -17,19 +17,18 @@
  */
 
 import org.apache.tools.ant.taskdefs.condition.Os
-import java.util.*
+import java.util.Properties
 import java.io.FileInputStream
 
 plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    id("kotlin-parcelize")
-    id("kotlin-kapt")
-    id("com.google.dagger.hilt.android")
-    id("androidx.navigation.safeargs.kotlin")
-    id("com.jaredsburrows.license")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.serialization")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.jetbrains.kotlin.parcelize)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.jetbrains.kotlin.kapt) // used by data binding
+    alias(libs.plugins.android.hilt)
+    alias(libs.plugins.androidx.navigation.safeargs.kotlin)
+    alias(libs.plugins.license)
 }
 
 android {
@@ -119,28 +118,28 @@ android {
 
 dependencies {
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.recyclerview)
-    implementation(libs.material)
-    implementation(libs.play.services.maps)
-    implementation(libs.play.services.location)
-    implementation(libs.androidx.percentlayout)
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.exifinterface)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.preference)
-    implementation(libs.coroutines)
-    implementation(libs.androidx.lifecycle)
-    implementation(libs.apache.commons.text)
     implementation(libs.androidx.fragment)
+    implementation(libs.androidx.lifecycle)
+    implementation(libs.androidx.percentlayout)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.preference)
     implementation(libs.androidx.databinding)
     implementation(libs.androidx.work)
-    implementation(libs.serialization)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.android.material)
+    implementation(libs.android.libraries.places)
+    implementation(libs.jetbrains.kotlinx.coroutines)
+    implementation(libs.jetbrains.kotlinx.serialization.json)
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
+    implementation(libs.apache.commons.text)
     implementation(libs.ktor.http)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
-    implementation(libs.places)
     implementation(libs.hilt)
     implementation(project(":data"))
     implementation(project(":core"))
@@ -148,14 +147,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    coreLibraryDesugaring(libs.desugaring)
+    coreLibraryDesugaring(libs.android.tools.desugar)
 }
 
 // Allow references to generated code
 kapt {
     correctErrorTypes = true
-}
-
-repositories {
-    mavenCentral()
 }
