@@ -18,22 +18,7 @@
 
 package com.tommihirvonen.exifnotes
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import com.tommihirvonen.exifnotes.theme.ExifNotesTheme
-import dagger.hilt.android.AndroidEntryPoint
-
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            ExifNotesTheme {
-                RollsList()
-            }
-        }
-    }
+sealed class State<T> {
+    class InProgress<T> : State<T>()
+    class Success<T>(val data: T) : State<T>()
 }

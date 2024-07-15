@@ -4,8 +4,10 @@ import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.android.hilt)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
+    alias(libs.plugins.jetbrains.kotlin.kapt)
 }
 
 android {
@@ -102,6 +104,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.icons)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.hilt)
+    kapt(libs.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -110,4 +115,11 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.test.manifest)
     coreLibraryDesugaring(libs.android.tools.desugar)
+    implementation(project(":data"))
+    implementation(project(":core"))
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }
