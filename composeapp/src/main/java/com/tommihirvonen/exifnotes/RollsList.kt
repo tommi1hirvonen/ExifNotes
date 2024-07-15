@@ -46,6 +46,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -88,11 +89,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RollsList() {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
     BoxWithConstraints {
         if (maxWidth < 600.dp) {
+            val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             ModalNavigationDrawer(
-                drawerContent = { DrawerContent() },
+                drawerContent = { DrawerContent(drawerState) },
                 drawerState = drawerState,
                 gesturesEnabled = true
             ) {
@@ -117,59 +119,15 @@ fun RollsList() {
     }
 }
 
-@Preview
-@Composable
-fun TopAppBarMenu(model: RollsViewModel = viewModel()) {
-    val sort = model.rollSortMode.collectAsState()
-    var showMenu by remember { mutableStateOf(false) }
-    IconButton(onClick = { showMenu = !showMenu }) {
-        Icon(Icons.AutoMirrored.Outlined.Sort, "")
-    }
-    DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-        Text(stringResource(R.string.SortRollsBy), modifier = Modifier.padding(horizontal = 8.dp))
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.Date)) },
-            onClick = { model.setRollSortMode(RollSortMode.DATE) },
-            leadingIcon = { Icon(Icons.Outlined.CalendarToday, "") },
-            trailingIcon = {
-                RadioButton(
-                    selected = sort.value == RollSortMode.DATE,
-                    onClick = { model.setRollSortMode(RollSortMode.DATE) }
-                )
-            }
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.Name)) },
-            onClick = { model.setRollSortMode(RollSortMode.NAME) },
-            leadingIcon = { Icon(Icons.Outlined.DriveFileRenameOutline, "") },
-            trailingIcon = {
-                RadioButton(
-                    selected = sort.value == RollSortMode.NAME,
-                    onClick = { model.setRollSortMode(RollSortMode.NAME) }
-                )
-            }
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.Camera)) },
-            onClick = { model.setRollSortMode(RollSortMode.CAMERA) },
-            leadingIcon = { Icon(Icons.Outlined.CameraAlt, "") },
-            trailingIcon = {
-                RadioButton(
-                    selected = sort.value == RollSortMode.CAMERA,
-                    onClick = { model.setRollSortMode(RollSortMode.CAMERA) }
-                )
-            }
-        )
-    }
-}
 
 @Preview
 @Composable
-fun DrawerContent(model: RollsViewModel = viewModel()) {
+fun DrawerContent(drawerState: DrawerState? = null, model: RollsViewModel = viewModel()) {
     val labels = model.labels.collectAsState()
     val filter = model.rollFilterMode.collectAsState()
     val counts = model.rollCounts.collectAsState()
     val all = counts.value.active + counts.value.archived
+    val scope = rememberCoroutineScope()
     ModalDrawerSheet {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             Column(modifier = Modifier.padding(8.dp)) {
@@ -188,28 +146,40 @@ fun DrawerContent(model: RollsViewModel = viewModel()) {
                     icon = { Icon(Icons.Outlined.CameraAlt, "") },
                     selected = filter.value is RollFilterMode.Active,
                     badge = { Text(counts.value.active.toString()) },
-                    onClick = { model.setRollFilterMode(RollFilterMode.Active) }
+                    onClick = {
+                        model.setRollFilterMode(RollFilterMode.Active)
+                        scope.launch { drawerState?.close() }
+                    }
                 )
                 NavigationDrawerItem(
                     label = { Text(stringResource(R.string.Archived)) },
                     icon = { Icon(Icons.Outlined.Inventory2, "") },
                     selected = filter.value is RollFilterMode.Archived,
                     badge = { Text(counts.value.archived.toString()) },
-                    onClick = { model.setRollFilterMode(RollFilterMode.Archived) }
+                    onClick = {
+                        model.setRollFilterMode(RollFilterMode.Archived)
+                        scope.launch { drawerState?.close() }
+                    }
                 )
                 NavigationDrawerItem(
                     label = { Text(stringResource(R.string.Favorites)) },
                     icon = { Icon(Icons.Outlined.FavoriteBorder, "") },
                     selected = filter.value is RollFilterMode.Favorites,
                     badge = { Text(counts.value.favorites.toString()) },
-                    onClick = { model.setRollFilterMode(RollFilterMode.Favorites) }
+                    onClick = {
+                        model.setRollFilterMode(RollFilterMode.Favorites)
+                        scope.launch { drawerState?.close() }
+                    }
                 )
                 NavigationDrawerItem(
                     label = { Text(stringResource(R.string.All)) },
                     icon = { Icon(Icons.Outlined.AllInclusive, "") },
                     selected = filter.value is RollFilterMode.All,
                     badge = { Text(all.toString()) },
-                    onClick = { model.setRollFilterMode(RollFilterMode.All) }
+                    onClick = {
+                        model.setRollFilterMode(RollFilterMode.All)
+                        scope.launch { drawerState?.close() }
+                    }
                 )
             }
             HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
@@ -258,7 +228,10 @@ fun DrawerContent(model: RollsViewModel = viewModel()) {
                         icon = { Icon(Icons.AutoMirrored.Outlined.Label, "") },
                         selected = filterValue is RollFilterMode.HasLabel && filterValue.label.id == label.id,
                         badge = { Text(label.rollCount.toString()) },
-                        onClick = { model.setRollFilterMode(RollFilterMode.HasLabel(label)) }
+                        onClick = {
+                            model.setRollFilterMode(RollFilterMode.HasLabel(label))
+                            scope.launch { drawerState?.close() }
+                        }
                     )
                 }
             }
@@ -346,6 +319,73 @@ fun MainContent(
                 }
             }
         }
+    }
+}
+
+
+@Preview
+@Composable
+fun TopAppBarMenu(
+    model: RollsViewModel = viewModel()
+) {
+    val sort = model.rollSortMode.collectAsState()
+    var showMenu by remember { mutableStateOf(false) }
+    IconButton(onClick = { showMenu = !showMenu }) {
+        Icon(Icons.AutoMirrored.Outlined.Sort, "")
+    }
+    DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+        Text(stringResource(R.string.SortRollsBy), modifier = Modifier.padding(horizontal = 8.dp))
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Date)) },
+            onClick = {
+                model.setRollSortMode(RollSortMode.DATE)
+                showMenu = false
+            },
+            leadingIcon = { Icon(Icons.Outlined.CalendarToday, "") },
+            trailingIcon = {
+                RadioButton(
+                    selected = sort.value == RollSortMode.DATE,
+                    onClick = {
+                        model.setRollSortMode(RollSortMode.DATE)
+                        showMenu = false
+                    }
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Name)) },
+            onClick = {
+                model.setRollSortMode(RollSortMode.NAME)
+                showMenu = false
+            },
+            leadingIcon = { Icon(Icons.Outlined.DriveFileRenameOutline, "") },
+            trailingIcon = {
+                RadioButton(
+                    selected = sort.value == RollSortMode.NAME,
+                    onClick = {
+                        model.setRollSortMode(RollSortMode.NAME)
+                        showMenu = false
+                    }
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Camera)) },
+            onClick = {
+                model.setRollSortMode(RollSortMode.CAMERA)
+                showMenu = false
+            },
+            leadingIcon = { Icon(Icons.Outlined.CameraAlt, "") },
+            trailingIcon = {
+                RadioButton(
+                    selected = sort.value == RollSortMode.CAMERA,
+                    onClick = {
+                        model.setRollSortMode(RollSortMode.CAMERA)
+                        showMenu = false
+                    }
+                )
+            }
+        )
     }
 }
 
