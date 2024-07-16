@@ -30,6 +30,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Article
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
 import androidx.compose.material.icons.outlined.Contrast
 import androidx.compose.material.icons.outlined.GpsNotFixed
@@ -68,6 +69,9 @@ import androidx.compose.ui.unit.dp
 fun Settings(onNavigateUp: () -> Unit = {}) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val showAboutDialog = remember { mutableStateOf(false) }
+    val showHelpDialog = remember { mutableStateOf(false) }
+    val showVersionHistoryDialog = remember { mutableStateOf(false) }
+    val showPrivacyPolicyDialog = remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -94,12 +98,19 @@ fun Settings(onNavigateUp: () -> Unit = {}) {
                 onClick = { showAboutDialog.value = true }
             )
             SettingsItem(
+                title = stringResource(R.string.Help),
+                icon = Icons.AutoMirrored.Outlined.HelpOutline,
+                onClick = { showHelpDialog.value = true }
+            )
+            SettingsItem(
                 title = stringResource(R.string.VersionHistory),
-                icon = Icons.Outlined.History
+                icon = Icons.Outlined.History,
+                onClick = { showVersionHistoryDialog.value = true }
             )
             SettingsItem(
                 title = stringResource(R.string.PrivacyPolicy),
-                icon = Icons.Outlined.Policy
+                icon = Icons.Outlined.Policy,
+                onClick = { showPrivacyPolicyDialog.value = true }
             )
             SettingsItem(
                 title = stringResource(R.string.License),
@@ -176,19 +187,35 @@ fun Settings(onNavigateUp: () -> Unit = {}) {
 
     if (showAboutDialog.value) {
         val versionName = LocalContext.current.packageInfo?.versionName ?: ""
-        val text = stringResource(R.string.AboutAndTermsOfUse, versionName)
-        val annotated = text.linkify()
-        AlertDialog(
+        val text = stringResource(R.string.AboutAndTermsOfUse, versionName).linkify()
+        InfoDialog(
             title = { Text(stringResource(R.string.app_name)) },
-            text = { Text(annotated) },
-            onDismissRequest = { showAboutDialog.value = false },
-            confirmButton = {
-                TextButton(
-                    onClick = { showAboutDialog.value = false }
-                ) {
-                    Text(stringResource(R.string.Close))
-                }
-            }
+            text = { Text(text) },
+            onDismiss = { showAboutDialog.value = false }
+        )
+    }
+    if (showHelpDialog.value) {
+        val text = stringResource(R.string.main_help).linkify()
+        InfoDialog(
+            title = { Text(stringResource(R.string.Help)) },
+            text = { Text(text) },
+            onDismiss = { showHelpDialog.value = false }
+        )
+    }
+    if (showVersionHistoryDialog.value) {
+        val text = stringResource(R.string.VersionHistoryStatement)
+        InfoDialog(
+            title = { Text(stringResource(R.string.VersionHistory)) },
+            text = { Text(text) },
+            onDismiss = { showVersionHistoryDialog.value = false }
+        )
+    }
+    if (showPrivacyPolicyDialog.value) {
+        val text = textResource(R.string.PrivacyPolicyStatement)
+        InfoDialog(
+            title = { Text(stringResource(R.string.PrivacyPolicy)) },
+            text = { StyledText(text) },
+            onDismiss = { showPrivacyPolicyDialog.value = false }
         )
     }
 }
@@ -245,4 +272,26 @@ private fun SettingsItem(
             }
         }
     }
+}
+
+@Composable
+fun InfoDialog(
+    title: @Composable () -> Unit,
+    text: @Composable () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        title = { title() },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                text()
+            }
+        },
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.Close))
+            }
+        }
+    )
 }

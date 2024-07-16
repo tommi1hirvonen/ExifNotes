@@ -26,8 +26,11 @@ import android.os.Build.VERSION.SDK_INT
 import android.text.SpannableString
 import android.text.style.URLSpan
 import android.text.util.Linkify
+import androidx.annotation.StringRes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -77,3 +80,7 @@ fun String.linkify(
         )
     }
 }
+
+@Composable
+@ReadOnlyComposable
+fun textResource(@StringRes id: Int): CharSequence = LocalContext.current.resources.getText(id)
