@@ -104,21 +104,24 @@ fun RollsList(
                 gesturesEnabled = true
             ) {
                 val scope = rememberCoroutineScope()
-                MainContent(navigationIcon = {
-                    IconButton(onClick = {
-                        scope.launch {
-                            drawerState.apply {
-                                if (isClosed) open() else close()
+                MainContent(
+                    model = rollsModel,
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                drawerState.apply {
+                                    if (isClosed) open() else close()
+                                }
                             }
-                        }
-                    }) { Icon(Icons.Outlined.Menu, "") }
-                })
+                        }) { Icon(Icons.Outlined.Menu, "") }
+                    }
+                )
             }
         } else {
             PermanentNavigationDrawer(
-                drawerContent = { DrawerContent(rollsModel) }
+                drawerContent = { DrawerContent(model = rollsModel) }
             ) {
-                MainContent()
+                MainContent(model = rollsModel)
             }
         }
     }
@@ -252,8 +255,8 @@ fun DrawerContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(
+    model: RollsViewModel,
     navigationIcon: @Composable () -> Unit = {},
-    model: RollsViewModel = hiltViewModel()
 ) {
     val rolls = model.rolls.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
