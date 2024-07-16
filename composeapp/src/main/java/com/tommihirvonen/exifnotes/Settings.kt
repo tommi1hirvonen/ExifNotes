@@ -64,6 +64,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.edit
+import androidx.preference.PreferenceManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -73,11 +75,19 @@ fun Settings(
     onNavigateToLicense: () -> Unit = {},
     onNavigateToThirdPartyLicenses: () -> Unit = {}
 ) {
+    val context = LocalContext.current.applicationContext
+    val sharedPreferences = remember(context) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+    }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val showAboutDialog = remember { mutableStateOf(false) }
     val showHelpDialog = remember { mutableStateOf(false) }
     val showVersionHistoryDialog = remember { mutableStateOf(false) }
     val showPrivacyPolicyDialog = remember { mutableStateOf(false) }
+    val locationUpdatesEnabled = remember {
+        val value = sharedPreferences.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true)
+        mutableStateOf(value)
+    }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -133,9 +143,24 @@ fun Settings(
             SettingsItem(
                 title = stringResource(R.string.GPSUpdateTitle),
                 subtitle = stringResource(R.string.GPSUpdateSummary),
-                icon = Icons.Outlined.GpsNotFixed
+                icon = Icons.Outlined.GpsNotFixed,
+                onClick = {
+                    val value = !locationUpdatesEnabled.value
+                    locationUpdatesEnabled.value = value
+                    sharedPreferences.edit {
+                        putBoolean(PreferenceConstants.KEY_GPS_UPDATE, value)
+                    }
+                }
             ) {
-                Switch(checked = true, onCheckedChange = {})
+                Switch(
+                    checked = locationUpdatesEnabled.value,
+                    onCheckedChange = { value ->
+                        locationUpdatesEnabled.value = value
+                        sharedPreferences.edit {
+                            putBoolean(PreferenceConstants.KEY_GPS_UPDATE, value)
+                        }
+                    }
+                )
             }
             SettingsItem(
                 title = stringResource(R.string.Theme),
