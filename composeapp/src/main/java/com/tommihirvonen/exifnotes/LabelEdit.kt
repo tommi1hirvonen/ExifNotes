@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -46,7 +45,7 @@ fun LabelForm(
 ) {
     val name = model.labelName.collectAsState()
     val error = model.labelNameError.collectAsState()
-    Card {
+    DialogContent {
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
             val title = if (model.label.id > 0) {
                 stringResource(id = R.string.EditLabel)
