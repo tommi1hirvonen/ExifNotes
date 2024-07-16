@@ -27,16 +27,19 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
-import androidx.compose.material.icons.outlined.Contrast
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.GpsNotFixed
+import androidx.compose.material.icons.outlined.HdrAuto
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -45,6 +48,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -52,10 +56,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -66,11 +72,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import com.tommihirvonen.exifnotes.theme.Theme
+import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
 fun Settings(
+    themeViewModel: ThemeViewModel,
     onNavigateUp: () -> Unit = {},
     onNavigateToLicense: () -> Unit = {},
     onNavigateToThirdPartyLicenses: () -> Unit = {}
@@ -84,10 +92,12 @@ fun Settings(
     val showHelpDialog = remember { mutableStateOf(false) }
     val showVersionHistoryDialog = remember { mutableStateOf(false) }
     val showPrivacyPolicyDialog = remember { mutableStateOf(false) }
+    val showThemeDialog = remember { mutableStateOf(false) }
     val locationUpdatesEnabled = remember {
         val value = sharedPreferences.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true)
         mutableStateOf(value)
     }
+    val theme = themeViewModel.theme.collectAsState()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -162,10 +172,16 @@ fun Settings(
                     }
                 )
             }
+            val (themeSubtitle, themeIcon) = when (theme.value) {
+                is Theme.Light -> stringResource(R.string.Light) to Icons.Outlined.LightMode
+                is Theme.Dark -> stringResource(R.string.Dark) to Icons.Outlined.DarkMode
+                is Theme.Auto -> stringResource(R.string.SystemDefault) to Icons.Outlined.HdrAuto
+            }
             SettingsItem(
                 title = stringResource(R.string.Theme),
-                subtitle = stringResource(R.string.SystemDefault),
-                icon = Icons.Outlined.Contrast
+                subtitle = themeSubtitle,
+                icon = themeIcon,
+                onClick = { showThemeDialog.value = true }
             )
             HorizontalDivider()
             SettingsHeader(stringResource(R.string.ExiftoolIntegration))
@@ -251,6 +267,13 @@ fun Settings(
             onDismiss = { showPrivacyPolicyDialog.value = false }
         )
     }
+    if (showThemeDialog.value) {
+        ThemeDialog(
+            currentTheme = theme.value,
+            onDismiss = { showThemeDialog.value = false },
+            onThemeSet = { t -> themeViewModel.setTheme(t) }
+        )
+    }
 }
 
 @Composable
@@ -308,7 +331,7 @@ private fun SettingsItem(
 }
 
 @Composable
-fun InfoDialog(
+private fun InfoDialog(
     title: @Composable () -> Unit,
     text: @Composable () -> Unit,
     onDismiss: () -> Unit
@@ -324,6 +347,85 @@ fun InfoDialog(
         confirmButton = {
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.Close))
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+private fun ThemeDialog(
+    currentTheme: Theme = Theme.Auto,
+    onDismiss: () -> Unit = {},
+    onThemeSet: (Theme) -> Unit = {}
+) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        confirmButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text(stringResource(R.string.Cancel))
+            }
+        },
+        title = { Text(stringResource(R.string.Theme)) },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            onDismiss()
+                            onThemeSet(Theme.Auto)
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = currentTheme is Theme.Auto,
+                        onClick = {
+                            onDismiss()
+                            onThemeSet(Theme.Auto)
+                        }
+                    )
+                    Text(stringResource(R.string.SystemDefault))
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            onDismiss()
+                            onThemeSet(Theme.Light)
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = currentTheme is Theme.Light,
+                        onClick = {
+                            onDismiss()
+                            onThemeSet(Theme.Light)
+                        }
+                    )
+                    Text(stringResource(R.string.Light))
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            onDismiss()
+                            onThemeSet(Theme.Dark)
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = currentTheme is Theme.Dark,
+                        onClick = {
+                            onDismiss()
+                            onThemeSet(Theme.Dark)
+                        }
+                    )
+                    Text(stringResource(R.string.Dark))
+                }
             }
         }
     )

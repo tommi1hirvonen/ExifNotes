@@ -31,6 +31,7 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.tommihirvonen.exifnotes.theme.ExifNotesTheme
+import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
@@ -40,7 +41,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ExifNotesTheme {
+            val themeModel = hiltViewModel<ThemeViewModel>()
+            ExifNotesTheme(themeModel) {
                 val navController = rememberNavController()
                 val rollsModel = hiltViewModel<RollsViewModel>()
                 NavHost(
@@ -69,6 +71,7 @@ class MainActivity : ComponentActivity() {
                     }
                     composable<Settings> {
                         Settings(
+                            themeViewModel = themeModel,
                             onNavigateUp = { navController.navigateUp() },
                             onNavigateToLicense = { navController.navigate(route = License) },
                             onNavigateToThirdPartyLicenses = {
