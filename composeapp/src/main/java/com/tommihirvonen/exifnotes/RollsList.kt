@@ -92,13 +92,21 @@ import kotlinx.coroutines.launch
 @Composable
 fun RollsList(
     rollsModel: RollsViewModel,
-    onNavigateToLabels: () -> Unit
+    onNavigateToLabels: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     BoxWithConstraints {
         if (maxWidth < 600.dp) {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             ModalNavigationDrawer(
-                drawerContent = { DrawerContent(rollsModel, onNavigateToLabels, drawerState) },
+                drawerContent = {
+                    DrawerContent(
+                        model = rollsModel,
+                        onNavigateToLabels = onNavigateToLabels,
+                        onNavigateToSettings = onNavigateToSettings,
+                        drawerState = drawerState
+                    )
+                },
                 drawerState = drawerState,
                 gesturesEnabled = true
             ) {
@@ -118,7 +126,13 @@ fun RollsList(
             }
         } else {
             PermanentNavigationDrawer(
-                drawerContent = { DrawerContent(model = rollsModel) }
+                drawerContent = {
+                    DrawerContent(
+                        model = rollsModel,
+                        onNavigateToLabels = onNavigateToLabels,
+                        onNavigateToSettings = onNavigateToSettings
+                    )
+                }
             ) {
                 MainContent(model = rollsModel)
             }
@@ -129,7 +143,8 @@ fun RollsList(
 @Composable
 fun DrawerContent(
     model: RollsViewModel,
-    onNavigateToLabels: () -> Unit = {},
+    onNavigateToLabels: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     drawerState: DrawerState? = null,
 ) {
     val labels = model.labels.collectAsState()
@@ -209,7 +224,10 @@ fun DrawerContent(
                     label = { Text(stringResource(R.string.Settings)) },
                     icon = { Icon(Icons.Outlined.Settings, "") },
                     selected = false,
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        scope.launch { drawerState?.close() }
+                        onNavigateToSettings()
+                    }
                 )
                 NavigationDrawerItem(
                     label = { Text(stringResource(R.string.ManageLabels)) },

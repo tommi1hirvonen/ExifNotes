@@ -54,7 +54,8 @@ class MainActivity : ComponentActivity() {
                     composable<Rolls> {
                         RollsList(
                             rollsModel = rollsModel,
-                            onNavigateToLabels = { navController.navigate(route = Labels) }
+                            onNavigateToLabels = { navController.navigate(route = Labels) },
+                            onNavigateToSettings = { navController.navigate(route = Settings) }
                         )
                     }
                     composable<Labels> {
@@ -64,6 +65,11 @@ class MainActivity : ComponentActivity() {
                             onEditLabel = { label ->
                                 navController.navigate(route = LabelEdit(label?.id ?: -1))
                             }
+                        )
+                    }
+                    composable<Settings> {
+                        Settings(
+                            onNavigateUp = { navController.navigateUp() }
                         )
                     }
                     dialog<LabelEdit> { backStackEntry ->
@@ -88,3 +94,6 @@ object Labels
 
 @Serializable
 data class LabelEdit(val labelId: Long)
+
+@Serializable
+object Settings
