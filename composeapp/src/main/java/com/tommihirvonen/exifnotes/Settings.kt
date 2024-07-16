@@ -53,6 +53,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -88,8 +89,18 @@ fun Settings(
     val showVersionHistoryDialog = remember { mutableStateOf(false) }
     val showPrivacyPolicyDialog = remember { mutableStateOf(false) }
     val showThemeDialog = remember { mutableStateOf(false) }
+    val showArtistNameDialog = remember { mutableStateOf(false) }
+    val showCopyrightInfoDialog = remember { mutableStateOf(false) }
+    val showExiftoolPathDialog = remember { mutableStateOf(false) }
+    val showPathToPicturesDialog = remember { mutableStateOf(false) }
+    val showFileEndingDialog = remember { mutableStateOf(false) }
 
     val locationUpdatesEnabled = settingsViewModel.locationUpdatesEnabled.collectAsState()
+    val artistName = settingsViewModel.artistName.collectAsState()
+    val copyrightInfo = settingsViewModel.copyrightInfo.collectAsState()
+    val exiftoolPath = settingsViewModel.exiftoolPath.collectAsState()
+    val pathToPictures = settingsViewModel.pathToPictures.collectAsState()
+    val fileEnding = settingsViewModel.fileEnding.collectAsState()
     val ignoreWarnings = settingsViewModel.ignoreWarnings.collectAsState()
     val theme = themeViewModel.theme.collectAsState()
 
@@ -176,23 +187,28 @@ fun Settings(
             SettingsHeader(stringResource(R.string.ExiftoolIntegration))
             SettingsItem(
                 title = stringResource(R.string.ArtistName),
-                subtitle = stringResource(R.string.ArtistNameSummary)
+                subtitle = stringResource(R.string.ArtistNameSummary),
+                onClick = { showArtistNameDialog.value = true }
             )
             SettingsItem(
                 title = stringResource(R.string.CopyrightInformationTitle),
-                subtitle = stringResource(R.string.CopyrightInformationSummary)
+                subtitle = stringResource(R.string.CopyrightInformationSummary),
+                onClick = { showCopyrightInfoDialog.value = true }
             )
             SettingsItem(
                 title = stringResource(R.string.ExiftoolPathTitle),
-                subtitle = stringResource(R.string.ExiftoolPathSummary)
+                subtitle = stringResource(R.string.ExiftoolPathSummary),
+                onClick = { showExiftoolPathDialog.value = true }
             )
             SettingsItem(
                 title = stringResource(R.string.PicturesPathTitle),
-                subtitle = stringResource(R.string.PicturesPathSummary)
+                subtitle = stringResource(R.string.PicturesPathSummary),
+                onClick = { showPathToPicturesDialog.value = true }
             )
             SettingsItem(
                 title = stringResource(R.string.FileEndingTitle),
-                subtitle = stringResource(R.string.FileEndingSummary)
+                subtitle = stringResource(R.string.FileEndingSummary),
+                onClick = { showFileEndingDialog.value = true }
             )
             SettingsItem(
                 title = stringResource(R.string.IgnoreWarningsTitle),
@@ -272,6 +288,46 @@ fun Settings(
             onThemeSet = { t -> themeViewModel.setTheme(t) }
         )
     }
+    if (showArtistNameDialog.value) {
+        EditSettingDialog(
+            initialValue = artistName.value,
+            title = { Text(stringResource(R.string.ArtistName)) },
+            onDismiss = { showArtistNameDialog.value = false },
+            onValueSet = { value -> settingsViewModel.setArtistName(value) }
+        )
+    }
+    if (showCopyrightInfoDialog.value) {
+        EditSettingDialog(
+            initialValue = copyrightInfo.value,
+            title = { Text(stringResource(R.string.CopyrightInformationTitle)) },
+            onDismiss = { showCopyrightInfoDialog.value = false },
+            onValueSet = { value -> settingsViewModel.setCopyrightInfo(value) }
+        )
+    }
+    if (showExiftoolPathDialog.value) {
+        EditSettingDialog(
+            initialValue = exiftoolPath.value,
+            title = { Text(stringResource(R.string.ExiftoolPathTitle)) },
+            onDismiss = { showExiftoolPathDialog.value = false },
+            onValueSet = { value -> settingsViewModel.setExiftoolPath(value) }
+        )
+    }
+    if (showPathToPicturesDialog.value) {
+        EditSettingDialog(
+            initialValue = pathToPictures.value,
+            title = { Text(stringResource(R.string.PicturesPathTitle)) },
+            onDismiss = { showPathToPicturesDialog.value = false },
+            onValueSet = { value -> settingsViewModel.setPathToPictures(value) }
+        )
+    }
+    if (showFileEndingDialog.value) {
+        EditSettingDialog(
+            initialValue = fileEnding.value,
+            title = { Text(stringResource(R.string.FileEndingTitle)) },
+            onDismiss = { showFileEndingDialog.value = false },
+            onValueSet = { value -> settingsViewModel.setFileEnding(value) }
+        )
+    }
 }
 
 @Composable
@@ -326,6 +382,44 @@ private fun SettingsItem(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun EditSettingDialog(
+    initialValue: String = "",
+    title: @Composable () -> Unit = {},
+    onDismiss: () -> Unit = {},
+    onValueSet: (String) -> Unit = {}
+) {
+    val value = remember { mutableStateOf(initialValue) }
+    AlertDialog(
+        title = { title() },
+        text = {
+            Column {
+                TextField(
+                    value = value.value,
+                    onValueChange = { text -> value.value = text }
+                )
+            }
+        },
+        onDismissRequest = onDismiss,
+        dismissButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text(stringResource(R.string.Cancel))
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDismiss()
+                    onValueSet(value.value)
+                }
+            ) {
+                Text(stringResource(R.string.OK))
+            }
+        }
+    )
 }
 
 @Composable
