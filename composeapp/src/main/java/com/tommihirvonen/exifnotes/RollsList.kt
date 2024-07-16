@@ -80,7 +80,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
@@ -88,13 +88,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun RollsList() {
-
+fun RollsList(
+    rollsModel: RollsViewModel,
+    onNavigateToLabels: () -> Unit
+) {
     BoxWithConstraints {
         if (maxWidth < 600.dp) {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             ModalNavigationDrawer(
-                drawerContent = { DrawerContent(drawerState) },
+                drawerContent = { DrawerContent(rollsModel, onNavigateToLabels, drawerState) },
                 drawerState = drawerState,
                 gesturesEnabled = true
             ) {
@@ -111,7 +113,7 @@ fun RollsList() {
             }
         } else {
             PermanentNavigationDrawer(
-                drawerContent = { DrawerContent() }
+                drawerContent = { DrawerContent(rollsModel) }
             ) {
                 MainContent()
             }
@@ -119,10 +121,12 @@ fun RollsList() {
     }
 }
 
-
-@Preview
 @Composable
-fun DrawerContent(drawerState: DrawerState? = null, model: RollsViewModel = viewModel()) {
+fun DrawerContent(
+    model: RollsViewModel,
+    onNavigateToLabels: () -> Unit = {},
+    drawerState: DrawerState? = null,
+) {
     val labels = model.labels.collectAsState()
     val filter = model.rollFilterMode.collectAsState()
     val counts = model.rollCounts.collectAsState()
@@ -206,7 +210,10 @@ fun DrawerContent(drawerState: DrawerState? = null, model: RollsViewModel = view
                     label = { Text(stringResource(R.string.ManageLabels)) },
                     icon = { Icon(Icons.Outlined.NewLabel, "") },
                     selected = false,
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        scope.launch { drawerState?.close() }
+                        onNavigateToLabels()
+                    }
                 )
             }
             HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
@@ -243,7 +250,7 @@ fun DrawerContent(drawerState: DrawerState? = null, model: RollsViewModel = view
 @Composable
 fun MainContent(
     navigationIcon: @Composable () -> Unit = {},
-    model: RollsViewModel = viewModel()
+    model: RollsViewModel = hiltViewModel()
 ) {
     val rolls = model.rolls.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -298,24 +305,7 @@ fun MainContent(
                     items = state.data,
                     key = { roll -> roll.id }
                 ) { roll ->
-                    Card(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .fillMaxWidth()
-                            .clickable {
-                                scope.launch {
-                                    snackBarHostState.showSnackbar(roll.name ?: "")
-                                }
-                            }
-                    ) {
-                        Box(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = roll.name ?: "",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
+                    RollCard(roll = roll, scope = scope, snackBarHostState = snackBarHostState)
                 }
             }
         }
@@ -326,7 +316,7 @@ fun MainContent(
 @Preview
 @Composable
 fun TopAppBarMenu(
-    model: RollsViewModel = viewModel()
+    model: RollsViewModel = hiltViewModel()
 ) {
     val sort = model.rollSortMode.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
