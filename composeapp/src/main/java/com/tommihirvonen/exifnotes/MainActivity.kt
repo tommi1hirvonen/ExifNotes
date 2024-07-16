@@ -69,6 +69,20 @@ class MainActivity : ComponentActivity() {
                     }
                     composable<Settings> {
                         Settings(
+                            onNavigateUp = { navController.navigateUp() },
+                            onNavigateToLicense = { navController.navigate(route = License) },
+                            onNavigateToThirdPartyLicenses = {
+                                navController.navigate(route = ThirdPartyLicenses)
+                            }
+                        )
+                    }
+                    composable<License> {
+                        License(
+                            onNavigateUp = { navController.navigateUp() }
+                        )
+                    }
+                    composable<ThirdPartyLicenses> {
+                        ThirdPartyLicenses(
                             onNavigateUp = { navController.navigateUp() }
                         )
                     }
@@ -97,3 +111,9 @@ data class LabelEdit(val labelId: Long)
 
 @Serializable
 object Settings
+
+@Serializable
+object License
+
+@Serializable
+object ThirdPartyLicenses

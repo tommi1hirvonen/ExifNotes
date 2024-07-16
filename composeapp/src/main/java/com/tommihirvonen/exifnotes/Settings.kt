@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes
 
+import android.webkit.WebView
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,11 +63,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun Settings(onNavigateUp: () -> Unit = {}) {
+fun Settings(
+    onNavigateUp: () -> Unit = {},
+    onNavigateToLicense: () -> Unit = {},
+    onNavigateToThirdPartyLicenses: () -> Unit = {}
+) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val showAboutDialog = remember { mutableStateOf(false) }
     val showHelpDialog = remember { mutableStateOf(false) }
@@ -114,11 +120,13 @@ fun Settings(onNavigateUp: () -> Unit = {}) {
             )
             SettingsItem(
                 title = stringResource(R.string.License),
-                icon = Icons.AutoMirrored.Outlined.Article
+                icon = Icons.AutoMirrored.Outlined.Article,
+                onClick = onNavigateToLicense
             )
             SettingsItem(
                 title = stringResource(R.string.ThirdPartyOpenSourceLicenses),
-                icon = Icons.AutoMirrored.Outlined.LibraryBooks
+                icon = Icons.AutoMirrored.Outlined.LibraryBooks,
+                onClick = onNavigateToThirdPartyLicenses
             )
             HorizontalDivider()
             SettingsHeader(stringResource(R.string.General))
@@ -294,4 +302,66 @@ fun InfoDialog(
             }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun License(onNavigateUp: () -> Unit) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                scrollBehavior = scrollBehavior,
+                title = { Text(stringResource(R.string.License)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
+                    }
+                },
+            )
+        }
+    ) { innerPadding ->
+        Column(modifier = Modifier
+            .padding(innerPadding)
+            .verticalScroll(rememberScrollState())) {
+            AndroidView(
+                factory = { context -> WebView(context) },
+                update = { webView ->
+                    webView.loadUrl("file:///android_asset/license.html")
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ThirdPartyLicenses(onNavigateUp: () -> Unit) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                scrollBehavior = scrollBehavior,
+                title = { Text(stringResource(R.string.ThirdPartyOpenSourceLicenses)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
+                    }
+                },
+            )
+        }
+    ) { innerPadding ->
+        Column(modifier = Modifier
+            .padding(innerPadding)
+            .verticalScroll(rememberScrollState())) {
+            AndroidView(
+                factory = { context -> WebView(context) },
+                update = { webView ->
+                    webView.loadUrl("file:///android_asset/open_source_licenses.html")
+                }
+            )
+        }
+    }
 }
