@@ -70,8 +70,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.edit
-import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.theme.Theme
 import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 
@@ -79,25 +77,22 @@ import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 @Composable
 fun Settings(
     themeViewModel: ThemeViewModel,
+    settingsViewModel: SettingsViewModel,
     onNavigateUp: () -> Unit = {},
     onNavigateToLicense: () -> Unit = {},
     onNavigateToThirdPartyLicenses: () -> Unit = {}
 ) {
-    val context = LocalContext.current.applicationContext
-    val sharedPreferences = remember(context) {
-        PreferenceManager.getDefaultSharedPreferences(context)
-    }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val showAboutDialog = remember { mutableStateOf(false) }
     val showHelpDialog = remember { mutableStateOf(false) }
     val showVersionHistoryDialog = remember { mutableStateOf(false) }
     val showPrivacyPolicyDialog = remember { mutableStateOf(false) }
     val showThemeDialog = remember { mutableStateOf(false) }
-    val locationUpdatesEnabled = remember {
-        val value = sharedPreferences.getBoolean(PreferenceConstants.KEY_GPS_UPDATE, true)
-        mutableStateOf(value)
-    }
+
+    val locationUpdatesEnabled = settingsViewModel.locationUpdatesEnabled.collectAsState()
+    val ignoreWarnings = settingsViewModel.ignoreWarnings.collectAsState()
     val theme = themeViewModel.theme.collectAsState()
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -156,19 +151,13 @@ fun Settings(
                 icon = Icons.Outlined.GpsNotFixed,
                 onClick = {
                     val value = !locationUpdatesEnabled.value
-                    locationUpdatesEnabled.value = value
-                    sharedPreferences.edit {
-                        putBoolean(PreferenceConstants.KEY_GPS_UPDATE, value)
-                    }
+                    settingsViewModel.setLocationUpdatesEnabled(value)
                 }
             ) {
                 Switch(
                     checked = locationUpdatesEnabled.value,
                     onCheckedChange = { value ->
-                        locationUpdatesEnabled.value = value
-                        sharedPreferences.edit {
-                            putBoolean(PreferenceConstants.KEY_GPS_UPDATE, value)
-                        }
+                        settingsViewModel.setLocationUpdatesEnabled(value)
                     }
                 )
             }
@@ -207,9 +196,18 @@ fun Settings(
             )
             SettingsItem(
                 title = stringResource(R.string.IgnoreWarningsTitle),
-                subtitle = stringResource(R.string.IgnoreWarningsSummary)
+                subtitle = stringResource(R.string.IgnoreWarningsSummary),
+                onClick = {
+                    val value = !ignoreWarnings.value
+                    settingsViewModel.setIgnoreWarnings(value)
+                }
             ) {
-                Checkbox(checked = false, onCheckedChange = {})
+                Checkbox(
+                    checked = ignoreWarnings.value,
+                    onCheckedChange = { value ->
+                        settingsViewModel.setIgnoreWarnings(value)
+                    }
+                )
             }
             HorizontalDivider()
             SettingsHeader(stringResource(R.string.ComplementaryPictures))

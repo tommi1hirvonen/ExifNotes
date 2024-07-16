@@ -23,7 +23,6 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.preference.PreferenceManager
-import com.tommihirvonen.exifnotes.PreferenceConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +31,10 @@ import javax.inject.Inject
 @HiltViewModel
 class ThemeViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
 
+    companion object {
+        const val KEY_APP_THEME = "AppTheme"
+    }
+
     val theme get() = _theme as StateFlow<Theme>
 
     private val sharedPreferences: SharedPreferences =
@@ -39,8 +42,8 @@ class ThemeViewModel @Inject constructor(application: Application) : AndroidView
     private val _theme: MutableStateFlow<Theme>
 
     init {
-        val preferenceValue = sharedPreferences
-            .getString(PreferenceConstants.KEY_APP_THEME, "DEFAULT") ?: "DEFAULT"
+        val preferenceValue = sharedPreferences.getString(KEY_APP_THEME, "DEFAULT")
+            ?: "DEFAULT"
         val initialValue = when (preferenceValue) {
             "LIGHT" -> Theme.Light
             "DARK" -> Theme.Dark
@@ -56,7 +59,7 @@ class ThemeViewModel @Inject constructor(application: Application) : AndroidView
             is Theme.Auto -> "DEFAULT"
         }
         sharedPreferences.edit {
-            putString(PreferenceConstants.KEY_APP_THEME, preferenceValue)
+            putString(KEY_APP_THEME, preferenceValue)
         }
         _theme.value = theme
     }

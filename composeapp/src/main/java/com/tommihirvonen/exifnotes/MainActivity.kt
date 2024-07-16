@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
             ExifNotesTheme(themeModel) {
                 val navController = rememberNavController()
                 val rollsModel = hiltViewModel<RollsViewModel>()
+                val settingsModel = hiltViewModel<SettingsViewModel>()
                 NavHost(
                     navController = navController,
                     enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
@@ -72,6 +73,7 @@ class MainActivity : ComponentActivity() {
                     composable<Settings> {
                         Settings(
                             themeViewModel = themeModel,
+                            settingsViewModel = settingsModel,
                             onNavigateUp = { navController.navigateUp() },
                             onNavigateToLicense = { navController.navigate(route = License) },
                             onNavigateToThirdPartyLicenses = {
