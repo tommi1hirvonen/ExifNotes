@@ -83,7 +83,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
@@ -283,7 +282,7 @@ fun MainContent(
                 },
                 navigationIcon = navigationIcon,
                 actions = {
-                    TopAppBarMenu()
+                    TopAppBarMenu(model)
                 }
             )
         },
@@ -324,12 +323,8 @@ fun MainContent(
     }
 }
 
-
-@Preview
 @Composable
-fun TopAppBarMenu(
-    model: RollsViewModel = hiltViewModel()
-) {
+fun TopAppBarMenu(model: RollsViewModel) {
     val sort = model.rollSortMode.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
     IconButton(onClick = { showMenu = !showMenu }) {
