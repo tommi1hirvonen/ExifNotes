@@ -24,7 +24,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -68,16 +67,11 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     dialog<LabelEdit> { backStackEntry ->
-                        val parentEntry = remember(backStackEntry) {
-                            navController.getBackStackEntry(Labels)
-                        }
-                        val parentViewModel = hiltViewModel<LabelsViewModel>(parentEntry)
                         val labelEdit = backStackEntry.toRoute<LabelEdit>()
                         LabelForm(
                             labelId = labelEdit.labelId,
                             onDismiss = { navController.navigateUp() },
-                            rollsModel = rollsModel,
-                            labelsModel = parentViewModel
+                            rollsModel = rollsModel
                         )
                     }
                 }

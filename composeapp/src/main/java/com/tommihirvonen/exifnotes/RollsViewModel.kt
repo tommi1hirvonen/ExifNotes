@@ -145,6 +145,22 @@ class RollsViewModel @Inject constructor(
         }
     }
 
+    fun submitLabel(label: Label) {
+        if (labelRepository.updateLabel(label) == 0) {
+            labelRepository.addLabel(label)
+        }
+        val labels = labels.value
+            .filter { it.id != label.id }
+            .plus(label)
+            .sortedBy { it.name }
+        mLabels.value = labels
+    }
+
+    fun deleteLabel(label: Label) {
+        labelRepository.deleteLabel(label)
+        mLabels.value = labels.value.minus(label)
+    }
+
     private fun replaceRoll(roll: Roll) {
         val sortMode = mRollSortMode.value
         rollList = rollList.filterNot { it.id == roll.id }.plus(roll).sorted(sortMode)

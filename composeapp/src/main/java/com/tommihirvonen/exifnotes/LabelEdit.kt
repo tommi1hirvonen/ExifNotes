@@ -40,7 +40,6 @@ fun LabelForm(
     labelId: Long,
     onDismiss: () -> Unit = {},
     rollsModel: RollsViewModel,
-    labelsModel: LabelsViewModel,
     model: LabelViewModel = hiltViewModel<LabelViewModel, LabelViewModel.Factory> { factory ->
         factory.create(labelId)
     }
@@ -79,8 +78,7 @@ fun LabelForm(
                     onClick = {
                         val result = model.validate()
                         if (result) {
-                            labelsModel.submitLabel(model.label)
-                            rollsModel.loadAll()
+                            rollsModel.submitLabel(model.label)
                             onDismiss()
                         }
                     },

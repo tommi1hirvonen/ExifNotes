@@ -56,22 +56,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.core.entities.Label
 
 @Composable
 fun LabelsList(
     rollsModel: RollsViewModel,
-    model: LabelsViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
     onEditLabel: (Label?) -> Unit
 ) {
-    val labels = model.labels.collectAsState()
+    val labels = rollsModel.labels.collectAsState()
     LabelsContent(
         labels = labels.value,
         onDeleteLabel = { label ->
-            model.deleteLabel(label)
-            rollsModel.loadAll()
+            rollsModel.deleteLabel(label)
         },
         onEditLabel = onEditLabel,
         onNavigateUp = onNavigateUp
