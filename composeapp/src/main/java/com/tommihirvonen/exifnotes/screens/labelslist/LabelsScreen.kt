@@ -61,7 +61,7 @@ import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.core.entities.Label
 
 @Composable
-fun LabelsList(
+fun LabelsScreen(
     mainViewModel: MainViewModel,
     onNavigateUp: () -> Unit,
     onEditLabel: (Label?) -> Unit

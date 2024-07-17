@@ -30,14 +30,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.tommihirvonen.exifnotes.screens.labeledit.LabelForm
-import com.tommihirvonen.exifnotes.screens.labelslist.LabelsList
+import com.tommihirvonen.exifnotes.screens.labeledit.LabelEditScreen
+import com.tommihirvonen.exifnotes.screens.labelslist.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
-import com.tommihirvonen.exifnotes.screens.settings.License
-import com.tommihirvonen.exifnotes.screens.settings.Settings
+import com.tommihirvonen.exifnotes.screens.settings.LicenseScreen
+import com.tommihirvonen.exifnotes.screens.settings.SettingsScreen
 import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
-import com.tommihirvonen.exifnotes.screens.settings.ThirdPartyLicenses
+import com.tommihirvonen.exifnotes.screens.settings.ThirdPartyLicensesScreen
 import com.tommihirvonen.exifnotes.theme.ExifNotesTheme
 import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable<Labels> {
-                        LabelsList(
+                        LabelsScreen(
                             mainViewModel = rollsModel,
                             onNavigateUp = { navController.navigateUp() },
                             onEditLabel = { label ->
@@ -79,7 +79,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable<Settings> {
-                        Settings(
+                        SettingsScreen(
                             themeViewModel = themeModel,
                             settingsViewModel = settingsModel,
                             mainViewModel = rollsModel,
@@ -91,18 +91,18 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable<License> {
-                        License(
+                        LicenseScreen(
                             onNavigateUp = { navController.navigateUp() }
                         )
                     }
                     composable<ThirdPartyLicenses> {
-                        ThirdPartyLicenses(
+                        ThirdPartyLicensesScreen(
                             onNavigateUp = { navController.navigateUp() }
                         )
                     }
                     dialog<LabelEdit> { backStackEntry ->
                         val labelEdit = backStackEntry.toRoute<LabelEdit>()
-                        LabelForm(
+                        LabelEditScreen(
                             labelId = labelEdit.labelId,
                             onDismiss = { navController.navigateUp() },
                             mainViewModel = rollsModel

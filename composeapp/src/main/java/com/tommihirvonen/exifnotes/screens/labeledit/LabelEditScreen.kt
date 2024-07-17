@@ -38,7 +38,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 
 @Composable
-fun LabelForm(
+fun LabelEditScreen(
     labelId: Long,
     onDismiss: () -> Unit = {},
     mainViewModel: MainViewModel,

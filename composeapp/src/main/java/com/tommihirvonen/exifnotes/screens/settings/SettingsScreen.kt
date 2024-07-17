@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.screens.settings
 
 import android.content.Context
 import android.content.Intent
-import android.webkit.WebView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
@@ -78,22 +77,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.screens.StyledText
+import com.tommihirvonen.exifnotes.screens.main.MainViewModel
+import com.tommihirvonen.exifnotes.theme.Theme
+import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 import com.tommihirvonen.exifnotes.util.linkify
 import com.tommihirvonen.exifnotes.util.packageInfo
 import com.tommihirvonen.exifnotes.util.sortableDate
 import com.tommihirvonen.exifnotes.util.textResource
-import com.tommihirvonen.exifnotes.theme.Theme
-import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Settings(
+fun SettingsScreen(
     themeViewModel: ThemeViewModel,
     settingsViewModel: SettingsViewModel,
     mainViewModel: MainViewModel,
@@ -674,68 +672,6 @@ private fun ThemeDialog(
             }
         }
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun License(onNavigateUp: () -> Unit) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            TopAppBar(
-                scrollBehavior = scrollBehavior,
-                title = { Text(stringResource(R.string.License)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateUp) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
-                    }
-                },
-            )
-        }
-    ) { innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)
-            .verticalScroll(rememberScrollState())) {
-            AndroidView(
-                factory = { context -> WebView(context) },
-                update = { webView ->
-                    webView.loadUrl("file:///android_asset/license.html")
-                }
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ThirdPartyLicenses(onNavigateUp: () -> Unit) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            TopAppBar(
-                scrollBehavior = scrollBehavior,
-                title = { Text(stringResource(R.string.ThirdPartyOpenSourceLicenses)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateUp) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
-                    }
-                },
-            )
-        }
-    ) { innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)
-            .verticalScroll(rememberScrollState())) {
-            AndroidView(
-                factory = { context -> WebView(context) },
-                update = { webView ->
-                    webView.loadUrl("file:///android_asset/open_source_licenses.html")
-                }
-            )
-        }
-    }
 }
 
 private class CreatePicturesExportFile : CreateDocument("application/zip") {
