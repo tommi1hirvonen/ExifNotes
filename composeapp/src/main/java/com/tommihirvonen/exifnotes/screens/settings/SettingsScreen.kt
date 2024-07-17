@@ -50,9 +50,9 @@ import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -62,7 +62,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -76,9 +75,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.screens.StyledText
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
@@ -207,7 +206,7 @@ private fun SettingsList(
     onNavigateToLicense: () -> Unit,
     onNavigateToThirdPartyLicenses: () -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val showAboutDialog = remember { mutableStateOf(false) }
     val showHelpDialog = remember { mutableStateOf(false) }
     val showVersionHistoryDialog = remember { mutableStateOf(false) }
@@ -227,7 +226,7 @@ private fun SettingsList(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
+            LargeTopAppBar(
                 scrollBehavior = scrollBehavior,
                 title = { Text(stringResource(R.string.Settings)) },
                 navigationIcon = {
@@ -275,7 +274,6 @@ private fun SettingsList(
                 icon = Icons.AutoMirrored.Outlined.LibraryBooks,
                 onClick = onNavigateToThirdPartyLicenses
             )
-            HorizontalDivider()
             SettingsHeader(stringResource(R.string.General))
             SettingsItem(
                 title = stringResource(R.string.GPSUpdateTitle),
@@ -302,7 +300,6 @@ private fun SettingsList(
                 icon = themeIcon,
                 onClick = { showThemeDialog.value = true }
             )
-            HorizontalDivider()
             SettingsHeader(stringResource(R.string.ExiftoolIntegration))
             SettingsItem(
                 title = stringResource(R.string.ArtistName),
@@ -342,7 +339,6 @@ private fun SettingsList(
                     onCheckedChange = onIgnoreWarningsSet
                 )
             }
-            HorizontalDivider()
             SettingsHeader(stringResource(R.string.ComplementaryPictures))
 
             val exportingPicturesText = stringResource(R.string.StartedExportingComplementaryPictures)
@@ -369,7 +365,6 @@ private fun SettingsList(
                 subtitle = stringResource(R.string.ImportComplementaryPicturesSummary),
                 onClick = { showImportPicturesDialog.value = true }
             )
-            HorizontalDivider()
             SettingsHeader(stringResource(R.string.Database))
             SettingsItem(
                 title = stringResource(R.string.ExportDatabaseTitle),
@@ -581,8 +576,8 @@ private fun SettingsHeaderPreview() {
 
 @Composable
 private fun SettingsHeader(header: String) {
-    Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)) {
-        Text(header, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold)
+    Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp)) {
+        Text(header, color = MaterialTheme.colorScheme.tertiary)
     }
 }
 
@@ -631,9 +626,13 @@ private fun SettingsItem(
                         }
                     }
                     Column {
-                        Text(title, fontWeight = FontWeight.Bold)
+                        Text(title, style = MaterialTheme.typography.titleMedium)
                         if (subtitle != null) {
-                            Text(subtitle, color = MaterialTheme.colorScheme.secondary)
+                            Text(
+                                text = subtitle,
+                                color = MaterialTheme.colorScheme.secondary,
+                                fontSize = 13.sp
+                            )
                         }
                     }
                 }
