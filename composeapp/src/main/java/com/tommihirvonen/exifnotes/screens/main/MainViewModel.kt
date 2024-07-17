@@ -42,7 +42,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class RollsViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     application: Application,
     private val rollRepository: RollRepository,
     private val cameraRepository: CameraRepository,

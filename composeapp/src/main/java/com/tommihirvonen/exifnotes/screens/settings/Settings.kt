@@ -80,7 +80,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.screens.main.RollsViewModel
+import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.screens.StyledText
 import com.tommihirvonen.exifnotes.util.linkify
 import com.tommihirvonen.exifnotes.util.packageInfo
@@ -96,7 +96,7 @@ import java.time.LocalDateTime
 fun Settings(
     themeViewModel: ThemeViewModel,
     settingsViewModel: SettingsViewModel,
-    rollsViewModel: RollsViewModel,
+    mainViewModel: MainViewModel,
     onNavigateUp: () -> Unit = {},
     onNavigateToLicense: () -> Unit = {},
     onNavigateToThirdPartyLicenses: () -> Unit = {}
@@ -452,7 +452,7 @@ fun Settings(
             sourceUri = resultUri,
             onSuccess = { message ->
                 scope.launch { snackbarHostState.showSnackbar(message) }
-                rollsViewModel.loadAll()
+                mainViewModel.loadAll()
             },
             onError = { message ->
                 scope.launch { snackbarHostState.showSnackbar(message) }

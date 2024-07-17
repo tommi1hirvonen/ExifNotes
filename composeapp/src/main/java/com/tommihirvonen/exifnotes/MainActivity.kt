@@ -32,8 +32,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.tommihirvonen.exifnotes.screens.labeledit.LabelForm
 import com.tommihirvonen.exifnotes.screens.labelslist.LabelsList
-import com.tommihirvonen.exifnotes.screens.main.RollsList
-import com.tommihirvonen.exifnotes.screens.main.RollsViewModel
+import com.tommihirvonen.exifnotes.screens.main.MainScreen
+import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.screens.settings.License
 import com.tommihirvonen.exifnotes.screens.settings.Settings
 import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
             val themeModel = hiltViewModel<ThemeViewModel>()
             ExifNotesTheme(themeModel) {
                 val navController = rememberNavController()
-                val rollsModel = hiltViewModel<RollsViewModel>()
+                val rollsModel = hiltViewModel<MainViewModel>()
                 val settingsModel = hiltViewModel<SettingsViewModel>()
                 NavHost(
                     navController = navController,
@@ -60,18 +60,18 @@ class MainActivity : ComponentActivity() {
                     exitTransition = { slideOutHorizontally() },
                     popEnterTransition = { slideInHorizontally() },
                     popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) },
-                    startDestination = Rolls
+                    startDestination = Main
                 ) {
-                    composable<Rolls> {
-                        RollsList(
-                            rollsModel = rollsModel,
+                    composable<Main> {
+                        MainScreen(
+                            mainViewModel = rollsModel,
                             onNavigateToLabels = { navController.navigate(route = Labels) },
                             onNavigateToSettings = { navController.navigate(route = Settings) }
                         )
                     }
                     composable<Labels> {
                         LabelsList(
-                            rollsModel = rollsModel,
+                            mainViewModel = rollsModel,
                             onNavigateUp = { navController.navigateUp() },
                             onEditLabel = { label ->
                                 navController.navigate(route = LabelEdit(label?.id ?: -1))
@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                         Settings(
                             themeViewModel = themeModel,
                             settingsViewModel = settingsModel,
-                            rollsViewModel = rollsModel,
+                            mainViewModel = rollsModel,
                             onNavigateUp = { navController.navigateUp() },
                             onNavigateToLicense = { navController.navigate(route = License) },
                             onNavigateToThirdPartyLicenses = {
@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
                         LabelForm(
                             labelId = labelEdit.labelId,
                             onDismiss = { navController.navigateUp() },
-                            rollsModel = rollsModel
+                            mainViewModel = rollsModel
                         )
                     }
                 }
@@ -115,7 +115,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Serializable
-object Rolls
+object Main
 
 @Serializable
 object Labels

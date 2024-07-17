@@ -57,20 +57,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.screens.main.RollsViewModel
+import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.core.entities.Label
 
 @Composable
 fun LabelsList(
-    rollsModel: RollsViewModel,
+    mainViewModel: MainViewModel,
     onNavigateUp: () -> Unit,
     onEditLabel: (Label?) -> Unit
 ) {
-    val labels = rollsModel.labels.collectAsState()
+    val labels = mainViewModel.labels.collectAsState()
     LabelsContent(
         labels = labels.value,
         onDeleteLabel = { label ->
-            rollsModel.deleteLabel(label)
+            mainViewModel.deleteLabel(label)
         },
         onEditLabel = onEditLabel,
         onNavigateUp = onNavigateUp

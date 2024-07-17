@@ -35,13 +35,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.screens.DialogContent
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.screens.main.RollsViewModel
+import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 
 @Composable
 fun LabelForm(
     labelId: Long,
     onDismiss: () -> Unit = {},
-    rollsModel: RollsViewModel,
+    mainViewModel: MainViewModel,
     model: LabelViewModel = hiltViewModel<LabelViewModel, LabelViewModel.Factory> { factory ->
         factory.create(labelId)
     }
@@ -80,7 +80,7 @@ fun LabelForm(
                     onClick = {
                         val result = model.validate()
                         if (result) {
-                            rollsModel.submitLabel(model.label)
+                            mainViewModel.submitLabel(model.label)
                             onDismiss()
                         }
                     },

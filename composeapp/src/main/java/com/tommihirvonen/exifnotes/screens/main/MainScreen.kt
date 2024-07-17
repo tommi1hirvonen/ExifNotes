@@ -139,8 +139,8 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 @Composable
-fun RollsList(
-    rollsModel: RollsViewModel,
+fun MainScreen(
+    mainViewModel: MainViewModel,
     onNavigateToLabels: () -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
@@ -150,7 +150,7 @@ fun RollsList(
             ModalNavigationDrawer(
                 drawerContent = {
                     DrawerContent(
-                        model = rollsModel,
+                        mainViewModel = mainViewModel,
                         onNavigateToLabels = onNavigateToLabels,
                         onNavigateToSettings = onNavigateToSettings,
                         drawerState = drawerState
@@ -161,7 +161,7 @@ fun RollsList(
             ) {
                 val scope = rememberCoroutineScope()
                 MainContent(
-                    model = rollsModel,
+                    mainViewModel = mainViewModel,
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
@@ -177,13 +177,13 @@ fun RollsList(
             PermanentNavigationDrawer(
                 drawerContent = {
                     DrawerContent(
-                        model = rollsModel,
+                        mainViewModel = mainViewModel,
                         onNavigateToLabels = onNavigateToLabels,
                         onNavigateToSettings = onNavigateToSettings
                     )
                 }
             ) {
-                MainContent(model = rollsModel)
+                MainContent(mainViewModel = mainViewModel)
             }
         }
     }
@@ -191,14 +191,14 @@ fun RollsList(
 
 @Composable
 fun DrawerContent(
-    model: RollsViewModel,
+    mainViewModel: MainViewModel,
     onNavigateToLabels: () -> Unit,
     onNavigateToSettings: () -> Unit,
     drawerState: DrawerState? = null,
 ) {
-    val labels = model.labels.collectAsState()
-    val filter = model.rollFilterMode.collectAsState()
-    val counts = model.rollCounts.collectAsState()
+    val labels = mainViewModel.labels.collectAsState()
+    val filter = mainViewModel.rollFilterMode.collectAsState()
+    val counts = mainViewModel.rollCounts.collectAsState()
     val all = counts.value.active + counts.value.archived
     val scope = rememberCoroutineScope()
     ModalDrawerSheet {
@@ -220,7 +220,7 @@ fun DrawerContent(
                     selected = filter.value is RollFilterMode.Active,
                     badge = { Text(counts.value.active.toString()) },
                     onClick = {
-                        model.setRollFilterMode(RollFilterMode.Active)
+                        mainViewModel.setRollFilterMode(RollFilterMode.Active)
                         scope.launch { drawerState?.close() }
                     }
                 )
@@ -230,7 +230,7 @@ fun DrawerContent(
                     selected = filter.value is RollFilterMode.Archived,
                     badge = { Text(counts.value.archived.toString()) },
                     onClick = {
-                        model.setRollFilterMode(RollFilterMode.Archived)
+                        mainViewModel.setRollFilterMode(RollFilterMode.Archived)
                         scope.launch { drawerState?.close() }
                     }
                 )
@@ -240,7 +240,7 @@ fun DrawerContent(
                     selected = filter.value is RollFilterMode.Favorites,
                     badge = { Text(counts.value.favorites.toString()) },
                     onClick = {
-                        model.setRollFilterMode(RollFilterMode.Favorites)
+                        mainViewModel.setRollFilterMode(RollFilterMode.Favorites)
                         scope.launch { drawerState?.close() }
                     }
                 )
@@ -250,7 +250,7 @@ fun DrawerContent(
                     selected = filter.value is RollFilterMode.All,
                     badge = { Text(all.toString()) },
                     onClick = {
-                        model.setRollFilterMode(RollFilterMode.All)
+                        mainViewModel.setRollFilterMode(RollFilterMode.All)
                         scope.launch { drawerState?.close() }
                     }
                 )
@@ -308,7 +308,7 @@ fun DrawerContent(
                         selected = filterValue is RollFilterMode.HasLabel && filterValue.label.id == label.id,
                         badge = { Text(label.rollCount.toString()) },
                         onClick = {
-                            model.setRollFilterMode(RollFilterMode.HasLabel(label))
+                            mainViewModel.setRollFilterMode(RollFilterMode.HasLabel(label))
                             scope.launch { drawerState?.close() }
                         }
                     )
@@ -321,11 +321,11 @@ fun DrawerContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(
-    model: RollsViewModel,
+    mainViewModel: MainViewModel,
     navigationIcon: @Composable () -> Unit = {}
 ) {
-    val rolls = model.rolls.collectAsState()
-    val selectedRolls = model.selectedRolls.collectAsState()
+    val rolls = mainViewModel.rolls.collectAsState()
+    val selectedRolls = mainViewModel.selectedRolls.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -335,7 +335,7 @@ fun MainContent(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             AppBar(
-                model = model,
+                mainViewModel = mainViewModel,
                 scrollBehavior = scrollBehavior,
                 navigationIcon = navigationIcon
             )
@@ -345,7 +345,7 @@ fun MainContent(
                 exit = fadeOut()
             ) {
                 ActionModeAppBar(
-                    model = model,
+                    mainViewModel = mainViewModel,
                     onSnackbarMessage = { text ->
                         scope.launch {
                             snackBarHostState.showSnackbar(text)
@@ -391,13 +391,13 @@ fun MainContent(
                         selected = selectedRolls.value.contains(roll),
                         onClick = {
                             if (actionModeEnabled) {
-                                model.toggleRollSelection(roll)
+                                mainViewModel.toggleRollSelection(roll)
                                 return@RollCard
                             }
                             /*TODO*/
                         },
                         onLongClick = {
-                            model.toggleRollSelection(roll)
+                            mainViewModel.toggleRollSelection(roll)
                         }
                     )
                 }
@@ -409,11 +409,11 @@ fun MainContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionModeAppBar(
-    model: RollsViewModel,
+    mainViewModel: MainViewModel,
     onSnackbarMessage: (String) -> Unit
 ) {
-    val selectedRolls = model.selectedRolls.collectAsState()
-    val allRolls = model.rolls.collectAsState()
+    val selectedRolls = mainViewModel.selectedRolls.collectAsState()
+    val allRolls = mainViewModel.rolls.collectAsState()
     val selectedRollsCount = selectedRolls.value.size
     val allRollsCount = when (val state = allRolls.value) {
         is State.Success -> state.data.size
@@ -425,13 +425,13 @@ fun ActionModeAppBar(
             Text(text)
         },
         navigationIcon = {
-            IconButton(onClick = { model.toggleRollSelectionNone() }) {
+            IconButton(onClick = { mainViewModel.toggleRollSelectionNone() }) {
                 Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
             }
         },
         actions = {
             TopAppBarActionMenu(
-                model = model,
+                mainViewModel = mainViewModel,
                 onSnackbarMessage = onSnackbarMessage
             )
         },
@@ -444,11 +444,11 @@ fun ActionModeAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(
-    model: RollsViewModel,
+    mainViewModel: MainViewModel,
     scrollBehavior: TopAppBarScrollBehavior,
     navigationIcon: @Composable () -> Unit = {}
 ) {
-    val subtitle = model.toolbarSubtitle.collectAsState()
+    val subtitle = mainViewModel.toolbarSubtitle.collectAsState()
     CenterAlignedTopAppBar(
         scrollBehavior = scrollBehavior,
         title = {
@@ -461,14 +461,14 @@ fun AppBar(
             navigationIcon()
         },
         actions = {
-            TopAppBarMenu(model)
+            TopAppBarMenu(mainViewModel)
         }
     )
 }
 
 @Composable
 fun TopAppBarActionMenu(
-    model: RollsViewModel,
+    mainViewModel: MainViewModel,
     onSnackbarMessage: (String) -> Unit
 ) {
     val messageRollsArchived = stringResource(R.string.RollsArchived)
@@ -481,7 +481,7 @@ fun TopAppBarActionMenu(
         IconButton(onClick = { /*TODO*/ }) {
             Icon(Icons.Outlined.Edit, "")
         }
-        IconButton(onClick = { model.toggleRollSelectionAll() }) {
+        IconButton(onClick = { mainViewModel.toggleRollSelectionAll() }) {
             Icon(Icons.Outlined.SelectAll, "")
         }
         IconButton(onClick = { showDeleteConfirmDialog = true }) {
@@ -496,11 +496,11 @@ fun TopAppBarActionMenu(
             text = { Text(stringResource(R.string.Archive)) },
             leadingIcon = { Icon(Icons.Outlined.Archive, "") },
             onClick = {
-                model.selectedRolls.value.forEach { roll ->
+                mainViewModel.selectedRolls.value.forEach { roll ->
                     roll.archived = true
-                    model.submitRoll(roll)
+                    mainViewModel.submitRoll(roll)
                 }
-                model.toggleRollSelectionNone()
+                mainViewModel.toggleRollSelectionNone()
                 onSnackbarMessage(messageRollsArchived)
             }
         )
@@ -508,11 +508,11 @@ fun TopAppBarActionMenu(
             text = { Text(stringResource(R.string.Unarchive)) },
             leadingIcon = { Icon(Icons.Outlined.Unarchive, "") },
             onClick = {
-                model.selectedRolls.value.forEach { roll ->
+                mainViewModel.selectedRolls.value.forEach { roll ->
                     roll.archived = false
-                    model.submitRoll(roll)
+                    mainViewModel.submitRoll(roll)
                 }
-                model.toggleRollSelectionNone()
+                mainViewModel.toggleRollSelectionNone()
                 onSnackbarMessage(messageRollsUnarchived)
             }
         )
@@ -520,11 +520,11 @@ fun TopAppBarActionMenu(
             text = { Text(stringResource(R.string.AddToFavorites)) },
             leadingIcon = { Icon(Icons.Filled.Favorite, "") },
             onClick = {
-                model.selectedRolls.value.forEach { roll ->
+                mainViewModel.selectedRolls.value.forEach { roll ->
                     roll.favorite = true
-                    model.submitRoll(roll)
+                    mainViewModel.submitRoll(roll)
                 }
-                model.toggleRollSelectionNone()
+                mainViewModel.toggleRollSelectionNone()
                 onSnackbarMessage(messageRollsAddedToFavorites)
             }
         )
@@ -532,11 +532,11 @@ fun TopAppBarActionMenu(
             text = { Text(stringResource(R.string.RemoveFromFavorites)) },
             leadingIcon = { Icon(Icons.Outlined.FavoriteBorder, "") },
             onClick = {
-                model.selectedRolls.value.forEach { roll ->
+                mainViewModel.selectedRolls.value.forEach { roll ->
                     roll.favorite = false
-                    model.submitRoll(roll)
+                    mainViewModel.submitRoll(roll)
                 }
-                model.toggleRollSelectionNone()
+                mainViewModel.toggleRollSelectionNone()
                 onSnackbarMessage(messageRollsRemovedFromFavorites)
             }
         )
@@ -552,7 +552,7 @@ fun TopAppBarActionMenu(
         )
     }
     if (showDeleteConfirmDialog) {
-        val count = model.selectedRolls.value.size
+        val count = mainViewModel.selectedRolls.value.size
         val title = pluralStringResource(R.plurals.ConfirmRollsDelete, count, count)
         AlertDialog(
             title = { Text(title) },
@@ -565,8 +565,8 @@ fun TopAppBarActionMenu(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        model.selectedRolls.value.forEach(model::deleteRoll)
-                        model.toggleRollSelectionNone()
+                        mainViewModel.selectedRolls.value.forEach(mainViewModel::deleteRoll)
+                        mainViewModel.toggleRollSelectionNone()
                     }
                 ) {
                     Text(stringResource(R.string.OK))
@@ -577,8 +577,8 @@ fun TopAppBarActionMenu(
 }
 
 @Composable
-fun TopAppBarMenu(model: RollsViewModel) {
-    val sort = model.rollSortMode.collectAsState()
+fun TopAppBarMenu(mainViewModel: MainViewModel) {
+    val sort = mainViewModel.rollSortMode.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
     IconButton(onClick = { showMenu = !showMenu }) {
         Icon(Icons.AutoMirrored.Outlined.Sort, "")
@@ -588,7 +588,7 @@ fun TopAppBarMenu(model: RollsViewModel) {
         DropdownMenuItem(
             text = { Text(stringResource(R.string.Date)) },
             onClick = {
-                model.setRollSortMode(RollSortMode.DATE)
+                mainViewModel.setRollSortMode(RollSortMode.DATE)
                 showMenu = false
             },
             leadingIcon = { Icon(Icons.Outlined.CalendarToday, "") },
@@ -596,7 +596,7 @@ fun TopAppBarMenu(model: RollsViewModel) {
                 RadioButton(
                     selected = sort.value == RollSortMode.DATE,
                     onClick = {
-                        model.setRollSortMode(RollSortMode.DATE)
+                        mainViewModel.setRollSortMode(RollSortMode.DATE)
                         showMenu = false
                     }
                 )
@@ -605,7 +605,7 @@ fun TopAppBarMenu(model: RollsViewModel) {
         DropdownMenuItem(
             text = { Text(stringResource(R.string.Name)) },
             onClick = {
-                model.setRollSortMode(RollSortMode.NAME)
+                mainViewModel.setRollSortMode(RollSortMode.NAME)
                 showMenu = false
             },
             leadingIcon = { Icon(Icons.Outlined.DriveFileRenameOutline, "") },
@@ -613,7 +613,7 @@ fun TopAppBarMenu(model: RollsViewModel) {
                 RadioButton(
                     selected = sort.value == RollSortMode.NAME,
                     onClick = {
-                        model.setRollSortMode(RollSortMode.NAME)
+                        mainViewModel.setRollSortMode(RollSortMode.NAME)
                         showMenu = false
                     }
                 )
@@ -622,7 +622,7 @@ fun TopAppBarMenu(model: RollsViewModel) {
         DropdownMenuItem(
             text = { Text(stringResource(R.string.Camera)) },
             onClick = {
-                model.setRollSortMode(RollSortMode.CAMERA)
+                mainViewModel.setRollSortMode(RollSortMode.CAMERA)
                 showMenu = false
             },
             leadingIcon = { Icon(Icons.Outlined.CameraAlt, "") },
@@ -630,7 +630,7 @@ fun TopAppBarMenu(model: RollsViewModel) {
                 RadioButton(
                     selected = sort.value == RollSortMode.CAMERA,
                     onClick = {
-                        model.setRollSortMode(RollSortMode.CAMERA)
+                        mainViewModel.setRollSortMode(RollSortMode.CAMERA)
                         showMenu = false
                     }
                 )
