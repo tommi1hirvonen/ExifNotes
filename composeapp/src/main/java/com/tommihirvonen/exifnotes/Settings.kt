@@ -18,7 +18,11 @@
 
 package com.tommihirvonen.exifnotes
 
+import android.content.Context
+import android.content.Intent
 import android.webkit.WebView
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +54,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -60,6 +66,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -73,6 +80,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.tommihirvonen.exifnotes.theme.Theme
 import com.tommihirvonen.exifnotes.theme.ThemeViewModel
+import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,6 +103,7 @@ fun Settings(
     val showExiftoolPathDialog = remember { mutableStateOf(false) }
     val showPathToPicturesDialog = remember { mutableStateOf(false) }
     val showFileEndingDialog = remember { mutableStateOf(false) }
+    val showExportDatabaseDialog = remember { mutableStateOf(false) }
 
     val locationUpdatesEnabled = settingsViewModel.locationUpdatesEnabled.collectAsState()
     val artistName = settingsViewModel.artistName.collectAsState()
@@ -104,6 +114,8 @@ fun Settings(
     val ignoreWarnings = settingsViewModel.ignoreWarnings.collectAsState()
     val theme = themeViewModel.theme.collectAsState()
 
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -116,7 +128,8 @@ fun Settings(
                     }
                 },
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -239,7 +252,8 @@ fun Settings(
             SettingsHeader(stringResource(R.string.Database))
             SettingsItem(
                 title = stringResource(R.string.ExportDatabaseTitle),
-                subtitle = stringResource(R.string.ExportDatabaseSummary)
+                subtitle = stringResource(R.string.ExportDatabaseSummary),
+                onClick = { showExportDatabaseDialog.value = true }
             )
             SettingsItem(
                 title = stringResource(R.string.ImportDatabaseTitle),
@@ -326,6 +340,47 @@ fun Settings(
             title = { Text(stringResource(R.string.FileEndingTitle)) },
             onDismiss = { showFileEndingDialog.value = false },
             onValueSet = { value -> settingsViewModel.setFileEnding(value) }
+        )
+    }
+
+    val snackTextDbCopiedSuccessfully = stringResource(R.string.DatabaseCopiedSuccessfully)
+    val snackTextDbCopyFailed = stringResource(R.string.ErrorExportingDatabase)
+    val startForResult = rememberLauncherForActivityResult(CreateDatabaseExportFile()) { resultUri ->
+        if (resultUri == null) {
+            return@rememberLauncherForActivityResult
+        }
+        settingsViewModel.exportDatabase(
+            destinationUri = resultUri,
+            onSuccess = {
+                scope.launch { snackbarHostState.showSnackbar(snackTextDbCopiedSuccessfully) }
+            },
+            onError = {
+                scope.launch { snackbarHostState.showSnackbar(snackTextDbCopyFailed) }
+            }
+        )
+    }
+    if (showExportDatabaseDialog.value) {
+        AlertDialog(
+            title = { Text(stringResource(R.string.ExportDatabaseTitle)) },
+            text = { Text(stringResource(R.string.ExportDatabaseVerification)) },
+            onDismissRequest = { showExportDatabaseDialog.value = false },
+            dismissButton = {
+                TextButton(onClick = { showExportDatabaseDialog.value = false }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExportDatabaseDialog.value = false
+                        val date = LocalDateTime.now().sortableDate
+                        val filename = "Exif_Notes_Database_$date.db"
+                        startForResult.launch(filename)
+                    }
+                ) {
+                    Text(stringResource(R.string.OK))
+                }
+            }
         )
     }
 }
@@ -582,5 +637,14 @@ fun ThirdPartyLicenses(onNavigateUp: () -> Unit) {
                 }
             )
         }
+    }
+}
+
+private class CreateDatabaseExportFile : CreateDocument("*/*") {
+    override fun createIntent(context: Context, input: String): Intent {
+        val intent = super.createIntent(context, input)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "*/*"
+        return intent
     }
 }

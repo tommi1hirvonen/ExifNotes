@@ -36,6 +36,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 fun <T> T.validate(vararg validations: (T) -> (Boolean)): Boolean =
     validations.map { it(this) }.all { it }
@@ -53,6 +55,9 @@ val Context.packageInfo: PackageInfo? get() {
     }
     return null
 }
+
+val LocalDateTime.sortableDate: String get() =
+    format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
 @Composable
 fun String.linkify(

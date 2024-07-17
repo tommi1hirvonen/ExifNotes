@@ -20,19 +20,26 @@ package com.tommihirvonen.exifnotes
 
 import android.app.Application
 import android.content.SharedPreferences
+import android.net.Uri
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.preference.PreferenceManager
+import com.tommihirvonen.exifnotes.data.Database
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.io.FileInputStream
+import java.io.IOException
+import java.io.InputStream
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
+class SettingsViewModel @Inject constructor(
+    private val application: Application,
+    private val database: Database
+) : AndroidViewModel(application) {
 
     companion object {
-        const val KEY_APP_THEME = "AppTheme"
         const val KEY_GPS_UPDATE = "GPSUpdate"
         const val KEY_IGNORE_WARNINGS = "IgnoreWarnings"
         const val KEY_FILE_ENDING = "FileEnding"
@@ -42,6 +49,7 @@ class SettingsViewModel @Inject constructor(application: Application) : AndroidV
         const val KEY_ARTIST_NAME = "ArtistName"
     }
 
+    private val context get() = application.applicationContext
     private val sharedPreferences: SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(application)
 
@@ -122,5 +130,24 @@ class SettingsViewModel @Inject constructor(application: Application) : AndroidV
             putBoolean(KEY_IGNORE_WARNINGS, value)
         }
         _ignoreWarnings.value = value
+    }
+
+    fun exportDatabase(
+        destinationUri: Uri,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
+        try {
+            val outputStream = context.contentResolver.openOutputStream(destinationUri)
+            val databaseFile = database.getDatabaseFile()
+            val inputStream: InputStream = FileInputStream(databaseFile)
+            inputStream.copyTo(outputStream!!)
+            inputStream.close()
+            outputStream.close()
+            onSuccess()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            onError()
+        }
     }
 }
