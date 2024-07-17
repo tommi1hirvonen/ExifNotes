@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -319,6 +320,7 @@ fun MainContent(
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val listState = rememberLazyListState()
     val actionModeEnabled = selectedRolls.value.isNotEmpty()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -340,6 +342,7 @@ fun MainContent(
             ExtendedFloatingActionButton(
                 icon = { Icon(Icons.Outlined.Add, "") },
                 text = { Text(stringResource(R.string.NewRoll)) },
+                expanded = listState.isScrollingUp(),
                 onClick = { /*TODO*/ }
             )
         },
@@ -360,7 +363,8 @@ fun MainContent(
         } else if (state is State.Success) {
             LazyColumn(
                 modifier = Modifier.padding(innerPadding),
-                contentPadding = PaddingValues(bottom = 80.dp)
+                contentPadding = PaddingValues(bottom = 80.dp),
+                state = listState
             ) {
                 items(
                     items = state.data,
