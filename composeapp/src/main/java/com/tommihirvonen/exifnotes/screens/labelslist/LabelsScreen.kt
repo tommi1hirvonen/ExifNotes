@@ -85,16 +85,21 @@ private fun LabelsContentPreview() {
         Label(1, "label 2", 2),
         Label(2, "label 3", 3)
     )
-    LabelsContent(labels)
+    LabelsContent(
+        labels = labels,
+        onDeleteLabel = {},
+        onEditLabel = {},
+        onNavigateUp = {}
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LabelsContent(
     labels: List<Label>,
-    onDeleteLabel: (Label) -> Unit = {},
-    onEditLabel: (Label?) -> Unit = {},
-    onNavigateUp: () -> Unit = {}
+    onDeleteLabel: (Label) -> Unit,
+    onEditLabel: (Label?) -> Unit,
+    onNavigateUp: () -> Unit
 ) {
     val confirmDeleteLabel = remember { mutableStateOf<Label?>(null) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -164,14 +169,18 @@ private fun LabelsContent(
 @Composable
 private fun LabelListItemPreview() {
     val label = Label(name = "test-label", rollCount = 5)
-    LabelListItem(label = label)
+    LabelListItem(
+        label = label,
+        onLabelDelete = {},
+        onLabelEdit = {}
+    )
 }
 
 @Composable
 private fun LabelListItem(
     label: Label,
-    onLabelDelete: () -> Unit = {},
-    onLabelEdit: () -> Unit = {}
+    onLabelDelete: () -> Unit,
+    onLabelEdit: () -> Unit
 ) {
     Card(
         modifier = Modifier

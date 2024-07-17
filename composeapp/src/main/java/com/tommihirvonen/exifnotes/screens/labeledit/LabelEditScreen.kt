@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,9 +49,47 @@ fun LabelEditScreen(
 ) {
     val name = model.labelName.collectAsState()
     val error = model.labelNameError.collectAsState()
+    LabelEditForm(
+        isNewLabel = model.label.id <= 0,
+        labelName = name.value,
+        labelNameError = error.value,
+        onLabelNameChange = model::setLabelName,
+        onDismiss = onDismiss,
+        onSubmit = {
+            val result = model.validate()
+            if (result) {
+                mainViewModel.submitLabel(model.label)
+                onDismiss()
+            }
+        }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LabelEditFormPreview() {
+    LabelEditForm(
+        isNewLabel = false,
+        labelName = "Test label",
+        labelNameError = false,
+        onLabelNameChange = {},
+        onDismiss = {},
+        onSubmit = {}
+    )
+}
+
+@Composable
+private fun LabelEditForm(
+    isNewLabel: Boolean,
+    labelName: String,
+    labelNameError: Boolean,
+    onLabelNameChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onSubmit: () -> Unit
+) {
     DialogContent {
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
-            val title = if (model.label.id > 0) {
+            val title = if (!isNewLabel) {
                 stringResource(id = R.string.EditLabel)
             } else {
                 stringResource(id = R.string.AddNewLabel)
@@ -59,11 +98,11 @@ fun LabelEditScreen(
             Row(modifier = Modifier.padding(top = 8.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = name.value,
-                    onValueChange = model::setLabelName,
+                    value = labelName,
+                    onValueChange = onLabelNameChange,
                     label = { Text(stringResource(R.string.Name)) },
                     supportingText = { Text(stringResource(R.string.Required)) },
-                    isError = error.value
+                    isError = labelNameError
                 )
             }
             Row(
@@ -77,16 +116,10 @@ fun LabelEditScreen(
                     Text(stringResource(R.string.Cancel))
                 }
                 TextButton(
-                    onClick = {
-                        val result = model.validate()
-                        if (result) {
-                            mainViewModel.submitLabel(model.label)
-                            onDismiss()
-                        }
-                    },
+                    onClick = onSubmit,
                     modifier = Modifier.padding(8.dp),
                 ) {
-                    val confirmText = if (model.label.id > 0) {
+                    val confirmText = if (!isNewLabel) {
                         stringResource(id = R.string.OK)
                     } else {
                         stringResource(id = R.string.Add)
