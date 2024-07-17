@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.screens.settings
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
@@ -44,6 +45,7 @@ import androidx.compose.material.icons.outlined.HdrAuto
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.outlined.LocationSearching
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -89,15 +91,121 @@ import com.tommihirvonen.exifnotes.util.textResource
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     themeViewModel: ThemeViewModel,
     settingsViewModel: SettingsViewModel,
     mainViewModel: MainViewModel,
-    onNavigateUp: () -> Unit = {},
-    onNavigateToLicense: () -> Unit = {},
-    onNavigateToThirdPartyLicenses: () -> Unit = {}
+    onNavigateUp: () -> Unit,
+    onNavigateToLicense: () -> Unit,
+    onNavigateToThirdPartyLicenses: () -> Unit
+) {
+    val locationUpdatesEnabled = settingsViewModel.locationUpdatesEnabled.collectAsState()
+    val artistName = settingsViewModel.artistName.collectAsState()
+    val copyrightInfo = settingsViewModel.copyrightInfo.collectAsState()
+    val exiftoolPath = settingsViewModel.exiftoolPath.collectAsState()
+    val pathToPictures = settingsViewModel.pathToPictures.collectAsState()
+    val fileEnding = settingsViewModel.fileEnding.collectAsState()
+    val ignoreWarnings = settingsViewModel.ignoreWarnings.collectAsState()
+    val theme = themeViewModel.theme.collectAsState()
+
+    SettingsList(
+        locationUpdatesEnabled = locationUpdatesEnabled.value,
+        onLocationUpdatesSet = settingsViewModel::setLocationUpdatesEnabled,
+        artistName = artistName.value,
+        onArtistNameSet = settingsViewModel::setArtistName,
+        copyrightInfo = copyrightInfo.value,
+        onCopyrightInfoSet = settingsViewModel::setCopyrightInfo,
+        exiftoolPath = exiftoolPath.value,
+        onExiftoolPathSet = settingsViewModel::setExiftoolPath,
+        pathToPictures = pathToPictures.value,
+        onPathToPicturesSet = settingsViewModel::setPathToPictures,
+        fileEnding = fileEnding.value,
+        onFileEndingSet = settingsViewModel::setFileEnding,
+        ignoreWarnings = ignoreWarnings.value,
+        onIgnoreWarningsSet = settingsViewModel::setIgnoreWarnings,
+        theme = theme.value,
+        onThemeSet = themeViewModel::setTheme,
+        onPicturesExportRequested = settingsViewModel::exportComplementaryPictures,
+        onPicturesImportRequested = settingsViewModel::importComplementaryPictures,
+        onDatabaseExportRequested = { uri, callback ->
+            settingsViewModel.exportDatabase(
+                destinationUri = uri,
+                onSuccess = callback::onSuccess,
+                onError = callback::onError
+            )
+        },
+        onDatabaseImportRequested = { uri, callback ->
+            settingsViewModel.importDatabase(
+                sourceUri = uri,
+                onSuccess = { message ->
+                    callback.onSuccess(message)
+                    mainViewModel.loadAll()
+                },
+                onError = callback::onError
+            )
+        },
+        onNavigateUp = onNavigateUp,
+        onNavigateToLicense = onNavigateToLicense,
+        onNavigateToThirdPartyLicenses = onNavigateToThirdPartyLicenses
+    )
+}
+
+@Preview(heightDp = 1600)
+@Composable
+private fun SettingsListPreview() {
+    SettingsList(
+        locationUpdatesEnabled = true,
+        onLocationUpdatesSet = {},
+        artistName = "",
+        onArtistNameSet = {},
+        copyrightInfo = "",
+        onCopyrightInfoSet = {},
+        exiftoolPath = "",
+        onExiftoolPathSet = {},
+        pathToPictures = "",
+        onPathToPicturesSet = {},
+        fileEnding = "",
+        onFileEndingSet = {},
+        ignoreWarnings = true,
+        onIgnoreWarningsSet = {},
+        theme = Theme.Auto,
+        onThemeSet = {},
+        onPicturesExportRequested = {},
+        onPicturesImportRequested = {},
+        onDatabaseExportRequested = { _, _ -> },
+        onDatabaseImportRequested = { _, _ -> },
+        onNavigateUp = {},
+        onNavigateToLicense = {},
+        onNavigateToThirdPartyLicenses = {})
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SettingsList(
+    locationUpdatesEnabled: Boolean,
+    onLocationUpdatesSet: (Boolean) -> Unit,
+    artistName: String,
+    onArtistNameSet: (String) -> Unit,
+    copyrightInfo: String,
+    onCopyrightInfoSet: (String) -> Unit,
+    exiftoolPath: String,
+    onExiftoolPathSet: (String) -> Unit,
+    pathToPictures: String,
+    onPathToPicturesSet: (String) -> Unit,
+    fileEnding: String,
+    onFileEndingSet: (String) -> Unit,
+    ignoreWarnings: Boolean,
+    onIgnoreWarningsSet: (Boolean) -> Unit,
+    theme: Theme,
+    onThemeSet: (Theme) -> Unit,
+    onPicturesExportRequested: (Uri) -> Unit,
+    onPicturesImportRequested: (Uri) -> Unit,
+    onDatabaseExportRequested: (Uri, DatabaseExportCallback) -> Unit,
+    onDatabaseImportRequested: (Uri, DatabaseImportCallback) -> Unit,
+    onNavigateUp: () -> Unit,
+    onNavigateToLicense: () -> Unit,
+    onNavigateToThirdPartyLicenses: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val showAboutDialog = remember { mutableStateOf(false) }
@@ -113,15 +221,6 @@ fun SettingsScreen(
     val showImportPicturesDialog = remember { mutableStateOf(false) }
     val showExportDatabaseDialog = remember { mutableStateOf(false) }
     val showImportDatabaseDialog = remember { mutableStateOf(false) }
-
-    val locationUpdatesEnabled = settingsViewModel.locationUpdatesEnabled.collectAsState()
-    val artistName = settingsViewModel.artistName.collectAsState()
-    val copyrightInfo = settingsViewModel.copyrightInfo.collectAsState()
-    val exiftoolPath = settingsViewModel.exiftoolPath.collectAsState()
-    val pathToPictures = settingsViewModel.pathToPictures.collectAsState()
-    val fileEnding = settingsViewModel.fileEnding.collectAsState()
-    val ignoreWarnings = settingsViewModel.ignoreWarnings.collectAsState()
-    val theme = themeViewModel.theme.collectAsState()
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -183,18 +282,16 @@ fun SettingsScreen(
                 subtitle = stringResource(R.string.GPSUpdateSummary),
                 icon = Icons.Outlined.GpsNotFixed,
                 onClick = {
-                    val value = !locationUpdatesEnabled.value
-                    settingsViewModel.setLocationUpdatesEnabled(value)
+                    val value = !locationUpdatesEnabled
+                    onLocationUpdatesSet(value)
                 }
             ) {
                 Switch(
-                    checked = locationUpdatesEnabled.value,
-                    onCheckedChange = { value ->
-                        settingsViewModel.setLocationUpdatesEnabled(value)
-                    }
+                    checked = locationUpdatesEnabled,
+                    onCheckedChange = onLocationUpdatesSet
                 )
             }
-            val (themeSubtitle, themeIcon) = when (theme.value) {
+            val (themeSubtitle, themeIcon) = when (theme) {
                 is Theme.Light -> stringResource(R.string.Light) to Icons.Outlined.LightMode
                 is Theme.Dark -> stringResource(R.string.Dark) to Icons.Outlined.DarkMode
                 is Theme.Auto -> stringResource(R.string.SystemDefault) to Icons.Outlined.HdrAuto
@@ -236,15 +333,13 @@ fun SettingsScreen(
                 title = stringResource(R.string.IgnoreWarningsTitle),
                 subtitle = stringResource(R.string.IgnoreWarningsSummary),
                 onClick = {
-                    val value = !ignoreWarnings.value
-                    settingsViewModel.setIgnoreWarnings(value)
+                    val value = !ignoreWarnings
+                    onIgnoreWarningsSet(value)
                 }
             ) {
                 Checkbox(
-                    checked = ignoreWarnings.value,
-                    onCheckedChange = { value ->
-                        settingsViewModel.setIgnoreWarnings(value)
-                    }
+                    checked = ignoreWarnings,
+                    onCheckedChange = onIgnoreWarningsSet
                 )
             }
             HorizontalDivider()
@@ -257,7 +352,7 @@ fun SettingsScreen(
                 if (resultUri == null) {
                     return@rememberLauncherForActivityResult
                 }
-                settingsViewModel.exportComplementaryPictures(resultUri)
+                onPicturesExportRequested(resultUri)
                 scope.launch { snackbarHostState.showSnackbar(exportingPicturesText) }
             }
             SettingsItem(
@@ -324,49 +419,49 @@ fun SettingsScreen(
     }
     if (showThemeDialog.value) {
         ThemeDialog(
-            currentTheme = theme.value,
+            currentTheme = theme,
             onDismiss = { showThemeDialog.value = false },
-            onThemeSet = { t -> themeViewModel.setTheme(t) }
+            onThemeSet = onThemeSet
         )
     }
     if (showArtistNameDialog.value) {
         EditSettingDialog(
-            initialValue = artistName.value,
+            initialValue = artistName,
             title = { Text(stringResource(R.string.ArtistName)) },
             onDismiss = { showArtistNameDialog.value = false },
-            onValueSet = { value -> settingsViewModel.setArtistName(value) }
+            onValueSet = onArtistNameSet
         )
     }
     if (showCopyrightInfoDialog.value) {
         EditSettingDialog(
-            initialValue = copyrightInfo.value,
+            initialValue = copyrightInfo,
             title = { Text(stringResource(R.string.CopyrightInformationTitle)) },
             onDismiss = { showCopyrightInfoDialog.value = false },
-            onValueSet = { value -> settingsViewModel.setCopyrightInfo(value) }
+            onValueSet = onCopyrightInfoSet
         )
     }
     if (showExiftoolPathDialog.value) {
         EditSettingDialog(
-            initialValue = exiftoolPath.value,
+            initialValue = exiftoolPath,
             title = { Text(stringResource(R.string.ExiftoolPathTitle)) },
             onDismiss = { showExiftoolPathDialog.value = false },
-            onValueSet = { value -> settingsViewModel.setExiftoolPath(value) }
+            onValueSet = onExiftoolPathSet
         )
     }
     if (showPathToPicturesDialog.value) {
         EditSettingDialog(
-            initialValue = pathToPictures.value,
+            initialValue = pathToPictures,
             title = { Text(stringResource(R.string.PicturesPathTitle)) },
             onDismiss = { showPathToPicturesDialog.value = false },
-            onValueSet = { value -> settingsViewModel.setPathToPictures(value) }
+            onValueSet = onPathToPicturesSet
         )
     }
     if (showFileEndingDialog.value) {
         EditSettingDialog(
-            initialValue = fileEnding.value,
+            initialValue = fileEnding,
             title = { Text(stringResource(R.string.FileEndingTitle)) },
             onDismiss = { showFileEndingDialog.value = false },
-            onValueSet = { value -> settingsViewModel.setFileEnding(value) }
+            onValueSet = onFileEndingSet
         )
     }
 
@@ -375,7 +470,7 @@ fun SettingsScreen(
         if (resultUri == null) {
             return@rememberLauncherForActivityResult
         }
-        settingsViewModel.importComplementaryPictures(resultUri)
+        onPicturesImportRequested(resultUri)
         scope.launch { snackbarHostState.showSnackbar(importingPicturesText) }
     }
     if (showImportPicturesDialog.value) {
@@ -407,15 +502,14 @@ fun SettingsScreen(
         if (resultUri == null) {
             return@rememberLauncherForActivityResult
         }
-        settingsViewModel.exportDatabase(
-            destinationUri = resultUri,
-            onSuccess = {
+        onDatabaseExportRequested(resultUri, object : DatabaseExportCallback {
+            override fun onSuccess() {
                 scope.launch { snackbarHostState.showSnackbar(snackTextDbCopiedSuccessfully) }
-            },
-            onError = {
+            }
+            override fun onError() {
                 scope.launch { snackbarHostState.showSnackbar(snackTextDbCopyFailed) }
             }
-        )
+        })
     }
     if (showExportDatabaseDialog.value) {
         AlertDialog(
@@ -446,16 +540,14 @@ fun SettingsScreen(
         if (resultUri == null) {
             return@rememberLauncherForActivityResult
         }
-        settingsViewModel.importDatabase(
-            sourceUri = resultUri,
-            onSuccess = { message ->
-                scope.launch { snackbarHostState.showSnackbar(message) }
-                mainViewModel.loadAll()
-            },
-            onError = { message ->
+        onDatabaseImportRequested(resultUri, object : DatabaseImportCallback {
+            override fun onSuccess(message: String) {
                 scope.launch { snackbarHostState.showSnackbar(message) }
             }
-        )
+            override fun onError(message: String) {
+                scope.launch { snackbarHostState.showSnackbar(message) }
+            }
+        })
     }
     if (showImportDatabaseDialog.value) {
         AlertDialog(
@@ -481,6 +573,12 @@ fun SettingsScreen(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun SettingsHeaderPreview() {
+    SettingsHeader("Test header")
+}
+
 @Composable
 private fun SettingsHeader(header: String) {
     Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)) {
@@ -488,12 +586,26 @@ private fun SettingsHeader(header: String) {
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun SettingsItemPreview() {
+    SettingsItem(
+        title = "Test setting title",
+        subtitle = "Test setting summary",
+        icon = Icons.Outlined.LocationSearching,
+        onClick = {},
+        content = {
+            Switch(checked = true, onCheckedChange = {})
+        }
+    )
+}
+
 @Composable
 private fun SettingsItem(
     title: String,
     subtitle: String? = null,
     icon: ImageVector? = null,
-    onClick: () -> Unit = {},
+    onClick: () -> Unit,
     content: @Composable (() -> Unit)? = null
 ) {
     Box(modifier = Modifier.clickable { onClick() }) {
@@ -537,11 +649,21 @@ private fun SettingsItem(
 
 @Preview
 @Composable
+private fun EditSettingsDialogPreview() {
+    EditSettingDialog(
+        initialValue = "Test value",
+        title = { Text("Edit test value") },
+        onDismiss = {},
+        onValueSet = {}
+    )
+}
+
+@Composable
 private fun EditSettingDialog(
-    initialValue: String = "",
-    title: @Composable () -> Unit = {},
-    onDismiss: () -> Unit = {},
-    onValueSet: (String) -> Unit = {}
+    initialValue: String,
+    title: @Composable () -> Unit,
+    onDismiss: () -> Unit,
+    onValueSet: (String) -> Unit
 ) {
     val value = remember { mutableStateOf(initialValue) }
     AlertDialog(
@@ -573,6 +695,16 @@ private fun EditSettingDialog(
     )
 }
 
+@Preview
+@Composable
+private fun InfoDialogPreview() {
+    InfoDialog(
+        title = { Text("Title") },
+        text = { Text("Text") },
+        onDismiss = {}
+    )
+}
+
 @Composable
 private fun InfoDialog(
     title: @Composable () -> Unit,
@@ -597,10 +729,15 @@ private fun InfoDialog(
 
 @Preview
 @Composable
+private fun ThemeDialogPreview() {
+    ThemeDialog(currentTheme = Theme.Auto, onDismiss = {}, onThemeSet = {})
+}
+
+@Composable
 private fun ThemeDialog(
-    currentTheme: Theme = Theme.Auto,
-    onDismiss: () -> Unit = {},
-    onThemeSet: (Theme) -> Unit = {}
+    currentTheme: Theme,
+    onDismiss: () -> Unit,
+    onThemeSet: (Theme) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -672,6 +809,16 @@ private fun ThemeDialog(
             }
         }
     )
+}
+
+private interface DatabaseExportCallback {
+    fun onSuccess()
+    fun onError()
+}
+
+private interface DatabaseImportCallback {
+    fun onSuccess(message: String)
+    fun onError(message: String)
 }
 
 private class CreatePicturesExportFile : CreateDocument("application/zip") {
