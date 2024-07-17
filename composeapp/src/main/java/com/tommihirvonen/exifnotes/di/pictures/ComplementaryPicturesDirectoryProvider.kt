@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.pictures
+package com.tommihirvonen.exifnotes.di.pictures
 
 import android.content.Context
 import android.os.Environment

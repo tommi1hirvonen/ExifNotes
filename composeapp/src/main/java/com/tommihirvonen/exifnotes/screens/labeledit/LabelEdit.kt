@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes
+package com.tommihirvonen.exifnotes.screens.labeledit
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +33,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.tommihirvonen.exifnotes.screens.DialogContent
+import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.screens.main.RollsViewModel
 
 @Composable
 fun LabelForm(

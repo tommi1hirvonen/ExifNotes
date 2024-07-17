@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes
+package com.tommihirvonen.exifnotes.util
 
 sealed class State<T> {
     class InProgress<T> : State<T>()

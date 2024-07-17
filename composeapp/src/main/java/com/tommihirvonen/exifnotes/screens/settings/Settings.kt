@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes
+package com.tommihirvonen.exifnotes.screens.settings
 
 import android.content.Context
 import android.content.Intent
@@ -79,6 +79,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.screens.main.RollsViewModel
+import com.tommihirvonen.exifnotes.screens.StyledText
+import com.tommihirvonen.exifnotes.util.linkify
+import com.tommihirvonen.exifnotes.util.packageInfo
+import com.tommihirvonen.exifnotes.util.sortableDate
+import com.tommihirvonen.exifnotes.util.textResource
 import com.tommihirvonen.exifnotes.theme.Theme
 import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 import kotlinx.coroutines.launch
@@ -246,7 +253,9 @@ fun Settings(
             SettingsHeader(stringResource(R.string.ComplementaryPictures))
 
             val exportingPicturesText = stringResource(R.string.StartedExportingComplementaryPictures)
-            val createPicturesExportFile = rememberLauncherForActivityResult(CreatePicturesExportFile()) { resultUri ->
+            val createPicturesExportFile = rememberLauncherForActivityResult(
+                CreatePicturesExportFile()
+            ) { resultUri ->
                 if (resultUri == null) {
                     return@rememberLauncherForActivityResult
                 }

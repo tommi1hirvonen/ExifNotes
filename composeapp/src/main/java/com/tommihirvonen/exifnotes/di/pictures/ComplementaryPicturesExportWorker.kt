@@ -1,6 +1,6 @@
 /*
  * Exif Notes
- * Copyright (C) 2022  Tommi Hirvonen
+ * Copyright (C) 2024  Tommi Hirvonen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,13 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.pictures
+package com.tommihirvonen.exifnotes.di.pictures
 
 import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
@@ -36,39 +37,39 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.makeDirsIfNotExists
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.*
-import java.util.zip.ZipFile
-import java.util.zip.ZipInputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
-class ComplementaryPicturesImportWorker(
+class ComplementaryPicturesExportWorker(
     private val context: Context,
     parameters: WorkerParameters
 ) : CoroutineWorker(context, parameters) {
 
     companion object {
         const val TARGET_URI = "TARGET_URI"
+        const val FILENAMES = "FILENAMES"
     }
 
     private val complementaryPicturesDirectoryProvider =
         ComplementaryPicturesDirectoryProvider(context)
 
     private val notificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
-    private val channelId = "exif_notes_complementary_pictures_import"
+    private val channelId = "exif_notes_complementary_pictures_export"
 
-    private val progressNotificationId = 10
-    private val resultNotificationId = 11
+    private val progressNotificationId = 0
+    private val resultNotificationId = 1
 
     private var progress = 0
     private var total = 0
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
         val title = applicationContext
-            .getString(R.string.NotificationComplementaryPicturesImportTitle)
+            .getString(R.string.NotificationComplementaryPicturesExportTitle)
         val cancel = applicationContext.getString(R.string.Cancel)
         // This PendingIntent can be used to cancel the worker
         val intent = WorkManager.getInstance(applicationContext)
@@ -101,68 +102,49 @@ class ComplementaryPicturesImportWorker(
             return Result.failure()
         }
 
-        val picturesUri = inputData.getString(TARGET_URI)?.toUri()
+        val complementaryPictureFilenames = inputData.getStringArray(FILENAMES)
             ?: return Result.failure()
+        val picturesDirectory = complementaryPicturesDirectoryProvider.directory
+            ?: return Result.failure()
+        val filenameFilter = FilenameFilter { _: File?, s: String? ->
+            complementaryPictureFilenames.contains(s)
+        }
+        val pictureFiles = picturesDirectory.listFiles(filenameFilter)
+        if (pictureFiles.isNullOrEmpty()) {
+            return Result.success()
+        }
+
+        total = pictureFiles.size
+        setForeground(getForegroundInfo())
 
         val (result, succeeded) = withContext(Dispatchers.IO) {
-
-            val filePath: String = try {
-                val inputStream = applicationContext.contentResolver.openInputStream(picturesUri)
-                val outputDir = applicationContext.externalCacheDir
-                val outputFile = File.createTempFile("pictures", ".zip", outputDir)
-                val outputStream: OutputStream = FileOutputStream(outputFile)
-                inputStream!!.copyTo(outputStream)
-                inputStream.close()
-                outputStream.close()
-                outputFile.absolutePath
-            } catch (e: IOException) {
-                e.printStackTrace()
-                return@withContext Result.failure() to false
-            }
-
-            val zipFile = File(filePath)
-            val targetDirectory = complementaryPicturesDirectoryProvider.directory
-                ?: return@withContext Result.failure() to false
-
-            try {
-                val totalEntries = ZipFile(zipFile).size()
-                // If the zip file was empty, end here.
-                if (totalEntries == 0) {
-                    return@withContext Result.failure() to false
-                }
-                // Publish empty progress to tell the interface, that the process has begun.
-                total = totalEntries
-                setForeground(getForegroundInfo())
-                // Create target directory if it does not exists
-                targetDirectory.makeDirsIfNotExists()
-                ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
-                    generateSequence { zipInputStream.nextEntry }.forEachIndexed { index, zipEntry ->
-                        if (isStopped) {
-                            return@withContext Result.success() to true
-                        }
-                        val targetFile = File(targetDirectory, zipEntry.name)
-                        if (!targetFile.canonicalPath.startsWith(targetDirectory.canonicalPath)) {
-                            throw SecurityException("Possible path traversal characters detected in zip entry path")
-                        } else if (zipEntry.isDirectory) {
-                            targetFile.makeDirsIfNotExists()
-                        } else {
-                            if (targetFile.exists()) {
-                                targetFile.delete()
-                            }
-                            FileOutputStream(targetFile).use { outputStream ->
-                                zipInputStream.copyTo(outputStream)
-                            }
-                            zipInputStream.closeEntry()
-                            progress = index + 1
-                            setForeground(getForegroundInfo())
-                        }
+            val tempFile = File.createTempFile("complementary_pictures", ".zip",
+                applicationContext.externalCacheDir)
+            val tempOutputStream = FileOutputStream(tempFile)
+            ZipOutputStream(tempOutputStream).use { outputStream ->
+                pictureFiles.forEachIndexed { index, file ->
+                    if (isStopped) {
+                        return@withContext Result.success() to true
                     }
+                    BufferedInputStream(FileInputStream(file)).use { inputStream ->
+                        val entry = ZipEntry(file.name)
+                        outputStream.putNextEntry(entry)
+                        inputStream.copyTo(outputStream)
+                    }
+                    progress = index + 1
+                    setForeground(getForegroundInfo())
                 }
-                return@withContext Result.success() to true
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return@withContext Result.failure() to false
             }
+
+            val targetUri = inputData.getString(TARGET_URI)?.toUri()
+                ?: return@withContext Result.failure() to false
+            val targetOutputStream = applicationContext.contentResolver.openOutputStream(targetUri)
+
+            val tempInputStream = FileInputStream(tempFile)
+            tempInputStream.copyTo(targetOutputStream!!)
+            tempInputStream.close()
+            targetOutputStream.close()
+            return@withContext Result.success() to true
         }
 
         with(NotificationManagerCompat.from(applicationContext)) {
@@ -179,11 +161,11 @@ class ComplementaryPicturesImportWorker(
 
     private fun createResultNotification(success: Boolean): Notification {
         val (title, message) = if (success) {
-            applicationContext.getString(R.string.NotificationComplementaryPicturesImportSuccessTitle) to
-                    applicationContext.getString(R.string.NotificationComplementaryPicturesImportSuccessMessage)
+            applicationContext.getString(R.string.NotificationComplementaryPicturesExportSuccessTitle) to
+                    applicationContext.getString(R.string.NotificationComplementaryPicturesExportSuccessMessage)
         } else {
-            applicationContext.getString(R.string.NotificationComplementaryPicturesImportFailTitle) to
-                    applicationContext.getString(R.string.NotificationComplementaryPicturesImportFailMessage)
+            applicationContext.getString(R.string.NotificationComplementaryPicturesExportFailTitle) to
+                    applicationContext.getString(R.string.NotificationComplementaryPicturesExportFailMessage)
         }
         // Create a Notification channel if necessary
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -201,9 +183,9 @@ class ComplementaryPicturesImportWorker(
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createChannel() {
         val name = applicationContext
-            .getString(R.string.NotificationComplementaryPicturesImportName)
+            .getString(R.string.NotificationComplementaryPicturesExportName)
         val descriptionText = applicationContext
-            .getString(R.string.NotificationComplementaryPicturesImportDescription)
+            .getString(R.string.NotificationComplementaryPicturesExportDescription)
         val importance = NotificationManager.IMPORTANCE_LOW
         val channel = NotificationChannel(channelId, name, importance)
         channel.description = descriptionText

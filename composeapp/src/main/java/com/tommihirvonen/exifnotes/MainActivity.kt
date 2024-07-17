@@ -30,6 +30,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.tommihirvonen.exifnotes.screens.labeledit.LabelForm
+import com.tommihirvonen.exifnotes.screens.labelslist.LabelsList
+import com.tommihirvonen.exifnotes.screens.main.RollsList
+import com.tommihirvonen.exifnotes.screens.main.RollsViewModel
+import com.tommihirvonen.exifnotes.screens.settings.License
+import com.tommihirvonen.exifnotes.screens.settings.Settings
+import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
+import com.tommihirvonen.exifnotes.screens.settings.ThirdPartyLicenses
 import com.tommihirvonen.exifnotes.theme.ExifNotesTheme
 import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 import dagger.hilt.android.AndroidEntryPoint

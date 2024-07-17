@@ -16,11 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes
+package com.tommihirvonen.exifnotes.screens.labeledit
 
 import androidx.lifecycle.ViewModel
 import com.tommihirvonen.exifnotes.core.entities.Label
 import com.tommihirvonen.exifnotes.data.repositories.LabelRepository
+import com.tommihirvonen.exifnotes.util.validate
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

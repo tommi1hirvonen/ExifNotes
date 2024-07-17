@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes
+package com.tommihirvonen.exifnotes.screens.settings
 
 import android.app.Application
 import android.content.SharedPreferences
@@ -28,10 +28,11 @@ import androidx.preference.PreferenceManager
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
-import com.tommihirvonen.exifnotes.pictures.ComplementaryPicturesExportWorker
-import com.tommihirvonen.exifnotes.pictures.ComplementaryPicturesImportWorker
+import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesExportWorker
+import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesImportWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
