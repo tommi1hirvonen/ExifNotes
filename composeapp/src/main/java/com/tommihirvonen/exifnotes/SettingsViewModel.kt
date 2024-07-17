@@ -21,6 +21,7 @@ package com.tommihirvonen.exifnotes
 import android.app.Application
 import android.content.SharedPreferences
 import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.preference.PreferenceManager
@@ -28,9 +29,12 @@ import com.tommihirvonen.exifnotes.data.Database
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -148,6 +152,58 @@ class SettingsViewModel @Inject constructor(
         } catch (e: IOException) {
             e.printStackTrace()
             onError()
+        }
+    }
+
+    fun importDatabase(
+        sourceUri: Uri,
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        try{
+            // Copy the content from the Uri to a cached File so it can be read as a File.
+
+            // Check the extension of the given file.
+            val cursor = context.contentResolver.query(sourceUri,
+                null, null, null, null)
+            cursor!!.moveToFirst()
+            val name = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
+            if (File(name).extension != "db") {
+                onError("Not a valid .db file!")
+                return
+            }
+            cursor.close()
+
+            // Copy file for database import.
+            val inputStream = context.contentResolver.openInputStream(sourceUri)
+            val outputDir = context.externalCacheDir
+            val outputFile = File.createTempFile("database", ".db", outputDir)
+            val outputStream: OutputStream = FileOutputStream(outputFile)
+            inputStream!!.copyTo(outputStream)
+            inputStream.close()
+            outputStream.close()
+            val filePath = outputFile.absolutePath
+            val extension = outputFile.extension
+
+            //If the length of filePath is 0, then the user canceled the import.
+            if (filePath.isNotEmpty() && extension == "db") {
+                val importSuccess: Boolean = try {
+                    database.importDatabase(filePath)
+                } catch (e: IOException) {
+                    val message = context.resources.getString(R.string.ErrorImportingDatabaseFrom) +
+                            filePath
+                    onError(message)
+                    return
+                }
+                if (importSuccess) {
+                    val message = context.resources.getString(R.string.DatabaseImported)
+                    onSuccess(message)
+                } else {
+                    onError("Import failed")
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 }

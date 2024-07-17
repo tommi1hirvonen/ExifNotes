@@ -74,6 +74,7 @@ class MainActivity : ComponentActivity() {
                         Settings(
                             themeViewModel = themeModel,
                             settingsViewModel = settingsModel,
+                            rollsViewModel = rollsModel,
                             onNavigateUp = { navController.navigateUp() },
                             onNavigateToLicense = { navController.navigate(route = License) },
                             onNavigateToThirdPartyLicenses = {

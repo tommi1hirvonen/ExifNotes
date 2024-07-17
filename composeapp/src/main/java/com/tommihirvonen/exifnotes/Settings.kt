@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.webkit.WebView
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -88,6 +89,7 @@ import java.time.LocalDateTime
 fun Settings(
     themeViewModel: ThemeViewModel,
     settingsViewModel: SettingsViewModel,
+    rollsViewModel: RollsViewModel,
     onNavigateUp: () -> Unit = {},
     onNavigateToLicense: () -> Unit = {},
     onNavigateToThirdPartyLicenses: () -> Unit = {}
@@ -104,6 +106,7 @@ fun Settings(
     val showPathToPicturesDialog = remember { mutableStateOf(false) }
     val showFileEndingDialog = remember { mutableStateOf(false) }
     val showExportDatabaseDialog = remember { mutableStateOf(false) }
+    val showImportDatabaseDialog = remember { mutableStateOf(false) }
 
     val locationUpdatesEnabled = settingsViewModel.locationUpdatesEnabled.collectAsState()
     val artistName = settingsViewModel.artistName.collectAsState()
@@ -257,7 +260,8 @@ fun Settings(
             )
             SettingsItem(
                 title = stringResource(R.string.ImportDatabaseTitle),
-                subtitle = stringResource(R.string.ImportDatabaseSummary)
+                subtitle = stringResource(R.string.ImportDatabaseSummary),
+                onClick = { showImportDatabaseDialog.value = true }
             )
         }
     }
@@ -345,7 +349,7 @@ fun Settings(
 
     val snackTextDbCopiedSuccessfully = stringResource(R.string.DatabaseCopiedSuccessfully)
     val snackTextDbCopyFailed = stringResource(R.string.ErrorExportingDatabase)
-    val startForResult = rememberLauncherForActivityResult(CreateDatabaseExportFile()) { resultUri ->
+    val createDatabaseExportFile = rememberLauncherForActivityResult(CreateDatabaseExportFile()) { resultUri ->
         if (resultUri == null) {
             return@rememberLauncherForActivityResult
         }
@@ -375,10 +379,48 @@ fun Settings(
                         showExportDatabaseDialog.value = false
                         val date = LocalDateTime.now().sortableDate
                         val filename = "Exif_Notes_Database_$date.db"
-                        startForResult.launch(filename)
+                        createDatabaseExportFile.launch(filename)
                     }
                 ) {
                     Text(stringResource(R.string.OK))
+                }
+            }
+        )
+    }
+
+    val pickDatabaseImportFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
+        if (resultUri == null) {
+            return@rememberLauncherForActivityResult
+        }
+        settingsViewModel.importDatabase(
+            sourceUri = resultUri,
+            onSuccess = { message ->
+                scope.launch { snackbarHostState.showSnackbar(message) }
+                rollsViewModel.loadAll()
+            },
+            onError = { message ->
+                scope.launch { snackbarHostState.showSnackbar(message) }
+            }
+        )
+    }
+    if (showImportDatabaseDialog.value) {
+        AlertDialog(
+            title = { Text(stringResource(R.string.ImportDatabaseTitle)) },
+            text = { Text(stringResource(R.string.ImportDatabaseVerification)) },
+            onDismissRequest = { showImportDatabaseDialog.value = false },
+            dismissButton = {
+                TextButton(onClick = { showImportDatabaseDialog.value = false }) {
+                    Text(stringResource(R.string.No))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showImportDatabaseDialog.value = false
+                        pickDatabaseImportFile.launch(arrayOf("*/*"))
+                    }
+                ) {
+                    Text(stringResource(R.string.Continue))
                 }
             }
         )
