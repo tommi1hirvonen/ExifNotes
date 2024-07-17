@@ -18,20 +18,31 @@
 
 package com.tommihirvonen.exifnotes
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.automirrored.outlined.Sort
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.CameraRoll
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Theaters
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AllInclusive
 import androidx.compose.material.icons.outlined.CalendarToday
@@ -45,6 +56,7 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.NewLabel
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
@@ -57,6 +69,7 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -77,17 +90,26 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tommihirvonen.exifnotes.core.entities.Camera
+import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
+import com.tommihirvonen.exifnotes.core.sortableDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @Composable
 fun RollsList(
@@ -334,7 +356,12 @@ fun MainContent(
                     items = state.data,
                     key = { roll -> roll.id }
                 ) { roll ->
-                    RollCard(roll = roll, scope = scope, snackBarHostState = snackBarHostState)
+                    RollCard(
+                        roll = roll,
+                        selected = false,
+                        scope = scope,
+                        snackBarHostState = snackBarHostState
+                    )
                 }
             }
         }
@@ -404,31 +431,184 @@ fun TopAppBarMenu(model: RollsViewModel) {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun RollCardPreview() {
-    val roll = Roll(name = "Placeholder roll")
-    RollCard(roll = roll, scope = null, snackBarHostState = null)
+    val filmStock = FilmStock(make = "Tommi's Lab", model = "Rainbow 400", iso = 400)
+    val camera = Camera(make = "TomCam Factory", model = "Pocket 9000")
+    val roll = Roll(
+        name = "Placeholder roll",
+        date = LocalDateTime.of(2024, 1, 1, 0, 0),
+        unloaded = LocalDateTime.of(2024, 2, 1, 0, 0),
+        developed = LocalDateTime.of(2024, 3, 1, 0, 0),
+        camera = camera,
+        filmStock = filmStock,
+        note = "Test note ".repeat(10)
+    )
+    RollCard(
+        roll = roll,
+        selected = true,
+        scope = null,
+        snackBarHostState = null
+    )
 }
 
 @Composable
-fun RollCard(roll: Roll, scope: CoroutineScope?, snackBarHostState: SnackbarHostState?) {
-    Card(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .fillMaxWidth()
-            .clickable {
+fun RollCard(
+    roll: Roll,
+    selected: Boolean = false,
+    scope: CoroutineScope?,
+    snackBarHostState: SnackbarHostState?
+) {
+    val filmStock = roll.filmStock
+    val camera = roll.camera
+    val note = roll.note ?: ""
+    val developed = roll.developed
+    val unloaded = roll.unloaded
+    val (date, state) = when {
+        developed != null -> developed.sortableDateTime to stringResource(R.string.Developed)
+        unloaded != null -> unloaded.sortableDateTime to stringResource(R.string.Unloaded)
+        else -> roll.date.sortableDateTime to stringResource(R.string.Loaded)
+    }
+
+    val cardColor = if (selected) Color.Unspecified else Color.Transparent
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+                .fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = cardColor),
+            onClick = {
                 scope?.launch {
                     snackBarHostState?.showSnackbar(roll.name ?: "")
                 }
             }
-    ) {
-        Box(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = roll.name ?: "",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+        ) {
+            Box(modifier = Modifier.padding(6.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                    Row {
+                        Text(
+                            text = roll.name ?: "",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    if (filmStock != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(14.dp),
+                                imageVector = Icons.Filled.CameraRoll,
+                                contentDescription = ""
+                            )
+                            Text(
+                                text = filmStock.name,
+                                fontSize = 13.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                    Row {
+                        Row(
+                            modifier = Modifier.weight(0.7f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(14.dp),
+                                imageVector = Icons.Filled.CameraAlt,
+                                contentDescription = ""
+                            )
+                            if (camera != null) {
+                                Text(camera.name, fontSize = 13.sp)
+                            } else {
+                                Text(stringResource(R.string.NoCamera), fontSize = 13.sp)
+                            }
+                        }
+                        Row(
+                            modifier = Modifier.weight(0.3f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(16.dp),
+                                imageVector = Icons.Filled.Theaters,
+                                contentDescription = ""
+                            )
+                            Text(
+                                pluralStringResource(
+                                    R.plurals.PhotosAmount, roll.frames.size, roll.frames.size
+                                ),
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                    Row {
+                        Row(
+                            modifier = Modifier.weight(0.7f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(16.dp),
+                                imageVector = Icons.Filled.CalendarToday,
+                                contentDescription = ""
+                            )
+                            Text(date, fontSize = 13.sp)
+                        }
+                        Box (modifier = Modifier.weight(0.3f)){
+                            Text(state, fontSize = 13.sp)
+                        }
+                    }
+                    if (note.isNotEmpty()) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(14.dp),
+                                imageVector = Icons.AutoMirrored.Filled.Notes,
+                                contentDescription = ""
+                            )
+                            Text(
+                                text = note,
+                                fontSize = 12.sp,
+                                fontStyle = FontStyle.Italic,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        if (selected) {
+            Box(modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(vertical = 16.dp, horizontal = 24.dp)
+            ) {
+                Box(modifier = Modifier
+                    .size(36.dp)
+                    .align(Alignment.Center)
+                    .shadow(
+                        elevation = 6.dp,
+                        shape = CircleShape
+                    )
+                    .background(
+                        color = MaterialTheme.colorScheme.tertiary,
+                        shape = CircleShape
+                    )
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Icon(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(24.dp),
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = "",
+                            tint = MaterialTheme.colorScheme.onTertiary
+                        )
+                    }
+                }
+            }
         }
     }
 }
