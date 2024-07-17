@@ -109,6 +109,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.preference)
+    implementation(libs.androidx.exifinterface)
+    implementation(libs.androidx.work)
     implementation(libs.jetbrains.kotlinx.serialization.json)
     implementation(libs.hilt)
     kapt(libs.hilt.compiler)

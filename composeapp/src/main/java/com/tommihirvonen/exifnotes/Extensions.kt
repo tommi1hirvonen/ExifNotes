@@ -36,6 +36,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -58,6 +59,8 @@ val Context.packageInfo: PackageInfo? get() {
 
 val LocalDateTime.sortableDate: String get() =
     format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+fun File.makeDirsIfNotExists() { if (!isDirectory) mkdirs() }
 
 @Composable
 fun String.linkify(

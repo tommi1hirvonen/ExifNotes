@@ -25,7 +25,13 @@ import android.provider.OpenableColumns
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.preference.PreferenceManager
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.tommihirvonen.exifnotes.data.Database
+import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
+import com.tommihirvonen.exifnotes.pictures.ComplementaryPicturesExportWorker
+import com.tommihirvonen.exifnotes.pictures.ComplementaryPicturesImportWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,7 +46,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val application: Application,
-    private val database: Database
+    private val database: Database,
+    private val frameRepository: FrameRepository
 ) : AndroidViewModel(application) {
 
     companion object {
@@ -134,6 +141,28 @@ class SettingsViewModel @Inject constructor(
             putBoolean(KEY_IGNORE_WARNINGS, value)
         }
         _ignoreWarnings.value = value
+    }
+
+    fun exportComplementaryPictures(destinationUri: Uri) {
+        val complementaryPictureFilenames = frameRepository.complementaryPictureFilenames.toTypedArray()
+        val data = Data.Builder()
+            .putString(ComplementaryPicturesExportWorker.TARGET_URI, destinationUri.toString())
+            .putStringArray(ComplementaryPicturesExportWorker.FILENAMES, complementaryPictureFilenames)
+            .build()
+        val request = OneTimeWorkRequestBuilder<ComplementaryPicturesExportWorker>()
+            .setInputData(data)
+            .build()
+        WorkManager.getInstance(context).enqueue(request)
+    }
+
+    fun importComplementaryPictures(sourceUri: Uri) {
+        val data = Data.Builder()
+            .putString(ComplementaryPicturesImportWorker.TARGET_URI, sourceUri.toString())
+            .build()
+        val request = OneTimeWorkRequestBuilder<ComplementaryPicturesImportWorker>()
+            .setInputData(data)
+            .build()
+        WorkManager.getInstance(context).enqueue(request)
     }
 
     fun exportDatabase(

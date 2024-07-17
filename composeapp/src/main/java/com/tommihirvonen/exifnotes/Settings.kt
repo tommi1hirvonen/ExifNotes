@@ -105,6 +105,7 @@ fun Settings(
     val showExiftoolPathDialog = remember { mutableStateOf(false) }
     val showPathToPicturesDialog = remember { mutableStateOf(false) }
     val showFileEndingDialog = remember { mutableStateOf(false) }
+    val showImportPicturesDialog = remember { mutableStateOf(false) }
     val showExportDatabaseDialog = remember { mutableStateOf(false) }
     val showImportDatabaseDialog = remember { mutableStateOf(false) }
 
@@ -243,13 +244,28 @@ fun Settings(
             }
             HorizontalDivider()
             SettingsHeader(stringResource(R.string.ComplementaryPictures))
+
+            val exportingPicturesText = stringResource(R.string.StartedExportingComplementaryPictures)
+            val createPicturesExportFile = rememberLauncherForActivityResult(CreatePicturesExportFile()) { resultUri ->
+                if (resultUri == null) {
+                    return@rememberLauncherForActivityResult
+                }
+                settingsViewModel.exportComplementaryPictures(resultUri)
+                scope.launch { snackbarHostState.showSnackbar(exportingPicturesText) }
+            }
             SettingsItem(
                 title = stringResource(R.string.ExportComplementaryPicturesTitle),
-                subtitle = stringResource(R.string.ExportComplementaryPicturesSummary)
+                subtitle = stringResource(R.string.ExportComplementaryPicturesSummary),
+                onClick = {
+                    val date = LocalDateTime.now().sortableDate
+                    val title = "Exif_Notes_Complementary_Pictures_$date.zip"
+                    createPicturesExportFile.launch(title)
+                }
             )
             SettingsItem(
                 title = stringResource(R.string.ImportComplementaryPicturesTitle),
-                subtitle = stringResource(R.string.ImportComplementaryPicturesSummary)
+                subtitle = stringResource(R.string.ImportComplementaryPicturesSummary),
+                onClick = { showImportPicturesDialog.value = true }
             )
             HorizontalDivider()
             SettingsHeader(stringResource(R.string.Database))
@@ -344,6 +360,37 @@ fun Settings(
             title = { Text(stringResource(R.string.FileEndingTitle)) },
             onDismiss = { showFileEndingDialog.value = false },
             onValueSet = { value -> settingsViewModel.setFileEnding(value) }
+        )
+    }
+
+    val importingPicturesText = stringResource(R.string.StartedImportingComplementaryPictures)
+    val pickPicturesImportFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { resultUri ->
+        if (resultUri == null) {
+            return@rememberLauncherForActivityResult
+        }
+        settingsViewModel.importComplementaryPictures(resultUri)
+        scope.launch { snackbarHostState.showSnackbar(importingPicturesText) }
+    }
+    if (showImportPicturesDialog.value) {
+        AlertDialog(
+            title = { Text(stringResource(R.string.ImportComplementaryPicturesTitle)) },
+            text = { Text(stringResource(R.string.ImportComplementaryPicturesVerification)) },
+            onDismissRequest = { showImportPicturesDialog.value = false },
+            dismissButton = {
+                TextButton(onClick = { showImportPicturesDialog.value = false }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showImportPicturesDialog.value = false
+                        pickPicturesImportFile.launch(arrayOf("application/zip"))
+                    }
+                ) {
+                    Text(stringResource(R.string.OK))
+                }
+            }
         )
     }
 
@@ -679,6 +726,15 @@ fun ThirdPartyLicenses(onNavigateUp: () -> Unit) {
                 }
             )
         }
+    }
+}
+
+private class CreatePicturesExportFile : CreateDocument("application/zip") {
+    override fun createIntent(context: Context, input: String): Intent {
+        val intent = super.createIntent(context, input)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "application/zip"
+        return intent
     }
 }
 
