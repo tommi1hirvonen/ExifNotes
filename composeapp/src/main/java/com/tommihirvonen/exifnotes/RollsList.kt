@@ -18,7 +18,16 @@
 
 package com.tommihirvonen.exifnotes
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -33,6 +42,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Notes
@@ -90,6 +100,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -107,7 +118,6 @@ import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 import com.tommihirvonen.exifnotes.core.sortableDateTime
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -298,16 +308,10 @@ fun MainContent(
     navigationIcon: @Composable () -> Unit = {},
 ) {
     val rolls = model.rolls.collectAsState()
+    val selectedRolls = model.selectedRolls.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val filter = model.rollFilterMode.collectAsState()
-    val subtitle = when (val filterValue = filter.value) {
-        RollFilterMode.Active -> stringResource(R.string.ActiveRolls)
-        RollFilterMode.All -> stringResource(R.string.AllRolls)
-        RollFilterMode.Archived -> stringResource(R.string.ArchivedRolls)
-        RollFilterMode.Favorites -> stringResource(R.string.Favorites)
-        is RollFilterMode.HasLabel -> filterValue.label.name
-    }
+    val subtitle = model.toolbarSubtitle.collectAsState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -317,7 +321,7 @@ fun MainContent(
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(stringResource(R.string.app_name))
-                        Text(subtitle, fontSize = 16.sp)
+                        Text(subtitle.value, fontSize = 16.sp)
                     }
                 },
                 navigationIcon = navigationIcon,
@@ -358,9 +362,19 @@ fun MainContent(
                 ) { roll ->
                     RollCard(
                         roll = roll,
-                        selected = false,
-                        scope = scope,
-                        snackBarHostState = snackBarHostState
+                        selected = selectedRolls.value.contains(roll),
+                        onClick = {
+                            if (selectedRolls.value.isNotEmpty()) {
+                                model.toggleRollSelection(roll)
+                                return@RollCard
+                            }
+                            scope.launch {
+                                snackBarHostState.showSnackbar(roll.name ?: "")
+                            }
+                        },
+                        onLongClick = {
+                            model.toggleRollSelection(roll)
+                        }
                     )
                 }
             }
@@ -447,18 +461,17 @@ fun RollCardPreview() {
     )
     RollCard(
         roll = roll,
-        selected = true,
-        scope = null,
-        snackBarHostState = null
+        selected = true
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RollCard(
     roll: Roll,
     selected: Boolean = false,
-    scope: CoroutineScope?,
-    snackBarHostState: SnackbarHostState?
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {}
 ) {
     val filmStock = roll.filmStock
     val camera = roll.camera
@@ -470,19 +483,24 @@ fun RollCard(
         unloaded != null -> unloaded.sortableDateTime to stringResource(R.string.Unloaded)
         else -> roll.date.sortableDateTime to stringResource(R.string.Loaded)
     }
-
-    val cardColor = if (selected) Color.Unspecified else Color.Transparent
+    val cardColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+        label = "cardBackgroundColor",
+        animationSpec = tween(durationMillis = 500)
+    )
     Box(modifier = Modifier.fillMaxWidth()) {
+        val cardShape = RoundedCornerShape(12.dp)
         Card(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 6.dp)
-                .fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = cardColor),
-            onClick = {
-                scope?.launch {
-                    snackBarHostState?.showSnackbar(roll.name ?: "")
-                }
-            }
+                .fillMaxWidth()
+                .clip(cardShape)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick
+                ),
+            shape = cardShape,
+            colors = CardDefaults.cardColors(containerColor = cardColor)
         ) {
             Box(modifier = Modifier.padding(6.dp)) {
                 Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
@@ -580,13 +598,18 @@ fun RollCard(
                 }
             }
         }
-        if (selected) {
-            Box(modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(vertical = 16.dp, horizontal = 24.dp)
+        Box(modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(horizontal = 24.dp)
+        ) {
+            AnimatedVisibility(
+                visible = selected,
+                enter = scaleIn() + fadeIn(),
+                exit = scaleOut() + fadeOut()
             ) {
                 Box(modifier = Modifier
-                    .size(36.dp)
+                    .size(70.dp)
+                    .padding(18.dp)
                     .align(Alignment.Center)
                     .shadow(
                         elevation = 6.dp,
@@ -601,7 +624,7 @@ fun RollCard(
                         Icon(
                             modifier = Modifier
                                 .align(Alignment.Center)
-                                .size(24.dp),
+                                .size(20.dp),
                             imageVector = Icons.Filled.Check,
                             contentDescription = "",
                             tint = MaterialTheme.colorScheme.onTertiary

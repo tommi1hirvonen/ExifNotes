@@ -48,6 +48,7 @@ class RollsViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
     val rolls: StateFlow<State<List<Roll>>> get() = mRolls
+    val selectedRolls: StateFlow<HashSet<Roll>> get() = mSelectedRolls
     val cameras: StateFlow<List<Camera>> get() = mCameras
     val labels: StateFlow<List<Label>> get() = mLabels
     val rollCounts: StateFlow<RollCounts> get() = mRollCounts
@@ -56,6 +57,7 @@ class RollsViewModel @Inject constructor(
     val rollSortMode: StateFlow<RollSortMode> get() = mRollSortMode
 
     private val mRolls = MutableStateFlow<State<List<Roll>>>(State.InProgress())
+    private val mSelectedRolls = MutableStateFlow(hashSetOf<Roll>())
     private val mCameras = MutableStateFlow(emptyList<Camera>())
     private val mLabels = MutableStateFlow(emptyList<Label>())
     private val mRollCounts = MutableStateFlow(RollCounts(0, 0, 0))
@@ -67,11 +69,18 @@ class RollsViewModel @Inject constructor(
         loadAll()
     }
 
-    val selectedRolls = HashSet<Roll>()
-    var refreshPending = false
-
     private val context get() = getApplication<Application>()
     private var rollList = emptyList<Roll>()
+
+    fun toggleRollSelection(roll: Roll) {
+        val rolls = selectedRolls.value.toHashSet()
+        if (rolls.contains(roll)) {
+            rolls.remove(roll)
+        } else {
+            rolls.add(roll)
+        }
+        mSelectedRolls.value = rolls
+    }
 
     fun setRollFilterMode(rollFilterMode: RollFilterMode) {
         mRollFilterMode.value = rollFilterMode
