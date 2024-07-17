@@ -46,6 +46,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Notes
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.filled.CalendarToday
@@ -58,12 +59,16 @@ import androidx.compose.material.icons.outlined.AllInclusive
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Camera
 import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.DriveFileRenameOutline
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.NewLabel
+import androidx.compose.material.icons.outlined.SelectAll
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -89,8 +94,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -102,7 +110,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -305,30 +312,29 @@ fun DrawerContent(
 @Composable
 fun MainContent(
     model: RollsViewModel,
-    navigationIcon: @Composable () -> Unit = {},
+    navigationIcon: @Composable () -> Unit = {}
 ) {
     val rolls = model.rolls.collectAsState()
     val selectedRolls = model.selectedRolls.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val subtitle = model.toolbarSubtitle.collectAsState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val actionModeEnabled = selectedRolls.value.isNotEmpty()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            CenterAlignedTopAppBar(
+            AppBar(
+                model = model,
                 scrollBehavior = scrollBehavior,
-                title = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(stringResource(R.string.app_name))
-                        Text(subtitle.value, fontSize = 16.sp)
-                    }
-                },
-                navigationIcon = navigationIcon,
-                actions = {
-                    TopAppBarMenu(model)
-                }
+                navigationIcon = navigationIcon
             )
+            AnimatedVisibility(
+                visible = actionModeEnabled,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                ActionModeAppBar(model = model)
+            }
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -364,7 +370,7 @@ fun MainContent(
                         roll = roll,
                         selected = selectedRolls.value.contains(roll),
                         onClick = {
-                            if (selectedRolls.value.isNotEmpty()) {
+                            if (actionModeEnabled) {
                                 model.toggleRollSelection(roll)
                                 return@RollCard
                             }
@@ -378,6 +384,83 @@ fun MainContent(
                     )
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ActionModeAppBar(model: RollsViewModel) {
+    val selectedRolls = model.selectedRolls.collectAsState()
+    val allRolls = model.rolls.collectAsState()
+    val selectedRollsCount = selectedRolls.value.size
+    val allRollsCount = when (val state = allRolls.value) {
+        is State.Success -> state.data.size
+        else -> 0
+    }
+    TopAppBar(
+        title = {
+            val text = "$selectedRollsCount/$allRollsCount"
+            Text(text)
+        },
+        navigationIcon = {
+            IconButton(onClick = { model.toggleRollSelectionNone() }) {
+                Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
+            }
+        },
+        actions = {
+            TopAppBarActionMenu(
+                onSelectAll = { model.toggleRollSelectionAll() }
+            )
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppBar(
+    model: RollsViewModel,
+    scrollBehavior: TopAppBarScrollBehavior,
+    navigationIcon: @Composable () -> Unit = {}
+) {
+    val subtitle = model.toolbarSubtitle.collectAsState()
+    CenterAlignedTopAppBar(
+        scrollBehavior = scrollBehavior,
+        title = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(stringResource(R.string.app_name))
+                Text(subtitle.value, fontSize = 16.sp)
+            }
+        },
+        navigationIcon = {
+            navigationIcon()
+        },
+        actions = {
+            TopAppBarMenu(model)
+        }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TopAppBarActionMenu(
+    onSelectAll: () -> Unit = {}
+) {
+    Row {
+        IconButton(onClick = { }) {
+            Icon(Icons.Outlined.Edit, "")
+        }
+        IconButton(onClick = onSelectAll) {
+            Icon(Icons.Outlined.SelectAll, "")
+        }
+        IconButton(onClick = { }) {
+            Icon(Icons.Outlined.DeleteOutline, "")
+        }
+        IconButton(onClick = { }) {
+            Icon(Icons.Outlined.MoreVert, "")
         }
     }
 }
@@ -484,9 +567,9 @@ fun RollCard(
         else -> roll.date.sortableDateTime to stringResource(R.string.Loaded)
     }
     val cardColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+        targetValue = if (selected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
         label = "cardBackgroundColor",
-        animationSpec = tween(durationMillis = 500)
+        animationSpec = tween(durationMillis = 400)
     )
     Box(modifier = Modifier.fillMaxWidth()) {
         val cardShape = RoundedCornerShape(12.dp)

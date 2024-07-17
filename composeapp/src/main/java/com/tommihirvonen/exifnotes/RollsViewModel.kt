@@ -82,6 +82,14 @@ class RollsViewModel @Inject constructor(
         mSelectedRolls.value = rolls
     }
 
+    fun toggleRollSelectionAll() {
+        mSelectedRolls.value = rollList.toHashSet()
+    }
+
+    fun toggleRollSelectionNone() {
+        mSelectedRolls.value = hashSetOf()
+    }
+
     fun setRollFilterMode(rollFilterMode: RollFilterMode) {
         mRollFilterMode.value = rollFilterMode
         val text = when(rollFilterMode) {
