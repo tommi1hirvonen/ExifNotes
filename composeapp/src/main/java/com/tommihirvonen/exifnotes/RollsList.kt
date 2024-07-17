@@ -49,14 +49,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.automirrored.outlined.LabelOff
 import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CameraRoll
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Theaters
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AllInclusive
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Camera
 import androidx.compose.material.icons.outlined.CameraAlt
@@ -71,6 +74,8 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.NewLabel
 import androidx.compose.material.icons.outlined.SelectAll
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Unarchive
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -95,6 +100,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -335,7 +341,14 @@ fun MainContent(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                ActionModeAppBar(model = model)
+                ActionModeAppBar(
+                    model = model,
+                    onSnackbarMessage = { text ->
+                        scope.launch {
+                            snackBarHostState.showSnackbar(text)
+                        }
+                    }
+                )
             }
         },
         floatingActionButton = {
@@ -378,9 +391,7 @@ fun MainContent(
                                 model.toggleRollSelection(roll)
                                 return@RollCard
                             }
-                            scope.launch {
-                                snackBarHostState.showSnackbar(roll.name ?: "")
-                            }
+                            /*TODO*/
                         },
                         onLongClick = {
                             model.toggleRollSelection(roll)
@@ -394,7 +405,10 @@ fun MainContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActionModeAppBar(model: RollsViewModel) {
+fun ActionModeAppBar(
+    model: RollsViewModel,
+    onSnackbarMessage: (String) -> Unit
+) {
     val selectedRolls = model.selectedRolls.collectAsState()
     val allRolls = model.rolls.collectAsState()
     val selectedRollsCount = selectedRolls.value.size
@@ -414,7 +428,8 @@ fun ActionModeAppBar(model: RollsViewModel) {
         },
         actions = {
             TopAppBarActionMenu(
-                onSelectAll = { model.toggleRollSelectionAll() }
+                model = model,
+                onSnackbarMessage = onSnackbarMessage
             )
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -448,24 +463,113 @@ fun AppBar(
     )
 }
 
-@Preview(showBackground = true)
 @Composable
 fun TopAppBarActionMenu(
-    onSelectAll: () -> Unit = {}
+    model: RollsViewModel,
+    onSnackbarMessage: (String) -> Unit
 ) {
+    val messageRollsArchived = stringResource(R.string.RollsArchived)
+    val messageRollsUnarchived = stringResource(R.string.RollsActivated)
+    val messageRollsAddedToFavorites = stringResource(R.string.RollsAddedToFavorites)
+    val messageRollsRemovedFromFavorites = stringResource(R.string.RollsRemovedFromFavorites)
+    var showMenu by remember { mutableStateOf(false) }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     Row {
-        IconButton(onClick = { }) {
+        IconButton(onClick = { /*TODO*/ }) {
             Icon(Icons.Outlined.Edit, "")
         }
-        IconButton(onClick = onSelectAll) {
+        IconButton(onClick = { model.toggleRollSelectionAll() }) {
             Icon(Icons.Outlined.SelectAll, "")
         }
-        IconButton(onClick = { }) {
+        IconButton(onClick = { showDeleteConfirmDialog = true }) {
             Icon(Icons.Outlined.DeleteOutline, "")
         }
-        IconButton(onClick = { }) {
+        IconButton(onClick = { showMenu = true }) {
             Icon(Icons.Outlined.MoreVert, "")
         }
+    }
+    DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Archive)) },
+            leadingIcon = { Icon(Icons.Outlined.Archive, "") },
+            onClick = {
+                model.selectedRolls.value.forEach { roll ->
+                    roll.archived = true
+                    model.submitRoll(roll)
+                }
+                model.toggleRollSelectionNone()
+                onSnackbarMessage(messageRollsArchived)
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Unarchive)) },
+            leadingIcon = { Icon(Icons.Outlined.Unarchive, "") },
+            onClick = {
+                model.selectedRolls.value.forEach { roll ->
+                    roll.archived = false
+                    model.submitRoll(roll)
+                }
+                model.toggleRollSelectionNone()
+                onSnackbarMessage(messageRollsUnarchived)
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.AddToFavorites)) },
+            leadingIcon = { Icon(Icons.Filled.Favorite, "") },
+            onClick = {
+                model.selectedRolls.value.forEach { roll ->
+                    roll.favorite = true
+                    model.submitRoll(roll)
+                }
+                model.toggleRollSelectionNone()
+                onSnackbarMessage(messageRollsAddedToFavorites)
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.RemoveFromFavorites)) },
+            leadingIcon = { Icon(Icons.Outlined.FavoriteBorder, "") },
+            onClick = {
+                model.selectedRolls.value.forEach { roll ->
+                    roll.favorite = false
+                    model.submitRoll(roll)
+                }
+                model.toggleRollSelectionNone()
+                onSnackbarMessage(messageRollsRemovedFromFavorites)
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.AddLabels)) },
+            leadingIcon = { Icon(Icons.Outlined.NewLabel, "") },
+            onClick = { /*TODO*/ }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.RemoveLabels)) },
+            leadingIcon = { Icon(Icons.AutoMirrored.Outlined.LabelOff, "") },
+            onClick = { /*TODO*/ }
+        )
+    }
+    if (showDeleteConfirmDialog) {
+        val count = model.selectedRolls.value.size
+        val title = pluralStringResource(R.plurals.ConfirmRollsDelete, count, count)
+        AlertDialog(
+            title = { Text(title) },
+            onDismissRequest = { showDeleteConfirmDialog = false },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        model.selectedRolls.value.forEach(model::deleteRoll)
+                        model.toggleRollSelectionNone()
+                    }
+                ) {
+                    Text(stringResource(R.string.OK))
+                }
+            }
+        )
     }
 }
 

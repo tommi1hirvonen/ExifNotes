@@ -97,7 +97,10 @@
     </plurals>
     <string name="ConfirmLensDelete">Delete lens</string>
     <string name="ConfirmRollDelete">Delete roll</string>
-    <string name="ConfirmRollsDelete">Delete %1$d rolls?</string>
+    <plurals name="ConfirmRollsDelete">
+        <item quantity="one">Delete %d roll?</item>
+        <item quantity="other">Delete %d rolls?</item>
+    </plurals>
     <string name="Continue">Continue</string>
     <string name="Copy">Copy</string>
     <string name="CopyrightInformationSummary">Copyright information to be stored under the copyright tag in the file\'s exif</string>
