@@ -89,7 +89,7 @@ class RollAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val roll = this.items[position]
-        val numberOfFrames = rollRepository.getNumberOfFrames(roll)
+        val numberOfFrames = rollRepository.getNumberOfFrames(roll.id)
         holder.binding.roll = roll
         holder.binding.frameCount = numberOfFrames
         holder.binding.executePendingBindings()

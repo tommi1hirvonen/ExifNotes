@@ -73,8 +73,9 @@ class RollRepository @Inject constructor(private val database: Database,
             .where(predicate)
             .orderBy { KEY_ROLL_DATE.desc() }
             .map { row ->
+                val rollId = row.getLong(KEY_ROLL_ID)
                 Roll(
-                    id = row.getLong(KEY_ROLL_ID),
+                    id = rollId,
                     name = row.getStringOrNull(KEY_ROLLNAME),
                     date = row.getStringOrNull(KEY_ROLL_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
                     unloaded = row.getStringOrNull(KEY_ROLL_UNLOADED)?.let(::localDateTimeOrNull),
@@ -86,7 +87,8 @@ class RollRepository @Inject constructor(private val database: Database,
                     format = Format.from(row.getInt(KEY_ROLL_FORMAT)),
                     archived = row.getInt(KEY_ROLL_ARCHIVED) > 0,
                     favorite = row.getInt(KEY_ROLL_FAVORITE) > 0,
-                    filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(filmStocks::getFilmStock)
+                    filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(filmStocks::getFilmStock),
+                    frameCount = getNumberOfFrames(rollId)
                 ).apply {
                     labels = this@RollRepository.labels.getLabels(this)
                 }
@@ -136,9 +138,9 @@ class RollRepository @Inject constructor(private val database: Database,
             .update(contentValues)
     }
 
-    fun getNumberOfFrames(roll: Roll): Int = database
+    fun getNumberOfFrames(rollId: Long): Int = database
         .from(TABLE_FRAMES)
-        .count { KEY_ROLL_ID eq roll.id }
+        .count { KEY_ROLL_ID eq rollId }
 
     private fun buildRollContentValues(roll: Roll) = ContentValues().apply {
         put(KEY_ROLLNAME, roll.name)
