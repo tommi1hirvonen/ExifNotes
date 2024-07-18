@@ -30,6 +30,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.screens.labeledit.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labelslist.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
@@ -40,13 +41,28 @@ import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
 import com.tommihirvonen.exifnotes.screens.settings.ThirdPartyLicensesScreen
 import com.tommihirvonen.exifnotes.theme.ExifNotesTheme
 import com.tommihirvonen.exifnotes.theme.ThemeViewModel
+import com.tommihirvonen.exifnotes.util.purgeDirectory
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var complementaryPicturesManager: ComplementaryPicturesManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Delete all complementary pictures, which are not linked to any frame.
+        // Do this each time the app is launched to keep the storage consumption to a minimum.
+        // If savedInstanceState is not null, then the activity is being recreated. In this case,
+        // don't delete pictures.
+        if (savedInstanceState == null) {
+            complementaryPicturesManager.deleteUnusedPictures()
+        }
+
         enableEdgeToEdge()
         setContent {
             val themeModel = hiltViewModel<ThemeViewModel>()
@@ -113,6 +129,19 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        // This method is called when MainActivity is started, in other words when the
+        // application is started. All the files created in FramesFragment.setShareIntentExportRoll
+        // in the application's external storage directory are deleted. This way we can keep
+        // the number of files stored to a minimum.
+
+        // Delete all temporary files created when exporting rolls.
+        val externalStorageDir = getExternalFilesDir(null)
+        externalStorageDir?.purgeDirectory()
+        externalCacheDir?.purgeDirectory()
+        super.onStart()
     }
 }
 

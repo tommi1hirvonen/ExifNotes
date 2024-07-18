@@ -68,6 +68,11 @@ val LocalDateTime.sortableDate: String get() =
 
 fun File.makeDirsIfNotExists() { if (!isDirectory) mkdirs() }
 
+/**
+ * Remove all files in a directory. Subdirectories are skipped.
+ */
+fun File.purgeDirectory() = this.listFiles()?.filterNot(File::isDirectory)?.forEach { it.delete() }
+
 @Composable
 fun LazyListState.isScrollingUp(): Boolean {
     var previousIndex by remember(this) { mutableIntStateOf(firstVisibleItemIndex) }
