@@ -67,7 +67,6 @@ import androidx.compose.ui.unit.sp
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
-import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.sortableDateTime
 import java.time.LocalDateTime
@@ -84,11 +83,9 @@ private fun RollCardPreview() {
         developed = LocalDateTime.of(2024, 3, 1, 0, 0),
         camera = camera,
         filmStock = filmStock,
-        note = "Test note ".repeat(10)
+        note = "Test note ".repeat(10),
+        frameCount = 2
     )
-    val frame1 = Frame(roll = roll, count = 1)
-    val frame2 = Frame(roll = roll, count = 2)
-    roll.frames = listOf(frame1, frame2)
     RollCard(
         roll = roll,
         selected = true
@@ -185,7 +182,7 @@ fun RollCard(
                             )
                             Text(
                                 pluralStringResource(
-                                    R.plurals.PhotosAmount, roll.frames.size, roll.frames.size
+                                    R.plurals.PhotosAmount, roll.frameCount, roll.frameCount
                                 ),
                                 fontSize = 13.sp
                             )

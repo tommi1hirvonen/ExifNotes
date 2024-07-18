@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
-import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 import com.tommihirvonen.exifnotes.util.State
@@ -74,11 +73,9 @@ private fun MainContentPreview() {
         developed = LocalDateTime.of(2024, 3, 1, 0, 0),
         camera = camera,
         filmStock = filmStock,
-        note = "Test note ".repeat(10)
+        note = "Test note ".repeat(10),
+        frameCount = 2
     )
-    val frame1 = Frame(roll = roll, count = 1)
-    val frame2 = Frame(roll = roll, count = 2)
-    roll.frames = listOf(frame1, frame2)
     val rolls = State.Success(listOf(roll))
     MainContent(
         subtitle = "Active rolls",
@@ -119,11 +116,9 @@ private fun MainContentActionModePreview() {
         developed = LocalDateTime.of(2024, 3, 1, 0, 0),
         camera = camera,
         filmStock = filmStock,
-        note = "Test note ".repeat(10)
+        note = "Test note ".repeat(10),
+        frameCount = 2
     )
-    val frame1 = Frame(roll = roll, count = 1)
-    val frame2 = Frame(roll = roll, count = 2)
-    roll.frames = listOf(frame1, frame2)
     val rolls = State.Success(listOf(roll))
     val selectedRolls = hashSetOf(roll)
     MainContent(
