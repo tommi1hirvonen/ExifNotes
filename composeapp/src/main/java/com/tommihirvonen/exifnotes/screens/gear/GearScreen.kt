@@ -27,11 +27,13 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Camera
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.CameraRoll
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
@@ -50,6 +52,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.screens.gear.cameras.CamerasScreen
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksScreen
 import com.tommihirvonen.exifnotes.screens.gear.filters.FiltersScreen
@@ -60,7 +63,8 @@ import kotlinx.coroutines.launch
 @Composable
 private fun GearScreenLargePreview() {
     GearScreen(
-        onNavigateUp = {}
+        onNavigateUp = {},
+        onEditFilmStock = {}
     )
 }
 
@@ -68,14 +72,16 @@ private fun GearScreenLargePreview() {
 @Composable
 private fun GearScreenPreview() {
     GearScreen(
-        onNavigateUp = {}
+        onNavigateUp = {},
+        onEditFilmStock = {}
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GearScreen(
-    onNavigateUp: () -> Unit
+    onNavigateUp: () -> Unit,
+    onEditFilmStock: (FilmStock) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 4 })
@@ -135,6 +141,11 @@ fun GearScreen(
                         scrollBehavior = scrollBehavior
                     )
                 },
+                floatingActionButton = {
+                    FloatingActionButton(onClick = { /*TODO*/ }) {
+                        Icon(Icons.Outlined.Add, "")
+                    }
+                },
                 bottomBar = {
                     if (maxWidth < 600.dp) {
                         NavigationBar {
@@ -160,7 +171,9 @@ fun GearScreen(
                             0 -> CamerasScreen()
                             1 -> LensesScreen()
                             2 -> FiltersScreen()
-                            3 -> FilmStocksScreen()
+                            3 -> FilmStocksScreen(
+                                onFilmStockClick = onEditFilmStock
+                            )
                         }
                     }
                 }

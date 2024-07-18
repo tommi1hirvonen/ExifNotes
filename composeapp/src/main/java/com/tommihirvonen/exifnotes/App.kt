@@ -77,7 +77,8 @@ fun App(onFinish: () -> Unit) {
             }
             composable<Gear> {
                 GearScreen(
-                    onNavigateUp = { navController.navigateUp() }
+                    onNavigateUp = { navController.navigateUp() },
+                    onEditFilmStock = { /*TODO*/ }
                 )
             }
             composable<Labels> {

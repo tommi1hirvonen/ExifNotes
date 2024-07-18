@@ -49,6 +49,14 @@ import java.time.format.DateTimeFormatter
 fun <T> T.validate(vararg validations: (T) -> (Boolean)): Boolean =
     validations.map { it(this) }.all { it }
 
+fun <T> List<T>.isEmptyOrContains(value: T): Boolean = contains(value) || isEmpty()
+
+fun <T> List<T>.applyPredicates(vararg predicates: ((T) -> (Boolean))): List<T> =
+    filter { item -> predicates.all { p -> p(item) } }
+
+fun <T, U : Comparable<U>> List<T>.mapDistinct(transform: (T) -> U): List<U> =
+    map(transform).distinct().sorted()
+
 val Context.packageInfo: PackageInfo? get() {
     try {
         return if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
