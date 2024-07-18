@@ -30,8 +30,18 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tommihirvonen.exifnotes.core.entities.Camera
+import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.core.entities.Label
+import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
+import com.tommihirvonen.exifnotes.core.entities.RollSortMode
+import com.tommihirvonen.exifnotes.data.repositories.RollCounts
+import com.tommihirvonen.exifnotes.util.State
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @Composable
 fun MainScreen(
@@ -48,21 +58,160 @@ fun MainScreen(
     val rollFilterMode = mainViewModel.rollFilterMode.collectAsState()
     val rollCounts = mainViewModel.rollCounts.collectAsState()
     val labels = mainViewModel.labels.collectAsState()
-    val scope = rememberCoroutineScope()
 
+    MainContent(
+        rollCounts = rollCounts.value,
+        labels = labels.value,
+        rollFilterMode = rollFilterMode.value,
+        onRollFilterModeSet = mainViewModel::setRollFilterMode,
+        onNavigateToMap = onNavigateToMap,
+        onNavigateToGear = onNavigateToGear,
+        onNavigateToLabels = onNavigateToLabels,
+        onNavigateToSettings = onNavigateToSettings,
+        subtitle = subtitle.value,
+        rolls = rolls.value,
+        selectedRolls = selectedRolls.value,
+        rollSortMode = rollSortMode.value,
+        onRollSortModeSet = mainViewModel::setRollSortMode,
+        onFabClick = { /*TODO*/ },
+        onRollClick = { /*TODO*/ },
+        toggleRollSelection = mainViewModel::toggleRollSelection,
+        toggleRollSelectionAll = mainViewModel::toggleRollSelectionAll,
+        toggleRollSelectionNone = mainViewModel::toggleRollSelectionNone,
+        onEdit = { /*TODO*/ },
+        onDelete = {
+            mainViewModel.selectedRolls.value.forEach(mainViewModel::deleteRoll)
+            mainViewModel.toggleRollSelectionNone()
+        },
+        onArchive = {
+            mainViewModel.selectedRolls.value.forEach { roll ->
+                roll.archived = true
+                mainViewModel.submitRoll(roll)
+            }
+            mainViewModel.toggleRollSelectionNone()
+        },
+        onUnarchive = {
+            mainViewModel.selectedRolls.value.forEach { roll ->
+                roll.archived = false
+                mainViewModel.submitRoll(roll)
+            }
+            mainViewModel.toggleRollSelectionNone()
+        },
+        onFavorite = {
+            mainViewModel.selectedRolls.value.forEach { roll ->
+                roll.favorite = true
+                mainViewModel.submitRoll(roll)
+            }
+            mainViewModel.toggleRollSelectionNone()
+        },
+        onUnfavorite = {
+            mainViewModel.selectedRolls.value.forEach { roll ->
+                roll.favorite = false
+                mainViewModel.submitRoll(roll)
+            }
+            mainViewModel.toggleRollSelectionNone()
+        },
+        onAddLabels = { /*TODO*/ },
+        onRemoveLabels = { /*TODO*/ }
+    )
+}
+
+@Preview
+@Composable
+private fun MainContentPreview() {
+    val filmStock = FilmStock(make = "Tommi's Lab", model = "Rainbow 400", iso = 400)
+    val camera = Camera(make = "TomCam Factory", model = "Pocket 9000")
+    val roll = Roll(
+        id = 1,
+        name = "Placeholder roll",
+        date = LocalDateTime.of(2024, 1, 1, 0, 0),
+        unloaded = LocalDateTime.of(2024, 2, 1, 0, 0),
+        developed = LocalDateTime.of(2024, 3, 1, 0, 0),
+        camera = camera,
+        filmStock = filmStock,
+        note = "Test note ".repeat(10),
+        frameCount = 2
+    )
+    val rolls = State.Success(listOf(roll, roll.copy(id = 2)))
+    MainContent(
+        rollCounts = RollCounts(active = 2, archived = 2, favorites = 1),
+        labels = emptyList(),
+        rollFilterMode = RollFilterMode.Active,
+        onRollFilterModeSet = {},
+        onNavigateToMap = {},
+        onNavigateToGear = {},
+        onNavigateToLabels = {},
+        onNavigateToSettings = {},
+        subtitle = "Archived rolls",
+        rolls = rolls,
+        selectedRolls = hashSetOf(),
+        rollSortMode = RollSortMode.DATE,
+        onRollSortModeSet = {},
+        onFabClick = {},
+        onRollClick = {},
+        toggleRollSelection = {},
+        toggleRollSelectionAll = {},
+        toggleRollSelectionNone = {},
+        onEdit = {},
+        onDelete = {},
+        onArchive = {},
+        onUnarchive = {},
+        onFavorite = {},
+        onUnfavorite = {},
+        onAddLabels = {},
+        onRemoveLabels = {}
+    )
+}
+
+@Composable
+private fun MainContent(
+    rollCounts: RollCounts,
+    labels: List<Label>,
+    rollFilterMode: RollFilterMode,
+    onRollFilterModeSet: (RollFilterMode) -> Unit,
+    onNavigateToMap: () -> Unit,
+    onNavigateToGear: () -> Unit,
+    onNavigateToLabels: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+    subtitle: String,
+    rolls: State<List<Roll>>,
+    selectedRolls: HashSet<Roll>,
+    rollSortMode: RollSortMode,
+    onRollSortModeSet: (RollSortMode) -> Unit,
+    onFabClick: () -> Unit,
+    onRollClick: (Roll) -> Unit,
+    toggleRollSelection: (Roll) -> Unit,
+    toggleRollSelectionAll: () -> Unit,
+    toggleRollSelectionNone: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onArchive: () -> Unit,
+    onUnarchive: () -> Unit,
+    onFavorite: () -> Unit,
+    onUnfavorite: () -> Unit,
+    onAddLabels: () -> Unit,
+    onRemoveLabels: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
     BoxWithConstraints {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val drawerContent = @Composable {
             DrawerContent(
-                rollCounts = rollCounts.value,
-                labels = labels.value,
-                rollFilterMode = rollFilterMode.value,
+                rollCounts = rollCounts,
+                labels = labels,
+                rollFilterMode = rollFilterMode,
                 onRollFilterModeSet = { rollFilterMode ->
-                    mainViewModel.setRollFilterMode(rollFilterMode)
+                    onRollFilterModeSet(rollFilterMode)
                     scope.launch { drawerState.close() }
                 },
-                onNavigateToMap = onNavigateToMap,
-                onNavigateToGear = onNavigateToGear,
+                onNavigateToMap = {
+                    scope.launch { drawerState.close() }
+                    onNavigateToMap()
+                },
+                onNavigateToGear = {
+                    scope.launch { drawerState.close() }
+                    onNavigateToGear()
+                },
                 onNavigateToLabels = {
                     scope.launch { drawerState.close() }
                     onNavigateToLabels()
@@ -75,51 +224,24 @@ fun MainScreen(
         }
         val mainContent = @Composable {
             MainContent(
-                subtitle = subtitle.value,
-                rolls = rolls.value,
-                selectedRolls = selectedRolls.value,
-                rollSortMode = rollSortMode.value,
-                onRollSortModeSet = mainViewModel::setRollSortMode,
-                onFabClick = { /*TODO*/ },
-                onRollClick = { /*TODO*/ },
-                toggleRollSelection = mainViewModel::toggleRollSelection,
-                toggleRollSelectionAll = mainViewModel::toggleRollSelectionAll,
-                toggleRollSelectionNone = mainViewModel::toggleRollSelectionNone,
-                onEdit = { /*TODO*/ },
-                onDelete = {
-                    mainViewModel.selectedRolls.value.forEach(mainViewModel::deleteRoll)
-                    mainViewModel.toggleRollSelectionNone()
-                },
-                onArchive = {
-                    mainViewModel.selectedRolls.value.forEach { roll ->
-                        roll.archived = true
-                        mainViewModel.submitRoll(roll)
-                    }
-                    mainViewModel.toggleRollSelectionNone()
-                },
-                onUnarchive = {
-                    mainViewModel.selectedRolls.value.forEach { roll ->
-                        roll.archived = false
-                        mainViewModel.submitRoll(roll)
-                    }
-                    mainViewModel.toggleRollSelectionNone()
-                },
-                onFavorite = {
-                    mainViewModel.selectedRolls.value.forEach { roll ->
-                        roll.favorite = true
-                        mainViewModel.submitRoll(roll)
-                    }
-                    mainViewModel.toggleRollSelectionNone()
-                },
-                onUnfavorite = {
-                    mainViewModel.selectedRolls.value.forEach { roll ->
-                        roll.favorite = false
-                        mainViewModel.submitRoll(roll)
-                    }
-                    mainViewModel.toggleRollSelectionNone()
-                },
-                onAddLabels = { /*TODO*/ },
-                onRemoveLabels = { /*TODO*/ },
+                subtitle = subtitle,
+                rolls = rolls,
+                selectedRolls = selectedRolls,
+                rollSortMode = rollSortMode,
+                onRollSortModeSet = onRollSortModeSet,
+                onFabClick = onFabClick,
+                onRollClick = onRollClick,
+                toggleRollSelection = toggleRollSelection,
+                toggleRollSelectionAll = toggleRollSelectionAll,
+                toggleRollSelectionNone = toggleRollSelectionNone,
+                onEdit = onEdit,
+                onDelete = onDelete,
+                onArchive = onArchive,
+                onUnarchive = onUnarchive,
+                onFavorite = onFavorite,
+                onUnfavorite = onUnfavorite,
+                onAddLabels = onAddLabels,
+                onRemoveLabels = onRemoveLabels,
                 navigationIcon = {
                     if (maxWidth < 600.dp) {
                         IconButton(onClick = {
