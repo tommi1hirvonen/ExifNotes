@@ -17,6 +17,7 @@ navigation = "2.8.0-beta05"
 hilt = "2.49"
 ktor = "2.3.5"
 maps = "19.0.0"
+mapsCompose = "6.1.0"
 places = "3.5.0"
 location = "21.3.0"
 serialization = "1.6.3"
@@ -62,6 +63,7 @@ jetbrains-kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlin
 ktor-http = { group = "io.ktor", name = "ktor-http", version.ref = "ktor" }
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "mapsCompose" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "maps" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "location" }
 hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

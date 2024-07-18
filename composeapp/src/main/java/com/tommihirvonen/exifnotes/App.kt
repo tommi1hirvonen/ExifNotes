@@ -33,6 +33,7 @@ import com.tommihirvonen.exifnotes.screens.labeledit.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labelslist.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
+import com.tommihirvonen.exifnotes.screens.rollsmap.RollsMapScreen
 import com.tommihirvonen.exifnotes.screens.settings.LicenseScreen
 import com.tommihirvonen.exifnotes.screens.settings.SettingsScreen
 import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
@@ -63,10 +64,15 @@ fun App(onFinish: () -> Unit) {
             composable<Main> {
                 MainScreen(
                     mainViewModel = mainViewModel,
-                    onNavigateToMap = { /*TODO*/ },
+                    onNavigateToMap = { navController.navigate(route = RollsMap) },
                     onNavigateToGear = { navController.navigate(route = Gear) },
                     onNavigateToLabels = { navController.navigate(route = Labels) },
                     onNavigateToSettings = { navController.navigate(route = Settings) }
+                )
+            }
+            composable<RollsMap> {
+                RollsMapScreen(
+                    onNavigateUp = { navController.navigateUp() }
                 )
             }
             composable<Gear> {
@@ -119,6 +125,9 @@ fun App(onFinish: () -> Unit) {
 
 @Serializable
 private object Main
+
+@Serializable
+private object RollsMap
 
 @Serializable
 private object Gear
