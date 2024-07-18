@@ -27,6 +27,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import java.time.LocalDateTime
 
@@ -34,23 +35,27 @@ import java.time.LocalDateTime
 @Parcelize
 @Serializable
 @Keep
-data class Roll(var id: Long = 0,
-                var name: String? = null,
-                var date: LocalDateTime = LocalDateTime.now(),
-                var unloaded: LocalDateTime? = null,
-                var developed: LocalDateTime? = null,
-                var note: String? = null,
-                var camera: Camera? = null,
-                var iso: Int = 0,
-                var pushPull: String? = null,
-                @EncodeDefault
-                var format: Format = Format.MM35,
-                @EncodeDefault
-                var archived: Boolean = false,
-                var filmStock: FilmStock? = null,
-                @EncodeDefault
-                var favorite: Boolean = false,
-                var labels: List<Label> = emptyList(),
-                var frames: List<Frame> = emptyList()) : Parcelable
+data class Roll(
+    var id: Long = 0,
+    var name: String? = null,
+    var date: LocalDateTime = LocalDateTime.now(),
+    var unloaded: LocalDateTime? = null,
+    var developed: LocalDateTime? = null,
+    var note: String? = null,
+    var camera: Camera? = null,
+    var iso: Int = 0,
+    var pushPull: String? = null,
+    @EncodeDefault
+    var format: Format = Format.MM35,
+    @EncodeDefault
+    var archived: Boolean = false,
+    var filmStock: FilmStock? = null,
+    @EncodeDefault
+    var favorite: Boolean = false,
+    var labels: List<Label> = emptyList(),
+    var frames: List<Frame> = emptyList(),
+    @Transient
+    var frameCount: Int = 0
+) : Parcelable
 
 fun List<Roll>.sorted(sortMode: RollSortMode): List<Roll> = sortedWith(sortMode.comparator)
