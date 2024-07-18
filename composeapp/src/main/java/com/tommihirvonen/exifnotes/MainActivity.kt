@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
         }
 
         enableEdgeToEdge()
-        setContent { App() }
+        setContent { App(onFinish = ::finish) }
     }
 
     override fun onStart() {

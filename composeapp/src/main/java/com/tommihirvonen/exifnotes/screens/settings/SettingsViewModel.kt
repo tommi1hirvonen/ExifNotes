@@ -23,6 +23,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.core.content.edit
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.preference.PreferenceManager
 import androidx.work.Data
@@ -33,6 +34,7 @@ import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesExportWorker
 import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesImportWorker
+import com.tommihirvonen.exifnotes.util.packageInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,19 +54,30 @@ class SettingsViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
     companion object {
-        const val KEY_GPS_UPDATE = "GPSUpdate"
-        const val KEY_IGNORE_WARNINGS = "IgnoreWarnings"
-        const val KEY_FILE_ENDING = "FileEnding"
-        const val KEY_PATH_TO_PICTURES = "PicturesPath"
-        const val KEY_EXIFTOOL_PATH = "ExiftoolPath"
-        const val KEY_COPYRIGHT_INFO = "CopyrightInformation"
-        const val KEY_ARTIST_NAME = "ArtistName"
+        private const val KEY_GPS_UPDATE = "GPSUpdate"
+        private const val KEY_IGNORE_WARNINGS = "IgnoreWarnings"
+        private const val KEY_FILE_ENDING = "FileEnding"
+        private const val KEY_PATH_TO_PICTURES = "PicturesPath"
+        private const val KEY_EXIFTOOL_PATH = "ExiftoolPath"
+        private const val KEY_COPYRIGHT_INFO = "CopyrightInformation"
+        private const val KEY_ARTIST_NAME = "ArtistName"
+    }
+
+    private val termsOfUseKey: String get() {
+        val versionInfo = application.packageInfo
+        val versionCode = if (versionInfo != null) {
+            PackageInfoCompat.getLongVersionCode(versionInfo)
+        } else {
+            0
+        }
+        return "TERMS_OF_USE_$versionCode"
     }
 
     private val context get() = application.applicationContext
     private val sharedPreferences: SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(application)
 
+    val termsOfUseAccepted get() = _termsOfUseAccepted as StateFlow<Boolean>
     val locationUpdatesEnabled get() = _locationUpdatesEnabled as StateFlow<Boolean>
     val artistName get() = _artistName as StateFlow<String>
     val copyrightInfo get() = _copyrightInfo as StateFlow<String>
@@ -73,6 +86,9 @@ class SettingsViewModel @Inject constructor(
     val fileEnding get() = _fileEnding as StateFlow<String>
     val ignoreWarnings get() = _ignoreWarnings as StateFlow<Boolean>
 
+    private val _termsOfUseAccepted = MutableStateFlow(
+        sharedPreferences.getBoolean(termsOfUseKey, false)
+    )
     private val _locationUpdatesEnabled = MutableStateFlow(
         sharedPreferences.getBoolean(KEY_GPS_UPDATE, true)
     )
@@ -94,6 +110,13 @@ class SettingsViewModel @Inject constructor(
     private val _ignoreWarnings = MutableStateFlow(
         sharedPreferences.getBoolean(KEY_IGNORE_WARNINGS, false)
     )
+
+    fun acceptTermsOfUse() {
+        sharedPreferences.edit {
+            putBoolean(termsOfUseKey, true)
+        }
+        _termsOfUseAccepted.value = true
+    }
 
     fun setLocationUpdatesEnabled(value: Boolean) {
         sharedPreferences.edit {

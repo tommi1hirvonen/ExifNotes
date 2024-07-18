@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.screens.labeledit.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labelslist.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
@@ -40,12 +41,16 @@ import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 import kotlinx.serialization.Serializable
 
 @Composable
-fun App() {
+fun App(onFinish: () -> Unit) {
     val themeModel = hiltViewModel<ThemeViewModel>()
     ExifNotesTheme(themeModel) {
         val navController = rememberNavController()
-        val rollsModel = hiltViewModel<MainViewModel>()
-        val settingsModel = hiltViewModel<SettingsViewModel>()
+        val mainViewModel = hiltViewModel<MainViewModel>()
+        val settingsViewModel = hiltViewModel<SettingsViewModel>()
+        TermsOfUseDialog(
+            settingsViewModel = settingsViewModel,
+            onFinish = onFinish
+        )
         NavHost(
             navController = navController,
             enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
@@ -56,7 +61,7 @@ fun App() {
         ) {
             composable<Main> {
                 MainScreen(
-                    mainViewModel = rollsModel,
+                    mainViewModel = mainViewModel,
                     onNavigateToMap = { /*TODO*/ },
                     onNavigateToGear = { /*TODO*/ },
                     onNavigateToLabels = { navController.navigate(route = Labels) },
@@ -65,7 +70,7 @@ fun App() {
             }
             composable<Labels> {
                 LabelsScreen(
-                    mainViewModel = rollsModel,
+                    mainViewModel = mainViewModel,
                     onNavigateUp = { navController.navigateUp() },
                     onEditLabel = { label ->
                         navController.navigate(route = LabelEdit(label?.id ?: -1))
@@ -75,8 +80,8 @@ fun App() {
             composable<Settings> {
                 SettingsScreen(
                     themeViewModel = themeModel,
-                    settingsViewModel = settingsModel,
-                    mainViewModel = rollsModel,
+                    settingsViewModel = settingsViewModel,
+                    mainViewModel = mainViewModel,
                     onNavigateUp = { navController.navigateUp() },
                     onNavigateToLicense = { navController.navigate(route = License) },
                     onNavigateToThirdPartyLicenses = {
@@ -99,7 +104,7 @@ fun App() {
                 LabelEditScreen(
                     labelId = labelEdit.labelId,
                     onDismiss = { navController.navigateUp() },
-                    mainViewModel = rollsModel
+                    mainViewModel = mainViewModel
                 )
             }
         }
