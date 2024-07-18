@@ -28,6 +28,7 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
+import com.tommihirvonen.exifnotes.screens.gear.GearScreen
 import com.tommihirvonen.exifnotes.screens.labeledit.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labelslist.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
@@ -63,9 +64,14 @@ fun App(onFinish: () -> Unit) {
                 MainScreen(
                     mainViewModel = mainViewModel,
                     onNavigateToMap = { /*TODO*/ },
-                    onNavigateToGear = { /*TODO*/ },
+                    onNavigateToGear = { navController.navigate(route = Gear) },
                     onNavigateToLabels = { navController.navigate(route = Labels) },
                     onNavigateToSettings = { navController.navigate(route = Settings) }
+                )
+            }
+            composable<Gear> {
+                GearScreen(
+                    onNavigateUp = { navController.navigateUp() }
                 )
             }
             composable<Labels> {
@@ -113,6 +119,9 @@ fun App(onFinish: () -> Unit) {
 
 @Serializable
 private object Main
+
+@Serializable
+private object Gear
 
 @Serializable
 private object Labels
