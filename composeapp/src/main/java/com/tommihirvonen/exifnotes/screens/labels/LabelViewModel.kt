@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.screens.labeledit
+package com.tommihirvonen.exifnotes.screens.labels
 
 import androidx.lifecycle.ViewModel
 import com.tommihirvonen.exifnotes.core.entities.Label

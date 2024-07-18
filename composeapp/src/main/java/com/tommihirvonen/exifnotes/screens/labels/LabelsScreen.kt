@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.screens.labelslist
+package com.tommihirvonen.exifnotes.screens.labels
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

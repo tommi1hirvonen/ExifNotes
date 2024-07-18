@@ -29,8 +29,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.screens.gear.GearScreen
-import com.tommihirvonen.exifnotes.screens.labeledit.LabelEditScreen
-import com.tommihirvonen.exifnotes.screens.labelslist.LabelsScreen
+import com.tommihirvonen.exifnotes.screens.labels.LabelEditScreen
+import com.tommihirvonen.exifnotes.screens.labels.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.screens.rollsmap.RollsMapScreen
