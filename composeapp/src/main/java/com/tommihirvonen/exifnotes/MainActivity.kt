@@ -65,6 +65,8 @@ class MainActivity : ComponentActivity() {
                     composable<Main> {
                         MainScreen(
                             mainViewModel = rollsModel,
+                            onNavigateToMap = { /*TODO*/ },
+                            onNavigateToGear = { /*TODO*/ },
                             onNavigateToLabels = { navController.navigate(route = Labels) },
                             onNavigateToSettings = { navController.navigate(route = Settings) }
                         )

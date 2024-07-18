@@ -112,6 +112,8 @@ dependencies {
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.work)
     implementation(libs.jetbrains.kotlinx.serialization.json)
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
     implementation(libs.hilt)
     kapt(libs.hilt.compiler)
     testImplementation(libs.junit)
