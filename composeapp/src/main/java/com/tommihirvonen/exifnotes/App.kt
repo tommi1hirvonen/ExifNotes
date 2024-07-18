@@ -29,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.screens.gear.GearScreen
+import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.screens.labels.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
@@ -76,7 +77,9 @@ fun App(onFinish: () -> Unit) {
                 )
             }
             composable<Gear> {
+                val gearViewModel = hiltViewModel<GearViewModel>()
                 GearScreen(
+                    gearViewModel = gearViewModel,
                     onNavigateUp = { navController.navigateUp() },
                     onEditFilmStock = { /*TODO*/ }
                 )

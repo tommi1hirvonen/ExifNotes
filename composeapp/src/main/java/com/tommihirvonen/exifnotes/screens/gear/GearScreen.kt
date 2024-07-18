@@ -45,6 +45,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -52,17 +53,42 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.core.entities.Filter
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.gear.cameras.CamerasScreen
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksScreen
 import com.tommihirvonen.exifnotes.screens.gear.filters.FiltersScreen
 import com.tommihirvonen.exifnotes.screens.gear.lenses.LensesScreen
+import com.tommihirvonen.exifnotes.util.State
 import kotlinx.coroutines.launch
+
+@Composable
+fun GearScreen(
+    gearViewModel: GearViewModel,
+    onNavigateUp: () -> Unit,
+    onEditFilmStock: (FilmStock) -> Unit
+) {
+    val cameras = gearViewModel.cameras.collectAsState()
+    val lenses = gearViewModel.lenses.collectAsState()
+    val filters = gearViewModel.filters.collectAsState()
+    GearContent(
+        cameras = cameras.value,
+        lenses = lenses.value,
+        filters = filters.value,
+        onNavigateUp = onNavigateUp,
+        onEditFilmStock = onEditFilmStock
+    )
+}
 
 @Preview(widthDp = 600)
 @Composable
 private fun GearScreenLargePreview() {
-    GearScreen(
+    GearContent(
+        cameras = State.Success(emptyList()),
+        lenses = emptyList(),
+        filters = emptyList(),
         onNavigateUp = {},
         onEditFilmStock = {}
     )
@@ -71,7 +97,10 @@ private fun GearScreenLargePreview() {
 @Preview
 @Composable
 private fun GearScreenPreview() {
-    GearScreen(
+    GearContent(
+        cameras = State.Success(emptyList()),
+        lenses = emptyList(),
+        filters = emptyList(),
         onNavigateUp = {},
         onEditFilmStock = {}
     )
@@ -79,7 +108,10 @@ private fun GearScreenPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GearScreen(
+private fun GearContent(
+    cameras: State<List<Camera>>,
+    lenses: List<Lens>,
+    filters: List<Filter>,
     onNavigateUp: () -> Unit,
     onEditFilmStock: (FilmStock) -> Unit
 ) {
@@ -168,9 +200,15 @@ fun GearScreen(
                 ) {
                     HorizontalPager(state = pagerState) { page ->
                         when (page) {
-                            0 -> CamerasScreen()
-                            1 -> LensesScreen()
-                            2 -> FiltersScreen()
+                            0 -> CamerasScreen(
+                                cameras = cameras
+                            )
+                            1 -> LensesScreen(
+                                lenses = lenses
+                            )
+                            2 -> FiltersScreen(
+                                filters = filters
+                            )
                             3 -> FilmStocksScreen(
                                 onFilmStockClick = onEditFilmStock
                             )

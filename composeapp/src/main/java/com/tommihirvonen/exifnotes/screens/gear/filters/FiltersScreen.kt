@@ -18,23 +18,31 @@
 
 package com.tommihirvonen.exifnotes.screens.gear.filters
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.tommihirvonen.exifnotes.core.entities.Filter
 
 @Preview
 @Composable
-fun FiltersScreen() {
-    Column(
-        modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxWidth()
+fun FiltersScreen(
+    filters: List<Filter> = emptyList()
+) {
+    val state = rememberLazyListState()
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        state = state
     ) {
-        repeat(50) { i ->
-            Text("Filter $i")
+        items(
+            items = filters,
+            key = { it.id }
+        ) { filter ->
+            Text(filter.name)
         }
     }
 }
