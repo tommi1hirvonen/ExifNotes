@@ -201,8 +201,9 @@ fun FrameCard(
                                     imageVector = Icons.Filled.Camera,
                                     contentDescription = ""
                                 )
+                                val aperture = frame.aperture?.let { "f/$it" } ?: ""
                                 Text(
-                                    text = "f/${frame.aperture}",
+                                    text = aperture,
                                     style = style
                                 )
                             }
