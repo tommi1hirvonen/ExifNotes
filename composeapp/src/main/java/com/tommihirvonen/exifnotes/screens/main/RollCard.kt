@@ -134,10 +134,10 @@ fun RollCard(
                     Row {
                         Text(
                             text = roll.name ?: "",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
+                            style = MaterialTheme.typography.titleMedium
                         )
                     }
+                    val style = MaterialTheme.typography.bodyMedium
                     if (filmStock != null) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
@@ -149,9 +149,9 @@ fun RollCard(
                             )
                             Text(
                                 text = filmStock.name,
-                                fontSize = 13.sp,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
+                                style = style
                             )
                         }
                     }
@@ -166,9 +166,9 @@ fun RollCard(
                                 contentDescription = ""
                             )
                             if (camera != null) {
-                                Text(camera.name, fontSize = 13.sp)
+                                Text(camera.name, style = style)
                             } else {
-                                Text(stringResource(R.string.NoCamera), fontSize = 13.sp)
+                                Text(stringResource(R.string.NoCamera), style = style)
                             }
                         }
                         Row(
@@ -184,7 +184,7 @@ fun RollCard(
                                 pluralStringResource(
                                     R.plurals.PhotosAmount, roll.frameCount, roll.frameCount
                                 ),
-                                fontSize = 13.sp
+                                style = style
                             )
                         }
                     }
@@ -198,10 +198,10 @@ fun RollCard(
                                 imageVector = Icons.Filled.CalendarToday,
                                 contentDescription = ""
                             )
-                            Text(date, fontSize = 13.sp)
+                            Text(date, style = style)
                         }
                         Box (modifier = Modifier.weight(0.3f)){
-                            Text(state, fontSize = 13.sp)
+                            Text(state, style = style)
                         }
                     }
                     if (note.isNotEmpty()) {
@@ -215,10 +215,10 @@ fun RollCard(
                             )
                             Text(
                                 text = note,
-                                fontSize = 12.sp,
                                 fontStyle = FontStyle.Italic,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodySmall
                             )
                         }
                     }

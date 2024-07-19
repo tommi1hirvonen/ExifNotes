@@ -40,7 +40,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ShutterSpeed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -54,8 +56,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,7 +65,6 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.sortableDateTime
-import com.tommihirvonen.exifnotes.theme.ExifNotesTheme
 import java.time.LocalDateTime
 
 @Preview
@@ -116,6 +115,11 @@ fun FrameCard(
         label = "cardBackgroundColor",
         animationSpec = tween(durationMillis = 400)
     )
+    val imageTint by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant,
+        label = "cardBackgroundColor",
+        animationSpec = tween(durationMillis = 400)
+    )
     Box(modifier = Modifier.fillMaxWidth()) {
         val cardShape = RoundedCornerShape(12.dp)
         Card(
@@ -143,7 +147,7 @@ fun FrameCard(
                         painter = painterResource(R.drawable.background_frame_small),
                         contentDescription = "",
                         colorFilter = ColorFilter.tint(
-                            color = MaterialTheme.colorScheme.secondaryContainer
+                            color = imageTint
                         )
                     )
                     Text(
@@ -158,7 +162,7 @@ fun FrameCard(
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
                         Column(
-                            modifier = Modifier.weight(0.6f)
+                            modifier = Modifier.weight(0.7f)
                         ) {
                             Text(
                                 text = frame.date.sortableDateTime,
@@ -174,16 +178,34 @@ fun FrameCard(
                             )
                         }
                         Column(
-                            modifier = Modifier.weight(0.4f)
+                            modifier = Modifier.weight(0.3f)
                         ) {
-                            Text(
-                                text = frame.shutter ?: "",
-                                style = style
-                            )
-                            Text(
-                                text = "f/${frame.aperture}",
-                                style = style
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(14.dp),
+                                    imageVector = Icons.Filled.ShutterSpeed,
+                                    contentDescription = ""
+                                )
+                                Text(
+                                    text = frame.shutter ?: "",
+                                    style = style
+                                )
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(14.dp),
+                                    imageVector = Icons.Filled.Camera,
+                                    contentDescription = ""
+                                )
+                                Text(
+                                    text = "f/${frame.aperture}",
+                                    style = style
+                                )
+                            }
                         }
                     }
                     Row {
@@ -199,8 +221,8 @@ fun FrameCard(
             }
         }
         Box(modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(horizontal = 24.dp)
+            .align(Alignment.TopStart)
+            .padding(horizontal = 59.dp)
         ) {
             AnimatedVisibility(
                 visible = selected,
@@ -209,7 +231,7 @@ fun FrameCard(
             ) {
                 Box(modifier = Modifier
                     .size(64.dp)
-                    .padding(16.dp)
+                    .padding(18.dp)
                     .align(Alignment.Center)
                     .shadow(
                         elevation = 6.dp,
@@ -224,7 +246,7 @@ fun FrameCard(
                         Icon(
                             modifier = Modifier
                                 .align(Alignment.Center)
-                                .size(20.dp),
+                                .size(18.dp),
                             imageVector = Icons.Filled.Check,
                             contentDescription = "",
                             tint = MaterialTheme.colorScheme.onTertiary
