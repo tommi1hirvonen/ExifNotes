@@ -28,6 +28,7 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
+import com.tommihirvonen.exifnotes.screens.frames.FramesScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.screens.labels.LabelEditScreen
@@ -65,10 +66,20 @@ fun App(onFinish: () -> Unit) {
             composable<Main> {
                 MainScreen(
                     mainViewModel = mainViewModel,
+                    onNavigateToRoll = { roll ->
+                        navController.navigate(route = Frames(roll.id))
+                    },
                     onNavigateToMap = { navController.navigate(route = RollsMap) },
                     onNavigateToGear = { navController.navigate(route = Gear) },
                     onNavigateToLabels = { navController.navigate(route = Labels) },
                     onNavigateToSettings = { navController.navigate(route = Settings) }
+                )
+            }
+            composable<Frames> { backStackEntry ->
+                val frames = backStackEntry.toRoute<Frames>()
+                FramesScreen(
+                    rollId = frames.rollId,
+                    onNavigateUp = { navController.navigateUp() }
                 )
             }
             composable<RollsMap> {
@@ -153,3 +164,6 @@ private object License
 
 @Serializable
 private object ThirdPartyLicenses
+
+@Serializable
+private data class Frames(val rollId: Long)

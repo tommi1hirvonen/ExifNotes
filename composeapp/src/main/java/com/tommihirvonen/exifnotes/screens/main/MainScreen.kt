@@ -46,6 +46,7 @@ import java.time.LocalDateTime
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
+    onNavigateToRoll: (Roll) -> Unit,
     onNavigateToMap: () -> Unit,
     onNavigateToGear: () -> Unit,
     onNavigateToLabels: () -> Unit,
@@ -74,7 +75,7 @@ fun MainScreen(
         rollSortMode = rollSortMode.value,
         onRollSortModeSet = mainViewModel::setRollSortMode,
         onFabClick = { /*TODO*/ },
-        onRollClick = { /*TODO*/ },
+        onRollClick = onNavigateToRoll,
         toggleRollSelection = mainViewModel::toggleRollSelection,
         toggleRollSelectionAll = mainViewModel::toggleRollSelectionAll,
         toggleRollSelectionNone = mainViewModel::toggleRollSelectionNone,
