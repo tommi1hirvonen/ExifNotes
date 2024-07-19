@@ -18,31 +18,19 @@
 
 package com.tommihirvonen.exifnotes.theme
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.PlatformTextStyle
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    /* Default text styles to override
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+val Typography @Composable get() = Typography(
+    bodyMedium = MaterialTheme.typography.bodyMedium.copy(
+        platformStyle = PlatformTextStyle(includeFontPadding = false)
     ),
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+    bodySmall = MaterialTheme.typography.bodySmall.copy(
+        platformStyle = PlatformTextStyle(includeFontPadding = false)
     ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+    bodyLarge = MaterialTheme.typography.bodyLarge.copy(
+        platformStyle = PlatformTextStyle(includeFontPadding = false)
     )
-    */
 )
