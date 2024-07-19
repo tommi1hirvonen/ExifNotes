@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.screens.frames
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,6 +56,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.util.State
 
@@ -68,9 +70,15 @@ fun FramesScreen(
 ) {
     val rollFromModel = framesViewModel.roll.collectAsState()
     val frames = framesViewModel.frames.collectAsState()
+    val selectedFrames = framesViewModel.selectedFrames.collectAsState()
     FramesContent(
         roll = rollFromModel.value,
         frames = frames.value,
+        selectedFrames = selectedFrames.value,
+        onFrameClick = { /*TODO*/ },
+        toggleFrameSelection = framesViewModel::toggleFrameSelection,
+        toggleFrameSelectionAll = framesViewModel::toggleFrameSelectionAll,
+        toggleFrameSelectionNone = framesViewModel::toggleFrameSelectionNone,
         onNavigateUp = onNavigateUp
     )
 }
@@ -80,11 +88,27 @@ fun FramesScreen(
 private fun FramesContentPreview() {
     val roll = Roll(name = "Test roll")
     val frame1 = Frame(
-        count = 1
+        id = 1,
+        count = 1,
+        shutter = "1/250",
+        aperture = "2.8",
+        lens = Lens(make = "Canon", model = "FD 28mm f/2.8")
+    )
+    val frame2 = Frame(
+        id = 2,
+        count = 2,
+        shutter = "1/1000",
+        aperture = "1.8",
+        lens = Lens(make = "Canon", model = "FD 50mm f/1.8")
     )
     FramesContent(
         roll = roll,
-        frames = State.Success(listOf(frame1)),
+        frames = State.Success(listOf(frame1, frame2)),
+        selectedFrames = hashSetOf(),
+        onFrameClick = {},
+        toggleFrameSelection = {},
+        toggleFrameSelectionAll = {},
+        toggleFrameSelectionNone = {},
         onNavigateUp = {}
     )
 }
@@ -94,8 +118,14 @@ private fun FramesContentPreview() {
 private fun FramesContent(
     roll: Roll,
     frames: State<List<Frame>>,
+    selectedFrames: HashSet<Frame>,
+    onFrameClick: (Frame) -> Unit,
+    toggleFrameSelection: (Frame) -> Unit,
+    toggleFrameSelectionAll: () -> Unit,
+    toggleFrameSelectionNone: () -> Unit,
     onNavigateUp: () -> Unit
 ) {
+    val actionModeEnabled = selectedFrames.isNotEmpty()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -164,13 +194,25 @@ private fun FramesContent(
             LazyColumn(
                 modifier = Modifier
                     .padding(innerPadding)
-                    .fillMaxSize()
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(
                     items = frames.data,
                     key = { it.id }
                 ) { frame ->
-                    Text(frame.count.toString())
+                    FrameCard(
+                        frame = frame,
+                        selected = selectedFrames.contains(frame),
+                        onClick = {
+                            if (actionModeEnabled) {
+                                toggleFrameSelection(frame)
+                                return@FrameCard
+                            }
+                            onFrameClick(frame)
+                        },
+                        onLongClick = { toggleFrameSelection(frame) }
+                    )
                 }
             }
         }

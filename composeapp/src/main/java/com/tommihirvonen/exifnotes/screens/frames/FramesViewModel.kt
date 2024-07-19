@@ -61,10 +61,12 @@ class FramesViewModel @AssistedInject constructor(
 
     val roll get() = _roll.asStateFlow()
     val frames get() = _frames.asStateFlow()
+    val selectedFrames get() = _selectedFrames.asStateFlow()
     val frameSortMode get() = _frameSortMode.asStateFlow()
 
     private val _roll = MutableStateFlow(Roll())
     private val _frames = MutableStateFlow<State<List<Frame>>>(State.InProgress())
+    private val _selectedFrames = MutableStateFlow(hashSetOf<Frame>())
     private val _frameSortMode = MutableStateFlow(
         FrameSortMode.fromValue(
             sharedPreferences.getInt(KEY_FRAME_SORT_ORDER, FrameSortMode.FRAME_COUNT.value)
@@ -75,6 +77,24 @@ class FramesViewModel @AssistedInject constructor(
 
     init {
         loadFrames()
+    }
+
+    fun toggleFrameSelection(frame: Frame) {
+        val frames = _selectedFrames.value.toHashSet()
+        if (frames.contains(frame)) {
+            frames.remove(frame)
+        } else {
+            frames.add(frame)
+        }
+        _selectedFrames.value = frames
+    }
+
+    fun toggleFrameSelectionAll() {
+        _selectedFrames.value = framesList.toHashSet()
+    }
+
+    fun toggleFrameSelectionNone() {
+        _selectedFrames.value = hashSetOf()
     }
 
     private fun loadFrames() {
