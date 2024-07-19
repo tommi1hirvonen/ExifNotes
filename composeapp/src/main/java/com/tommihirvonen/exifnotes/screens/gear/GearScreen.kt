@@ -80,6 +80,16 @@ fun GearScreen(
         cameras = cameras.value,
         lenses = lenses.value,
         filters = filters.value,
+        cameraCompatibleLensesProvider = { camera ->
+            lenses.value.filter { lens -> camera.lensIds.contains(lens.id) }
+        },
+        cameraCompatibleFiltersProvider = { camera ->
+            camera.lens?.let { fixedLens ->
+                filters.value.filter { filter ->
+                    fixedLens.filterIds.contains(filter.id)
+                }
+            } ?: emptyList()
+        },
         onNavigateUp = onNavigateUp,
         onEditCamera = onEditCamera,
         onEditLens = onEditLens,
@@ -95,6 +105,8 @@ private fun GearScreenLargePreview() {
         cameras = State.Success(emptyList()),
         lenses = emptyList(),
         filters = emptyList(),
+        cameraCompatibleLensesProvider = { _ -> emptyList() },
+        cameraCompatibleFiltersProvider = { _ -> emptyList()},
         onNavigateUp = {},
         onEditCamera = {},
         onEditLens = {},
@@ -110,6 +122,8 @@ private fun GearScreenPreview() {
         cameras = State.Success(emptyList()),
         lenses = emptyList(),
         filters = emptyList(),
+        cameraCompatibleLensesProvider = { _ -> emptyList() },
+        cameraCompatibleFiltersProvider = { _ -> emptyList()},
         onNavigateUp = {},
         onEditCamera = {},
         onEditLens = {},
@@ -124,6 +138,8 @@ private fun GearContent(
     cameras: State<List<Camera>>,
     lenses: List<Lens>,
     filters: List<Filter>,
+    cameraCompatibleLensesProvider: (Camera) -> (List<Lens>),
+    cameraCompatibleFiltersProvider: (Camera) -> (List<Filter>),
     onNavigateUp: () -> Unit,
     onEditCamera: (Camera) -> Unit,
     onEditLens: (Lens) -> Unit,
@@ -217,6 +233,8 @@ private fun GearContent(
                         when (page) {
                             0 -> CamerasScreen(
                                 cameras = cameras,
+                                compatibleLensesProvider = cameraCompatibleLensesProvider,
+                                compatibleFiltersProvider = cameraCompatibleFiltersProvider,
                                 onCameraClick = onEditCamera
                             )
                             1 -> LensesScreen(

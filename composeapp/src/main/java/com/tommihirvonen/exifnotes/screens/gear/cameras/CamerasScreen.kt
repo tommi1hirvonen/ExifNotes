@@ -50,6 +50,8 @@ import com.tommihirvonen.exifnotes.util.State
 @Composable
 fun CamerasScreen(
     cameras: State<List<Camera>> = State.InProgress(),
+    compatibleLensesProvider: (Camera) -> (List<Lens>) = { _ -> emptyList() },
+    compatibleFiltersProvider: (Camera) -> (List<Filter>) = { _ -> emptyList() },
     onCameraClick: (Camera) -> Unit = {}
 ) {
     if (cameras is State.InProgress) {
@@ -74,8 +76,8 @@ fun CamerasScreen(
             ) { camera ->
                 CameraCard(
                     camera = camera,
-                    compatibleLenses = emptyList(), // TODO
-                    compatibleFilters = emptyList(), // TODO
+                    compatibleLenses = compatibleLensesProvider(camera),
+                    compatibleFilters = compatibleFiltersProvider(camera),
                     onClick = { onCameraClick(camera) }
                 )
             }
