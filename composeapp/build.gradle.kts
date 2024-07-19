@@ -114,6 +114,7 @@ dependencies {
     implementation(libs.jetbrains.kotlinx.serialization.json)
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
+    implementation(libs.android.libraries.places)
     implementation(libs.maps.compose)
     implementation(libs.hilt)
     kapt(libs.hilt.compiler)

@@ -18,10 +18,16 @@
 
 package com.tommihirvonen.exifnotes
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import com.google.android.libraries.places.api.Places
 import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.util.purgeDirectory
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,6 +39,13 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var complementaryPicturesManager: ComplementaryPicturesManager
 
+    private val requestMultiplePermissionsLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { _ ->
+
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,6 +55,38 @@ class MainActivity : ComponentActivity() {
         // don't delete pictures.
         if (savedInstanceState == null) {
             complementaryPicturesManager.deleteUnusedPictures()
+
+            // Check that the application has write permission to the phone's external storage
+            // and access to location services.
+            val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            } else {
+                arrayOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            }
+            val permissionGrants = permissions.map {
+                ActivityCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+            }
+            if (permissionGrants.contains(false)) {
+                requestMultiplePermissionsLauncher.launch(permissions)
+            }
+        }
+
+        if (!Places.isInitialized()) {
+            val apiKey = resources.getString(R.string.google_maps_key)
+            Places.initialize(applicationContext, apiKey)
         }
 
         enableEdgeToEdge()

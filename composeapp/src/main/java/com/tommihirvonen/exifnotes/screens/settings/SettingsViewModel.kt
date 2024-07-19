@@ -19,7 +19,9 @@
 package com.tommihirvonen.exifnotes.screens.settings
 
 import android.app.Application
+import android.content.Context
 import android.content.SharedPreferences
+import android.location.LocationManager
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.core.content.edit
@@ -110,6 +112,11 @@ class SettingsViewModel @Inject constructor(
     private val _ignoreWarnings = MutableStateFlow(
         sharedPreferences.getBoolean(KEY_IGNORE_WARNINGS, false)
     )
+
+    fun isGpsEnabled(): Boolean {
+        val locationManager = application.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
 
     fun acceptTermsOfUse() {
         sharedPreferences.edit {

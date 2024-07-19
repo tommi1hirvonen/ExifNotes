@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.tommihirvonen.exifnotes.screens.GpsCheckDialog
 import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.screens.frames.FramesScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearScreen
@@ -54,6 +55,9 @@ fun App(onFinish: () -> Unit) {
         TermsOfUseDialog(
             settingsViewModel = settingsViewModel,
             onFinish = onFinish
+        )
+        GpsCheckDialog(
+            settingsViewModel = settingsViewModel
         )
         NavHost(
             navController = navController,
