@@ -68,6 +68,9 @@ import kotlinx.coroutines.launch
 fun GearScreen(
     gearViewModel: GearViewModel,
     onNavigateUp: () -> Unit,
+    onEditCamera: (Camera) -> Unit,
+    onEditLens: (Lens) -> Unit,
+    onEditFilter: (Filter) -> Unit,
     onEditFilmStock: (FilmStock) -> Unit
 ) {
     val cameras = gearViewModel.cameras.collectAsState()
@@ -78,6 +81,9 @@ fun GearScreen(
         lenses = lenses.value,
         filters = filters.value,
         onNavigateUp = onNavigateUp,
+        onEditCamera = onEditCamera,
+        onEditLens = onEditLens,
+        onEditFilter = onEditFilter,
         onEditFilmStock = onEditFilmStock
     )
 }
@@ -90,6 +96,9 @@ private fun GearScreenLargePreview() {
         lenses = emptyList(),
         filters = emptyList(),
         onNavigateUp = {},
+        onEditCamera = {},
+        onEditLens = {},
+        onEditFilter = {},
         onEditFilmStock = {}
     )
 }
@@ -102,6 +111,9 @@ private fun GearScreenPreview() {
         lenses = emptyList(),
         filters = emptyList(),
         onNavigateUp = {},
+        onEditCamera = {},
+        onEditLens = {},
+        onEditFilter = {},
         onEditFilmStock = {}
     )
 }
@@ -113,6 +125,9 @@ private fun GearContent(
     lenses: List<Lens>,
     filters: List<Filter>,
     onNavigateUp: () -> Unit,
+    onEditCamera: (Camera) -> Unit,
+    onEditLens: (Lens) -> Unit,
+    onEditFilter: (Filter) -> Unit,
     onEditFilmStock: (FilmStock) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -201,13 +216,16 @@ private fun GearContent(
                     HorizontalPager(state = pagerState) { page ->
                         when (page) {
                             0 -> CamerasScreen(
-                                cameras = cameras
+                                cameras = cameras,
+                                onCameraClick = onEditCamera
                             )
                             1 -> LensesScreen(
-                                lenses = lenses
+                                lenses = lenses,
+                                onLensClick = onEditLens
                             )
                             2 -> FiltersScreen(
-                                filters = filters
+                                filters = filters,
+                                onFilterClick = onEditFilter
                             )
                             3 -> FilmStocksScreen(
                                 onFilmStockClick = onEditFilmStock

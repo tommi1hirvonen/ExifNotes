@@ -81,6 +81,9 @@ fun App(onFinish: () -> Unit) {
                 GearScreen(
                     gearViewModel = gearViewModel,
                     onNavigateUp = { navController.navigateUp() },
+                    onEditCamera = { /*TODO*/ },
+                    onEditLens = { /*TODO*/ },
+                    onEditFilter = { /*TODO*/ },
                     onEditFilmStock = { /*TODO*/ }
                 )
             }
