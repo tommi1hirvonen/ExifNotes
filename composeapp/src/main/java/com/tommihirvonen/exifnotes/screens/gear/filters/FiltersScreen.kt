@@ -46,6 +46,8 @@ import com.tommihirvonen.exifnotes.core.entities.Lens
 @Composable
 fun FiltersScreen(
     filters: List<Filter> = emptyList(),
+    compatibleCamerasProvider: (Filter) -> (List<Camera>) = { _ -> emptyList() },
+    compatibleLensesProvider: (Filter) -> (List<Lens>) = { _ -> emptyList() },
     onFilterClick: (Filter) -> Unit = {}
 ) {
     val state = rememberLazyListState()
@@ -59,8 +61,8 @@ fun FiltersScreen(
         ) { filter ->
             FilterCard(
                 filter = filter,
-                compatibleCameras = emptyList(), // TODO
-                compatibleLenses = emptyList(), // TODO
+                compatibleCameras = compatibleCamerasProvider(filter),
+                compatibleLenses = compatibleLensesProvider(filter),
                 onClick = { onFilterClick(filter) }
             )
         }
@@ -119,7 +121,7 @@ private fun FilterCard(
                 if (compatibleLenses.isNotEmpty()) {
                     Row {
                         Text(
-                            text = stringResource(R.string.FiltersNoCap) + ":"
+                            text = stringResource(R.string.LensesNoCap) + ":"
                         )
                     }
                     for (lens in compatibleLenses) {

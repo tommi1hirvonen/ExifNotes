@@ -90,6 +90,27 @@ fun GearScreen(
                 }
             } ?: emptyList()
         },
+        lensCompatibleCamerasProvider = { lens ->
+            when (val c = cameras.value) {
+                is State.Success -> c.data.filter { camera -> lens.cameraIds.contains(camera.id) }
+                else -> emptyList()
+            }
+        },
+        lensCompatibleFiltersProvider = { lens ->
+            filters.value.filter { filter -> lens.filterIds.contains(filter.id) }
+        },
+        filterCompatibleCamerasProvider = { filter ->
+            when (val c = cameras.value) {
+                is State.Success -> c.data.filter { camera ->
+                    val lens = camera.lens
+                    lens != null && filter.lensIds.contains(lens.id)
+                }
+                else -> emptyList()
+            }
+        },
+        filterCompatibleLensesProvider = { filter ->
+            lenses.value.filter { lens -> filter.lensIds.contains(lens.id) }
+        },
         onNavigateUp = onNavigateUp,
         onEditCamera = onEditCamera,
         onEditLens = onEditLens,
@@ -106,7 +127,11 @@ private fun GearScreenLargePreview() {
         lenses = emptyList(),
         filters = emptyList(),
         cameraCompatibleLensesProvider = { _ -> emptyList() },
-        cameraCompatibleFiltersProvider = { _ -> emptyList()},
+        cameraCompatibleFiltersProvider = { _ -> emptyList() },
+        lensCompatibleCamerasProvider = { _ -> emptyList() },
+        lensCompatibleFiltersProvider = { _ -> emptyList() },
+        filterCompatibleCamerasProvider = { _ -> emptyList() },
+        filterCompatibleLensesProvider = { _ -> emptyList() },
         onNavigateUp = {},
         onEditCamera = {},
         onEditLens = {},
@@ -123,7 +148,11 @@ private fun GearScreenPreview() {
         lenses = emptyList(),
         filters = emptyList(),
         cameraCompatibleLensesProvider = { _ -> emptyList() },
-        cameraCompatibleFiltersProvider = { _ -> emptyList()},
+        cameraCompatibleFiltersProvider = { _ -> emptyList() },
+        lensCompatibleCamerasProvider = { _ -> emptyList() },
+        lensCompatibleFiltersProvider = { _ -> emptyList() },
+        filterCompatibleCamerasProvider = { _ -> emptyList() },
+        filterCompatibleLensesProvider = { _ -> emptyList() },
         onNavigateUp = {},
         onEditCamera = {},
         onEditLens = {},
@@ -140,6 +169,10 @@ private fun GearContent(
     filters: List<Filter>,
     cameraCompatibleLensesProvider: (Camera) -> (List<Lens>),
     cameraCompatibleFiltersProvider: (Camera) -> (List<Filter>),
+    lensCompatibleCamerasProvider: (Lens) -> (List<Camera>),
+    lensCompatibleFiltersProvider: (Lens) -> (List<Filter>),
+    filterCompatibleCamerasProvider: (Filter) -> (List<Camera>),
+    filterCompatibleLensesProvider: (Filter) -> (List<Lens>),
     onNavigateUp: () -> Unit,
     onEditCamera: (Camera) -> Unit,
     onEditLens: (Lens) -> Unit,
@@ -239,10 +272,14 @@ private fun GearContent(
                             )
                             1 -> LensesScreen(
                                 lenses = lenses,
+                                compatibleCamerasProvider = lensCompatibleCamerasProvider,
+                                compatibleFiltersProvider = lensCompatibleFiltersProvider,
                                 onLensClick = onEditLens
                             )
                             2 -> FiltersScreen(
                                 filters = filters,
+                                compatibleCamerasProvider = filterCompatibleCamerasProvider,
+                                compatibleLensesProvider = filterCompatibleLensesProvider,
                                 onFilterClick = onEditFilter
                             )
                             3 -> FilmStocksScreen(
