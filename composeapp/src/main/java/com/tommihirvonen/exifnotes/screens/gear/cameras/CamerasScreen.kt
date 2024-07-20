@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -70,6 +71,22 @@ fun CamerasScreen(
                 .fillMaxSize(),
             state = state
         ) {
+            if (cameras.data.isEmpty()) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 50.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            modifier = Modifier.alpha(0.6f),
+                            text = stringResource(R.string.NoCameras),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+                }
+            }
             items(
                 items = cameras.data,
                 key = { it.id }

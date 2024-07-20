@@ -32,7 +32,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,6 +57,22 @@ fun LensesScreen(
         modifier = Modifier.fillMaxSize(),
         state = state
     ) {
+        if (lenses.isEmpty()) {
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 50.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier.alpha(0.6f),
+                        text = stringResource(R.string.NoLenses),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
+        }
         items(
             items = lenses,
             key = { it.id }

@@ -43,6 +43,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,11 +52,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.Roll
@@ -202,6 +206,22 @@ private fun FramesContent(
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
+                if (frames.data.isEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 50.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                modifier = Modifier.alpha(0.6f),
+                                text = stringResource(R.string.NoFrames),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                    }
+                }
                 items(
                     items = frames.data,
                     key = { it.id }

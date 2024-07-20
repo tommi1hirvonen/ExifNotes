@@ -21,6 +21,7 @@ package com.tommihirvonen.exifnotes.screens.main
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +38,7 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -47,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -260,6 +263,22 @@ fun MainContent(
                 contentPadding = PaddingValues(bottom = 80.dp),
                 state = listState
             ) {
+                if (rolls.data.isEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 50.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                modifier = Modifier.alpha(0.6f),
+                                text = stringResource(R.string.NoRolls),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                    }
+                }
                 items(
                     items = rolls.data,
                     key = { roll -> roll.id }
@@ -278,6 +297,7 @@ fun MainContent(
                     )
                 }
             }
+
         }
     }
 }

@@ -303,7 +303,7 @@
     <string name="NoPhotos">No photos</string>
     <string name="NoPicturesExported">No pictures were exported</string>
     <string name="NoPicturesImported">No pictures were imported</string>
-    <string name="NoRolls">No added rolls</string>
+    <string name="NoRolls">No rolls</string>
     <string name="NotificationComplementaryPicturesExportName">Complementary Pictures Export</string>
     <string name="NotificationComplementaryPicturesExportDescription">Progress notification for complementary pictures export</string>
     <string name="NotificationComplementaryPicturesExportFailMessage">Complementary pictures export failed</string>

@@ -33,7 +33,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -75,6 +77,22 @@ private fun FilmStocksContent(
         modifier = Modifier.fillMaxSize(),
         state = state
     ) {
+        if (filmStocks.isEmpty()) {
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 50.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier.alpha(0.6f),
+                        text = stringResource(R.string.NoFilmStocks),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
+        }
         items(
             items = filmStocks,
             key = { it.id }
