@@ -40,8 +40,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.ShutterSpeed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -81,7 +83,9 @@ private fun FrameCardSelectedPreview() {
     )
     FrameCard(
         frame = frame,
-        selected = true
+        selected = true,
+        onClick = {},
+        onLongClick = {}
     )
 }
 
@@ -98,7 +102,10 @@ private fun FrameCardPreview() {
         note = "This is a test note"
     )
     FrameCard(
-        frame = frame
+        frame = frame,
+        selected = false,
+        onClick = {},
+        onLongClick = {}
     )
 }
 
@@ -106,9 +113,9 @@ private fun FrameCardPreview() {
 @Composable
 fun FrameCard(
     frame: Frame,
-    selected: Boolean = false,
-    onClick: () -> Unit = {},
-    onLongClick: () -> Unit = {}
+    selected: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
 ) {
     val cardColor by animateColorAsState(
         targetValue = if (selected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
@@ -176,6 +183,13 @@ fun FrameCard(
                                 overflow = TextOverflow.Ellipsis,
                                 style = style
                             )
+                            Text(
+                                text = frame.note ?: "",
+                                fontStyle = FontStyle.Italic,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = style
+                            )
                         }
                         Column(
                             modifier = Modifier.weight(0.3f)
@@ -207,16 +221,23 @@ fun FrameCard(
                                     style = style
                                 )
                             }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (frame.pictureFilename != null) {
+                                    val pictureFileIcon = if (frame.pictureFileExists) {
+                                        Icons.Filled.Image
+                                    } else {
+                                        Icons.Filled.BrokenImage
+                                    }
+                                    Icon(
+                                        modifier = Modifier.size(14.dp),
+                                        imageVector = pictureFileIcon,
+                                        contentDescription = ""
+                                    )
+                                }
+                            }
                         }
-                    }
-                    Row {
-                        Text(
-                            text = frame.note ?: "",
-                            fontStyle = FontStyle.Italic,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = style
-                        )
                     }
                 }
             }

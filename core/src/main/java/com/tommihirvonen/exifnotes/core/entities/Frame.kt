@@ -63,7 +63,9 @@ data class Frame(
     @EncodeDefault
     var lightSource: LightSource = LightSource.UNKNOWN,
     var lens: Lens? = null,
-    var filters: List<Filter> = ArrayList()
+    var filters: List<Filter> = ArrayList(),
+    @Transient
+    var pictureFileExists: Boolean = false
 ) : Parcelable {
 
     constructor(roll1: Roll) : this(roll = roll1)

@@ -28,6 +28,7 @@ import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.sorted
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
+import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.util.State
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -44,6 +45,7 @@ class FramesViewModel @AssistedInject constructor(
     @Assisted private val rollId: Long,
     private val rollRepository: RollRepository,
     private val frameRepository: FrameRepository,
+    private val complementaryPicturesManager: ComplementaryPicturesManager,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -105,6 +107,15 @@ class FramesViewModel @AssistedInject constructor(
                 framesList = frameRepository
                     .getFrames(roll.value)
                     .sorted(getApplication(), sortMode)
+                // For frames which have a complementary picture,
+                // check whether the picture file actually exists.
+                // Then we can display an appropriate icon in the UI.
+                for (frame in framesList) {
+                    val pictureFilename = frame.pictureFilename ?: continue
+                    frame.pictureFileExists = complementaryPicturesManager
+                        .getPictureFile(pictureFilename)
+                        .exists()
+                }
                 _frames.value = State.Success(framesList)
             }
         }
