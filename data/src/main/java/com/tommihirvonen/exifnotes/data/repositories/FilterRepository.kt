@@ -52,6 +52,17 @@ class FilterRepository @Inject constructor(private val database: Database) {
             .map { filterMapper(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
     }
 
+    fun getFilter(filterId: Long): Filter? {
+        val lenses = database
+            .from(TABLE_LINK_LENS_FILTER)
+            .where { KEY_FILTER_ID eq filterId }
+            .map { it.getLong(KEY_LENS_ID) }
+        return database
+            .from(TABLE_FILTERS)
+            .where { KEY_FILTER_ID eq filterId }
+            .firstOrNull(filterMapper)?.apply { lensIds = lenses.toHashSet() }
+    }
+
     fun deleteFilter(filter: Filter): Int = database
         .from(TABLE_FILTERS)
         .where { KEY_FILTER_ID eq filter.id }
