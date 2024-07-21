@@ -78,54 +78,114 @@ fun AppBar(
         actions = {
             if (currentPagerPage == 3) {
                 var showSortDropdown by remember { mutableStateOf(false) }
-                IconButton(onClick = { /*TODO*/ }) {
+                var showFilterDropdown by remember { mutableStateOf(false) }
+                IconButton(onClick = { showFilterDropdown = true }) {
                     Icon(Icons.Outlined.FilterList, "")
                 }
                 IconButton(onClick = { showSortDropdown = true }) {
                     Icon(Icons.AutoMirrored.Outlined.Sort, "")
                 }
-                DropdownMenu(
+                SortDropdownMenu(
                     expanded = showSortDropdown,
-                    onDismissRequest = { showSortDropdown = false }
-                ) {
-                    Text(
-                        text = stringResource(R.string.SortFilmStocksBy),
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.Name)) },
-                        onClick = {
-                            showSortDropdown = false
-                            onFilmStockSort(FilmStockSortMode.NAME)
-                        },
-                        trailingIcon = {
-                            RadioButton(
-                                selected = filmStockSortMode == FilmStockSortMode.NAME,
-                                onClick = {
-                                    onFilmStockSort(FilmStockSortMode.NAME)
-                                    showSortDropdown = false
-                                }
-                            )
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.ISO)) },
-                        onClick = {
-                            showSortDropdown = false
-                            onFilmStockSort(FilmStockSortMode.ISO)
-                        },
-                        trailingIcon = {
-                            RadioButton(
-                                selected = filmStockSortMode == FilmStockSortMode.ISO,
-                                onClick = {
-                                    onFilmStockSort(FilmStockSortMode.ISO)
-                                    showSortDropdown = false
-                                }
-                            )
-                        }
-                    )
-                }
+                    onDismiss = { showSortDropdown = false },
+                    filmStockSortMode = filmStockSortMode,
+                    onFilmStockSort = onFilmStockSort
+                )
+                FilterDropdownMenu(
+                    expanded = showFilterDropdown,
+                    onDismiss = { showFilterDropdown = false }
+                )
             }
         }
     )
+}
+
+@Composable
+private fun FilterDropdownMenu(
+    expanded: Boolean,
+    onDismiss: () -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss
+    ) {
+        Text(
+            text = stringResource(R.string.FilterFilmStocksBy),
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Manufacturer)) },
+            onClick = { /*TODO*/ }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.ISO)) },
+            onClick = { /*TODO*/ }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.FilmType)) },
+            onClick = { /*TODO*/ }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.FilmProcess)) },
+            onClick = { /*TODO*/ }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.AddedBy)) },
+            onClick = { /*TODO*/ }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Reset)) },
+            onClick = { /*TODO*/ }
+        )
+    }
+}
+
+@Composable
+private fun SortDropdownMenu(
+    expanded: Boolean,
+    onDismiss: () -> Unit,
+    filmStockSortMode: FilmStockSortMode,
+    onFilmStockSort: (FilmStockSortMode) -> Unit,
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss
+    ) {
+        Text(
+            text = stringResource(R.string.SortFilmStocksBy),
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Name)) },
+            onClick = {
+                onDismiss()
+                onFilmStockSort(FilmStockSortMode.NAME)
+            },
+            trailingIcon = {
+                RadioButton(
+                    selected = filmStockSortMode == FilmStockSortMode.NAME,
+                    onClick = {
+                        onFilmStockSort(FilmStockSortMode.NAME)
+                        onDismiss()
+                    }
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.ISO)) },
+            onClick = {
+                onDismiss()
+                onFilmStockSort(FilmStockSortMode.ISO)
+            },
+            trailingIcon = {
+                RadioButton(
+                    selected = filmStockSortMode == FilmStockSortMode.ISO,
+                    onClick = {
+                        onFilmStockSort(FilmStockSortMode.ISO)
+                        onDismiss()
+                    }
+                )
+            }
+        )
+    }
 }
