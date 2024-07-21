@@ -21,6 +21,7 @@ package com.tommihirvonen.exifnotes
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,6 +33,7 @@ import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.screens.frames.FramesScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
+import com.tommihirvonen.exifnotes.screens.gear.filters.FilterEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
@@ -98,8 +100,20 @@ fun App(onFinish: () -> Unit) {
                     onNavigateUp = { navController.navigateUp() },
                     onEditCamera = { /*TODO*/ },
                     onEditLens = { /*TODO*/ },
-                    onEditFilter = { /*TODO*/ },
+                    onEditFilter = { filter ->
+                        navController.navigate(route = FilterEdit(filter?.id ?: -1))
+                    },
                     onEditFilmStock = { /*TODO*/ }
+                )
+            }
+            dialog<FilterEdit> { backStackEntry ->
+                val gearEntry = remember(backStackEntry) { navController.getBackStackEntry<Gear>() }
+                val gearViewModel = hiltViewModel<GearViewModel>(gearEntry)
+                val filter = backStackEntry.toRoute<FilterEdit>()
+                FilterEditScreen(
+                    filterId = filter.filterId,
+                    onDismiss = { navController.navigateUp() },
+                    gearViewModel = gearViewModel
                 )
             }
             composable<Labels> {
@@ -153,6 +167,9 @@ private object RollsMap
 
 @Serializable
 private object Gear
+
+@Serializable
+private data class FilterEdit(val filterId: Long)
 
 @Serializable
 private object Labels

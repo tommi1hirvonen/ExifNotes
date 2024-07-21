@@ -68,10 +68,10 @@ import kotlinx.coroutines.launch
 fun GearScreen(
     gearViewModel: GearViewModel,
     onNavigateUp: () -> Unit,
-    onEditCamera: (Camera) -> Unit,
-    onEditLens: (Lens) -> Unit,
-    onEditFilter: (Filter) -> Unit,
-    onEditFilmStock: (FilmStock) -> Unit
+    onEditCamera: (Camera?) -> Unit,
+    onEditLens: (Lens?) -> Unit,
+    onEditFilter: (Filter?) -> Unit,
+    onEditFilmStock: (FilmStock?) -> Unit
 ) {
     val cameras = gearViewModel.cameras.collectAsState()
     val lenses = gearViewModel.lenses.collectAsState()
@@ -174,10 +174,10 @@ private fun GearContent(
     filterCompatibleCamerasProvider: (Filter) -> (List<Camera>),
     filterCompatibleLensesProvider: (Filter) -> (List<Lens>),
     onNavigateUp: () -> Unit,
-    onEditCamera: (Camera) -> Unit,
-    onEditLens: (Lens) -> Unit,
-    onEditFilter: (Filter) -> Unit,
-    onEditFilmStock: (FilmStock) -> Unit
+    onEditCamera: (Camera?) -> Unit,
+    onEditLens: (Lens?) -> Unit,
+    onEditFilter: (Filter?) -> Unit,
+    onEditFilmStock: (FilmStock?) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 4 })
@@ -238,7 +238,16 @@ private fun GearContent(
                     )
                 },
                 floatingActionButton = {
-                    FloatingActionButton(onClick = { /*TODO*/ }) {
+                    FloatingActionButton(
+                        onClick = {
+                            when (pagerState.currentPage) {
+                                0 -> onEditCamera(null)
+                                1 -> onEditLens(null)
+                                2 -> onEditFilter(null)
+                                3 -> onEditFilmStock(null)
+                            }
+                        }
+                    ) {
                         Icon(Icons.Outlined.Add, "")
                     }
                 },

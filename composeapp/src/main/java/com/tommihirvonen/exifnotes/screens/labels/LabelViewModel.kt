@@ -31,11 +31,16 @@ import kotlinx.coroutines.flow.StateFlow
 
 @HiltViewModel(assistedFactory = LabelViewModel.Factory::class)
 class LabelViewModel @AssistedInject constructor (
-    @Assisted labelId: Long?,
+    @Assisted labelId: Long,
     labelRepository: LabelRepository
 ) : ViewModel() {
 
-    val label: Label = labelId?.let { labelRepository.getLabel(labelId) } ?: Label()
+    @AssistedFactory
+    interface Factory {
+        fun create(labelId: Long): LabelViewModel
+    }
+
+    val label: Label = labelRepository.getLabel(labelId) ?: Label()
 
     val labelName get() = _labelName as StateFlow<String>
     private val _labelName = MutableStateFlow(label.name)
@@ -59,10 +64,5 @@ class LabelViewModel @AssistedInject constructor (
             }
         }
         return label.validate(nameValidation)
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(labelId: Long?): LabelViewModel
     }
 }
