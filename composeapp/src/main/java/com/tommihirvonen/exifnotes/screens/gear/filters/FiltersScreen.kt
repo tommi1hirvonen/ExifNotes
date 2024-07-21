@@ -27,11 +27,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Camera
+import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -50,7 +62,10 @@ fun FiltersScreen(
     filters: List<Filter> = emptyList(),
     compatibleCamerasProvider: (Filter) -> (List<Camera>) = { _ -> emptyList() },
     compatibleLensesProvider: (Filter) -> (List<Lens>) = { _ -> emptyList() },
-    onFilterClick: (Filter) -> Unit = {}
+    onEdit: (Filter) -> Unit = {},
+    onDelete: (Filter) -> Unit = {},
+    onEditCompatibleLenses: (Filter) -> Unit = {},
+    onEditCompatibleCameras: (Filter) -> Unit = {}
 ) {
     val state = rememberLazyListState()
     LazyColumn(
@@ -81,7 +96,10 @@ fun FiltersScreen(
                 filter = filter,
                 compatibleCameras = compatibleCamerasProvider(filter),
                 compatibleLenses = compatibleLensesProvider(filter),
-                onClick = { onFilterClick(filter) }
+                onEdit = { onEdit(filter) },
+                onDelete = {onDelete(filter) },
+                onEditCompatibleLenses = { onEditCompatibleLenses(filter) },
+                onEditCompatibleCameras = { onEditCompatibleCameras(filter) }
             )
         }
     }
@@ -97,7 +115,10 @@ private fun FilterCardPreview() {
         filter = filter,
         compatibleCameras = listOf(camera),
         compatibleLenses = listOf(lens),
-        onClick = {}
+        onEdit = {},
+        onDelete = {},
+        onEditCompatibleLenses = {},
+        onEditCompatibleCameras = {}
     )
 }
 
@@ -106,14 +127,18 @@ private fun FilterCard(
     filter: Filter,
     compatibleCameras: List<Camera>,
     compatibleLenses: List<Lens>,
-    onClick: () -> Unit
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onEditCompatibleLenses: () -> Unit,
+    onEditCompatibleCameras: () -> Unit
 ) {
+    var showDropdown by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxWidth()) {
         Card(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 6.dp)
                 .fillMaxWidth(),
-            onClick = onClick,
+            onClick = { showDropdown = true },
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Column(
@@ -153,6 +178,43 @@ private fun FilterCard(
                     }
                 }
             }
+        }
+        DropdownMenu(
+            expanded = showDropdown,
+            onDismissRequest = { showDropdown = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.SelectCompatibleLenses)) },
+                leadingIcon = { Icon(Icons.Outlined.Camera, "") },
+                onClick = {
+                    showDropdown = false
+                    onEditCompatibleLenses()
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.SelectCompatibleCameras)) },
+                leadingIcon = { Icon(Icons.Outlined.CameraAlt, "") },
+                onClick = {
+                    showDropdown = false
+                    onEditCompatibleCameras()
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.Edit)) },
+                leadingIcon = { Icon(Icons.Outlined.Edit, "") },
+                onClick = {
+                    showDropdown = false
+                    onEdit()
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.Delete)) },
+                leadingIcon = { Icon(Icons.Outlined.Delete, "") },
+                onClick = {
+                    showDropdown = false
+                    onDelete()
+                }
+            )
         }
     }
 }

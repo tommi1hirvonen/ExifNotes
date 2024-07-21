@@ -68,6 +68,8 @@ import com.tommihirvonen.exifnotes.screens.gear.cameras.CamerasScreen
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockFilterSet
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksScreen
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksViewModel
+import com.tommihirvonen.exifnotes.screens.gear.filters.FilterSelectCompatibleCamerasDialog
+import com.tommihirvonen.exifnotes.screens.gear.filters.FilterSelectCompatibleLensesDialog
 import com.tommihirvonen.exifnotes.screens.gear.filters.FiltersScreen
 import com.tommihirvonen.exifnotes.screens.gear.lenses.LensesScreen
 import com.tommihirvonen.exifnotes.util.State
@@ -89,6 +91,8 @@ fun GearScreen(
     val filmStocks = filmStocksViewModel.filmStocks.collectAsState()
     val filmStockSortMode = filmStocksViewModel.sortMode.collectAsState()
     var confirmDeleteFilmStock by remember { mutableStateOf<FilmStock?>(null) }
+    var showFilterCompatibleLensesDialog by remember { mutableStateOf<Filter?>(null) }
+    var showFilterCompatibleCamerasDialog by remember { mutableStateOf<Filter?>(null) }
     GearContent(
         cameras = cameras.value,
         lenses = lenses.value,
@@ -129,6 +133,13 @@ fun GearScreen(
         onEditCamera = onEditCamera,
         onEditLens = onEditLens,
         onEditFilter = onEditFilter,
+        onDeleteFilter = gearViewModel::deleteFilter,
+        onEditFilterCompatibleLenses = { filter ->
+            showFilterCompatibleLensesDialog = filter
+        },
+        onEditFilterCompatibleCameras = { filter ->
+            showFilterCompatibleCamerasDialog = filter
+        },
         onEditFilmStock = onEditFilmStock,
         onDeleteFilmStock = { filmStock ->
             confirmDeleteFilmStock = filmStock
@@ -173,6 +184,20 @@ fun GearScreen(
             )
         }
     }
+    when (val filter = showFilterCompatibleLensesDialog) {
+        is Filter -> FilterSelectCompatibleLensesDialog(
+            gearViewModel = gearViewModel,
+            filter = filter,
+            onDismiss = { showFilterCompatibleLensesDialog = null }
+        )
+    }
+    when (val filter = showFilterCompatibleCamerasDialog) {
+        is Filter -> FilterSelectCompatibleCamerasDialog(
+            gearViewModel = gearViewModel,
+            filter = filter,
+            onDismiss = { showFilterCompatibleCamerasDialog = null }
+        )
+    }
 }
 
 @Preview(widthDp = 600)
@@ -193,6 +218,9 @@ private fun GearScreenLargePreview() {
         onEditCamera = {},
         onEditLens = {},
         onEditFilter = {},
+        onDeleteFilter = {},
+        onEditFilterCompatibleLenses = {},
+        onEditFilterCompatibleCameras = {},
         onEditFilmStock = {},
         onDeleteFilmStock = {},
         filmStockSortMode = FilmStockSortMode.NAME,
@@ -222,6 +250,9 @@ private fun GearScreenPreview() {
         onEditCamera = {},
         onEditLens = {},
         onEditFilter = {},
+        onDeleteFilter = {},
+        onEditFilterCompatibleLenses = {},
+        onEditFilterCompatibleCameras = {},
         onEditFilmStock = {},
         onDeleteFilmStock = {},
         filmStockSortMode = FilmStockSortMode.NAME,
@@ -250,6 +281,9 @@ private fun GearContent(
     onEditCamera: (Camera?) -> Unit,
     onEditLens: (Lens?) -> Unit,
     onEditFilter: (Filter?) -> Unit,
+    onDeleteFilter: (Filter) -> Unit,
+    onEditFilterCompatibleLenses: (Filter) -> Unit,
+    onEditFilterCompatibleCameras: (Filter) -> Unit,
     onEditFilmStock: (FilmStock?) -> Unit,
     onDeleteFilmStock: (FilmStock) -> Unit,
     filmStockSortMode: FilmStockSortMode,
@@ -371,7 +405,10 @@ private fun GearContent(
                                 filters = filters,
                                 compatibleCamerasProvider = filterCompatibleCamerasProvider,
                                 compatibleLensesProvider = filterCompatibleLensesProvider,
-                                onFilterClick = onEditFilter
+                                onEdit = onEditFilter,
+                                onDelete = onDeleteFilter,
+                                onEditCompatibleLenses = onEditFilterCompatibleLenses,
+                                onEditCompatibleCameras = onEditFilterCompatibleCameras
                             )
                             3 -> FilmStocksScreen(
                                 filmStocks = filmStocks,
