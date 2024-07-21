@@ -90,6 +90,7 @@ fun GearScreen(
     val filters = gearViewModel.filters.collectAsState()
     val filmStocks = filmStocksViewModel.filmStocks.collectAsState()
     val filmStockSortMode = filmStocksViewModel.sortMode.collectAsState()
+    var confirmDeleteFilter by remember { mutableStateOf<Filter?>(null) }
     var confirmDeleteFilmStock by remember { mutableStateOf<FilmStock?>(null) }
     var showFilterCompatibleLensesDialog by remember { mutableStateOf<Filter?>(null) }
     var showFilterCompatibleCamerasDialog by remember { mutableStateOf<Filter?>(null) }
@@ -133,7 +134,9 @@ fun GearScreen(
         onEditCamera = onEditCamera,
         onEditLens = onEditLens,
         onEditFilter = onEditFilter,
-        onDeleteFilter = gearViewModel::deleteFilter,
+        onDeleteFilter = { filter ->
+            confirmDeleteFilter = filter
+        },
         onEditFilterCompatibleLenses = { filter ->
             showFilterCompatibleLensesDialog = filter
         },
@@ -152,37 +155,66 @@ fun GearScreen(
         onFilmStockFiltersChanged = { filmStocksViewModel.filterSet = it }
     )
     when (val filmStock = confirmDeleteFilmStock) {
-        is FilmStock -> {
-            AlertDialog(
-                title = { Text(stringResource(R.string.DeleteFilmStock)) },
-                text = {
-                    Column {
-                        Text(confirmDeleteFilmStock?.name ?: "")
-                        val inUse = filmStocksViewModel.isFilmStockInUse(filmStock)
-                        if (inUse) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(stringResource(R.string.FilmStockIsInUseConfirmation))
-                        }
-                    }
-                },
-                onDismissRequest = { confirmDeleteFilmStock = null },
-                dismissButton = {
-                    TextButton(onClick = { confirmDeleteFilmStock = null }) {
-                        Text(stringResource(R.string.Cancel))
-                    }
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            confirmDeleteFilmStock = null
-                            filmStocksViewModel.deleteFilmStock(filmStock)
-                        }
-                    ) {
-                        Text(stringResource(R.string.OK))
+        is FilmStock -> AlertDialog(
+            title = { Text(stringResource(R.string.DeleteFilmStock)) },
+            text = {
+                Column {
+                    Text(confirmDeleteFilmStock?.name ?: "")
+                    val inUse = filmStocksViewModel.isFilmStockInUse(filmStock)
+                    if (inUse) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(stringResource(R.string.FilmStockIsInUseConfirmation))
                     }
                 }
-            )
-        }
+            },
+            onDismissRequest = { confirmDeleteFilmStock = null },
+            dismissButton = {
+                TextButton(onClick = { confirmDeleteFilmStock = null }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmDeleteFilmStock = null
+                        filmStocksViewModel.deleteFilmStock(filmStock)
+                    }
+                ) {
+                    Text(stringResource(R.string.OK))
+                }
+            }
+        )
+    }
+    when (val filter = confirmDeleteFilter) {
+        is Filter -> AlertDialog(
+            title = { Text(stringResource(R.string.ConfirmFilterDelete)) },
+            text = {
+                Column {
+                    Text(confirmDeleteFilter?.name ?: "")
+                    val inUse = gearViewModel.isFilterInUse(filter)
+                    if (inUse) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(stringResource(R.string.FilterIsInUseDeleteAnyway))
+                    }
+                }
+            },
+            onDismissRequest = { confirmDeleteFilter = null },
+            dismissButton = {
+                TextButton(onClick = { confirmDeleteFilter = null }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmDeleteFilter = null
+                        gearViewModel.deleteFilter(filter)
+                    }
+                ) {
+                    Text(stringResource(R.string.OK))
+                }
+            }
+        )
     }
     when (val filter = showFilterCompatibleLensesDialog) {
         is Filter -> FilterSelectCompatibleLensesDialog(

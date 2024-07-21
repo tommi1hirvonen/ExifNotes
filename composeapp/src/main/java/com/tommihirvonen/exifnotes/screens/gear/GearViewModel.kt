@@ -66,6 +66,8 @@ class GearViewModel @Inject constructor(
         }
     }
 
+    fun isFilterInUse(filter: Filter) = filterRepository.isFilterBeingUsed(filter)
+
     fun submitCamera(camera: Camera) {
         if (cameraRepository.updateCamera(camera) == 0) {
             cameraRepository.addCamera(camera)
