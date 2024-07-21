@@ -44,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.FilmStockSortMode
+import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockFilterSet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -54,7 +55,9 @@ private fun TopAppBarPreview() {
         currentPagerPage = 3,
         onNavigateUp = {},
         filmStockSortMode = FilmStockSortMode.NAME,
-        onFilmStockSort = {}
+        onFilmStockSort = {},
+        filmStockFilters = FilmStockFilterSet(),
+        onFilmStockFiltersChanged = {}
     )
 }
 
@@ -65,7 +68,9 @@ fun AppBar(
     currentPagerPage: Int,
     onNavigateUp: () -> Unit,
     filmStockSortMode: FilmStockSortMode,
-    onFilmStockSort: (FilmStockSortMode) -> Unit
+    onFilmStockSort: (FilmStockSortMode) -> Unit,
+    filmStockFilters: FilmStockFilterSet,
+    onFilmStockFiltersChanged: (FilmStockFilterSet) -> Unit
 ) {
     TopAppBar(
         title = { Text(stringResource(R.string.Gear)) },
@@ -93,7 +98,8 @@ fun AppBar(
                 )
                 FilterDropdownMenu(
                     expanded = showFilterDropdown,
-                    onDismiss = { showFilterDropdown = false }
+                    onDismiss = { showFilterDropdown = false },
+                    onFilmStockFiltersChanged = onFilmStockFiltersChanged
                 )
             }
         }
@@ -103,7 +109,8 @@ fun AppBar(
 @Composable
 private fun FilterDropdownMenu(
     expanded: Boolean,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onFilmStockFiltersChanged: (FilmStockFilterSet) -> Unit
 ) {
     DropdownMenu(
         expanded = expanded,
@@ -115,27 +122,45 @@ private fun FilterDropdownMenu(
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.Manufacturer)) },
-            onClick = { /*TODO*/ }
+            onClick = {
+                onDismiss()
+                // TODO
+            }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.ISO)) },
-            onClick = { /*TODO*/ }
+            onClick = {
+                onDismiss()
+                // TODO
+            }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.FilmType)) },
-            onClick = { /*TODO*/ }
+            onClick = {
+                onDismiss()
+                // TODO
+            }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.FilmProcess)) },
-            onClick = { /*TODO*/ }
+            onClick = {
+                onDismiss()
+                // TODO
+            }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.AddedBy)) },
-            onClick = { /*TODO*/ }
+            onClick = {
+                onDismiss()
+                // TODO
+            }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.Reset)) },
-            onClick = { /*TODO*/ }
+            onClick = {
+                onDismiss()
+                onFilmStockFiltersChanged(FilmStockFilterSet())
+            }
         )
     }
 }

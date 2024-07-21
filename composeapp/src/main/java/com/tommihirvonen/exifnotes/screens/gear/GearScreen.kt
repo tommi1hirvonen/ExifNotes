@@ -65,6 +65,7 @@ import com.tommihirvonen.exifnotes.core.entities.FilmStockSortMode
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.gear.cameras.CamerasScreen
+import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockFilterSet
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksScreen
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksViewModel
 import com.tommihirvonen.exifnotes.screens.gear.filters.FiltersScreen
@@ -133,7 +134,9 @@ fun GearScreen(
             confirmDeleteFilmStock = filmStock
         },
         filmStockSortMode = filmStockSortMode.value,
-        onFilmStockSort = filmStocksViewModel::setSortMode
+        onFilmStockSort = filmStocksViewModel::setSortMode,
+        filmStockFilters = filmStocksViewModel.filterSet,
+        onFilmStockFiltersChanged = { filmStocksViewModel.filterSet = it }
     )
     when (val filmStock = confirmDeleteFilmStock) {
         is FilmStock -> {
@@ -191,7 +194,9 @@ private fun GearScreenLargePreview() {
         onEditFilmStock = {},
         onDeleteFilmStock = {},
         filmStockSortMode = FilmStockSortMode.NAME,
-        onFilmStockSort = {}
+        onFilmStockSort = {},
+        filmStockFilters = FilmStockFilterSet(),
+        onFilmStockFiltersChanged = {}
     )
 }
 
@@ -216,7 +221,9 @@ private fun GearScreenPreview() {
         onEditFilmStock = {},
         onDeleteFilmStock = {},
         filmStockSortMode = FilmStockSortMode.NAME,
-        onFilmStockSort = {}
+        onFilmStockSort = {},
+        filmStockFilters = FilmStockFilterSet(),
+        onFilmStockFiltersChanged = {}
     )
 }
 
@@ -240,7 +247,9 @@ private fun GearContent(
     onEditFilmStock: (FilmStock?) -> Unit,
     onDeleteFilmStock: (FilmStock) -> Unit,
     filmStockSortMode: FilmStockSortMode,
-    onFilmStockSort: (FilmStockSortMode) -> Unit
+    onFilmStockSort: (FilmStockSortMode) -> Unit,
+    filmStockFilters: FilmStockFilterSet,
+    onFilmStockFiltersChanged: (FilmStockFilterSet) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 4 })
@@ -295,7 +304,9 @@ private fun GearContent(
                         currentPagerPage = pagerState.currentPage,
                         onNavigateUp = onNavigateUp,
                         filmStockSortMode = filmStockSortMode,
-                        onFilmStockSort = onFilmStockSort
+                        onFilmStockSort = onFilmStockSort,
+                        filmStockFilters = filmStockFilters,
+                        onFilmStockFiltersChanged = onFilmStockFiltersChanged
                     )
                 },
                 floatingActionButton = {
