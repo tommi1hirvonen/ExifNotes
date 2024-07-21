@@ -47,8 +47,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -103,7 +105,7 @@ private fun LabelsContent(
     onEditLabel: (Label?) -> Unit,
     onNavigateUp: () -> Unit
 ) {
-    val confirmDeleteLabel = remember { mutableStateOf<Label?>(null) }
+    var confirmDeleteLabel by remember { mutableStateOf<Label?>(null) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -151,28 +153,28 @@ private fun LabelsContent(
             items(labels, key = { label -> label.id }) { label ->
                 LabelListItem(
                     label = label,
-                    onLabelDelete = { confirmDeleteLabel.value = label },
+                    onLabelDelete = { confirmDeleteLabel = label },
                     onLabelEdit = { onEditLabel(label) }
                 )
             }
         }
     }
-    when (val deleteLabel = confirmDeleteLabel.value) {
+    when (val deleteLabel = confirmDeleteLabel) {
         is Label -> {
             AlertDialog(
-                onDismissRequest = { confirmDeleteLabel.value = null },
+                onDismissRequest = { confirmDeleteLabel = null },
                 confirmButton = {
                     TextButton(
                         onClick = {
                             onDeleteLabel(deleteLabel)
-                            confirmDeleteLabel.value = null
+                            confirmDeleteLabel = null
                         }
                     ) {
                         Text(stringResource(R.string.Yes))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { confirmDeleteLabel.value = null }) {
+                    TextButton(onClick = { confirmDeleteLabel = null }) {
                         Text(stringResource(R.string.Cancel))
                     }
                 },
