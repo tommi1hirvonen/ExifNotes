@@ -31,11 +31,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.FilmStockFilterMode
 
 @Composable
 fun DialogContent(content: @Composable () -> Unit) {
@@ -95,7 +100,7 @@ private fun MultiChoiceDialogPreview() {
 
 @Composable
 fun <TValue, TSort : Comparable<TSort>> MultiChoiceDialog(
-    title: String,
+    title: String? = null,
     initialItems: Map<TValue, Boolean>,
     itemText: (TValue) -> String,
     sortItemsBy: (TValue) -> (TSort),
@@ -110,13 +115,15 @@ fun <TValue, TSort : Comparable<TSort>> MultiChoiceDialog(
                 .padding(20.dp)
                 .fillMaxWidth()
             ) {
-                Row {
-                    Text(text = title, style = MaterialTheme.typography.titleLarge)
+                if (title != null) {
+                    Row(modifier = Modifier.padding(bottom = 16.dp)) {
+                        Text(text = title, style = MaterialTheme.typography.titleLarge)
+                    }
                 }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp)
+                        .padding(bottom = 16.dp)
                         .weight(1f, fill = false)
                 ) {
                     items(items = list) { item ->
@@ -190,4 +197,87 @@ fun MultiChoiceDialog(
         onDismiss = onDismiss,
         onConfirm = onConfirm
     )
+}
+
+@Preview
+@Composable
+private fun SingleChoiceDialogPreview() {
+    SingleChoiceDialog(
+        items = FilmStockFilterMode.entries,
+        initialSelection = FilmStockFilterMode.ALL,
+        itemText = { it.toString() },
+        sortItemsBy = { it.ordinal },
+        onDismiss = { },
+        onConfirm = { }
+    )
+}
+
+@Composable
+fun <TValue, TSort : Comparable<TSort>> SingleChoiceDialog(
+    title: String? = null,
+    items: List<TValue>,
+    initialSelection: (TValue?),
+    itemText: (TValue) -> String,
+    sortItemsBy: (TValue) -> (TSort),
+    onDismiss: () -> Unit,
+    onConfirm: (TValue) -> Unit
+) {
+    var selectedValue by remember { mutableStateOf(initialSelection) }
+    Dialog(onDismissRequest = onDismiss) {
+        DialogContent {
+            Column(modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth()
+            ) {
+                if (title != null) {
+                    Row(modifier = Modifier.padding(bottom = 16.dp)) {
+                        Text(text = title, style = MaterialTheme.typography.titleLarge)
+                    }
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                        .weight(1f, fill = false)
+                ) {
+                    items(items = items.sortedBy(sortItemsBy)) { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedValue = item
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = item == selectedValue,
+                                onClick = { selectedValue = item }
+                            )
+                            Text(itemText(item))
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.Cancel))
+                    }
+                    TextButton(
+                        enabled = selectedValue != null,
+                        onClick = {
+                            val value = selectedValue
+                            if (value != null) {
+                                onDismiss()
+                                onConfirm(value)
+                            }
+                        }
+                    ) {
+                        Text(stringResource(R.string.OK))
+                    }
+                }
+            }
+        }
+    }
 }
