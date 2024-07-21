@@ -76,6 +76,8 @@ class FilmStocksViewModel @Inject constructor(private val repository: FilmStockR
         replaceFilmStock(filmStock)
     }
 
+    fun isFilmStockInUse(filmStock: FilmStock) = repository.isFilmStockBeingUsed(filmStock)
+
     fun deleteFilmStock(filmStock: FilmStock) {
         repository.deleteFilmStock(filmStock)
         allFilmStocks = allFilmStocks.minus(filmStock)

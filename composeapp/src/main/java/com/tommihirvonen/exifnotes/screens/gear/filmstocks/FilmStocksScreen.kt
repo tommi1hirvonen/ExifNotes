@@ -40,11 +40,13 @@ import com.tommihirvonen.exifnotes.core.entities.FilmStock
 @Composable
 fun FilmStocksScreen(
     filmStocks: List<FilmStock>,
-    onFilmStockClick: (FilmStock) -> Unit
+    onEdit: (FilmStock) -> Unit,
+    onDelete: (FilmStock) -> Unit
 ) {
     FilmStocksContent(
         filmStocks = filmStocks,
-        onFilmStockClick = onFilmStockClick
+        onEdit = onEdit,
+        onDelete = onDelete
     )
 }
 
@@ -54,14 +56,16 @@ private fun FilmStocksContentPreview() {
     val filmStock = FilmStock(id = 1, make = "Tommi's Lab", model = "Rainbow 400", iso = 400)
     FilmStocksContent(
         filmStocks = listOf(filmStock, filmStock.copy(id = 2)),
-        onFilmStockClick = {}
+        onEdit = {},
+        onDelete = {}
     )
 }
 
 @Composable
 private fun FilmStocksContent(
     filmStocks: List<FilmStock>,
-    onFilmStockClick: (FilmStock) -> Unit,
+    onEdit: (FilmStock) -> Unit,
+    onDelete: (FilmStock) -> Unit
 ) {
     val state = rememberLazyListState()
     LazyColumn(
@@ -90,7 +94,8 @@ private fun FilmStocksContent(
         ) { filmStock ->
             FilmStockCard(
                 filmStock = filmStock,
-                onClick = { onFilmStockClick(filmStock) }
+                onEdit = { onEdit(filmStock) },
+                onDelete = { onDelete(filmStock) }
             )
         }
     }

@@ -20,8 +20,11 @@ package com.tommihirvonen.exifnotes.screens.gear
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -32,6 +35,7 @@ import androidx.compose.material.icons.outlined.Camera
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.CameraRoll
 import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -42,11 +46,16 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -79,6 +88,7 @@ fun GearScreen(
     val lenses = gearViewModel.lenses.collectAsState()
     val filters = gearViewModel.filters.collectAsState()
     val filmStocks = filmStocksViewModel.filmStocks.collectAsState()
+    var confirmDeleteFilmStock by remember { mutableStateOf<FilmStock?>(null) }
     GearContent(
         cameras = cameras.value,
         lenses = lenses.value,
@@ -119,8 +129,44 @@ fun GearScreen(
         onEditCamera = onEditCamera,
         onEditLens = onEditLens,
         onEditFilter = onEditFilter,
-        onEditFilmStock = onEditFilmStock
+        onEditFilmStock = onEditFilmStock,
+        onDeleteFilmStock = { filmStock ->
+            confirmDeleteFilmStock = filmStock
+        }
     )
+    when (val filmStock = confirmDeleteFilmStock) {
+        is FilmStock -> {
+            AlertDialog(
+                title = { Text(stringResource(R.string.DeleteFilmStock)) },
+                text = {
+                    Column {
+                        Text(confirmDeleteFilmStock?.name ?: "")
+                        val inUse = filmStocksViewModel.isFilmStockInUse(filmStock)
+                        if (inUse) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(stringResource(R.string.FilmStockIsInUseConfirmation))
+                        }
+                    }
+                },
+                onDismissRequest = { confirmDeleteFilmStock = null },
+                dismissButton = {
+                    TextButton(onClick = { confirmDeleteFilmStock = null }) {
+                        Text(stringResource(R.string.Cancel))
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            confirmDeleteFilmStock = null
+                            filmStocksViewModel.deleteFilmStock(filmStock)
+                        }
+                    ) {
+                        Text(stringResource(R.string.OK))
+                    }
+                }
+            )
+        }
+    }
 }
 
 @Preview(widthDp = 600)
@@ -141,7 +187,8 @@ private fun GearScreenLargePreview() {
         onEditCamera = {},
         onEditLens = {},
         onEditFilter = {},
-        onEditFilmStock = {}
+        onEditFilmStock = {},
+        onDeleteFilmStock = {}
     )
 }
 
@@ -163,7 +210,8 @@ private fun GearScreenPreview() {
         onEditCamera = {},
         onEditLens = {},
         onEditFilter = {},
-        onEditFilmStock = {}
+        onEditFilmStock = {},
+        onDeleteFilmStock = {}
     )
 }
 
@@ -184,7 +232,8 @@ private fun GearContent(
     onEditCamera: (Camera?) -> Unit,
     onEditLens: (Lens?) -> Unit,
     onEditFilter: (Filter?) -> Unit,
-    onEditFilmStock: (FilmStock?) -> Unit
+    onEditFilmStock: (FilmStock?) -> Unit,
+    onDeleteFilmStock: (FilmStock) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 4 })
@@ -300,7 +349,8 @@ private fun GearContent(
                             )
                             3 -> FilmStocksScreen(
                                 filmStocks = filmStocks,
-                                onFilmStockClick = onEditFilmStock
+                                onEdit = onEditFilmStock,
+                                onDelete = onDeleteFilmStock
                             )
                         }
                     }
