@@ -65,9 +65,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -207,19 +209,19 @@ private fun SettingsList(
     onNavigateToThirdPartyLicenses: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val showAboutDialog = remember { mutableStateOf(false) }
-    val showHelpDialog = remember { mutableStateOf(false) }
-    val showVersionHistoryDialog = remember { mutableStateOf(false) }
-    val showPrivacyPolicyDialog = remember { mutableStateOf(false) }
-    val showThemeDialog = remember { mutableStateOf(false) }
-    val showArtistNameDialog = remember { mutableStateOf(false) }
-    val showCopyrightInfoDialog = remember { mutableStateOf(false) }
-    val showExiftoolPathDialog = remember { mutableStateOf(false) }
-    val showPathToPicturesDialog = remember { mutableStateOf(false) }
-    val showFileEndingDialog = remember { mutableStateOf(false) }
-    val showImportPicturesDialog = remember { mutableStateOf(false) }
-    val showExportDatabaseDialog = remember { mutableStateOf(false) }
-    val showImportDatabaseDialog = remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
+    var showHelpDialog by remember { mutableStateOf(false) }
+    var showVersionHistoryDialog by remember { mutableStateOf(false) }
+    var showPrivacyPolicyDialog by remember { mutableStateOf(false) }
+    var showThemeDialog by remember { mutableStateOf(false) }
+    var showArtistNameDialog by remember { mutableStateOf(false) }
+    var showCopyrightInfoDialog by remember { mutableStateOf(false) }
+    var showExiftoolPathDialog by remember { mutableStateOf(false) }
+    var showPathToPicturesDialog by remember { mutableStateOf(false) }
+    var showFileEndingDialog by remember { mutableStateOf(false) }
+    var showImportPicturesDialog by remember { mutableStateOf(false) }
+    var showExportDatabaseDialog by remember { mutableStateOf(false) }
+    var showImportDatabaseDialog by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -247,22 +249,22 @@ private fun SettingsList(
             SettingsItem(
                 title = stringResource(R.string.About),
                 icon = Icons.Outlined.Info,
-                onClick = { showAboutDialog.value = true }
+                onClick = { showAboutDialog = true }
             )
             SettingsItem(
                 title = stringResource(R.string.Help),
                 icon = Icons.AutoMirrored.Outlined.HelpOutline,
-                onClick = { showHelpDialog.value = true }
+                onClick = { showHelpDialog = true }
             )
             SettingsItem(
                 title = stringResource(R.string.VersionHistory),
                 icon = Icons.Outlined.History,
-                onClick = { showVersionHistoryDialog.value = true }
+                onClick = { showVersionHistoryDialog = true }
             )
             SettingsItem(
                 title = stringResource(R.string.PrivacyPolicy),
                 icon = Icons.Outlined.Policy,
-                onClick = { showPrivacyPolicyDialog.value = true }
+                onClick = { showPrivacyPolicyDialog = true }
             )
             SettingsItem(
                 title = stringResource(R.string.License),
@@ -298,33 +300,33 @@ private fun SettingsList(
                 title = stringResource(R.string.Theme),
                 subtitle = themeSubtitle,
                 icon = themeIcon,
-                onClick = { showThemeDialog.value = true }
+                onClick = { showThemeDialog = true }
             )
             SettingsHeader(stringResource(R.string.ExiftoolIntegration))
             SettingsItem(
                 title = stringResource(R.string.ArtistName),
                 subtitle = stringResource(R.string.ArtistNameSummary),
-                onClick = { showArtistNameDialog.value = true }
+                onClick = { showArtistNameDialog = true }
             )
             SettingsItem(
                 title = stringResource(R.string.CopyrightInformationTitle),
                 subtitle = stringResource(R.string.CopyrightInformationSummary),
-                onClick = { showCopyrightInfoDialog.value = true }
+                onClick = { showCopyrightInfoDialog = true }
             )
             SettingsItem(
                 title = stringResource(R.string.ExiftoolPathTitle),
                 subtitle = stringResource(R.string.ExiftoolPathSummary),
-                onClick = { showExiftoolPathDialog.value = true }
+                onClick = { showExiftoolPathDialog = true }
             )
             SettingsItem(
                 title = stringResource(R.string.PicturesPathTitle),
                 subtitle = stringResource(R.string.PicturesPathSummary),
-                onClick = { showPathToPicturesDialog.value = true }
+                onClick = { showPathToPicturesDialog = true }
             )
             SettingsItem(
                 title = stringResource(R.string.FileEndingTitle),
                 subtitle = stringResource(R.string.FileEndingSummary),
-                onClick = { showFileEndingDialog.value = true }
+                onClick = { showFileEndingDialog = true }
             )
             SettingsItem(
                 title = stringResource(R.string.IgnoreWarningsTitle),
@@ -363,99 +365,99 @@ private fun SettingsList(
             SettingsItem(
                 title = stringResource(R.string.ImportComplementaryPicturesTitle),
                 subtitle = stringResource(R.string.ImportComplementaryPicturesSummary),
-                onClick = { showImportPicturesDialog.value = true }
+                onClick = { showImportPicturesDialog = true }
             )
             SettingsHeader(stringResource(R.string.Database))
             SettingsItem(
                 title = stringResource(R.string.ExportDatabaseTitle),
                 subtitle = stringResource(R.string.ExportDatabaseSummary),
-                onClick = { showExportDatabaseDialog.value = true }
+                onClick = { showExportDatabaseDialog = true }
             )
             SettingsItem(
                 title = stringResource(R.string.ImportDatabaseTitle),
                 subtitle = stringResource(R.string.ImportDatabaseSummary),
-                onClick = { showImportDatabaseDialog.value = true }
+                onClick = { showImportDatabaseDialog = true }
             )
         }
     }
 
-    if (showAboutDialog.value) {
+    if (showAboutDialog) {
         val versionName = LocalContext.current.packageInfo?.versionName ?: ""
         val text = stringResource(R.string.AboutAndTermsOfUse, versionName).linkify()
         InfoDialog(
             title = { Text(stringResource(R.string.app_name)) },
             text = { Text(text) },
-            onDismiss = { showAboutDialog.value = false }
+            onDismiss = { showAboutDialog = false }
         )
     }
-    if (showHelpDialog.value) {
+    if (showHelpDialog) {
         val text = stringResource(R.string.main_help).linkify()
         InfoDialog(
             title = { Text(stringResource(R.string.Help)) },
             text = { Text(text) },
-            onDismiss = { showHelpDialog.value = false }
+            onDismiss = { showHelpDialog = false }
         )
     }
-    if (showVersionHistoryDialog.value) {
+    if (showVersionHistoryDialog) {
         val text = stringResource(R.string.VersionHistoryStatement)
         InfoDialog(
             title = { Text(stringResource(R.string.VersionHistory)) },
             text = { Text(text) },
-            onDismiss = { showVersionHistoryDialog.value = false }
+            onDismiss = { showVersionHistoryDialog = false }
         )
     }
-    if (showPrivacyPolicyDialog.value) {
+    if (showPrivacyPolicyDialog) {
         val text = textResource(R.string.PrivacyPolicyStatement)
         InfoDialog(
             title = { Text(stringResource(R.string.PrivacyPolicy)) },
             text = { StyledText(text) },
-            onDismiss = { showPrivacyPolicyDialog.value = false }
+            onDismiss = { showPrivacyPolicyDialog = false }
         )
     }
-    if (showThemeDialog.value) {
+    if (showThemeDialog) {
         ThemeDialog(
             currentTheme = theme,
-            onDismiss = { showThemeDialog.value = false },
+            onDismiss = { showThemeDialog = false },
             onThemeSet = onThemeSet
         )
     }
-    if (showArtistNameDialog.value) {
+    if (showArtistNameDialog) {
         EditSettingDialog(
             initialValue = artistName,
             title = { Text(stringResource(R.string.ArtistName)) },
-            onDismiss = { showArtistNameDialog.value = false },
+            onDismiss = { showArtistNameDialog = false },
             onValueSet = onArtistNameSet
         )
     }
-    if (showCopyrightInfoDialog.value) {
+    if (showCopyrightInfoDialog) {
         EditSettingDialog(
             initialValue = copyrightInfo,
             title = { Text(stringResource(R.string.CopyrightInformationTitle)) },
-            onDismiss = { showCopyrightInfoDialog.value = false },
+            onDismiss = { showCopyrightInfoDialog = false },
             onValueSet = onCopyrightInfoSet
         )
     }
-    if (showExiftoolPathDialog.value) {
+    if (showExiftoolPathDialog) {
         EditSettingDialog(
             initialValue = exiftoolPath,
             title = { Text(stringResource(R.string.ExiftoolPathTitle)) },
-            onDismiss = { showExiftoolPathDialog.value = false },
+            onDismiss = { showExiftoolPathDialog = false },
             onValueSet = onExiftoolPathSet
         )
     }
-    if (showPathToPicturesDialog.value) {
+    if (showPathToPicturesDialog) {
         EditSettingDialog(
             initialValue = pathToPictures,
             title = { Text(stringResource(R.string.PicturesPathTitle)) },
-            onDismiss = { showPathToPicturesDialog.value = false },
+            onDismiss = { showPathToPicturesDialog = false },
             onValueSet = onPathToPicturesSet
         )
     }
-    if (showFileEndingDialog.value) {
+    if (showFileEndingDialog) {
         EditSettingDialog(
             initialValue = fileEnding,
             title = { Text(stringResource(R.string.FileEndingTitle)) },
-            onDismiss = { showFileEndingDialog.value = false },
+            onDismiss = { showFileEndingDialog = false },
             onValueSet = onFileEndingSet
         )
     }
@@ -468,20 +470,20 @@ private fun SettingsList(
         onPicturesImportRequested(resultUri)
         scope.launch { snackbarHostState.showSnackbar(importingPicturesText) }
     }
-    if (showImportPicturesDialog.value) {
+    if (showImportPicturesDialog) {
         AlertDialog(
             title = { Text(stringResource(R.string.ImportComplementaryPicturesTitle)) },
             text = { Text(stringResource(R.string.ImportComplementaryPicturesVerification)) },
-            onDismissRequest = { showImportPicturesDialog.value = false },
+            onDismissRequest = { showImportPicturesDialog = false },
             dismissButton = {
-                TextButton(onClick = { showImportPicturesDialog.value = false }) {
+                TextButton(onClick = { showImportPicturesDialog = false }) {
                     Text(stringResource(R.string.Cancel))
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showImportPicturesDialog.value = false
+                        showImportPicturesDialog = false
                         pickPicturesImportFile.launch(arrayOf("application/zip"))
                     }
                 ) {
@@ -506,20 +508,20 @@ private fun SettingsList(
             }
         })
     }
-    if (showExportDatabaseDialog.value) {
+    if (showExportDatabaseDialog) {
         AlertDialog(
             title = { Text(stringResource(R.string.ExportDatabaseTitle)) },
             text = { Text(stringResource(R.string.ExportDatabaseVerification)) },
-            onDismissRequest = { showExportDatabaseDialog.value = false },
+            onDismissRequest = { showExportDatabaseDialog = false },
             dismissButton = {
-                TextButton(onClick = { showExportDatabaseDialog.value = false }) {
+                TextButton(onClick = { showExportDatabaseDialog = false }) {
                     Text(stringResource(R.string.Cancel))
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showExportDatabaseDialog.value = false
+                        showExportDatabaseDialog = false
                         val date = LocalDateTime.now().sortableDate
                         val filename = "Exif_Notes_Database_$date.db"
                         createDatabaseExportFile.launch(filename)
@@ -544,20 +546,20 @@ private fun SettingsList(
             }
         })
     }
-    if (showImportDatabaseDialog.value) {
+    if (showImportDatabaseDialog) {
         AlertDialog(
             title = { Text(stringResource(R.string.ImportDatabaseTitle)) },
             text = { Text(stringResource(R.string.ImportDatabaseVerification)) },
-            onDismissRequest = { showImportDatabaseDialog.value = false },
+            onDismissRequest = { showImportDatabaseDialog = false },
             dismissButton = {
-                TextButton(onClick = { showImportDatabaseDialog.value = false }) {
+                TextButton(onClick = { showImportDatabaseDialog = false }) {
                     Text(stringResource(R.string.No))
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showImportDatabaseDialog.value = false
+                        showImportDatabaseDialog = false
                         pickDatabaseImportFile.launch(arrayOf("*/*"))
                     }
                 ) {
@@ -664,14 +666,14 @@ private fun EditSettingDialog(
     onDismiss: () -> Unit,
     onValueSet: (String) -> Unit
 ) {
-    val value = remember { mutableStateOf(initialValue) }
+    var value by remember { mutableStateOf(initialValue) }
     AlertDialog(
         title = { title() },
         text = {
             Column {
                 TextField(
-                    value = value.value,
-                    onValueChange = { text -> value.value = text }
+                    value = value,
+                    onValueChange = { text -> value = text }
                 )
             }
         },
@@ -685,7 +687,7 @@ private fun EditSettingDialog(
             TextButton(
                 onClick = {
                     onDismiss()
-                    onValueSet(value.value)
+                    onValueSet(value)
                 }
             ) {
                 Text(stringResource(R.string.OK))
