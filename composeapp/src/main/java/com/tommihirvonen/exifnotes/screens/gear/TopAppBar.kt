@@ -44,8 +44,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.FilmProcess
 import com.tommihirvonen.exifnotes.core.entities.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.core.entities.FilmStockSortMode
+import com.tommihirvonen.exifnotes.core.entities.FilmType
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.SingleChoiceDialog
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockFilterSet
@@ -128,6 +130,8 @@ private fun FilterDropdownMenu(
 ) {
     var showManufacturersDialog by remember { mutableStateOf(false) }
     var showIsoDialog by remember { mutableStateOf(false) }
+    var showTypeDialog by remember { mutableStateOf(false) }
+    var showProcessDialog by remember { mutableStateOf(false) }
     var showAddedByDialog by remember { mutableStateOf(false) }
     DropdownMenu(
         expanded = expanded,
@@ -155,14 +159,14 @@ private fun FilterDropdownMenu(
             text = { Text(stringResource(R.string.FilmType)) },
             onClick = {
                 onDismiss()
-                // TODO
+                showTypeDialog = true
             }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.FilmProcess)) },
             onClick = {
                 onDismiss()
-                // TODO
+                showProcessDialog = true
             }
         )
         DropdownMenuItem(
@@ -201,6 +205,34 @@ private fun FilterDropdownMenu(
             onConfirm = { values ->
                 showIsoDialog = false
                 onFilmStockFiltersChanged(filmStockFilters.copy(isoValues = values))
+            }
+        )
+    }
+    if (showTypeDialog) {
+        val context = LocalContext.current
+        MultiChoiceDialog(
+            title = stringResource(R.string.FilmType),
+            initialItems = FilmType.entries.associateWith { filmStockFilters.types.contains(it) },
+            itemText = { it.description(context) ?: "" },
+            sortItemsBy = { it.ordinal },
+            onDismiss = { showTypeDialog = false },
+            onConfirm = { values ->
+                showTypeDialog = false
+                onFilmStockFiltersChanged(filmStockFilters.copy(types = values))
+            }
+        )
+    }
+    if (showProcessDialog) {
+        val context = LocalContext.current
+        MultiChoiceDialog(
+            title = stringResource(R.string.FilmProcess),
+            initialItems = FilmProcess.entries.associateWith { filmStockFilters.processes.contains(it) },
+            itemText = { it.description(context) ?: "" },
+            sortItemsBy = { it.ordinal },
+            onDismiss = { showProcessDialog = false },
+            onConfirm = { values ->
+                showProcessDialog = false
+                onFilmStockFiltersChanged(filmStockFilters.copy(processes = values))
             }
         )
     }
