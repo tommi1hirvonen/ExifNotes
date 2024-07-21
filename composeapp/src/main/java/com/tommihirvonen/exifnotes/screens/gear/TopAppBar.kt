@@ -39,12 +39,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.core.entities.FilmStockSortMode
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
+import com.tommihirvonen.exifnotes.screens.SingleChoiceDialog
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockFilterSet
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -125,6 +128,7 @@ private fun FilterDropdownMenu(
 ) {
     var showManufacturersDialog by remember { mutableStateOf(false) }
     var showIsoDialog by remember { mutableStateOf(false) }
+    var showAddedByDialog by remember { mutableStateOf(false) }
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss
@@ -165,7 +169,7 @@ private fun FilterDropdownMenu(
             text = { Text(stringResource(R.string.AddedBy)) },
             onClick = {
                 onDismiss()
-                // TODO
+                showAddedByDialog = true
             }
         )
         DropdownMenuItem(
@@ -197,6 +201,20 @@ private fun FilterDropdownMenu(
             onConfirm = { values ->
                 showIsoDialog = false
                 onFilmStockFiltersChanged(filmStockFilters.copy(isoValues = values))
+            }
+        )
+    }
+    if (showAddedByDialog) {
+        val context = LocalContext.current
+        SingleChoiceDialog(
+            items = FilmStockFilterMode.entries,
+            initialSelection = filmStockFilters.filterMode,
+            itemText = { it.description(context) ?: "" },
+            sortItemsBy = { it.ordinal },
+            onDismiss = { showAddedByDialog = false },
+            onConfirm = { value ->
+                showAddedByDialog = false
+                onFilmStockFiltersChanged(filmStockFilters.copy(filterMode = value))
             }
         )
     }
