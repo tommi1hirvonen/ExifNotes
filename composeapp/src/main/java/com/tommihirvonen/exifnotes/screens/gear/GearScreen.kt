@@ -30,12 +30,16 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Camera
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.CameraRoll
 import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -44,6 +48,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -64,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.core.entities.FilmStockSortMode
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.gear.cameras.CamerasScreen
@@ -88,6 +94,7 @@ fun GearScreen(
     val lenses = gearViewModel.lenses.collectAsState()
     val filters = gearViewModel.filters.collectAsState()
     val filmStocks = filmStocksViewModel.filmStocks.collectAsState()
+    val filmStockSortMode = filmStocksViewModel.sortMode.collectAsState()
     var confirmDeleteFilmStock by remember { mutableStateOf<FilmStock?>(null) }
     GearContent(
         cameras = cameras.value,
@@ -132,7 +139,9 @@ fun GearScreen(
         onEditFilmStock = onEditFilmStock,
         onDeleteFilmStock = { filmStock ->
             confirmDeleteFilmStock = filmStock
-        }
+        },
+        filmStockSortMode = filmStockSortMode.value,
+        onFilmStockSort = filmStocksViewModel::setSortMode
     )
     when (val filmStock = confirmDeleteFilmStock) {
         is FilmStock -> {
@@ -188,7 +197,9 @@ private fun GearScreenLargePreview() {
         onEditLens = {},
         onEditFilter = {},
         onEditFilmStock = {},
-        onDeleteFilmStock = {}
+        onDeleteFilmStock = {},
+        filmStockSortMode = FilmStockSortMode.NAME,
+        onFilmStockSort = {}
     )
 }
 
@@ -211,7 +222,9 @@ private fun GearScreenPreview() {
         onEditLens = {},
         onEditFilter = {},
         onEditFilmStock = {},
-        onDeleteFilmStock = {}
+        onDeleteFilmStock = {},
+        filmStockSortMode = FilmStockSortMode.NAME,
+        onFilmStockSort = {}
     )
 }
 
@@ -233,7 +246,9 @@ private fun GearContent(
     onEditLens: (Lens?) -> Unit,
     onEditFilter: (Filter?) -> Unit,
     onEditFilmStock: (FilmStock?) -> Unit,
-    onDeleteFilmStock: (FilmStock) -> Unit
+    onDeleteFilmStock: (FilmStock) -> Unit,
+    filmStockSortMode: FilmStockSortMode,
+    onFilmStockSort: (FilmStockSortMode) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 4 })
@@ -290,7 +305,59 @@ private fun GearContent(
                                 Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
                             }
                         },
-                        scrollBehavior = scrollBehavior
+                        scrollBehavior = scrollBehavior,
+                        actions = {
+                            if (pagerState.currentPage == 3) {
+                                var showSortDropdown by remember { mutableStateOf(false) }
+                                IconButton(onClick = { /*TODO*/ }) {
+                                    Icon(Icons.Outlined.FilterList, "")
+                                }
+                                IconButton(onClick = { showSortDropdown = true }) {
+                                    Icon(Icons.AutoMirrored.Outlined.Sort, "")
+                                }
+                                DropdownMenu(
+                                    expanded = showSortDropdown,
+                                    onDismissRequest = { showSortDropdown = false }
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.SortFilmStocksBy),
+                                        modifier = Modifier.padding(horizontal = 8.dp)
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.Name)) },
+                                        onClick = {
+                                            showSortDropdown = false
+                                            onFilmStockSort(FilmStockSortMode.NAME)
+                                        },
+                                        trailingIcon = {
+                                            RadioButton(
+                                                selected = filmStockSortMode == FilmStockSortMode.NAME,
+                                                onClick = {
+                                                    onFilmStockSort(FilmStockSortMode.NAME)
+                                                    showSortDropdown = false
+                                                }
+                                            )
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.ISO)) },
+                                        onClick = {
+                                            showSortDropdown = false
+                                            onFilmStockSort(FilmStockSortMode.ISO)
+                                        },
+                                        trailingIcon = {
+                                            RadioButton(
+                                                selected = filmStockSortMode == FilmStockSortMode.ISO,
+                                                onClick = {
+                                                    onFilmStockSort(FilmStockSortMode.ISO)
+                                                    showSortDropdown = false
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
                     )
                 },
                 floatingActionButton = {
