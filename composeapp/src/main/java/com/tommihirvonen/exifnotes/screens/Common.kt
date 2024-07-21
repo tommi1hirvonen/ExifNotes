@@ -19,17 +19,32 @@
 package com.tommihirvonen.exifnotes.screens
 
 import android.widget.TextView
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.toMutableStateMap
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import com.tommihirvonen.exifnotes.R
 
 @Composable
 fun DialogContent(content: @Composable () -> Unit) {
@@ -60,5 +75,119 @@ fun StyledText(text: CharSequence, modifier: Modifier = Modifier) {
         update = {
             it.text = text
         }
+    )
+}
+
+@Preview
+@Composable
+private fun MultiChoiceDialogPreview() {
+    MultiChoiceDialog(
+        title = "Select manufacturers",
+        initialItems = mapOf(
+            "Fujifilm" to true,
+            "Ilford" to false,
+            "Kodak" to true
+        ),
+        onDismiss = {},
+        onConfirm = {}
+    )
+}
+
+@Composable
+fun <TValue, TSort : Comparable<TSort>> MultiChoiceDialog(
+    title: String,
+    initialItems: Map<TValue, Boolean>,
+    itemText: (TValue) -> String,
+    sortItemsBy: (TValue) -> (TSort),
+    onDismiss: () -> Unit,
+    onConfirm: (List<TValue>) -> Unit
+) {
+    val items = remember(initialItems) { initialItems.toList().toMutableStateMap() }
+    val list = remember(initialItems) { items.map { it.key }.sortedBy(sortItemsBy).toList() }
+    Dialog(onDismissRequest = onDismiss) {
+        DialogContent {
+            Column(modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth()
+            ) {
+                Row {
+                    Text(text = title, style = MaterialTheme.typography.titleLarge)
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp)
+                        .weight(1f, fill = false)
+                ) {
+                    items(items = list) { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val prev = items[item] ?: false
+                                    items[item] = !prev
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(
+                                checked = items[item] ?: false,
+                                onCheckedChange = { items[item] = it }
+                            )
+                            Text(itemText(item))
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(
+                        onClick = {
+                            for (key in items.keys) {
+                                items[key] = false
+                            }
+                        }
+                    ) {
+                        Text(stringResource(R.string.DeselectAll))
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = onDismiss) {
+                            Text(stringResource(R.string.Cancel))
+                        }
+                        TextButton(
+                            onClick = {
+                                onDismiss()
+                                val selectedItems = items
+                                    .filter { it.value }
+                                    .map { it.key }
+                                    .toList()
+                                onConfirm(selectedItems)
+                            }
+                        ) {
+                            Text(stringResource(R.string.OK))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MultiChoiceDialog(
+    title: String,
+    initialItems: Map<String, Boolean>,
+    onDismiss: () -> Unit,
+    onConfirm: (List<String>) -> Unit
+) {
+    MultiChoiceDialog(
+        title = title,
+        initialItems = initialItems,
+        itemText = { it },
+        sortItemsBy = { it },
+        onDismiss = onDismiss,
+        onConfirm = onConfirm
     )
 }
