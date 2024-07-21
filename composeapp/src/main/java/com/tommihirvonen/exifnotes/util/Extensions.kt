@@ -42,6 +42,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import com.tommihirvonen.exifnotes.core.entities.FilmProcess
+import com.tommihirvonen.exifnotes.core.entities.FilmType
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -129,3 +131,7 @@ fun String.linkify(
 @Composable
 @ReadOnlyComposable
 fun textResource(@StringRes id: Int): CharSequence = LocalContext.current.resources.getText(id)
+
+val FilmType.description: String? @Composable get() = description(LocalContext.current)
+
+val FilmProcess.description: String? @Composable get() = description(LocalContext.current)

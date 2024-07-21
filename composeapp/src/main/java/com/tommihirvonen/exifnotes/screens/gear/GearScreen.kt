@@ -59,6 +59,7 @@ import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.gear.cameras.CamerasScreen
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksScreen
+import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksViewModel
 import com.tommihirvonen.exifnotes.screens.gear.filters.FiltersScreen
 import com.tommihirvonen.exifnotes.screens.gear.lenses.LensesScreen
 import com.tommihirvonen.exifnotes.util.State
@@ -67,6 +68,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun GearScreen(
     gearViewModel: GearViewModel,
+    filmStocksViewModel: FilmStocksViewModel,
     onNavigateUp: () -> Unit,
     onEditCamera: (Camera?) -> Unit,
     onEditLens: (Lens?) -> Unit,
@@ -76,10 +78,12 @@ fun GearScreen(
     val cameras = gearViewModel.cameras.collectAsState()
     val lenses = gearViewModel.lenses.collectAsState()
     val filters = gearViewModel.filters.collectAsState()
+    val filmStocks = filmStocksViewModel.filmStocks.collectAsState()
     GearContent(
         cameras = cameras.value,
         lenses = lenses.value,
         filters = filters.value,
+        filmStocks = filmStocks.value,
         cameraCompatibleLensesProvider = { camera ->
             lenses.value.filter { lens -> camera.lensIds.contains(lens.id) }
         },
@@ -126,6 +130,7 @@ private fun GearScreenLargePreview() {
         cameras = State.Success(emptyList()),
         lenses = emptyList(),
         filters = emptyList(),
+        filmStocks = emptyList(),
         cameraCompatibleLensesProvider = { _ -> emptyList() },
         cameraCompatibleFiltersProvider = { _ -> emptyList() },
         lensCompatibleCamerasProvider = { _ -> emptyList() },
@@ -147,6 +152,7 @@ private fun GearScreenPreview() {
         cameras = State.Success(emptyList()),
         lenses = emptyList(),
         filters = emptyList(),
+        filmStocks = emptyList(),
         cameraCompatibleLensesProvider = { _ -> emptyList() },
         cameraCompatibleFiltersProvider = { _ -> emptyList() },
         lensCompatibleCamerasProvider = { _ -> emptyList() },
@@ -167,6 +173,7 @@ private fun GearContent(
     cameras: State<List<Camera>>,
     lenses: List<Lens>,
     filters: List<Filter>,
+    filmStocks: List<FilmStock>,
     cameraCompatibleLensesProvider: (Camera) -> (List<Lens>),
     cameraCompatibleFiltersProvider: (Camera) -> (List<Filter>),
     lensCompatibleCamerasProvider: (Lens) -> (List<Camera>),
@@ -292,6 +299,7 @@ private fun GearContent(
                                 onFilterClick = onEditFilter
                             )
                             3 -> FilmStocksScreen(
+                                filmStocks = filmStocks,
                                 onFilmStockClick = onEditFilmStock
                             )
                         }

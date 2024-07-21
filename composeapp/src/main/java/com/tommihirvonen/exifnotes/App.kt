@@ -33,6 +33,8 @@ import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.screens.frames.FramesScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
+import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockEditScreen
+import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksViewModel
 import com.tommihirvonen.exifnotes.screens.gear.filters.FilterEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelsScreen
@@ -95,15 +97,19 @@ fun App(onFinish: () -> Unit) {
             }
             composable<Gear> {
                 val gearViewModel = hiltViewModel<GearViewModel>()
+                val filmStocksViewModel = hiltViewModel<FilmStocksViewModel>()
                 GearScreen(
                     gearViewModel = gearViewModel,
+                    filmStocksViewModel = filmStocksViewModel,
                     onNavigateUp = { navController.navigateUp() },
                     onEditCamera = { /*TODO*/ },
                     onEditLens = { /*TODO*/ },
                     onEditFilter = { filter ->
                         navController.navigate(route = FilterEdit(filter?.id ?: -1))
                     },
-                    onEditFilmStock = { /*TODO*/ }
+                    onEditFilmStock = { filmStock ->
+                        navController.navigate(route = FilmStockEdit(filmStock?.id ?: -1))
+                    }
                 )
             }
             dialog<FilterEdit> { backStackEntry ->
@@ -114,6 +120,16 @@ fun App(onFinish: () -> Unit) {
                     filterId = filter.filterId,
                     onDismiss = { navController.navigateUp() },
                     gearViewModel = gearViewModel
+                )
+            }
+            dialog<FilmStockEdit> { backStackEntry ->
+                val gearEntry = remember(backStackEntry) { navController.getBackStackEntry<Gear>() }
+                val filmStocksViewModel = hiltViewModel<FilmStocksViewModel>(gearEntry)
+                val filmStock = backStackEntry.toRoute<FilmStockEdit>()
+                FilmStockEditScreen(
+                    filmStockId = filmStock.filmStockId,
+                    onDismiss = { navController.navigateUp() },
+                    filmStocksViewModel = filmStocksViewModel
                 )
             }
             composable<Labels> {
@@ -170,6 +186,9 @@ private object Gear
 
 @Serializable
 private data class FilterEdit(val filterId: Long)
+
+@Serializable
+private data class FilmStockEdit(val filmStockId: Long)
 
 @Serializable
 private object Labels

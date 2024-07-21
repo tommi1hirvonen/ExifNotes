@@ -32,27 +32,25 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.FilmProcess
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.FilmType
+import com.tommihirvonen.exifnotes.util.description
 
 @Composable
 fun FilmStocksScreen(
-    filmStocksViewModel: FilmStocksViewModel = hiltViewModel(),
+    filmStocks: List<FilmStock>,
     onFilmStockClick: (FilmStock) -> Unit
 ) {
-    val filmStocks = filmStocksViewModel.filmStocks.collectAsState()
     FilmStocksContent(
-        filmStocks = filmStocks.value,
+        filmStocks = filmStocks,
         onFilmStockClick = onFilmStockClick
     )
 }
@@ -155,7 +153,7 @@ private fun FilmStockCard(
                     )
                     Text(
                         modifier = Modifier.weight(0.7f),
-                        text = filmStock.iso.toString()
+                        text = filmStock.type.description ?: ""
                     )
                 }
                 Row {
@@ -165,7 +163,7 @@ private fun FilmStockCard(
                     )
                     Text(
                         modifier = Modifier.weight(0.7f),
-                        text = filmStock.iso.toString()
+                        text = filmStock.process.description ?: ""
                     )
                 }
             }
